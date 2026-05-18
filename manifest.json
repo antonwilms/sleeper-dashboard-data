@@ -194,8 +194,10 @@
     },
     "ktc/snapshot-2026-05-18.json": {
       "originalKey": "ktc-values",
-      "recordCount": 500,
-      "inProgress": true
+      "recordCount": 499,
+      "inProgress": true,
+      "schemaVersion": 1,
+      "lastModified": "2026-05-18T23:01:38.256Z"
     },
     "nfl/season-totals/2012.json": {
       "originalKey": "season-totals/2012",
@@ -1530,5 +1532,6 @@
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
-  "description": "Longitudinal data store for Sleeper Dashboard"
+  "description": "Longitudinal data store for Sleeper Dashboard",
+  "generatedAt": "2026-05-18T23:01:38.256Z"
 }

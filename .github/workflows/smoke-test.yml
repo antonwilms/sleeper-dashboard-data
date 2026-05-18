@@ -1,0 +1,40 @@
+name: Smoke test
+
+on:
+  pull_request:
+    paths:
+      - "bin/**"
+      - "lib/**"
+      - "scripts/**"
+      - "package.json"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+
+    env:
+      CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Smoke test — NFL 2023 dry-run
+        run: node bin/update.mjs nfl --year 2023 --dry-run
+
+      - name: Smoke test — CFBD 2023 dry-run
+        run: node bin/update.mjs cfbd --year 2023 --dry-run
+
+      - name: Smoke test — KTC dry-run
+        run: node bin/update.mjs ktc --dry-run

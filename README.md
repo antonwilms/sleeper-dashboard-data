@@ -160,6 +160,78 @@ Miscellaneous IndexedDB entries that don't fit a named category: league data, ro
 | `files[*].originalKey` | The IndexedDB cache key the data came from |
 | `files[*].recordCount` | Number of top-level entries in the file (array length or object key count) |
 | `files[*].inProgress` | `true` if this season/snapshot may still receive updates; `false` if completed |
+| `files[*].schemaVersion` | Schema version of this specific file (written by update scripts) |
+| `files[*].lastModified` | ISO timestamp when this file was last written by an update script |
+
+---
+
+## Update scripts
+
+The `bin/update.mjs` CLI keeps data files current. Scripts run via Node.js 20+ and use native `fetch` — no browser required.
+
+### Setup
+
+```bash
+cd sleeper-dashboard-data
+npm install
+cp .env.example .env          # fill in CFBD_API_KEY
+```
+
+### Subcommands
+
+```bash
+# Fetch NFL season totals (18 weeks from Sleeper, aggregated into player totals)
+node bin/update.mjs nfl --year 2024
+
+# Fetch all three CFBD college stat categories for a season
+node bin/update.mjs cfbd --year 2023
+
+# Fetch a single CFBD category
+node bin/update.mjs cfbd --year 2023 --category receiving
+
+# Scrape today's KTC dynasty values and write a dated snapshot
+node bin/update.mjs ktc
+
+# Dry-run any subcommand (fetch + validate, no writes)
+node bin/update.mjs nfl --year 2024 --dry-run
+node bin/update.mjs cfbd --year 2023 --dry-run
+node bin/update.mjs ktc --dry-run
+
+# Force overwrite of a completed-season file
+node bin/update.mjs nfl --year 2023 --force
+```
+
+### Environment variables
+
+| Variable | Required for | Description |
+|---|---|---|
+| `CFBD_API_KEY` | `cfbd` subcommand | CFBD API key from [collegefootballdata.com](https://collegefootballdata.com/) |
+
+Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actions secret.
+
+### Smoke test
+
+```bash
+npm run smoke
+```
+
+Runs all three subcommands with `--dry-run` (no writes). Used by the smoke-test CI workflow on pull requests.
+
+### GitHub Actions
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| `weekly-ktc.yml` | Monday 13:17 UTC + `workflow_dispatch` | Runs `node bin/update.mjs ktc`, commits new snapshot if values changed |
+| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, or `.github/workflows/` | Runs `npm run smoke` (all three dry-runs) |
+
+The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit.
+
+### Yearly maintenance
+
+At the start of each NFL season, update `lib/validate.mjs`:
+
+1. **`NFL_SENTINELS`** — add an entry for the new year with 2–3 high-usage players and their expected `minGames`.
+2. **`KTC_TOP_QB_SENTINELS`** — update if the dynasty QB landscape shifts significantly (the comment in the file explains the current state).
 
 ---
 

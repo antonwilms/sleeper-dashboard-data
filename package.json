@@ -1,0 +1,19 @@
+{
+  "name": "sleeper-dashboard-data",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "update": "node bin/update.mjs",
+    "update:nfl": "node bin/update.mjs nfl",
+    "update:cfbd": "node bin/update.mjs cfbd",
+    "update:ktc": "node bin/update.mjs ktc",
+    "smoke": "node bin/update.mjs nfl --year 2023 --dry-run && node bin/update.mjs cfbd --year 2023 --dry-run && node bin/update.mjs ktc --dry-run"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.0"
+  }
+}
