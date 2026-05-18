@@ -1,0 +1,1534 @@
+{
+  "exportedAt": "2026-05-18T13:51:37.583Z",
+  "source": "indexeddb",
+  "files": {
+    "raw/-league-1312015497465716736.json": {
+      "originalKey": "/league/1312015497465716736",
+      "recordCount": 31,
+      "inProgress": false
+    },
+    "raw/-league-1312015497465716736-drafts.json": {
+      "originalKey": "/league/1312015497465716736/drafts",
+      "recordCount": 1,
+      "inProgress": false
+    },
+    "raw/-league-1312015497465716736-rosters.json": {
+      "originalKey": "/league/1312015497465716736/rosters",
+      "recordCount": 12,
+      "inProgress": false
+    },
+    "raw/-league-1312015497465716736-users.json": {
+      "originalKey": "/league/1312015497465716736/users",
+      "recordCount": 12,
+      "inProgress": false
+    },
+    "raw/-players-nfl.json": {
+      "originalKey": "/players/nfl",
+      "recordCount": 12180,
+      "inProgress": false
+    },
+    "raw/-state-nfl.json": {
+      "originalKey": "/state/nfl",
+      "recordCount": 10,
+      "inProgress": false
+    },
+    "raw/cfbd-players-2017.json": {
+      "originalKey": "cfbd-players/2017",
+      "recordCount": 100837,
+      "inProgress": false
+    },
+    "college/passing/2017.json": {
+      "originalKey": "cfbd-players/2017/passing",
+      "recordCount": 4690,
+      "inProgress": false
+    },
+    "college/receiving/2017.json": {
+      "originalKey": "cfbd-players/2017/receiving",
+      "recordCount": 12905,
+      "inProgress": false
+    },
+    "college/rushing/2017.json": {
+      "originalKey": "cfbd-players/2017/rushing",
+      "recordCount": 10555,
+      "inProgress": false
+    },
+    "raw/cfbd-players-2018.json": {
+      "originalKey": "cfbd-players/2018",
+      "recordCount": 105281,
+      "inProgress": false
+    },
+    "college/passing/2018.json": {
+      "originalKey": "cfbd-players/2018/passing",
+      "recordCount": 5369,
+      "inProgress": false
+    },
+    "college/receiving/2018.json": {
+      "originalKey": "cfbd-players/2018/receiving",
+      "recordCount": 14345,
+      "inProgress": false
+    },
+    "college/rushing/2018.json": {
+      "originalKey": "cfbd-players/2018/rushing",
+      "recordCount": 11865,
+      "inProgress": false
+    },
+    "raw/cfbd-players-2019.json": {
+      "originalKey": "cfbd-players/2019",
+      "recordCount": 102027,
+      "inProgress": false
+    },
+    "college/passing/2019.json": {
+      "originalKey": "cfbd-players/2019/passing",
+      "recordCount": 4998,
+      "inProgress": false
+    },
+    "college/receiving/2019.json": {
+      "originalKey": "cfbd-players/2019/receiving",
+      "recordCount": 13655,
+      "inProgress": false
+    },
+    "college/rushing/2019.json": {
+      "originalKey": "cfbd-players/2019/rushing",
+      "recordCount": 10865,
+      "inProgress": false
+    },
+    "raw/cfbd-players-2020.json": {
+      "originalKey": "cfbd-players/2020",
+      "recordCount": 72298,
+      "inProgress": false
+    },
+    "college/passing/2020.json": {
+      "originalKey": "cfbd-players/2020/passing",
+      "recordCount": 3269,
+      "inProgress": false
+    },
+    "college/receiving/2020.json": {
+      "originalKey": "cfbd-players/2020/receiving",
+      "recordCount": 9595,
+      "inProgress": false
+    },
+    "college/rushing/2020.json": {
+      "originalKey": "cfbd-players/2020/rushing",
+      "recordCount": 7290,
+      "inProgress": false
+    },
+    "raw/cfbd-players-2021.json": {
+      "originalKey": "cfbd-players/2021",
+      "recordCount": 107770,
+      "inProgress": false
+    },
+    "college/passing/2021.json": {
+      "originalKey": "cfbd-players/2021/passing",
+      "recordCount": 4809,
+      "inProgress": false
+    },
+    "college/receiving/2021.json": {
+      "originalKey": "cfbd-players/2021/receiving",
+      "recordCount": 13740,
+      "inProgress": false
+    },
+    "college/rushing/2021.json": {
+      "originalKey": "cfbd-players/2021/rushing",
+      "recordCount": 10690,
+      "inProgress": false
+    },
+    "raw/cfbd-players-2022.json": {
+      "originalKey": "cfbd-players/2022",
+      "recordCount": 137519,
+      "inProgress": false
+    },
+    "college/passing/2022.json": {
+      "originalKey": "cfbd-players/2022/passing",
+      "recordCount": 7399,
+      "inProgress": false
+    },
+    "college/receiving/2022.json": {
+      "originalKey": "cfbd-players/2022/receiving",
+      "recordCount": 21155,
+      "inProgress": false
+    },
+    "college/rushing/2022.json": {
+      "originalKey": "cfbd-players/2022/rushing",
+      "recordCount": 16345,
+      "inProgress": false
+    },
+    "raw/cfbd-players-2023.json": {
+      "originalKey": "cfbd-players/2023",
+      "recordCount": 129712,
+      "inProgress": false
+    },
+    "college/passing/2023.json": {
+      "originalKey": "cfbd-players/2023/passing",
+      "recordCount": 7028,
+      "inProgress": false
+    },
+    "college/receiving/2023.json": {
+      "originalKey": "cfbd-players/2023/receiving",
+      "recordCount": 20065,
+      "inProgress": false
+    },
+    "college/rushing/2023.json": {
+      "originalKey": "cfbd-players/2023/rushing",
+      "recordCount": 15365,
+      "inProgress": false
+    },
+    "raw/cfbd-players-2024.json": {
+      "originalKey": "cfbd-players/2024",
+      "recordCount": 132123,
+      "inProgress": false
+    },
+    "college/passing/2024.json": {
+      "originalKey": "cfbd-players/2024/passing",
+      "recordCount": 7147,
+      "inProgress": true
+    },
+    "college/receiving/2024.json": {
+      "originalKey": "cfbd-players/2024/receiving",
+      "recordCount": 20435,
+      "inProgress": true
+    },
+    "college/rushing/2024.json": {
+      "originalKey": "cfbd-players/2024/rushing",
+      "recordCount": 15950,
+      "inProgress": true
+    },
+    "ktc/snapshot-2026-05-18.json": {
+      "originalKey": "ktc-values",
+      "recordCount": 500,
+      "inProgress": true
+    },
+    "nfl/season-totals/2012.json": {
+      "originalKey": "season-totals/2012",
+      "recordCount": 244,
+      "inProgress": false
+    },
+    "nfl/season-totals/2013.json": {
+      "originalKey": "season-totals/2013",
+      "recordCount": 346,
+      "inProgress": false
+    },
+    "nfl/season-totals/2014.json": {
+      "originalKey": "season-totals/2014",
+      "recordCount": 480,
+      "inProgress": false
+    },
+    "nfl/season-totals/2015.json": {
+      "originalKey": "season-totals/2015",
+      "recordCount": 654,
+      "inProgress": false
+    },
+    "nfl/season-totals/2016.json": {
+      "originalKey": "season-totals/2016",
+      "recordCount": 886,
+      "inProgress": false
+    },
+    "nfl/season-totals/2017.json": {
+      "originalKey": "season-totals/2017",
+      "recordCount": 1149,
+      "inProgress": false
+    },
+    "nfl/season-totals/2018.json": {
+      "originalKey": "season-totals/2018",
+      "recordCount": 1461,
+      "inProgress": false
+    },
+    "nfl/season-totals/2019.json": {
+      "originalKey": "season-totals/2019",
+      "recordCount": 1818,
+      "inProgress": false
+    },
+    "nfl/season-totals/2020.json": {
+      "originalKey": "season-totals/2020",
+      "recordCount": 2016,
+      "inProgress": false
+    },
+    "nfl/season-totals/2021.json": {
+      "originalKey": "season-totals/2021",
+      "recordCount": 2590,
+      "inProgress": false
+    },
+    "nfl/season-totals/2022.json": {
+      "originalKey": "season-totals/2022",
+      "recordCount": 2549,
+      "inProgress": false
+    },
+    "nfl/season-totals/2023.json": {
+      "originalKey": "season-totals/2023",
+      "recordCount": 2608,
+      "inProgress": false
+    },
+    "nfl/season-totals/2024.json": {
+      "originalKey": "season-totals/2024",
+      "recordCount": 2708,
+      "inProgress": true
+    },
+    "nfl/season-totals/2025.json": {
+      "originalKey": "season-totals/2025",
+      "recordCount": 2753,
+      "inProgress": true
+    },
+    "raw/stats-2012-1.json": {
+      "originalKey": "stats/2012/1",
+      "recordCount": 1164,
+      "inProgress": false
+    },
+    "raw/stats-2012-10.json": {
+      "originalKey": "stats/2012/10",
+      "recordCount": 1016,
+      "inProgress": false
+    },
+    "raw/stats-2012-11.json": {
+      "originalKey": "stats/2012/11",
+      "recordCount": 1029,
+      "inProgress": false
+    },
+    "raw/stats-2012-12.json": {
+      "originalKey": "stats/2012/12",
+      "recordCount": 1171,
+      "inProgress": false
+    },
+    "raw/stats-2012-13.json": {
+      "originalKey": "stats/2012/13",
+      "recordCount": 1161,
+      "inProgress": false
+    },
+    "raw/stats-2012-14.json": {
+      "originalKey": "stats/2012/14",
+      "recordCount": 1158,
+      "inProgress": false
+    },
+    "raw/stats-2012-15.json": {
+      "originalKey": "stats/2012/15",
+      "recordCount": 1157,
+      "inProgress": false
+    },
+    "raw/stats-2012-16.json": {
+      "originalKey": "stats/2012/16",
+      "recordCount": 1149,
+      "inProgress": false
+    },
+    "raw/stats-2012-17.json": {
+      "originalKey": "stats/2012/17",
+      "recordCount": 1144,
+      "inProgress": false
+    },
+    "raw/stats-2012-18.json": {
+      "originalKey": "stats/2012/18",
+      "recordCount": 0,
+      "inProgress": false
+    },
+    "raw/stats-2012-2.json": {
+      "originalKey": "stats/2012/2",
+      "recordCount": 1160,
+      "inProgress": false
+    },
+    "raw/stats-2012-3.json": {
+      "originalKey": "stats/2012/3",
+      "recordCount": 1161,
+      "inProgress": false
+    },
+    "raw/stats-2012-4.json": {
+      "originalKey": "stats/2012/4",
+      "recordCount": 1087,
+      "inProgress": false
+    },
+    "raw/stats-2012-5.json": {
+      "originalKey": "stats/2012/5",
+      "recordCount": 1031,
+      "inProgress": false
+    },
+    "raw/stats-2012-6.json": {
+      "originalKey": "stats/2012/6",
+      "recordCount": 1023,
+      "inProgress": false
+    },
+    "raw/stats-2012-7.json": {
+      "originalKey": "stats/2012/7",
+      "recordCount": 941,
+      "inProgress": false
+    },
+    "raw/stats-2012-8.json": {
+      "originalKey": "stats/2012/8",
+      "recordCount": 999,
+      "inProgress": false
+    },
+    "raw/stats-2012-9.json": {
+      "originalKey": "stats/2012/9",
+      "recordCount": 1014,
+      "inProgress": false
+    },
+    "raw/stats-2013-1.json": {
+      "originalKey": "stats/2013/1",
+      "recordCount": 1427,
+      "inProgress": false
+    },
+    "raw/stats-2013-10.json": {
+      "originalKey": "stats/2013/10",
+      "recordCount": 1234,
+      "inProgress": false
+    },
+    "raw/stats-2013-11.json": {
+      "originalKey": "stats/2013/11",
+      "recordCount": 1329,
+      "inProgress": false
+    },
+    "raw/stats-2013-12.json": {
+      "originalKey": "stats/2013/12",
+      "recordCount": 1226,
+      "inProgress": false
+    },
+    "raw/stats-2013-13.json": {
+      "originalKey": "stats/2013/13",
+      "recordCount": 1424,
+      "inProgress": false
+    },
+    "raw/stats-2013-14.json": {
+      "originalKey": "stats/2013/14",
+      "recordCount": 1426,
+      "inProgress": false
+    },
+    "raw/stats-2013-15.json": {
+      "originalKey": "stats/2013/15",
+      "recordCount": 1425,
+      "inProgress": false
+    },
+    "raw/stats-2013-16.json": {
+      "originalKey": "stats/2013/16",
+      "recordCount": 1429,
+      "inProgress": false
+    },
+    "raw/stats-2013-17.json": {
+      "originalKey": "stats/2013/17",
+      "recordCount": 1424,
+      "inProgress": false
+    },
+    "raw/stats-2013-18.json": {
+      "originalKey": "stats/2013/18",
+      "recordCount": 0,
+      "inProgress": false
+    },
+    "raw/stats-2013-2.json": {
+      "originalKey": "stats/2013/2",
+      "recordCount": 1428,
+      "inProgress": false
+    },
+    "raw/stats-2013-3.json": {
+      "originalKey": "stats/2013/3",
+      "recordCount": 1423,
+      "inProgress": false
+    },
+    "raw/stats-2013-4.json": {
+      "originalKey": "stats/2013/4",
+      "recordCount": 1325,
+      "inProgress": false
+    },
+    "raw/stats-2013-5.json": {
+      "originalKey": "stats/2013/5",
+      "recordCount": 1247,
+      "inProgress": false
+    },
+    "raw/stats-2013-6.json": {
+      "originalKey": "stats/2013/6",
+      "recordCount": 1333,
+      "inProgress": false
+    },
+    "raw/stats-2013-7.json": {
+      "originalKey": "stats/2013/7",
+      "recordCount": 1326,
+      "inProgress": false
+    },
+    "raw/stats-2013-8.json": {
+      "originalKey": "stats/2013/8",
+      "recordCount": 1162,
+      "inProgress": false
+    },
+    "raw/stats-2013-9.json": {
+      "originalKey": "stats/2013/9",
+      "recordCount": 1161,
+      "inProgress": false
+    },
+    "raw/stats-2014-1.json": {
+      "originalKey": "stats/2014/1",
+      "recordCount": 1648,
+      "inProgress": false
+    },
+    "raw/stats-2014-10.json": {
+      "originalKey": "stats/2014/10",
+      "recordCount": 1338,
+      "inProgress": false
+    },
+    "raw/stats-2014-11.json": {
+      "originalKey": "stats/2014/11",
+      "recordCount": 1440,
+      "inProgress": false
+    },
+    "raw/stats-2014-12.json": {
+      "originalKey": "stats/2014/12",
+      "recordCount": 1541,
+      "inProgress": false
+    },
+    "raw/stats-2014-13.json": {
+      "originalKey": "stats/2014/13",
+      "recordCount": 1648,
+      "inProgress": false
+    },
+    "raw/stats-2014-14.json": {
+      "originalKey": "stats/2014/14",
+      "recordCount": 1651,
+      "inProgress": false
+    },
+    "raw/stats-2014-15.json": {
+      "originalKey": "stats/2014/15",
+      "recordCount": 1654,
+      "inProgress": false
+    },
+    "raw/stats-2014-16.json": {
+      "originalKey": "stats/2014/16",
+      "recordCount": 1661,
+      "inProgress": false
+    },
+    "raw/stats-2014-17.json": {
+      "originalKey": "stats/2014/17",
+      "recordCount": 1657,
+      "inProgress": false
+    },
+    "raw/stats-2014-18.json": {
+      "originalKey": "stats/2014/18",
+      "recordCount": 0,
+      "inProgress": false
+    },
+    "raw/stats-2014-2.json": {
+      "originalKey": "stats/2014/2",
+      "recordCount": 1647,
+      "inProgress": false
+    },
+    "raw/stats-2014-3.json": {
+      "originalKey": "stats/2014/3",
+      "recordCount": 1645,
+      "inProgress": false
+    },
+    "raw/stats-2014-4.json": {
+      "originalKey": "stats/2014/4",
+      "recordCount": 1330,
+      "inProgress": false
+    },
+    "raw/stats-2014-5.json": {
+      "originalKey": "stats/2014/5",
+      "recordCount": 1548,
+      "inProgress": false
+    },
+    "raw/stats-2014-6.json": {
+      "originalKey": "stats/2014/6",
+      "recordCount": 1541,
+      "inProgress": false
+    },
+    "raw/stats-2014-7.json": {
+      "originalKey": "stats/2014/7",
+      "recordCount": 1541,
+      "inProgress": false
+    },
+    "raw/stats-2014-8.json": {
+      "originalKey": "stats/2014/8",
+      "recordCount": 1545,
+      "inProgress": false
+    },
+    "raw/stats-2014-9.json": {
+      "originalKey": "stats/2014/9",
+      "recordCount": 1351,
+      "inProgress": false
+    },
+    "raw/stats-2015-1.json": {
+      "originalKey": "stats/2015/1",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2015-10.json": {
+      "originalKey": "stats/2015/10",
+      "recordCount": 1539,
+      "inProgress": false
+    },
+    "raw/stats-2015-11.json": {
+      "originalKey": "stats/2015/11",
+      "recordCount": 1539,
+      "inProgress": false
+    },
+    "raw/stats-2015-12.json": {
+      "originalKey": "stats/2015/12",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2015-13.json": {
+      "originalKey": "stats/2015/13",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2015-14.json": {
+      "originalKey": "stats/2015/14",
+      "recordCount": 1757,
+      "inProgress": false
+    },
+    "raw/stats-2015-15.json": {
+      "originalKey": "stats/2015/15",
+      "recordCount": 1757,
+      "inProgress": false
+    },
+    "raw/stats-2015-16.json": {
+      "originalKey": "stats/2015/16",
+      "recordCount": 1758,
+      "inProgress": false
+    },
+    "raw/stats-2015-17.json": {
+      "originalKey": "stats/2015/17",
+      "recordCount": 1757,
+      "inProgress": false
+    },
+    "raw/stats-2015-18.json": {
+      "originalKey": "stats/2015/18",
+      "recordCount": 0,
+      "inProgress": false
+    },
+    "raw/stats-2015-2.json": {
+      "originalKey": "stats/2015/2",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2015-3.json": {
+      "originalKey": "stats/2015/3",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2015-4.json": {
+      "originalKey": "stats/2015/4",
+      "recordCount": 1649,
+      "inProgress": false
+    },
+    "raw/stats-2015-5.json": {
+      "originalKey": "stats/2015/5",
+      "recordCount": 1541,
+      "inProgress": false
+    },
+    "raw/stats-2015-6.json": {
+      "originalKey": "stats/2015/6",
+      "recordCount": 1540,
+      "inProgress": false
+    },
+    "raw/stats-2015-7.json": {
+      "originalKey": "stats/2015/7",
+      "recordCount": 1540,
+      "inProgress": false
+    },
+    "raw/stats-2015-8.json": {
+      "originalKey": "stats/2015/8",
+      "recordCount": 1541,
+      "inProgress": false
+    },
+    "raw/stats-2015-9.json": {
+      "originalKey": "stats/2015/9",
+      "recordCount": 1430,
+      "inProgress": false
+    },
+    "raw/stats-2016-1.json": {
+      "originalKey": "stats/2016/1",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2016-10.json": {
+      "originalKey": "stats/2016/10",
+      "recordCount": 1541,
+      "inProgress": false
+    },
+    "raw/stats-2016-11.json": {
+      "originalKey": "stats/2016/11",
+      "recordCount": 1540,
+      "inProgress": false
+    },
+    "raw/stats-2016-12.json": {
+      "originalKey": "stats/2016/12",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2016-13.json": {
+      "originalKey": "stats/2016/13",
+      "recordCount": 1650,
+      "inProgress": false
+    },
+    "raw/stats-2016-14.json": {
+      "originalKey": "stats/2016/14",
+      "recordCount": 1758,
+      "inProgress": false
+    },
+    "raw/stats-2016-15.json": {
+      "originalKey": "stats/2016/15",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2016-16.json": {
+      "originalKey": "stats/2016/16",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2016-17.json": {
+      "originalKey": "stats/2016/17",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2016-18.json": {
+      "originalKey": "stats/2016/18",
+      "recordCount": 0,
+      "inProgress": false
+    },
+    "raw/stats-2016-2.json": {
+      "originalKey": "stats/2016/2",
+      "recordCount": 1758,
+      "inProgress": false
+    },
+    "raw/stats-2016-3.json": {
+      "originalKey": "stats/2016/3",
+      "recordCount": 1758,
+      "inProgress": false
+    },
+    "raw/stats-2016-4.json": {
+      "originalKey": "stats/2016/4",
+      "recordCount": 1650,
+      "inProgress": false
+    },
+    "raw/stats-2016-5.json": {
+      "originalKey": "stats/2016/5",
+      "recordCount": 1539,
+      "inProgress": false
+    },
+    "raw/stats-2016-6.json": {
+      "originalKey": "stats/2016/6",
+      "recordCount": 1650,
+      "inProgress": false
+    },
+    "raw/stats-2016-7.json": {
+      "originalKey": "stats/2016/7",
+      "recordCount": 1650,
+      "inProgress": false
+    },
+    "raw/stats-2016-8.json": {
+      "originalKey": "stats/2016/8",
+      "recordCount": 1429,
+      "inProgress": false
+    },
+    "raw/stats-2016-9.json": {
+      "originalKey": "stats/2016/9",
+      "recordCount": 1429,
+      "inProgress": false
+    },
+    "raw/stats-2017-1.json": {
+      "originalKey": "stats/2017/1",
+      "recordCount": 1652,
+      "inProgress": false
+    },
+    "raw/stats-2017-10.json": {
+      "originalKey": "stats/2017/10",
+      "recordCount": 1538,
+      "inProgress": false
+    },
+    "raw/stats-2017-11.json": {
+      "originalKey": "stats/2017/11",
+      "recordCount": 1540,
+      "inProgress": false
+    },
+    "raw/stats-2017-12.json": {
+      "originalKey": "stats/2017/12",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2017-13.json": {
+      "originalKey": "stats/2017/13",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2017-14.json": {
+      "originalKey": "stats/2017/14",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2017-15.json": {
+      "originalKey": "stats/2017/15",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2017-16.json": {
+      "originalKey": "stats/2017/16",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2017-17.json": {
+      "originalKey": "stats/2017/17",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2017-18.json": {
+      "originalKey": "stats/2017/18",
+      "recordCount": 0,
+      "inProgress": false
+    },
+    "raw/stats-2017-2.json": {
+      "originalKey": "stats/2017/2",
+      "recordCount": 1758,
+      "inProgress": false
+    },
+    "raw/stats-2017-3.json": {
+      "originalKey": "stats/2017/3",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2017-4.json": {
+      "originalKey": "stats/2017/4",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2017-5.json": {
+      "originalKey": "stats/2017/5",
+      "recordCount": 1540,
+      "inProgress": false
+    },
+    "raw/stats-2017-6.json": {
+      "originalKey": "stats/2017/6",
+      "recordCount": 1539,
+      "inProgress": false
+    },
+    "raw/stats-2017-7.json": {
+      "originalKey": "stats/2017/7",
+      "recordCount": 1648,
+      "inProgress": false
+    },
+    "raw/stats-2017-8.json": {
+      "originalKey": "stats/2017/8",
+      "recordCount": 1429,
+      "inProgress": false
+    },
+    "raw/stats-2017-9.json": {
+      "originalKey": "stats/2017/9",
+      "recordCount": 1428,
+      "inProgress": false
+    },
+    "raw/stats-2018-1.json": {
+      "originalKey": "stats/2018/1",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2018-10.json": {
+      "originalKey": "stats/2018/10",
+      "recordCount": 1541,
+      "inProgress": false
+    },
+    "raw/stats-2018-11.json": {
+      "originalKey": "stats/2018/11",
+      "recordCount": 1432,
+      "inProgress": false
+    },
+    "raw/stats-2018-12.json": {
+      "originalKey": "stats/2018/12",
+      "recordCount": 1652,
+      "inProgress": false
+    },
+    "raw/stats-2018-13.json": {
+      "originalKey": "stats/2018/13",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2018-14.json": {
+      "originalKey": "stats/2018/14",
+      "recordCount": 1762,
+      "inProgress": false
+    },
+    "raw/stats-2018-15.json": {
+      "originalKey": "stats/2018/15",
+      "recordCount": 1762,
+      "inProgress": false
+    },
+    "raw/stats-2018-16.json": {
+      "originalKey": "stats/2018/16",
+      "recordCount": 1764,
+      "inProgress": false
+    },
+    "raw/stats-2018-17.json": {
+      "originalKey": "stats/2018/17",
+      "recordCount": 1761,
+      "inProgress": false
+    },
+    "raw/stats-2018-18.json": {
+      "originalKey": "stats/2018/18",
+      "recordCount": 0,
+      "inProgress": false
+    },
+    "raw/stats-2018-2.json": {
+      "originalKey": "stats/2018/2",
+      "recordCount": 1760,
+      "inProgress": false
+    },
+    "raw/stats-2018-3.json": {
+      "originalKey": "stats/2018/3",
+      "recordCount": 1761,
+      "inProgress": false
+    },
+    "raw/stats-2018-4.json": {
+      "originalKey": "stats/2018/4",
+      "recordCount": 1651,
+      "inProgress": false
+    },
+    "raw/stats-2018-5.json": {
+      "originalKey": "stats/2018/5",
+      "recordCount": 1648,
+      "inProgress": false
+    },
+    "raw/stats-2018-6.json": {
+      "originalKey": "stats/2018/6",
+      "recordCount": 1652,
+      "inProgress": false
+    },
+    "raw/stats-2018-7.json": {
+      "originalKey": "stats/2018/7",
+      "recordCount": 1540,
+      "inProgress": false
+    },
+    "raw/stats-2018-8.json": {
+      "originalKey": "stats/2018/8",
+      "recordCount": 1542,
+      "inProgress": false
+    },
+    "raw/stats-2018-9.json": {
+      "originalKey": "stats/2018/9",
+      "recordCount": 1432,
+      "inProgress": false
+    },
+    "raw/stats-2019-1.json": {
+      "originalKey": "stats/2019/1",
+      "recordCount": 1761,
+      "inProgress": false
+    },
+    "raw/stats-2019-10.json": {
+      "originalKey": "stats/2019/10",
+      "recordCount": 1432,
+      "inProgress": false
+    },
+    "raw/stats-2019-11.json": {
+      "originalKey": "stats/2019/11",
+      "recordCount": 1542,
+      "inProgress": false
+    },
+    "raw/stats-2019-12.json": {
+      "originalKey": "stats/2019/12",
+      "recordCount": 1541,
+      "inProgress": false
+    },
+    "raw/stats-2019-13.json": {
+      "originalKey": "stats/2019/13",
+      "recordCount": 1762,
+      "inProgress": false
+    },
+    "raw/stats-2019-14.json": {
+      "originalKey": "stats/2019/14",
+      "recordCount": 1762,
+      "inProgress": false
+    },
+    "raw/stats-2019-15.json": {
+      "originalKey": "stats/2019/15",
+      "recordCount": 1759,
+      "inProgress": false
+    },
+    "raw/stats-2019-16.json": {
+      "originalKey": "stats/2019/16",
+      "recordCount": 1762,
+      "inProgress": false
+    },
+    "raw/stats-2019-17.json": {
+      "originalKey": "stats/2019/17",
+      "recordCount": 1761,
+      "inProgress": false
+    },
+    "raw/stats-2019-18.json": {
+      "originalKey": "stats/2019/18",
+      "recordCount": 0,
+      "inProgress": false
+    },
+    "raw/stats-2019-2.json": {
+      "originalKey": "stats/2019/2",
+      "recordCount": 1762,
+      "inProgress": false
+    },
+    "raw/stats-2019-3.json": {
+      "originalKey": "stats/2019/3",
+      "recordCount": 1762,
+      "inProgress": false
+    },
+    "raw/stats-2019-4.json": {
+      "originalKey": "stats/2019/4",
+      "recordCount": 1651,
+      "inProgress": false
+    },
+    "raw/stats-2019-5.json": {
+      "originalKey": "stats/2019/5",
+      "recordCount": 1651,
+      "inProgress": false
+    },
+    "raw/stats-2019-6.json": {
+      "originalKey": "stats/2019/6",
+      "recordCount": 1540,
+      "inProgress": false
+    },
+    "raw/stats-2019-7.json": {
+      "originalKey": "stats/2019/7",
+      "recordCount": 1542,
+      "inProgress": false
+    },
+    "raw/stats-2019-8.json": {
+      "originalKey": "stats/2019/8",
+      "recordCount": 1650,
+      "inProgress": false
+    },
+    "raw/stats-2019-9.json": {
+      "originalKey": "stats/2019/9",
+      "recordCount": 1541,
+      "inProgress": false
+    },
+    "raw/stats-2020-1.json": {
+      "originalKey": "stats/2020/1",
+      "recordCount": 1794,
+      "inProgress": false
+    },
+    "raw/stats-2020-10.json": {
+      "originalKey": "stats/2020/10",
+      "recordCount": 1566,
+      "inProgress": false
+    },
+    "raw/stats-2020-11.json": {
+      "originalKey": "stats/2020/11",
+      "recordCount": 1569,
+      "inProgress": false
+    },
+    "raw/stats-2020-12.json": {
+      "originalKey": "stats/2020/12",
+      "recordCount": 1775,
+      "inProgress": false
+    },
+    "raw/stats-2020-13.json": {
+      "originalKey": "stats/2020/13",
+      "recordCount": 1672,
+      "inProgress": false
+    },
+    "raw/stats-2020-14.json": {
+      "originalKey": "stats/2020/14",
+      "recordCount": 1797,
+      "inProgress": false
+    },
+    "raw/stats-2020-15.json": {
+      "originalKey": "stats/2020/15",
+      "recordCount": 1792,
+      "inProgress": false
+    },
+    "raw/stats-2020-16.json": {
+      "originalKey": "stats/2020/16",
+      "recordCount": 1791,
+      "inProgress": false
+    },
+    "raw/stats-2020-17.json": {
+      "originalKey": "stats/2020/17",
+      "recordCount": 1802,
+      "inProgress": false
+    },
+    "raw/stats-2020-18.json": {
+      "originalKey": "stats/2020/18",
+      "recordCount": 0,
+      "inProgress": false
+    },
+    "raw/stats-2020-2.json": {
+      "originalKey": "stats/2020/2",
+      "recordCount": 1796,
+      "inProgress": false
+    },
+    "raw/stats-2020-3.json": {
+      "originalKey": "stats/2020/3",
+      "recordCount": 1794,
+      "inProgress": false
+    },
+    "raw/stats-2020-4.json": {
+      "originalKey": "stats/2020/4",
+      "recordCount": 1683,
+      "inProgress": false
+    },
+    "raw/stats-2020-5.json": {
+      "originalKey": "stats/2020/5",
+      "recordCount": 1569,
+      "inProgress": false
+    },
+    "raw/stats-2020-6.json": {
+      "originalKey": "stats/2020/6",
+      "recordCount": 1559,
+      "inProgress": false
+    },
+    "raw/stats-2020-7.json": {
+      "originalKey": "stats/2020/7",
+      "recordCount": 1527,
+      "inProgress": false
+    },
+    "raw/stats-2020-8.json": {
+      "originalKey": "stats/2020/8",
+      "recordCount": 1571,
+      "inProgress": false
+    },
+    "raw/stats-2020-9.json": {
+      "originalKey": "stats/2020/9",
+      "recordCount": 1564,
+      "inProgress": false
+    },
+    "raw/stats-2021-1.json": {
+      "originalKey": "stats/2021/1",
+      "recordCount": 2495,
+      "inProgress": false
+    },
+    "raw/stats-2021-10.json": {
+      "originalKey": "stats/2021/10",
+      "recordCount": 2103,
+      "inProgress": false
+    },
+    "raw/stats-2021-11.json": {
+      "originalKey": "stats/2021/11",
+      "recordCount": 2226,
+      "inProgress": false
+    },
+    "raw/stats-2021-12.json": {
+      "originalKey": "stats/2021/12",
+      "recordCount": 2257,
+      "inProgress": false
+    },
+    "raw/stats-2021-13.json": {
+      "originalKey": "stats/2021/13",
+      "recordCount": 2099,
+      "inProgress": false
+    },
+    "raw/stats-2021-14.json": {
+      "originalKey": "stats/2021/14",
+      "recordCount": 2100,
+      "inProgress": false
+    },
+    "raw/stats-2021-15.json": {
+      "originalKey": "stats/2021/15",
+      "recordCount": 2478,
+      "inProgress": false
+    },
+    "raw/stats-2021-16.json": {
+      "originalKey": "stats/2021/16",
+      "recordCount": 2520,
+      "inProgress": false
+    },
+    "raw/stats-2021-17.json": {
+      "originalKey": "stats/2021/17",
+      "recordCount": 2505,
+      "inProgress": false
+    },
+    "raw/stats-2021-18.json": {
+      "originalKey": "stats/2021/18",
+      "recordCount": 2470,
+      "inProgress": false
+    },
+    "raw/stats-2021-2.json": {
+      "originalKey": "stats/2021/2",
+      "recordCount": 2502,
+      "inProgress": false
+    },
+    "raw/stats-2021-3.json": {
+      "originalKey": "stats/2021/3",
+      "recordCount": 2511,
+      "inProgress": false
+    },
+    "raw/stats-2021-4.json": {
+      "originalKey": "stats/2021/4",
+      "recordCount": 2524,
+      "inProgress": false
+    },
+    "raw/stats-2021-5.json": {
+      "originalKey": "stats/2021/5",
+      "recordCount": 2539,
+      "inProgress": false
+    },
+    "raw/stats-2021-6.json": {
+      "originalKey": "stats/2021/6",
+      "recordCount": 2064,
+      "inProgress": false
+    },
+    "raw/stats-2021-7.json": {
+      "originalKey": "stats/2021/7",
+      "recordCount": 1934,
+      "inProgress": false
+    },
+    "raw/stats-2021-8.json": {
+      "originalKey": "stats/2021/8",
+      "recordCount": 2212,
+      "inProgress": false
+    },
+    "raw/stats-2021-9.json": {
+      "originalKey": "stats/2021/9",
+      "recordCount": 2082,
+      "inProgress": false
+    },
+    "raw/stats-2022-1.json": {
+      "originalKey": "stats/2022/1",
+      "recordCount": 2281,
+      "inProgress": false
+    },
+    "raw/stats-2022-10.json": {
+      "originalKey": "stats/2022/10",
+      "recordCount": 2068,
+      "inProgress": false
+    },
+    "raw/stats-2022-11.json": {
+      "originalKey": "stats/2022/11",
+      "recordCount": 2072,
+      "inProgress": false
+    },
+    "raw/stats-2022-12.json": {
+      "originalKey": "stats/2022/12",
+      "recordCount": 2366,
+      "inProgress": false
+    },
+    "raw/stats-2022-13.json": {
+      "originalKey": "stats/2022/13",
+      "recordCount": 2227,
+      "inProgress": false
+    },
+    "raw/stats-2022-14.json": {
+      "originalKey": "stats/2022/14",
+      "recordCount": 1936,
+      "inProgress": false
+    },
+    "raw/stats-2022-15.json": {
+      "originalKey": "stats/2022/15",
+      "recordCount": 2393,
+      "inProgress": false
+    },
+    "raw/stats-2022-16.json": {
+      "originalKey": "stats/2022/16",
+      "recordCount": 2406,
+      "inProgress": false
+    },
+    "raw/stats-2022-17.json": {
+      "originalKey": "stats/2022/17",
+      "recordCount": 2410,
+      "inProgress": false
+    },
+    "raw/stats-2022-18.json": {
+      "originalKey": "stats/2022/18",
+      "recordCount": 2419,
+      "inProgress": false
+    },
+    "raw/stats-2022-2.json": {
+      "originalKey": "stats/2022/2",
+      "recordCount": 2289,
+      "inProgress": false
+    },
+    "raw/stats-2022-3.json": {
+      "originalKey": "stats/2022/3",
+      "recordCount": 2303,
+      "inProgress": false
+    },
+    "raw/stats-2022-4.json": {
+      "originalKey": "stats/2022/4",
+      "recordCount": 2310,
+      "inProgress": false
+    },
+    "raw/stats-2022-5.json": {
+      "originalKey": "stats/2022/5",
+      "recordCount": 2324,
+      "inProgress": false
+    },
+    "raw/stats-2022-6.json": {
+      "originalKey": "stats/2022/6",
+      "recordCount": 2043,
+      "inProgress": false
+    },
+    "raw/stats-2022-7.json": {
+      "originalKey": "stats/2022/7",
+      "recordCount": 2061,
+      "inProgress": false
+    },
+    "raw/stats-2022-8.json": {
+      "originalKey": "stats/2022/8",
+      "recordCount": 2216,
+      "inProgress": false
+    },
+    "raw/stats-2022-9.json": {
+      "originalKey": "stats/2022/9",
+      "recordCount": 1908,
+      "inProgress": false
+    },
+    "raw/stats-2023-1.json": {
+      "originalKey": "stats/2023/1",
+      "recordCount": 2273,
+      "inProgress": false
+    },
+    "raw/stats-2023-10.json": {
+      "originalKey": "stats/2023/10",
+      "recordCount": 2066,
+      "inProgress": false
+    },
+    "raw/stats-2023-11.json": {
+      "originalKey": "stats/2023/11",
+      "recordCount": 2046,
+      "inProgress": false
+    },
+    "raw/stats-2023-12.json": {
+      "originalKey": "stats/2023/12",
+      "recordCount": 2357,
+      "inProgress": false
+    },
+    "raw/stats-2023-13.json": {
+      "originalKey": "stats/2023/13",
+      "recordCount": 1923,
+      "inProgress": false
+    },
+    "raw/stats-2023-14.json": {
+      "originalKey": "stats/2023/14",
+      "recordCount": 2212,
+      "inProgress": false
+    },
+    "raw/stats-2023-15.json": {
+      "originalKey": "stats/2023/15",
+      "recordCount": 2365,
+      "inProgress": false
+    },
+    "raw/stats-2023-16.json": {
+      "originalKey": "stats/2023/16",
+      "recordCount": 2376,
+      "inProgress": false
+    },
+    "raw/stats-2023-17.json": {
+      "originalKey": "stats/2023/17",
+      "recordCount": 2389,
+      "inProgress": false
+    },
+    "raw/stats-2023-18.json": {
+      "originalKey": "stats/2023/18",
+      "recordCount": 2399,
+      "inProgress": false
+    },
+    "raw/stats-2023-2.json": {
+      "originalKey": "stats/2023/2",
+      "recordCount": 2305,
+      "inProgress": false
+    },
+    "raw/stats-2023-3.json": {
+      "originalKey": "stats/2023/3",
+      "recordCount": 2310,
+      "inProgress": false
+    },
+    "raw/stats-2023-4.json": {
+      "originalKey": "stats/2023/4",
+      "recordCount": 2312,
+      "inProgress": false
+    },
+    "raw/stats-2023-5.json": {
+      "originalKey": "stats/2023/5",
+      "recordCount": 2038,
+      "inProgress": false
+    },
+    "raw/stats-2023-6.json": {
+      "originalKey": "stats/2023/6",
+      "recordCount": 2189,
+      "inProgress": false
+    },
+    "raw/stats-2023-7.json": {
+      "originalKey": "stats/2023/7",
+      "recordCount": 1891,
+      "inProgress": false
+    },
+    "raw/stats-2023-8.json": {
+      "originalKey": "stats/2023/8",
+      "recordCount": 2336,
+      "inProgress": false
+    },
+    "raw/stats-2023-9.json": {
+      "originalKey": "stats/2023/9",
+      "recordCount": 2055,
+      "inProgress": false
+    },
+    "raw/stats-2024-1.json": {
+      "originalKey": "stats/2024/1",
+      "recordCount": 2310,
+      "inProgress": false
+    },
+    "raw/stats-2024-10.json": {
+      "originalKey": "stats/2024/10",
+      "recordCount": 2100,
+      "inProgress": false
+    },
+    "raw/stats-2024-11.json": {
+      "originalKey": "stats/2024/11",
+      "recordCount": 2090,
+      "inProgress": false
+    },
+    "raw/stats-2024-12.json": {
+      "originalKey": "stats/2024/12",
+      "recordCount": 1956,
+      "inProgress": false
+    },
+    "raw/stats-2024-13.json": {
+      "originalKey": "stats/2024/13",
+      "recordCount": 2400,
+      "inProgress": false
+    },
+    "raw/stats-2024-14.json": {
+      "originalKey": "stats/2024/14",
+      "recordCount": 1965,
+      "inProgress": false
+    },
+    "raw/stats-2024-15.json": {
+      "originalKey": "stats/2024/15",
+      "recordCount": 2435,
+      "inProgress": false
+    },
+    "raw/stats-2024-16.json": {
+      "originalKey": "stats/2024/16",
+      "recordCount": 2429,
+      "inProgress": false
+    },
+    "raw/stats-2024-17.json": {
+      "originalKey": "stats/2024/17",
+      "recordCount": 2442,
+      "inProgress": false
+    },
+    "raw/stats-2024-18.json": {
+      "originalKey": "stats/2024/18",
+      "recordCount": 2434,
+      "inProgress": false
+    },
+    "raw/stats-2024-2.json": {
+      "originalKey": "stats/2024/2",
+      "recordCount": 2332,
+      "inProgress": false
+    },
+    "raw/stats-2024-3.json": {
+      "originalKey": "stats/2024/3",
+      "recordCount": 2343,
+      "inProgress": false
+    },
+    "raw/stats-2024-4.json": {
+      "originalKey": "stats/2024/4",
+      "recordCount": 2375,
+      "inProgress": false
+    },
+    "raw/stats-2024-5.json": {
+      "originalKey": "stats/2024/5",
+      "recordCount": 2074,
+      "inProgress": false
+    },
+    "raw/stats-2024-6.json": {
+      "originalKey": "stats/2024/6",
+      "recordCount": 2076,
+      "inProgress": false
+    },
+    "raw/stats-2024-7.json": {
+      "originalKey": "stats/2024/7",
+      "recordCount": 2247,
+      "inProgress": false
+    },
+    "raw/stats-2024-8.json": {
+      "originalKey": "stats/2024/8",
+      "recordCount": 2400,
+      "inProgress": false
+    },
+    "raw/stats-2024-9.json": {
+      "originalKey": "stats/2024/9",
+      "recordCount": 2233,
+      "inProgress": false
+    },
+    "raw/stats-2025-1.json": {
+      "originalKey": "stats/2025/1",
+      "recordCount": 2312,
+      "inProgress": false
+    },
+    "raw/stats-2025-10.json": {
+      "originalKey": "stats/2025/10",
+      "recordCount": 2109,
+      "inProgress": false
+    },
+    "raw/stats-2025-11.json": {
+      "originalKey": "stats/2025/11",
+      "recordCount": 2274,
+      "inProgress": false
+    },
+    "raw/stats-2025-12.json": {
+      "originalKey": "stats/2025/12",
+      "recordCount": 2122,
+      "inProgress": false
+    },
+    "raw/stats-2025-13.json": {
+      "originalKey": "stats/2025/13",
+      "recordCount": 2436,
+      "inProgress": false
+    },
+    "raw/stats-2025-14.json": {
+      "originalKey": "stats/2025/14",
+      "recordCount": 2142,
+      "inProgress": false
+    },
+    "raw/stats-2025-15.json": {
+      "originalKey": "stats/2025/15",
+      "recordCount": 2460,
+      "inProgress": false
+    },
+    "raw/stats-2025-16.json": {
+      "originalKey": "stats/2025/16",
+      "recordCount": 2468,
+      "inProgress": false
+    },
+    "raw/stats-2025-17.json": {
+      "originalKey": "stats/2025/17",
+      "recordCount": 2476,
+      "inProgress": false
+    },
+    "raw/stats-2025-18.json": {
+      "originalKey": "stats/2025/18",
+      "recordCount": 2489,
+      "inProgress": false
+    },
+    "raw/stats-2025-2.json": {
+      "originalKey": "stats/2025/2",
+      "recordCount": 2332,
+      "inProgress": false
+    },
+    "raw/stats-2025-3.json": {
+      "originalKey": "stats/2025/3",
+      "recordCount": 2360,
+      "inProgress": false
+    },
+    "raw/stats-2025-4.json": {
+      "originalKey": "stats/2025/4",
+      "recordCount": 2379,
+      "inProgress": false
+    },
+    "raw/stats-2025-5.json": {
+      "originalKey": "stats/2025/5",
+      "recordCount": 2102,
+      "inProgress": false
+    },
+    "raw/stats-2025-6.json": {
+      "originalKey": "stats/2025/6",
+      "recordCount": 2245,
+      "inProgress": false
+    },
+    "raw/stats-2025-7.json": {
+      "originalKey": "stats/2025/7",
+      "recordCount": 2252,
+      "inProgress": false
+    },
+    "raw/stats-2025-8.json": {
+      "originalKey": "stats/2025/8",
+      "recordCount": 1954,
+      "inProgress": false
+    },
+    "raw/stats-2025-9.json": {
+      "originalKey": "stats/2025/9",
+      "recordCount": 2105,
+      "inProgress": false
+    }
+  },
+  "schemaVersion": 1,
+  "repo": "sleeper-dashboard-data",
+  "description": "Longitudinal data store for Sleeper Dashboard"
+}
