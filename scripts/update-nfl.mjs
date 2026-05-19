@@ -81,11 +81,12 @@ export async function updateNfl({ year, force, dryRun }) {
   writeJsonStable(dataPath, totals);
   console.log(`[nfl] Wrote ${dataPath} (${Object.keys(totals).length} players)`);
 
-  // 7. Update manifest
+  // 7. Update manifest (Phase 5: bump per-file schemaVersion to 2)
   updateManifestEntry({
     path: dataPath,
     recordCount: Object.keys(totals).length,
     inProgress,
+    schemaVersion: 2,
   });
   console.log(`[nfl] Manifest updated (inProgress=${inProgress})`);
 }

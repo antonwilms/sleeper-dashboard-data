@@ -46,26 +46,46 @@ sleeper-dashboard-data/
 
 ### `nfl/season-totals/<year>.json`
 
-Object keyed by Sleeper `player_id`. Each value is an object of aggregated season stats.
+Object keyed by Sleeper `player_id`. Each value is an aggregated per-player season record with raw stats, the canonical half-PPR fantasy point total, weekly-points for each played week, and a length-18 weekly participation array plus derived availability aggregates. Manifest entries for these files are at `schemaVersion: 2` as of Phase 5.
 
 ```json
 {
   "<player_id>": {
-    "gp": 16,
-    "pts_ppr": 312.4,
-    "pts_half_ppr": 298.1,
-    "pts_std": 283.8,
-    "rec": 104,
-    "rec_yd": 1236,
-    "rec_td": 8,
-    "rush_att": 12,
-    "rush_yd": 48,
-    ...
+    "stats":         { "rec": 104, "rec_yd": 1236, "rush_yd": 48, "...": "..." },
+    "gamesPlayed":   16,
+    "gamesStarted":  16,
+    "byeWeeks":      1,
+    "dnpWeeks":      0,
+    "weeklyPoints":  { "1": 18.4, "2": 22.1, "...": "..." },
+    "fantasyPoints": 298.1,
+    "scoringBasis":  "half_ppr",
+    "weeklyStatus":  ["P","P","P","P","P","P","P","P","B","P","P","P","P","P","P","P","P","X"],
+    "availability": {
+      "longestAbsence":      0,
+      "absenceSegments":     [],
+      "firstWeek":           1,
+      "lastWeek":            17,
+      "returnedFromAbsence": false,
+      "absenceCause":        "unknown"
+    }
   }
 }
 ```
 
-Source: Sleeper stats/projections API (`api.sleeper.com`). Fields vary by position — skill players include `rec_yd`, `rush_yd`, `pass_yd`; kickers include `fgm_*`; etc. The `gp` (games played) field is authoritative for career aggregation.
+Source: Sleeper stats/projections API (`api.sleeper.com`). Fields vary by position — skill players include `rec_yd`, `rush_yd`, `pass_yd`; kickers include `fgm_*`; etc. The `gp` (games played) field on each per-week response is the authoritative participation signal.
+
+**`weeklyStatus` codes** (one character per week, 1-indexed by array position):
+
+| Code | Meaning |
+|------|---------|
+| `P` | Played — `gp === 1` in the per-week response |
+| `D` | DNP — `gp === 0` and the player's team had other players with `gp === 1` that week |
+| `B` | Bye — `gp === 0` and no player on the team appeared in that week's response |
+| `X` | Absent — player not in the per-week response at all |
+
+Pre-2021 NFL had 17 regular-season weeks. Those seasons store `X` at week 18 for every player; consumers may hide it from week-by-week visualisations.
+
+`availability.absenceCause` is always `"unknown"` in Phase 5. It exists as a placeholder for future cause-of-absence enrichment (injury report scrape, manual annotation). An absence run ≥ 3 weeks is *suggestive* of injury but not labelled as such by this script — Sleeper stats alone cannot distinguish injury from suspension, healthy scratch, or personal absence.
 
 ---
 
@@ -141,9 +161,11 @@ Miscellaneous IndexedDB entries that don't fit a named category: league data, ro
   "source":        "indexeddb",
   "files": {
     "nfl/season-totals/2024.json": {
-      "originalKey": "season-totals/2024",
-      "recordCount": 2708,
-      "inProgress":  true
+      "originalKey":   "season-totals/2024",
+      "recordCount":   2708,
+      "inProgress":    false,
+      "schemaVersion": 2,
+      "lastModified":  "2026-05-19T18:32:11.123Z"
     }
   }
 }
@@ -160,7 +182,7 @@ Miscellaneous IndexedDB entries that don't fit a named category: league data, ro
 | `files[*].originalKey` | The IndexedDB cache key the data came from |
 | `files[*].recordCount` | Number of top-level entries in the file (array length or object key count) |
 | `files[*].inProgress` | `true` if this season/snapshot may still receive updates; `false` if completed |
-| `files[*].schemaVersion` | Schema version of this specific file (written by update scripts) |
+| `files[*].schemaVersion` | Schema version of this specific file (written by update scripts). NFL season-totals files are at `2` after Phase 5; KTC snapshots remain at `1`. |
 | `files[*].lastModified` | ISO timestamp when this file was last written by an update script |
 
 ---

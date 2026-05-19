@@ -201,68 +201,94 @@
     },
     "nfl/season-totals/2012.json": {
       "originalKey": "season-totals/2012",
-      "recordCount": 244,
-      "inProgress": false
+      "recordCount": 1285,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:33:48.795Z"
     },
     "nfl/season-totals/2013.json": {
       "originalKey": "season-totals/2013",
-      "recordCount": 346,
-      "inProgress": false
+      "recordCount": 1604,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:34:18.856Z"
     },
     "nfl/season-totals/2014.json": {
       "originalKey": "season-totals/2014",
-      "recordCount": 480,
-      "inProgress": false
+      "recordCount": 1930,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:34:30.011Z"
     },
     "nfl/season-totals/2015.json": {
       "originalKey": "season-totals/2015",
-      "recordCount": 654,
-      "inProgress": false
+      "recordCount": 2115,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:34:35.463Z"
     },
     "nfl/season-totals/2016.json": {
       "originalKey": "season-totals/2016",
-      "recordCount": 886,
-      "inProgress": false
+      "recordCount": 2135,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:34:46.889Z"
     },
     "nfl/season-totals/2017.json": {
       "originalKey": "season-totals/2017",
-      "recordCount": 1149,
-      "inProgress": false
+      "recordCount": 2153,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:35:04.828Z"
     },
     "nfl/season-totals/2018.json": {
       "originalKey": "season-totals/2018",
-      "recordCount": 1461,
-      "inProgress": false
+      "recordCount": 2171,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:35:16.379Z"
     },
     "nfl/season-totals/2019.json": {
       "originalKey": "season-totals/2019",
-      "recordCount": 1818,
-      "inProgress": false
+      "recordCount": 2178,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:35:27.724Z"
     },
     "nfl/season-totals/2020.json": {
       "originalKey": "season-totals/2020",
-      "recordCount": 2016,
-      "inProgress": false
+      "recordCount": 2350,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:35:39.197Z"
     },
     "nfl/season-totals/2021.json": {
       "originalKey": "season-totals/2021",
-      "recordCount": 2590,
-      "inProgress": false
+      "recordCount": 2846,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:36:02.755Z"
     },
     "nfl/season-totals/2022.json": {
       "originalKey": "season-totals/2022",
-      "recordCount": 2549,
-      "inProgress": false
+      "recordCount": 2786,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:36:15.969Z"
     },
     "nfl/season-totals/2023.json": {
       "originalKey": "season-totals/2023",
-      "recordCount": 2608,
-      "inProgress": false
+      "recordCount": 2777,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:36:22.074Z"
     },
     "nfl/season-totals/2024.json": {
       "originalKey": "season-totals/2024",
-      "recordCount": 2708,
-      "inProgress": true
+      "recordCount": 2816,
+      "inProgress": false,
+      "schemaVersion": 2,
+      "lastModified": "2026-05-18T23:36:34.901Z"
     },
     "nfl/season-totals/2025.json": {
       "originalKey": "season-totals/2025",
@@ -1533,5 +1559,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-05-18T23:12:40.971Z"
+  "generatedAt": "2026-05-18T23:36:34.900Z"
 }
