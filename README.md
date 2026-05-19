@@ -41,6 +41,8 @@ sleeper-dashboard-data/
     scheme.json               — Offensive/defensive scheme entries
     injuries.json             — Injury type/severity for known absence segments
     notes.json                — Free-form player/team notes
+  snapshots/
+    <YYYY-MM-DD>.json         — Daily projection snapshots (one per UTC day)
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, weekly stats, etc.)
 ```
@@ -146,6 +148,62 @@ Array of dynasty market values scraped from KeepTradeCut at the snapshot date.
 ```
 
 Values are KTC's proprietary 0–9999 scale. Matched to Sleeper player IDs at runtime using `src/utils/ktcMatch.js`. Snapshots are append-only — old snapshots are never deleted, enabling trend analysis.
+
+---
+
+### `snapshots/<date>.json`
+
+Daily projection snapshot produced by the app's pipeline, capturing the contemporaneous inputs and outputs used for season projections. One file per UTC date. Used for future backtesting — no consumer UI in v1.
+
+**First-league-of-the-day-wins:** if multiple leagues are opened in the same UTC day, the first one to complete the projection pipeline is captured; subsequent leagues are silently skipped. The `leagueId` field makes this detectable after the fact.
+
+```json
+{
+  "schemaVersion": 1,
+  "capturedAt":    "2026-05-19T14:23:11.812Z",
+  "scoringBasis":  "half_ppr",
+  "leagueId":      "1312015497465716736",
+  "teamDepthCharts": {
+    "BUF": {
+      "QB": [{ "playerId": "4984", "fullName": "Josh Allen",  "depthOrder": 1, "status": "Active" }],
+      "RB": [{ "playerId": "9509", "fullName": "James Cook",  "depthOrder": 1, "status": "Active" }],
+      "WR": [],
+      "TE": []
+    }
+  },
+  "players": {
+    "4984": {
+      "nfl_team":        "BUF",
+      "status":          "Active",
+      "depthChartOrder": 1,
+      "ktc": { "value": 9800, "positionPercentile": 99 },
+      "projection": {
+        "projectedPPG":      22.4,
+        "projectedTotalPts": 380.8,
+        "confidence":        "high",
+        "adjustmentSummary": ["Age curve peak", "Elite KTC ↑"]
+      }
+    }
+  }
+}
+```
+
+**Per-player inclusion rule:** included iff `seasonProjections[player_id]` exists AND `playerMap[player_id].team` is non-null (active NFL roster). Players without a team or without a projection are excluded.
+
+**`scoringBasis` values:** `half_ppr` · `ppr` · `standard` · `te_premium` · `custom` · `unknown`.
+
+**`ktc`** is `null` if the player isn't in the KTC map; otherwise `{ value, positionPercentile }`.
+
+**`projection`** is the verbatim output of `computeNextSeasonProjection` — no field whitelist.
+
+**Manual import workflow:**
+1. Click "Export data" in the app.
+2. Unzip the download.
+3. Copy `snapshots/<date>.json` → `<this repo>/snapshots/<date>.json`.
+4. `node bin/update.mjs snapshots` (or `node bin/update.mjs snapshots --dry-run` to preview).
+5. `git add snapshots/<date>.json manifest.json && git commit -m "snapshot: <date>"`
+
+Snapshots are permanent (never overwritten by the app within a UTC day). Old snapshots accumulate — no retention policy in v1.
 
 ---
 

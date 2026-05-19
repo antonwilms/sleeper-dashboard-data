@@ -28,9 +28,10 @@ try {
   // dotenv not installed yet; continue (env vars set by CI environment)
 }
 
-import { updateNfl }  from '../scripts/update-nfl.mjs';
-import { updateCfbd } from '../scripts/update-cfbd.mjs';
-import { updateKtc }  from '../scripts/update-ktc.mjs';
+import { updateNfl }          from '../scripts/update-nfl.mjs';
+import { updateCfbd }         from '../scripts/update-cfbd.mjs';
+import { updateKtc }          from '../scripts/update-ktc.mjs';
+import { registerSnapshots }  from '../scripts/register-snapshots.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -66,16 +67,20 @@ SUBCOMMANDS
   cfbd --year YYYY            Fetch CFBD college stats for YYYY (all categories)
   cfbd --year YYYY --category receiving|rushing|passing
   ktc                         Capture a KTC dynasty value snapshot for today
+  snapshots                   Register any untracked snapshots/*.json in manifest.json
+                              (run after copying snapshot files from the app export ZIP)
 
 OPTIONS
-  --dry-run   Fetch + validate, print diff, but don't write any files
-  --force     Overwrite completed-season files (skipped by default)
+  --dry-run   Fetch + validate, print diff/plan, but don't write any files
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd only)
 
 EXAMPLES
   node bin/update.mjs nfl  --year 2024
   node bin/update.mjs cfbd --year 2023 --dry-run
   node bin/update.mjs ktc
   node bin/update.mjs nfl  --year 2023 --force
+  node bin/update.mjs snapshots
+  node bin/update.mjs snapshots --dry-run
 `);
 }
 
@@ -99,6 +104,9 @@ const opts = { year, category, force, dryRun };
         break;
       case 'ktc':
         await updateKtc(opts);
+        break;
+      case 'snapshots':
+        registerSnapshots({ dryRun });
         break;
       default:
         console.error(`Unknown subcommand: ${subcommand}\n`);
