@@ -1554,10 +1554,34 @@
       "originalKey": "stats/2025/9",
       "recordCount": 2105,
       "inProgress": false
+    },
+    "enrichment/coaching.json": {
+      "schemaVersion": 1,
+      "recordCount": 0,
+      "inProgress": false,
+      "lastModified": "2026-05-19T09:21:06.056Z"
+    },
+    "enrichment/scheme.json": {
+      "schemaVersion": 1,
+      "recordCount": 0,
+      "inProgress": false,
+      "lastModified": "2026-05-19T09:16:58.421Z"
+    },
+    "enrichment/notes.json": {
+      "schemaVersion": 1,
+      "recordCount": 0,
+      "inProgress": false,
+      "lastModified": "2026-05-19T09:16:58.663Z"
+    },
+    "enrichment/injuries.json": {
+      "schemaVersion": 1,
+      "recordCount": 0,
+      "inProgress": false,
+      "lastModified": "2026-05-19T09:16:58.546Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-05-18T23:36:34.900Z"
+  "generatedAt": "2026-05-19T09:21:06.056Z"
 }

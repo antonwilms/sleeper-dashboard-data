@@ -36,6 +36,11 @@ sleeper-dashboard-data/
     rushing/                  — CFBD rushing stats per player per season
   ktc/
     snapshot-<date>.json      — KeepTradeCut dynasty values at a point in time
+  enrichment/
+    coaching.json             — Hand-curated coaching staff entries
+    scheme.json               — Offensive/defensive scheme entries
+    injuries.json             — Injury type/severity for known absence segments
+    notes.json                — Free-form player/team notes
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, weekly stats, etc.)
 ```
@@ -282,6 +287,148 @@ jsDelivr caches aggressively. After pushing an update, use `https://purge.jsdeli
 - **KTC snapshots** accumulate by date. Old snapshots are retained.
 - **Git history is the audit trail.** Corrections are committed with a message explaining what changed and why.
 - **`schemaVersion`** in `manifest.json` is incremented when the file layout changes incompatibly (e.g. a new top-level folder, a renamed field).
+
+---
+
+## Enrichment overlay
+
+The `enrichment/` directory holds hand-curated data that no API provides. Unlike primary data files (which are produced by deterministic scripts and must never be hand-edited), enrichment files are authored by the human and validated by the CLI.
+
+### Structure
+
+```
+enrichment/
+  coaching.json   — coaching staff entries (HC/OC/DC per team per year)
+  scheme.json     — offensive/defensive scheme entries (per team per year)
+  injuries.json   — injury type/severity for known absence segments
+  notes.json      — free-form notes (per player_id or per team)
+  README.md       — short pointer + CLI reminder
+```
+
+Each file shares a top-level wrapper:
+
+```json
+{
+  "schemaVersion": 1,
+  "updatedAt": "ISO8601",
+  "entries": [ … ]
+}
+```
+
+### Entry schemas
+
+#### Coaching (`coaching.json`)
+
+One entry per `(year, team, role)`. `role ∈ {HC, OC, DC}`.
+
+```json
+{
+  "id":          "coach-2024-SF-HC-1a2b",
+  "year":         2024,
+  "team":         "SF",
+  "role":         "HC",
+  "name":         "Kyle Shanahan",
+  "tenureStart":  2017,
+  "isNew":        false,
+  "predecessor":  null,
+  "source":       "team site, 2024-01-15",
+  "notes":        ""
+}
+```
+
+Required: `id`, `year`, `team`, `role`, `name`.
+
+#### Scheme (`scheme.json`)
+
+One entry per `(year, team)`. Dominant offensive/defensive philosophy, free-form strings.
+
+```json
+{
+  "id":              "scheme-2024-MIA-4c8d",
+  "year":             2024,
+  "team":             "MIA",
+  "offense":          "wide zone / play-action",
+  "defense":          "vic-fangio-tree zone",
+  "tempo":            "fast",
+  "changedFromPrev":  false,
+  "source":           "PFF preview 2024",
+  "notes":            ""
+}
+```
+
+Required: `id`, `year`, `team`. At least one of `offense`/`defense`/`tempo` must be set.
+
+#### Injuries (`injuries.json`)
+
+One entry per known injury event. `segmentStartWeek` must match an absence segment in `nfl/season-totals/<year>.json` for that player.
+
+```json
+{
+  "id":               "inj-6803-2023-w2-9e1f",
+  "playerId":         "6803",
+  "year":              2023,
+  "segmentStartWeek":  2,
+  "segmentEndWeek":    18,
+  "type":              "ACL",
+  "bodyPart":          "knee",
+  "severity":          "season-ending",
+  "dateInjured":       "2023-09-11",
+  "dateReturned":      null,
+  "source":            "team announcement 2023-09-11",
+  "notes":             ""
+}
+```
+
+Required: `id`, `playerId`, `year`, `segmentStartWeek`. Everything else optional.  
+`severity` suggestions: `season-ending` · `multi-week` · `single-game` · `playing-through` (open enum).
+
+#### Notes (`notes.json`)
+
+Catch-all. Scoped to exactly one of `playerId` or `team`, with optional `year`.
+
+```json
+{
+  "id":       "note-4034-2024-2f3a",
+  "playerId":  "4034",
+  "team":      null,
+  "year":      2024,
+  "tag":       "usage",
+  "body":      "Slot-heavy alignment in 11-personnel through Week 6.",
+  "source":    "PFF article, 2024-10-22"
+}
+```
+
+Required: `id`, `body`, exactly one of `playerId`/`team`.
+
+### CLI
+
+```bash
+# Add entries
+node bin/enrich.mjs coaching add --year 2025 --team SF --role HC --name "Kyle Shanahan"
+node bin/enrich.mjs scheme   add --year 2024 --team MIA --offense "wide zone"
+node bin/enrich.mjs injuries add --player 6803 --year 2023 --segment-start 2 \
+    --type ACL --body-part knee --severity season-ending --date-injured 2023-09-11
+node bin/enrich.mjs notes    add --player 4034 --year 2024 --body "Slot-heavy..."
+
+# Maintenance
+node bin/enrich.mjs validate              # validate all four files (also runs in npm run smoke)
+node bin/enrich.mjs list injuries         # list all injury entries
+node bin/enrich.mjs list coaching --year 2025
+node bin/enrich.mjs remove <id>           # remove by id (any file)
+
+# npm shortcuts
+npm run validate:enrichment
+```
+
+**`add` is an upsert** — running with identical fields is a no-op; running with the same natural key (year+team+role for coaching, etc.) but different fields prints a diff and exits 1 without `--force`.
+
+### Orphaned entries
+
+If `nfl/season-totals/<year>.json` is regenerated and absence segments shift, an injury entry's `segmentStartWeek` may no longer match. The app silently ignores orphaned entries; `node bin/enrich.mjs validate` flags them on the next run.
+
+### App consumption
+
+`src/api/enrichment.js → loadEnrichment()` fetches all four files on mount and stores them in `enrichmentMap` state. Currently consumed only by `AvailabilityHistory`'s `D`-cell tooltips (Phase 6). Other consumers (coaching/scheme display, notes) are deferred.
 
 ---
 
