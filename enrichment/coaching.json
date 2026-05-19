@@ -1,5 +1,671 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-05-19T09:21:06.054Z",
-  "entries": []
+  "updatedAt": "2026-05-19T09:42:37.732Z",
+  "entries": [
+    {
+      "id": "coach-2026-ARI-HC-b1fa7d",
+      "year": 2026,
+      "team": "ARI",
+      "role": "HC",
+      "name": "Mike LaFleur"
+    },
+    {
+      "id": "coach-2026-ARI-OC-fb8649",
+      "year": 2026,
+      "team": "ARI",
+      "role": "OC",
+      "name": "Nathaniel Hackett"
+    },
+    {
+      "id": "coach-2026-ARI-DC-d0cdda",
+      "year": 2026,
+      "team": "ARI",
+      "role": "DC",
+      "name": "Nick Rallis"
+    },
+    {
+      "id": "coach-2026-ATL-HC-74e76f",
+      "year": 2026,
+      "team": "ATL",
+      "role": "HC",
+      "name": "Kevin Stefanski"
+    },
+    {
+      "id": "coach-2026-ATL-OC-eb2a0a",
+      "year": 2026,
+      "team": "ATL",
+      "role": "OC",
+      "name": "Tommy Rees"
+    },
+    {
+      "id": "coach-2026-ATL-DC-6d3c28",
+      "year": 2026,
+      "team": "ATL",
+      "role": "DC",
+      "name": "Jeff Ulbrich"
+    },
+    {
+      "id": "coach-2026-BAL-HC-2c1e93",
+      "year": 2026,
+      "team": "BAL",
+      "role": "HC",
+      "name": "Jesse Minter"
+    },
+    {
+      "id": "coach-2026-BAL-OC-7ae88b",
+      "year": 2026,
+      "team": "BAL",
+      "role": "OC",
+      "name": "Declan Doyle"
+    },
+    {
+      "id": "coach-2026-BAL-DC-af72d0",
+      "year": 2026,
+      "team": "BAL",
+      "role": "DC",
+      "name": "Anthony Weaver"
+    },
+    {
+      "id": "coach-2026-BUF-HC-f54cdf",
+      "year": 2026,
+      "team": "BUF",
+      "role": "HC",
+      "name": "Joe Brady"
+    },
+    {
+      "id": "coach-2026-BUF-OC-427bc6",
+      "year": 2026,
+      "team": "BUF",
+      "role": "OC",
+      "name": "Pete Carmichael"
+    },
+    {
+      "id": "coach-2026-BUF-DC-8c1762",
+      "year": 2026,
+      "team": "BUF",
+      "role": "DC",
+      "name": "Jim Leonhard"
+    },
+    {
+      "id": "coach-2026-CAR-HC-8106ad",
+      "year": 2026,
+      "team": "CAR",
+      "role": "HC",
+      "name": "Dave Canales"
+    },
+    {
+      "id": "coach-2026-CAR-OC-e3d3b7",
+      "year": 2026,
+      "team": "CAR",
+      "role": "OC",
+      "name": "Brad Idzik"
+    },
+    {
+      "id": "coach-2026-CAR-DC-a8c296",
+      "year": 2026,
+      "team": "CAR",
+      "role": "DC",
+      "name": "Ejiro Evero"
+    },
+    {
+      "id": "coach-2026-CHI-HC-9b9c53",
+      "year": 2026,
+      "team": "CHI",
+      "role": "HC",
+      "name": "Ben Johnson"
+    },
+    {
+      "id": "coach-2026-CHI-OC-339e42",
+      "year": 2026,
+      "team": "CHI",
+      "role": "OC",
+      "name": "Press Taylor"
+    },
+    {
+      "id": "coach-2026-CHI-DC-1a1a5a",
+      "year": 2026,
+      "team": "CHI",
+      "role": "DC",
+      "name": "Dennis Allen"
+    },
+    {
+      "id": "coach-2026-CIN-HC-12d39c",
+      "year": 2026,
+      "team": "CIN",
+      "role": "HC",
+      "name": "Zac Taylor"
+    },
+    {
+      "id": "coach-2026-CIN-OC-98fe5d",
+      "year": 2026,
+      "team": "CIN",
+      "role": "OC",
+      "name": "Dan Pitcher"
+    },
+    {
+      "id": "coach-2026-CIN-DC-9be25a",
+      "year": 2026,
+      "team": "CIN",
+      "role": "DC",
+      "name": "Al Golden"
+    },
+    {
+      "id": "coach-2026-CLE-HC-d42a6f",
+      "year": 2026,
+      "team": "CLE",
+      "role": "HC",
+      "name": "Todd Monken"
+    },
+    {
+      "id": "coach-2026-CLE-OC-fd0646",
+      "year": 2026,
+      "team": "CLE",
+      "role": "OC",
+      "name": "Travis Switzer"
+    },
+    {
+      "id": "coach-2026-CLE-DC-0d3351",
+      "year": 2026,
+      "team": "CLE",
+      "role": "DC",
+      "name": "Mike Rutenberg"
+    },
+    {
+      "id": "coach-2026-DAL-HC-3157d8",
+      "year": 2026,
+      "team": "DAL",
+      "role": "HC",
+      "name": "Brian Schottenheimer"
+    },
+    {
+      "id": "coach-2026-DAL-OC-1dc889",
+      "year": 2026,
+      "team": "DAL",
+      "role": "OC",
+      "name": "Klayton Adams"
+    },
+    {
+      "id": "coach-2026-DAL-DC-5c45ca",
+      "year": 2026,
+      "team": "DAL",
+      "role": "DC",
+      "name": "Christian Parker"
+    },
+    {
+      "id": "coach-2026-DEN-HC-ad3f19",
+      "year": 2026,
+      "team": "DEN",
+      "role": "HC",
+      "name": "Sean Payton"
+    },
+    {
+      "id": "coach-2026-DEN-OC-9a0213",
+      "year": 2026,
+      "team": "DEN",
+      "role": "OC",
+      "name": "Davis Webb"
+    },
+    {
+      "id": "coach-2026-DEN-DC-264851",
+      "year": 2026,
+      "team": "DEN",
+      "role": "DC",
+      "name": "Vance Joseph"
+    },
+    {
+      "id": "coach-2026-DET-HC-747fac",
+      "year": 2026,
+      "team": "DET",
+      "role": "HC",
+      "name": "Dan Campbell"
+    },
+    {
+      "id": "coach-2026-DET-OC-30410e",
+      "year": 2026,
+      "team": "DET",
+      "role": "OC",
+      "name": "Drew Petzing"
+    },
+    {
+      "id": "coach-2026-DET-DC-652da4",
+      "year": 2026,
+      "team": "DET",
+      "role": "DC",
+      "name": "Kelvin Sheppard"
+    },
+    {
+      "id": "coach-2026-GB-HC-de7de5",
+      "year": 2026,
+      "team": "GB",
+      "role": "HC",
+      "name": "Matt LaFleur"
+    },
+    {
+      "id": "coach-2026-GB-OC-99c71f",
+      "year": 2026,
+      "team": "GB",
+      "role": "OC",
+      "name": "Adam Stenavich"
+    },
+    {
+      "id": "coach-2026-GB-DC-8f6a42",
+      "year": 2026,
+      "team": "GB",
+      "role": "DC",
+      "name": "Jonathan Gannon"
+    },
+    {
+      "id": "coach-2026-HOU-HC-c4399c",
+      "year": 2026,
+      "team": "HOU",
+      "role": "HC",
+      "name": "DeMeco Ryans"
+    },
+    {
+      "id": "coach-2026-HOU-OC-d29609",
+      "year": 2026,
+      "team": "HOU",
+      "role": "OC",
+      "name": "Nick Caley"
+    },
+    {
+      "id": "coach-2026-HOU-DC-75bfdb",
+      "year": 2026,
+      "team": "HOU",
+      "role": "DC",
+      "name": "Matt Burke"
+    },
+    {
+      "id": "coach-2026-IND-HC-ebeb4f",
+      "year": 2026,
+      "team": "IND",
+      "role": "HC",
+      "name": "Shane Steichen"
+    },
+    {
+      "id": "coach-2026-IND-OC-1d81f2",
+      "year": 2026,
+      "team": "IND",
+      "role": "OC",
+      "name": "Jim Bob Cooter"
+    },
+    {
+      "id": "coach-2026-IND-DC-c26575",
+      "year": 2026,
+      "team": "IND",
+      "role": "DC",
+      "name": "Lou Anarumo"
+    },
+    {
+      "id": "coach-2026-JAX-HC-82aa7f",
+      "year": 2026,
+      "team": "JAX",
+      "role": "HC",
+      "name": "Liam Coen"
+    },
+    {
+      "id": "coach-2026-JAX-OC-8f3cc4",
+      "year": 2026,
+      "team": "JAX",
+      "role": "OC",
+      "name": "Grant Udinski"
+    },
+    {
+      "id": "coach-2026-JAX-DC-e2ffd6",
+      "year": 2026,
+      "team": "JAX",
+      "role": "DC",
+      "name": "Anthony Campanile"
+    },
+    {
+      "id": "coach-2026-KC-HC-d8d6a2",
+      "year": 2026,
+      "team": "KC",
+      "role": "HC",
+      "name": "Andy Reid"
+    },
+    {
+      "id": "coach-2026-KC-OC-c4eaea",
+      "year": 2026,
+      "team": "KC",
+      "role": "OC",
+      "name": "Eric Bieniemy"
+    },
+    {
+      "id": "coach-2026-KC-DC-da8a16",
+      "year": 2026,
+      "team": "KC",
+      "role": "DC",
+      "name": "Steve Spagnuolo"
+    },
+    {
+      "id": "coach-2026-LV-HC-d7ba54",
+      "year": 2026,
+      "team": "LV",
+      "role": "HC",
+      "name": "Klint Kubiak"
+    },
+    {
+      "id": "coach-2026-LV-OC-aa64d8",
+      "year": 2026,
+      "team": "LV",
+      "role": "OC",
+      "name": "Andrew Janocko"
+    },
+    {
+      "id": "coach-2026-LV-DC-f5376c",
+      "year": 2026,
+      "team": "LV",
+      "role": "DC",
+      "name": "Rob Leonard"
+    },
+    {
+      "id": "coach-2026-LAC-HC-032166",
+      "year": 2026,
+      "team": "LAC",
+      "role": "HC",
+      "name": "Jim Harbaugh"
+    },
+    {
+      "id": "coach-2026-LAC-OC-1f6076",
+      "year": 2026,
+      "team": "LAC",
+      "role": "OC",
+      "name": "Mike McDaniel"
+    },
+    {
+      "id": "coach-2026-LAC-DC-be0b0a",
+      "year": 2026,
+      "team": "LAC",
+      "role": "DC",
+      "name": "Chris O'Leary"
+    },
+    {
+      "id": "coach-2026-LAR-HC-c2ab40",
+      "year": 2026,
+      "team": "LAR",
+      "role": "HC",
+      "name": "Sean McVay"
+    },
+    {
+      "id": "coach-2026-LAR-OC-654231",
+      "year": 2026,
+      "team": "LAR",
+      "role": "OC",
+      "name": "Nate Scheelhaase"
+    },
+    {
+      "id": "coach-2026-LAR-DC-98da2f",
+      "year": 2026,
+      "team": "LAR",
+      "role": "DC",
+      "name": "Chris Shula"
+    },
+    {
+      "id": "coach-2026-MIA-HC-4045d2",
+      "year": 2026,
+      "team": "MIA",
+      "role": "HC",
+      "name": "Jeff Hafley"
+    },
+    {
+      "id": "coach-2026-MIA-OC-e31cf5",
+      "year": 2026,
+      "team": "MIA",
+      "role": "OC",
+      "name": "Bobby Slowik"
+    },
+    {
+      "id": "coach-2026-MIA-DC-a09369",
+      "year": 2026,
+      "team": "MIA",
+      "role": "DC",
+      "name": "Sean Duggan"
+    },
+    {
+      "id": "coach-2026-MIN-HC-8eb434",
+      "year": 2026,
+      "team": "MIN",
+      "role": "HC",
+      "name": "Kevin O'Connell"
+    },
+    {
+      "id": "coach-2026-MIN-OC-5c5c40",
+      "year": 2026,
+      "team": "MIN",
+      "role": "OC",
+      "name": "Wes Phillips"
+    },
+    {
+      "id": "coach-2026-MIN-DC-07358b",
+      "year": 2026,
+      "team": "MIN",
+      "role": "DC",
+      "name": "Brian Flores"
+    },
+    {
+      "id": "coach-2026-NE-HC-d1b06d",
+      "year": 2026,
+      "team": "NE",
+      "role": "HC",
+      "name": "Mike Vrabel"
+    },
+    {
+      "id": "coach-2026-NE-OC-884d76",
+      "year": 2026,
+      "team": "NE",
+      "role": "OC",
+      "name": "Josh McDaniels"
+    },
+    {
+      "id": "coach-2026-NE-DC-f63802",
+      "year": 2026,
+      "team": "NE",
+      "role": "DC",
+      "name": "Zak Kuhr"
+    },
+    {
+      "id": "coach-2026-NO-HC-a0de9f",
+      "year": 2026,
+      "team": "NO",
+      "role": "HC",
+      "name": "Kellen Moore"
+    },
+    {
+      "id": "coach-2026-NO-OC-665a96",
+      "year": 2026,
+      "team": "NO",
+      "role": "OC",
+      "name": "Doug Nussmeier"
+    },
+    {
+      "id": "coach-2026-NO-DC-efdffb",
+      "year": 2026,
+      "team": "NO",
+      "role": "DC",
+      "name": "Brandon Staley"
+    },
+    {
+      "id": "coach-2026-NYG-HC-dc2e92",
+      "year": 2026,
+      "team": "NYG",
+      "role": "HC",
+      "name": "John Harbaugh"
+    },
+    {
+      "id": "coach-2026-NYG-OC-29229a",
+      "year": 2026,
+      "team": "NYG",
+      "role": "OC",
+      "name": "Matt Nagy"
+    },
+    {
+      "id": "coach-2026-NYG-DC-cb61a4",
+      "year": 2026,
+      "team": "NYG",
+      "role": "DC",
+      "name": "Dennard Wilson"
+    },
+    {
+      "id": "coach-2026-NYJ-HC-7b1f8a",
+      "year": 2026,
+      "team": "NYJ",
+      "role": "HC",
+      "name": "Aaron Glenn"
+    },
+    {
+      "id": "coach-2026-NYJ-OC-940b10",
+      "year": 2026,
+      "team": "NYJ",
+      "role": "OC",
+      "name": "Frank Reich"
+    },
+    {
+      "id": "coach-2026-NYJ-DC-8af3a1",
+      "year": 2026,
+      "team": "NYJ",
+      "role": "DC",
+      "name": "Brian Duker"
+    },
+    {
+      "id": "coach-2026-PHI-HC-12a71a",
+      "year": 2026,
+      "team": "PHI",
+      "role": "HC",
+      "name": "Nick Sirianni"
+    },
+    {
+      "id": "coach-2026-PHI-OC-dd0dbc",
+      "year": 2026,
+      "team": "PHI",
+      "role": "OC",
+      "name": "Sean Mannion"
+    },
+    {
+      "id": "coach-2026-PHI-DC-195fba",
+      "year": 2026,
+      "team": "PHI",
+      "role": "DC",
+      "name": "Vic Fangio"
+    },
+    {
+      "id": "coach-2026-PIT-HC-d097fb",
+      "year": 2026,
+      "team": "PIT",
+      "role": "HC",
+      "name": "Mike McCarthy"
+    },
+    {
+      "id": "coach-2026-PIT-OC-2c283a",
+      "year": 2026,
+      "team": "PIT",
+      "role": "OC",
+      "name": "Brian Angelichio"
+    },
+    {
+      "id": "coach-2026-PIT-DC-819456",
+      "year": 2026,
+      "team": "PIT",
+      "role": "DC",
+      "name": "Patrick Graham"
+    },
+    {
+      "id": "coach-2026-SF-HC-f68b5a",
+      "year": 2026,
+      "team": "SF",
+      "role": "HC",
+      "name": "Kyle Shanahan"
+    },
+    {
+      "id": "coach-2026-SF-OC-cdb3ae",
+      "year": 2026,
+      "team": "SF",
+      "role": "OC",
+      "name": "Klay Kubiak"
+    },
+    {
+      "id": "coach-2026-SF-DC-04af3d",
+      "year": 2026,
+      "team": "SF",
+      "role": "DC",
+      "name": "Raheem Morris"
+    },
+    {
+      "id": "coach-2026-SEA-HC-fc3682",
+      "year": 2026,
+      "team": "SEA",
+      "role": "HC",
+      "name": "Mike Macdonald"
+    },
+    {
+      "id": "coach-2026-SEA-OC-081cf3",
+      "year": 2026,
+      "team": "SEA",
+      "role": "OC",
+      "name": "Brian Fleury"
+    },
+    {
+      "id": "coach-2026-SEA-DC-bfe495",
+      "year": 2026,
+      "team": "SEA",
+      "role": "DC",
+      "name": "Aden Durde"
+    },
+    {
+      "id": "coach-2026-TB-HC-af112c",
+      "year": 2026,
+      "team": "TB",
+      "role": "HC",
+      "name": "Todd Bowles"
+    },
+    {
+      "id": "coach-2026-TB-OC-ec2108",
+      "year": 2026,
+      "team": "TB",
+      "role": "OC",
+      "name": "Zac Robinson"
+    },
+    {
+      "id": "coach-2026-TEN-HC-4a26ed",
+      "year": 2026,
+      "team": "TEN",
+      "role": "HC",
+      "name": "Robert Saleh"
+    },
+    {
+      "id": "coach-2026-TEN-OC-573b31",
+      "year": 2026,
+      "team": "TEN",
+      "role": "OC",
+      "name": "Brian Daboll"
+    },
+    {
+      "id": "coach-2026-TEN-DC-a6993b",
+      "year": 2026,
+      "team": "TEN",
+      "role": "DC",
+      "name": "Gus Bradley"
+    },
+    {
+      "id": "coach-2026-WAS-HC-c1737f",
+      "year": 2026,
+      "team": "WAS",
+      "role": "HC",
+      "name": "Dan Quinn"
+    },
+    {
+      "id": "coach-2026-WAS-OC-081f12",
+      "year": 2026,
+      "team": "WAS",
+      "role": "OC",
+      "name": "David Blough"
+    },
+    {
+      "id": "coach-2026-WAS-DC-7f91d7",
+      "year": 2026,
+      "team": "WAS",
+      "role": "DC",
+      "name": "Daronte Jones"
+    }
+  ]
 }

@@ -1557,9 +1557,9 @@
     },
     "enrichment/coaching.json": {
       "schemaVersion": 1,
-      "recordCount": 0,
+      "recordCount": 95,
       "inProgress": false,
-      "lastModified": "2026-05-19T09:21:06.056Z"
+      "lastModified": "2026-05-19T09:42:37.733Z"
     },
     "enrichment/scheme.json": {
       "schemaVersion": 1,
@@ -1583,5 +1583,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-05-19T09:21:06.056Z"
+  "generatedAt": "2026-05-19T09:42:37.733Z"
 }
