@@ -96,6 +96,8 @@ Pre-2021 NFL had 17 regular-season weeks. Those seasons store `X` at week 18 for
 
 `availability.absenceCause` is always `"unknown"` in Phase 5. It exists as a placeholder for future cause-of-absence enrichment (injury report scrape, manual annotation). An absence run ≥ 3 weeks is *suggestive* of injury but not labelled as such by this script — Sleeper stats alone cannot distinguish injury from suspension, healthy scratch, or personal absence.
 
+**Snap & red-zone field coverage:** `off_snp`, `tm_off_snp`, `rec_rz_tgt`, `rush_rz_att`, `pass_rz_att` are present in Sleeper data from ~2021 onward; seasons before then omit them. They flow through the generic sum-all-keys aggregation unchanged — the app degrades the dependent projection factors to neutral for older seasons (see sibling repo `usageMetrics.js` / `teamRzShare.js` / `durabilitySignals.js`).
+
 ---
 
 ### `college/<category>/<year>.json`
@@ -161,10 +163,13 @@ Daily projection snapshot produced by the app's pipeline, capturing the contempo
 
 ```json
 {
-  "schemaVersion": 1,
-  "capturedAt":    "2026-05-19T14:23:11.812Z",
-  "scoringBasis":  "half_ppr",
-  "leagueId":      "1312015497465716736",
+  "schemaVersion":   2,
+  "capturedAt":      "2026-05-19T14:23:11.812Z",
+  "scoringBasis":    "half_ppr",
+  "targetSeason":    2026,
+  "currentSeason":   2025,
+  "scoringSettings": { "rec": 0.5, "bonus_rec_rb": 0, "pass_td": 4, "...": "..." },
+  "leagueId":        "1312015497465716736",
   "teamDepthCharts": {
     "BUF": {
       "QB": [{ "playerId": "4984", "fullName": "Josh Allen",  "depthOrder": 1, "status": "Active" }],
@@ -193,6 +198,14 @@ Daily projection snapshot produced by the app's pipeline, capturing the contempo
 **Per-player inclusion rule:** included iff `seasonProjections[player_id]` exists AND `playerMap[player_id].team` is non-null (active NFL roster). Players without a team or without a projection are excluded.
 
 **`scoringBasis` values:** `half_ppr` · `ppr` · `standard` · `te_premium` · `custom` · `unknown`.
+
+**`targetSeason`** is the NFL season the projection forecasts (= `currentSeason` + 1). Written explicitly by the app at v2; the grading harness reads it directly and skips the `capturedAt` heuristic.
+
+**`currentSeason`** is the last completed season in the app's `careerStats` cache — the data basis the projection was computed from.
+
+**`scoringSettings`** is the league's raw `scoring_settings` object captured verbatim from the Sleeper API. Enables in-basis grading for non-half_ppr leagues in a future data-repo task. Not consumed by the current grading harness.
+
+**v2 is additive.** Existing v1 snapshots remain valid — `targetSeason`, `currentSeason`, and `scoringSettings` are simply absent. The grading harness falls back to the `capturedAt` heuristic (`deriveTargetSeason()`) for v1 snapshots.
 
 **`ktc`** is `null` if the player isn't in the KTC map; otherwise `{ value, positionPercentile }`.
 

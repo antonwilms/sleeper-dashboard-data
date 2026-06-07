@@ -118,7 +118,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 3. **manifest.json is the index.** Every script-written file must be registered with `recordCount`, `schemaVersion`, `lastModified`, and `inProgress` maintained. Treat manifest field names as a public API (see Cross-repo contracts).
 
-4. **schemaVersion discipline.** NFL season-totals are at v2 (Phase 5). KTC snapshots are at v1. Bump `schemaVersion` only on an incompatible layout change and keep it in sync with the app's `MAX_SUPPORTED_SCHEMA`.
+4. **schemaVersion discipline.** NFL season-totals are at v2 (Phase 5). KTC snapshots are at v1. Projection snapshots are at v2 (new envelope fields: `targetSeason`, `currentSeason`, `scoringSettings`). Bump `schemaVersion` only on an incompatible layout change. Snapshot schemaVersion is independent of the app's `MAX_SUPPORTED_SCHEMA`, which gates only season-totals files.
 
 5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup—no commit when content is unchanged.
 
@@ -136,7 +136,7 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 
 | Contract | This repo | App counterpart |
 |---|---|---|
-| **Snapshot shape** | `snapshots/<date>.json` imported via `node bin/update.mjs snapshots`; `projection` field is verbatim `computeNextSeasonProjection` output | `src/utils/projectionSnapshot.js` (writer); `exportData.js` `classifyKey` (router) |
+| **Snapshot shape** | `snapshots/<date>.json` imported via `node bin/update.mjs snapshots`; `projection` field is verbatim `computeNextSeasonProjection` output; at schemaVersion 2 the envelope also carries top-level `targetSeason`, `currentSeason`, and verbatim `scoringSettings` | `src/utils/projectionSnapshot.js` (writer); `exportData.js` `classifyKey` (router) |
 | **season-totals schemaVersion** | Writes v2 | `src/api/dataStore.js` advertises `MAX_SUPPORTED_SCHEMA=2`; bumping needs both repos |
 | **Enrichment schemas** | Writes/validates `enrichment/*.json` | `src/api/enrichment.js` (`loadEnrichment`); `src/utils/enrichmentLookup.js`; field add/rename must be mirrored |
 | **Manifest contract** | manifest.json field names/shape | `dataStore.js` `getManifestEntry` / validators gate on `schemaVersion`, `inProgress`, `lastModified` |
@@ -144,7 +144,7 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 | **Snap & RZ usage stat keys** | `off_snp`, `tm_off_snp`, `rec_rz_tgt`, `rush_rz_att`, `pass_rz_att` aggregated from Sleeper stats response and preserved as-is in `nfl/season-totals/<year>.json`; never stripped or filtered in any schema operation | `src/utils/usageMetrics.js` reads these fields; projection degrades silently to neutral if absent, so the dependency is invisible at runtime — do not remove or rename |
 | **`pass_cmp` stat key (QB passer rating)** | Preserved through season-totals aggregation; never stripped (flows through the generic sum-all-keys path in `lib/sleeper.mjs`). Note: stored `pass_rtg` and `cmp_pct` fields are weekly sums (not reliable season-level metrics) and are NOT consumed by the app — preserve as-is, no action needed | `src/utils/efficiencyMetrics.js` computes canonical NFL passer rating from `pass_cmp`, `pass_att`, `pass_yd`, `pass_td`, `pass_int`; `pass_cmp` is the new dependency (the latter four were previously implicit). Missing `pass_cmp` produces neutral `efficiencyFactor` (1.0); no errors, no schema bump required |
 | **`rec_air_yd` stat key (aDOT diagnostic)** | Preserved through season-totals aggregation; never stripped (same generic sum-all-keys path in `lib/sleeper.mjs`). Confirmed present 2012–present. Calibration note: values run ~½ industry aDOT magnitude (likely air yards on completed receptions only, not all targets) — ranking is preserved, absolute magnitude is not industry-standard; this is the app's concern, not the data repo's | `src/utils/seasonProjection.js` reads `rec_air_yd` and `rec_tgt` to compute `factors.adot` (WR/TE capture-only diagnostic; does **not** affect `projectedPPG`). Missing `rec_air_yd` produces `factors.adot: null`; no errors, no schema bump required (aDOT batch) |
-| **Snapshot target season** | `capturedAt` ISO timestamp in `snapshots/<date>.json`; `deriveTargetSeason()` in `scripts/grade-snapshot.mjs` maps Jan–Aug → same year, Sep–Dec → year+1 (override: `--target-season YYYY`) | Capturing the league's raw `scoringSettings` in the snapshot is **needed** for in-basis grading of non-half_ppr leagues (all current snapshots are custom-basis); without it, PPG MAE/bias conflates basis offset with projection error |
+| **Snapshot target season** | At schemaVersion 2, the app writes `targetSeason` explicitly in the snapshot envelope; `gradeSnapshot()` reads it directly. `deriveTargetSeason()` in `scripts/grade-snapshot.mjs` is the fallback for v1 snapshots only (maps Jan–Aug → same year, Sep–Dec → year+1; override: `--target-season YYYY`) | `scoringSettings` is now captured verbatim in the snapshot envelope as of v2; the in-basis grading consumer (recomputing PPG metrics against the league's actual scoring weights) is a future data-repo task |
 
 ---
 
