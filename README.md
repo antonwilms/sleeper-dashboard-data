@@ -43,6 +43,8 @@ sleeper-dashboard-data/
     notes.json                — Free-form player/team notes
   snapshots/
     <YYYY-MM-DD>.json         — Daily projection snapshots (one per UTC day)
+  grading/
+    <YYYY-MM-DD>.json         — Grading reports (one per snapshot date, written by bin/grade.mjs --write)
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, weekly stats, etc.)
 ```
@@ -213,6 +215,38 @@ repo's `snapshots/`, run `node bin/update.mjs snapshots`, then commit.
 Snapshots are permanent (never overwritten by the app within a UTC day). Old snapshots accumulate — no retention policy in v1.
 
 See [snapshot-workflow.md](snapshot-workflow.md) for the full step-by-step.
+
+---
+
+### `grading/<date>.json`
+
+Grading report produced by `bin/grade.mjs --write` for a given snapshot date. Stores the full `GradeReport` — accuracy metrics, calibration check, games block, and factor correlations — as computed at `meta.gradedAt`. One file per snapshot date; only written on demand (not automatically after every snapshot import).
+
+```json
+{
+  "meta": {
+    "targetSeason":       2026,
+    "snapshotDate":       "2026-05-19",
+    "capturedAt":         "2026-05-19T14:23:11.812Z",
+    "scoringBasis":       "custom",
+    "outcomeBasis":       "half_ppr",
+    "basisMatch":         false,
+    "source":             "snapshot",
+    "gradedAt":           "2027-02-15T10:00:00.000Z",
+    "harnessVersion":     1
+  },
+  "counts":     { "projected": 757, "graded": 498, "dnp": 82, "absent": 177 },
+  "overall":    { "n": 498, "maePPG": 3.2, "biasPPG": 1.1, "maeTotal": null, "biasTotal": null },
+  "byPosition": { "QB": {}, "RB": {}, "WR": {}, "TE": {}, "UNK": {} },
+  "byConfidence": { "high": {}, "medium": {}, "low": {}, "rookie": {} },
+  "calibration":  { "order": ["high","medium","low"], "maeByBucket": {}, "monotonic": true, "note": "…" },
+  "games":          { "mae": 1.4, "bias": -0.2, "n": 580 },
+  "factorDiagnostics": [ { "factor": "durabilityFactor", "n": 498, "r": -0.18, "note": "" } ],
+  "caveats":    [ "Basis mismatch: …" ]
+}
+```
+
+**`meta.basisMatch`** is `false` for all current snapshots (they use `custom` scoring basis; outcomes are `half_ppr`). When false, absolute PPG metrics are affected by basis offset; confidence-bucket ordering and the games block are still valid. See [Grading harness](#grading-harness) below.
 
 ---
 
@@ -496,6 +530,62 @@ If `nfl/season-totals/<year>.json` is regenerated and absence segments shift, an
 ### App consumption
 
 `src/api/enrichment.js → loadEnrichment()` fetches all four files on mount and stores them in `enrichmentMap` state. Currently consumed only by `AvailabilityHistory`'s `D`-cell tooltips (Phase 6). Other consumers (coaching/scheme display, notes) are deferred.
+
+---
+
+## Grading harness
+
+`bin/grade.mjs` joins a captured projection snapshot to the following season's outcomes (from `nfl/season-totals/<year>.json`) and emits accuracy diagnostics.
+
+### Usage
+
+```bash
+node bin/grade.mjs <snapshotDate>                       # human report to stdout
+node bin/grade.mjs <snapshotDate> --json                # machine-readable GradeReport JSON
+node bin/grade.mjs <snapshotDate> --write               # persist grading/<snapshotDate>.json
+node bin/grade.mjs <snapshotDate> --target-season YYYY  # override derived target season
+node bin/grade.mjs <snapshotDate> --strict-basis        # skip non-half_ppr snapshots
+node bin/grade.mjs --self-test                          # fixture self-check (used by smoke)
+
+# npm shortcut
+npm run grade -- 2026-05-19
+```
+
+Exit codes: `0` = success, nothing-to-grade (missing outcome file, strict-basis skip), or self-test passed; `1` = real error.
+
+### Architecture
+
+Three layers, each with a clean interface:
+
+| Layer | File | Contract |
+|---|---|---|
+| Pure scorer | `lib/grade.mjs` | `scoreProjections(GradeInput) → GradeReport`; no I/O, no snapshot knowledge |
+| Snapshot adapter | `scripts/grade-snapshot.mjs` | Loads snapshot + outcomes, builds `GradeInput`, orchestrates `gradeSnapshot()` |
+| CLI | `bin/grade.mjs` | Parses flags, dispatches, exits cleanly |
+
+### Target season heuristic
+
+`deriveTargetSeason(capturedAtISO)` in `scripts/grade-snapshot.mjs`:
+- Jan–Aug capture → target = year of `capturedAt` (offseason, projecting the coming season)
+- Sep–Dec capture → target = year + 1 (in-season, still projecting the coming completed season)
+
+Override with `--target-season YYYY` if the heuristic is wrong.
+
+### Basis mismatch
+
+All current snapshots have `scoringBasis: "custom"` (league-specific settings). Outcomes are canonical `half_ppr`. As a result:
+- Absolute PPG MAE/bias reflects basis offset as well as projection error — treat as indicative.
+- Confidence-bucket relative ordering and the games block are **basis-independent** and reliable.
+- Use `--strict-basis` to skip non-half_ppr snapshots entirely.
+- Capturing the league's raw `scoringSettings` in the snapshot (planned) would enable in-basis grading.
+
+### Self-test
+
+`--self-test` runs `scripts/grade-snapshot.mjs::runSelfTest()`, which loads `test/fixtures/grade-snapshot.json` + `test/fixtures/grade-outcomes-2026.json`, scores them, and asserts hand-computed expected metrics (QB MAE=2.0, high-confidence MAE=2.5, games block n=4/MAE=0.5/bias=0, etc.). Also run by `npm run smoke`.
+
+### Not yet available
+
+Until `nfl/season-totals/2026.json` exists (expected early 2027), running `grade` for any 2026 snapshot prints "outcome not available yet" and exits 0. This is the expected state for all current snapshots.
 
 ---
 

@@ -49,10 +49,25 @@ node bin/enrich.mjs remove <id>                   # remove entry by id
 
 npm shortcuts: `npm run enrich`, `npm run validate:enrichment`.
 
+### Grading CLI — `bin/grade.mjs`
+
+```sh
+node bin/grade.mjs <snapshotDate>                       # human report to stdout
+node bin/grade.mjs <snapshotDate> --json                # machine-readable GradeReport
+node bin/grade.mjs <snapshotDate> --write               # persist grading/<snapshotDate>.json + manifest
+node bin/grade.mjs <snapshotDate> --target-season YYYY  # override derived target season
+node bin/grade.mjs <snapshotDate> --strict-basis        # skip non-half_ppr snapshots
+node bin/grade.mjs --self-test                          # fixture self-check (used by smoke)
+
+# Flags: --dry-run, --json, --write, --strict-basis, --target-season YYYY
+```
+
+npm shortcut: `npm run grade`.
+
 ### Smoke & validation
 
 ```sh
-npm run smoke               # dry-run nfl+cfbd+ktc for 2023, then validate:enrichment
+npm run smoke               # dry-run nfl+cfbd+ktc for 2023, validate:enrichment, grade --self-test
 npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 ```
 
@@ -76,7 +91,10 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `scripts/update-cfbd.mjs` | CFBD college stats update logic |
 | `scripts/update-ktc.mjs` | KTC snapshot capture logic |
 | `scripts/register-snapshots.mjs` | Snapshot manifest registration |
+| `scripts/grade-snapshot.mjs` | Snapshot adapter — loads snapshot + outcomes, builds GradeInput, orchestrates `gradeSnapshot()`, `runSelfTest()`, `formatHumanReport()` |
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
+| `bin/grade.mjs` | Grading harness CLI — parses flags, dispatches to `gradeSnapshot()` or `runSelfTest()` |
+| `lib/grade.mjs` | Pure scorer — `mae`, `bias`, `pearson`, `scoreProjections`; source-agnostic `GradeInput → GradeReport`; no I/O |
 | `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 2) |
 | `college/passing/` | CFBD passing stats, one file per year |
 | `college/receiving/` | CFBD receiving stats, one file per year |
@@ -84,6 +102,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `ktc/` | KTC dynasty value snapshots (schemaVersion 1) |
 | `enrichment/` | Hand-authored overlay: coaching.json, scheme.json, injuries.json, notes.json |
 | `snapshots/` | Projection snapshots imported from the app export ZIP, keyed by UTC date (see [snapshot-workflow.md](snapshot-workflow.md)) |
+| `grading/` | Grading reports written by `bin/grade.mjs --write`, one JSON per snapshot date |
 | `raw/` | Unprocessed Sleeper API responses and CFBD player manifests |
 | `manifest.json` | Index of every script-written file with metadata |
 | `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation |
@@ -107,6 +126,8 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 7. **Yearly maintenance.** At each season start, update `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` in `lib/validate.mjs` to reflect the current player landscape.
 
+8. **Grading reads are never recomputed.** `bin/grade.mjs` joins captured projections to captured outcomes — it never re-runs the projection pipeline. The GradeReport is fully determined by the snapshot and outcome files at read time.
+
 ---
 
 ## Cross-repo contracts (with sleeper-dashboard)
@@ -123,6 +144,7 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 | **Snap & RZ usage stat keys** | `off_snp`, `tm_off_snp`, `rec_rz_tgt`, `rush_rz_att`, `pass_rz_att` aggregated from Sleeper stats response and preserved as-is in `nfl/season-totals/<year>.json`; never stripped or filtered in any schema operation | `src/utils/usageMetrics.js` reads these fields; projection degrades silently to neutral if absent, so the dependency is invisible at runtime — do not remove or rename |
 | **`pass_cmp` stat key (QB passer rating)** | Preserved through season-totals aggregation; never stripped (flows through the generic sum-all-keys path in `lib/sleeper.mjs`). Note: stored `pass_rtg` and `cmp_pct` fields are weekly sums (not reliable season-level metrics) and are NOT consumed by the app — preserve as-is, no action needed | `src/utils/efficiencyMetrics.js` computes canonical NFL passer rating from `pass_cmp`, `pass_att`, `pass_yd`, `pass_td`, `pass_int`; `pass_cmp` is the new dependency (the latter four were previously implicit). Missing `pass_cmp` produces neutral `efficiencyFactor` (1.0); no errors, no schema bump required |
 | **`rec_air_yd` stat key (aDOT diagnostic)** | Preserved through season-totals aggregation; never stripped (same generic sum-all-keys path in `lib/sleeper.mjs`). Confirmed present 2012–present. Calibration note: values run ~½ industry aDOT magnitude (likely air yards on completed receptions only, not all targets) — ranking is preserved, absolute magnitude is not industry-standard; this is the app's concern, not the data repo's | `src/utils/seasonProjection.js` reads `rec_air_yd` and `rec_tgt` to compute `factors.adot` (WR/TE capture-only diagnostic; does **not** affect `projectedPPG`). Missing `rec_air_yd` produces `factors.adot: null`; no errors, no schema bump required (aDOT batch) |
+| **Snapshot target season** | `capturedAt` ISO timestamp in `snapshots/<date>.json`; `deriveTargetSeason()` in `scripts/grade-snapshot.mjs` maps Jan–Aug → same year, Sep–Dec → year+1 (override: `--target-season YYYY`) | Capturing the league's raw `scoringSettings` in the snapshot is **needed** for in-basis grading of non-half_ppr leagues (all current snapshots are custom-basis); without it, PPG MAE/bias conflates basis offset with projection error |
 
 ---
 

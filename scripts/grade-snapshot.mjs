@@ -1,0 +1,482 @@
+/**
+ * scripts/grade-snapshot.mjs — Snapshot adapter + grading orchestration.
+ *
+ * This is the only layer that knows the snapshot and season-totals file shapes.
+ * The pure scorer (lib/grade.mjs) sees only GradeInput — it's source-agnostic.
+ *
+ * Public exports:
+ *   deriveTargetSeason(capturedAtISO)           → number
+ *   buildPositionMap(snapshot)                  → Map<playerId, pos>
+ *   loadOutcomes(targetSeason)                  → Map<id, OutcomeRecord> | null
+ *   buildGradeInputFromSnapshot(snap, out, opts) → GradeInput
+ *   gradeSnapshot(opts)                         → GradeReport | null
+ *   runSelfTest()                               → void (throws on mismatch)
+ *   formatHumanReport(report)                   → string
+ */
+
+import { readJson, writeJsonStable } from '../lib/io.mjs';
+import { updateManifestEntry }       from '../lib/manifest.mjs';
+import { scoreProjections }          from '../lib/grade.mjs';
+
+// ─── deriveTargetSeason ───────────────────────────────────────────────────────
+
+/**
+ * Heuristic: project targets the following season.
+ * Jan–Aug: "offseason capture" → target = year of capturedAt.
+ * Sep–Dec: "in-season capture"  → target = year + 1.
+ *
+ * This is fragile; prefer an explicit snapshot.targetSeason when available.
+ *
+ * @param {string} capturedAtISO  ISO date-time string.
+ * @returns {number}
+ */
+export function deriveTargetSeason(capturedAtISO) {
+  const d = new Date(capturedAtISO);
+  const y = d.getUTCFullYear();
+  const m = d.getUTCMonth() + 1;  // 1–12
+  return m >= 9 ? y + 1 : y;
+}
+
+// ─── buildPositionMap ─────────────────────────────────────────────────────────
+
+/**
+ * Build a Map<playerId, 'QB'|'RB'|'WR'|'TE'> from snapshot.teamDepthCharts.
+ * Players not found in any depth chart remain absent from the map; the
+ * adapter assigns them 'UNK'.
+ *
+ * @param {object} snapshot
+ * @returns {Map<string, string>}
+ */
+export function buildPositionMap(snapshot) {
+  const map = new Map();
+  const charts = snapshot.teamDepthCharts ?? {};
+  for (const teamChart of Object.values(charts)) {
+    for (const pos of ['QB', 'RB', 'WR', 'TE']) {
+      const entries = teamChart[pos] ?? [];
+      for (const entry of entries) {
+        if (entry.playerId != null) {
+          map.set(String(entry.playerId), pos);
+        }
+      }
+    }
+  }
+  return map;
+}
+
+// ─── loadOutcomes ─────────────────────────────────────────────────────────────
+
+/**
+ * Load nfl/season-totals/<targetSeason>.json and convert to a Map<playerId, OutcomeRecord>.
+ * Returns null if the file does not exist.
+ *
+ * @param {number} targetSeason
+ * @returns {Map<string, object>|null}
+ */
+export function loadOutcomes(targetSeason) {
+  const data = readJson(`nfl/season-totals/${targetSeason}.json`);
+  if (!data) return null;
+
+  const map = new Map();
+  for (const [playerId, rec] of Object.entries(data)) {
+    const gamesPlayed   = rec.gamesPlayed   ?? 0;
+    const fantasyPoints = rec.fantasyPoints ?? 0;
+    map.set(String(playerId), {
+      actualGames:    gamesPlayed,
+      actualTotalPts: fantasyPoints,
+      actualPPG:      gamesPlayed > 0 ? fantasyPoints / gamesPlayed : null,
+      played:         gamesPlayed > 0,
+    });
+  }
+  return map;
+}
+
+// ─── buildGradeInputFromSnapshot ─────────────────────────────────────────────
+
+/**
+ * Adapter: transform a raw snapshot + outcomes Map into a GradeInput.
+ * This is the ONLY place that knows the snapshot player shape.
+ *
+ * @param {object} snapshot    Parsed snapshots/<date>.json
+ * @param {Map}    outcomes    Map<playerId, OutcomeRecord> — from loadOutcomes
+ * @param {object} opts
+ * @param {number}      opts.targetSeason
+ * @param {string|null} opts.snapshotDate
+ * @param {string}      opts.source      'snapshot' | 'self-test' | …
+ * @returns {object}  GradeInput
+ */
+export function buildGradeInputFromSnapshot(snapshot, outcomes, { targetSeason, snapshotDate = null, source = 'snapshot' }) {
+  const posMap       = buildPositionMap(snapshot);
+  const scoringBasis = snapshot.scoringBasis ?? 'unknown';
+  const outcomeBasis = 'half_ppr';
+
+  const projections = [];
+  for (const [playerId, player] of Object.entries(snapshot.players ?? {})) {
+    const proj = player.projection;
+    if (!proj) continue;
+
+    projections.push({
+      playerId:          String(playerId),
+      position:          posMap.get(String(playerId)) ?? 'UNK',
+      projectedPPG:      proj.projectedPPG,
+      projectedGames:    proj.projectedGames    ?? null,
+      projectedTotalPts: proj.projectedTotalPts ?? null,
+      confidence:        proj.confidence,
+      factors:           proj.factors           ?? null,
+    });
+  }
+
+  return {
+    meta: {
+      targetSeason,
+      snapshotDate,
+      capturedAt:  snapshot.capturedAt ?? null,
+      scoringBasis,
+      outcomeBasis,
+      basisMatch:  scoringBasis === outcomeBasis,
+      source,
+    },
+    projections,
+    outcomes: outcomes ?? new Map(),
+  };
+}
+
+// ─── gradeSnapshot (orchestration) ───────────────────────────────────────────
+
+/**
+ * Full pipeline: load snapshot → resolve season → load outcomes → score → output.
+ *
+ * Returns the GradeReport, or null if the outcome file is missing or a
+ * --strict-basis skip occurs (both are exit-0 conditions, not errors).
+ *
+ * @param {object} opts
+ * @param {string}       opts.snapshotDate   e.g. '2026-06-06'
+ * @param {number|null}  opts.targetSeason   override; null = auto-derive
+ * @param {boolean}      opts.write          persist grading/<date>.json + manifest
+ * @param {boolean}      opts.json           emit JSON to stdout instead of human report
+ * @param {boolean}      opts.strictBasis    skip non-half_ppr snapshots
+ * @param {boolean}      opts.dryRun         suppress writes even if --write is set
+ * @returns {object|null}
+ */
+export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = null, write = false, json = false, strictBasis = false, dryRun = false }) {
+  // 1. Load snapshot
+  const snapshot = readJson(`snapshots/${snapshotDate}.json`);
+  if (!snapshot) {
+    throw new Error(
+      `snapshots/${snapshotDate}.json not found. ` +
+      `Run npm run import:snapshot first to import the export ZIP.`
+    );
+  }
+
+  // 2. Resolve target season (explicit > snapshot field > heuristic)
+  const seasonDerived = targetSeasonOpt == null && snapshot.targetSeason == null;
+  const targetSeason  = targetSeasonOpt
+    ?? (snapshot.targetSeason != null ? snapshot.targetSeason : deriveTargetSeason(snapshot.capturedAt));
+
+  if (seasonDerived) {
+    console.log(`[grade] targetSeason ${targetSeason} derived from capturedAt (${snapshot.capturedAt}) — use --target-season to override.`);
+  }
+
+  // 3. Strict-basis check
+  if (strictBasis && snapshot.scoringBasis !== 'half_ppr') {
+    console.log(
+      `[grade] Skipping: --strict-basis set and snapshot scoringBasis is ` +
+      `'${snapshot.scoringBasis}' (not half_ppr).`
+    );
+    return null;
+  }
+
+  // 4. Load outcomes
+  const outcomes = loadOutcomes(targetSeason);
+  if (!outcomes) {
+    console.log(
+      `[grade] nfl/season-totals/${targetSeason}.json not found — ` +
+      `outcome not available yet (expected before the season completes).`
+    );
+    return null;
+  }
+
+  // 5. Build GradeInput and score
+  const gradeInput = buildGradeInputFromSnapshot(snapshot, outcomes, {
+    targetSeason,
+    snapshotDate,
+    source: 'snapshot',
+  });
+
+  const report = scoreProjections(gradeInput);
+
+  // Decorate meta with runtime fields
+  report.meta.gradedAt      = new Date().toISOString();
+  report.meta.harnessVersion = 1;
+  if (seasonDerived) report.meta.targetSeasonDerived = true;
+
+  // 6. Output
+  if (json) {
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+  } else {
+    process.stdout.write(formatHumanReport(report) + '\n');
+  }
+
+  // 7. Persist (if --write and not --dry-run)
+  if (write && !dryRun) {
+    const outPath = `grading/${snapshotDate}.json`;
+    writeJsonStable(outPath, report);
+    updateManifestEntry({
+      path:         outPath,
+      recordCount:  report.counts.graded,
+      inProgress:   false,
+      schemaVersion: 1,
+    });
+    console.log(`[grade] Written → ${outPath}`);
+  } else if (write && dryRun) {
+    console.log(`[grade] --dry-run: would write grading/${snapshotDate}.json (suppressed).`);
+  }
+
+  return report;
+}
+
+// ─── runSelfTest ──────────────────────────────────────────────────────────────
+
+/**
+ * Fixture self-test. Loads test/fixtures/grade-snapshot.json +
+ * test/fixtures/grade-outcomes-<year>.json, runs the full pipeline, and
+ * asserts the hand-computed expected metrics. Throws on any mismatch.
+ *
+ * Also runs the basis-mismatch regression: confirms that setting
+ * scoringBasis='custom' (basisMatch=false) produces an identical games block
+ * and injects the basis caveat.
+ */
+export function runSelfTest() {
+  const snapshot = readJson('test/fixtures/grade-snapshot.json');
+  if (!snapshot) throw new Error('[self-test] test/fixtures/grade-snapshot.json not found');
+
+  const targetSeason  = deriveTargetSeason(snapshot.capturedAt);
+  const rawOutcomes   = readJson(`test/fixtures/grade-outcomes-${targetSeason}.json`);
+  if (!rawOutcomes) {
+    throw new Error(`[self-test] test/fixtures/grade-outcomes-${targetSeason}.json not found`);
+  }
+
+  // Convert raw outcomes to Map<id, OutcomeRecord>
+  const outcomes = new Map();
+  for (const [id, rec] of Object.entries(rawOutcomes)) {
+    const gp  = rec.gamesPlayed   ?? 0;
+    const fp  = rec.fantasyPoints ?? 0;
+    outcomes.set(String(id), {
+      actualGames:    gp,
+      actualTotalPts: fp,
+      actualPPG:      gp > 0 ? fp / gp : null,
+      played:         gp > 0,
+    });
+  }
+
+  const gradeInput = buildGradeInputFromSnapshot(snapshot, outcomes, {
+    targetSeason,
+    snapshotDate: 'fixture',
+    source:       'self-test',
+  });
+
+  const report = scoreProjections(gradeInput);
+
+  // ── Assertion helpers ──────────────────────────────────────────────────────
+  function assert(condition, message) {
+    if (!condition) throw new Error(`[self-test] FAILED: ${message}`);
+  }
+  function close(a, b, msg, tol = 1e-9) {
+    if (a == null || b == null || Math.abs(a - b) > tol) {
+      throw new Error(`[self-test] FAILED: ${msg}: got ${a}, expected ${b}`);
+    }
+  }
+
+  // counts
+  assert(report.counts.projected === 5, 'counts.projected === 5');
+  assert(report.counts.graded    === 3, 'counts.graded === 3');
+  assert(report.counts.dnp       === 1, 'counts.dnp === 1');
+  assert(report.counts.absent    === 1, 'counts.absent === 1');
+
+  // byPosition.QB  (p1 only)
+  assert(report.byPosition.QB.n === 1, 'QB n === 1');
+  close(report.byPosition.QB.maePPG,  2.0, 'QB maePPG');
+  close(report.byPosition.QB.biasPPG, 2.0, 'QB biasPPG');
+
+  // byPosition.RB  (p2, p3)
+  assert(report.byPosition.RB.n === 2, 'RB n === 2');
+  close(report.byPosition.RB.maePPG,  2.0, 'RB maePPG');
+  close(report.byPosition.RB.biasPPG, 2.0, 'RB biasPPG');
+
+  // byConfidence.high  (p1, p2)
+  assert(report.byConfidence.high.n === 2, 'high n === 2');
+  close(report.byConfidence.high.maePPG,  2.5, 'high maePPG');
+  close(report.byConfidence.high.biasPPG, 2.5, 'high biasPPG');
+
+  // byConfidence.low  (p3)
+  assert(report.byConfidence.low.n === 1, 'low n === 1');
+  close(report.byConfidence.low.maePPG,  1.0, 'low maePPG');
+  close(report.byConfidence.low.biasPPG, 1.0, 'low biasPPG');
+
+  // byConfidence.medium (p4 dnp → n=0)
+  assert(report.byConfidence.medium.n === 0, 'medium n === 0');
+
+  // calibration
+  close(report.calibration.maeByBucket.high, 2.5, 'calib high mae');
+  assert(report.calibration.maeByBucket.medium === null, 'calib medium mae === null');
+  close(report.calibration.maeByBucket.low, 1.0, 'calib low mae');
+  assert(report.calibration.monotonic === false, 'calibration not monotonic (high 2.5 > low 1.0)');
+
+  // games  (p1=0, p2=−1, p3=+1, p4=0 → mae=0.5, bias=0, n=4)
+  assert(report.games.n === 4, 'games.n === 4');
+  close(report.games.mae,  0.5, 'games.mae');
+  close(report.games.bias, 0,   'games.bias');
+
+  // factor diagnostics: durabilityFactor (varies → r ≠ null), regressionFactor (constant → r = null)
+  const duraDiag = report.factorDiagnostics.find(d => d.factor === 'durabilityFactor');
+  assert(duraDiag !== undefined, 'durabilityFactor diag present');
+  assert(duraDiag.n === 3, 'durabilityFactor n === 3');
+  assert(duraDiag.r !== null, 'durabilityFactor r not null');
+  assert(typeof duraDiag.r === 'number' && duraDiag.r >= -1 && duraDiag.r <= 1,
+    'durabilityFactor r in [-1, 1]');
+  assert(duraDiag.note.includes('low-n'), 'durabilityFactor note includes low-n');
+
+  const regDiag = report.factorDiagnostics.find(d => d.factor === 'regressionFactor');
+  assert(regDiag !== undefined, 'regressionFactor diag present');
+  assert(regDiag.r === null, 'regressionFactor r === null (zero variance)');
+
+  // ── Basis-mismatch regression ──────────────────────────────────────────────
+  const customInput = {
+    ...gradeInput,
+    meta: { ...gradeInput.meta, scoringBasis: 'custom', basisMatch: false },
+  };
+  const customReport = scoreProjections(customInput);
+
+  assert(customReport.meta.basisMatch === false, 'custom basisMatch === false');
+  assert(
+    customReport.caveats.some(c => c.toLowerCase().includes('basis')),
+    'basis caveat present in custom report'
+  );
+  // games block must be byte-identical (basis-independent)
+  assert(customReport.games.mae  === report.games.mae,  'games.mae basis-independent');
+  assert(customReport.games.bias === report.games.bias, 'games.bias basis-independent');
+  assert(customReport.games.n    === report.games.n,    'games.n basis-independent');
+
+  console.log('[grade] Self-test passed ✓');
+}
+
+// ─── formatHumanReport ───────────────────────────────────────────────────────
+
+/**
+ * Render a GradeReport as a human-readable string.
+ * @param {object} report  GradeReport
+ * @returns {string}
+ */
+export function formatHumanReport(report) {
+  const { meta, counts, overall, byPosition, byConfidence, calibration, games, factorDiagnostics, caveats } = report;
+
+  const lines = [];
+
+  lines.push('');
+  lines.push('┌─────────────────────────────────────────────────────────────┐');
+  lines.push(`│  Projection Grading Report                                  │`);
+  lines.push(`│  Snapshot:  ${(meta.snapshotDate ?? 'synthetic').padEnd(49)}│`);
+  lines.push(`│  Season:    ${String(meta.targetSeason).padEnd(49)}│`);
+  if (meta.targetSeasonDerived) {
+    lines.push(`│  (season derived from capturedAt — use --target-season to   │`);
+    lines.push(`│   override if the heuristic is wrong for this capture)      │`);
+  }
+  lines.push(`│  Basis:     outcomes=half_ppr, snapshot=${meta.scoringBasis}${meta.basisMatch ? '' : '  ⚠ MISMATCH'}${' '.repeat(Math.max(0, 18 - (meta.scoringBasis ?? '').length - (meta.basisMatch ? 0 : 10)))}│`);
+  if (meta.gradedAt) {
+    lines.push(`│  Graded:    ${meta.gradedAt.padEnd(49)}│`);
+  }
+  lines.push('└─────────────────────────────────────────────────────────────┘');
+  lines.push('');
+  lines.push(`  Players:  projected=${counts.projected}  graded=${counts.graded}  dnp=${counts.dnp}  absent=${counts.absent}`);
+  lines.push('');
+
+  // Overall
+  lines.push('── Overall ──────────────────────────────────────────────────');
+  lines.push(metricHeader());
+  lines.push(metricRow('(all)', overall));
+  lines.push('');
+
+  // By position
+  lines.push('── By Position ──────────────────────────────────────────────');
+  lines.push(metricHeader());
+  for (const pos of ['QB', 'RB', 'WR', 'TE', 'UNK']) {
+    const b = byPosition[pos];
+    if (b && b.n > 0) lines.push(metricRow(pos, b));
+  }
+  lines.push('');
+
+  // By confidence + calibration
+  lines.push('── By Confidence ────────────────────────────────────────────');
+  lines.push(metricHeader());
+  for (const conf of ['high', 'medium', 'low', 'rookie']) {
+    const b = byConfidence[conf];
+    if (b && b.n > 0) lines.push(metricRow(conf, b));
+  }
+  lines.push('');
+
+  const calibParts = calibration.order
+    .filter(b => calibration.maeByBucket[b] !== null)
+    .map(b => `${b}=${calibration.maeByBucket[b].toFixed(2)}`);
+  const calibVerdict = calibration.monotonic ? '✓ monotonic' : '✗ NOT monotonic (high confidence less accurate than expected)';
+  lines.push(`  Calibration: [${calibParts.join(' → ')}] — ${calibVerdict}`);
+  lines.push(`  Note: ${calibration.note}`);
+  lines.push('');
+
+  // Games block
+  lines.push('── Games (projectedGames vs actualGames — basis-independent) ─');
+  if (games.n > 0) {
+    lines.push(`  n=${games.n}  MAE=${fmt(games.mae)}  bias=${fmt(games.bias)}`);
+  } else {
+    lines.push('  No data (no players with projectedGames and an outcome record).');
+  }
+  lines.push('');
+
+  // Factor correlations
+  const diagsWithR = factorDiagnostics
+    .filter(d => d.r !== null)
+    .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+
+  if (diagsWithR.length > 0) {
+    lines.push('── Top Factor Correlations (residual = actualPPG − projectedPPG) ─');
+    lines.push('  Note: diagnostic only — collinearity between factors limits causal interpretation.');
+    lines.push('  factor                           n       r   note');
+    for (const d of diagsWithR.slice(0, 10)) {
+      const noteStr = d.note ? `  [${d.note}]` : '';
+      lines.push(
+        `  ${d.factor.padEnd(32)} ${String(d.n).padStart(3)}  ${d.r.toFixed(3).padStart(6)}${noteStr}`
+      );
+    }
+    lines.push('');
+  }
+
+  // Caveats
+  if (caveats.length > 0) {
+    lines.push('── Caveats ──────────────────────────────────────────────────');
+    for (const c of caveats) {
+      lines.push(`  ⚠  ${c}`);
+    }
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function metricHeader() {
+  return '  label                   n   maePPG  biasPPG  maeTotal  biasTotal';
+}
+
+function metricRow(label, b) {
+  if (b.n === 0) return `  ${label.padEnd(23)} ${String(b.n).padStart(3)}  (no data)`;
+  return [
+    `  ${label.padEnd(23)}`,
+    String(b.n).padStart(3),
+    fmt(b.maePPG).padStart(9),
+    fmt(b.biasPPG).padStart(9),
+    b.maeTotal  != null ? fmt(b.maeTotal).padStart(10)  : '       n/a',
+    b.biasTotal != null ? fmt(b.biasTotal).padStart(10) : '       n/a',
+  ].join(' ');
+}
+
+function fmt(n) {
+  if (n == null) return 'n/a';
+  return n.toFixed(2);
+}

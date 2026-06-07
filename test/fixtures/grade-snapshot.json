@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-05-19T00:00:00.000Z",
+  "scoringBasis": "half_ppr",
+  "leagueId": "test-league",
+  "teamDepthCharts": {
+    "AAA": {
+      "QB": [{"playerId": "p1", "fullName": "Player One",   "depthOrder": 1, "status": "Active"}],
+      "RB": [],
+      "WR": [],
+      "TE": []
+    },
+    "BBB": {
+      "QB": [],
+      "RB": [
+        {"playerId": "p2", "fullName": "Player Two",   "depthOrder": 1, "status": "Active"},
+        {"playerId": "p3", "fullName": "Player Three", "depthOrder": 2, "status": "Active"}
+      ],
+      "WR": [],
+      "TE": []
+    },
+    "CCC": {
+      "QB": [],
+      "RB": [],
+      "WR": [
+        {"playerId": "p4", "fullName": "Player Four", "depthOrder": 1, "status": "Active"},
+        {"playerId": "p5", "fullName": "Player Five", "depthOrder": 2, "status": "Active"}
+      ],
+      "TE": []
+    }
+  },
+  "players": {
+    "p1": {
+      "nfl_team": "AAA",
+      "status": "Active",
+      "depthChartOrder": 1,
+      "ktc": null,
+      "projection": {
+        "projectedPPG": 20,
+        "projectedGames": 16,
+        "projectedTotalPts": 320,
+        "confidence": "high",
+        "factors": {
+          "durabilityFactor": 0.9,
+          "regressionFactor": 1.0
+        }
+      }
+    },
+    "p2": {
+      "nfl_team": "BBB",
+      "status": "Active",
+      "depthChartOrder": 1,
+      "ktc": null,
+      "projection": {
+        "projectedPPG": 15,
+        "projectedGames": 14,
+        "projectedTotalPts": 210,
+        "confidence": "high",
+        "factors": {
+          "durabilityFactor": 0.8,
+          "regressionFactor": 1.0
+        }
+      }
+    },
+    "p3": {
+      "nfl_team": "BBB",
+      "status": "Active",
+      "depthChartOrder": 2,
+      "ktc": null,
+      "projection": {
+        "projectedPPG": 10,
+        "projectedGames": 12,
+        "projectedTotalPts": 120,
+        "confidence": "low",
+        "factors": {
+          "durabilityFactor": 0.95,
+          "regressionFactor": 1.0
+        }
+      }
+    },
+    "p4": {
+      "nfl_team": "CCC",
+      "status": "Active",
+      "depthChartOrder": 1,
+      "ktc": null,
+      "projection": {
+        "projectedPPG": 12,
+        "projectedGames": 0,
+        "projectedTotalPts": 0,
+        "confidence": "medium",
+        "factors": null
+      }
+    },
+    "p5": {
+      "nfl_team": "CCC",
+      "status": "Active",
+      "depthChartOrder": 2,
+      "ktc": null,
+      "projection": {
+        "projectedPPG": 8,
+        "projectedGames": 10,
+        "projectedTotalPts": 80,
+        "confidence": "rookie",
+        "factors": null
+      }
+    }
+  }
+}
