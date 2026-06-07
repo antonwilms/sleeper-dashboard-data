@@ -7,9 +7,11 @@
     "update:nfl": "node bin/update.mjs nfl",
     "update:cfbd": "node bin/update.mjs cfbd",
     "update:ktc": "node bin/update.mjs ktc",
+    "import:snapshot": "node bin/import-snapshot.mjs",
     "enrich": "node bin/enrich.mjs",
     "validate:enrichment": "node bin/enrich.mjs validate",
-    "smoke": "node bin/update.mjs nfl --year 2023 --dry-run && node bin/update.mjs cfbd --year 2023 --dry-run && node bin/update.mjs ktc --dry-run && node bin/enrich.mjs validate"
+    "smoke": "node bin/update.mjs nfl --year 2023 --dry-run && node bin/update.mjs cfbd --year 2023 --dry-run && node bin/update.mjs ktc --dry-run && node bin/enrich.mjs validate",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=20"

@@ -196,14 +196,23 @@ Daily projection snapshot produced by the app's pipeline, capturing the contempo
 
 **`projection`** is the verbatim output of `computeNextSeasonProjection` — no field whitelist.
 
-**Manual import workflow:**
-1. Click "Export data" in the app.
-2. Unzip the download.
-3. Copy `snapshots/<date>.json` → `<this repo>/snapshots/<date>.json`.
-4. `node bin/update.mjs snapshots` (or `node bin/update.mjs snapshots --dry-run` to preview).
-5. `git add snapshots/<date>.json manifest.json && git commit -m "snapshot: <date>"`
+**Import workflow:**
+1. Click "Export data" in the app (wait for the projection pipeline to finish first).
+2. From this repo's root, run `npm run import:snapshot`.
+
+`bin/import-snapshot.mjs` finds the newest `sleeper-dashboard-export*.zip` in `~/Downloads`,
+extracts `snapshots/<date>.json`, copies it in, registers it in `manifest.json`
+(via the same `snapshots` registration as `bin/update.mjs snapshots`), then commits
+and pushes `snapshot: <date>`. It is idempotent — if the date is already present it
+prints a message and exits without committing. If `git push` is rejected (e.g. the
+weekly KTC action pushed first) it runs `git pull --rebase` and retries once.
+
+The manual path still works if you prefer it: copy `snapshots/<date>.json` into this
+repo's `snapshots/`, run `node bin/update.mjs snapshots`, then commit.
 
 Snapshots are permanent (never overwritten by the app within a UTC day). Old snapshots accumulate — no retention policy in v1.
+
+See [snapshot-workflow.md](snapshot-workflow.md) for the full step-by-step.
 
 ---
 

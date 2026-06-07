@@ -29,7 +29,7 @@ node bin/update.mjs snapshots                     # Register untracked snapshots
 #   --force      overwrite completed-season files (nfl/cfbd only)
 ```
 
-npm shortcuts: `npm run update:nfl`, `npm run update:cfbd`, `npm run update:ktc`.
+npm shortcuts: `npm run update:nfl`, `npm run update:cfbd`, `npm run update:ktc`, `npm run import:snapshot`.
 
 ### Enrichment CLI — `bin/enrich.mjs`
 
@@ -64,6 +64,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 |---|---|
 | `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots subcommands |
 | `bin/enrich.mjs` | Enrichment overlay CLI → add / validate / list / remove |
+| `bin/import-snapshot.mjs` | One-command projection-snapshot import: ~/Downloads ZIP → snapshots/ → manifest → commit + push |
 | `lib/validate.mjs` | Schema validators; contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` |
 | `lib/cfbd.mjs` | CFBD API fetch helpers |
 | `lib/enrichment.mjs` | Enrichment schema validation helpers |
@@ -82,7 +83,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `college/rushing/` | CFBD rushing stats, one file per year |
 | `ktc/` | KTC dynasty value snapshots (schemaVersion 1) |
 | `enrichment/` | Hand-authored overlay: coaching.json, scheme.json, injuries.json, notes.json |
-| `snapshots/` | Projection snapshots imported from the app export ZIP, keyed by UTC date |
+| `snapshots/` | Projection snapshots imported from the app export ZIP, keyed by UTC date (see [snapshot-workflow.md](snapshot-workflow.md)) |
 | `raw/` | Unprocessed Sleeper API responses and CFBD player manifests |
 | `manifest.json` | Index of every script-written file with metadata |
 | `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation |
