@@ -45,6 +45,11 @@ sleeper-dashboard-data/
     <YYYY-MM-DD>.json         — Daily projection snapshots (one per UTC day)
   grading/
     <YYYY-MM-DD>.json         — Grading reports (one per snapshot date, written by bin/grade.mjs --write)
+  nflverse/
+    roster/                   — nflverse season rosters (sleeper_id join), one file per year
+      2025.json
+    draft/                    — nflverse combined draft picks (all years in one file)
+      draft_picks.json
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, weekly stats, etc.)
 ```
@@ -263,6 +268,57 @@ Grading report produced by `bin/grade.mjs --write` for a given snapshot date. St
 
 ---
 
+### `nflverse/roster/<year>.json`
+
+Season roster produced by `bin/update.mjs roster [--year YYYY]`, sourced from the nflverse `rosters` release asset (`https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_<year>.csv`). The CSV is CORS-blocked in the browser; ingest runs server-side in this repo and serves the result via jsDelivr.
+
+```json
+{
+  "schemaVersion": 1,
+  "season": 2025,
+  "generatedAt": "2026-06-08T12:00:00.000Z",
+  "rowCount": 2141,
+  "players": {
+    "4984": { "team": "BUF", "position": "QB", "status": "ACT", "fullName": "Josh Allen" }
+  }
+}
+```
+
+`players` is keyed by **`sleeper_id`** — a direct join to Sleeper player IDs used by the app. Rows without a `sleeper_id` in the source CSV are silently skipped (~14% of skill rows). Status filtering (removing `OUT_STATUSES`) is **app-side**, so raw status values are emitted here.
+
+**Sparsity gate (`MIN_ROSTER_IDS = 1500`):** preliminary offseason files have far fewer id-bearing rows. The ingest script refuses to write if `rowCount < 1500`; the app re-asserts the same gate on `rowCount` when reading from the store. If either side changes this constant, change both.
+
+**`inProgress: false` (deliberate deviation):** unlike `nfl/season-totals` files (where `inProgress: true` means "don't serve, fetch live from Sleeper"), the current-season roster has **no live app fallback**. It must be read from the store. Weekly mutability is handled by SHA-256 content-hash dedup (write only when changed) + `lastModified`-driven cache invalidation in the app. Do not change this to `inProgress: true`.
+
+**Weekly refresh:** the `weekly-nflverse-roster.yml` GitHub Action runs every Tuesday and re-ingests the current season. A `nflverse/last-checked-roster.json` marker is written on every run (even no-change runs) so "ran, no change" is distinguishable from "didn't run".
+
+---
+
+### `nflverse/draft/draft_picks.json`
+
+Combined multi-year draft picks produced by `bin/update.mjs draft`, sourced from the nflverse `draft_picks` release asset (`https://github.com/nflverse/nflverse-data/releases/download/draft_picks/draft_picks.csv`). Filtered to seasons ≥ 2010 (a generous superset of the app's `DRAFT_YEARS`). Supplemental picks and rows with non-integer rounds are skipped.
+
+```json
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-08T12:00:00.000Z",
+  "sourceLastUpdated": "2026-05-05 03:26:29 EDT",
+  "count": 4350,
+  "picksByYear": {
+    "2024": [
+      { "year": 2024, "round": 1, "pick": 1, "team": "CHI",
+        "fullName": "Caleb Williams", "position": "QB", "college": "USC", "age": 22 }
+    ]
+  }
+}
+```
+
+`DraftPick = { year, round, pick, team, fullName, position, college, age|null }`. The `picksByYear` object mirrors the exact shape `matchNflDraftToSleeper` consumes — only the data source changes, not the app's matching logic.
+
+**Yearly refresh:** the `nflverse-draft.yml` GitHub Action runs on May 1 each year (after the NFL draft). Content-hash dedup ensures no commit if nothing changed.
+
+---
+
 ### `raw/<name>.json`
 
 Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, weekly stats, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
@@ -333,13 +389,23 @@ node bin/update.mjs cfbd --year 2023 --category receiving
 # Scrape today's KTC dynasty values and write a dated snapshot
 node bin/update.mjs ktc
 
+# Fetch the current-season nflverse roster (keyed by sleeper_id)
+node bin/update.mjs roster
+node bin/update.mjs roster --year 2024
+
+# Fetch combined nflverse draft picks (all years ≥ 2010)
+node bin/update.mjs draft
+
 # Dry-run any subcommand (fetch + validate, no writes)
 node bin/update.mjs nfl --year 2024 --dry-run
 node bin/update.mjs cfbd --year 2023 --dry-run
 node bin/update.mjs ktc --dry-run
+node bin/update.mjs roster --year 2024 --dry-run
+node bin/update.mjs draft --dry-run
 
-# Force overwrite of a completed-season file
+# Force overwrite of a completed-season file (nfl/cfbd/roster)
 node bin/update.mjs nfl --year 2023 --force
+node bin/update.mjs roster --year 2024 --force
 ```
 
 ### Environment variables
@@ -356,14 +422,16 @@ Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actio
 npm run smoke
 ```
 
-Runs all three subcommands with `--dry-run` (no writes). Used by the smoke-test CI workflow on pull requests.
+Runs dry-run checks for nfl/cfbd/ktc/roster/draft (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
 
 ### GitHub Actions
 
 | Workflow | Trigger | What it does |
 |---|---|---|
 | `weekly-ktc.yml` | Monday 13:17 UTC + `workflow_dispatch` | Runs `node bin/update.mjs ktc`, commits new snapshot if values changed |
-| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, or `.github/workflows/` | Runs `npm run smoke` (all three dry-runs) |
+| `weekly-nflverse-roster.yml` | Tuesday 13:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs roster`, commits if content hash changed, purges jsDelivr CDN cache for changed files |
+| `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
+| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, or `.github/workflows/` | Runs `npm run smoke` (all dry-runs including roster/draft) |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit.
 

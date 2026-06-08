@@ -32,6 +32,8 @@ import { updateNfl }          from '../scripts/update-nfl.mjs';
 import { updateCfbd }         from '../scripts/update-cfbd.mjs';
 import { updateKtc }          from '../scripts/update-ktc.mjs';
 import { registerSnapshots }  from '../scripts/register-snapshots.mjs';
+import { updateRoster }       from '../scripts/update-roster.mjs';
+import { updateDraft }        from '../scripts/update-draft.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -69,10 +71,14 @@ SUBCOMMANDS
   ktc                         Capture a KTC dynasty value snapshot for today
   snapshots                   Register any untracked snapshots/*.json in manifest.json
                               (run after copying snapshot files from the app export ZIP)
+  roster                      Fetch nflverse season roster for current year (keyed by sleeper_id)
+  roster --year YYYY          Fetch nflverse season roster for a specific year
+  draft                       Fetch nflverse combined draft picks (all years ≥ 2010)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
-  --force     Overwrite completed-season files (skipped by default; nfl/cfbd only)
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster only)
+  --year YYYY Target season year (nfl, cfbd, roster subcommands)
 
 EXAMPLES
   node bin/update.mjs nfl  --year 2024
@@ -81,6 +87,11 @@ EXAMPLES
   node bin/update.mjs nfl  --year 2023 --force
   node bin/update.mjs snapshots
   node bin/update.mjs snapshots --dry-run
+  node bin/update.mjs roster
+  node bin/update.mjs roster --year 2024 --dry-run
+  node bin/update.mjs roster --year 2024 --force
+  node bin/update.mjs draft
+  node bin/update.mjs draft --dry-run
 `);
 }
 
@@ -107,6 +118,12 @@ const opts = { year, category, force, dryRun };
         break;
       case 'snapshots':
         registerSnapshots({ dryRun });
+        break;
+      case 'roster':
+        await updateRoster(opts);
+        break;
+      case 'draft':
+        await updateDraft(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${subcommand}\n`);

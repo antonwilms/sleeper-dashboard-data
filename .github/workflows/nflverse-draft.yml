@@ -1,0 +1,45 @@
+name: nflverse draft picks
+
+on:
+  schedule:
+    # May 1 at 12:00 UTC — after the NFL draft (late April); re-run manually
+    # if nflverse publishes a correction after the initial ingest.
+    - cron: "0 12 1 5 *"
+  workflow_dispatch: {}   # allow manual trigger for corrections / backfill
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch nflverse draft picks
+        run: node bin/update.mjs draft
+
+      - name: Commit and purge if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add nflverse/ manifest.json
+            git commit -m "nflverse: draft picks $(date -u +%Y-%m-%d)"
+            # Retry with rebase on push rejection (multiple weekly committers on main)
+            git push || (git pull --rebase && git push)
+            # Purge jsDelivr CDN cache
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/draft/draft_picks.json" || true
+          else
+            echo "No changes to commit."
+          fi
