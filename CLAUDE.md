@@ -83,7 +83,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots subcommands |
 | `bin/enrich.mjs` | Enrichment overlay CLI → add / validate / list / remove |
 | `bin/import-snapshot.mjs` | One-command projection-snapshot import: ~/Downloads ZIP → snapshots/ → manifest → commit + push |
-| `lib/validate.mjs` | Schema validators; contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` |
+| `lib/validate.mjs` | Schema validators (incl. season-totals finiteness sweep, `findNonFinite`); contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` |
 | `lib/cfbd.mjs` | CFBD API fetch helpers |
 | `lib/enrichment.mjs` | Enrichment schema validation helpers |
 | `lib/io.mjs` | File I/O utilities |
@@ -116,7 +116,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `raw/` | Unprocessed Sleeper API responses and CFBD player manifests |
 | `manifest.json` | Index of every script-written file with metadata |
 | `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation |
-| `.github/workflows/smoke-test.yml` | Smoke test CI |
+| `.github/workflows/smoke-test.yml` | Smoke test CI (dry-runs + npm test unit validators) |
 
 ---
 

@@ -60,7 +60,7 @@ sleeper-dashboard-data/
 
 ### `nfl/season-totals/<year>.json`
 
-Object keyed by Sleeper `player_id`. Each value is an aggregated per-player season record with raw stats, the canonical half-PPR fantasy point total, weekly-points for each played week, and a length-18 weekly participation array plus derived availability aggregates. Manifest entries for these files are at `schemaVersion: 2` as of Phase 5.
+Object keyed by Sleeper `player_id`. Each value is an aggregated per-player season record with raw stats, the canonical half-PPR fantasy point total, weekly-points for each played week, and a length-18 weekly participation array plus derived availability aggregates. Manifest entries for these files are at `schemaVersion: 2` as of Phase 5. Publish-time validation additionally rejects any record containing a non-finite numeric (`NaN`/`Infinity`/`-Infinity`) in any field, so every completed-season file is guaranteed wholly finite.
 
 ```json
 {
@@ -431,7 +431,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft (no writes), validates enrichm
 | `weekly-ktc.yml` | Monday 13:17 UTC + `workflow_dispatch` | Runs `node bin/update.mjs ktc`, commits new snapshot if values changed |
 | `weekly-nflverse-roster.yml` | Tuesday 13:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs roster`, commits if content hash changed, purges jsDelivr CDN cache for changed files |
 | `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
-| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, or `.github/workflows/` | Runs `npm run smoke` (all dry-runs including roster/draft) |
+| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, or `.github/workflows/` | Runs the nfl/cfbd/ktc dry-runs and npm test (unit validators) |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit.
 

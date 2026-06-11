@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Unit tests
+        run: npm test
+
       - name: Smoke test — NFL 2023 dry-run
         run: node bin/update.mjs nfl --year 2023 --dry-run
 
