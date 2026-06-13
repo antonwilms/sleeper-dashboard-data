@@ -1626,10 +1626,46 @@
       "recordCount": 795,
       "inProgress": false,
       "lastModified": "2026-06-13T15:07:52.169Z"
+    },
+    "snapshots/2026-06-07.json": {
+      "schemaVersion": 1,
+      "recordCount": 757,
+      "inProgress": false,
+      "lastModified": "2026-06-13T15:29:23.324Z"
+    },
+    "snapshots/2026-06-08.json": {
+      "schemaVersion": 2,
+      "recordCount": 757,
+      "inProgress": false,
+      "lastModified": "2026-06-13T15:29:23.344Z"
+    },
+    "snapshots/2026-06-09.json": {
+      "schemaVersion": 2,
+      "recordCount": 797,
+      "inProgress": false,
+      "lastModified": "2026-06-13T15:29:23.365Z"
+    },
+    "snapshots/2026-06-10.json": {
+      "schemaVersion": 2,
+      "recordCount": 797,
+      "inProgress": false,
+      "lastModified": "2026-06-13T15:29:23.382Z"
+    },
+    "snapshots/2026-06-11.json": {
+      "schemaVersion": 2,
+      "recordCount": 794,
+      "inProgress": false,
+      "lastModified": "2026-06-13T15:29:23.400Z"
+    },
+    "snapshots/2026-06-12.json": {
+      "schemaVersion": 2,
+      "recordCount": 794,
+      "inProgress": false,
+      "lastModified": "2026-06-13T15:29:23.418Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-06-13T15:07:52.169Z"
+  "generatedAt": "2026-06-13T15:29:23.418Z"
 }
