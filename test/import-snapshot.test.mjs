@@ -9,6 +9,7 @@ import {
   pickLatestExportZip,
   parseSnapshotDateFromEntry,
   isValidSnapshotDate,
+  selectMissingSnapshots,
 } from '../bin/import-snapshot.mjs';
 
 // ─── pickLatestExportZip ──────────────────────────────────────────────────────
@@ -88,4 +89,65 @@ test('isValidSnapshotDate: impossible date (Feb 30)', () => {
 
 test('isValidSnapshotDate: empty string', () => {
   assert.equal(isValidSnapshotDate(''), false);
+});
+
+// ─── selectMissingSnapshots ───────────────────────────────────────────────────
+
+// Regression test for the actual bug: multi-snapshot ZIP with some already present.
+test('selectMissingSnapshots: multi-snapshot, some present — returns missing in ascending order', () => {
+  const zipEntries = [
+    'snapshots/',
+    'snapshots/2026-06-06.json',
+    'snapshots/2026-06-07.json',
+    'snapshots/2026-06-08.json',
+    'snapshots/2026-06-09.json',
+    'snapshots/2026-06-13.json',
+  ];
+  const existing = new Set(['2026-06-06']);
+  const result = selectMissingSnapshots(zipEntries, existing);
+  assert.deepEqual(result.map(r => r.date), [
+    '2026-06-07', '2026-06-08', '2026-06-09', '2026-06-13',
+  ]);
+  assert.equal(result[0].entry, 'snapshots/2026-06-07.json');
+});
+
+test('selectMissingSnapshots: all present → empty array', () => {
+  const zipEntries = ['snapshots/2026-06-06.json', 'snapshots/2026-06-07.json'];
+  const existing = new Set(['2026-06-06', '2026-06-07']);
+  assert.deepEqual(selectMissingSnapshots(zipEntries, existing), []);
+});
+
+test('selectMissingSnapshots: none present → all dates ascending', () => {
+  const zipEntries = [
+    'snapshots/2026-06-09.json',
+    'snapshots/2026-06-07.json',
+    'snapshots/2026-06-08.json',
+  ];
+  const result = selectMissingSnapshots(zipEntries, new Set());
+  assert.deepEqual(result.map(r => r.date), ['2026-06-07', '2026-06-08', '2026-06-09']);
+});
+
+test('selectMissingSnapshots: ignores non-date and non-json entries', () => {
+  const zipEntries = [
+    'snapshots/',
+    'snapshots/notes.txt',
+    'snapshots/2026-13-40.json',   // invalid date
+    'snapshots/2026-06-07.json',   // valid
+  ];
+  const result = selectMissingSnapshots(zipEntries, new Set());
+  assert.deepEqual(result.map(r => r.date), ['2026-06-07']);
+});
+
+test('selectMissingSnapshots: single new date → one-element array', () => {
+  const zipEntries = ['snapshots/2026-06-10.json'];
+  const result = selectMissingSnapshots(zipEntries, new Set());
+  assert.equal(result.length, 1);
+  assert.equal(result[0].date, '2026-06-10');
+  assert.equal(result[0].entry, 'snapshots/2026-06-10.json');
+});
+
+test('selectMissingSnapshots: duplicate date entries are de-duped', () => {
+  const zipEntries = ['snapshots/2026-06-07.json', 'snapshots/2026-06-07.json'];
+  const result = selectMissingSnapshots(zipEntries, new Set());
+  assert.equal(result.length, 1);
 });

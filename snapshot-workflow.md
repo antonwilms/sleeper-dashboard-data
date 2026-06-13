@@ -1,54 +1,45 @@
-# Snapshot import workflow
+### Capturing & publishing a projection snapshot
 
-Importing a projection snapshot from the app into this repo is two steps.
+Snapshots are born in the browser (the app computes projections in IndexedDB)
+and published to this repo. Two manual actions remain — clicking **Export** in
+the app and running one import command — because the snapshot only exists in
+your browser until you export it. Everything else is automatic.
 
-## 1. Export from the app
+**0. One-time setup.** App on current `main`; `.env.local` has
+`VITE_DATA_STORE_URL` set (so the career load is fast). `git pull` this repo.
 
-Click **Export data** in the sleeper-dashboard app. Make sure a league is open and
-the projection pipeline has finished first — otherwise the export ZIP won't contain
-a `snapshots/<date>.json` and the import will fail with a clear message.
+**1. Capture (automatic).** Open the app, select your league, and wait until
+career stats, KTC values, and projections have all finished loading. The app
+writes today's snapshot to IndexedDB on its own — watch the console for
+`[snapshot] wrote projection-snapshots/<date> (… bytes)`.
+- It captures **once per UTC day** (skip-if-exists). To force a re-capture the
+  same day, delete the `projection-snapshots/<date>` key in DevTools →
+  Application → IndexedDB → `sleeper-dashboard` → `cache`, then reload.
+- (Optional) verify it's v2: that record's `data.schemaVersion === 2` with a
+  populated `scoringSettings` and numeric `targetSeason`.
 
-This downloads `sleeper-dashboard-export-<date>.zip` to your `~/Downloads` folder.
-(If a previous export is still there, the browser names it
-`sleeper-dashboard-export-<date> (1).zip`, etc. — the import always uses the most
-recently modified one.)
+**2. Export (manual — one click).** Click **"Export data"** (bottom of the
+panel). A `sleeper-dashboard-export-<date>.zip` lands in `~/Downloads`. The ZIP
+contains every snapshot still in your browser, plus the full data store — this
+is expected.
 
-## 2. Import
-
-From the root of this repo:
-
+**3. Import (manual — one command).** In this repo:
 ```sh
 npm run import:snapshot
 ```
+It picks the newest export ZIP in `~/Downloads`, imports **every**
+`snapshots/<date>.json` not yet committed (one commit), updates `manifest.json`,
+and pushes. Already-present dates are skipped; re-running is a no-op.
 
-That command:
-1. Finds the newest `sleeper-dashboard-export*.zip` in `~/Downloads`.
-2. Extracts `snapshots/<YYYY-MM-DD>.json` from it.
-3. Skips with a message if that date is already imported (safe to re-run).
-4. Copies the file into `snapshots/`.
-5. Registers it in `manifest.json` (same logic as `node bin/update.mjs snapshots`).
-6. Commits `snapshot: <date>` and pushes (auto `git pull --rebase` + retry once
-   if the push is rejected).
-
-### Success looks like
-
-```
-[import] Using sleeper-dashboard-export-2026-06-07.zip (modified 2026-06-07T…, 631 KB)
-[import] Copied → snapshots/2026-06-07.json (631 KB)
-[snapshots] Registered snapshots/2026-06-07.json (612 players)
-[snapshots] Done: 1 registered, 1 skipped.
-[import] ✓ Snapshot imported
-         date:   2026-06-07
-         file:   snapshots/2026-06-07.json (631 KB)
-         commit: a1b2c3d
-         pushed to origin.
+**Manual fallback** (if the import command ever errors): extract the specific
+file and use the register path directly —
+```sh
+unzip -o -j ~/Downloads/sleeper-dashboard-export-<date>.zip snapshots/<date>.json -d snapshots/
+node bin/update.mjs snapshots
+git add snapshots/<date>.json manifest.json && git commit -m "snapshot: <date>" && git push
 ```
 
-### If it fails
-
-- **"No sleeper-dashboard-export*.zip found in ~/Downloads"** — export from the app first.
-- **"The ZIP has no snapshots/ folder"** — the export ran before projections
-  finished. Open a league, let projections complete, re-export, retry.
-
-The old manual path (copy file → `node bin/update.mjs snapshots` → commit) still
-works if you ever need it.
+**What's automatic vs manual:** capture (automatic), registration + manifest +
+commit + push (automatic, inside `import:snapshot`). Manual: the **Export
+click** (irreducible — the snapshot lives only in your browser) and **running
+`npm run import:snapshot`**.

@@ -220,12 +220,13 @@ Daily projection snapshot produced by the app's pipeline, capturing the contempo
 1. Click "Export data" in the app (wait for the projection pipeline to finish first).
 2. From this repo's root, run `npm run import:snapshot`.
 
-`bin/import-snapshot.mjs` finds the newest `sleeper-dashboard-export*.zip` in `~/Downloads`,
-extracts `snapshots/<date>.json`, copies it in, registers it in `manifest.json`
+`bin/import-snapshot.mjs` finds the newest `sleeper-dashboard-export*.zip` in `~/Downloads`
+and imports **every** `snapshots/<date>.json` not yet committed — in one commit. The ZIP
+normally contains many days' snapshots because the app accumulates one per UTC day. Already-present
+dates are skipped; re-running is a no-op. Registers each file in `manifest.json`
 (via the same `snapshots` registration as `bin/update.mjs snapshots`), then commits
-and pushes `snapshot: <date>`. It is idempotent — if the date is already present it
-prints a message and exits without committing. If `git push` is rejected (e.g. the
-weekly KTC action pushed first) it runs `git pull --rebase` and retries once.
+and pushes. If `git push` is rejected (e.g. the weekly KTC action pushed first) it
+runs `git pull --rebase` and retries once.
 
 The manual path still works if you prefer it: copy `snapshots/<date>.json` into this
 repo's `snapshots/`, run `node bin/update.mjs snapshots`, then commit.
