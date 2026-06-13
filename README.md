@@ -653,13 +653,21 @@ Three layers, each with a clean interface:
 
 Override with `--target-season YYYY` if the heuristic is wrong.
 
-### Basis mismatch
+### In-basis grading (v2 snapshots)
 
-All current snapshots have `scoringBasis: "custom"` (league-specific settings). Outcomes are canonical `half_ppr`. As a result:
+For **v2 snapshots** (those with a `scoringSettings` field), the harness grades **in-basis**: it recomputes each player's actual target-season PPG by running a dot-product of the season-totals `stats` object against the snapshot's stored `scoringSettings` (via `lib/fantasyPoints.mjs`). This means absolute MAE/bias are **authoritative** — the actuals are computed under the same scoring weights as the projections, so no half_ppr basis offset distorts the numbers. The report shows:
+- `Scored keys`: the number of non-zero scoring keys that exist in the season-totals stats universe.
+- `Dropped`: scored keys absent from season-totals (omitted from actuals; in-basis totals undercount by these terms).
+- `Rate-excluded`: non-additive rate keys (e.g. `rec_ypr`) stripped from `scoringSettings` before the dot-product (defensive guard; these never appear in real Sleeper `scoringSettings`).
+
+**v1 snapshots** (no `scoringSettings`) continue to grade in half_ppr with the indicative-only basis-mismatch caveat. `--strict-basis` skips v1 non-half_ppr snapshots; it has no effect on v2 (in-basis makes it moot).
+
+### Basis mismatch (v1 only)
+
+v1 snapshots have `scoringBasis: "custom"` (league-specific settings) but outcomes are canonical `half_ppr`. As a result:
 - Absolute PPG MAE/bias reflects basis offset as well as projection error — treat as indicative.
 - Confidence-bucket relative ordering and the games block are **basis-independent** and reliable.
-- Use `--strict-basis` to skip non-half_ppr snapshots entirely.
-- Capturing the league's raw `scoringSettings` in the snapshot (planned) would enable in-basis grading.
+- Use `--strict-basis` to skip non-half_ppr v1 snapshots entirely.
 
 ### Self-test
 

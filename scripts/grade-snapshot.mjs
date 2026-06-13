@@ -17,6 +17,7 @@
 import { readJson, writeJsonStable } from '../lib/io.mjs';
 import { updateManifestEntry }       from '../lib/manifest.mjs';
 import { scoreProjections }          from '../lib/grade.mjs';
+import { calculateFantasyPoints, RATE_KEYS } from '../lib/fantasyPoints.mjs';
 
 // ─── deriveTargetSeason ───────────────────────────────────────────────────────
 
@@ -63,31 +64,79 @@ export function buildPositionMap(snapshot) {
   return map;
 }
 
-// ─── loadOutcomes ─────────────────────────────────────────────────────────────
+// ─── Outcome builders ─────────────────────────────────────────────────────────
 
-/**
- * Load nfl/season-totals/<targetSeason>.json and convert to a Map<playerId, OutcomeRecord>.
- * Returns null if the file does not exist.
- *
- * @param {number} targetSeason
- * @returns {Map<string, object>|null}
- */
-export function loadOutcomes(targetSeason) {
-  const data = readJson(`nfl/season-totals/${targetSeason}.json`);
-  if (!data) return null;
-
+/** Existing half_ppr logic, factored out unchanged. seasonTotals = parsed file. */
+export function buildHalfPprOutcomes(seasonTotals) {
   const map = new Map();
-  for (const [playerId, rec] of Object.entries(data)) {
-    const gamesPlayed   = rec.gamesPlayed   ?? 0;
-    const fantasyPoints = rec.fantasyPoints ?? 0;
-    map.set(String(playerId), {
-      actualGames:    gamesPlayed,
-      actualTotalPts: fantasyPoints,
-      actualPPG:      gamesPlayed > 0 ? fantasyPoints / gamesPlayed : null,
-      played:         gamesPlayed > 0,
+  for (const [id, rec] of Object.entries(seasonTotals)) {
+    const gp = rec.gamesPlayed ?? 0;
+    const fp = rec.fantasyPoints ?? 0;
+    map.set(String(id), {
+      actualGames: gp, actualTotalPts: fp,
+      actualPPG: gp > 0 ? fp / gp : null, played: gp > 0,
     });
   }
   return map;
+}
+
+/**
+ * In-basis: actual points = calculateFantasyPoints(stats, sanitizedScoring) per player.
+ * @returns {{ outcomes: Map, droppedTerms: string[], excludedRateKeys: string[], scoredKeyCount: number }}
+ */
+export function buildInBasisOutcomes(seasonTotals, scoringSettings) {
+  // 1. exclude non-additive rate keys (weight ≠ 0)
+  const excludedRateKeys = Object.keys(scoringSettings)
+    .filter(k => RATE_KEYS.has(k) && scoringSettings[k]);
+  const scoring = { ...scoringSettings };
+  for (const k of excludedRateKeys) delete scoring[k];
+
+  // 2. stats universe across the whole file
+  const universe = new Set();
+  for (const rec of Object.values(seasonTotals))
+    for (const k in (rec.stats ?? {})) universe.add(k);
+
+  // 3. dropped terms = scored (non-zero, non-rate) keys absent from the universe
+  const droppedTerms = Object.keys(scoring)
+    .filter(k => scoring[k] && !universe.has(k));
+  const scoredKeyCount = Object.keys(scoring)
+    .filter(k => scoring[k] && universe.has(k)).length;
+
+  // 4. per-player in-basis points (divisor + 0-GP rule unchanged)
+  const map = new Map();
+  for (const [id, rec] of Object.entries(seasonTotals)) {
+    const gp  = rec.gamesPlayed ?? 0;
+    const pts = calculateFantasyPoints(rec.stats ?? {}, scoring);
+    map.set(String(id), {
+      actualGames: gp, actualTotalPts: pts,
+      actualPPG: gp > 0 ? pts / gp : null, played: gp > 0,
+    });
+  }
+  return { outcomes: map, droppedTerms, excludedRateKeys, scoredKeyCount };
+}
+
+/**
+ * Load nfl/season-totals/<targetSeason>.json and build outcomes.
+ * Returns null if the file does not exist.
+ * When scoringSettings is provided, builds in-basis outcomes; otherwise half_ppr.
+ *
+ * @param {number} targetSeason
+ * @param {object|null} scoringSettings  v2 snapshot scoringSettings, or null for v1
+ * @returns {{ outcomes: Map, inBasis: boolean, droppedTerms: string[], excludedRateKeys: string[], scoredKeyCount: number|null } | null}
+ */
+export function loadOutcomes(targetSeason, scoringSettings = null) {
+  const data = readJson(`nfl/season-totals/${targetSeason}.json`);
+  if (!data) return null;
+  if (scoringSettings) {
+    return { ...buildInBasisOutcomes(data, scoringSettings), inBasis: true };
+  }
+  return {
+    outcomes: buildHalfPprOutcomes(data),
+    inBasis: false,
+    droppedTerms: [],
+    excludedRateKeys: [],
+    scoredKeyCount: null,
+  };
 }
 
 // ─── buildGradeInputFromSnapshot ─────────────────────────────────────────────
@@ -104,10 +153,15 @@ export function loadOutcomes(targetSeason) {
  * @param {string}      opts.source      'snapshot' | 'self-test' | …
  * @returns {object}  GradeInput
  */
-export function buildGradeInputFromSnapshot(snapshot, outcomes, { targetSeason, snapshotDate = null, source = 'snapshot' }) {
+export function buildGradeInputFromSnapshot(snapshot, outcomes, {
+  targetSeason, snapshotDate = null, source = 'snapshot',
+  inBasis = false, droppedTerms = [], excludedRateKeys = [], scoredKeyCount = null,
+}) {
   const posMap       = buildPositionMap(snapshot);
   const scoringBasis = snapshot.scoringBasis ?? 'unknown';
-  const outcomeBasis = 'half_ppr';
+  const inBasisFlag  = !!inBasis;
+  const outcomeBasis = inBasisFlag ? scoringBasis : 'half_ppr';
+  const basisMatch   = inBasisFlag ? true : (scoringBasis === outcomeBasis);
 
   const projections = [];
   for (const [playerId, player] of Object.entries(snapshot.players ?? {})) {
@@ -129,10 +183,14 @@ export function buildGradeInputFromSnapshot(snapshot, outcomes, { targetSeason, 
     meta: {
       targetSeason,
       snapshotDate,
-      capturedAt:  snapshot.capturedAt ?? null,
+      capturedAt:       snapshot.capturedAt ?? null,
       scoringBasis,
       outcomeBasis,
-      basisMatch:  scoringBasis === outcomeBasis,
+      basisMatch,
+      inBasis:          inBasisFlag,
+      droppedTerms,
+      excludedRateKeys,
+      scoredKeyCount,
       source,
     },
     projections,
@@ -176,8 +234,8 @@ export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = nu
     console.log(`[grade] targetSeason ${targetSeason} derived from capturedAt (${snapshot.capturedAt}) — use --target-season to override.`);
   }
 
-  // 3. Strict-basis check
-  if (strictBasis && snapshot.scoringBasis !== 'half_ppr') {
+  // 3. Strict-basis check (v1 only — v2 uses in-basis, making strict-basis moot)
+  if (strictBasis && snapshot.scoringSettings == null && snapshot.scoringBasis !== 'half_ppr') {
     console.log(
       `[grade] Skipping: --strict-basis set and snapshot scoringBasis is ` +
       `'${snapshot.scoringBasis}' (not half_ppr).`
@@ -185,21 +243,27 @@ export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = nu
     return null;
   }
 
-  // 4. Load outcomes
-  const outcomes = loadOutcomes(targetSeason);
-  if (!outcomes) {
+  // 4. Load outcomes (in-basis for v2, half_ppr for v1)
+  const scoringSettings = snapshot.scoringSettings ?? null;
+  const loaded = loadOutcomes(targetSeason, scoringSettings);
+  if (!loaded) {
     console.log(
       `[grade] nfl/season-totals/${targetSeason}.json not found — ` +
       `outcome not available yet (expected before the season completes).`
     );
     return null;
   }
+  const { outcomes, inBasis, droppedTerms, excludedRateKeys, scoredKeyCount } = loaded;
 
   // 5. Build GradeInput and score
   const gradeInput = buildGradeInputFromSnapshot(snapshot, outcomes, {
     targetSeason,
     snapshotDate,
     source: 'snapshot',
+    inBasis,
+    droppedTerms,
+    excludedRateKeys,
+    scoredKeyCount,
   });
 
   const report = scoreProjections(gradeInput);
@@ -356,6 +420,90 @@ export function runSelfTest() {
   assert(customReport.games.bias === report.games.bias, 'games.bias basis-independent');
   assert(customReport.games.n    === report.games.n,    'games.n basis-independent');
 
+  // ── In-basis (v2) section ─────────────────────────────────────────────────
+  const v2Snapshot = readJson('test/fixtures/grade-snapshot-v2.json');
+  if (!v2Snapshot) throw new Error('[self-test] test/fixtures/grade-snapshot-v2.json not found');
+
+  const v2SeasonTotals = readJson('test/fixtures/grade-season-totals-v2.json');
+  if (!v2SeasonTotals) throw new Error('[self-test] test/fixtures/grade-season-totals-v2.json not found');
+
+  // Pure-builder unit: proves dot-product, rate exclusion, dropped terms
+  const builderResult = buildInBasisOutcomes(v2SeasonTotals, v2Snapshot.scoringSettings);
+  assert(builderResult.droppedTerms.includes('bonus_xyz'), 'v2 droppedTerms includes bonus_xyz');
+  assert(builderResult.excludedRateKeys.includes('rec_ypr'), 'v2 excludedRateKeys includes rec_ypr');
+  assert(builderResult.scoredKeyCount === 5, 'v2 scoredKeyCount === 5');
+  const p1outcome = builderResult.outcomes.get('p1');
+  close(p1outcome.actualPPG, 7.0, 'v2 p1 actualPPG (in-basis, not decoy)');
+
+  // Full pipeline
+  const v2GradeInput = buildGradeInputFromSnapshot(v2Snapshot, builderResult.outcomes, {
+    targetSeason:     v2Snapshot.targetSeason,
+    snapshotDate:     'fixture-v2',
+    source:           'self-test',
+    inBasis:          true,
+    droppedTerms:     builderResult.droppedTerms,
+    excludedRateKeys: builderResult.excludedRateKeys,
+    scoredKeyCount:   builderResult.scoredKeyCount,
+  });
+  const v2Report = scoreProjections(v2GradeInput);
+
+  // counts
+  assert(v2Report.counts.projected === 5, 'v2 counts.projected === 5');
+  assert(v2Report.counts.graded    === 3, 'v2 counts.graded === 3');
+  assert(v2Report.counts.dnp       === 1, 'v2 counts.dnp === 1');
+  assert(v2Report.counts.absent    === 1, 'v2 counts.absent === 1');
+
+  // meta
+  assert(v2Report.meta.inBasis     === true,     'v2 meta.inBasis === true');
+  assert(v2Report.meta.basisMatch  === true,     'v2 meta.basisMatch === true');
+  assert(v2Report.meta.outcomeBasis === 'custom', 'v2 meta.outcomeBasis === custom');
+  assert(v2Report.meta.excludedRateKeys.includes('rec_ypr'), 'v2 meta.excludedRateKeys has rec_ypr');
+  assert(v2Report.meta.droppedTerms.includes('bonus_xyz'),   'v2 meta.droppedTerms has bonus_xyz');
+  assert(v2Report.meta.scoredKeyCount === 5, 'v2 meta.scoredKeyCount === 5');
+
+  // byPosition
+  assert(v2Report.byPosition.QB.n === 1, 'v2 QB n === 1');
+  close(v2Report.byPosition.QB.maePPG,  2.0, 'v2 QB maePPG');
+  close(v2Report.byPosition.QB.biasPPG, 2.0, 'v2 QB biasPPG');
+
+  assert(v2Report.byPosition.RB.n === 2, 'v2 RB n === 2');
+  close(v2Report.byPosition.RB.maePPG,  2.0, 'v2 RB maePPG');
+  close(v2Report.byPosition.RB.biasPPG, 2.0, 'v2 RB biasPPG');
+
+  // byConfidence
+  assert(v2Report.byConfidence.high.n   === 2, 'v2 high n === 2');
+  close(v2Report.byConfidence.high.maePPG,  2.5, 'v2 high maePPG');
+  close(v2Report.byConfidence.high.biasPPG, 2.5, 'v2 high biasPPG');
+
+  assert(v2Report.byConfidence.low.n    === 1, 'v2 low n === 1');
+  close(v2Report.byConfidence.low.maePPG,  1.0, 'v2 low maePPG');
+  close(v2Report.byConfidence.low.biasPPG, 1.0, 'v2 low biasPPG');
+
+  assert(v2Report.byConfidence.medium.n === 0, 'v2 medium n === 0');
+  assert(v2Report.byConfidence.rookie.n === 0, 'v2 rookie n === 0');
+
+  // calibration
+  assert(v2Report.calibration.monotonic === false, 'v2 calibration not monotonic');
+
+  // games
+  assert(v2Report.games.n === 4, 'v2 games.n === 4');
+  close(v2Report.games.mae,  0.5, 'v2 games.mae');
+  close(v2Report.games.bias, 0,   'v2 games.bias');
+
+  // caveats: no basis-mismatch; one dropped-term; one rate-excluded
+  assert(
+    !v2Report.caveats.some(c => c.toLowerCase().includes('basis mismatch')),
+    'v2 no basis-mismatch caveat'
+  );
+  assert(
+    v2Report.caveats.some(c => c.includes('bonus_xyz')),
+    'v2 dropped-term caveat mentions bonus_xyz'
+  );
+  assert(
+    v2Report.caveats.some(c => c.includes('rec_ypr')),
+    'v2 rate-excluded caveat mentions rec_ypr'
+  );
+
   console.log('[grade] Self-test passed ✓');
 }
 
@@ -380,7 +528,14 @@ export function formatHumanReport(report) {
     lines.push(`│  (season derived from capturedAt — use --target-season to   │`);
     lines.push(`│   override if the heuristic is wrong for this capture)      │`);
   }
-  lines.push(`│  Basis:     outcomes=half_ppr, snapshot=${meta.scoringBasis}${meta.basisMatch ? '' : '  ⚠ MISMATCH'}${' '.repeat(Math.max(0, 18 - (meta.scoringBasis ?? '').length - (meta.basisMatch ? 0 : 10)))}│`);
+  if (meta.inBasis) {
+    const basisStr   = `in-basis (${meta.scoringBasis}) — authoritative`;
+    lines.push(`│  Basis:     ${basisStr.padEnd(48)}│`);
+    const scoringStr = `Scored keys: ${meta.scoredKeyCount ?? 'n/a'}  dropped: ${meta.droppedTerms?.length ?? 0}  rate-excluded: ${meta.excludedRateKeys?.length ?? 0}`;
+    lines.push(`│  ${scoringStr.padEnd(59)}│`);
+  } else {
+    lines.push(`│  Basis:     outcomes=half_ppr, snapshot=${meta.scoringBasis}${meta.basisMatch ? '' : '  ⚠ MISMATCH'}${' '.repeat(Math.max(0, 18 - (meta.scoringBasis ?? '').length - (meta.basisMatch ? 0 : 10)))}│`);
+  }
   if (meta.gradedAt) {
     lines.push(`│  Graded:    ${meta.gradedAt.padEnd(49)}│`);
   }

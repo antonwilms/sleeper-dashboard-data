@@ -84,6 +84,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `bin/enrich.mjs` | Enrichment overlay CLI → add / validate / list / remove |
 | `bin/import-snapshot.mjs` | One-command projection-snapshot import: newest ~/Downloads export ZIP → imports **all untracked** `snapshots/<date>.json` → manifest → commit + push |
 | `lib/validate.mjs` | Schema validators (incl. season-totals finiteness sweep, `findNonFinite`); contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` |
+| `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`) ported from the app; mirrors its formula; used by the grading in-basis path. Also exports `RATE_KEYS`. |
 | `lib/cfbd.mjs` | CFBD API fetch helpers |
 | `lib/enrichment.mjs` | Enrichment schema validation helpers |
 | `lib/io.mjs` | File I/O utilities |
@@ -97,7 +98,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `scripts/update-roster.mjs` | nflverse season roster ingest — fetch, parse, dedup, write `nflverse/roster/<year>.json` |
 | `scripts/update-draft.mjs` | nflverse draft picks ingest — fetch, parse, dedup, write `nflverse/draft/draft_picks.json` |
 | `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers: `fetchRosterCsv`/`parseRosterCsv`, `fetchDraftCsv`/`parseDraftCsv`, `fetchDraftTimestamp`; exports `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR` |
-| `scripts/grade-snapshot.mjs` | Snapshot adapter — loads snapshot + outcomes, builds GradeInput, orchestrates `gradeSnapshot()`, `runSelfTest()`, `formatHumanReport()` |
+| `scripts/grade-snapshot.mjs` | Snapshot adapter — loads snapshot + outcomes (in-basis via `buildInBasisOutcomes` for v2, half_ppr via `buildHalfPprOutcomes` for v1), builds GradeInput, orchestrates `gradeSnapshot()`, `runSelfTest()`, `formatHumanReport()` |
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
 | `bin/grade.mjs` | Grading harness CLI — parses flags, dispatches to `gradeSnapshot()` or `runSelfTest()` |
 | `lib/grade.mjs` | Pure scorer — `mae`, `bias`, `pearson`, `scoreProjections`; source-agnostic `GradeInput → GradeReport`; no I/O |
@@ -138,7 +139,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 7. **Yearly maintenance.** At each season start, update `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` in `lib/validate.mjs` to reflect the current player landscape.
 
-8. **Grading reads are never recomputed.** `bin/grade.mjs` joins captured projections to captured outcomes — it never re-runs the projection pipeline. The GradeReport is fully determined by the snapshot and outcome files at read time.
+8. **Grading reads are never recomputed.** `bin/grade.mjs` joins captured projections to captured outcomes — it never re-runs the projection pipeline. The GradeReport is fully determined by the snapshot and outcome files at read time. *Clarification: grading MAY recompute actual fantasy points from stored season-totals `stats` under the snapshot's `scoringSettings` (a deterministic dot-product); it never re-runs the projection pipeline.*
 
 ---
 
@@ -157,7 +158,8 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 | **`pass_cmp` stat key (QB passer rating)** | Preserved through season-totals aggregation; never stripped (flows through the generic sum-all-keys path in `lib/sleeper.mjs`). Note: stored `pass_rtg` and `cmp_pct` fields are weekly sums (not reliable season-level metrics) and are NOT consumed by the app — preserve as-is, no action needed | `src/utils/efficiencyMetrics.js` computes canonical NFL passer rating from `pass_cmp`, `pass_att`, `pass_yd`, `pass_td`, `pass_int`; `pass_cmp` is the new dependency (the latter four were previously implicit). Missing `pass_cmp` produces neutral `efficiencyFactor` (1.0); no errors, no schema bump required |
 | **`rec_air_yd` stat key (aDOT diagnostic)** | Preserved through season-totals aggregation; never stripped (same generic sum-all-keys path in `lib/sleeper.mjs`). Confirmed present 2012–present. Calibration note: values run ~½ industry aDOT magnitude (likely air yards on completed receptions only, not all targets) — ranking is preserved, absolute magnitude is not industry-standard; this is the app's concern, not the data repo's | `src/utils/seasonProjection.js` reads `rec_air_yd` and `rec_tgt` to compute `factors.adot` (WR/TE capture-only diagnostic; does **not** affect `projectedPPG`). Missing `rec_air_yd` produces `factors.adot: null`; no errors, no schema bump required (aDOT batch) |
 | **nflverse roster/draft** | `nflverse/roster/<year>.json` (keyed by `sleeper_id`; `{ team, position, status, fullName }` per player; `inProgress: false`, `schemaVersion: 1`) + `nflverse/draft/draft_picks.json` (`{ picksByYear: { [year]: DraftPick[] }, count }`) written by `bin/update.mjs roster`/`draft`; `MIN_ROSTER_IDS = 1500` is the shared sparsity constant | `src/api/nflRoster.js` reads roster via `tryDataStore`/`getManifestEntry` (Part 2); `src/api/nflDraft.js` reads draft picks the same way. The served JSON shapes + `MIN_ROSTER_IDS` constant are the contract — if either changes, update both repos |
-| **Snapshot target season** | At schemaVersion 2, the app writes `targetSeason` explicitly in the snapshot envelope; `gradeSnapshot()` reads it directly. `deriveTargetSeason()` in `scripts/grade-snapshot.mjs` is the fallback for v1 snapshots only (maps Jan–Aug → same year, Sep–Dec → year+1; override: `--target-season YYYY`) | `scoringSettings` is now captured verbatim in the snapshot envelope as of v2; the in-basis grading consumer (recomputing PPG metrics against the league's actual scoring weights) is a future data-repo task |
+| **Snapshot target season** | At schemaVersion 2, the app writes `targetSeason` explicitly in the snapshot envelope; `gradeSnapshot()` reads it directly. `deriveTargetSeason()` in `scripts/grade-snapshot.mjs` is the fallback for v1 snapshots only (maps Jan–Aug → same year, Sep–Dec → year+1; override: `--target-season YYYY`) | `scoringSettings` is captured verbatim in the snapshot envelope as of v2; **implemented**: `lib/fantasyPoints.mjs` + `buildInBasisOutcomes`; grades v2 snapshots in-basis |
+| **`calculateFantasyPoints` port** | `lib/fantasyPoints.mjs` must mirror the app's `src/utils/fantasyPoints.js` `calculateFantasyPoints` formula: loop `scoringSettings` keys, skip null multiplier/stat, 2-dp round. If the app changes its scoring math, mirror it here or in-basis grades diverge from how the app actually scored | `src/utils/fantasyPoints.js` — the source of truth; low churn (the dot-product is stable), but any change there must be reflected here |
 
 ---
 
