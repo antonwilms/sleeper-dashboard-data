@@ -51,6 +51,8 @@ sleeper-dashboard-data/
     draft/                    — nflverse combined draft picks (all years in one file)
       draft_picks.json
     playerids.json            — gsis_id→sleeper_id crosswalk (DynastyProcess), all players historically
+    advstats/                 — nflverse advanced receiving stats (WR/TE/RB), one file per year, keyed by sleeper_id
+      2023.json
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, weekly stats, etc.)
 ```
@@ -360,6 +362,78 @@ the crosswalk so newly-active players become joinable within a week.
 
 ---
 
+### `nflverse/advstats/<year>.json`
+
+Per-season advanced receiving stats produced by `bin/update.mjs advstats --year YYYY`, sourced from
+the nflverse `player_stats` weekly asset
+(`https://github.com/nflverse/nflverse-data/releases/download/player_stats/stats_player_week_<year>.csv`,
+the file `nflreadr::load_player_stats()` wraps). CORS-blocked in browsers; fetched and processed
+server-side. **Re-keyed to `sleeper_id` server-side** using `nflverse/playerids.json` so the app
+does no gsis join.
+
+```json
+{
+  "schemaVersion": 1,
+  "season": 2023,
+  "generatedAt": "2026-06-14T12:00:00.000Z",
+  "rowCount": 327,
+  "unmapped": 1,
+  "players": {
+    "1234": {
+      "gsisId": "00-0033921",
+      "name": "CeeDee Lamb",
+      "position": "WR",
+      "team": "DAL",
+      "targetShare": 0.299,
+      "airYardsShare": 0.31,
+      "wopr": 0.666,
+      "racr": 0.965,
+      "components": { "targets": 198, "airYards": 1903, "recYards": 1837, "receptions": 135, "weeks": 17 }
+    }
+  }
+}
+```
+
+**Position scope:** WR, TE, and RB are emitted. Team denominators (`teamTargets`/`teamAirYards`)
+include all positions' weekly rows — only the emitted player set is filtered. Note: for RBs,
+`air_yards_share` and `wopr` reflect their (often negative) air yards; `racr` is `null` when season
+`receiving_air_yards ≤ 0` (behind-LOS targets produce net-negative totals, making the ratio
+nonsensical). `target_share` is the primary meaningful metric for RBs.
+
+**Ratios recomputed season-level — never aggregated weekly.** Each ratio is computed once from
+summed raw components (the ratio-aggregation trap). Formulas:
+
+```
+targetShare    = Σ_t (playerTargets[t] / teamTargets[t]) · playerTargets[t]  /  Σ_t playerTargets[t]
+airYardsShare  = Σ_t (playerAirYards[t] / teamAirYards[t]) · playerAirYards[t] / Σ_t playerAirYards[t]
+wopr           = 1.5 · targetShare + 0.7 · airYardsShare
+racr           = receivingYards / receivingAirYards
+```
+
+Ratios are 3-decimal numbers or `null` (zero denominator). If `targetShare` or `airYardsShare` is
+`null`, `wopr` is `null`.
+
+**Traded players** use week-restricted per-team denominators (the weeks the player was on each team,
+not the team's full-season totals) and a volume-weighted per-team share blend. Traded players carry
+`traded: true` and `teams: [...]` (sorted by player targets desc).
+
+**Sparsity gate (`MIN_ADVSTATS_ROWS = 250`):** ingest refuses to write if fewer than 250 players
+survive re-keying; the app re-asserts the same gate on `rowCount`.
+
+**`inProgress: false`:** there is no live app fallback for these metrics (Sleeper does not expose
+them). Weekly mutability of the current season is handled by content-hash dedup + `lastModified`.
+
+**Weekly Thursday refresh:** `nflverse-advstats.yml` runs Thursday 13:41 UTC — after the Wednesday
+playerids Action — so it re-keys against the freshest crosswalk committed to main.
+
+```sh
+node bin/update.mjs advstats --year 2023        # write 2023 (past season needs --force after first write)
+node bin/update.mjs advstats --year 2023 --dry-run
+node bin/update.mjs advstats                    # current season
+```
+
+---
+
 ### `raw/<name>.json`
 
 Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, weekly stats, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
@@ -440,6 +514,10 @@ node bin/update.mjs draft
 # Fetch the gsis_id→sleeper_id crosswalk (DynastyProcess db_playerids)
 node bin/update.mjs playerids
 
+# Fetch nflverse advanced receiving stats (WR/TE/RB), re-keyed to sleeper_id
+node bin/update.mjs advstats --year 2023
+node bin/update.mjs advstats           # current season
+
 # Dry-run any subcommand (fetch + validate, no writes)
 node bin/update.mjs nfl --year 2024 --dry-run
 node bin/update.mjs cfbd --year 2023 --dry-run
@@ -447,10 +525,12 @@ node bin/update.mjs ktc --dry-run
 node bin/update.mjs roster --year 2024 --dry-run
 node bin/update.mjs draft --dry-run
 node bin/update.mjs playerids --dry-run
+node bin/update.mjs advstats --year 2023 --dry-run
 
-# Force overwrite of a completed-season file (nfl/cfbd/roster)
+# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats)
 node bin/update.mjs nfl --year 2023 --force
 node bin/update.mjs roster --year 2024 --force
+node bin/update.mjs advstats --year 2023 --force
 ```
 
 ### Environment variables
@@ -467,7 +547,7 @@ Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actio
 npm run smoke
 ```
 
-Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
+Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
 
 ### GitHub Actions
 
@@ -477,7 +557,8 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids (no writes), validat
 | `weekly-nflverse-roster.yml` | Tuesday 13:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs roster`, commits if content hash changed, purges jsDelivr CDN cache for changed files |
 | `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
 | `nflverse-playerids.yml` | Wednesday 13:29 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerids`, commits if content hash changed, purges jsDelivr CDN cache |
-| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids dry-runs and npm test (unit validators) |
+| `nflverse-advstats.yml` | Thursday 13:41 UTC + `workflow_dispatch` | Runs `node bin/update.mjs advstats` (after playerids), commits if content changed, purges jsDelivr CDN cache |
+| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats dry-runs and npm test (unit validators) |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit.
 

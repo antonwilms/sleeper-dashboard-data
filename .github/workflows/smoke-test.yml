@@ -44,3 +44,6 @@ jobs:
 
       - name: Smoke test — playerids dry-run
         run: node bin/update.mjs playerids --dry-run
+
+      - name: Smoke test — advstats 2023 dry-run
+        run: node bin/update.mjs advstats --year 2023 --dry-run

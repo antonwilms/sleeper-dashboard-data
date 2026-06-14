@@ -35,6 +35,7 @@ import { registerSnapshots }  from '../scripts/register-snapshots.mjs';
 import { updateRoster }       from '../scripts/update-roster.mjs';
 import { updateDraft }        from '../scripts/update-draft.mjs';
 import { updatePlayerIds }    from '../scripts/update-playerids.mjs';
+import { updateAdvStats }     from '../scripts/update-advstats.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -76,10 +77,11 @@ SUBCOMMANDS
   roster --year YYYY          Fetch nflverse season roster for a specific year
   draft                       Fetch nflverse combined draft picks (all years ≥ 2010)
   playerids                   Fetch nflverse gsis_id→sleeper_id crosswalk (DynastyProcess)
+  advstats --year YYYY        nflverse advanced receiving stats (WR/TE/RB), re-keyed to sleeper_id
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
-  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster only)
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats only)
   --year YYYY Target season year (nfl, cfbd, roster subcommands)
 
 EXAMPLES
@@ -96,6 +98,8 @@ EXAMPLES
   node bin/update.mjs draft --dry-run
   node bin/update.mjs playerids
   node bin/update.mjs playerids --dry-run
+  node bin/update.mjs advstats --year 2023
+  node bin/update.mjs advstats --year 2023 --dry-run
 `);
 }
 
@@ -131,6 +135,9 @@ const opts = { year, category, force, dryRun };
         break;
       case 'playerids':
         await updatePlayerIds(opts);
+        break;
+      case 'advstats':
+        await updateAdvStats(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${subcommand}\n`);

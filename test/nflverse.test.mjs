@@ -9,6 +9,9 @@
  *   C. validateRoster / validateDraft
  *   D. parsePlayerIdsCsv
  *   E. validatePlayerIds
+ *   F. aggregateAdvReceiving
+ *   G. rekeyBySleeper
+ *   H. validateAdvStats
  */
 
 import { test } from 'node:test';
@@ -17,8 +20,9 @@ import assert   from 'node:assert/strict';
 import {
   parseRosterCsv, parseDraftCsv, MIN_ROSTER_IDS, MIN_DRAFT_YEAR,
   parsePlayerIdsCsv, MIN_PLAYERID_ROWS,
+  aggregateAdvReceiving, rekeyBySleeper, MIN_ADVSTATS_ROWS,
 } from '../lib/nflverse.mjs';
-import { validateRoster, validateDraft, validatePlayerIds } from '../lib/validate.mjs';
+import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats } from '../lib/validate.mjs';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -358,4 +362,222 @@ test('validatePlayerIds: throws when >50% missing name', () => {
     v.name = null;
   }
   assert.throws(() => validatePlayerIds(ids), Error);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// F. aggregateAdvReceiving
+// ═══════════════════════════════════════════════════════════════════
+
+// Subset header — weekly ratio columns present but must be ignored by the parser.
+const ADV_HEADER =
+  'player_id,player_display_name,position,season,week,team,' +
+  'targets,receiving_air_yards,receiving_yards,receptions,' +
+  'target_share,air_yards_share,wopr,racr';
+
+function makeAdvCsv(...rows) { return [ADV_HEADER, ...rows].join('\n'); }
+
+test('aggregateAdvReceiving: share math for single-team WR — weekly ratio columns ignored', () => {
+  // Team DAL wk1+wk2: WR-A and WR-B. 9.9 junk values in ratio columns prove they are ignored.
+  // DAL totals: wk1=10tgts/100air, wk2=10tgts/100air → restricted denom for A = 20tgts/200air
+  const csv = makeAdvCsv(
+    '00-0001,WR-A,WR,2023,1,DAL,6,60,90,5,9.9,9.9,9.9,9.9',
+    '00-0001,WR-A,WR,2023,2,DAL,4,40,60,3,9.9,9.9,9.9,9.9',
+    '00-0002,WR-B,WR,2023,1,DAL,4,40,60,3,9.9,9.9,9.9,9.9',
+    '00-0002,WR-B,WR,2023,2,DAL,6,60,90,5,9.9,9.9,9.9,9.9',
+  );
+  const { byGsis } = aggregateAdvReceiving(csv);
+  const A = byGsis['00-0001'];
+  assert.ok(A, 'WR-A should be emitted');
+  // targetShare = 10/20 = 0.5; airYardsShare = 100/200 = 0.5
+  assert.equal(A.targetShare,   0.5);
+  assert.equal(A.airYardsShare, 0.5);
+  assert.equal(A.wopr,          Math.round((1.5 * 0.5 + 0.7 * 0.5) * 1000) / 1000); // 1.1
+  // recYards=90+60=150, recAirYards=60+40=100 → racr=1.5
+  assert.equal(A.racr,          Math.round(150 / 100 * 1000) / 1000);
+  assert.equal(A.components.targets,    10);
+  assert.equal(A.components.airYards,   100);
+  assert.equal(A.components.recYards,   150);
+  assert.equal(A.components.weeks,      2);
+});
+
+test('aggregateAdvReceiving: recompute ignores weekly ratio columns — 9.9 values not propagated', () => {
+  const csv = makeAdvCsv(
+    '00-0001,WR-A,WR,2023,1,DAL,6,60,90,5,9.9,9.9,9.9,9.9',
+    '00-0002,WR-B,WR,2023,1,DAL,4,40,60,3,9.9,9.9,9.9,9.9',
+  );
+  const { byGsis } = aggregateAdvReceiving(csv);
+  const A = byGsis['00-0001'];
+  assert.ok(A);
+  // Recomputed: 6/(6+4)=0.6, not 9.9
+  assert.equal(A.targetShare, 0.6);
+  assert.notEqual(A.wopr, 9.9);
+});
+
+test('aggregateAdvReceiving: traded player volume-weighted targetShare', () => {
+  // 00-0099 on ATL wk1 (3 tgts / team 10) and LA wk2 (2 tgts / team 20)
+  // tgtNumer = (3/10)*3 + (2/20)*2 = 0.9 + 0.2 = 1.1; targetShare = 1.1/5 = 0.22
+  const csv = makeAdvCsv(
+    '00-0099,Traded WR,WR,2023,1,ATL,3,30,45,2,0,0,0,0',
+    'QB-ATL,Filler QB,QB,2023,1,ATL,7,70,105,5,0,0,0,0',
+    '00-0099,Traded WR,WR,2023,2,LA,2,20,30,1,0,0,0,0',
+    'QB-LA,Filler QB,QB,2023,2,LA,18,180,270,12,0,0,0,0',
+  );
+  const { byGsis } = aggregateAdvReceiving(csv);
+  const p = byGsis['00-0099'];
+  assert.ok(p, 'traded player should be emitted');
+  assert.equal(p.traded, true);
+  assert.deepEqual(p.teams, ['ATL', 'LA']); // ATL=3 targets > LA=2
+  assert.equal(p.targetShare, 0.22);
+});
+
+test('aggregateAdvReceiving: zero team+player air yards → airYardsShare and wopr null', () => {
+  // Both WRs have 0 receiving_air_yards → team air total = 0; player recAirYards = 0
+  const csv = makeAdvCsv(
+    '00-0001,WR-A,WR,2023,1,DAL,6,0,90,5,0,0,0,0',
+    '00-0002,WR-B,WR,2023,1,DAL,4,0,60,3,0,0,0,0',
+  );
+  const { byGsis } = aggregateAdvReceiving(csv);
+  const A = byGsis['00-0001'];
+  assert.ok(A);
+  assert.equal(A.targetShare,   0.6);   // still computable from targets
+  assert.equal(A.airYardsShare, null);  // recAirYards=0 → null
+  assert.equal(A.wopr,          null);  // airYardsShare null → wopr null
+});
+
+test('aggregateAdvReceiving: racr null when player receiving_air_yards sums to 0', () => {
+  const csv = makeAdvCsv(
+    '00-0001,WR-A,WR,2023,1,DAL,6,0,90,5,0,0,0,0',
+    '00-0002,WR-B,WR,2023,1,DAL,4,0,60,3,0,0,0,0',
+  );
+  const { byGsis } = aggregateAdvReceiving(csv);
+  assert.equal(byGsis['00-0001'].racr, null);
+});
+
+test('aggregateAdvReceiving: RB targets counted in team denom but RB absent when excluded from positions', () => {
+  // RB has 10 targets; WR has 5 — WR targetShare = 5/(10+5) = 0.333 when RBs excluded
+  const csv = makeAdvCsv(
+    '00-RB,RB Player,RB,2023,1,DAL,10,80,60,8,0,0,0,0',
+    '00-WR,WR Player,WR,2023,1,DAL,5,50,75,4,0,0,0,0',
+  );
+  const { byGsis } = aggregateAdvReceiving(csv, { positions: ['WR', 'TE'] });
+  assert.ok(!byGsis['00-RB'], 'RB should not be emitted');
+  assert.ok( byGsis['00-WR'], 'WR should be emitted');
+  // RB targets in denominator: 5/(10+5)=0.333...
+  assert.equal(byGsis['00-WR'].targetShare, Math.round(5 / 15 * 1000) / 1000);
+});
+
+test('aggregateAdvReceiving: missing team column → throws', () => {
+  const badHeader = 'player_id,player_display_name,position,season,week,' +
+    'targets,receiving_air_yards,receiving_yards,receptions';
+  const csv = [badHeader, '00-0001,WR-A,WR,2023,1,6,60,90,5'].join('\n');
+  assert.throws(() => aggregateAdvReceiving(csv), Error);
+});
+
+test('aggregateAdvReceiving: RB targetShare computed with default positions (RB included)', () => {
+  // Default positions include RB — RB should be emitted alongside WR
+  const csv = makeAdvCsv(
+    '00-RB,RB Player,RB,2023,1,DAL,5,30,50,4,0,0,0,0',
+    '00-WR,WR Player,WR,2023,1,DAL,10,100,150,8,0,0,0,0',
+  );
+  const { byGsis } = aggregateAdvReceiving(csv);
+  const rb = byGsis['00-RB'];
+  assert.ok(rb, 'RB should be emitted with default positions');
+  assert.equal(rb.position, 'RB');
+  // teamTargets[DAL][1]=15; RB targetShare = 5/15 = 0.333
+  assert.equal(rb.targetShare, Math.round(5 / 15 * 1000) / 1000);
+});
+
+test('aggregateAdvReceiving: RB net-negative receiving_air_yards → racr null; other ratios still emit', () => {
+  // RB has -10 receiving_air_yards (behind-LOS targets); WR on same team has 100
+  // Team total air yards = 90 (positive denominator → airYardsShare emits, negative)
+  const csv = makeAdvCsv(
+    '00-RB,RB Player,RB,2023,1,DAL,5,-10,40,4,0,0,0,0',
+    '00-WR,WR Player,WR,2023,1,DAL,10,100,150,8,0,0,0,0',
+  );
+  const { byGsis } = aggregateAdvReceiving(csv);
+  const rb = byGsis['00-RB'];
+  assert.ok(rb, 'RB should be emitted');
+  // recAirYards = -10 ≤ 0 → racr null (guard for nonsensical behind-LOS ratio)
+  assert.equal(rb.racr, null);
+  // targetShare: 5/(5+10)=0.333 — not null
+  assert.ok(rb.targetShare != null, 'targetShare should not be null');
+  // airYardsShare: emitted even when negative (capture-only; not nulled)
+  assert.ok(rb.airYardsShare != null, 'airYardsShare should not be null');
+  assert.equal(typeof rb.airYardsShare, 'number');
+  // components reflect the raw negative air yards
+  assert.ok(rb.components.airYards < 0,  'components.airYards should be negative');
+  assert.ok(rb.components.recYards > 0,  'components.recYards should be positive');
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// G. rekeyBySleeper
+// ═══════════════════════════════════════════════════════════════════
+
+test('rekeyBySleeper: maps known gsis_id to sleeperId', () => {
+  const byGsis = { '00-0033921': { gsisId: '00-0033921', name: 'CeeDee Lamb', position: 'WR' } };
+  const crosswalkIds = { '00-0033921': { sleeperId: '1234', name: 'CeeDee Lamb', position: 'WR' } };
+  const { players, unmapped } = rekeyBySleeper(byGsis, crosswalkIds);
+  assert.ok(players['1234'], 'player should be keyed by sleeperId');
+  assert.equal(unmapped, 0);
+});
+
+test('rekeyBySleeper: drops unmapped gsis_id and increments unmapped count', () => {
+  const byGsis = {
+    '00-0033921': { gsisId: '00-0033921', name: 'Known Player',   position: 'WR' },
+    '00-0099999': { gsisId: '00-0099999', name: 'Unknown Player', position: 'WR' },
+  };
+  const crosswalkIds = { '00-0033921': { sleeperId: '1234' } };
+  const { players, unmapped } = rekeyBySleeper(byGsis, crosswalkIds);
+  assert.ok(players['1234'], 'known player should be present');
+  assert.equal(Object.keys(players).length, 1);
+  assert.equal(unmapped, 1);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// H. validateAdvStats
+// ═══════════════════════════════════════════════════════════════════
+
+function makeAdvPlayers(count) {
+  const players = {};
+  for (let i = 0; i < count; i++) {
+    players[String(i + 1)] = {
+      gsisId:       `00-${String(i).padStart(7, '0')}`,
+      name:         `Player ${i + 1}`,
+      position:     'WR',
+      team:         'DAL',
+      targetShare:   0.15,
+      airYardsShare: 0.12,
+      wopr:          0.309,
+      racr:          0.98,
+      components: { targets: 50, airYards: 400, recYards: 600, receptions: 40, weeks: 17 },
+    };
+  }
+  return players;
+}
+
+test('validateAdvStats: passes on valid input (MIN_ADVSTATS_ROWS players)', () => {
+  const players = makeAdvPlayers(MIN_ADVSTATS_ROWS);
+  assert.doesNotThrow(() => validateAdvStats(players, { year: 2023 }));
+});
+
+test('validateAdvStats: throws below gate (truncated fetch)', () => {
+  const players = makeAdvPlayers(10);
+  assert.throws(() => validateAdvStats(players, { year: 2023 }), Error);
+});
+
+test('validateAdvStats: throws when >50% have all-null ratios (column drift)', () => {
+  const players = makeAdvPlayers(MIN_ADVSTATS_ROWS);
+  for (const p of Object.values(players)) {
+    p.targetShare    = null;
+    p.airYardsShare  = null;
+    p.wopr           = null;
+    p.racr           = null;
+  }
+  assert.throws(() => validateAdvStats(players, { year: 2023 }), Error);
+});
+
+test('validateAdvStats: throws when targetShare is out of [0,1] range', () => {
+  const players = makeAdvPlayers(MIN_ADVSTATS_ROWS);
+  Object.values(players)[0].targetShare = 1.5;
+  assert.throws(() => validateAdvStats(players, { year: 2023 }), Error);
 });
