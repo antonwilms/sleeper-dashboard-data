@@ -50,6 +50,7 @@ sleeper-dashboard-data/
       2025.json
     draft/                    — nflverse combined draft picks (all years in one file)
       draft_picks.json
+    playerids.json            — gsis_id→sleeper_id crosswalk (DynastyProcess), all players historically
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, weekly stats, etc.)
 ```
@@ -320,6 +321,45 @@ Combined multi-year draft picks produced by `bin/update.mjs draft`, sourced from
 
 ---
 
+### `nflverse/playerids.json`
+
+Historical `gsis_id → sleeper_id` crosswalk produced by `bin/update.mjs playerids`, sourced from
+DynastyProcess's `db_playerids.csv` (`https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_playerids.csv`,
+the file `nflreadr::load_ff_playerids()` wraps). CORS-blocked in the browser; ingested server-side
+and served via jsDelivr. This is the Phase-0 join key: nflverse advanced stats (`stats_player_week`,
+NGS) are keyed by `gsis_id`, which roster files do not carry.
+
+```json
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-14T12:00:00.000Z",
+  "sourceSeason": 2026,
+  "rowCount": 6143,
+  "ids": {
+    "00-0034796": { "sleeperId": "4984", "name": "Josh Allen", "position": "QB" }
+  }
+}
+```
+
+`ids` is keyed by **`gsis_id`**; the value carries `sleeperId` (the join payload) plus `name`/`position`
+(debug/validation only). Rows where either id is empty or `NA` in the source are skipped (cannot join).
+Duplicate `gsis_id`s use keep-last (confirmed lossless — colliding rows share the same `sleeperId`).
+
+**Forward map only.** The map is a bijection (`gsis_id` and `sleeper_id` each unique), so the app
+derives any reverse `sleeper_id → gsis_id` lookup by inverting `ids` in-memory. No reverse index is served.
+
+**Sparsity gate (`MIN_PLAYERID_ROWS = 5000`):** the ingest refuses to write if fewer than 5000
+crosswalk rows parse; the app re-asserts the same gate on `rowCount`. If either side changes this
+constant, change both.
+
+**`inProgress: false`:** like roster/draft, the app has no live fallback — it must read the crosswalk
+from the store. Content-hash dedup means no commit when unchanged.
+
+**Weekly refresh:** the `nflverse-playerids.yml` GitHub Action runs every Wednesday and re-ingests
+the crosswalk so newly-active players become joinable within a week.
+
+---
+
 ### `raw/<name>.json`
 
 Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, weekly stats, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
@@ -397,12 +437,16 @@ node bin/update.mjs roster --year 2024
 # Fetch combined nflverse draft picks (all years ≥ 2010)
 node bin/update.mjs draft
 
+# Fetch the gsis_id→sleeper_id crosswalk (DynastyProcess db_playerids)
+node bin/update.mjs playerids
+
 # Dry-run any subcommand (fetch + validate, no writes)
 node bin/update.mjs nfl --year 2024 --dry-run
 node bin/update.mjs cfbd --year 2023 --dry-run
 node bin/update.mjs ktc --dry-run
 node bin/update.mjs roster --year 2024 --dry-run
 node bin/update.mjs draft --dry-run
+node bin/update.mjs playerids --dry-run
 
 # Force overwrite of a completed-season file (nfl/cfbd/roster)
 node bin/update.mjs nfl --year 2023 --force
@@ -423,7 +467,7 @@ Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actio
 npm run smoke
 ```
 
-Runs dry-run checks for nfl/cfbd/ktc/roster/draft (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
+Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
 
 ### GitHub Actions
 
@@ -432,7 +476,8 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft (no writes), validates enrichm
 | `weekly-ktc.yml` | Monday 13:17 UTC + `workflow_dispatch` | Runs `node bin/update.mjs ktc`, commits new snapshot if values changed |
 | `weekly-nflverse-roster.yml` | Tuesday 13:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs roster`, commits if content hash changed, purges jsDelivr CDN cache for changed files |
 | `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
-| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, or `.github/workflows/` | Runs the nfl/cfbd/ktc dry-runs and npm test (unit validators) |
+| `nflverse-playerids.yml` | Wednesday 13:29 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerids`, commits if content hash changed, purges jsDelivr CDN cache |
+| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids dry-runs and npm test (unit validators) |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit.
 

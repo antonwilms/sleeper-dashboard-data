@@ -1,0 +1,45 @@
+name: Weekly nflverse playerids
+
+on:
+  schedule:
+    # Wednesday 13:29 UTC — staggered from KTC (Mon 13:17) and roster (Tue 13:23)
+    # so the weekly committers don't race the push to main.
+    - cron: "29 13 * * 3"
+  workflow_dispatch: {}   # allow manual trigger for testing / backfill
+
+permissions:
+  contents: write
+
+jobs:
+  playerids:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch nflverse playerids crosswalk
+        run: node bin/update.mjs playerids
+
+      - name: Commit and purge if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add nflverse/ manifest.json
+            git commit -m "nflverse: playerids $(date -u +%Y-%m-%d)"
+            # Retry with rebase on push rejection (multiple weekly committers on main)
+            git push || (git pull --rebase && git push)
+            # Purge jsDelivr CDN cache so weekly freshness isn't stuck behind @main cache
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/playerids.json" || true
+          else
+            echo "No changes to commit."
+          fi

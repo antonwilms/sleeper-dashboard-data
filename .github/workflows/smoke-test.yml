@@ -41,3 +41,6 @@ jobs:
 
       - name: Smoke test — KTC dry-run
         run: node bin/update.mjs ktc --dry-run
+
+      - name: Smoke test — playerids dry-run
+        run: node bin/update.mjs playerids --dry-run

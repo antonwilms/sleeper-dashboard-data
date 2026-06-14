@@ -7,6 +7,8 @@
  *   A. parseRosterCsv
  *   B. parseDraftCsv
  *   C. validateRoster / validateDraft
+ *   D. parsePlayerIdsCsv
+ *   E. validatePlayerIds
  */
 
 import { test } from 'node:test';
@@ -14,8 +16,9 @@ import assert   from 'node:assert/strict';
 
 import {
   parseRosterCsv, parseDraftCsv, MIN_ROSTER_IDS, MIN_DRAFT_YEAR,
+  parsePlayerIdsCsv, MIN_PLAYERID_ROWS,
 } from '../lib/nflverse.mjs';
-import { validateRoster, validateDraft } from '../lib/validate.mjs';
+import { validateRoster, validateDraft, validatePlayerIds } from '../lib/validate.mjs';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -222,4 +225,137 @@ test('validateDraft: throws when a pick is missing pick field', () => {
     '2024': [{ year: 2024, round: 1, team: 'CHI', fullName: 'P1', position: 'QB' }], // no pick
   };
   assert.throws(() => validateDraft(picksByYear), Error);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// D. parsePlayerIdsCsv
+// ═══════════════════════════════════════════════════════════════════
+
+const PLAYERIDS_HEADER = 'mfl_id,gsis_id,sleeper_id,name,position,db_season';
+
+function makePlayerIdsCsv(...rows) { return [PLAYERIDS_HEADER, ...rows].join('\n'); }
+
+test('parsePlayerIdsCsv: happy path — keyed by gsis_id, rowCount correct', () => {
+  const csv = makePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026',
+    ',00-0033873,6794,Justin Jefferson,WR,2026',
+  );
+  const { ids, rowCount } = parsePlayerIdsCsv(csv);
+  assert.equal(rowCount, 2);
+  assert.deepEqual(ids['00-0034796'], { sleeperId: '4984', name: 'Josh Allen', position: 'QB' });
+  assert.deepEqual(ids['00-0033873'], { sleeperId: '6794', name: 'Justin Jefferson', position: 'WR' });
+});
+
+test('parsePlayerIdsCsv: row missing gsis_id is skipped', () => {
+  const csv = makePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026',
+    ',,6794,Justin Jefferson,WR,2026',   // empty gsis_id → skip
+  );
+  const { ids, rowCount } = parsePlayerIdsCsv(csv);
+  assert.equal(rowCount, 1);
+  assert.ok(ids['00-0034796']);
+});
+
+test('parsePlayerIdsCsv: row with NA gsis_id is skipped', () => {
+  const csv = makePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026',
+    ',NA,6794,Justin Jefferson,WR,2026',  // NA gsis_id → skip
+  );
+  const { ids, rowCount } = parsePlayerIdsCsv(csv);
+  assert.equal(rowCount, 1);
+  assert.ok(ids['00-0034796']);
+});
+
+test('parsePlayerIdsCsv: row with missing sleeper_id is skipped', () => {
+  const csv = makePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026',
+    ',00-0033873,,Justin Jefferson,WR,2026',  // empty sleeper_id → skip
+  );
+  const { ids, rowCount } = parsePlayerIdsCsv(csv);
+  assert.equal(rowCount, 1);
+});
+
+test('parsePlayerIdsCsv: row with NA sleeper_id is skipped', () => {
+  const csv = makePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026',
+    ',00-0033873,NA,Justin Jefferson,WR,2026',  // NA sleeper_id → skip
+  );
+  const { ids, rowCount } = parsePlayerIdsCsv(csv);
+  assert.equal(rowCount, 1);
+});
+
+test('parsePlayerIdsCsv: keep-last on duplicate gsis_id', () => {
+  const csv = makePlayerIdsCsv(
+    ',00-0034796,1111,First Entry,QB,2026',
+    ',00-0034796,2222,Second Entry,QB,2026',  // same gsis, different sleeper → keep-last
+  );
+  const { ids, rowCount } = parsePlayerIdsCsv(csv);
+  assert.equal(rowCount, 1);
+  assert.equal(ids['00-0034796'].sleeperId, '2222');
+});
+
+test('parsePlayerIdsCsv: missing gsis_id column → throws', () => {
+  const csv = 'mfl_id,sleeper_id,name,position,db_season\n,4984,Josh Allen,QB,2026';
+  assert.throws(() => parsePlayerIdsCsv(csv), Error);
+});
+
+test('parsePlayerIdsCsv: missing sleeper_id column → throws', () => {
+  const csv = 'mfl_id,gsis_id,name,position,db_season\n,00-0034796,Josh Allen,QB,2026';
+  assert.throws(() => parsePlayerIdsCsv(csv), Error);
+});
+
+test('parsePlayerIdsCsv: CRLF line endings handled', () => {
+  const csv = PLAYERIDS_HEADER + '\r\n' + ',00-0034796,4984,Josh Allen,QB,2026\r\n';
+  const { rowCount } = parsePlayerIdsCsv(csv);
+  assert.equal(rowCount, 1);
+});
+
+test('parsePlayerIdsCsv: quoted name with comma preserved', () => {
+  const csv = makePlayerIdsCsv(
+    ',00-0034796,4984,"Smith, Jr.",QB,2026',
+  );
+  const { ids } = parsePlayerIdsCsv(csv);
+  assert.equal(ids['00-0034796'].name, 'Smith, Jr.');
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// E. validatePlayerIds
+// ═══════════════════════════════════════════════════════════════════
+
+function makeIds(count) {
+  const ids = {};
+  for (let i = 0; i < count; i++) {
+    ids[`00-${String(i).padStart(7, '0')}`] = {
+      sleeperId: String(i + 1000),
+      name:      `Player ${i + 1}`,
+      position:  'QB',
+    };
+  }
+  return ids;
+}
+
+test('validatePlayerIds: passes on valid input (MIN_PLAYERID_ROWS entries)', () => {
+  const ids = makeIds(MIN_PLAYERID_ROWS);
+  assert.doesNotThrow(() => validatePlayerIds(ids));
+});
+
+test('validatePlayerIds: throws below gate (truncated source)', () => {
+  const ids = makeIds(100);
+  assert.throws(() => validatePlayerIds(ids), Error);
+});
+
+test('validatePlayerIds: throws when an entry lacks sleeperId', () => {
+  const ids = makeIds(MIN_PLAYERID_ROWS);
+  // Corrupt one entry to have an empty sleeperId
+  ids['00-0000000'].sleeperId = '';
+  assert.throws(() => validatePlayerIds(ids), Error);
+});
+
+test('validatePlayerIds: throws when >50% missing name', () => {
+  const ids = makeIds(MIN_PLAYERID_ROWS);
+  // Set all names to null
+  for (const v of Object.values(ids)) {
+    v.name = null;
+  }
+  assert.throws(() => validatePlayerIds(ids), Error);
 });

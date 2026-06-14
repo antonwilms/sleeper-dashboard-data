@@ -26,6 +26,7 @@ node bin/update.mjs snapshots                     # Register untracked snapshots
 node bin/update.mjs roster                        # nflverse season roster (current year, keyed by sleeper_id)
 node bin/update.mjs roster --year YYYY            # nflverse season roster for a specific year
 node bin/update.mjs draft                         # nflverse combined draft picks (all years ≥ 2010)
+node bin/update.mjs playerids                     # gsis_id→sleeper_id crosswalk (DynastyProcess)
 
 # Flags (any subcommand):
 #   --dry-run    fetch + validate, no writes
@@ -70,7 +71,7 @@ npm shortcut: `npm run grade`.
 ### Smoke & validation
 
 ```sh
-npm run smoke               # dry-run nfl+cfbd+ktc for 2023, validate:enrichment, grade --self-test
+npm run smoke               # dry-run nfl+cfbd+ktc+roster+draft+playerids for smoke, validate:enrichment, grade --self-test
 npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 ```
 
@@ -97,7 +98,8 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `scripts/register-snapshots.mjs` | Snapshot manifest registration |
 | `scripts/update-roster.mjs` | nflverse season roster ingest — fetch, parse, dedup, write `nflverse/roster/<year>.json` |
 | `scripts/update-draft.mjs` | nflverse draft picks ingest — fetch, parse, dedup, write `nflverse/draft/draft_picks.json` |
-| `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers: `fetchRosterCsv`/`parseRosterCsv`, `fetchDraftCsv`/`parseDraftCsv`, `fetchDraftTimestamp`; exports `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR` |
+| `scripts/update-playerids.mjs` | nflverse gsis↔sleeper crosswalk ingest — fetch, parse, dedup, write `nflverse/playerids.json` |
+| `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers: `fetchRosterCsv`/`parseRosterCsv`, `fetchDraftCsv`/`parseDraftCsv`, `fetchDraftTimestamp`, `fetchPlayerIdsCsv`/`parsePlayerIdsCsv`; exports `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS` |
 | `scripts/grade-snapshot.mjs` | Snapshot adapter — loads snapshot + outcomes (in-basis via `buildInBasisOutcomes` for v2, half_ppr via `buildHalfPprOutcomes` for v1), builds GradeInput, orchestrates `gradeSnapshot()`, `runSelfTest()`, `formatHumanReport()` |
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
 | `bin/grade.mjs` | Grading harness CLI — parses flags, dispatches to `gradeSnapshot()` or `runSelfTest()` |
@@ -112,8 +114,10 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `grading/` | Grading reports written by `bin/grade.mjs --write`, one JSON per snapshot date |
 | `nflverse/roster/` | nflverse season rosters, one JSON per year (`<year>.json`), keyed by `sleeper_id` |
 | `nflverse/draft/` | nflverse combined draft picks (`draft_picks.json`), all years ≥ 2010 |
+| `nflverse/playerids.json` | nflverse gsis_id→sleeper_id crosswalk (DynastyProcess), all players |
 | `.github/workflows/weekly-nflverse-roster.yml` | Tuesday weekly nflverse roster refresh, content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-draft.yml` | Yearly (May 1) nflverse draft picks update, content-hash dedup, CDN purge |
+| `.github/workflows/nflverse-playerids.yml` | Wednesday weekly gsis↔sleeper crosswalk refresh, content-hash dedup, CDN purge |
 | `raw/` | Unprocessed Sleeper API responses and CFBD player manifests |
 | `manifest.json` | Index of every script-written file with metadata |
 | `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation |
@@ -158,6 +162,7 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 | **`pass_cmp` stat key (QB passer rating)** | Preserved through season-totals aggregation; never stripped (flows through the generic sum-all-keys path in `lib/sleeper.mjs`). Note: stored `pass_rtg` and `cmp_pct` fields are weekly sums (not reliable season-level metrics) and are NOT consumed by the app — preserve as-is, no action needed | `src/utils/efficiencyMetrics.js` computes canonical NFL passer rating from `pass_cmp`, `pass_att`, `pass_yd`, `pass_td`, `pass_int`; `pass_cmp` is the new dependency (the latter four were previously implicit). Missing `pass_cmp` produces neutral `efficiencyFactor` (1.0); no errors, no schema bump required |
 | **`rec_air_yd` stat key (aDOT diagnostic)** | Preserved through season-totals aggregation; never stripped (same generic sum-all-keys path in `lib/sleeper.mjs`). Confirmed present 2012–present. Calibration note: values run ~½ industry aDOT magnitude (likely air yards on completed receptions only, not all targets) — ranking is preserved, absolute magnitude is not industry-standard; this is the app's concern, not the data repo's | `src/utils/seasonProjection.js` reads `rec_air_yd` and `rec_tgt` to compute `factors.adot` (WR/TE capture-only diagnostic; does **not** affect `projectedPPG`). Missing `rec_air_yd` produces `factors.adot: null`; no errors, no schema bump required (aDOT batch) |
 | **nflverse roster/draft** | `nflverse/roster/<year>.json` (keyed by `sleeper_id`; `{ team, position, status, fullName }` per player; `inProgress: false`, `schemaVersion: 1`) + `nflverse/draft/draft_picks.json` (`{ picksByYear: { [year]: DraftPick[] }, count }`) written by `bin/update.mjs roster`/`draft`; `MIN_ROSTER_IDS = 1500` is the shared sparsity constant | `src/api/nflRoster.js` reads roster via `tryDataStore`/`getManifestEntry` (Part 2); `src/api/nflDraft.js` reads draft picks the same way. The served JSON shapes + `MIN_ROSTER_IDS` constant are the contract — if either changes, update both repos |
+| **nflverse playerids crosswalk** | `nflverse/playerids.json` (keyed by `gsis_id`; `{ sleeperId, name, position }` per row; `inProgress:false`, `schemaVersion:1`; forward map only) written by `bin/update.mjs playerids`; `MIN_PLAYERID_ROWS = 5000` is the shared sparsity constant | `src/api/playerIds.js` reads it via `tryDataStore`/`getManifestEntry` (Phase 0b), re-asserts `MIN_PLAYERID_ROWS`, and inverts `ids` in-memory for reverse lookups. The served shape + `MIN_PLAYERID_ROWS` are the contract — if either changes, update both repos |
 | **Snapshot target season** | At schemaVersion 2, the app writes `targetSeason` explicitly in the snapshot envelope; `gradeSnapshot()` reads it directly. `deriveTargetSeason()` in `scripts/grade-snapshot.mjs` is the fallback for v1 snapshots only (maps Jan–Aug → same year, Sep–Dec → year+1; override: `--target-season YYYY`) | `scoringSettings` is captured verbatim in the snapshot envelope as of v2; **implemented**: `lib/fantasyPoints.mjs` + `buildInBasisOutcomes`; grades v2 snapshots in-basis |
 | **`calculateFantasyPoints` port** | `lib/fantasyPoints.mjs` must mirror the app's `src/utils/fantasyPoints.js` `calculateFantasyPoints` formula: loop `scoringSettings` keys, skip null multiplier/stat, 2-dp round. If the app changes its scoring math, mirror it here or in-basis grades diverge from how the app actually scored | `src/utils/fantasyPoints.js` — the source of truth; low churn (the dot-product is stable), but any change there must be reflected here |
 

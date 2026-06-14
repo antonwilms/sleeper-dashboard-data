@@ -34,6 +34,7 @@ import { updateKtc }          from '../scripts/update-ktc.mjs';
 import { registerSnapshots }  from '../scripts/register-snapshots.mjs';
 import { updateRoster }       from '../scripts/update-roster.mjs';
 import { updateDraft }        from '../scripts/update-draft.mjs';
+import { updatePlayerIds }    from '../scripts/update-playerids.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -74,6 +75,7 @@ SUBCOMMANDS
   roster                      Fetch nflverse season roster for current year (keyed by sleeper_id)
   roster --year YYYY          Fetch nflverse season roster for a specific year
   draft                       Fetch nflverse combined draft picks (all years ≥ 2010)
+  playerids                   Fetch nflverse gsis_id→sleeper_id crosswalk (DynastyProcess)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
@@ -92,6 +94,8 @@ EXAMPLES
   node bin/update.mjs roster --year 2024 --force
   node bin/update.mjs draft
   node bin/update.mjs draft --dry-run
+  node bin/update.mjs playerids
+  node bin/update.mjs playerids --dry-run
 `);
 }
 
@@ -124,6 +128,9 @@ const opts = { year, category, force, dryRun };
         break;
       case 'draft':
         await updateDraft(opts);
+        break;
+      case 'playerids':
+        await updatePlayerIds(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${subcommand}\n`);
