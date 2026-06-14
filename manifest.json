@@ -1662,10 +1662,88 @@
       "recordCount": 794,
       "inProgress": false,
       "lastModified": "2026-06-13T15:29:23.418Z"
+    },
+    "nflverse/playerids.json": {
+      "schemaVersion": 1,
+      "recordCount": 6143,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:26:58.400Z"
+    },
+    "nflverse/advstats/2012.json": {
+      "schemaVersion": 1,
+      "recordCount": 324,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:21.589Z"
+    },
+    "nflverse/advstats/2013.json": {
+      "schemaVersion": 1,
+      "recordCount": 395,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:22.890Z"
+    },
+    "nflverse/advstats/2014.json": {
+      "schemaVersion": 1,
+      "recordCount": 456,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:24.142Z"
+    },
+    "nflverse/advstats/2015.json": {
+      "schemaVersion": 1,
+      "recordCount": 482,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:25.414Z"
+    },
+    "nflverse/advstats/2016.json": {
+      "schemaVersion": 1,
+      "recordCount": 482,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:26.634Z"
+    },
+    "nflverse/advstats/2017.json": {
+      "schemaVersion": 1,
+      "recordCount": 477,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:27.896Z"
+    },
+    "nflverse/advstats/2018.json": {
+      "schemaVersion": 1,
+      "recordCount": 502,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:29.531Z"
+    },
+    "nflverse/advstats/2020.json": {
+      "schemaVersion": 1,
+      "recordCount": 520,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:31.421Z"
+    },
+    "nflverse/advstats/2021.json": {
+      "schemaVersion": 1,
+      "recordCount": 546,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:32.664Z"
+    },
+    "nflverse/advstats/2022.json": {
+      "schemaVersion": 1,
+      "recordCount": 521,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:33.914Z"
+    },
+    "nflverse/advstats/2023.json": {
+      "schemaVersion": 1,
+      "recordCount": 491,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:35.166Z"
+    },
+    "nflverse/advstats/2024.json": {
+      "schemaVersion": 1,
+      "recordCount": 507,
+      "inProgress": false,
+      "lastModified": "2026-06-14T20:27:36.417Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-06-13T15:29:23.418Z"
+  "generatedAt": "2026-06-14T20:27:36.416Z"
 }

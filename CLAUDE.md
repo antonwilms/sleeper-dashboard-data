@@ -69,6 +69,18 @@ node bin/grade.mjs --self-test                          # fixture self-check (us
 
 npm shortcut: `npm run grade`.
 
+### Backtest CLI — `bin/backtest.mjs`
+
+```sh
+node bin/backtest.mjs                         # standardized partial β of advstats metrics vs Y+1 PPG
+node bin/backtest.mjs --metric M --position P # M: targetShare|airYardsShare|wopr|racr|all
+node bin/backtest.mjs --validate              # D3 team-RZ-share self-validation (trust check)
+node bin/backtest.mjs --write                 # persist backtests/<date>-<metric>-<pos>.json
+# Flags: --from YYYY, --to YYYY, --min-games N, --by-season, --json, --write, --validate
+```
+
+Offline analysis (read-only over advstats + season-totals); **not** wired into smoke; not the snapshot grader (that's `bin/grade.mjs`). npm shortcut: `npm run backtest`.
+
 ### Smoke & validation
 
 ```sh
@@ -106,6 +118,9 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
 | `bin/grade.mjs` | Grading harness CLI — parses flags, dispatches to `gradeSnapshot()` or `runSelfTest()` |
 | `lib/grade.mjs` | Pure scorer — `mae`, `bias`, `pearson`, `scoreProjections`; source-agnostic `GradeInput → GradeReport`; no I/O |
+| `bin/backtest.mjs` | Advstats signal-backtest CLI — joins advstats + season-totals on sleeper_id, builds Y→Y+1 cohort, fits per-position standardized OLS, `--validate` D3 anchor, `--write` to `backtests/` |
+| `lib/backtest.mjs` | Pure backtest stats — `standardize`, `solveOLS`, `standardizedRegression`, `quintileResponse`, `computeTeamTotals`, `buildCohortRows`; reuses `pearson` from `lib/grade.mjs`; no I/O |
+| `backtests/` | Backtest reports written by `bin/backtest.mjs --write`, one JSON per metric/position run (analysis only — no manifest entry) |
 | `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 2) |
 | `college/passing/` | CFBD passing stats, one file per year |
 | `college/receiving/` | CFBD receiving stats, one file per year |

@@ -805,6 +805,56 @@ Until `nfl/season-totals/2026.json` exists (expected early 2027), running `grade
 
 ---
 
+## Analysis / Backtesting
+
+`bin/backtest.mjs` is an offline, read-only retrospective analysis tool that measures the predictive value of the Phase-1a advstats metrics (`targetShare`, `airYardsShare`, `wopr`, `racr`) against next-season PPG. It is **not** the snapshot grader, writes no served file, has no manifest entry, and has no production path.
+
+### Inputs
+
+- **Predictors** — `nflverse/advstats/<year>.json` (WR/TE/RB, 2012+), joined on `sleeper_id`
+- **Outcome + controls** — `nfl/season-totals/<year>.json` (outcome = Y+1 PPG, gated to `gamesPlayed ≥ 6`; controls = `overallShare`, `snapShare`, `rzOwnRate`)
+
+### Methodology
+
+Each row is a `(player, Y→Y+1)` pair pooled across 2012–2024 (predictor) → 2013–2025 (outcome). Per-position separate models (WR, TE, RB). Regression is **standardized OLS** via normal equations — z-score all columns, fit without intercept, solve `(XᵀX)β = Xᵀy` via Gauss-Jordan. Outputs: **standardized partial β** (the candidate's incremental contribution after removing the three controls), raw Pearson r, quintile response, R², and pairwise collinearity against each control.
+
+**Collinearity framing** (decision 4): `targetShare` (advstats) ≈ `overallShare` (the control). Its partial β is expected near zero — meaning "already captured by volume," not "unrelated to PPG." The new-signal candidates are `airYardsShare` / `wopr` / `racr`.
+
+**Non-independence caveat** (in every report): recurring players across Y→Y+1 pairs mean rows are not independent; standard errors are optimistic. βs are effect-size estimates, not significance tests.
+
+**Note on `snapShare` coverage:** `off_snp` is 0 in Sleeper data for 2012–2019 (not tracked). Rows from those seasons are listwise-dropped from any model using `snapShare` as a control. `meta.predictorYears` in each report reflects only the years that actually contributed surviving rows after listwise deletion.
+
+### D3 self-validation (`--validate`)
+
+Before trusting advstats βs, run `--validate` to reproduce the known D3 team-RZ-share anchor: standardized partial β **≈ +0.17 WR/TE** (tolerance ±0.06) and **≈ +0.20 RB** (tolerance ±0.08, diagnostic only — RB rushing denominators exclude QB sneaks). If WR/TE passes (β within tolerance, own-rate β negative, monotonic quintiles), the regression machinery is trustworthy. RB miss is reported as a finding; do not widen tolerances to force a pass.
+
+**Prerequisite** — advstats files must be on disk before `--validate`:
+```sh
+for y in $(seq 2012 2025); do node bin/update.mjs advstats --year "$y" --force; done
+```
+
+### Backtest CLI
+
+```sh
+node bin/backtest.mjs                              # all metrics × all positions, pooled 2012→2025
+node bin/backtest.mjs --metric air_yards_share --position WR
+node bin/backtest.mjs --metric all --position RB --from 2015 --to 2024
+node bin/backtest.mjs --min-games 8               # override outcome games floor (default 6)
+node bin/backtest.mjs --validate                  # D3 self-validation (PASS/FAIL vs +0.20/+0.17)
+node bin/backtest.mjs --json                      # machine-readable BacktestReport(s)
+node bin/backtest.mjs --write                     # persist backtests/<date>-<metric>-<pos>.json
+node bin/backtest.mjs --by-season                 # per-season breakout in addition to pooled
+
+# npm shortcut
+npm run backtest
+```
+
+**Flags:** `--metric target_share|air_yards_share|wopr|racr|all` · `--position WR|TE|RB|all` · `--from YYYY` · `--to YYYY` · `--min-games N` · `--validate` · `--json` · `--write` · `--by-season`
+
+Reports are written to `backtests/<YYYY-MM-DD>-<metric>-<position>.json` (analysis only — no manifest entry).
+
+---
+
 ## Data sources and attribution
 
 | Data | Source | Terms |
