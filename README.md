@@ -852,7 +852,7 @@ node bin/backtest.mjs --by-season                 # per-season breakout in addit
 npm run backtest
 ```
 
-**Flags:** `--metric target_share|air_yards_share|wopr|racr|all` (snake_case canonical; camelCase also accepted) · `--position WR|TE|RB|all` · `--from YYYY` · `--to YYYY` · `--min-games N` · `--validate` · `--json` · `--write` · `--by-season`
+**Flags:** `--metric target_share|air_yards_share|wopr|racr|all` (snake_case canonical; camelCase also accepted) · `--position WR|TE|RB|all` · `--from YYYY` · `--to YYYY` · `--min-games N` · `--controls overallShare|snapShare|rzOwnRate` (comma-separated subset; default: all three; dropping `snapShare` recovers pre-2020 seasons at the cost of one control; `--metric` only, not `--validate`) · `--validate` · `--json` · `--write` · `--by-season`
 
 Reports are written to `backtests/<YYYY-MM-DD>-<metric>-<position>.json` (analysis only — no manifest entry).
 

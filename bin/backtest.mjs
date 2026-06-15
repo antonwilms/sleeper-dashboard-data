@@ -18,6 +18,8 @@
  *   --from YYYY  predictor-season floor (default: 2012)
  *   --to YYYY    outcome-season ceiling (default: 2025)
  *   --min-games N  min outcome-season gamesPlayed (default: 6)
+ *   --controls overallShare,snapShare,rzOwnRate  comma-separated subset of controls (default: all three);
+ *              dropping snapShare widens the panel to pre-2020 seasons; applies to --metric ONLY, not --validate
  *   --validate   D3 qualitative trust check (team-share β>0, own-rate β<0, monotonic, raw r>0)
  *   --json       machine-readable output
  *   --write      persist backtests/<date>-<metric>-<pos>.json
@@ -33,6 +35,7 @@ import {
   POSITIONS,
   normalizeMetric,
   normalizePosition,
+  normalizeControls,
   assembleCohort,
   runMetric,
   runValidate,
@@ -62,11 +65,12 @@ function formatHumanReport(report) {
   const minYr = meta.predictorYears[0] ?? null;
   const maxYr = meta.predictorYears[meta.predictorYears.length - 1] ?? null;
   const panelStr = minYr && maxYr ? `${minYr}–${maxYr}` : 'none';
+  const snapNote = controls.includes('snapShare') ? ' (snapShare in controls — pre-2020 rows excluded)' : '';
   const lines = [
     `\n── ${meta.metric} / ${meta.position} (n=${n}) ─────────────────────────`,
     `  Predictor years : ${meta.predictorYears.join(', ')}`,
     `  Outcome years   : ${meta.outcomeYears.join(', ')}`,
-    `  Effective panel : ${panelStr} (pre-2020 dropped — off_snp not tracked)`,
+    `  Effective panel : ${panelStr}${snapNote}`,
     `  Raw Pearson r   : ${fmt(rawPearson)}`,
     `  Standardized β  : ${fmt(standardizedBeta)}   (candidate partial β)`,
     `  R²              : ${fmt(rSquared)}`,
@@ -155,6 +159,8 @@ if (isMain) {
       const minOutcomeGames = parseInt(option('--min-games') ?? '6',    10);
       const metricArg       = option('--metric')   ?? 'all';
       const positionArg     = option('--position') ?? 'all';
+      const controlsArg     = option('--controls');
+      const controls        = controlsArg != null ? normalizeControls(controlsArg) : null;
 
       if (isNaN(fromYear) || isNaN(toYear) || isNaN(minOutcomeGames)) {
         console.error('[backtest] Error: --from, --to, --min-games must be numeric');
@@ -179,7 +185,7 @@ if (isMain) {
         const { rows } = assembleCohort({ position, fromYear, toYear, minOutcomeGames });
 
         for (const metric of metrics) {
-          const report = runMetric(rows, metric, position, { minOutcomeGames, fromYear, toYear });
+          const report = runMetric(rows, metric, position, { minOutcomeGames, fromYear, toYear, controls });
 
           if (asJson) {
             console.log(JSON.stringify(report, null, 2));
@@ -195,7 +201,7 @@ if (isMain) {
             const seasonRows = rows.filter(r => r.predictorYear === Y);
             if (seasonRows.length === 0) continue;
             for (const metric of metrics) {
-              const sr = runMetric(seasonRows, metric, position, { minOutcomeGames, fromYear: Y, toYear: Y + 1 });
+              const sr = runMetric(seasonRows, metric, position, { minOutcomeGames, fromYear: Y, toYear: Y + 1, controls });
               if (asJson) console.log(JSON.stringify(sr, null, 2));
               else        console.log(formatHumanReport(sr));
               if (write)  writeReport(sr);

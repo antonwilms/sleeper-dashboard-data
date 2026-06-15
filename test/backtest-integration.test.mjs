@@ -24,6 +24,7 @@ import assert from 'node:assert/strict';
 
 import {
   normalizeMetric,
+  normalizeControls,
   assembleCohort,
   runMetric,
   runValidate,
@@ -251,6 +252,82 @@ describe('Integration 6: pre-2020 cohort builds but rows have snapShare null', (
     assert.equal(report.n, 0, 'n = 0 after listwise deletion of snapShare-null rows');
     assert.deepEqual(report.meta.predictorYears, [],
       `predictorYears should be [], got ${JSON.stringify(report.meta.predictorYears)}`);
+  });
+});
+
+// ─── 8. normalizeControls ────────────────────────────────────────────────────
+
+describe('Integration 8: normalizeControls', () => {
+  test('accepts a valid single name', () => {
+    assert.deepEqual(normalizeControls('overallShare'), ['overallShare']);
+  });
+
+  test('accepts a valid comma-separated subset', () => {
+    assert.deepEqual(normalizeControls('overallShare,rzOwnRate'), ['overallShare', 'rzOwnRate']);
+  });
+
+  test('accepts all three controls', () => {
+    assert.deepEqual(
+      normalizeControls('overallShare,snapShare,rzOwnRate'),
+      ['overallShare', 'snapShare', 'rzOwnRate']
+    );
+  });
+
+  test('throws on unknown name', () => {
+    assert.throws(() => normalizeControls('snapRate'),          /unknown control/);
+    assert.throws(() => normalizeControls('overallShare,bad'), /unknown control/);
+  });
+});
+
+// ─── 9. --controls without snapShare widens the panel ────────────────────────
+
+describe('Integration 9: excluding snapShare yields strictly larger cohort and earlier panel', () => {
+  test('2-control run on fixture including pre-2020 year: n larger and predictorYears starts earlier', () => {
+    // wrCohort() spans 2019–2022; 2019 rows have snapShare=null.
+    const { rows } = wrCohort();
+    const opts = { minOutcomeGames: 6, fromYear: 2019, toYear: 2022 };
+
+    const report3 = runMetric(rows, 'targetShare', 'WR', { ...opts });
+    const report2 = runMetric(rows, 'targetShare', 'WR', {
+      ...opts,
+      controls: ['overallShare', 'rzOwnRate'],
+    });
+
+    assert.ok(
+      report2.n > report3.n,
+      `excluding snapShare should yield larger n: got ${report2.n} vs ${report3.n}`
+    );
+    assert.ok(
+      report2.meta.predictorYears[0] < report3.meta.predictorYears[0],
+      `excluding snapShare should yield earlier panel start: ` +
+      `got ${report2.meta.predictorYears[0]} vs ${report3.meta.predictorYears[0]}`
+    );
+  });
+});
+
+// ─── 10. Default controls (no option) is unchanged ───────────────────────────
+
+describe('Integration 10: default (no controls option) equals explicit 3-control run', () => {
+  test('n and controls metadata identical', () => {
+    const { rows } = wrCohort();
+    const opts = { minOutcomeGames: 6, fromYear: 2019, toYear: 2022 };
+
+    const reportDefault  = runMetric(rows, 'targetShare', 'WR', { ...opts });
+    const reportExplicit = runMetric(rows, 'targetShare', 'WR', {
+      ...opts,
+      controls: ['overallShare', 'snapShare', 'rzOwnRate'],
+    });
+
+    assert.equal(reportDefault.n, reportExplicit.n, 'n identical');
+    assert.deepEqual(
+      reportDefault.meta.controls,
+      reportExplicit.meta.controls,
+      'meta.controls identical'
+    );
+    assert.equal(
+      reportDefault.rawPearson, reportExplicit.rawPearson,
+      'rawPearson identical'
+    );
   });
 });
 

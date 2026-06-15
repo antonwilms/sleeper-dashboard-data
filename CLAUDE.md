@@ -77,6 +77,8 @@ node bin/backtest.mjs --metric M --position P # M: target_share|air_yards_share|
 node bin/backtest.mjs --validate              # qualitative D3 trust check (β>0, own-rate β<0, monotonic, raw r>0)
 node bin/backtest.mjs --write                 # persist backtests/<date>-<metric>-<pos>.json
 # Flags: --from YYYY, --to YYYY, --min-games N, --by-season, --json, --write, --validate
+# --controls overallShare,snapShare,rzOwnRate  (default: all three; comma-separated subset; dropping snapShare
+#   recovers pre-2020 seasons at the cost of one control; --metric only, not --validate)
 ```
 
 Offline analysis (read-only over advstats + season-totals); **not** wired into smoke; not the snapshot grader (that's `bin/grade.mjs`). npm shortcut: `npm run backtest`.

@@ -8,6 +8,7 @@
  *   METRICS, POSITIONS, D3_VALIDATE_CONTROLS
  *   normalizeMetric(arg)                                        → string
  *   normalizePosition(arg)                                      → string[]
+ *   normalizeControls(arg)                                      → string[]
  *   assembleCohort({ position, fromYear, toYear, minOutcomeGames, load }) → { rows, skippedYears }
  *   runMetric(rows, metric, position, opts)                     → BacktestReport
  *   runValidate({ fromYear, toYear, minOutcomeGames, load })    → ValidateResultRow[]
@@ -62,6 +63,23 @@ export function normalizePosition(arg) {
   throw new Error(`[backtest] unknown --position '${arg}' — use WR|TE|RB|all`);
 }
 
+// ─── Controls normalisation ───────────────────────────────────────────────────
+
+const VALID_CONTROLS = ['overallShare', 'snapShare', 'rzOwnRate'];
+
+export function normalizeControls(arg) {
+  const names = arg.split(',').map(s => s.trim()).filter(Boolean);
+  if (names.length === 0) throw new Error(
+    `[backtest] --controls requires at least one name — valid: overallShare|snapShare|rzOwnRate`
+  );
+  for (const name of names) {
+    if (!VALID_CONTROLS.includes(name)) throw new Error(
+      `[backtest] unknown control '${name}' — valid names: overallShare|snapShare|rzOwnRate`
+    );
+  }
+  return names;
+}
+
 // ─── Default (disk-backed) loader ────────────────────────────────────────────
 
 const DEFAULT_LOAD = {
@@ -106,19 +124,20 @@ export function assembleCohort({ position, fromYear, toYear, minOutcomeGames, lo
 
 // ─── Metric run ───────────────────────────────────────────────────────────────
 
-function listwiseSurviving(rows, metric) {
-  const fields = [metric, ...METRIC_CONTROLS, 'outcomePPG'];
+function listwiseSurviving(rows, metric, controls) {
+  const fields = [metric, ...controls, 'outcomePPG'];
   return rows.filter(r => fields.every(f => r[f] != null && Number.isFinite(r[f])));
 }
 
-export function runMetric(rows, metric, position, { minOutcomeGames, fromYear, toYear }) {
-  const surviving = listwiseSurviving(rows, metric);
+export function runMetric(rows, metric, position, { minOutcomeGames, fromYear, toYear, controls }) {
+  const effectiveControls = controls ?? METRIC_CONTROLS;
+  const surviving = listwiseSurviving(rows, metric, effectiveControls);
   const predictorYears = [...new Set(surviving.map(r => r.predictorYear))].sort((a, b) => a - b);
   const outcomeYears   = predictorYears.map(y => y + 1);
 
   const regression = standardizedRegression(rows, {
     predictor: metric,
-    controls:  METRIC_CONTROLS,
+    controls:  effectiveControls,
     outcome:   'outcomePPG',
   });
 
@@ -142,7 +161,7 @@ export function runMetric(rows, metric, position, { minOutcomeGames, fromYear, t
       predictorYears,
       outcomeYears,
       minOutcomeGames,
-      controls:    METRIC_CONTROLS,
+      controls:    effectiveControls,
       generatedAt: new Date().toISOString(),
     },
     n:               regression.n,
