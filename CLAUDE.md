@@ -73,13 +73,15 @@ npm shortcut: `npm run grade`.
 
 ```sh
 node bin/backtest.mjs                         # standardized partial β of advstats metrics vs Y+1 PPG
-node bin/backtest.mjs --metric M --position P # M: targetShare|airYardsShare|wopr|racr|all
-node bin/backtest.mjs --validate              # D3 team-RZ-share self-validation (trust check)
+node bin/backtest.mjs --metric M --position P # M: target_share|air_yards_share|wopr|racr|all (camelCase also accepted)
+node bin/backtest.mjs --validate              # qualitative D3 trust check (β>0, own-rate β<0, monotonic, raw r>0)
 node bin/backtest.mjs --write                 # persist backtests/<date>-<metric>-<pos>.json
 # Flags: --from YYYY, --to YYYY, --min-games N, --by-season, --json, --write, --validate
 ```
 
 Offline analysis (read-only over advstats + season-totals); **not** wired into smoke; not the snapshot grader (that's `bin/grade.mjs`). npm shortcut: `npm run backtest`.
+
+`--validate` runs on the snap-available ~2020–2024 panel (pre-2020 rows dropped — `off_snp` not tracked); measured β ≈ +0.52, not the app-side +0.17 (different basis).
 
 ### Smoke & validation
 
@@ -115,10 +117,11 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `scripts/update-advstats.mjs` | nflverse advanced receiving stats ingest — fetch weekly, recompute season ratios, re-key to sleeper_id, write `nflverse/advstats/<year>.json` |
 | `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers: `fetchRosterCsv`/`parseRosterCsv`, `fetchDraftCsv`/`parseDraftCsv`, `fetchDraftTimestamp`, `fetchPlayerIdsCsv`/`parsePlayerIdsCsv`, `fetchPlayerStatsCsv`/`aggregateAdvReceiving`/`rekeyBySleeper`; exports `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS`, `MIN_ADVSTATS_ROWS` |
 | `scripts/grade-snapshot.mjs` | Snapshot adapter — loads snapshot + outcomes (in-basis via `buildInBasisOutcomes` for v2, half_ppr via `buildHalfPprOutcomes` for v1), builds GradeInput, orchestrates `gradeSnapshot()`, `runSelfTest()`, `formatHumanReport()` |
+| `scripts/backtest-run.mjs` | Backtest orchestration adapter — `normalizeMetric`/`normalizePosition`/`assembleCohort`/`runMetric`/`runValidate` with injectable loader; mirrors `scripts/grade-snapshot.mjs` |
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
 | `bin/grade.mjs` | Grading harness CLI — parses flags, dispatches to `gradeSnapshot()` or `runSelfTest()` |
 | `lib/grade.mjs` | Pure scorer — `mae`, `bias`, `pearson`, `scoreProjections`; source-agnostic `GradeInput → GradeReport`; no I/O |
-| `bin/backtest.mjs` | Advstats signal-backtest CLI — joins advstats + season-totals on sleeper_id, builds Y→Y+1 cohort, fits per-position standardized OLS, `--validate` D3 anchor, `--write` to `backtests/` |
+| `bin/backtest.mjs` | Thin CLI over `scripts/backtest-run.mjs` — parses flags, dispatches `assembleCohort`/`runMetric`/`runValidate`, formats reports, `--write` to `backtests/` |
 | `lib/backtest.mjs` | Pure backtest stats — `standardize`, `solveOLS`, `standardizedRegression`, `quintileResponse`, `computeTeamTotals`, `buildCohortRows`; reuses `pearson` from `lib/grade.mjs`; no I/O |
 | `backtests/` | Backtest reports written by `bin/backtest.mjs --write`, one JSON per metric/position run (analysis only — no manifest entry) |
 | `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 2) |

@@ -23,10 +23,20 @@ import {
   TEAM_DENOM_MIN,
 } from '../lib/backtest.mjs';
 
+import { normalizeMetric, normalizePosition } from '../scripts/backtest-run.mjs';
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function makeAdvstats(year, players) {
-  return { year, players: Object.fromEntries(players.map(p => [p.sleeperId, p])), unmapped: 0 };
+// Production envelope shape (matches nflverse/advstats/<year>.json on disk)
+function makeAdvstats(season, players) {
+  return {
+    schemaVersion: 1,
+    season,
+    generatedAt:   '2026-01-01T00:00:00.000Z',
+    rowCount:      players.length,
+    unmapped:      0,
+    players:       Object.fromEntries(players.map(p => [p.sleeperId, p])),
+  };
 }
 
 function makeTotals(entries) {
@@ -252,6 +262,78 @@ describe('C: quintileResponse', () => {
     ];
     const { monotonic } = quintileResponse(rows, 'x', 'y', 5);
     assert.equal(monotonic, false);
+  });
+});
+
+// ─── E. normalizeMetric / normalizePosition ───────────────────────────────────
+
+describe('E: normalizeMetric / normalizePosition', () => {
+  test('E.1 snake_case aliases resolve to camelCase', () => {
+    assert.equal(normalizeMetric('target_share'),    'targetShare');
+    assert.equal(normalizeMetric('air_yards_share'), 'airYardsShare');
+  });
+
+  test('E.2 camelCase passes through unchanged', () => {
+    assert.equal(normalizeMetric('targetShare'),    'targetShare');
+    assert.equal(normalizeMetric('airYardsShare'), 'airYardsShare');
+  });
+
+  test('E.3 wopr and racr unchanged', () => {
+    assert.equal(normalizeMetric('wopr'), 'wopr');
+    assert.equal(normalizeMetric('racr'), 'racr');
+  });
+
+  test('E.4 unknown metric throws', () => {
+    assert.throws(() => normalizeMetric('yards'), /unknown --metric/);
+    assert.throws(() => normalizeMetric(''),      /unknown --metric/);
+  });
+
+  test('E.5 normalizePosition: known positions return single-element array', () => {
+    assert.deepEqual(normalizePosition('WR'), ['WR']);
+    assert.deepEqual(normalizePosition('TE'), ['TE']);
+    assert.deepEqual(normalizePosition('RB'), ['RB']);
+  });
+
+  test('E.6 normalizePosition: all returns all three positions', () => {
+    const pos = normalizePosition('all');
+    assert.deepEqual(pos.sort(), ['RB', 'TE', 'WR']);
+  });
+
+  test('E.7 normalizePosition: unknown throws', () => {
+    assert.throws(() => normalizePosition('QB'),   /unknown --position/);
+    assert.throws(() => normalizePosition('flex'), /unknown --position/);
+  });
+});
+
+// ─── F. buildCohortRows reads .season (not .year) for predictorYear ──────────
+
+describe('F: predictorYear from season envelope', () => {
+  test('F.1 every row.predictorYear equals the advstats .season field', () => {
+    const SEASON = 2021;
+    const advY = makeAdvstats(SEASON, [
+      { sleeperId: 'p1', position: 'WR', team: 'KC',
+        targetShare: 0.3, airYardsShare: 0.2, wopr: 0.59, racr: 1.2 },
+      { sleeperId: 'p2', position: 'WR', team: 'KC',
+        targetShare: 0.2, airYardsShare: 0.15, wopr: 0.405, racr: 1.1 },
+    ]);
+
+    const totY = {
+      p1: { stats: { rec_tgt: 80, rec_rz_tgt: 12, off_snp: 800, tm_off_snp: 1000 }, gamesPlayed: 16, fantasyPoints: 200 },
+      p2: { stats: { rec_tgt: 60, rec_rz_tgt: 8, off_snp: 700, tm_off_snp: 1000 },  gamesPlayed: 16, fantasyPoints: 150 },
+    };
+    const totY1 = {
+      p1: { gamesPlayed: 14, fantasyPoints: 180 },
+      p2: { gamesPlayed: 12, fantasyPoints: 130 },
+    };
+
+    const teamTotals = computeTeamTotals(advY.players, totY);
+    const rows = buildCohortRows(advY, totY, totY1, { position: 'WR', minOutcomeGames: 6, teamTotals });
+
+    assert.ok(rows.length > 0, 'rows built');
+    for (const row of rows) {
+      assert.equal(row.predictorYear, SEASON,
+        `predictorYear should be ${SEASON} (from .season), got ${row.predictorYear}`);
+    }
   });
 });
 

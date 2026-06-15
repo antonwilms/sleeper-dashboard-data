@@ -822,11 +822,13 @@ Each row is a `(player, Y→Y+1)` pair pooled across 2012–2024 (predictor) →
 
 **Non-independence caveat** (in every report): recurring players across Y→Y+1 pairs mean rows are not independent; standard errors are optimistic. βs are effect-size estimates, not significance tests.
 
-**Note on `snapShare` coverage:** `off_snp` is 0 in Sleeper data for 2012–2019 (not tracked). Rows from those seasons are listwise-dropped from any model using `snapShare` as a control. `meta.predictorYears` in each report reflects only the years that actually contributed surviving rows after listwise deletion.
+**Note on `snapShare` coverage / effective panel:** `off_snp` is not tracked before 2020 in Sleeper data. Rows from pre-2020 seasons are listwise-dropped from any model using `snapShare` as a control (all metric runs and `--validate`). The **effective panel is ~2020–2024**; `meta.predictorYears` in each report reflects only the years that actually contributed surviving rows. The 2019 advstats file is also absent from disk (write failed; re-run `node bin/update.mjs advstats --year 2019 --force` to fill it — but its rows would be dropped anyway for missing `off_snp`, so it has no impact on results).
 
 ### D3 self-validation (`--validate`)
 
-Before trusting advstats βs, run `--validate` to reproduce the known D3 team-RZ-share anchor: standardized partial β **≈ +0.17 WR/TE** (tolerance ±0.06) and **≈ +0.20 RB** (tolerance ±0.08, diagnostic only — RB rushing denominators exclude QB sneaks). If WR/TE passes (β within tolerance, own-rate β negative, monotonic quintiles), the regression machinery is trustworthy. RB miss is reported as a finding; do not widen tolerances to force a pass.
+`--validate` is a **qualitative trust check** — not a numeric gate. It runs the D3 team-RZ-share regression on the ~2020–2024 snap-available panel and checks four criteria: team-share β > 0, own-rate β < 0, monotonic quintiles, raw r > 0. If WR/TE PASSes, the regression machinery is trustworthy.
+
+**The D3 app-side numeric anchors (+0.17 WR/TE, +0.20 RB) are not numerically reproducible from season-totals here.** They were measured on the app's `historicalTeamTotals` over all rostered players (2012–2025, with snap-share neutralized pre-2020). The equivalent β on this tool's snap-available 2020–2024 panel is ≈ +0.52 (controls: rzOwnRate, snapShare — without overallShare, which is collinear with the WR/TE predictor and would invert the partial). Do not widen tolerances or adjust controls to force the numeric match.
 
 **Prerequisite** — advstats files must be on disk before `--validate`:
 ```sh
@@ -837,10 +839,11 @@ for y in $(seq 2012 2025); do node bin/update.mjs advstats --year "$y" --force; 
 
 ```sh
 node bin/backtest.mjs                              # all metrics × all positions, pooled 2012→2025
+node bin/backtest.mjs --metric target_share --position WR   # snake_case canonical; camelCase accepted
 node bin/backtest.mjs --metric air_yards_share --position WR
 node bin/backtest.mjs --metric all --position RB --from 2015 --to 2024
 node bin/backtest.mjs --min-games 8               # override outcome games floor (default 6)
-node bin/backtest.mjs --validate                  # D3 self-validation (PASS/FAIL vs +0.20/+0.17)
+node bin/backtest.mjs --validate                  # qualitative D3 trust check (β>0, own-rate β<0, monotonic, raw r>0)
 node bin/backtest.mjs --json                      # machine-readable BacktestReport(s)
 node bin/backtest.mjs --write                     # persist backtests/<date>-<metric>-<pos>.json
 node bin/backtest.mjs --by-season                 # per-season breakout in addition to pooled
@@ -849,7 +852,7 @@ node bin/backtest.mjs --by-season                 # per-season breakout in addit
 npm run backtest
 ```
 
-**Flags:** `--metric target_share|air_yards_share|wopr|racr|all` · `--position WR|TE|RB|all` · `--from YYYY` · `--to YYYY` · `--min-games N` · `--validate` · `--json` · `--write` · `--by-season`
+**Flags:** `--metric target_share|air_yards_share|wopr|racr|all` (snake_case canonical; camelCase also accepted) · `--position WR|TE|RB|all` · `--from YYYY` · `--to YYYY` · `--min-games N` · `--validate` · `--json` · `--write` · `--by-season`
 
 Reports are written to `backtests/<YYYY-MM-DD>-<metric>-<position>.json` (analysis only — no manifest entry).
 
