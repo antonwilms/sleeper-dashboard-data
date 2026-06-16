@@ -198,6 +198,8 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 
 `sleeper-dashboard` is the React app that consumes this repo's files and produces the snapshots imported here. Its README documents the projection pipeline and data-store consumption. See Cross-repo contracts above.
 
+The canonical signal/feature registry — classifying every raw source, computed factor, and ephemeral capture by layer, coverage, and reconstructable-vs-ephemeral status — lives in the app repo at `docs/signal-registry.md`. Ingest-layer changes here must be flagged for it (see Self-maintenance).
+
 ---
 
 ## Done-definition
@@ -211,6 +213,6 @@ Before reporting a task complete:
 
 ## Self-maintenance
 
-Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
+Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
 
 Keep this file thin — a navigation-and-rules layer, not a second README; push deep detail into README.md and link to it.
