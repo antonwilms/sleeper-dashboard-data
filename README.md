@@ -519,6 +519,8 @@ node bin/update.mjs advstats --year 2023
 node bin/update.mjs advstats           # current season
 
 # Dry-run any subcommand (fetch + validate, no writes)
+# --dry-run also suppresses per-iteration fetch progress (the NFL week loop and
+#   KTC page loop); real (non-dry-run) ingests still print full progress.
 node bin/update.mjs nfl --year 2024 --dry-run
 node bin/update.mjs cfbd --year 2023 --dry-run
 node bin/update.mjs ktc --dry-run
