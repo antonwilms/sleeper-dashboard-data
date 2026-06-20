@@ -13,13 +13,10 @@
 import { test } from 'node:test';
 import assert   from 'node:assert/strict';
 import fs       from 'node:fs';
+import os       from 'node:os';
 import path     from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { validateEntry, validateAll, generateId } from '../lib/enrichment.mjs';
-
-const REPO_ROOT  = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const SCHEME_PATH = path.join(REPO_ROOT, 'enrichment', 'scheme.json');
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -64,22 +61,21 @@ test('validateEntry: injury entry for player absent from season-totals throws (o
 // ═══════════════════════════════════════════════════════════════════
 
 test('validateAll: two scheme entries sharing the same id → throws duplicate id error', () => {
-  const original = fs.readFileSync(SCHEME_PATH, 'utf8');
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'enrich-test-'));
 
   const sameId = 'scheme-2023-BUF-test00';
   const dupPayload = {
     schemaVersion: 1,
-    updatedAt: new Date().toISOString(),
     entries: [
       { id: sameId, year: 2023, team: 'BUF', offense: 'wide zone' },
       { id: sameId, year: 2023, team: 'KC',  offense: 'air raid' }, // same id, different team
     ],
   };
 
-  fs.writeFileSync(SCHEME_PATH, JSON.stringify(dupPayload), 'utf8');
+  fs.writeFileSync(path.join(tmpDir, 'scheme.json'), JSON.stringify(dupPayload), 'utf8');
   try {
-    assert.throws(() => validateAll(), /duplicate id/);
+    assert.throws(() => validateAll({}, tmpDir), /duplicate id/);
   } finally {
-    fs.writeFileSync(SCHEME_PATH, original, 'utf8');
+    fs.rmSync(tmpDir, { recursive: true });
   }
 });
