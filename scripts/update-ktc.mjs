@@ -93,7 +93,7 @@ export async function updateKtc({ dryRun }) {
 
   // 1. Fetch
   console.log('[ktc] Starting KTC snapshot fetch…');
-  const players = await fetchKtcSnapshot();
+  const players = await fetchKtcSnapshot({ dryRun });
   console.log(`[ktc] Fetched ${players.length} players`);
 
   // 2. Validate

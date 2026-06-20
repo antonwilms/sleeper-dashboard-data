@@ -74,16 +74,12 @@ npm shortcut: `npm run grade`.
 ```sh
 node bin/backtest.mjs                         # standardized partial β of advstats metrics vs Y+1 PPG
 node bin/backtest.mjs --metric M --position P # M: target_share|air_yards_share|wopr|racr|all (camelCase also accepted)
-node bin/backtest.mjs --validate              # qualitative D3 trust check (β>0, own-rate β<0, monotonic, raw r>0)
+node bin/backtest.mjs --validate              # qualitative D3 trust check
 node bin/backtest.mjs --write                 # persist backtests/<date>-<metric>-<pos>.json
-# Flags: --from YYYY, --to YYYY, --min-games N, --by-season, --json, --write, --validate
-# --controls overallShare,snapShare,rzOwnRate  (default: all three; comma-separated subset; dropping snapShare
-#   recovers pre-2020 seasons at the cost of one control; --metric only, not --validate)
+# Flags: --from YYYY, --to YYYY, --min-games N, --controls, --by-season, --json, --write, --validate
 ```
 
-Offline analysis (read-only over advstats + season-totals); **not** wired into smoke; not the snapshot grader (that's `bin/grade.mjs`). npm shortcut: `npm run backtest`.
-
-`--validate` runs on the snap-available ~2020–2024 panel (pre-2020 rows dropped — `off_snp` not tracked); measured β ≈ +0.52, not the app-side +0.17 (different basis).
+Offline analysis (read-only over advstats + season-totals); **not** wired into smoke; not the snapshot grader (`bin/grade.mjs`). npm shortcut: `npm run backtest`. Methodology, `--controls` semantics, and the β-basis caveats: README → [Analysis / Backtesting](README.md#analysis--backtesting).
 
 ### Smoke & validation
 
@@ -100,9 +96,9 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 |---|---|
 | `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots subcommands |
 | `bin/enrich.mjs` | Enrichment overlay CLI → add / validate / list / remove |
-| `bin/import-snapshot.mjs` | One-command projection-snapshot import: newest ~/Downloads export ZIP → imports **all untracked** `snapshots/<date>.json` → manifest → commit + push |
+| `bin/import-snapshot.mjs` | One-command projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
 | `lib/validate.mjs` | Schema validators (incl. season-totals finiteness sweep, `findNonFinite`); contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` |
-| `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`) ported from the app; mirrors its formula; used by the grading in-basis path. Also exports `RATE_KEYS`. |
+| `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`, `RATE_KEYS`); used by the grading in-basis path — see Cross-repo contracts |
 | `lib/cfbd.mjs` | CFBD API fetch helpers |
 | `lib/enrichment.mjs` | Enrichment schema validation helpers |
 | `lib/io.mjs` | File I/O utilities |
@@ -117,14 +113,14 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `scripts/update-draft.mjs` | nflverse draft picks ingest — fetch, parse, dedup, write `nflverse/draft/draft_picks.json` |
 | `scripts/update-playerids.mjs` | nflverse gsis↔sleeper crosswalk ingest — fetch, parse, dedup, write `nflverse/playerids.json` |
 | `scripts/update-advstats.mjs` | nflverse advanced receiving stats ingest — fetch weekly, recompute season ratios, re-key to sleeper_id, write `nflverse/advstats/<year>.json` |
-| `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers: `fetchRosterCsv`/`parseRosterCsv`, `fetchDraftCsv`/`parseDraftCsv`, `fetchDraftTimestamp`, `fetchPlayerIdsCsv`/`parsePlayerIdsCsv`, `fetchPlayerStatsCsv`/`aggregateAdvReceiving`/`rekeyBySleeper`; exports `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS`, `MIN_ADVSTATS_ROWS` |
-| `scripts/grade-snapshot.mjs` | Snapshot adapter — loads snapshot + outcomes (in-basis via `buildInBasisOutcomes` for v2, half_ppr via `buildHalfPprOutcomes` for v1), builds GradeInput, orchestrates `gradeSnapshot()`, `runSelfTest()`, `formatHumanReport()` |
-| `scripts/backtest-run.mjs` | Backtest orchestration adapter — `normalizeMetric`/`normalizePosition`/`assembleCohort`/`runMetric`/`runValidate` with injectable loader; mirrors `scripts/grade-snapshot.mjs` |
+| `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers (roster / draft / playerids / advstats); exports `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS`, `MIN_ADVSTATS_ROWS` sparsity constants |
+| `scripts/grade-snapshot.mjs` | Snapshot adapter — loads snapshot + outcomes, builds GradeInput, orchestrates `gradeSnapshot()` / `runSelfTest()` / `formatHumanReport()` |
+| `scripts/backtest-run.mjs` | Backtest orchestration adapter (injectable loader; mirrors `scripts/grade-snapshot.mjs`) |
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
 | `bin/grade.mjs` | Grading harness CLI — parses flags, dispatches to `gradeSnapshot()` or `runSelfTest()` |
-| `lib/grade.mjs` | Pure scorer — `mae`, `bias`, `pearson`, `scoreProjections`; source-agnostic `GradeInput → GradeReport`; no I/O |
+| `lib/grade.mjs` | Pure scorer — `scoreProjections(GradeInput) → GradeReport`; no I/O |
 | `bin/backtest.mjs` | Thin CLI over `scripts/backtest-run.mjs` — parses flags, dispatches `assembleCohort`/`runMetric`/`runValidate`, formats reports, `--write` to `backtests/` |
-| `lib/backtest.mjs` | Pure backtest stats — `standardize`, `solveOLS`, `standardizedRegression`, `quintileResponse`, `computeTeamTotals`, `buildCohortRows`; reuses `pearson` from `lib/grade.mjs`; no I/O |
+| `lib/backtest.mjs` | Pure backtest stats (standardized OLS, quintiles, team totals); reuses `pearson` from `lib/grade.mjs`; no I/O |
 | `backtests/` | Backtest reports written by `bin/backtest.mjs --write`, one JSON per metric/position run (analysis only — no manifest entry) |
 | `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 2) |
 | `college/passing/` | CFBD passing stats, one file per year |
@@ -198,7 +194,7 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 
 `sleeper-dashboard` is the React app that consumes this repo's files and produces the snapshots imported here. Its README documents the projection pipeline and data-store consumption. See Cross-repo contracts above.
 
-The canonical signal/feature registry — classifying every raw source, computed factor, and ephemeral capture by layer, coverage, and reconstructable-vs-ephemeral status — lives in the app repo at `docs/signal-registry.md`. Ingest-layer changes here must be flagged for it (see Self-maintenance).
+The canonical signal/feature registry — classifying every raw source, computed factor, and ephemeral capture by layer, coverage, and reconstructable-vs-ephemeral status — lives in the app repo at `docs/signal-registry.md`.
 
 ---
 

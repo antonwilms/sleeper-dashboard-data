@@ -43,7 +43,7 @@ export async function updateNfl({ year, force, dryRun }) {
   console.log(`[nfl] Year: ${year} | inProgress: ${inProgress} | currentSeason: ${currentSeason}`);
 
   // 1. Fetch 18 weeks from Sleeper
-  const weekData = await fetchSeasonWeeks(year);
+  const weekData = await fetchSeasonWeeks(year, { dryRun });
 
   // 2. Aggregate into player totals
   const totals = aggregateWeeks(weekData);
