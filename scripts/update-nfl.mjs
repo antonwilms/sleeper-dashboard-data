@@ -8,7 +8,7 @@
  * Safe-by-default:
  *   - Completed-season file (inProgress: false in manifest): refuses unless --force.
  *   - In-progress year: silently overwrites (that's the point of inProgress: true).
- *   - Identical output: no-op (no write, no manifest touch).
+ *   - Identical output: no-op (full SHA-256 content hash; no write, no manifest touch).
  *   - --dry-run: fetch + validate + print diff, no writes.
  *
  * @param {object} opts
@@ -17,10 +17,17 @@
  * @param {boolean} opts.dryRun   Fetch/validate but don't write
  */
 
+import crypto from 'crypto';
 import { fetchSeasonWeeks, aggregateWeeks, fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 import { readJson, writeJsonStable, diffSummary } from '../lib/io.mjs';
 import { readManifest, updateManifestEntry } from '../lib/manifest.mjs';
 import { validateNflSeason } from '../lib/validate.mjs';
+
+export function nflHash(players) {
+  const sorted = Object.keys(players).sort();
+  const stable = Object.fromEntries(sorted.map(k => [k, players[k]]));
+  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
+}
 
 export async function updateNfl({ year, force, dryRun }) {
   if (!year) throw new Error('--year is required for the nfl subcommand');
@@ -48,13 +55,13 @@ export async function updateNfl({ year, force, dryRun }) {
 
   // 4. Idempotency / dry-run checks
   if (existing) {
-    const summary = diffSummary(existing, totals);
-    if (summary.identical) {
+    if (nflHash(totals) === nflHash(existing)) {
       console.log(`[nfl] No change for ${dataPath} — skipping write.`);
       return;
     }
 
-    // Always show the diff summary
+    // Show diff summary for human-readable info (points-neutral changes still detected above)
+    const summary = diffSummary(existing, totals);
     console.log(`[nfl] Diff vs existing:\n${summary.text}`);
 
     // Dry-run: show what we would do and exit cleanly (bypass force requirement)

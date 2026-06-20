@@ -28,14 +28,19 @@ jobs:
       - name: Capture KTC snapshot
         run: node bin/update.mjs ktc
 
-      - name: Commit if changed
+      - name: Commit and purge if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [[ -n "$(git status --porcelain)" ]]; then
+            SNAPSHOT_DATE=$(date -u +%Y-%m-%d)
             git add ktc/ manifest.json
-            git commit -m "ktc: snapshot $(date -u +%Y-%m-%d)"
-            git push
+            git commit -m "ktc: snapshot ${SNAPSHOT_DATE}"
+            # Retry with rebase on push rejection (multiple weekly committers on main)
+            git push || (git pull --rebase && git push)
+            # Purge jsDelivr CDN cache so new snapshot is visible without waiting for TTL
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/ktc/snapshot-${SNAPSHOT_DATE}.json" || true
           else
             echo "No changes to commit."
           fi

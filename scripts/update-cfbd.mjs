@@ -20,10 +20,15 @@
  * @param {boolean} opts.dryRun    Fetch + validate but don't write
  */
 
+import crypto from 'crypto';
 import { fetchCfbdCategory } from '../lib/cfbd.mjs';
 import { readJson, writeJsonStable } from '../lib/io.mjs';
 import { readManifest, updateManifestEntry } from '../lib/manifest.mjs';
 import { validateCfbdCategory } from '../lib/validate.mjs';
+
+export function cfbdHash(rows) {
+  return crypto.createHash('sha256').update(JSON.stringify(rows)).digest('hex');
+}
 
 const ALL_CATEGORIES = ['receiving', 'rushing', 'passing'];
 
@@ -49,14 +54,10 @@ export async function updateCfbd({ year, category, force, dryRun }) {
 
     // 3. Idempotency / dry-run checks
     if (existing) {
-      // Simple row-count comparison for CFBD (rows don't have a canonical "identity" diff)
-      if (existing.length === rows.length) {
-        console.log(`[cfbd] ${dataPath}: same row count (${rows.length}) — skipping.`);
-        continue;
+      // Log any row count change for informational purposes
+      if (existing.length !== rows.length) {
+        console.log(`[cfbd] ${dataPath}: row count changed ${existing.length} → ${rows.length}`);
       }
-
-      // Log the delta
-      console.log(`[cfbd] ${dataPath}: row count changed ${existing.length} → ${rows.length}`);
 
       // Dry-run: show what we would do and exit cleanly
       if (dryRun) {
@@ -72,6 +73,12 @@ export async function updateCfbd({ year, category, force, dryRun }) {
           'Pass --force to overwrite.'
         );
         process.exit(1);
+      }
+
+      // Content hash dedup — after force gate so --force always rewrites
+      if (cfbdHash(existing) === cfbdHash(rows)) {
+        console.log(`[cfbd] ${dataPath}: content unchanged — skipping.`);
+        continue;
       }
     }
 
