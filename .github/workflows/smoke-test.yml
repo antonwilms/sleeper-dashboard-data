@@ -7,6 +7,7 @@ on:
       - "lib/**"
       - "scripts/**"
       - "package.json"
+      - "enrichment/**"
       - ".github/workflows/**"
 
 permissions:
@@ -47,3 +48,6 @@ jobs:
 
       - name: Smoke test — advstats 2023 dry-run
         run: node bin/update.mjs advstats --year 2023 --dry-run
+
+      - name: Validate enrichment
+        run: node bin/enrich.mjs validate
