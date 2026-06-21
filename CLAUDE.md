@@ -101,7 +101,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`, `RATE_KEYS`); used by the grading in-basis path — see Cross-repo contracts |
 | `lib/cfbd.mjs` | CFBD API fetch helpers |
 | `lib/enrichment.mjs` | Enrichment schema validation helpers |
-| `lib/io.mjs` | File I/O utilities |
+| `lib/io.mjs` | File I/O utilities (`readJson`, `writeJsonStable`, `setStepOutput`) |
 | `lib/ktc.mjs` | KTC scraper helpers |
 | `lib/manifest.mjs` | manifest.json read/write helpers |
 | `lib/sleeper.mjs` | Sleeper API fetch helpers |
@@ -162,6 +162,8 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 6. **Enrichment schemas are contracts.** Each file has required fields per entry. `injuries.segmentStartWeek` must match an absence segment in the matching season-totals file. `add` is an upsert keyed by natural key. Orphaned entries (no matching season-totals player/team) are flagged by `validate`; the app silently ignores them.
 
 7. **Yearly maintenance.** At each season start, update `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` in `lib/validate.mjs` to reflect the current player landscape.
+
+8. **CDN purge URLs for season-keyed files (`nflverse/roster`, `nflverse/advstats`) must be built from the NFL season surfaced by the node step (`setStepOutput('season', …)` → `${{ steps.fetch.outputs.season }}`), never `date -u +%Y`. Calendar year and resolved season diverge Jan–Feb; KTC is exempt (date-keyed).**
 
 8. **Grading reads are never recomputed.** `bin/grade.mjs` joins captured projections to captured outcomes — it never re-runs the projection pipeline. The GradeReport is fully determined by the snapshot and outcome files at read time. *Clarification: grading MAY recompute actual fantasy points from stored season-totals `stats` under the snapshot's `scoringSettings` (a deterministic dot-product); it never re-runs the projection pipeline.*
 

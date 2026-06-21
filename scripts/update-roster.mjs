@@ -23,7 +23,7 @@
 
 import crypto from 'crypto';
 import { fetchRosterCsv, parseRosterCsv, MIN_ROSTER_IDS } from '../lib/nflverse.mjs';
-import { readJson, writeJsonStable } from '../lib/io.mjs';
+import { readJson, writeJsonStable, setStepOutput } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateRoster } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
@@ -44,6 +44,8 @@ export async function updateRoster({ year: yearOpt = null, dryRun = false, force
   const isPast = year < currentSeason;
 
   console.log(`[roster] year=${year} | currentSeason=${currentSeason}`);
+  // Surface the resolved NFL season to the Actions purge step (no-op locally).
+  setStepOutput('season', year);
 
   // 2. Fetch — graceful skip on 404/504 (file not yet published)
   console.log(`[roster] Fetching roster_${year}.csv…`);

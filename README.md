@@ -564,6 +564,8 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats (no writes)
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit.
 
+*Season-keyed purges (roster, advstats) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
+
 ### Yearly maintenance
 
 At the start of each NFL season, update `lib/validate.mjs`:

@@ -26,7 +26,7 @@ import crypto from 'crypto';
 import {
   fetchPlayerStatsCsv, aggregateAdvReceiving, rekeyBySleeper, MIN_ADVSTATS_ROWS,
 } from '../lib/nflverse.mjs';
-import { readJson, writeJsonStable } from '../lib/io.mjs';
+import { readJson, writeJsonStable, setStepOutput } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateAdvStats } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
@@ -44,6 +44,8 @@ export async function updateAdvStats({ year: yearOpt = null, dryRun = false, for
   const isPast = year < currentSeason;
 
   console.log(`[advstats] year=${year} | currentSeason=${currentSeason}`);
+  // Surface the resolved NFL season to the Actions purge step (no-op locally).
+  setStepOutput('season', year);
 
   // 2. Fetch — graceful skip on 404/504 (year not yet published)
   console.log(`[advstats] Fetching stats_player_week_${year}.csv…`);
