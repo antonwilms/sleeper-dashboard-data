@@ -36,6 +36,7 @@ import { updateRoster }       from '../scripts/update-roster.mjs';
 import { updateDraft }        from '../scripts/update-draft.mjs';
 import { updatePlayerIds }    from '../scripts/update-playerids.mjs';
 import { updateAdvStats }     from '../scripts/update-advstats.mjs';
+import { updateSchedule }    from '../scripts/update-schedule.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -53,6 +54,7 @@ function option(name) {
 const subcommand = args[0];
 const dryRun     = flag('--dry-run');
 const force      = flag('--force');
+const all        = flag('--all');
 const yearRaw    = option('--year');
 const year       = yearRaw ? parseInt(yearRaw, 10) : null;
 const category   = option('--category');
@@ -78,11 +80,15 @@ SUBCOMMANDS
   draft                       Fetch nflverse combined draft picks (all years ≥ 2010)
   playerids                   Fetch nflverse gsis_id→sleeper_id crosswalk (DynastyProcess)
   advstats --year YYYY        nflverse advanced receiving stats (WR/TE/RB), re-keyed to sleeper_id
+  schedule                    nflverse NFL schedules + results (per-season; current season by default)
+  schedule --year YYYY        Schedule for a specific season
+  schedule --all              Backfill every season (≥ 1999)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
   --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats only)
   --year YYYY Target season year (nfl, cfbd, roster subcommands)
+  --all       Backfill all seasons (schedule subcommand only)
 
 EXAMPLES
   node bin/update.mjs nfl  --year 2024
@@ -100,6 +106,9 @@ EXAMPLES
   node bin/update.mjs playerids --dry-run
   node bin/update.mjs advstats --year 2023
   node bin/update.mjs advstats --year 2023 --dry-run
+  node bin/update.mjs schedule
+  node bin/update.mjs schedule --year 2023 --dry-run
+  node bin/update.mjs schedule --all
 `);
 }
 
@@ -110,7 +119,7 @@ if (!subcommand || subcommand === '--help' || subcommand === '-h') {
 
 // ─── Dispatch ─────────────────────────────────────────────────────────────────
 
-const opts = { year, category, force, dryRun };
+const opts = { year, category, force, dryRun, all };
 
 (async () => {
   try {
@@ -138,6 +147,9 @@ const opts = { year, category, force, dryRun };
         break;
       case 'advstats':
         await updateAdvStats(opts);
+        break;
+      case 'schedule':
+        await updateSchedule(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${subcommand}\n`);

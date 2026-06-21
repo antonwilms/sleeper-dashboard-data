@@ -434,6 +434,47 @@ node bin/update.mjs advstats                    # current season
 
 ---
 
+### `nflverse/schedule/<year>.json`
+
+Per-season NFL schedule + results produced by `bin/update.mjs schedule [--year YYYY] [--all]`,
+sourced from the combined nflverse `nfldata` games file
+(`https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv`, the file
+`nflreadr::load_schedules()` wraps). One combined CSV (all seasons) is fetched, grouped by season,
+and served as one file per year. CORS-blocked in the browser; ingested server-side and served via
+jsDelivr.
+
+```json
+{ "schemaVersion": 1, "season": 2023, "generatedAt": "…", "rowCount": 285,
+  "games": [ { "gameId": "2023_01_DET_KC", "season": 2023, "week": 1, "gameType": "REG",
+    "homeTeam": "KC", "awayTeam": "DET", "homeScore": 20, "awayScore": 21, "result": -1,
+    "spreadLine": 4.5, "totalLine": 53.0, "roof": "outdoors", "surface": "grass",
+    "temp": 70, "wind": 8 } ] }
+```
+
+`games` is an array, one record per game. `result` is the **home margin** (`homeScore − awayScore`):
+positive = home win, `0` = tie, negative = away win; passed through from the source, never recomputed.
+`gameType` ∈ `REG`,`WC`,`DIV`,`CON`,`SB`. Field names are camelCased from the source columns
+(`game_id → gameId`, `spread_line → spreadLine`, …).
+
+**Null fields:** future / in-progress games have `null` `homeScore`/`awayScore`/`result` but keep
+`spreadLine`/`totalLine` (lines post before kickoff). Dome / closed-roof games and pre-weather
+seasons have `null` `temp`/`wind`.
+
+**Sparsity gate (`MIN_SCHEDULE_GAMES = 200`):** a published season has its full slate at once
+(≈256–285 games incl. playoffs); the ingest skips any season with fewer than 200 rows (truncated
+fetch) and skips a not-yet-published season (0 rows). The app re-asserts the same gate on `rowCount`.
+If either side changes this constant, change both.
+
+**`inProgress: false` (deliberate deviation):** like roster/advstats, the app has no live fallback —
+it must read schedules from the store. Current-season weekly mutation is handled by SHA-256
+content-hash dedup + `lastModified`-driven app cache invalidation. Do not set `inProgress: true`.
+
+**Weekly refresh:** `nflverse-schedule.yml` runs Friday 13:35 UTC and re-ingests the current
+season (default mode). Historical seasons are static once final; backfill them once with
+`schedule --all`.
+
+---
+
 ### `raw/<name>.json`
 
 Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
@@ -520,6 +561,11 @@ node bin/update.mjs playerids
 node bin/update.mjs advstats --year 2023
 node bin/update.mjs advstats           # current season
 
+# Fetch nflverse NFL schedules + results (per-season)
+node bin/update.mjs schedule
+node bin/update.mjs schedule --year 2023
+node bin/update.mjs schedule --all
+
 # Dry-run any subcommand (fetch + validate, no writes)
 # --dry-run also suppresses per-iteration fetch progress (the NFL week loop and
 #   KTC page loop); real (non-dry-run) ingests still print full progress.
@@ -530,11 +576,13 @@ node bin/update.mjs roster --year 2024 --dry-run
 node bin/update.mjs draft --dry-run
 node bin/update.mjs playerids --dry-run
 node bin/update.mjs advstats --year 2023 --dry-run
+node bin/update.mjs schedule --year 2023 --dry-run
 
 # Force overwrite of a completed-season file (nfl/cfbd/roster/advstats)
 node bin/update.mjs nfl --year 2023 --force
 node bin/update.mjs roster --year 2024 --force
 node bin/update.mjs advstats --year 2023 --force
+node bin/update.mjs schedule --year 2023 --force
 ```
 
 ### Environment variables
@@ -551,7 +599,7 @@ Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actio
 npm run smoke
 ```
 
-Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
+Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
 
 ### GitHub Actions
 
@@ -562,11 +610,12 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats (no writes)
 | `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
 | `nflverse-playerids.yml` | Wednesday 13:29 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerids`, commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-advstats.yml` | Thursday 13:41 UTC + `workflow_dispatch` | Runs `node bin/update.mjs advstats` (after playerids), commits if content changed, purges jsDelivr CDN cache |
+| `nflverse-schedule.yml` | Friday 13:35 UTC + `workflow_dispatch` | Runs `node bin/update.mjs schedule` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats dry-runs, validates enrichment, and npm test (unit validators) |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit.
 
-*Season-keyed purges (roster, advstats) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
+*Season-keyed purges (roster, advstats, schedule) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
 
 ### Yearly maintenance
 
@@ -871,5 +920,6 @@ Reports are written to `backtests/<YYYY-MM-DD>-<metric>-<position>.json` (analys
 | NFL player stats | [Sleeper API](https://docs.sleeper.com/) | Personal use, read-only |
 | Dynasty market values | [KeepTradeCut](https://keeptradecut.com/) | Personal use |
 | College stats | [College Football Data API](https://collegefootballdata.com/) | Non-commercial / personal use |
+| NFL schedules, results & Vegas lines | [nflverse / nfldata](https://github.com/nflverse/nfldata) | Public domain (CC0-style); attribution requested |
 
 This repo is for personal dynasty fantasy football analysis only. It is not affiliated with, endorsed by, or licensed by any of the above services.

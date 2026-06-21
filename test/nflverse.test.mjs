@@ -21,8 +21,9 @@ import {
   parseRosterCsv, parseDraftCsv, MIN_ROSTER_IDS, MIN_DRAFT_YEAR,
   parsePlayerIdsCsv, MIN_PLAYERID_ROWS,
   aggregateAdvReceiving, rekeyBySleeper, MIN_ADVSTATS_ROWS,
+  parseSchedulesCsv, numOrNull, MIN_SCHEDULE_GAMES, MIN_SCHEDULE_SEASON,
 } from '../lib/nflverse.mjs';
-import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats } from '../lib/validate.mjs';
+import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule } from '../lib/validate.mjs';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -580,4 +581,217 @@ test('validateAdvStats: throws when targetShare is out of [0,1] range', () => {
   const players = makeAdvPlayers(MIN_ADVSTATS_ROWS);
   Object.values(players)[0].targetShare = 1.5;
   assert.throws(() => validateAdvStats(players, { year: 2023 }), Error);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// I. parseSchedulesCsv + numOrNull + validateSchedule
+// ═══════════════════════════════════════════════════════════════════
+
+// Scrambled column order + 2 unused columns to prove indexOf-by-name resolution.
+const SCHED_HEADER =
+  'gametime,season,away_score,game_id,location,week,home_score,away_team,result,' +
+  'home_team,spread_line,total_line,roof,surface,temp,wind,game_type';
+
+function makeSchedCsv(...dataRows) {
+  return [SCHED_HEADER, ...dataRows].join('\n');
+}
+
+/** Generate an array of `n` minimal valid stub game objects for validateSchedule tests. */
+function makeGames(n) {
+  return Array.from({ length: n }, (_, i) => ({
+    gameId:    `g${i}`,
+    season:    2023,
+    week:      1,
+    gameType:  'REG',
+    homeTeam:  'KC',
+    awayTeam:  'BUF',
+    homeScore: null,
+    awayScore: null,
+    result:    null,
+    spreadLine: null,
+    totalLine:  null,
+    roof:      null,
+    surface:   null,
+    temp:      null,
+    wind:      null,
+  }));
+}
+
+// Helper: build a row string matching SCHED_HEADER column order.
+// Columns: gametime,season,away_score,game_id,location,week,home_score,away_team,result,
+//          home_team,spread_line,total_line,roof,surface,temp,wind,game_type
+function schedRow({ gameId, season, week, gameType, homeTeam, awayTeam, homeScore, awayScore,
+                    result, spreadLine, totalLine, roof, surface, temp, wind }) {
+  return [
+    '',          // gametime (unused)
+    season ?? '',
+    awayScore ?? '',
+    gameId ?? '',
+    '',          // location (unused)
+    week ?? '',
+    homeScore ?? '',
+    awayTeam ?? '',
+    result ?? '',
+    homeTeam ?? '',
+    spreadLine ?? '',
+    totalLine ?? '',
+    roof ?? '',
+    surface ?? '',
+    temp ?? '',
+    wind ?? '',
+    gameType ?? '',
+  ].join(',');
+}
+
+test('parseSchedulesCsv: happy path — game shape + grouping', () => {
+  const csv = makeSchedCsv(
+    schedRow({ gameId: '2023_01_DET_KC', season: 2023, week: 1, gameType: 'REG',
+               homeTeam: 'KC', awayTeam: 'DET', homeScore: 20, awayScore: 21,
+               result: -1, spreadLine: 4.5, totalLine: 53.0, roof: 'outdoors', surface: 'grass',
+               temp: 70, wind: 8 }),
+    schedRow({ gameId: '2024_01_BUF_NYJ', season: 2024, week: 1, gameType: 'REG',
+               homeTeam: 'NYJ', awayTeam: 'BUF', homeScore: 17, awayScore: 24,
+               result: -7, spreadLine: -3.5, totalLine: 44.0, roof: 'outdoors', surface: 'grass',
+               temp: 75, wind: 5 }),
+  );
+  const { gamesBySeason, count } = parseSchedulesCsv(csv);
+  assert.equal(count, 2);
+  const g = gamesBySeason['2023'][0];
+  assert.equal(g.gameId,    '2023_01_DET_KC');
+  assert.equal(g.season,    2023);
+  assert.equal(g.week,      1);
+  assert.equal(g.gameType,  'REG');
+  assert.equal(g.homeTeam,  'KC');
+  assert.equal(g.awayTeam,  'DET');
+  assert.equal(g.homeScore, 20);
+  assert.equal(g.awayScore, 21);
+  assert.equal(g.result,    -1);
+  assert.equal(g.spreadLine, 4.5);
+  assert.equal(g.totalLine,  53.0);
+  assert.equal(g.roof,      'outdoors');
+  assert.equal(g.surface,   'grass');
+  assert.equal(g.temp,      70);
+  assert.equal(g.wind,      8);
+  assert.ok(gamesBySeason['2024']);
+});
+
+test('parseSchedulesCsv: in-progress game — null scores, lines kept', () => {
+  const csv = makeSchedCsv(
+    schedRow({ gameId: '2026_01_NE_SEA', season: 2026, week: 1, gameType: 'REG',
+               homeTeam: 'SEA', awayTeam: 'NE', homeScore: '', awayScore: '',
+               result: '', spreadLine: 3.5, totalLine: 44.5, roof: 'outdoors', surface: 'grass',
+               temp: '', wind: '' }),
+  );
+  const { gamesBySeason } = parseSchedulesCsv(csv);
+  const g = gamesBySeason['2026'][0];
+  assert.equal(g.homeScore,  null);
+  assert.equal(g.awayScore,  null);
+  assert.equal(g.result,     null);
+  assert.equal(g.temp,       null);
+  assert.equal(g.wind,       null);
+  assert.equal(g.spreadLine, 3.5);
+  assert.equal(g.totalLine,  44.5);
+});
+
+test('parseSchedulesCsv: tie game — result is 0, not null', () => {
+  const csv = makeSchedCsv(
+    schedRow({ gameId: '2022_07_PIT_PHI', season: 2022, week: 7, gameType: 'REG',
+               homeTeam: 'PHI', awayTeam: 'PIT', homeScore: 17, awayScore: 17,
+               result: 0, spreadLine: -3.5, totalLine: 42.5, roof: 'outdoors', surface: 'grass',
+               temp: 55, wind: 12 }),
+  );
+  const { gamesBySeason } = parseSchedulesCsv(csv);
+  const g = gamesBySeason['2022'][0];
+  assert.strictEqual(g.result,    0);
+  assert.strictEqual(g.homeScore, 17);
+});
+
+test('parseSchedulesCsv: dome — null weather', () => {
+  const csv = makeSchedCsv(
+    schedRow({ gameId: '2026_01_SF_LA', season: 2026, week: 1, gameType: 'REG',
+               homeTeam: 'LA', awayTeam: 'SF', homeScore: '', awayScore: '',
+               result: '', spreadLine: 2.5, totalLine: 48.0, roof: 'dome', surface: 'fieldturf',
+               temp: '', wind: '' }),
+  );
+  const { gamesBySeason } = parseSchedulesCsv(csv);
+  const g = gamesBySeason['2026'][0];
+  assert.equal(g.roof,    'dome');
+  assert.equal(g.temp,    null);
+  assert.equal(g.wind,    null);
+});
+
+test('parseSchedulesCsv: minSeason filter — pre-floor rows excluded', () => {
+  const csv = makeSchedCsv(
+    schedRow({ gameId: '1998_01_KC_CHI', season: 1998, week: 1, gameType: 'REG',
+               homeTeam: 'CHI', awayTeam: 'KC', homeScore: 20, awayScore: 17,
+               result: 3, spreadLine: -3, totalLine: 41, roof: 'outdoors', surface: 'grass',
+               temp: 65, wind: 8 }),
+    schedRow({ gameId: '2020_01_HOU_KC',  season: 2020, week: 1, gameType: 'REG',
+               homeTeam: 'KC', awayTeam: 'HOU', homeScore: 34, awayScore: 20,
+               result: 14, spreadLine: -10, totalLine: 54, roof: 'outdoors', surface: 'grass',
+               temp: 80, wind: 5 }),
+  );
+  const { gamesBySeason, count } = parseSchedulesCsv(csv, { minSeason: 1999 });
+  assert.equal(count, 1);
+  assert.ok(!gamesBySeason['1998']);
+  assert.ok(gamesBySeason['2020']);
+});
+
+test('parseSchedulesCsv: missing required column throws', () => {
+  // Header without game_id → should throw
+  const badHeader = 'season,away_score,home_score,away_team,home_team,result,spread_line,total_line,roof,surface,temp,wind,game_type,week';
+  const csv = [badHeader, '2023,20,17,BUF,KC,3,-3,44,outdoors,grass,70,8,REG,1'].join('\n');
+  assert.throws(() => parseSchedulesCsv(csv), /required columns missing/);
+});
+
+test('parseSchedulesCsv: CRLF handling', () => {
+  const row = schedRow({ gameId: '2023_01_DET_KC', season: 2023, week: 1, gameType: 'REG',
+                         homeTeam: 'KC', awayTeam: 'DET', homeScore: 20, awayScore: 21,
+                         result: -1, spreadLine: 4.5, totalLine: 53.0, roof: 'outdoors', surface: 'grass',
+                         temp: 70, wind: 8 });
+  const csv = [SCHED_HEADER, row].join('\r\n');
+  const { count } = parseSchedulesCsv(csv);
+  assert.equal(count, 1);
+});
+
+test('parseSchedulesCsv: malformed row (empty away_team) skipped', () => {
+  const goodRow = schedRow({ gameId: '2023_01_DET_KC', season: 2023, week: 1, gameType: 'REG',
+                             homeTeam: 'KC', awayTeam: 'DET', homeScore: 20, awayScore: 21,
+                             result: -1, spreadLine: 4.5, totalLine: 53.0, roof: 'outdoors', surface: 'grass',
+                             temp: 70, wind: 8 });
+  const badRow  = schedRow({ gameId: '2023_02_BUF_NYJ', season: 2023, week: 2, gameType: 'REG',
+                             homeTeam: 'NYJ', awayTeam: '',   homeScore: 17, awayScore: 24,
+                             result: -7, spreadLine: -3.5, totalLine: 44.0, roof: 'outdoors', surface: 'grass',
+                             temp: 75, wind: 5 });
+  const csv = makeSchedCsv(goodRow, badRow);
+  const { count } = parseSchedulesCsv(csv);
+  assert.equal(count, 1);
+});
+
+test('numOrNull: empty → null, NA → null, 0 → 0, negatives/decimals → number, unparseable → null', () => {
+  assert.equal(numOrNull(''),    null);
+  assert.equal(numOrNull('NA'), null);
+  assert.strictEqual(numOrNull('0'),   0);
+  assert.equal(numOrNull('-3'),  -3);
+  assert.equal(numOrNull('4.5'), 4.5);
+  assert.equal(numOrNull('x'),   null);
+});
+
+test('validateSchedule: happy path — 200 valid games does not throw', () => {
+  const games = makeGames(MIN_SCHEDULE_GAMES);
+  assert.doesNotThrow(() => validateSchedule(games, { year: 2023 }));
+});
+
+test('validateSchedule: below floor (199 games) throws', () => {
+  const games = makeGames(MIN_SCHEDULE_GAMES - 1);
+  assert.throws(() => validateSchedule(games, { year: 2023 }), /expected ≥ 200/);
+});
+
+test('validateSchedule: format drift (>50% missing homeTeam) throws', () => {
+  const games = makeGames(MIN_SCHEDULE_GAMES);
+  // Null out homeTeam for the majority
+  for (let i = 0; i < Math.floor(games.length * 0.6); i++) {
+    games[i].homeTeam = null;
+  }
+  assert.throws(() => validateSchedule(games, { year: 2023 }), /format change/);
 });
