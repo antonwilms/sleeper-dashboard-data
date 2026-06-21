@@ -444,6 +444,7 @@ Miscellaneous IndexedDB entries that don't fit a named category: league data, ro
 
 ```json
 {
+  "generatedAt":   "2026-06-21T12:00:00.000Z",
   "exportedAt":    "2026-05-18T13:51:37.583Z",
   "schemaVersion": 1,
   "repo":          "sleeper-dashboard-data",
@@ -463,7 +464,8 @@ Miscellaneous IndexedDB entries that don't fit a named category: league data, ro
 
 | Field | Meaning |
 |---|---|
-| `exportedAt` | ISO timestamp of the export that produced this manifest |
+| `generatedAt` | ISO timestamp rewritten on every `updateManifestEntry()` call; reflects when any update script last ran. Does not drive app freshness — the app gates on per-file `lastModified` |
+| `exportedAt` | Static ISO timestamp from the original IndexedDB export that seeded this manifest; not updated by scripts. Does not drive app freshness |
 | `schemaVersion` | Incremented when the file structure changes incompatibly |
 | `repo` | Identifies this repo (useful when manifest is fetched standalone) |
 | `description` | Human-readable description |

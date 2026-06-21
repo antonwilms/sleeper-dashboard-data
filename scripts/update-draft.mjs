@@ -23,8 +23,16 @@ import { validateDraft } from '../lib/validate.mjs';
 
 const DRAFT_PATH = 'nflverse/draft/draft_picks.json';
 
-function picksByYearHash(picksByYear) {
-  return crypto.createHash('sha256').update(JSON.stringify(picksByYear)).digest('hex');
+export function picksByYearHash(picksByYear) {
+  // Sort years and picks within each year for a stable hash regardless of CSV row order.
+  const years = Object.keys(picksByYear).sort();
+  const stable = Object.fromEntries(
+    years.map(yr => [
+      yr,
+      [...picksByYear[yr]].sort((a, b) => a.round - b.round || a.pick - b.pick),
+    ])
+  );
+  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
 }
 
 export async function updateDraft({ dryRun = false, force = false } = {}) {

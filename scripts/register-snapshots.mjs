@@ -20,10 +20,20 @@
  * @param {boolean} opts.dryRun  Print what would be registered, no writes.
  */
 
-import fs from 'fs';
-import path from 'path';
-import { readJson, repoPath, listDir } from '../lib/io.mjs';
+import { readJson, listDir } from '../lib/io.mjs';
 import { readManifest, updateManifestEntry } from '../lib/manifest.mjs';
+
+/**
+ * Returns true when a snapshot should be skipped because its content fingerprint
+ * (recordCount + schemaVersion) matches the existing manifest entry.
+ * Snapshots are immutable, so matching both ⟹ file is unchanged.
+ * This is robust to fresh-clone/CI checkout where all mtimes equal checkout time.
+ */
+export function shouldSkipSnapshot(existing, recordCount, schemaVersion) {
+  return existing != null &&
+    existing.recordCount === recordCount &&
+    existing.schemaVersion === schemaVersion;
+}
 
 export function registerSnapshots({ dryRun = false } = {}) {
   const snapshotDir = 'snapshots';
@@ -40,24 +50,10 @@ export function registerSnapshots({ dryRun = false } = {}) {
   let skipped = 0;
 
   for (const filename of files.sort()) {
-    const relPath  = `${snapshotDir}/${filename}`;
-    const absPath  = repoPath(relPath);
-    const fileMtimeMs = fs.statSync(absPath).mtimeMs;
-
+    const relPath = `${snapshotDir}/${filename}`;
     const existing = manifest.files[relPath];
 
-    // Skip if already registered and manifest lastModified is at or after file mtime.
-    // Use a 1-second tolerance to handle filesystem/JSON timestamp rounding.
-    if (existing) {
-      const manifestTs = existing.lastModified ? new Date(existing.lastModified).getTime() : 0;
-      if (manifestTs >= fileMtimeMs - 1000) {
-        console.log(`[snapshots] Already current: ${relPath}`);
-        skipped++;
-        continue;
-      }
-    }
-
-    // Parse to get schemaVersion and recordCount from players object.
+    // Parse first to get the content fingerprint (recordCount + schemaVersion).
     const parsed = readJson(relPath);
     if (!parsed) {
       console.warn(`[snapshots] Could not parse ${relPath} — skipping`);
@@ -75,6 +71,13 @@ export function registerSnapshots({ dryRun = false } = {}) {
     const recordCount = typeof parsed.players === 'object' && parsed.players !== null
       ? Object.keys(parsed.players).length
       : 0;
+
+    // Skip if already registered with a matching content fingerprint.
+    if (shouldSkipSnapshot(existing, recordCount, parsed.schemaVersion)) {
+      console.log(`[snapshots] Already current: ${relPath}`);
+      skipped++;
+      continue;
+    }
 
     if (dryRun) {
       console.log(`[snapshots] [dry-run] would register ${relPath} (${recordCount} players, schemaVersion ${parsed.schemaVersion})`);
