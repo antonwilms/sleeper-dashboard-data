@@ -1746,10 +1746,58 @@
       "recordCount": 500,
       "inProgress": true,
       "lastModified": "2026-06-15T18:02:51.334Z"
+    },
+    "snapshots/2026-06-14.json": {
+      "schemaVersion": 2,
+      "recordCount": 795,
+      "inProgress": false,
+      "lastModified": "2026-06-21T07:02:30.522Z"
+    },
+    "snapshots/2026-06-15.json": {
+      "schemaVersion": 2,
+      "recordCount": 795,
+      "inProgress": false,
+      "lastModified": "2026-06-21T07:02:30.542Z"
+    },
+    "snapshots/2026-06-16.json": {
+      "schemaVersion": 2,
+      "recordCount": 795,
+      "inProgress": false,
+      "lastModified": "2026-06-21T07:02:30.561Z"
+    },
+    "snapshots/2026-06-17.json": {
+      "schemaVersion": 2,
+      "recordCount": 796,
+      "inProgress": false,
+      "lastModified": "2026-06-21T07:02:30.577Z"
+    },
+    "snapshots/2026-06-18.json": {
+      "schemaVersion": 2,
+      "recordCount": 796,
+      "inProgress": false,
+      "lastModified": "2026-06-21T07:02:30.593Z"
+    },
+    "snapshots/2026-06-19.json": {
+      "schemaVersion": 2,
+      "recordCount": 796,
+      "inProgress": false,
+      "lastModified": "2026-06-21T07:02:30.610Z"
+    },
+    "snapshots/2026-06-20.json": {
+      "schemaVersion": 2,
+      "recordCount": 800,
+      "inProgress": false,
+      "lastModified": "2026-06-21T07:02:30.627Z"
+    },
+    "snapshots/2026-06-21.json": {
+      "schemaVersion": 2,
+      "recordCount": 803,
+      "inProgress": false,
+      "lastModified": "2026-06-21T07:02:30.642Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-06-16T18:12:20.949Z"
+  "generatedAt": "2026-06-21T07:02:30.642Z"
 }
