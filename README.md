@@ -436,7 +436,7 @@ node bin/update.mjs advstats                    # current season
 
 ### `raw/<name>.json`
 
-Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, weekly stats, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
+Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
 
 ---
 
