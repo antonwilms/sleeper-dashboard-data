@@ -12,9 +12,14 @@
  *     or touch the manifest. CI will see no changed data files → no commit.
  *   - If changed: writes the snapshot file and updates the manifest.
  *
- * Fail-loud guard:
- *   - Throws if player count < 250 or > 30% of players changed vs last
- *     snapshot (catches selector breakage masquerading as data).
+ * Integrity guards (two layers):
+ *   - Layer 1 (validateKtc, lib/validate.mjs): per-row + count validity. Hard-throws.
+ *   - Layer 2 (ktcOrderingGuard, this file): Spearman rank correlation vs the last
+ *     good snapshot, keyed on name. Recalibration preserves ordering (ρ≥0.998);
+ *     breakage collapses it (ρ≤0.66). Below KTC_ORDERING_THRESHOLD the snapshot is
+ *     QUARANTINED to ktc/quarantine/ (not committed to ktc/, not registered in the
+ *     manifest) and the run signals CI via setStepOutput — data is never lost to a
+ *     false trip. See .claude/tasks/ktc-integrity-guard.md.
  *
  * @param {object} opts
  * @param {boolean} opts.dryRun  Fetch + validate but don't write files
@@ -22,9 +27,10 @@
 
 import crypto from 'crypto';
 import { fetchKtcSnapshot } from '../lib/ktc.mjs';
-import { readJson, writeJsonStable, listDir } from '../lib/io.mjs';
+import { readJson, writeJsonStable, listDir, setStepOutput } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateKtc } from '../lib/validate.mjs';
+import { pearson } from '../lib/grade.mjs';   // Spearman = Pearson on ranks; reused per CLAUDE.md nav map
 
 function todayDateString() {
   return new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
@@ -46,44 +52,80 @@ function findLastSnapshot() {
   return files[files.length - 1]; // most recent
 }
 
-/**
- * Returns the age in days of a snapshot file based on its YYYY-MM-DD filename.
- * Returns Infinity if the filename doesn't parse.
- */
-function snapshotAgeDays(filename) {
-  const m = filename.match(/snapshot-(\d{4}-\d{2}-\d{2})\.json/);
-  if (!m) return Infinity;
-  const ms = Date.now() - new Date(m[1]).getTime();
-  return ms / (1000 * 60 * 60 * 24);
+// Abort below this rank-order correlation. Calibrated empirically: legitimate
+// recalibration sits at ρ ≥ 0.998; every breakage mode tested is ≤ 0.66 (see
+// .claude/tasks/ktc-integrity-guard.md §1). 0.90 sits in the empty gap with ~0.10
+// margin below real data and ~0.24 above the highest breakage.
+export const KTC_ORDERING_THRESHOLD = 0.90;
+
+// Below this many common players the correlation is not meaningful — skip (don't
+// abort). Normal snapshot-to-snapshot overlap is ~490; a value-only selector break
+// keeps names intact (names come from a different selector), so low overlap means
+// genuine roster churn, not breakage. A name-selector break drops the count below
+// 250 and is caught by Layer 1 instead.
+export const KTC_MIN_OVERLAP = 100;
+
+/** Average-rank transform with tie handling (ties → mean of their rank span). */
+function rankTransform(values) {
+  const order = values.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]);
+  const ranks = new Array(values.length);
+  let i = 0;
+  while (i < order.length) {
+    let j = i;
+    while (j + 1 < order.length && order[j + 1][0] === order[i][0]) j++;
+    const avg = (i + j) / 2 + 1;            // 1-based average rank
+    for (let k = i; k <= j; k++) ranks[order[k][1]] = avg;
+    i = j + 1;
+  }
+  return ranks;
 }
 
 /**
- * Fails loudly if >70% of players changed value vs the previous snapshot.
- * Only applied when the last snapshot is ≤ 8 days old (week-to-week comparison).
- * A stale baseline (older than 8 days) produces many legitimate changes and
- * would cause false positives — it's skipped with a warning instead.
+ * Spearman rank correlation between two snapshots, joined on player `name`
+ * (intersection only). Returns { rho, n }. rho is null when undefined
+ * (n < 2, or zero variance on either side — e.g. a constant-value break).
+ *
+ * @param {Array<{name,value}>} prevPlayers
+ * @param {Array<{name,value}>} newPlayers
+ * @returns {{ rho: number|null, n: number }}
  */
-function largeDeltaGuard(lastFile, lastPlayers, updated) {
-  if (!lastPlayers || !lastFile) return; // no baseline
-  const ageDays = snapshotAgeDays(lastFile);
-  if (ageDays > 8) {
-    console.warn(`[ktc] Last snapshot is ${ageDays.toFixed(1)} days old — skipping delta guard (baseline too stale for meaningful comparison).`);
-    return;
+export function spearmanRho(prevPlayers, newPlayers) {
+  const prevByName = new Map(prevPlayers.map(p => [p.name, p.value]));
+  const xs = [], ys = [];
+  for (const np of newPlayers) {
+    if (prevByName.has(np.name)) { xs.push(prevByName.get(np.name)); ys.push(np.value); }
   }
+  const n = xs.length;
+  if (n < 2) return { rho: null, n };
+  return { rho: pearson(rankTransform(xs), rankTransform(ys)), n };
+}
 
-  const changed = updated.filter(np => {
-    const op = lastPlayers.find(ep => ep.name === np.name);
-    return !op || op.value !== np.value;
-  });
-  const ratio = changed.length / lastPlayers.length;
-  // 70% threshold: catches catastrophic scraper failures (all zeros, garbage data)
-  // while tolerating normal week-to-week dynasty market movement.
-  if (ratio > 0.70) {
-    throw new Error(
-      `[ktc] ${changed.length}/${lastPlayers.length} players changed value (${(ratio * 100).toFixed(1)}%) ` +
-      '— exceeds 70% threshold. Possible selector breakage. Aborting.'
-    );
+/**
+ * Aggregate breakage guard. Never throws — returns a verdict the caller acts on.
+ *   { ok: true,  skipped: true, reason }      no prior / insufficient overlap
+ *   { ok: true,  rho, n }                      ordering preserved
+ *   { ok: false, rho, n, reason }              ordering collapsed → quarantine
+ *
+ * @param {Array|null} prevPlayers  last good snapshot, or null/[] if none
+ * @param {Array}      newPlayers   freshly scraped snapshot
+ * @param {object}     [opts]
+ * @param {number}     [opts.threshold=KTC_ORDERING_THRESHOLD]
+ */
+export function ktcOrderingGuard(prevPlayers, newPlayers, { threshold = KTC_ORDERING_THRESHOLD } = {}) {
+  if (!prevPlayers || prevPlayers.length === 0) {
+    return { ok: true, skipped: true, reason: 'no prior snapshot' };
   }
+  const { rho, n } = spearmanRho(prevPlayers, newPlayers);
+  if (n < KTC_MIN_OVERLAP) {
+    return { ok: true, skipped: true, reason: `only ${n} common players (< ${KTC_MIN_OVERLAP}) — roster churn, not breakage` };
+  }
+  if (rho === null) {
+    return { ok: false, rho, n, reason: 'undefined rank correlation (zero variance) — likely constant-value selector break' };
+  }
+  if (rho < threshold) {
+    return { ok: false, rho, n, reason: `Spearman ρ=${rho.toFixed(4)} < ${threshold} — ordering collapsed` };
+  }
+  return { ok: true, rho, n };
 }
 
 export async function updateKtc({ dryRun }) {
@@ -100,14 +142,40 @@ export async function updateKtc({ dryRun }) {
   validateKtc(players);
   console.log('[ktc] Validation passed');
 
-  // 3. Delta guard vs last snapshot (skipped in dry-run — guard is a production write safety net).
-  // Also skipped on the first script run (no last-checked.json means the only existing
-  // snapshots were exported from IndexedDB, not written by this script, so their values
-  // may be from a stale cache and aren't a valid baseline for delta comparison).
-  const lastFile = findLastSnapshot();
-  const lastPlayers = lastFile ? readJson(`ktc/${lastFile}`) : null;
+  // 3. Aggregate ordering guard vs last good snapshot.
+  //    Skipped in dry-run (production write safety net) and on the first ever run
+  //    (no last-checked.json → the only existing snapshots came from IndexedDB export,
+  //    not this script, so they are not a trustworthy baseline).
+  const lastFile     = findLastSnapshot();
+  const lastPlayers  = lastFile ? readJson(`ktc/${lastFile}`) : null;
   const hasRunBefore = readJson(lastCheckedPath) !== null;
-  if (!dryRun && hasRunBefore) largeDeltaGuard(lastFile, lastPlayers, players);
+
+  if (!dryRun && hasRunBefore) {
+    const guard = ktcOrderingGuard(lastPlayers, players);
+    if (!guard.ok) {
+      // Quarantine instead of hard-abort: preserve the rejected snapshot for manual
+      // review so a false trip never permanently loses a day. Exit 0 so the workflow's
+      // commit step persists the quarantine file; a trailing workflow step turns CI red.
+      const quarantinePath = `ktc/quarantine/snapshot-${today}.json`;
+      writeJsonStable(quarantinePath, players);
+      writeJsonStable(`ktc/quarantine/snapshot-${today}.reason.json`, {
+        quarantinedAt: new Date().toISOString(),
+        reason: guard.reason,
+        rho: guard.rho, n: guard.n, threshold: KTC_ORDERING_THRESHOLD,
+        lastGood: lastFile, recordCount: players.length,
+      });
+      writeJsonStable(lastCheckedPath, {
+        checkedAt: new Date().toISOString(), quarantined: true,
+        file: quarantinePath, rho: guard.rho, reason: guard.reason,
+      });
+      setStepOutput('quarantined', 'true');
+      setStepOutput('quarantine_reason', guard.reason);
+      console.error(`[ktc] ORDERING GUARD TRIPPED — ${guard.reason}. Quarantined to ${quarantinePath}; NOT committed to ktc/. Review and promote manually if legitimate.`);
+      return;
+    }
+    if (guard.skipped)        console.warn(`[ktc] Ordering guard skipped: ${guard.reason}`);
+    else                      console.log(`[ktc] Ordering guard passed (ρ=${guard.rho.toFixed(4)}, n=${guard.n})`);
+  }
 
   // 4. Dedup check
   const newHash = snapshotHash(players);

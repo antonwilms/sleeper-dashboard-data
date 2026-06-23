@@ -26,6 +26,7 @@ jobs:
         run: npm ci
 
       - name: Capture KTC snapshot
+        id: capture
         run: node bin/update.mjs ktc
 
       - name: Commit and purge if changed
@@ -44,3 +45,9 @@ jobs:
           else
             echo "No changes to commit."
           fi
+
+      - name: Fail if snapshot was quarantined
+        if: steps.capture.outputs.quarantined == 'true'
+        run: |
+          echo "::error::KTC snapshot quarantined for review: ${{ steps.capture.outputs.quarantine_reason }}"
+          exit 1

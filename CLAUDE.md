@@ -111,7 +111,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `lib/sleeper.mjs` | Sleeper API fetch helpers |
 | `scripts/update-nfl.mjs` | NFL season-totals update logic |
 | `scripts/update-cfbd.mjs` | CFBD college stats update logic |
-| `scripts/update-ktc.mjs` | KTC snapshot capture logic |
+| `scripts/update-ktc.mjs` | KTC snapshot capture logic; exports spearmanRho / ktcOrderingGuard (Spearman ordering guard) + KTC_ORDERING_THRESHOLD |
 | `scripts/register-snapshots.mjs` | Snapshot manifest registration |
 | `scripts/update-roster.mjs` | nflverse season roster ingest — fetch, parse, dedup, write `nflverse/roster/<year>.json` |
 | `scripts/update-draft.mjs` | nflverse draft picks ingest — fetch, parse, dedup, write `nflverse/draft/draft_picks.json` |
@@ -132,6 +132,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `college/receiving/` | CFBD receiving stats, one file per year |
 | `college/rushing/` | CFBD rushing stats, one file per year |
 | `ktc/` | KTC dynasty value snapshots (schemaVersion 1) |
+| `ktc/quarantine/` | Snapshots rejected by the ordering guard (script-produced, NOT manifest-registered, NOT app-read); review + promote manually |
 | `enrichment/` | Hand-authored overlay: coaching.json, scheme.json, injuries.json, notes.json |
 | `snapshots/` | Projection snapshots imported from the app export ZIP, keyed by UTC date (see [snapshot-workflow.md](snapshot-workflow.md)) |
 | `grading/` | Grading reports written by `bin/grade.mjs --write`, one JSON per snapshot date |
@@ -162,7 +163,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 4. **schemaVersion discipline.** NFL season-totals are at v2 (Phase 5). KTC snapshots are at v1. Projection snapshots are at v2 (new envelope fields: `targetSeason`, `currentSeason`, `scoringSettings`). Bump `schemaVersion` only on an incompatible layout change. Snapshot schemaVersion is independent of the app's `MAX_SUPPORTED_SCHEMA`, which gates only season-totals files.
 
-5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup—no commit when content is unchanged.
+5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup—no commit when content is unchanged. A scrape that fails the Spearman ordering guard is written to `ktc/quarantine/` (script-produced, unregistered, app-ignored) rather than `ktc/`, so a false trip never permanently loses data; it is not "primary data" under Invariant 2.
 
    **nflverse roster/draft/playerids/advstats are script-produced primary data and must never be hand-edited.** The current-season roster mutates weekly and is re-ingested by the Tuesday Action; content-hash dedup ensures no commit when unchanged. Roster/draft/playerids/advstats files are registered **`inProgress: false` even while the current-season file mutates** — deliberate deviation from the `nfl/season-totals` convention. The app has no live fallback for any of these (unlike season-totals where Sleeper is the live source); it must get them from the store. Weekly mutability is handled by content-hash dedup (here) + `lastModified`-driven cache invalidation (app-side). Do not change this to `inProgress: true`.
 

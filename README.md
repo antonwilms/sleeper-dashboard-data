@@ -161,6 +161,8 @@ Array of dynasty market values scraped from KeepTradeCut at the snapshot date.
 
 Values are KTC's proprietary 0–9999 scale. Matched to Sleeper player IDs at runtime using `src/utils/ktcMatch.js`. Snapshots are append-only — old snapshots are never deleted, enabling trend analysis.
 
+**Integrity guards.** Each scrape is validated per-row (finite integer value in 0–9999, non-empty name, known position or null for rookie picks, count 250–600) and checked for aggregate breakage via a Spearman rank correlation against the last good snapshot (joined on player name). Legitimate market recalibration preserves ordering (ρ ≈ 0.998); a selector/parse break collapses it. Below ρ = 0.90 the snapshot is **quarantined** to `ktc/quarantine/` (committed for review but not registered in the manifest, so the app never reads it) and the weekly workflow fails for manual review — a false trip never permanently loses a day.
+
 ---
 
 ### `snapshots/<date>.json`
@@ -605,7 +607,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule (n
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| `weekly-ktc.yml` | Monday 13:17 UTC + `workflow_dispatch` | Runs `node bin/update.mjs ktc`, commits new snapshot if values changed, purges jsDelivr CDN cache for changed files |
+| `weekly-ktc.yml` | Monday 13:17 UTC + `workflow_dispatch` | Runs `node bin/update.mjs ktc`; per-row + Spearman-ordering integrity guards; commits the new snapshot (or a quarantined one under ktc/quarantine/ for review) if changed, purges jsDelivr CDN cache; fails the run if a snapshot was quarantined |
 | `weekly-nflverse-roster.yml` | Tuesday 13:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs roster`, commits if content hash changed, purges jsDelivr CDN cache for changed files |
 | `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
 | `nflverse-playerids.yml` | Wednesday 13:29 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerids`, commits if content hash changed, purges jsDelivr CDN cache |
@@ -613,7 +615,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule (n
 | `nflverse-schedule.yml` | Friday 13:35 UTC + `workflow_dispatch` | Runs `node bin/update.mjs schedule` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats dry-runs, validates enrichment, and npm test (unit validators) |
 
-The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit.
+The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
 *Season-keyed purges (roster, advstats, schedule) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
 
