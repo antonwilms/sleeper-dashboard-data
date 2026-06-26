@@ -203,97 +203,99 @@
       "originalKey": "season-totals/2012",
       "recordCount": 1285,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:33:48.795Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:51:35.176Z"
     },
     "nfl/season-totals/2013.json": {
       "originalKey": "season-totals/2013",
       "recordCount": 1604,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:34:18.856Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:51:45.877Z"
     },
     "nfl/season-totals/2014.json": {
       "originalKey": "season-totals/2014",
       "recordCount": 1930,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:34:30.011Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:51:56.991Z"
     },
     "nfl/season-totals/2015.json": {
       "originalKey": "season-totals/2015",
       "recordCount": 2115,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:34:35.463Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:52:08.666Z"
     },
     "nfl/season-totals/2016.json": {
       "originalKey": "season-totals/2016",
       "recordCount": 2135,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:34:46.889Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:52:20.123Z"
     },
     "nfl/season-totals/2017.json": {
       "originalKey": "season-totals/2017",
       "recordCount": 2153,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:35:04.828Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:52:31.144Z"
     },
     "nfl/season-totals/2018.json": {
       "originalKey": "season-totals/2018",
       "recordCount": 2171,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:35:16.379Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:52:43.064Z"
     },
     "nfl/season-totals/2019.json": {
       "originalKey": "season-totals/2019",
       "recordCount": 2178,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:35:27.724Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:52:54.543Z"
     },
     "nfl/season-totals/2020.json": {
       "originalKey": "season-totals/2020",
       "recordCount": 2350,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:35:39.197Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:53:05.457Z"
     },
     "nfl/season-totals/2021.json": {
       "originalKey": "season-totals/2021",
       "recordCount": 2846,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:36:02.755Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:53:13.504Z"
     },
     "nfl/season-totals/2022.json": {
       "originalKey": "season-totals/2022",
       "recordCount": 2786,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:36:15.969Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:53:25.731Z"
     },
     "nfl/season-totals/2023.json": {
       "originalKey": "season-totals/2023",
       "recordCount": 2777,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:36:22.074Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:53:31.376Z"
     },
     "nfl/season-totals/2024.json": {
       "originalKey": "season-totals/2024",
       "recordCount": 2816,
       "inProgress": false,
-      "schemaVersion": 2,
-      "lastModified": "2026-05-18T23:36:34.901Z"
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:53:43.953Z"
     },
     "nfl/season-totals/2025.json": {
       "originalKey": "season-totals/2025",
-      "recordCount": 2753,
-      "inProgress": true
+      "recordCount": 2832,
+      "inProgress": false,
+      "schemaVersion": 3,
+      "lastModified": "2026-06-26T09:53:52.171Z"
     },
     "enrichment/coaching.json": {
       "schemaVersion": 1,
@@ -713,5 +715,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-06-23T17:34:17.582Z"
+  "generatedAt": "2026-06-26T09:53:52.170Z"
 }
