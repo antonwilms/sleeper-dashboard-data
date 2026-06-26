@@ -93,7 +93,7 @@ export async function updateNfl({ year, force, dryRun }) {
     path: dataPath,
     recordCount: Object.keys(totals).length,
     inProgress,
-    schemaVersion: 2,
+    schemaVersion: 3,
   });
   console.log(`[nfl] Manifest updated (inProgress=${inProgress})`);
 }

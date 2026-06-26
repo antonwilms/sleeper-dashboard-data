@@ -105,3 +105,36 @@ test('validateNflSeason: corrupt absenceSegments[0].length = NaN throws with pat
     /absenceSegments\[0\]\.length/
   );
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// C. Team-domain validation
+// ═══════════════════════════════════════════════════════════════════
+
+test('validateNflSeason: team in SCHEDULE_TEAMS does not throw', () => {
+  const t = makeTotals(400);
+  // Assign a valid team to a subset of players
+  t['0'].team = 'KC';
+  t['1'].team = 'STL'; // historical
+  t['2'].team = null;  // null allowed
+  assert.doesNotThrow(() => validateNflSeason(t, { year: 9999 }));
+});
+
+test('validateNflSeason: team "XYZ" outside domain throws with player + abbr + year', () => {
+  const t = makeTotals(400);
+  t['5'].team = 'XYZ';
+  assert.throws(
+    () => validateNflSeason(t, { year: 9999 }),
+    (err) => {
+      assert.ok(err.message.includes('5'), 'should name the player id');
+      assert.ok(err.message.includes('XYZ'), 'should name the bad abbr');
+      assert.ok(err.message.includes('9999'), 'should include the year');
+      return true;
+    }
+  );
+});
+
+test('validateNflSeason: team null does not trigger team-domain check', () => {
+  const t = makeTotals(400);
+  t['0'].team = null;
+  assert.doesNotThrow(() => validateNflSeason(t, { year: 9999 }));
+});

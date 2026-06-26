@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { aggregateWeeks, computeAvailability } from '../lib/sleeper.mjs';
+import { aggregateWeeks, computeAvailability, normalizeTeamForSchedule, SCHEDULE_TEAM_ALIAS } from '../lib/sleeper.mjs';
 
 // weeks are 1-indexed; e.g. ws({ 1: 'P', 6: 'D' })
 const ws = (o = {}) => Array.from({ length: 18 }, (_, i) => o[i + 1] ?? 'X');
@@ -89,6 +89,7 @@ test('AW1 — single played week: full stat summation (incl. gp/gs/pts_half_ppr)
   ]);
   assert.deepStrictEqual(totals['p1'], {
     stats: { gp: 1, gs: 1, pts_half_ppr: 12.5, rec: 5, rec_yd: 80, rush_yd: 10 },
+    team: 'KC',
     gamesPlayed: 1, gamesStarted: 1, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1: 12.5 },
     weeklyStatus: ws({ 1: 'P' }),
@@ -105,6 +106,7 @@ test('AW2 — gs:0 does not bump gamesStarted; two-week stat accumulation', () =
   ]);
   assert.deepStrictEqual(totals['p1'], {
     stats: { gp: 2, gs: 1, pts_half_ppr: 16, rec: 7, rec_yd: 95 },
+    team: 'KC',
     gamesPlayed: 2, gamesStarted: 1, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1: 6.25, 2: 9.75 },
     weeklyStatus: ws({ 1: 'P', 2: 'P' }),
@@ -123,7 +125,7 @@ test('AW3 — bye: whole team absent (no gp:1) → B; empty stats, fantasyPoints
     ] },
   ]);
   const byeRecord = {
-    stats: {}, gamesPlayed: 0, gamesStarted: 0, byeWeeks: 1, dnpWeeks: 0,
+    stats: {}, team: 'KC', gamesPlayed: 0, gamesStarted: 0, byeWeeks: 1, dnpWeeks: 0,
     weeklyPoints: {}, weeklyStatus: ws({ 9: 'B' }),
     fantasyPoints: 0, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: null, lastWeek: null, returnedFromAbsence: false, absenceCause: 'unknown' },
@@ -131,7 +133,7 @@ test('AW3 — bye: whole team absent (no gp:1) → B; empty stats, fantasyPoints
   assert.deepStrictEqual(totals['kc1'], byeRecord);
   assert.deepStrictEqual(totals['kc2'], byeRecord);
   assert.deepStrictEqual(totals['buf1'], {
-    stats: { gp: 1, gs: 1, pts_half_ppr: 18 }, gamesPlayed: 1, gamesStarted: 1, byeWeeks: 0, dnpWeeks: 0,
+    stats: { gp: 1, gs: 1, pts_half_ppr: 18 }, team: 'BUF', gamesPlayed: 1, gamesStarted: 1, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 9: 18 }, weeklyStatus: ws({ 9: 'P' }),
     fantasyPoints: 18, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: 9, lastWeek: 9, returnedFromAbsence: false, absenceCause: 'unknown' },
@@ -146,7 +148,7 @@ test('AW4 — DNP: one gp:1 teammate flips non-player from bye to D', () => {
     ] },
   ]);
   assert.deepStrictEqual(totals['scrub'], {
-    stats: {}, gamesPlayed: 0, gamesStarted: 0, byeWeeks: 0, dnpWeeks: 1,
+    stats: {}, team: 'KC', gamesPlayed: 0, gamesStarted: 0, byeWeeks: 0, dnpWeeks: 1,
     weeklyPoints: {}, weeklyStatus: ws({ 5: 'D' }),
     fantasyPoints: 0, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: null, lastWeek: null, returnedFromAbsence: false, absenceCause: 'unknown' },
@@ -158,7 +160,7 @@ test('AW5 — team: null on non-playing entry → DNP (team && guard)', () => {
     { week: 3, entries: [ { player_id: 'p1', team: null, stats: { gp: 0 } } ] },
   ]);
   assert.deepStrictEqual(totals['p1'], {
-    stats: {}, gamesPlayed: 0, gamesStarted: 0, byeWeeks: 0, dnpWeeks: 1,
+    stats: {}, team: null, gamesPlayed: 0, gamesStarted: 0, byeWeeks: 0, dnpWeeks: 1,
     weeklyPoints: {}, weeklyStatus: ws({ 3: 'D' }),
     fantasyPoints: 0, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: null, lastWeek: null, returnedFromAbsence: false, absenceCause: 'unknown' },
@@ -175,6 +177,7 @@ test('AW7 — duplicate-player collapse (first-seen wins per week); no stat infl
   ]);
   assert.deepStrictEqual(totals['dup'], {
     stats: { gp: 2, gs: 1, pts_half_ppr: 18, rec: 9, rec_yd: 90 },
+    team: 'KC',
     gamesPlayed: 2, gamesStarted: 1, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1: 10, 2: 8 },
     weeklyStatus: ws({ 1: 'P', 2: 'P' }),
@@ -193,6 +196,7 @@ test('AW8 — pre-2021 wk18: empty entries → slot 18 stays X; lastWeek 17', ()
   ]);
   assert.deepStrictEqual(totals['p1'], {
     stats: { gp: 17, gs: 17, pts_half_ppr: 170 },
+    team: 'KC',
     gamesPlayed: 17, gamesStarted: 17, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1:10,2:10,3:10,4:10,5:10,6:10,7:10,8:10,9:10,10:10,11:10,12:10,13:10,14:10,15:10,16:10,17:10 },
     weeklyStatus: ws({ 1:'P',2:'P',3:'P',4:'P',5:'P',6:'P',7:'P',8:'P',9:'P',10:'P',11:'P',12:'P',13:'P',14:'P',15:'P',16:'P',17:'P' }),
@@ -209,6 +213,7 @@ test('AW9 — empty mid-season week (failed fetch) → X, not D/B', () => {
   ]);
   assert.deepStrictEqual(totals['p1'], {
     stats: { gp: 2, gs: 2, pts_half_ppr: 22 },
+    team: 'KC',
     gamesPlayed: 2, gamesStarted: 2, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1: 10, 3: 12 },
     weeklyStatus: ws({ 1: 'P', 3: 'P' }),
@@ -248,6 +253,7 @@ test('AW11 — capstone: all four status codes, absence segment, trailing-DNP ex
   ]);
   assert.deepStrictEqual(totals['p1'], {
     stats: { gp: 5, gs: 5, pts_half_ppr: 50 },
+    team: 'KC',
     gamesPlayed: 5, gamesStarted: 5, byeWeeks: 1, dnpWeeks: 3,
     weeklyPoints: { 1: 10, 2: 10, 5: 10, 7: 10, 9: 10 },
     weeklyStatus: ws({ 1:'P', 2:'P', 3:'D', 4:'D', 5:'P', 6:'B', 7:'P', 9:'P', 10:'D' }),
@@ -256,10 +262,108 @@ test('AW11 — capstone: all four status codes, absence segment, trailing-DNP ex
   });
   assert.deepStrictEqual(totals['mate'], {
     stats: { gp: 3, gs: 3, pts_half_ppr: 15 },
+    team: 'KC',
     gamesPlayed: 3, gamesStarted: 3, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 3: 5, 4: 5, 10: 5 },
     weeklyStatus: ws({ 3: 'P', 4: 'P', 10: 'P' }),
     fantasyPoints: 15, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: 3, lastWeek: 10, returnedFromAbsence: false, absenceCause: 'unknown' },
   });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// Suite 3 — per-season team (AW-team-* + norm-1 + drift guard)
+// ═══════════════════════════════════════════════════════════════════
+
+// Minimal week-data builder: each entry is { week, entries: [{ player_id, team, stats }] }
+function mkEntry(pid, team, gp, week = 1) {
+  return { week, entries: [{ player_id: pid, team, stats: { gp, pts_half_ppr: gp ? 5 : 0 } }] };
+}
+
+test('AW-team-1: single team across played weeks → team = that team', () => {
+  const data = [
+    mkEntry('p1', 'KC', 1, 1),
+    mkEntry('p1', 'KC', 1, 2),
+    mkEntry('p1', 'KC', 1, 3),
+  ];
+  assert.equal(aggregateWeeks(data)['p1'].team, 'KC');
+});
+
+test('AW-team-2: LAR normalizes to LA; STL stays STL (era-accurate)', () => {
+  const larData = [mkEntry('p1', 'LAR', 1, 1), mkEntry('p1', 'LAR', 1, 2)];
+  assert.equal(aggregateWeeks(larData)['p1'].team, 'LA');
+
+  const stlData = [mkEntry('p1', 'STL', 1, 1), mkEntry('p1', 'STL', 1, 2)];
+  assert.equal(aggregateWeeks(stlData)['p1'].team, 'STL');
+});
+
+test('AW-team-3: mid-season trade, plurality wins → team B (most played weeks)', () => {
+  const data = [
+    mkEntry('p1', 'A', 1, 1),
+    mkEntry('p1', 'A', 1, 2),
+    mkEntry('p1', 'A', 1, 3),
+    mkEntry('p1', 'B', 1, 4),
+    mkEntry('p1', 'B', 1, 5),
+    mkEntry('p1', 'B', 1, 6),
+    mkEntry('p1', 'B', 1, 7),
+    mkEntry('p1', 'B', 1, 8),
+    mkEntry('p1', 'B', 1, 9),
+    mkEntry('p1', 'B', 1, 10),
+  ];
+  assert.equal(aggregateWeeks(data)['p1'].team, 'B');
+});
+
+test('AW-team-4: trade tie → most-recent played team wins (B)', () => {
+  const data = [
+    mkEntry('p1', 'A', 1, 1),
+    mkEntry('p1', 'A', 1, 2),
+    mkEntry('p1', 'B', 1, 3),
+    mkEntry('p1', 'B', 1, 4),
+  ];
+  assert.equal(aggregateWeeks(data)['p1'].team, 'B');
+});
+
+test('AW-team-5: never played (gp=0), all team C → team = C (most-recent appearance), gamesPlayed = 0', () => {
+  const data = [
+    mkEntry('p1', 'C', 0, 1),
+    mkEntry('p1', 'C', 0, 2),
+    mkEntry('p1', 'C', 0, 3),
+  ];
+  const result = aggregateWeeks(data)['p1'];
+  assert.equal(result.team, 'C');
+  assert.equal(result.gamesPlayed, 0);
+});
+
+test('AW-team-6: entries with team null only → team = null', () => {
+  const data = [
+    { week: 1, entries: [{ player_id: 'p1', team: null, stats: { gp: 1, pts_half_ppr: 5 } }] },
+    { week: 2, entries: [{ player_id: 'p1', team: null, stats: { gp: 1, pts_half_ppr: 5 } }] },
+  ];
+  const result = aggregateWeeks(data)['p1'];
+  assert.equal(result.team, null);
+  assert.equal(result.gamesPlayed, 2);
+});
+
+// norm-1: normalizeTeamForSchedule direct unit tests
+test('norm-1: normalizeTeamForSchedule behaves correctly', () => {
+  assert.equal(normalizeTeamForSchedule('LAR'), 'LA');
+  assert.equal(normalizeTeamForSchedule('OAK'), 'OAK');
+  assert.equal(normalizeTeamForSchedule('KC'), 'KC');
+  assert.equal(normalizeTeamForSchedule(null), null);
+  assert.equal(normalizeTeamForSchedule(undefined), null);
+});
+
+// drift guard: every alias value is in the schedule abbreviation domain
+test('drift guard: every SCHEDULE_TEAM_ALIAS value is in the schedule team domain', () => {
+  const SCHEDULE_TEAMS_INLINE = new Set([
+    'ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND',
+    'JAX','KC','LA','LAC','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF',
+    'TB','TEN','WAS','SD','STL','OAK',
+  ]);
+  for (const [from, to] of Object.entries(SCHEDULE_TEAM_ALIAS)) {
+    assert.ok(
+      SCHEDULE_TEAMS_INLINE.has(to),
+      `SCHEDULE_TEAM_ALIAS maps ${from} → ${to}, but ${to} is not in the schedule team domain`
+    );
+  }
 });

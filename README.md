@@ -63,12 +63,13 @@ sleeper-dashboard-data/
 
 ### `nfl/season-totals/<year>.json`
 
-Object keyed by Sleeper `player_id`. Each value is an aggregated per-player season record with raw stats, the canonical half-PPR fantasy point total, weekly-points for each played week, and a length-18 weekly participation array plus derived availability aggregates. Manifest entries for these files are at `schemaVersion: 2` as of Phase 5. Publish-time validation additionally rejects any record containing a non-finite numeric (`NaN`/`Infinity`/`-Infinity`) in any field, so every completed-season file is guaranteed wholly finite.
+Object keyed by Sleeper `player_id`. Each value is an aggregated per-player season record with raw stats, the canonical half-PPR fantasy point total, weekly-points for each played week, and a length-18 weekly participation array plus derived availability aggregates. Manifest entries for these files are at `schemaVersion: 3`. Each record also carries a per-season **`team`** — the player's primary NFL team that season (most played weeks; ties → most-recent), normalized to the schedule's `homeTeam`/`awayTeam` abbreviation domain (`api.sleeper.com` weekly `team`, with `LAR → LA`; era-accurate, so 2012–2016 Rams = `STL`, etc.). `null` when no team can be resolved. This lets consumers join each game to the correct opponent without relying on a player's current team. Mid-season trades collapse to the primary team (a documented residual). Publish-time validation additionally rejects any record containing a non-finite numeric (`NaN`/`Infinity`/`-Infinity`) in any field, so every completed-season file is guaranteed wholly finite.
 
 ```json
 {
   "<player_id>": {
     "stats":         { "rec": 104, "rec_yd": 1236, "rush_yd": 48, "...": "..." },
+    "team":          "STL",
     "gamesPlayed":   16,
     "gamesStarted":  16,
     "byeWeeks":      1,
@@ -498,7 +499,7 @@ Miscellaneous IndexedDB entries that don't fit a named category: league data, ro
       "originalKey":   "season-totals/2024",
       "recordCount":   2708,
       "inProgress":    false,
-      "schemaVersion": 2,
+      "schemaVersion": 3,
       "lastModified":  "2026-05-19T18:32:11.123Z"
     }
   }
@@ -517,7 +518,7 @@ Miscellaneous IndexedDB entries that don't fit a named category: league data, ro
 | `files[*].originalKey` | The IndexedDB cache key the data came from |
 | `files[*].recordCount` | Number of top-level entries in the file (array length or object key count) |
 | `files[*].inProgress` | `true` if this season/snapshot may still receive updates; `false` if completed |
-| `files[*].schemaVersion` | Schema version of this specific file (written by update scripts). NFL season-totals files are at `2` after Phase 5; KTC snapshots remain at `1`. |
+| `files[*].schemaVersion` | Schema version of this specific file (written by update scripts). NFL season-totals files are at `3` (note `team` added); KTC snapshots remain at `1`. |
 | `files[*].lastModified` | ISO timestamp when this file was last written by an update script |
 
 ---

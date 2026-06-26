@@ -127,7 +127,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `bin/backtest.mjs` | Thin CLI over `scripts/backtest-run.mjs` — parses flags, dispatches `assembleCohort`/`runMetric`/`runValidate`, formats reports, `--write` to `backtests/` |
 | `lib/backtest.mjs` | Pure backtest stats (standardized OLS, quintiles, team totals); reuses `pearson` from `lib/grade.mjs`; no I/O |
 | `backtests/` | Backtest reports written by `bin/backtest.mjs --write`, one JSON per metric/position run (analysis only — no manifest entry) |
-| `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 2) |
+| `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 3) |
 | `college/passing/` | CFBD passing stats, one file per year |
 | `college/receiving/` | CFBD receiving stats, one file per year |
 | `college/rushing/` | CFBD rushing stats, one file per year |
@@ -161,7 +161,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 3. **manifest.json is the index.** Every script-written file must be registered with `recordCount`, `schemaVersion`, `lastModified`, and `inProgress` maintained. Treat manifest field names as a public API (see Cross-repo contracts).
 
-4. **schemaVersion discipline.** NFL season-totals are at v2 (Phase 5). KTC snapshots are at v1. Projection snapshots are at v2 (new envelope fields: `targetSeason`, `currentSeason`, `scoringSettings`). Bump `schemaVersion` only on an incompatible layout change. Snapshot schemaVersion is independent of the app's `MAX_SUPPORTED_SCHEMA`, which gates only season-totals files.
+4. **schemaVersion discipline.** NFL season-totals are at v3 (per-season `team`). KTC snapshots are at v1. Projection snapshots are at v2 (new envelope fields: `targetSeason`, `currentSeason`, `scoringSettings`). Bump `schemaVersion` only on an incompatible layout change. Snapshot schemaVersion is independent of the app's `MAX_SUPPORTED_SCHEMA`, which gates only season-totals files.
 
 5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup—no commit when content is unchanged. A scrape that fails the Spearman ordering guard is written to `ktc/quarantine/` (script-produced, unregistered, app-ignored) rather than `ktc/`, so a false trip never permanently loses data; it is not "primary data" under Invariant 2.
 
@@ -184,7 +184,7 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 | Contract | This repo | App counterpart |
 |---|---|---|
 | **Snapshot shape** | `snapshots/<date>.json` imported via `node bin/update.mjs snapshots`; `projection` field is verbatim `computeNextSeasonProjection` output; at schemaVersion 2 the envelope also carries top-level `targetSeason`, `currentSeason`, and verbatim `scoringSettings` | `src/utils/projectionSnapshot.js` (writer); `exportData.js` `classifyKey` (router) |
-| **season-totals schemaVersion** | Writes v2 | `src/api/dataStore.js` advertises `MAX_SUPPORTED_SCHEMA=2`; bumping needs both repos |
+| **season-totals schemaVersion** | Writes v3 | `src/api/dataStore.js` advertises `MAX_SUPPORTED_SCHEMA=3`; bumping needs both repos. Each record carries an additive per-season `team` (schedule-domain abbr, or `null`); the app joins game logs on `careerStats[season][pid].team` instead of current team. |
 | **Enrichment schemas** | Writes/validates `enrichment/*.json` | `src/api/enrichment.js` (`loadEnrichment`); `src/utils/enrichmentLookup.js`; field add/rename must be mirrored |
 | **Manifest contract** | manifest.json field names/shape | `dataStore.js` `getManifestEntry` / validators gate on `schemaVersion`, `inProgress`, `lastModified` |
 | **CFBD statType keys** | Row per `statType`; confirmed sets per category stored here | App pivots via `pivotStatRows`; statType set is a shared contract |
