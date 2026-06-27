@@ -29,7 +29,7 @@ sleeper-dashboard-data/
       2024.json
       ...
   college/
-    passing/                  — CFBD passing stats per player per season (2017–2024)
+    passing/                  — CFBD passing stats per player per season (2017–2025)
       2023.json
       ...
     receiving/                — CFBD receiving stats per player per season

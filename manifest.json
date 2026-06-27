@@ -710,10 +710,28 @@
       "recordCount": 500,
       "inProgress": true,
       "lastModified": "2026-06-23T17:34:17.582Z"
+    },
+    "college/receiving/2025.json": {
+      "schemaVersion": 1,
+      "recordCount": 21255,
+      "inProgress": false,
+      "lastModified": "2026-06-27T20:34:23.357Z"
+    },
+    "college/rushing/2025.json": {
+      "schemaVersion": 1,
+      "recordCount": 16590,
+      "inProgress": false,
+      "lastModified": "2026-06-27T20:34:27.018Z"
+    },
+    "college/passing/2025.json": {
+      "schemaVersion": 1,
+      "recordCount": 7497,
+      "inProgress": false,
+      "lastModified": "2026-06-27T20:34:32.623Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-06-26T15:57:11.992Z"
+  "generatedAt": "2026-06-27T20:34:32.623Z"
 }
