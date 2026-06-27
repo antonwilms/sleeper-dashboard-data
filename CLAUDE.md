@@ -215,6 +215,7 @@ Before reporting a task complete:
 1. Run `npm run smoke` — fix any red.
 2. For enrichment changes, run `npm run validate:enrichment` — fix any red.
 3. For any change touching a data file, confirm `manifest.json` is updated.
+4. Plan review: invoke the plan-reviewer subagent on the task file at the end of Session 1, before Session 2.
 
 ---
 
