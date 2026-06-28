@@ -37,6 +37,7 @@ import { updateDraft }        from '../scripts/update-draft.mjs';
 import { updatePlayerIds }    from '../scripts/update-playerids.mjs';
 import { updateAdvStats }     from '../scripts/update-advstats.mjs';
 import { updateSchedule }    from '../scripts/update-schedule.mjs';
+import { updateGameLogs }    from '../scripts/update-gamelogs.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -83,10 +84,13 @@ SUBCOMMANDS
   schedule                    nflverse NFL schedules + results (per-season; current season by default)
   schedule --year YYYY        Schedule for a specific season
   schedule --all              Backfill every season (≥ 1999)
+  gamelogs                    nflverse per-game player stats (QB/RB/WR/TE/FB), keyed by sleeper_id
+  gamelogs --year YYYY        Per-game logs for a specific season
+  gamelogs --all              Backfill every season (≥ 2012)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
-  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats only)
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/gamelogs only)
   --year YYYY Target season year (nfl, cfbd, roster subcommands)
   --all       Backfill all seasons (schedule subcommand only)
 
@@ -109,6 +113,9 @@ EXAMPLES
   node bin/update.mjs schedule
   node bin/update.mjs schedule --year 2023 --dry-run
   node bin/update.mjs schedule --all
+  node bin/update.mjs gamelogs --year 2023
+  node bin/update.mjs gamelogs --year 2023 --dry-run
+  node bin/update.mjs gamelogs --all
 `);
 }
 
@@ -150,6 +157,9 @@ const opts = { year, category, force, dryRun, all };
         break;
       case 'schedule':
         await updateSchedule(opts);
+        break;
+      case 'gamelogs':
+        await updateGameLogs(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${subcommand}\n`);

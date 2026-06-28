@@ -22,8 +22,9 @@ import {
   parsePlayerIdsCsv, MIN_PLAYERID_ROWS,
   aggregateAdvReceiving, rekeyBySleeper, MIN_ADVSTATS_ROWS,
   parseSchedulesCsv, numOrNull, MIN_SCHEDULE_GAMES, MIN_SCHEDULE_SEASON,
+  parsePlayerGameLogs, rekeyGameLogsBySleeper, MIN_PLAYERGAME_ROWS, MIN_GAMELOG_SEASON,
 } from '../lib/nflverse.mjs';
-import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule } from '../lib/validate.mjs';
+import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule, validateGameLogs } from '../lib/validate.mjs';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -794,4 +795,208 @@ test('validateSchedule: format drift (>50% missing homeTeam) throws', () => {
     games[i].homeTeam = null;
   }
   assert.throws(() => validateSchedule(games, { year: 2023 }), /format change/);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// I. parsePlayerGameLogs
+// ═══════════════════════════════════════════════════════════════════
+
+const GAMELOG_HEADER = [
+  'player_id', 'player_display_name', 'position', 'season', 'week',
+  'season_type', 'team', 'opponent_team',
+  'completions', 'passing_epa', 'pacr',
+  'carries',
+  'receptions', 'targets', 'receiving_yards', 'receiving_air_yards', 'target_share',
+].join(',');
+
+function makeGamelogCsv(...dataRows) {
+  return [GAMELOG_HEADER, ...dataRows].join('\n');
+}
+
+// Header field indices (0-based):
+//  8=completions  9=passing_epa  10=pacr  11=carries  12=receptions  13=targets
+//  14=receiving_yards  15=receiving_air_yards  16=target_share
+// WR: receiving cells populated; passing cells empty; carries=0 (real zero, must be kept)
+const WR_ROW_W1 = '00-0033921,CeeDee Lamb,WR,2024,1,REG,DAL,CLE,,,,0,9,13,110,42,0.31';
+const WR_ROW_W2 = '00-0033921,CeeDee Lamb,WR,2024,2,REG,DAL,PHI,,,,0,6,9,88,55,0.28';
+// QB: passing cells populated; carries=10; receiving zeros are real (kept)
+const QB_ROW_W1 = '00-0023459,Patrick Mahomes,QB,2024,1,REG,KC,BUF,32,7.5,,10,0,0,0,0,';
+const QB_ROW_W2 = '00-0023459,Patrick Mahomes,QB,2024,2,REG,KC,JAC,28,5.2,,8,0,0,0,0,';
+
+test('parsePlayerGameLogs: happy path — 2 players × 2 weeks', () => {
+  const csv = makeGamelogCsv(WR_ROW_W1, WR_ROW_W2, QB_ROW_W1, QB_ROW_W2);
+  const { byGsis, season, rowCount } = parsePlayerGameLogs(csv);
+
+  assert.equal(rowCount, 4, 'rowCount should be total game rows');
+  assert.equal(season, 2024);
+  assert.ok(byGsis['00-0033921'], 'WR should be present');
+  assert.ok(byGsis['00-0023459'], 'QB should be present');
+  assert.equal(byGsis['00-0033921'].games.length, 2);
+  assert.equal(byGsis['00-0023459'].games.length, 2);
+});
+
+test('parsePlayerGameLogs: WR game row — has receiving keys, omits passing keys', () => {
+  const csv = makeGamelogCsv(WR_ROW_W1);
+  const { byGsis } = parsePlayerGameLogs(csv);
+  const g = byGsis['00-0033921'].games[0];
+
+  // receiving fields present
+  assert.equal(g.receptions, 9);
+  assert.equal(g.targets, 13);
+  assert.equal(g.receivingYards, 110);
+  assert.equal(g.receivingAirYards, 42);
+  assert.equal(g.targetShare, 0.31);
+
+  // passing fields absent (empty in source → null → omitted)
+  assert.ok(!Object.hasOwn(g, 'passingEpa'), 'passingEpa should be omitted');
+  assert.ok(!Object.hasOwn(g, 'pacr'),       'pacr should be omitted');
+
+  // carries:0 — real zero → present
+  assert.ok(Object.hasOwn(g, 'carries'), 'carries should be present');
+  assert.equal(g.carries, 0);
+});
+
+test('parsePlayerGameLogs: QB game row — has passing keys', () => {
+  const csv = makeGamelogCsv(QB_ROW_W1);
+  const { byGsis } = parsePlayerGameLogs(csv);
+  const g = byGsis['00-0023459'].games[0];
+
+  assert.equal(g.completions, 32);
+  assert.equal(g.passingEpa, 7.5);
+  assert.equal(g.carries, 10);
+});
+
+test('parsePlayerGameLogs: omit-on-null — "0" present, "" absent, "NA" absent', () => {
+  // Row with: completions="" (omit), passing_epa="NA" (omit), carries="0" (keep)
+  const row = '00-0001111,Test QB,QB,2024,1,REG,DEN,LV,,NA,,0,,,,,';
+  const csv = makeGamelogCsv(row);
+  const { byGsis } = parsePlayerGameLogs(csv);
+  const g = byGsis['00-0001111'].games[0];
+
+  assert.ok(!Object.hasOwn(g, 'completions'), 'empty string → omitted');
+  assert.ok(!Object.hasOwn(g, 'passingEpa'),  'NA → omitted');
+  assert.ok(Object.hasOwn(g, 'carries'),      'zero string → present');
+  assert.equal(g.carries, 0);
+});
+
+test('parsePlayerGameLogs: position filter — K/CB excluded, QB/RB/WR/TE/FB included', () => {
+  const kRow  = '00-0099001,Tucker K,K,2024,1,REG,BAL,NYJ,,,,,,,,,,';
+  const cbRow = '00-0099002,Corner CB,CB,2024,1,REG,CIN,PIT,,,,,,,,,,';
+  const rbRow = '00-0099003,Running RB,RB,2024,1,REG,DET,GB,,,,,5,0,60,0,0.15';
+  const csv = makeGamelogCsv(kRow, cbRow, rbRow);
+  const { byGsis, rowCount } = parsePlayerGameLogs(csv);
+
+  assert.ok(!byGsis['00-0099001'], 'K should be excluded');
+  assert.ok(!byGsis['00-0099002'], 'CB should be excluded');
+  assert.ok(byGsis['00-0099003'],  'RB should be included');
+  assert.equal(rowCount, 1);
+});
+
+test('parsePlayerGameLogs: identity always present even with all-empty stat cells', () => {
+  const row = '00-0001234,Ghost WR,WR,2024,5,POST,SF,PHI,,,,,,,,,,';
+  const csv = makeGamelogCsv(row);
+  const { byGsis } = parsePlayerGameLogs(csv);
+  const g = byGsis['00-0001234'].games[0];
+
+  assert.equal(g.week, 5);
+  assert.equal(g.seasonType, 'POST');
+  assert.equal(g.team, 'SF');
+  assert.equal(g.opponent, 'PHI');
+});
+
+test('parsePlayerGameLogs: missing required column (player_id) → throws', () => {
+  // Header without player_id
+  const csv = 'player_display_name,position,season,week,team\nCeeDee Lamb,WR,2024,1,DAL';
+  assert.throws(() => parsePlayerGameLogs(csv), /required columns missing/);
+});
+
+test('parsePlayerGameLogs: missing required column (week) → throws', () => {
+  const csv = 'player_id,position,season,team\n00-0033921,WR,2024,DAL';
+  assert.throws(() => parsePlayerGameLogs(csv), /required columns missing/);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// J. rekeyGameLogsBySleeper
+// ═══════════════════════════════════════════════════════════════════
+
+test('rekeyGameLogsBySleeper: maps gsis A → sleeper; drops unmapped gsis B', () => {
+  const byGsis = {
+    'A': { gsisId: 'A', name: 'Player A', position: 'WR', games: [{ week: 1 }] },
+    'B': { gsisId: 'B', name: 'Player B', position: 'TE', games: [{ week: 1 }] },
+  };
+  const crosswalkIds = { 'A': { sleeperId: '9999' } };
+
+  const { players, unmapped } = rekeyGameLogsBySleeper(byGsis, crosswalkIds);
+
+  assert.ok(players['9999'], 'gsis A should be re-keyed to sleeper 9999');
+  assert.ok(!players['B'],   'gsis B should not appear as a key');
+  assert.equal(unmapped, 1);
+  assert.deepEqual(players['9999'].games, [{ week: 1 }]);
+});
+
+test('rekeyGameLogsBySleeper: all unmapped → empty players, unmapped = count', () => {
+  const byGsis = {
+    'X': { gsisId: 'X', name: 'Nobody', position: 'QB', games: [] },
+  };
+  const { players, unmapped } = rekeyGameLogsBySleeper(byGsis, {});
+  assert.deepEqual(players, {});
+  assert.equal(unmapped, 1);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// K. validateGameLogs
+// ═══════════════════════════════════════════════════════════════════
+
+function makeGamelogPlayers(count, { withStats = true } = {}) {
+  const players = {};
+  for (let i = 0; i < count; i++) {
+    const game = { week: 1, seasonType: 'REG', team: 'DAL', opponent: 'CLE' };
+    if (withStats) game.receptions = 5;
+    players[String(i + 1)] = {
+      gsisId:   `00-000${String(i).padStart(4, '0')}`,
+      name:     `Player ${i}`,
+      position: 'WR',
+      games:    [game],
+    };
+  }
+  return players;
+}
+
+test('validateGameLogs: sparse season (totalRows < MIN_PLAYERGAME_ROWS) throws', () => {
+  const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS - 1);
+  assert.throws(() => validateGameLogs(players, { year: 2023 }), /game rows.*expected/);
+});
+
+test('validateGameLogs: missing stat fields (all rows omit air-yards) does not throw', () => {
+  // Valid: absent key = null = "stat not recorded", which is legal for sparse seasons
+  const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS);
+  // receivingAirYards is omitted from every game (pre-charting era legitimacy)
+  assert.doesNotThrow(() => validateGameLogs(players, { year: 2023 }));
+});
+
+test('validateGameLogs: targetShare 1.0 passes; 1.4 throws; airYardsShare -0.2 passes', () => {
+  const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS);
+  // valid targetShare
+  players['1'].games[0].targetShare = 1.0;
+  assert.doesNotThrow(() => validateGameLogs(players, { year: 2023 }));
+
+  // airYardsShare negative — allowed (RB behind-LOS)
+  players['1'].games[0].airYardsShare = -0.2;
+  assert.doesNotThrow(() => validateGameLogs(players, { year: 2023 }));
+
+  // out-of-range targetShare
+  players['1'].games[0].targetShare = 1.4;
+  assert.throws(() => validateGameLogs(players, { year: 2023 }), /targetShare out of \[0,1\]/);
+});
+
+test('validateGameLogs: column-drift — game rows with only identity keys throws', () => {
+  // All game rows carry only week/seasonType/team/opponent — no stat keys
+  // (simulates all stat columns dropped upstream)
+  const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS, { withStats: false });
+  assert.throws(() => validateGameLogs(players, { year: 2023 }), /column drift/);
+});
+
+test('validateGameLogs: normal players with stat keys passes', () => {
+  const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS, { withStats: true });
+  assert.doesNotThrow(() => validateGameLogs(players, { year: 2023 }));
 });

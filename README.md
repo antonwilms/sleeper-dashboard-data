@@ -53,6 +53,8 @@ sleeper-dashboard-data/
     playerids.json            — gsis_id→sleeper_id crosswalk (DynastyProcess), all players historically
     advstats/                 — nflverse advanced receiving stats (WR/TE/RB), one file per year, keyed by sleeper_id
       2023.json
+    gamelogs/                 — nflverse per-game player stats (QB/RB/WR/TE/FB), one file per year, keyed by sleeper_id
+      2024.json
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, weekly stats, etc.)
 ```
@@ -437,6 +439,83 @@ node bin/update.mjs advstats                    # current season
 
 ---
 
+### `nflverse/gamelogs/<year>.json`
+
+Per-game player stats produced by `bin/update.mjs gamelogs [--year YYYY] [--all]`, sourced from
+`stats_player_week_<year>.csv` in the nflverse `player_stats` release (the same CSV the `advstats`
+ingest already fetches, now mined for per-game grain).
+
+**Served shape:**
+```json
+{
+  "schemaVersion": 1,
+  "season": 2024,
+  "generatedAt": "2026-06-28T12:00:00.000Z",
+  "rowCount": 6224,
+  "playerCount": 601,
+  "unmapped": 12,
+  "players": {
+    "1234": {
+      "gsisId": "00-0033921",
+      "name": "CeeDee Lamb",
+      "position": "WR",
+      "games": [
+        {
+          "week": 1, "seasonType": "REG", "team": "DAL", "opponent": "CLE",
+          "carries": 0,
+          "receptions": 9, "targets": 13, "receivingYards": 110, "receivingTds": 1,
+          "receivingAirYards": 142, "receivingYardsAfterCatch": 41, "receivingFirstDowns": 6,
+          "receivingEpa": 7.42, "racr": 0.77, "targetShare": 0.31, "airYardsShare": 0.45,
+          "wopr": 0.78, "fantasyPoints": 11.0, "fantasyPointsPpr": 20.0
+        }
+      ]
+    }
+  }
+}
+```
+
+**Key semantics:**
+
+- **Per-game grain, keyed by `sleeper_id`.** Each player entry carries a `games[]` array, one
+  element per game row; the app joins directly via `sleeper_id` (same as `advstats`/`roster`).
+- **`rowCount` = total per-game rows** (the grain count). **`playerCount` = `Object.keys(players).length`**.
+  **`unmapped`** = distinct gsis ids dropped for having no crosswalk entry.
+  Manifest `recordCount = rowCount`.
+- **Omit-on-null (empty-vs-zero rule):** for every mapped stat column, `v = numOrNull(cell)`;
+  if `v === null`, the key is **omitted** (never zero-filled). Because the source uses empty
+  string for inapplicable cross-position fields and `'0'` for real zeros, a WR row keeps
+  `carries: 0` (real) but omits `passingEpa` (absent). A pre-charting season omits
+  `receivingAirYards` rather than fabricating `0`. **Absent key ≡ stat not recorded for
+  that game.** Identity fields (`week`, `seasonType`, `team`, `opponent`) are always present.
+- **Per-game rate fields are single-game values — never sum them** (`targetShare`, `airYardsShare`,
+  `wopr`, `racr`, `passingCpoe`, `pacr`). To get a season figure, recompute from components.
+  Summing weekly rates produces an inflated nonsense number, the same trap as `pass_rtg`/`cmp_pct`.
+- **`fantasyPoints` / `fantasyPointsPpr`** are **nflverse** default scoring — NOT Sleeper/app
+  scoring. Captured for display/training only. Must **never** feed grading/projection/scoring.
+- **Position scope:** QB, RB, WR, TE, FB (offensive skill). `def_*` (IDP), special-teams-return,
+  and kicking (`fg_*/pat_*/gwfg_*`) families are out of scope — structurally empty for offensive
+  players. A future slice can widen the position filter.
+- **Coverage floor: 2012** (`MIN_GAMELOG_SEASON`). The source goes back to 1999, but pre-2006
+  `receivingAirYards`/YAC fields are source-zero-filled (not `NA`) — backfilling below 2012 would
+  fabricate zeros as real data. `schedule` floors at 1999 (charting-independent); `gamelogs`
+  cannot.
+- **Sparsity gate:** `MIN_PLAYERGAME_ROWS = 3000` (~50% of a ~6000-row season). Catches
+  truncated fetches. The app should re-assert `rowCount >= MIN_PLAYERGAME_ROWS` on read.
+- **`inProgress: false` always** — deliberate deviation (CLAUDE.md Invariant 5): the app has
+  no live fallback; it must read from the store. Weekly mutation is handled by SHA-256 content-hash
+  dedup + `lastModified` cache invalidation.
+- **Refresh:** Saturday 13:47 UTC (`nflverse-gamelogs.yml`), after Wednesday playerids so the
+  gsis re-key hits the freshest crosswalk.
+
+```sh
+node bin/update.mjs gamelogs --year 2023
+node bin/update.mjs gamelogs --year 2023 --dry-run
+node bin/update.mjs gamelogs            # current season
+node bin/update.mjs gamelogs --all      # backfill ≥ 2012
+```
+
+---
+
 ### `nflverse/schedule/<year>.json`
 
 Per-season NFL schedule + results produced by `bin/update.mjs schedule [--year YYYY] [--all]`,
@@ -569,6 +648,11 @@ node bin/update.mjs schedule
 node bin/update.mjs schedule --year 2023
 node bin/update.mjs schedule --all
 
+# Fetch nflverse per-game player stats (QB/RB/WR/TE/FB), re-keyed to sleeper_id
+node bin/update.mjs gamelogs --year 2023
+node bin/update.mjs gamelogs            # current season
+node bin/update.mjs gamelogs --all      # backfill ≥ 2012
+
 # Dry-run any subcommand (fetch + validate, no writes)
 # --dry-run also suppresses per-iteration fetch progress (the NFL week loop and
 #   KTC page loop); real (non-dry-run) ingests still print full progress.
@@ -580,12 +664,14 @@ node bin/update.mjs draft --dry-run
 node bin/update.mjs playerids --dry-run
 node bin/update.mjs advstats --year 2023 --dry-run
 node bin/update.mjs schedule --year 2023 --dry-run
+node bin/update.mjs gamelogs --year 2023 --dry-run
 
-# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats)
+# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/gamelogs)
 node bin/update.mjs nfl --year 2023 --force
 node bin/update.mjs roster --year 2024 --force
 node bin/update.mjs advstats --year 2023 --force
 node bin/update.mjs schedule --year 2023 --force
+node bin/update.mjs gamelogs --year 2023 --force
 ```
 
 ### Environment variables
@@ -602,7 +688,7 @@ Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actio
 npm run smoke
 ```
 
-Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
+Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
 
 ### GitHub Actions
 
@@ -614,7 +700,8 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule (n
 | `nflverse-playerids.yml` | Wednesday 13:29 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerids`, commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-advstats.yml` | Thursday 13:41 UTC + `workflow_dispatch` | Runs `node bin/update.mjs advstats` (after playerids), commits if content changed, purges jsDelivr CDN cache |
 | `nflverse-schedule.yml` | Friday 13:35 UTC + `workflow_dispatch` | Runs `node bin/update.mjs schedule` (current season), commits if content hash changed, purges jsDelivr CDN cache |
-| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats dry-runs, validates enrichment, and npm test (unit validators) |
+| `nflverse-gamelogs.yml` | Saturday 13:47 UTC + `workflow_dispatch` | Runs `node bin/update.mjs gamelogs` (current season, after playerids), commits if content hash changed, purges jsDelivr CDN cache |
+| `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 

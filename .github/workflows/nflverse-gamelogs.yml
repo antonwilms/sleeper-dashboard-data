@@ -1,0 +1,55 @@
+name: Weekly nflverse gamelogs
+
+on:
+  schedule:
+    # Saturday 13:47 UTC — must run AFTER the Wednesday playerids Action (13:29) so
+    # the re-key joins the freshest crosswalk committed to main. Base player_stats settle
+    # Tue/Wed post-games; Saturday is safe. Distinct slot from Mon(KTC)/Tue(roster)/
+    # Wed(playerids)/Thu(advstats)/Fri(schedule). Off-hour :47, distinct day → no race.
+    - cron: "47 13 * * 6"
+  workflow_dispatch: {}   # allow manual trigger for backfill / corrections
+
+permissions:
+  contents: write
+
+jobs:
+  gamelogs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch nflverse gamelogs
+        id: fetch
+        run: node bin/update.mjs gamelogs
+
+      - name: Commit and purge if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add nflverse/ manifest.json
+            git commit -m "nflverse: gamelogs $(date -u +%Y-%m-%d)"
+            # Retry with rebase on push rejection (multiple weekly committers on main)
+            git push || (git pull --rebase && git push)
+            # Purge jsDelivr CDN cache. SEASON is the NFL season resolved by the node step
+            # (the year the gamelogs file is keyed by), NOT the calendar year — they diverge
+            # Jan–Feb. See scripts/update-gamelogs.mjs (setStepOutput).
+            SEASON="${{ steps.fetch.outputs.season }}"
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
+            if [[ -n "$SEASON" ]]; then
+              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/gamelogs/${SEASON}.json" || true
+            else
+              echo "WARN: season step-output empty; skipped season-keyed gamelogs purge"
+            fi
+          else
+            echo "No changes to commit."
+          fi

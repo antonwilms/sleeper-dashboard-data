@@ -728,10 +728,82 @@
       "recordCount": 7497,
       "inProgress": false,
       "lastModified": "2026-06-27T20:34:32.623Z"
+    },
+    "nflverse/gamelogs/2012.json": {
+      "schemaVersion": 1,
+      "recordCount": 4624,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:16.223Z"
+    },
+    "nflverse/gamelogs/2013.json": {
+      "schemaVersion": 1,
+      "recordCount": 5266,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:16.848Z"
+    },
+    "nflverse/gamelogs/2014.json": {
+      "schemaVersion": 1,
+      "recordCount": 5753,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:17.550Z"
+    },
+    "nflverse/gamelogs/2015.json": {
+      "schemaVersion": 1,
+      "recordCount": 5849,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:18.300Z"
+    },
+    "nflverse/gamelogs/2016.json": {
+      "schemaVersion": 1,
+      "recordCount": 5796,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:19.032Z"
+    },
+    "nflverse/gamelogs/2017.json": {
+      "schemaVersion": 1,
+      "recordCount": 5862,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:19.689Z"
+    },
+    "nflverse/gamelogs/2018.json": {
+      "schemaVersion": 1,
+      "recordCount": 5752,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:20.349Z"
+    },
+    "nflverse/gamelogs/2020.json": {
+      "schemaVersion": 1,
+      "recordCount": 5950,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:21.296Z"
+    },
+    "nflverse/gamelogs/2021.json": {
+      "schemaVersion": 1,
+      "recordCount": 6262,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:22.048Z"
+    },
+    "nflverse/gamelogs/2022.json": {
+      "schemaVersion": 1,
+      "recordCount": 6198,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:22.803Z"
+    },
+    "nflverse/gamelogs/2023.json": {
+      "schemaVersion": 1,
+      "recordCount": 6176,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:23.205Z"
+    },
+    "nflverse/gamelogs/2024.json": {
+      "schemaVersion": 1,
+      "recordCount": 6223,
+      "inProgress": false,
+      "lastModified": "2026-06-28T13:41:23.846Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-06-27T20:34:32.623Z"
+  "generatedAt": "2026-06-28T13:41:23.846Z"
 }
