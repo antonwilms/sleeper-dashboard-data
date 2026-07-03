@@ -806,6 +806,78 @@
       "recordCount": 500,
       "inProgress": true,
       "lastModified": "2026-06-29T16:42:52.522Z"
+    },
+    "nflverse/advstats/2019.json": {
+      "schemaVersion": 1,
+      "recordCount": 500,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:14:17.682Z"
+    },
+    "nflverse/advstats/2025.json": {
+      "schemaVersion": 1,
+      "recordCount": 520,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:14:23.447Z"
+    },
+    "nflverse/gamelogs/2019.json": {
+      "schemaVersion": 1,
+      "recordCount": 5756,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:14:46.208Z"
+    },
+    "nflverse/gamelogs/2025.json": {
+      "schemaVersion": 1,
+      "recordCount": 6357,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:14:52.871Z"
+    },
+    "nflverse/roster/2016.json": {
+      "schemaVersion": 1,
+      "recordCount": 1539,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:15:26.371Z"
+    },
+    "nflverse/roster/2017.json": {
+      "schemaVersion": 1,
+      "recordCount": 1784,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:15:27.280Z"
+    },
+    "nflverse/roster/2018.json": {
+      "schemaVersion": 1,
+      "recordCount": 2100,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:15:28.305Z"
+    },
+    "nflverse/roster/2019.json": {
+      "schemaVersion": 1,
+      "recordCount": 2225,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:15:29.217Z"
+    },
+    "nflverse/roster/2020.json": {
+      "schemaVersion": 1,
+      "recordCount": 2331,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:15:30.417Z"
+    },
+    "nflverse/roster/2021.json": {
+      "schemaVersion": 1,
+      "recordCount": 2244,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:15:31.296Z"
+    },
+    "nflverse/roster/2022.json": {
+      "schemaVersion": 1,
+      "recordCount": 2075,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:15:32.088Z"
+    },
+    "nflverse/roster/2023.json": {
+      "schemaVersion": 1,
+      "recordCount": 2102,
+      "inProgress": false,
+      "lastModified": "2026-07-03T19:15:32.882Z"
     }
   },
   "schemaVersion": 1,

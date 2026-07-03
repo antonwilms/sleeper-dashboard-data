@@ -17,6 +17,9 @@ The app fetches data from three external APIs and caches it in the browser's Ind
 - **Fast** — served over jsDelivr CDN instead of live API calls
 - **Auditable** — every update is a dated commit
 
+`data-catalog.md` is the index of every served family — grain, coverage, joins, gates, and honest
+gaps.
+
 ---
 
 ## Folder structure
@@ -24,6 +27,7 @@ The app fetches data from three external APIs and caches it in the browser's Ind
 ```
 sleeper-dashboard-data/
   manifest.json               — Index of all files with metadata
+  data-catalog.md             — Living dataset index: one section per served family (see Done-definition)
   nfl/
     season-totals/            — Sleeper per-player season aggregates (2012–present)
       2024.json
@@ -370,9 +374,10 @@ the crosswalk so newly-active players become joinable within a week.
 ### `nflverse/advstats/<year>.json`
 
 Per-season advanced receiving stats produced by `bin/update.mjs advstats --year YYYY`, sourced from
-the nflverse `player_stats` weekly asset
-(`https://github.com/nflverse/nflverse-data/releases/download/player_stats/stats_player_week_<year>.csv`,
-the file `nflreadr::load_player_stats()` wraps). CORS-blocked in browsers; fetched and processed
+the nflverse `stats_player` weekly asset
+(`https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_<year>.csv`,
+the file `nflreadr::load_player_stats()` wraps). The legacy `player_stats` release tag is frozen
+(broken 2019 upload, no 2025+); this repo fetched it until 2026-07 — do not revert. CORS-blocked in browsers; fetched and processed
 server-side. **Re-keyed to `sleeper_id` server-side** using `nflverse/playerids.json` so the app
 does no gsis join.
 
@@ -442,7 +447,7 @@ node bin/update.mjs advstats                    # current season
 ### `nflverse/gamelogs/<year>.json`
 
 Per-game player stats produced by `bin/update.mjs gamelogs [--year YYYY] [--all]`, sourced from
-`stats_player_week_<year>.csv` in the nflverse `player_stats` release (the same CSV the `advstats`
+`stats_player_week_<year>.csv` in the nflverse `stats_player` release (the same CSV the `advstats`
 ingest already fetches, now mined for per-game grain).
 
 **Served shape:**

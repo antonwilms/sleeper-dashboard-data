@@ -1,7 +1,7 @@
 /**
  * scripts/update-advstats.mjs — nflverse advanced receiving stats writer.
  *
- * Fetches stats_player_week_<year>.csv from the nflverse player_stats release asset,
+ * Fetches stats_player_week_<year>.csv from the nflverse stats_player release asset,
  * recomputes season-level ratios from summed components (never aggregated weekly),
  * re-keys to sleeper_id via the local nflverse/playerids.json crosswalk, and writes
  * nflverse/advstats/<year>.json.
@@ -107,18 +107,22 @@ export async function updateAdvStats({ year: yearOpt = null, dryRun = false, for
     return;
   }
 
-  // 9. Force gate: completed past seasons require --force to overwrite
+  // 9. Dry-run exit
+  if (dryRun) {
+    const needsForce = isPast && existing && !force;
+    console.log(
+      `[advstats] [dry-run] would write ${dataPath}: ${rowCount} players (${unmapped} unmapped)` +
+      (needsForce ? ' (past season — needs --force to write for real)' : '')
+    );
+    return;
+  }
+
+  // 10. Force gate: completed past seasons require --force to overwrite
   if (isPast && existing && !force) {
     throw new Error(
       `[advstats] ${dataPath} already exists for completed season ${year}. ` +
       'Use --force to overwrite.'
     );
-  }
-
-  // 10. Dry-run exit
-  if (dryRun) {
-    console.log(`[advstats] [dry-run] would write ${dataPath}: ${rowCount} players (${unmapped} unmapped)`);
-    return;
   }
 
   // 11. Write

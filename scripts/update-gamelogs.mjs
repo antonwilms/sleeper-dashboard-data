@@ -1,7 +1,7 @@
 /**
  * scripts/update-gamelogs.mjs — nflverse per-game player stats (gamelogs) writer.
  *
- * Fetches stats_player_week_<year>.csv from the nflverse player_stats release asset
+ * Fetches stats_player_week_<year>.csv from the nflverse stats_player release asset
  * (same source as advstats — reuses fetchPlayerStatsCsv), parses per-game rows for
  * QB/RB/WR/TE/FB, re-keys to sleeper_id via the local nflverse/playerids.json crosswalk,
  * and writes nflverse/gamelogs/<year>.json.

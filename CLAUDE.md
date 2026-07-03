@@ -155,6 +155,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `manifest.json` | Index of every script-written file with metadata |
 | `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation |
 | `.github/workflows/smoke-test.yml` | Smoke test CI (dry-runs + npm test unit validators) |
+| `data-catalog.md` | Living dataset index — one section per served family (path/source/grain/join/coverage/gate); every ingest slice updates its row (Done-definition) |
 
 ---
 
@@ -222,11 +223,12 @@ Before reporting a task complete:
 2. For enrichment changes, run `npm run validate:enrichment` — fix any red.
 3. For any change touching a data file, confirm `manifest.json` is updated.
 4. Plan review: invoke the plan-reviewer subagent on the task file at the end of Session 1, before Session 2.
+5. For any change that adds a served family or alters a family's coverage/schema/gate, update its `data-catalog.md` row in the same change.
 
 ---
 
 ## Self-maintenance
 
-Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`schedule`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
+Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`schedule`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. The same trigger updates the family's row in `data-catalog.md` (this repo — storage registry). Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
 
 Keep this file thin — a navigation-and-rules layer, not a second README; push deep detail into README.md and link to it.
