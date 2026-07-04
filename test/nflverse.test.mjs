@@ -12,6 +12,11 @@
  *   F. aggregateAdvReceiving
  *   G. rekeyBySleeper
  *   H. validateAdvStats
+ *   I. parseSchedulesCsv / numOrNull / validateSchedule
+ *   J. parsePlayerGameLogs
+ *   K. validateGameLogs
+ *   L. aggregateTeamContext / eraTeam
+ *   M. validateTeamContext
  */
 
 import { test } from 'node:test';
@@ -23,8 +28,9 @@ import {
   aggregateAdvReceiving, rekeyBySleeper, MIN_ADVSTATS_ROWS,
   parseSchedulesCsv, numOrNull, MIN_SCHEDULE_GAMES, MIN_SCHEDULE_SEASON,
   parsePlayerGameLogs, rekeyGameLogsBySleeper, MIN_PLAYERGAME_ROWS, MIN_GAMELOG_SEASON,
+  aggregateTeamContext, eraTeam, MIN_TEAMCONTEXT_ROWS,
 } from '../lib/nflverse.mjs';
-import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule, validateGameLogs } from '../lib/validate.mjs';
+import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule, validateGameLogs, validateTeamContext } from '../lib/validate.mjs';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -999,4 +1005,364 @@ test('validateGameLogs: column-drift — game rows with only identity keys throw
 test('validateGameLogs: normal players with stat keys passes', () => {
   const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS, { withStats: true });
   assert.doesNotThrow(() => validateGameLogs(players, { year: 2023 }));
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// L. aggregateTeamContext / eraTeam
+// ═══════════════════════════════════════════════════════════════════
+
+const TC_HEADER = [
+  'game_id', 'season', 'week', 'season_type', 'posteam', 'defteam', 'home_team', 'away_team',
+  'pass', 'rush', 'play_type', 'two_point_attempt', 'xpass', 'epa', 'success', 'wp', 'qtr',
+  'half_seconds_remaining', 'game_seconds_remaining', 'yardline_100', 'fixed_drive',
+  'fixed_drive_result', 'total_home_score', 'total_away_score',
+].join(',');
+
+function makeTcCsv(...rows) { return [TC_HEADER, ...rows].join('\n'); }
+
+/** Build one pbp CSV row; every field defaults to a countable neutral KC-offense play. */
+function tcRow(o = {}) {
+  const d = {
+    gameId: '2024_01_KC_BAL', season: 2024, week: 1, seasonType: 'REG',
+    posteam: 'KC', defteam: 'BAL', homeTeam: 'KC', awayTeam: 'BAL',
+    pass: 1, rush: 0, playType: 'pass', twoPointAttempt: 0,
+    xpass: '', epa: '', success: '', wp: 0.5, qtr: 1,
+    halfSecondsRemaining: 900, gameSecondsRemaining: 1800,
+    yardline100: 50, fixedDrive: 1, fixedDriveResult: '',
+    totalHomeScore: '', totalAwayScore: '',
+    ...o,
+  };
+  return [
+    d.gameId, d.season, d.week, d.seasonType, d.posteam, d.defteam, d.homeTeam, d.awayTeam,
+    d.pass, d.rush, d.playType, d.twoPointAttempt, d.xpass, d.epa, d.success, d.wp, d.qtr,
+    d.halfSecondsRemaining, d.gameSecondsRemaining, d.yardline100, d.fixedDrive,
+    d.fixedDriveResult, d.totalHomeScore, d.totalAwayScore,
+  ].join(',');
+}
+
+test('eraTeam: remaps LA/LAC/LV to era-accurate codes only within their boundary seasons', () => {
+  assert.equal(eraTeam('LA', 2015), 'STL');
+  assert.equal(eraTeam('LA', 2016), 'LA');
+  assert.equal(eraTeam('LAC', 2016), 'SD');
+  assert.equal(eraTeam('LAC', 2017), 'LAC');
+  assert.equal(eraTeam('LV', 2019), 'OAK');
+  assert.equal(eraTeam('LV', 2020), 'LV');
+  assert.equal(eraTeam('KC', 2013), 'KC');
+});
+
+test('aggregateTeamContext: happy path — off/def components and rates for both teams', () => {
+  const csv = makeTcCsv(
+    tcRow({
+      pass: 1, rush: 0, playType: 'pass', xpass: 0.6, epa: 1.0, success: 1,
+      yardline100: 50, fixedDrive: 1, fixedDriveResult: 'Touchdown',
+      totalHomeScore: 7, totalAwayScore: 3,
+    }),
+    tcRow({
+      pass: 0, rush: 1, playType: 'run', xpass: 0.3, epa: -0.2, success: 0,
+      yardline100: 10, fixedDrive: 1, fixedDriveResult: 'Touchdown',
+      totalHomeScore: 7, totalAwayScore: 3,
+    }),
+    tcRow({
+      posteam: 'BAL', defteam: 'KC', pass: 1, rush: 0, playType: 'pass',
+      xpass: 0.5, epa: 0.3, success: 1, yardline100: 50, qtr: 2,
+      fixedDrive: 2, fixedDriveResult: 'Punt',
+      totalHomeScore: 7, totalAwayScore: 3,
+    }),
+  );
+  const { teams, rowCount, teamCount } = aggregateTeamContext(csv, { season: 2024 });
+
+  assert.equal(rowCount, 2);
+  assert.equal(teamCount, 2);
+
+  const kc = teams.KC.games[0];
+  assert.equal(kc.week, 1);
+  assert.equal(kc.opponent, 'BAL');
+  assert.equal(kc.off.plays, 2);
+  assert.equal(kc.off.passPlays, 1);
+  assert.equal(kc.off.rushPlays, 1);
+  assert.equal(kc.off.passRate, 0.5);
+  assert.equal(kc.off.epaSum, 0.8);
+  assert.equal(kc.off.epaPerPlay, 0.4);
+  assert.equal(kc.off.passEpaPerPlay, 1.0);
+  assert.equal(kc.off.rushEpaPerPlay, -0.2);
+  assert.equal(kc.off.successRate, 0.5);
+  assert.equal(kc.off.proePlays, 2);
+  assert.equal(kc.off.proePassPlays, 1);
+  assert.equal(kc.off.proeXpassSum, 0.9);
+  assert.equal(kc.off.proe, Math.round((1 - 0.9) / 2 * 1000) / 1000);
+  assert.equal(kc.off.rzTrips, 1);
+  assert.equal(kc.off.rzPlays, 1);
+  assert.equal(kc.off.rzTdTrips, 1);
+  assert.equal(kc.off.rzFgTrips, 0);
+  assert.equal(kc.off.pointsScored, 7);
+
+  assert.equal(kc.def.plays, 1);
+  assert.equal(kc.def.epaPerPlay, 0.3);
+  assert.equal(kc.def.successRate, 1);
+  assert.equal(kc.def.rzTripsAllowed, 0);
+  assert.equal(kc.def.pointsAllowed, 3);
+
+  const bal = teams.BAL.games[0];
+  assert.equal(bal.off.plays, 1);
+  assert.equal(bal.off.passRate, 1);
+  assert.equal(bal.off.proe, 0.5);
+  assert.equal(bal.off.pointsScored, 3);
+
+  assert.equal(bal.def.plays, 2);
+  assert.equal(bal.def.epaPerPlay, 0.4);
+  assert.equal(bal.def.rzTripsAllowed, 1);
+  assert.equal(bal.def.rzTdTripsAllowed, 1);
+  assert.equal(bal.def.pointsAllowed, 7);
+});
+
+test('aggregateTeamContext: basis exclusions — no_play and two_point_attempt rows excluded from plays/PROE/RZ', () => {
+  const csv = makeTcCsv(
+    tcRow({ pass: 1, playType: 'no_play', xpass: 0.6, epa: 0.2, success: 1, yardline100: 10, fixedDrive: 1 }),
+    tcRow({ pass: 1, twoPointAttempt: 1, playType: 'pass', xpass: 0.4, epa: 0.5, success: 1, yardline100: 5, fixedDrive: 1 }),
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2024 });
+  const kc = teams.KC.games[0];
+  assert.equal(kc.off.plays, 0);
+  assert.equal(kc.off.proePlays, 0);
+  assert.equal(kc.off.rzPlays, 0);
+  assert.equal(kc.off.rzTrips, 0);
+});
+
+test('aggregateTeamContext: RZ trip dedup — 3 plays in one drive = 1 trip; Touchdown → rzTdTrips', () => {
+  const csv = makeTcCsv(
+    tcRow({ pass: 1, playType: 'pass', yardline100: 15, fixedDrive: 1, fixedDriveResult: 'Touchdown' }),
+    tcRow({ pass: 0, rush: 1, playType: 'run', yardline100: 8, fixedDrive: 1, fixedDriveResult: 'Touchdown' }),
+    tcRow({ pass: 0, rush: 1, playType: 'run', yardline100: 1, fixedDrive: 1, fixedDriveResult: 'Touchdown' }),
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2024 });
+  const kc = teams.KC.games[0];
+  assert.equal(kc.off.rzTrips, 1);
+  assert.equal(kc.off.rzPlays, 3);
+  assert.equal(kc.off.rzTdTrips, 1);
+  assert.equal(kc.off.rzFgTrips, 0);
+});
+
+test('aggregateTeamContext: RZ trip outcome — Field goal maps to rzFgTrips', () => {
+  const csv = makeTcCsv(
+    tcRow({ pass: 1, playType: 'pass', yardline100: 12, fixedDrive: 1, fixedDriveResult: 'Field goal' }),
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2024 });
+  const kc = teams.KC.games[0];
+  assert.equal(kc.off.rzTrips, 1);
+  assert.equal(kc.off.rzTdTrips, 0);
+  assert.equal(kc.off.rzFgTrips, 1);
+});
+
+test('aggregateTeamContext: RZ trip outcome — Opp touchdown counts as neither TD nor FG trip', () => {
+  const csv = makeTcCsv(
+    tcRow({ pass: 1, playType: 'pass', yardline100: 12, fixedDrive: 1, fixedDriveResult: 'Opp touchdown' }),
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2024 });
+  const kc = teams.KC.games[0];
+  assert.equal(kc.off.rzTrips, 1);
+  assert.equal(kc.off.rzTdTrips, 0);
+  assert.equal(kc.off.rzFgTrips, 0);
+});
+
+test('aggregateTeamContext: pace — gaps clamped to [5,45]; an out-of-range gap does not break the chain', () => {
+  const neutral = { wp: 0.5, qtr: 1, halfSecondsRemaining: 900 };
+  const csv = makeTcCsv(
+    tcRow({ pass: 1, playType: 'pass', fixedDrive: 1, gameSecondsRemaining: 1000, ...neutral }),
+    tcRow({ pass: 1, playType: 'pass', fixedDrive: 1, gameSecondsRemaining: 970,  ...neutral }), // gap 30 — kept
+    tcRow({ pass: 1, playType: 'pass', fixedDrive: 1, gameSecondsRemaining: 920,  ...neutral }), // gap 50 — excluded, chain continues
+    tcRow({ pass: 1, playType: 'pass', fixedDrive: 1, gameSecondsRemaining: 912,  ...neutral }), // gap 8  — kept
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2024 });
+  const kc = teams.KC.games[0];
+  assert.equal(kc.off.neutralGaps, 2);
+  assert.equal(kc.off.neutralSeconds, 38);
+  assert.equal(kc.off.neutralSecPerPlay, 19);
+});
+
+test('aggregateTeamContext: pace — a non-countable row between neutral snaps breaks the chain', () => {
+  const neutral = { wp: 0.5, qtr: 1, halfSecondsRemaining: 900 };
+  const csv = makeTcCsv(
+    tcRow({ pass: 1, playType: 'pass',    fixedDrive: 1, gameSecondsRemaining: 1000, ...neutral }),
+    tcRow({ pass: 1, playType: 'no_play', fixedDrive: 1, gameSecondsRemaining: 985,  ...neutral }),
+    tcRow({ pass: 1, playType: 'pass',    fixedDrive: 1, gameSecondsRemaining: 970,  ...neutral }),
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2024 });
+  const kc = teams.KC.games[0];
+  assert.equal(kc.off.neutralGaps, 0);
+  assert.equal(kc.off.neutralSecPerPlay, null);
+});
+
+test('aggregateTeamContext: era remap — 2013 pbp LA/LAC/LV keys become STL/SD/OAK', () => {
+  const csv = makeTcCsv(
+    tcRow({ season: 2013, gameId: '2013_01_STL_ARI', posteam: 'LA',  defteam: 'ARI', homeTeam: 'LA',  awayTeam: 'ARI' }),
+    tcRow({ season: 2013, gameId: '2013_02_SD_DEN',  posteam: 'LAC', defteam: 'DEN', homeTeam: 'LAC', awayTeam: 'DEN' }),
+    tcRow({ season: 2013, gameId: '2013_03_OAK_KC',  posteam: 'LV',  defteam: 'KC',  homeTeam: 'LV',  awayTeam: 'KC' }),
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2013 });
+  assert.ok(teams.STL, 'LA should remap to STL in 2013');
+  assert.ok(teams.SD, 'LAC should remap to SD in 2013');
+  assert.ok(teams.OAK, 'LV should remap to OAK in 2013');
+  assert.ok(!teams.LA && !teams.LAC && !teams.LV, 'current-franchise codes should not leak through');
+});
+
+test('aggregateTeamContext: era remap — 2024 pbp keys are current-franchise, unchanged', () => {
+  const csv = makeTcCsv(
+    tcRow({ season: 2024, gameId: '2024_01_LA_ARI', posteam: 'LA',  defteam: 'ARI', homeTeam: 'LA',  awayTeam: 'ARI' }),
+    tcRow({ season: 2024, gameId: '2024_02_LAC_DEN', posteam: 'LAC', defteam: 'DEN', homeTeam: 'LAC', awayTeam: 'DEN' }),
+    tcRow({ season: 2024, gameId: '2024_03_LV_KC',  posteam: 'LV',  defteam: 'KC',  homeTeam: 'LV',  awayTeam: 'KC' }),
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2024 });
+  assert.ok(teams.LA && teams.LAC && teams.LV);
+});
+
+test('aggregateTeamContext: pre-xpass honest null — all xpass NA → proe/proePlays null/0; other features still compute', () => {
+  const csv = makeTcCsv(
+    tcRow({ season: 2005, pass: 1, playType: 'pass', xpass: 'NA', epa: 0.5, success: 1, yardline100: 50 }),
+    tcRow({ season: 2005, pass: 0, rush: 1, playType: 'run', xpass: 'NA', epa: -0.1, success: 0, yardline100: 50 }),
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2005 });
+  const kc = teams.KC.games[0];
+  assert.equal(kc.off.proe, null);
+  assert.equal(kc.off.proePlays, 0);
+  assert.equal(kc.off.plays, 2);
+  assert.equal(kc.off.epaPerPlay, 0.2);
+});
+
+test('aggregateTeamContext: bye week — team absent from a week has no fabricated games[] entry', () => {
+  const csv = makeTcCsv(
+    tcRow({ gameId: '2024_01_KC_BAL', week: 1, posteam: 'KC', defteam: 'BAL', homeTeam: 'KC', awayTeam: 'BAL' }),
+    tcRow({ gameId: '2024_02_KC_DEN', week: 2, posteam: 'KC', defteam: 'DEN', homeTeam: 'KC', awayTeam: 'DEN' }),
+  );
+  const { teams } = aggregateTeamContext(csv, { season: 2024 });
+  assert.equal(teams.KC.games.length, 2);
+  assert.equal(teams.BAL.games.length, 1);
+  assert.equal(teams.BAL.games[0].week, 1);
+});
+
+test('aggregateTeamContext: header-only CSV → rowCount 0', () => {
+  const { teams, rowCount, teamCount } = aggregateTeamContext(TC_HEADER, { season: 2024 });
+  assert.equal(rowCount, 0);
+  assert.equal(teamCount, 0);
+  assert.deepEqual(teams, {});
+});
+
+test('aggregateTeamContext: wrong-season CSV (season column mismatch) throws', () => {
+  const csv = makeTcCsv(tcRow({ season: 2023 }));
+  assert.throws(() => aggregateTeamContext(csv, { season: 2024 }), /does not match requested season/);
+});
+
+test('aggregateTeamContext: missing required header column throws', () => {
+  const badHeader = TC_HEADER.split(',').filter(c => c !== 'xpass').join(',');
+  const csv = [badHeader, tcRow()].join('\n');
+  assert.throws(() => aggregateTeamContext(csv, { season: 2024 }), /required columns missing/);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// M. validateTeamContext
+// ═══════════════════════════════════════════════════════════════════
+
+function makeTcOffDef(overrides = {}) {
+  return {
+    off: {
+      plays: 60, passPlays: 35, rushPlays: 25, passRate: 0.583,
+      epaSum: 5, epaPlays: 60, epaPerPlay: 0.083,
+      passEpaSum: 3, passEpaPlays: 35, passEpaPerPlay: 0.086,
+      rushEpaSum: 2, rushEpaPlays: 25, rushEpaPerPlay: 0.08,
+      successes: 28, successPlays: 60, successRate: 0.467,
+      proePlays: 58, proePassPlays: 34, proeXpassSum: 33, proe: 0.017,
+      rzTrips: 3, rzPlays: 9, rzPassPlays: 5, rzRushPlays: 4, rzPassRate: 0.556,
+      rzTdTrips: 2, rzFgTrips: 1,
+      neutralSeconds: 900, neutralGaps: 30, neutralSecPerPlay: 30,
+      pointsScored: 24,
+      ...(overrides.off || {}),
+    },
+    def: {
+      plays: 60, passPlays: 33, rushPlays: 27,
+      epaSum: -2, epaPlays: 60, epaPerPlay: -0.033,
+      passEpaSum: -1, passEpaPlays: 33, passEpaPerPlay: -0.03,
+      rushEpaSum: -1, rushEpaPlays: 27, rushEpaPerPlay: -0.037,
+      successes: 25, successPlays: 60, successRate: 0.417,
+      rzTripsAllowed: 2, rzTdTripsAllowed: 1,
+      pointsAllowed: 17,
+      ...(overrides.def || {}),
+    },
+  };
+}
+
+function makeTcGames(n, overrides = {}) {
+  return Array.from({ length: n }, (_, i) => ({
+    week: i + 1, seasonType: 'REG', gameId: `g${i + 1}`, opponent: 'XXX',
+    ...makeTcOffDef(overrides),
+  }));
+}
+
+test('validateTeamContext: passes on valid input (>= MIN_TEAMCONTEXT_ROWS rows)', () => {
+  const teams = { KC: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS) } };
+  assert.doesNotThrow(() => validateTeamContext(teams, { year: 2023 }));
+});
+
+test('validateTeamContext: throws below MIN_TEAMCONTEXT_ROWS (truncated/preliminary fetch)', () => {
+  const teams = { KC: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS - 1) } };
+  assert.throws(() => validateTeamContext(teams, { year: 2023 }), /expected ≥/);
+});
+
+test('validateTeamContext: throws when > 32 teams', () => {
+  const teams = {};
+  for (let i = 0; i < 33; i++) teams[`T${i}`] = { games: makeTcGames(2) };
+  assert.throws(() => validateTeamContext(teams, { year: 2023 }), /teams — expected/);
+});
+
+test('validateTeamContext: era-domain guard — LA at year<=2015 throws; STL at year>=2016 throws', () => {
+  assert.throws(() => validateTeamContext({ LA: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS) } }, { year: 2015 }), /LA.*STL/);
+  assert.throws(() => validateTeamContext({ STL: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS) } }, { year: 2016 }), /STL/);
+  assert.doesNotThrow(() => validateTeamContext({ STL: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS) } }, { year: 2015 }));
+  assert.doesNotThrow(() => validateTeamContext({ LA: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS) } }, { year: 2016 }));
+});
+
+test('validateTeamContext: era-domain guard — LAC/SD boundary at 2016/2017', () => {
+  assert.throws(() => validateTeamContext({ LAC: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS) } }, { year: 2016 }), /LAC.*SD/);
+  assert.throws(() => validateTeamContext({ SD: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS) } }, { year: 2017 }), /SD/);
+});
+
+test('validateTeamContext: era-domain guard — LV/OAK boundary at 2019/2020', () => {
+  assert.throws(() => validateTeamContext({ LV: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS) } }, { year: 2019 }), /LV.*OAK/);
+  assert.throws(() => validateTeamContext({ OAK: { games: makeTcGames(MIN_TEAMCONTEXT_ROWS) } }, { year: 2020 }), /OAK/);
+});
+
+test('validateTeamContext: honest-null guard — fabricated non-null off.proe before 2006 throws', () => {
+  const games = makeTcGames(MIN_TEAMCONTEXT_ROWS);
+  games[0].off.proe = 0.05;
+  assert.throws(() => validateTeamContext({ KC: { games } }, { year: 2005 }), /proe.*2006/);
+});
+
+test('validateTeamContext: honest-null guard — null off.proe before 2006 passes', () => {
+  const games = makeTcGames(MIN_TEAMCONTEXT_ROWS, { off: { proe: null, proePlays: 0, proePassPlays: 0, proeXpassSum: 0 } });
+  assert.doesNotThrow(() => validateTeamContext({ KC: { games } }, { year: 2005 }));
+});
+
+test('validateTeamContext: a legitimate extreme single-game off.proe does NOT trip the gate (2021 NE @ BUF week 13, 27mph wind, 3 pass attempts all game — real value, not a bug)', () => {
+  const games = makeTcGames(MIN_TEAMCONTEXT_ROWS, { off: { proe: -0.567 } });
+  assert.doesNotThrow(() => validateTeamContext({ NE: { games } }, { year: 2021 }));
+});
+
+test('validateTeamContext: off.proe outside the mathematical [-1,1] bound throws', () => {
+  const games = makeTcGames(MIN_TEAMCONTEXT_ROWS, { off: { proe: 1.2 } });
+  assert.throws(() => validateTeamContext({ KC: { games } }, { year: 2023 }), /off\.proe out of \[-1,1\]/);
+});
+
+test('validateTeamContext: off.plays out of [25,120] throws; a legitimate low-possession def.plays does NOT (off-only gate)', () => {
+  const games = makeTcGames(MIN_TEAMCONTEXT_ROWS);
+  // Legitimate low-possession game: this team's defense faced very few plays (one-sided
+  // blowout where the offense held the ball almost the whole game) — must NOT trip the gate.
+  games[0].def.plays = 10;
+  assert.doesNotThrow(() => validateTeamContext({ KC: { games } }, { year: 2023 }));
+
+  games[0].off.plays = 10;
+  assert.throws(() => validateTeamContext({ KC: { games } }, { year: 2023 }), /off\.plays out of \[25,120\]/);
+});
+
+test('validateTeamContext: non-finite guard — Infinity in a component throws', () => {
+  const games = makeTcGames(MIN_TEAMCONTEXT_ROWS);
+  games[0].off.epaSum = Infinity;
+  assert.throws(() => validateTeamContext({ KC: { games } }, { year: 2023 }), /non-finite/);
 });

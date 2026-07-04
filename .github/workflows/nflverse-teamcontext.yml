@@ -1,0 +1,56 @@
+name: Weekly nflverse teamcontext
+
+on:
+  schedule:
+    # Sunday 13:53 UTC — the only free weekday slot (Mon KTC / Tue roster / Wed playerids /
+    # Thu advstats / Fri schedule / Sat gamelogs); runs before Sunday kickoffs, so week N lands
+    # complete on the FOLLOWING Sunday (pbp for MNF settles Tue — any day ≥ Wed has the full
+    # prior week; acceptable one-week latency for a weekly pack). No crosswalk dependency
+    # (team-keyed family) — unlike gamelogs, no ordering constraint on the playerids Action.
+    - cron: "53 13 * * 0"
+  workflow_dispatch: {}   # allow manual trigger for backfill / corrections
+
+permissions:
+  contents: write
+
+jobs:
+  teamcontext:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch nflverse teamcontext
+        id: fetch
+        run: node bin/update.mjs teamcontext
+
+      - name: Commit and purge if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add nflverse/ manifest.json
+            git commit -m "nflverse: teamcontext $(date -u +%Y-%m-%d)"
+            # Retry with rebase on push rejection (multiple weekly committers on main)
+            git push || (git pull --rebase && git push)
+            # Purge jsDelivr CDN cache. SEASON is the NFL season resolved by the node step
+            # (the year the teamcontext file is keyed by), NOT the calendar year — they diverge
+            # Jan–Feb. See scripts/update-teamcontext.mjs (setStepOutput).
+            SEASON="${{ steps.fetch.outputs.season }}"
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
+            if [[ -n "$SEASON" ]]; then
+              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/teamcontext/${SEASON}.json" || true
+            else
+              echo "WARN: season step-output empty; skipped season-keyed teamcontext purge"
+            fi
+          else
+            echo "No changes to commit."
+          fi

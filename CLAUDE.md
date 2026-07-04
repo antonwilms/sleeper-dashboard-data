@@ -33,11 +33,14 @@ node bin/update.mjs schedule --year YYYY          # schedule for a specific seas
 node bin/update.mjs schedule --all                # backfill every season (≥ 1999)
 node bin/update.mjs gamelogs --year YYYY          # nflverse per-game player stats (QB/RB/WR/TE/FB), sleeper_id-keyed
 node bin/update.mjs gamelogs --all                # backfill every season (≥ 2012)
+node bin/update.mjs teamcontext                   # pbp-derived team/game context (PROE, pace, RZ, defense-faced), team-week
+node bin/update.mjs teamcontext --year YYYY       # Team context for a specific season
+node bin/update.mjs teamcontext --all             # Backfill every season (≥ 2012)
 
 # Flags (any subcommand):
 #   --dry-run    fetch + validate, no writes
-#   --force      overwrite completed-season files (nfl/cfbd/roster/advstats/schedule/gamelogs)
-#   --all        backfill all seasons (schedule/gamelogs subcommands)
+#   --force      overwrite completed-season files (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext)
+#   --all        backfill all seasons (schedule/gamelogs/teamcontext subcommands)
 ```
 
 npm shortcuts: `npm run update:nfl`, `npm run update:cfbd`, `npm run update:ktc`, `npm run import:snapshot`.
@@ -90,7 +93,7 @@ Offline analysis (read-only over advstats + season-totals); **not** wired into s
 ### Smoke & validation
 
 ```sh
-npm run smoke               # dry-run nfl+cfbd+ktc+roster+draft+playerids+advstats+schedule+gamelogs for smoke, validate:enrichment, grade --self-test
+npm run smoke               # dry-run nfl+cfbd+ktc+roster+draft+playerids+advstats+schedule+gamelogs+teamcontext for smoke, validate:enrichment, grade --self-test
 npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 ```
 
@@ -100,7 +103,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 | Path | Purpose |
 |---|---|
-| `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots / roster / draft / playerids / advstats / schedule / gamelogs subcommands |
+| `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots / roster / draft / playerids / advstats / schedule / gamelogs / teamcontext subcommands |
 | `bin/enrich.mjs` | Enrichment overlay CLI → add / validate / list / remove |
 | `bin/import-snapshot.mjs` | One-command projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
 | `lib/validate.mjs` | Schema validators (incl. season-totals finiteness sweep, `findNonFinite`); contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` |
@@ -121,7 +124,8 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `scripts/update-advstats.mjs` | nflverse advanced receiving stats ingest — fetch weekly, recompute season ratios, re-key to sleeper_id, write `nflverse/advstats/<year>.json` |
 | `scripts/update-schedule.mjs` | nflverse schedules ingest — fetch combined games.csv, group by season, write `nflverse/schedule/<year>.json` |
 | `scripts/update-gamelogs.mjs` | nflverse per-game player stats ingest — fetch weekly CSV, parse per-game logs, re-key to sleeper_id, write `nflverse/gamelogs/<year>.json` |
-| `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers (roster / draft / playerids / advstats / gamelogs); exports `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS`, `MIN_ADVSTATS_ROWS`, `MIN_SCHEDULE_SEASON`, `MIN_SCHEDULE_GAMES`, `parsePlayerGameLogs`, `rekeyGameLogsBySleeper`, `MIN_PLAYERGAME_ROWS`, `MIN_GAMELOG_SEASON` sparsity constants |
+| `scripts/update-teamcontext.mjs` | pbp-derived team-context ingest — fetch gz, derive, write `nflverse/teamcontext/<year>.json` (no crosswalk read — team-keyed family) |
+| `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers (roster / draft / playerids / advstats / gamelogs / teamcontext); exports `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS`, `MIN_ADVSTATS_ROWS`, `MIN_SCHEDULE_SEASON`, `MIN_SCHEDULE_GAMES`, `parsePlayerGameLogs`, `rekeyGameLogsBySleeper`, `MIN_PLAYERGAME_ROWS`, `MIN_GAMELOG_SEASON`, `MIN_TEAMCONTEXT_ROWS`, `MIN_TEAMCONTEXT_SEASON`, `fetchPbpCsv`, `aggregateTeamContext`, `eraTeam` sparsity constants + pbp-derivation exports |
 | `scripts/grade-snapshot.mjs` | Snapshot adapter — loads snapshot + outcomes, builds GradeInput, orchestrates `gradeSnapshot()` / `runSelfTest()` / `formatHumanReport()` |
 | `scripts/backtest-run.mjs` | Backtest orchestration adapter (injectable loader; mirrors `scripts/grade-snapshot.mjs`) |
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
@@ -145,12 +149,14 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `nflverse/advstats/` | nflverse advanced receiving stats (WR/TE/RB), one JSON per year, keyed by `sleeper_id` |
 | `nflverse/schedule/` | nflverse NFL schedules + results, one JSON per year (`<year>.json`); `games[]` keyed-by-array |
 | `nflverse/gamelogs/` | nflverse per-game player stats (QB/RB/WR/TE/FB), one JSON per year (`<year>.json`), keyed by `sleeper_id`; `players[sid].games[]` |
+| `nflverse/teamcontext/` | pbp-derived team/game context, one JSON per year, TEAM-keyed (not sleeper_id); `teams[abbr].games[]` |
 | `.github/workflows/weekly-nflverse-roster.yml` | Tuesday weekly nflverse roster refresh, content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-draft.yml` | Yearly (May 1) nflverse draft picks update, content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-playerids.yml` | Wednesday weekly gsis↔sleeper crosswalk refresh, content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-advstats.yml` | Thursday weekly advstats refresh (after playerids), content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-schedule.yml` | Friday weekly nflverse schedule refresh (current season), content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-gamelogs.yml` | Saturday weekly nflverse gamelogs refresh (after playerids), content-hash dedup, CDN purge |
+| `.github/workflows/nflverse-teamcontext.yml` | Sunday weekly team-context refresh, content-hash dedup, CDN purge |
 | `raw/` | Unprocessed Sleeper API responses and CFBD player manifests |
 | `manifest.json` | Index of every script-written file with metadata |
 | `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation |
@@ -171,13 +177,13 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup—no commit when content is unchanged. A scrape that fails the Spearman ordering guard is written to `ktc/quarantine/` (script-produced, unregistered, app-ignored) rather than `ktc/`, so a false trip never permanently loses data; it is not "primary data" under Invariant 2.
 
-   **nflverse roster/draft/playerids/advstats/schedule/gamelogs are script-produced primary data and must never be hand-edited.** The current-season roster mutates weekly and is re-ingested by the Tuesday Action; content-hash dedup ensures no commit when unchanged. Roster/draft/playerids/advstats/schedule/gamelogs files are registered **`inProgress: false` even while the current-season file mutates** — deliberate deviation from the `nfl/season-totals` convention. The app has no live fallback for any of these (unlike season-totals where Sleeper is the live source); it must get them from the store. Weekly mutability is handled by content-hash dedup (here) + `lastModified`-driven cache invalidation (app-side). Do not change this to `inProgress: true`.
+   **nflverse roster/draft/playerids/advstats/schedule/gamelogs/teamcontext are script-produced primary data and must never be hand-edited.** The current-season roster mutates weekly and is re-ingested by the Tuesday Action; content-hash dedup ensures no commit when unchanged. Roster/draft/playerids/advstats/schedule/gamelogs/teamcontext files are registered **`inProgress: false` even while the current-season file mutates** — deliberate deviation from the `nfl/season-totals` convention. The app has no live fallback for any of these (unlike season-totals where Sleeper is the live source); it must get them from the store. Weekly mutability is handled by content-hash dedup (here) + `lastModified`-driven cache invalidation (app-side). Do not change this to `inProgress: true`.
 
 6. **Enrichment schemas are contracts.** Each file has required fields per entry. `injuries.segmentStartWeek` must match an absence segment in the matching season-totals file. `add` is an upsert keyed by natural key. Orphaned entries (no matching season-totals player/team) are flagged by `validate`; the app silently ignores them.
 
 7. **Yearly maintenance.** At each season start, update `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` in `lib/validate.mjs` to reflect the current player landscape.
 
-8. **CDN purge URLs for season-keyed files (`nflverse/roster`, `nflverse/advstats`, `nflverse/schedule`, `nflverse/gamelogs`) must be built from the NFL season surfaced by the node step (`setStepOutput('season', …)` → `${{ steps.fetch.outputs.season }}`), never `date -u +%Y`. Calendar year and resolved season diverge Jan–Feb; KTC is exempt (date-keyed).**
+8. **CDN purge URLs for season-keyed files (`nflverse/roster`, `nflverse/advstats`, `nflverse/schedule`, `nflverse/gamelogs`, `nflverse/teamcontext`) must be built from the NFL season surfaced by the node step (`setStepOutput('season', …)` → `${{ steps.fetch.outputs.season }}`), never `date -u +%Y`. Calendar year and resolved season diverge Jan–Feb; KTC is exempt (date-keyed).**
 
 8. **Grading reads are never recomputed.** `bin/grade.mjs` joins captured projections to captured outcomes — it never re-runs the projection pipeline. The GradeReport is fully determined by the snapshot and outcome files at read time. *Clarification: grading MAY recompute actual fantasy points from stored season-totals `stats` under the snapshot's `scoringSettings` (a deterministic dot-product); it never re-runs the projection pipeline.*
 
@@ -201,6 +207,7 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 | **nflverse advstats (advanced receiving)** | `nflverse/advstats/<year>.json` keyed by `sleeper_id`; `{ gsisId, name, position, team, targetShare, airYardsShare, wopr, racr, components }` per player; WR/TE/RB; ratios recomputed season-level (never aggregated weekly); `inProgress:false`, `schemaVersion:1`; `MIN_ADVSTATS_ROWS = 250` shared sparsity constant; written by `bin/update.mjs advstats` | `src/api/advStats.js` reads via `tryDataStore`/`getManifestEntry` (Phase 1b); `seasonProjection.js` records `targetShare`/`airYardsShare`/`wopr`/`racr` as capture-only `factors` (WR/TE), retiring the Sleeper-aDOT calibration defect. Served shape + `MIN_ADVSTATS_ROWS` are the contract — change both repos together |
 | **nflverse schedule** | `nflverse/schedule/<year>.json`: `{ schemaVersion:1, season, generatedAt, rowCount, games[] }`; each game `{ gameId, season, week, gameType, homeTeam, awayTeam, homeScore, awayScore, result, spreadLine, totalLine, roof, surface, temp, wind }`; `inProgress:false`; `MIN_SCHEDULE_GAMES = 200` shared sparsity constant; written by `bin/update.mjs schedule` | **New app loader** (e.g. `src/api/nflSchedule.js`) reads via `tryDataStore`/`getManifestEntry`, same pattern as `nflRoster.js`. Served shape + `MIN_SCHEDULE_GAMES` are the contract — change both repos together |
 | **nflverse gamelogs (per-game player stats)** | `nflverse/gamelogs/<year>.json`: `{ schemaVersion:1, season, generatedAt, rowCount, playerCount, unmapped, players }`; `players` keyed by `sleeper_id`, each `{ gsisId, name, position, games[] }`; each game `{ week, seasonType, team, opponent, …per-game stats (sparse: absent key = null, never 0) }`. QB/RB/WR/TE/FB; 2012+; per-game grain; per-game rate fields are single-game values (never sum); `fantasyPoints*` are nflverse scoring (not app scoring). `inProgress:false`; `MIN_PLAYERGAME_ROWS = 3000` shared sparsity constant; written by `bin/update.mjs gamelogs`. **View-only — must never feed projection/scoring/grading.** Served shape + `MIN_PLAYERGAME_ROWS` are the contract — change both repos together | **New app loader** `src/api/nflGameLogs.js` reads via `tryDataStore`/`getManifestEntry`, same pattern as `nflRoster.js`; gates on `MAX_SUPPORTED_SCHEMA` (schemaVersion 1) and re-asserts `rowCount ≥ MIN_PLAYERGAME_ROWS`. Display/training only; must never import into `seasonProjection.js` or any scoring/grading path |
+| **nflverse teamcontext (team-context pack)** | `nflverse/teamcontext/<year>.json`: `{ schemaVersion:1, season, generatedAt, rowCount, teamCount, teams }`; `teams` keyed by **era-accurate team abbr** (schedule/season-totals domain — the pbp `eraTeam` remap exists precisely so this key matches), each `{ games[] }`; each game `{ week, seasonType, gameId, opponent, off:{...}, def:{...} }` (PROE, pace, red-zone tendencies, EPA/success, points — components + rate, per §4.3 aggregation recipes: never sum/average the stored per-game rates). `inProgress:false`; `MIN_TEAMCONTEXT_ROWS = 60` shared sparsity constant; written by `bin/update.mjs teamcontext`. **First TEAM-keyed served family** (every other family is `sleeper_id`-keyed) — no crosswalk dependency. **View-only — must never feed projection/scoring/grading.** Served shape + `MIN_TEAMCONTEXT_ROWS` are the contract — change both repos together | **New app loader** `src/api/teamContext.js` — `tryDataStore`/`getManifestEntry` pattern (same precedent as `nflGameLogs.js`); gates on `MAX_SUPPORTED_SCHEMA` and re-asserts `rowCount ≥ MIN_TEAMCONTEXT_ROWS`. **Chosen contract term (not an omission):** teamcontext ships `schemaVersion 1`, so no `MAX_SUPPORTED_SCHEMA` bump is needed to consume it — same gate the gamelogs row uses. First TEAM-keyed loader — its cache key is `(season, team)`, not `sleeper_id`; do not force it through the player-keyed loader helpers. Must never import into `seasonProjection.js` or any scoring/grading path |
 | **Snapshot target season** | At schemaVersion 2, the app writes `targetSeason` explicitly in the snapshot envelope; `gradeSnapshot()` reads it directly. `deriveTargetSeason()` in `scripts/grade-snapshot.mjs` is the fallback for v1 snapshots only (maps Jan–Aug → same year, Sep–Dec → year+1; override: `--target-season YYYY`) | `scoringSettings` is captured verbatim in the snapshot envelope as of v2; **implemented**: `lib/fantasyPoints.mjs` + `buildInBasisOutcomes`; grades v2 snapshots in-basis |
 | **`calculateFantasyPoints` port** | `lib/fantasyPoints.mjs` must mirror the app's `src/utils/fantasyPoints.js` `calculateFantasyPoints` formula: loop `scoringSettings` keys, skip null multiplier/stat, 2-dp round. If the app changes its scoring math, mirror it here or in-basis grades diverge from how the app actually scored | `src/utils/fantasyPoints.js` — the source of truth; low churn (the dot-product is stable), but any change there must be reflected here |
 
@@ -245,6 +252,6 @@ End-of-session sequence:
 
 ## Self-maintenance
 
-Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`schedule`/`gamelogs`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. The same trigger updates the family's row in `data-catalog.md` (this repo — storage registry). Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
+Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`schedule`/`gamelogs`/`teamcontext`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. The same trigger updates the family's row in `data-catalog.md` (this repo — storage registry). Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
 
 Keep this file thin — a navigation-and-rules layer, not a second README; push deep detail into README.md and link to it.

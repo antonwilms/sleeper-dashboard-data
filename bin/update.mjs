@@ -38,6 +38,7 @@ import { updatePlayerIds }    from '../scripts/update-playerids.mjs';
 import { updateAdvStats }     from '../scripts/update-advstats.mjs';
 import { updateSchedule }    from '../scripts/update-schedule.mjs';
 import { updateGameLogs }    from '../scripts/update-gamelogs.mjs';
+import { updateTeamContext } from '../scripts/update-teamcontext.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -87,12 +88,15 @@ SUBCOMMANDS
   gamelogs                    nflverse per-game player stats (QB/RB/WR/TE/FB), keyed by sleeper_id
   gamelogs --year YYYY        Per-game logs for a specific season
   gamelogs --all              Backfill every season (≥ 2012)
+  teamcontext                 pbp-derived team/game context (PROE, pace, RZ, defense-faced), team-week
+  teamcontext --year YYYY     Team context for a specific season
+  teamcontext --all           Backfill every season (≥ 2012)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
-  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/gamelogs only)
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext only)
   --year YYYY Target season year (nfl, cfbd, roster subcommands)
-  --all       Backfill all seasons (schedule subcommand only)
+  --all       Backfill all seasons (schedule/gamelogs/teamcontext subcommands)
 
 EXAMPLES
   node bin/update.mjs nfl  --year 2024
@@ -116,6 +120,9 @@ EXAMPLES
   node bin/update.mjs gamelogs --year 2023
   node bin/update.mjs gamelogs --year 2023 --dry-run
   node bin/update.mjs gamelogs --all
+  node bin/update.mjs teamcontext --year 2023
+  node bin/update.mjs teamcontext --year 2023 --dry-run
+  node bin/update.mjs teamcontext --all
 `);
 }
 
@@ -160,6 +167,9 @@ const opts = { year, category, force, dryRun, all };
         break;
       case 'gamelogs':
         await updateGameLogs(opts);
+        break;
+      case 'teamcontext':
+        await updateTeamContext(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${subcommand}\n`);

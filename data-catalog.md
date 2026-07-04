@@ -174,6 +174,18 @@ _Last reconciled against manifest.json: 2026-07-04_
 - **Consumption:** app loader `src/api/nflGameLogs.js` — **view-only contract** (must never feed projection/scoring/grading)
 - **Keep-rationale:** per-game drill-down grain
 
+## nflverse team-context
+- **Served path / subcommand / refresh:** `nflverse/teamcontext/<year>.json`; `bin/update.mjs teamcontext [--year|--all]`; Sunday Action
+- **Source + provenance:** nflverse **`pbp`** release, `play_by_play_<year>.csv.gz` — derive-and-discard (the ~140MB decompressed CSV is never committed; only the derived team-week rows are). **Era-remap provenance note:** pbp's `posteam`/`defteam`/`home_team`/`away_team` columns are normalized to **current**-franchise codes in every season; this pack remaps them to the era-accurate domain (`LA→STL` ≤2015, `LAC→SD` ≤2016, `LV→OAK` ≤2019) via `eraTeam()` so keys match this repo's schedule/season-totals join domain. **This is the INVERSE of the `nflverse/gamelogs` per-season `team` decision**, which deliberately keeps the nflverse (current-franchise) domain — the two families have different join targets; do not "fix" one to match the other.
+- **Grain:** **team-week — TEAM-keyed, the first non-player family** (every other served family is `sleeper_id`-keyed)
+- **Join id(s):** era-accurate team abbr → season-totals per-season `team` / gamelogs `games[].team` / schedule teams; `gameId` → schedule (verbatim, no remap needed)
+- **Coverage:** 2012–2025 backfill + current (`MIN_TEAMCONTEXT_SEASON`); xpass/PROE upstream boundary 2006 — moot at this family's 2012 floor, documented for any future widening; era remap LA/LAC/LV boundaries documented above
+- **schemaVersion:** 1
+- **Sparsity gate:** `MIN_TEAMCONTEXT_ROWS = 60` (cross-repo)
+- **Null semantics:** rates null on zero denominator (never fabricated); a bye week is an absent row (no placeholder); components + rate both stored — rates never summable, only recomputed from summed components (season-figure recipes documented alongside the served family in README.md)
+- **Consumption:** banked view-only until the app loader ships; the projection-engine refactor consumes it later under its own task
+- **Keep-rationale:** cross-position context substrate — PROE (pass-tilt), pace, red-zone tendencies (kicker/TD-scorer equity), and defense-faced EPA splits (pass-funnel/run-funnel) condition every position's projection, not just one
+
 ---
 
 ## Non-served artifacts
@@ -194,7 +206,7 @@ Run after any change to a served family (§ drift prevention below):
 ```sh
 node -e '
 const m = JSON.parse(require("fs").readFileSync("manifest.json","utf8")).files;
-for (const fam of ["advstats","gamelogs","roster"]) {
+for (const fam of ["advstats","gamelogs","roster","teamcontext"]) {
   const years = Object.keys(m).filter(k => k.startsWith(`nflverse/${fam}/`))
     .map(k => k.match(/(\d{4})\.json$/)?.[1]).filter(Boolean).sort();
   console.log(fam, years.join(","));
@@ -207,6 +219,7 @@ Current output (2026-07-04), matching the coverage cells above verbatim:
 advstats 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025
 gamelogs 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025
 roster 2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026
+teamcontext 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025
 ```
 
 ## Drift prevention

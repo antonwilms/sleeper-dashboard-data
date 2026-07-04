@@ -4,7 +4,7 @@ Longitudinal data store for [Sleeper Dashboard](https://github.com/antonwilms/sl
 
 This repo holds serialised data from the Sleeper, KeepTradeCut, and College Football Data (CFBD) APIs plus nflverse/DynastyProcess/nfldata release assets. Most families are fetched server-side by this repo's own ingest scripts (`bin/update.mjs`); projection snapshots are exported from the app's IndexedDB cache. Everything is committed as static JSON served over CDN, reducing API traffic and enabling historical comparisons across seasons.
 
-**Last updated:** 2026-07-03
+**Last updated:** 2026-07-04
 
 ---
 
@@ -58,6 +58,8 @@ sleeper-dashboard-data/
     advstats/                 — nflverse advanced receiving stats (WR/TE/RB), one file per year, keyed by sleeper_id
       2023.json
     gamelogs/                 — nflverse per-game player stats (QB/RB/WR/TE/FB), one file per year, keyed by sleeper_id
+      2024.json
+    teamcontext/              — pbp-derived team/game context (PROE, pace, RZ tendencies, defense-faced), one file per year, TEAM-keyed
       2024.json
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, CFBD player manifests, etc.)
@@ -562,6 +564,125 @@ season (default mode). Historical seasons are static once final; backfill them o
 
 ---
 
+### `nflverse/teamcontext/<year>.json`
+
+pbp-derived team/game context produced by `bin/update.mjs teamcontext [--year YYYY] [--all]`,
+sourced from `play_by_play_<year>.csv.gz` in the nflverse `pbp` release (derive-and-discard — the
+~140MB decompressed CSV is never committed; only the derived team-week rows are). This is the
+repo's **first team-keyed served family** — every other family is `sleeper_id`-keyed. Derived
+features only (PROE, pace, red-zone tendencies, defense-faced, game script) — not a raw-column
+passthrough.
+
+**Served shape:**
+```json
+{
+  "schemaVersion": 1,
+  "season": 2024,
+  "generatedAt": "2026-07-04T12:00:00.000Z",
+  "rowCount": 570,
+  "teamCount": 32,
+  "teams": {
+    "KC": {
+      "games": [
+        {
+          "week": 1, "seasonType": "REG", "gameId": "2024_01_BAL_KC", "opponent": "BAL",
+          "off": {
+            "plays": 62, "passPlays": 38, "rushPlays": 24, "passRate": 0.613,
+            "epaSum": 4.213, "epaPlays": 62, "epaPerPlay": 0.068,
+            "passEpaSum": 5.1, "passEpaPlays": 38, "passEpaPerPlay": 0.134,
+            "rushEpaSum": -0.887, "rushEpaPlays": 24, "rushEpaPerPlay": -0.037,
+            "successes": 29, "successPlays": 62, "successRate": 0.468,
+            "proePlays": 60, "proePassPlays": 37, "proeXpassSum": 33.94, "proe": 0.051,
+            "rzTrips": 4, "rzPlays": 11, "rzPassPlays": 6, "rzRushPlays": 5,
+            "rzPassRate": 0.545, "rzTdTrips": 2, "rzFgTrips": 1,
+            "neutralSeconds": 1240, "neutralGaps": 41, "neutralSecPerPlay": 30.244,
+            "pointsScored": 27
+          },
+          "def": {
+            "plays": 65, "passPlays": 41, "rushPlays": 24,
+            "epaSum": -2.1, "epaPlays": 65, "epaPerPlay": -0.032,
+            "passEpaSum": -1.2, "passEpaPlays": 41, "passEpaPerPlay": -0.029,
+            "rushEpaSum": -0.9, "rushEpaPlays": 24, "rushEpaPerPlay": -0.038,
+            "successes": 27, "successPlays": 65, "successRate": 0.415,
+            "rzTripsAllowed": 3, "rzTdTripsAllowed": 1,
+            "pointsAllowed": 20
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+**Feature definitions (summary — the derivation is defined computations over play-by-play, not a
+raw-column fetch):**
+
+- **Basis:** a "scrimmage row" is `posteam` present AND (`pass==1` OR `rush==1`); a "countable
+  play" (the denominator for every feature below) is a scrimmage row that is not
+  `play_type=='no_play'` and not `two_point_attempt==1`.
+- **`proe`** (pass rate over expected) — `(proePassPlays − proeXpassSum) / proePlays`, from
+  countable plays where `xpass` is non-null. Null when `proePlays==0` (every row of a pre-2006
+  season, or any team-game where `xpass` is absent — **honest null, never fabricated**).
+- **Pace** — `plays`/`passPlays`/`rushPlays`/`passRate` (raw volume) plus
+  `neutralSecPerPlay` (situation-neutral seconds-per-snap: consecutive countable plays in the
+  same drive where both endpoints have `wp` ∈ [0.2, 0.8], `qtr ≤ 3`, `half_seconds_remaining >
+  120`; gaps clamped to [5, 45]s; any intervening non-countable row breaks the chain). Null when
+  `neutralGaps==0` (a wire-to-wire blowout has no neutral snaps).
+- **Red-zone tendencies** — `rzTrips` (distinct `(gameId, fixed_drive)` with ≥1 countable RZ
+  play, `yardline_100 ≤ 20`), `rzPlays`/`rzPassPlays`/`rzRushPlays`/`rzPassRate`, `rzTdTrips`/
+  `rzFgTrips` from the drive's `fixed_drive_result`.
+- **Defense-faced / offense quality** — `epaPerPlay`/`passEpaPerPlay`/`rushEpaPerPlay`/
+  `successRate` mirrored on both `off` (this team's offense) and `def` (this team's defense,
+  i.e. what it allowed) blocks; `pointsScored`/`pointsAllowed` from the game's final score.
+
+**Consumer aggregation recipes (the C4 contract — components + rate stored together; NEVER sum
+or average the stored per-game rates; recompute season figures from summed components):**
+```
+seasonProe          = (Σ proePassPlays − Σ proeXpassSum) / Σ proePlays
+seasonEpaPerPlay     = Σ epaSum / Σ epaPlays          (same for pass/rush/def variants)
+seasonRzPassRate     = Σ rzPassPlays / (Σ rzPassPlays + Σ rzRushPlays)
+seasonRzTdRate       = Σ rzTdTrips / Σ rzTrips        (settle rate: Σ rzFgTrips / Σ rzTrips)
+seasonNeutralPace    = Σ neutralSeconds / Σ neutralGaps
+playsPerGame         = Σ plays / count(games)         (after the consumer's seasonType filter)
+```
+
+**Era remap (load-bearing — the opposite direction from gamelogs):** pbp's team columns
+(`posteam`/`defteam`/`home_team`/`away_team`) are normalized to **current**-franchise codes in
+every season (2013 pbp shows `LA`/`LAC`/`LV`, never `STL`/`SD`/`OAK`). This repo's join domain
+(schedule `homeTeam`/`awayTeam`, season-totals per-season `team`) is **era-accurate**, so
+ingest remaps `LA→STL` (season ≤ 2015), `LAC→SD` (≤ 2016), `LV→OAK` (≤ 2019) before keying —
+`eraTeam()` in `lib/nflverse.mjs`. **This is the INVERSE of the `nflverse/gamelogs` per-season
+`team` decision**, which deliberately keeps the nflverse (current-franchise) domain — the two
+families have different join targets; do not "fix" one to match the other.
+
+**Null semantics:** a bye week is simply an absent week in `games[]` (no fabricated row, no
+null-stuffed placeholder). Every rate is null on a zero denominator, per feature above. `xpass`
+(and therefore `proe`) is a genuine upstream-absent boundary before 2006 (moot at this family's
+2012 floor, documented for any future widening).
+
+**Sparsity gate (`MIN_TEAMCONTEXT_ROWS = 60`):** a full season has 534–570 team-game rows; the
+gate is deliberately low (≈2 weeks) relative to gamelogs' ~50%-of-season floor — a truncated gz
+download fails `gunzipSync` loudly (CRC), so the gate only needs to catch an empty/header-only
+asset, and a team-context pack consumed weekly should serve from week 2, not wait to week 9.
+
+**`inProgress: false` (deliberate deviation):** like the other nflverse families, the app has no
+live fallback — weekly mutation is handled by SHA-256 content-hash dedup + `lastModified`-driven
+app cache invalidation.
+
+**Weekly refresh:** `nflverse-teamcontext.yml` runs Sunday 13:53 UTC (before Sunday kickoffs, so
+week N lands complete on the *following* Sunday — pbp for Monday Night Football settles Tuesday).
+No crosswalk dependency (team-keyed family) — unlike gamelogs, no Action-ordering constraint on
+the playerids Action.
+
+```sh
+node bin/update.mjs teamcontext --year 2023
+node bin/update.mjs teamcontext --year 2023 --dry-run
+node bin/update.mjs teamcontext            # current season
+node bin/update.mjs teamcontext --all      # backfill ≥ 2012
+```
+
+---
+
 ### `raw/<name>.json`
 
 Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
@@ -658,6 +779,11 @@ node bin/update.mjs gamelogs --year 2023
 node bin/update.mjs gamelogs            # current season
 node bin/update.mjs gamelogs --all      # backfill ≥ 2012
 
+# Fetch pbp-derived team/game context (PROE, pace, RZ tendencies, defense-faced), TEAM-keyed
+node bin/update.mjs teamcontext --year 2023
+node bin/update.mjs teamcontext         # current season
+node bin/update.mjs teamcontext --all   # backfill ≥ 2012
+
 # Dry-run any subcommand (fetch + validate, no writes)
 # --dry-run also suppresses per-iteration fetch progress (the NFL week loop and
 #   KTC page loop); real (non-dry-run) ingests still print full progress.
@@ -670,13 +796,15 @@ node bin/update.mjs playerids --dry-run
 node bin/update.mjs advstats --year 2023 --dry-run
 node bin/update.mjs schedule --year 2023 --dry-run
 node bin/update.mjs gamelogs --year 2023 --dry-run
+node bin/update.mjs teamcontext --year 2023 --dry-run
 
-# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs)
+# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext)
 node bin/update.mjs nfl --year 2023 --force
 node bin/update.mjs roster --year 2024 --force
 node bin/update.mjs advstats --year 2023 --force
 node bin/update.mjs schedule --year 2023 --force
 node bin/update.mjs gamelogs --year 2023 --force
+node bin/update.mjs teamcontext --year 2023 --force
 ```
 
 ### Environment variables
@@ -693,7 +821,7 @@ Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actio
 npm run smoke
 ```
 
-Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs (no writes), validates enrichment, and runs the grade self-test. The smoke-test CI workflow runs a subset on pull requests (`npm test` + nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs + enrichment validation), not `npm run smoke` itself.
+Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs/teamcontext (no writes), validates enrichment, and runs the grade self-test. The smoke-test CI workflow runs a subset on pull requests (`npm test` + nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs + enrichment validation), not `npm run smoke` itself.
 
 ### GitHub Actions
 
@@ -706,11 +834,12 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `nflverse-advstats.yml` | Thursday 13:41 UTC + `workflow_dispatch` | Runs `node bin/update.mjs advstats` (after playerids), commits if content changed, purges jsDelivr CDN cache |
 | `nflverse-schedule.yml` | Friday 13:35 UTC + `workflow_dispatch` | Runs `node bin/update.mjs schedule` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-gamelogs.yml` | Saturday 13:47 UTC + `workflow_dispatch` | Runs `node bin/update.mjs gamelogs` (current season, after playerids), commits if content hash changed, purges jsDelivr CDN cache |
+| `nflverse-teamcontext.yml` | Sunday 13:53 UTC + `workflow_dispatch` | Runs `node bin/update.mjs teamcontext` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
-*Season-keyed purges (roster, advstats, schedule, gamelogs) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
+*Season-keyed purges (roster, advstats, schedule, gamelogs, teamcontext) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
 
 ### Yearly maintenance
 
@@ -1016,5 +1145,6 @@ Reports are written to `backtests/<YYYY-MM-DD>-<metric>-<position>.json` (analys
 | Dynasty market values | [KeepTradeCut](https://keeptradecut.com/) | Personal use |
 | College stats | [College Football Data API](https://collegefootballdata.com/) | Non-commercial / personal use |
 | NFL schedules, results & Vegas lines | [nflverse / nfldata](https://github.com/nflverse/nfldata) | Public domain (CC0-style); attribution requested |
+| NFL play-by-play (team-context derivation) | [nflverse / nflverse-data](https://github.com/nflverse/nflverse-data) | CC-BY 4.0-style; attribution requested |
 
 This repo is for personal dynasty fantasy football analysis only. It is not affiliated with, endorsed by, or licensed by any of the above services.
