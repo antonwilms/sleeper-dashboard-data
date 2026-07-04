@@ -227,6 +227,22 @@ Before reporting a task complete:
 
 ---
 
+## Session git workflow
+
+Every session that modifies tracked files ends by committing and pushing its own work — no uncommitted work is left between sessions. Uncommitted local work colliding with a scheduled Action's push to main (Invariant 8's workflows) is a known failure mode this sequence exists to prevent. Read-only sessions (planning that produces no tracked change) do nothing here.
+
+End-of-session sequence:
+1. Stage and commit this session's changes with a descriptive message (planning: `plan: <feature>`; implementation: `feat: <feature>` / `fix: <feature>`).
+2. `git pull --rebase origin main` **before** pushing — the weekly/scheduled Actions push to main on cron and will reject a stale push.
+3. Resolve any rebase conflicts safely — they are almost always machine-generated bookkeeping files:
+   - `manifest.json`: resolve as a **union** — keep every entry from both sides. Never resolve by preferring one side wholesale; that silently drops the other side's entries (a real data-visibility loss even though the file still parses). After resolving, verify `python3 -m json.tool manifest.json` parses **and** that the entries this session wrote are still present (grep their full-path keys, e.g. `nflverse/advstats/2019.json` — full path with extension, not a bare fragment).
+   - Watermark files (`nflverse/last-checked-*.json` and similar): keep the later timestamp.
+   - If a conflict is not a clean union — the same entry edited incompatibly on both sides — stop and report for a human decision; do not guess.
+4. `git push origin main` — plain push, never `--force`. If still rejected, an Action pushed during the rebase: pull --rebase again and retry; never force.
+5. If this session wrote served data files (anything under `nflverse/`, `ktc/`, `cfbd/`, etc. + `manifest.json`), purge the jsDelivr CDN for exactly those changed files (manifest.json first, then the data files) — see README → [How the data is consumed](README.md#how-the-data-is-consumed) for the purge method — so the app sees fresh data instead of stale cache.
+
+---
+
 ## Self-maintenance
 
 Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`schedule`/`gamelogs`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. The same trigger updates the family's row in `data-catalog.md` (this repo — storage registry). Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
