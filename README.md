@@ -2,15 +2,15 @@
 
 Longitudinal data store for [Sleeper Dashboard](https://github.com/antonwilms/sleeper-dashboard) — a personal dynasty fantasy football analysis tool.
 
-This repo holds serialised snapshots of data fetched from the Sleeper, KeepTradeCut, and College Football Data (CFBD) APIs. The data is exported from the app's IndexedDB cache and committed here so it can be loaded as static JSON over CDN, reducing API traffic and enabling historical comparisons across seasons.
+This repo holds serialised data from the Sleeper, KeepTradeCut, and College Football Data (CFBD) APIs plus nflverse/DynastyProcess/nfldata release assets. Most families are fetched server-side by this repo's own ingest scripts (`bin/update.mjs`); projection snapshots are exported from the app's IndexedDB cache. Everything is committed as static JSON served over CDN, reducing API traffic and enabling historical comparisons across seasons.
 
-**Last updated:** 2026-05-18
+**Last updated:** 2026-07-03
 
 ---
 
 ## Why this repo exists
 
-The app fetches data from three external APIs and caches it in the browser's IndexedDB. That cache is ephemeral — it lives in one browser profile and is lost on a clear. This repo makes the data:
+The app fetches Sleeper/CFBD/KTC data and caches it in the browser's IndexedDB; the nflverse families are ingested directly by this repo (never by the app). That cache is ephemeral — it lives in one browser profile and is lost on a clear. This repo makes the data:
 
 - **Portable** — accessible from any device without re-fetching
 - **Historical** — past seasons are locked in; corrections are tracked via git history
@@ -60,7 +60,7 @@ sleeper-dashboard-data/
     gamelogs/                 — nflverse per-game player stats (QB/RB/WR/TE/FB), one file per year, keyed by sleeper_id
       2024.json
   raw/                        — Everything else exported from IndexedDB
-                                (league data, player map, weekly stats, etc.)
+                                (league data, player map, CFBD player manifests, etc.)
 ```
 
 ---
@@ -601,7 +601,7 @@ Miscellaneous IndexedDB entries that don't fit a named category: league data, ro
 | `files` | Map from ZIP path → file metadata |
 | `files[*].originalKey` | The IndexedDB cache key the data came from |
 | `files[*].recordCount` | Number of top-level entries in the file (array length or object key count) |
-| `files[*].inProgress` | `true` if this season/snapshot may still receive updates; `false` if completed |
+| `files[*].inProgress` | `true` if this season/snapshot may still receive updates; `false` if completed. Exception: KTC snapshots always register `true` (dated "current-value" marker) despite being permanent |
 | `files[*].schemaVersion` | Schema version of this specific file (written by update scripts). NFL season-totals files are at `3` (note `team` added); KTC snapshots remain at `1`. |
 | `files[*].lastModified` | ISO timestamp when this file was last written by an update script |
 
@@ -671,7 +671,7 @@ node bin/update.mjs advstats --year 2023 --dry-run
 node bin/update.mjs schedule --year 2023 --dry-run
 node bin/update.mjs gamelogs --year 2023 --dry-run
 
-# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/gamelogs)
+# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs)
 node bin/update.mjs nfl --year 2023 --force
 node bin/update.mjs roster --year 2024 --force
 node bin/update.mjs advstats --year 2023 --force
@@ -693,7 +693,7 @@ Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actio
 npm run smoke
 ```
 
-Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs (no writes), validates enrichment, and runs the grade self-test. Used by the smoke-test CI workflow on pull requests.
+Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs (no writes), validates enrichment, and runs the grade self-test. The smoke-test CI workflow runs a subset on pull requests (`npm test` + nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs + enrichment validation), not `npm run smoke` itself.
 
 ### GitHub Actions
 
@@ -710,7 +710,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
-*Season-keyed purges (roster, advstats, schedule) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
+*Season-keyed purges (roster, advstats, schedule, gamelogs) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
 
 ### Yearly maintenance
 

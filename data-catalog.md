@@ -25,7 +25,7 @@ header-compatible (column lookup by name; 2025 adds one additive `game_id` colum
 does not affect served shape — it is recorded here so provenance stays honest, not silent. See each
 family's Source + provenance field below for the per-family detail.
 
-_Last reconciled against manifest.json: 2026-07-03_
+_Last reconciled against manifest.json: 2026-07-04_
 
 ---
 
@@ -61,6 +61,7 @@ _Last reconciled against manifest.json: 2026-07-03_
 - **Coverage:** 2026-05-18 → present, weekly; no pre-history exists or can be backfilled (audit DEFER)
 - **schemaVersion:** 1
 - **Sparsity gate:** per-row validation (finite int 0–9999, non-empty name, known-or-null position, count 250–600) + Spearman ordering guard (ρ < 0.90 → `ktc/quarantine/`, unregistered, app-ignored)
+- **Manifest registration:** every snapshot registers `inProgress: true` (deliberate "current-value" marker — `scripts/update-ktc.mjs`); snapshots remain append-only and permanent regardless (the marker does not mean re-exportable).
 - **Null semantics:** position null permitted for rookie picks; rejected otherwise
 - **Consumption:** app-consumed
 - **Keep-rationale:** market-value time series
@@ -130,7 +131,7 @@ _Last reconciled against manifest.json: 2026-07-03_
 - **Source + provenance:** DynastyProcess `db_playerids.csv`
 - **Grain:** player
 - **Join id(s):** IS the join (gsis_id → sleeperId, forward map only)
-- **Coverage:** all-history, 6,143 served of 12,467 source rows (rows lacking either id skipped)
+- **Coverage:** all-history; ~6.1k of ~12.5k source rows served (rows lacking either id skipped); exact count = manifest `recordCount`, refreshed by the Wednesday Action
 - **schemaVersion:** 1
 - **Sparsity gate:** `MIN_PLAYERID_ROWS = 5000` (internal)
 - **Null semantics:** rows lacking either id skipped
@@ -181,7 +182,7 @@ Outside the catalog contract (no manifest entries, not app-consumed):
 
 - **`backtests/`** — offline analysis JSONs written by `bin/backtest.mjs --write`; not wired into smoke, not the snapshot grader.
 - **`raw/`** — legacy one-time dumps (league/roster/user/player-state Sleeper snapshots + CFBD player manifests, 14 files). The earlier 252 `raw/stats-*.json` dumps referenced by `.claude/tasks/retire-raw-stats.md` have already been retired and removed from disk.
-- **`ktc/quarantine/`** — script-produced when a KTC scrape trips the Spearman ordering guard; unregistered, app-ignored; currently empty (no quarantined scrape on disk).
+- **`ktc/quarantine/`** — script-produced when a KTC scrape trips the Spearman ordering guard; unregistered, app-ignored; does not exist yet — created on demand by `scripts/update-ktc.mjs` on the first guard trip (no scrape has been quarantined).
 - **`ktc/last-checked.json`** + **`nflverse/last-checked-roster.json`** — run markers, not data.
 
 ---
@@ -200,7 +201,7 @@ for (const fam of ["advstats","gamelogs","roster"]) {
 }'
 ```
 
-Current output (2026-07-03), matching the coverage cells above verbatim:
+Current output (2026-07-04), matching the coverage cells above verbatim:
 
 ```
 advstats 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025

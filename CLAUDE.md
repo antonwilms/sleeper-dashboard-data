@@ -36,7 +36,7 @@ node bin/update.mjs gamelogs --all                # backfill every season (≥ 2
 
 # Flags (any subcommand):
 #   --dry-run    fetch + validate, no writes
-#   --force      overwrite completed-season files (nfl/cfbd/roster/advstats/gamelogs)
+#   --force      overwrite completed-season files (nfl/cfbd/roster/advstats/schedule/gamelogs)
 #   --all        backfill all seasons (schedule/gamelogs subcommands)
 ```
 
@@ -100,7 +100,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 | Path | Purpose |
 |---|---|
-| `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots subcommands |
+| `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots / roster / draft / playerids / advstats / schedule / gamelogs subcommands |
 | `bin/enrich.mjs` | Enrichment overlay CLI → add / validate / list / remove |
 | `bin/import-snapshot.mjs` | One-command projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
 | `lib/validate.mjs` | Schema validators (incl. season-totals finiteness sweep, `findNonFinite`); contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` |
@@ -141,7 +141,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `grading/` | Grading reports written by `bin/grade.mjs --write`, one JSON per snapshot date |
 | `nflverse/roster/` | nflverse season rosters, one JSON per year (`<year>.json`), keyed by `sleeper_id` |
 | `nflverse/draft/` | nflverse combined draft picks (`draft_picks.json`), all years ≥ 2010 |
-| `nflverse/playerids.json` | nflverse gsis_id→sleeper_id crosswalk (DynastyProcess), all players — **internal-only**: consumed server-side by `scripts/update-advstats.mjs`, not by the app directly |
+| `nflverse/playerids.json` | nflverse gsis_id→sleeper_id crosswalk (DynastyProcess), all players — **internal-only**: consumed server-side by `scripts/update-advstats.mjs` and `scripts/update-gamelogs.mjs`, not by the app directly |
 | `nflverse/advstats/` | nflverse advanced receiving stats (WR/TE/RB), one JSON per year, keyed by `sleeper_id` |
 | `nflverse/schedule/` | nflverse NFL schedules + results, one JSON per year (`<year>.json`); `games[]` keyed-by-array |
 | `nflverse/gamelogs/` | nflverse per-game player stats (QB/RB/WR/TE/FB), one JSON per year (`<year>.json`), keyed by `sleeper_id`; `players[sid].games[]` |
@@ -161,7 +161,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 ## Invariants
 
-1. **Append-only for historical data.** Completed past seasons are never overwritten except to correct an error (requires a committed diff explaining why). Files with `inProgress: true` in manifest.json are in-season and may be re-exported.
+1. **Append-only for historical data.** Completed past seasons are never overwritten except to correct an error (requires a committed diff explaining why). Files with `inProgress: true` in manifest.json are in-season and may be re-exported (exception: KTC snapshots always register `inProgress: true` as a "current-value" marker yet remain append-only and are never re-exported — see Invariant 5).
 
 2. **Never hand-edit primary data files** (`nfl/`, `college/`, `ktc/`, `snapshots/`). They are script-produced. Only `enrichment/` is hand-authored, and only via `bin/enrich.mjs`—direct JSON edits bypass validation.
 
@@ -171,7 +171,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup—no commit when content is unchanged. A scrape that fails the Spearman ordering guard is written to `ktc/quarantine/` (script-produced, unregistered, app-ignored) rather than `ktc/`, so a false trip never permanently loses data; it is not "primary data" under Invariant 2.
 
-   **nflverse roster/draft/playerids/advstats are script-produced primary data and must never be hand-edited.** The current-season roster mutates weekly and is re-ingested by the Tuesday Action; content-hash dedup ensures no commit when unchanged. Roster/draft/playerids/advstats files are registered **`inProgress: false` even while the current-season file mutates** — deliberate deviation from the `nfl/season-totals` convention. The app has no live fallback for any of these (unlike season-totals where Sleeper is the live source); it must get them from the store. Weekly mutability is handled by content-hash dedup (here) + `lastModified`-driven cache invalidation (app-side). Do not change this to `inProgress: true`.
+   **nflverse roster/draft/playerids/advstats/schedule/gamelogs are script-produced primary data and must never be hand-edited.** The current-season roster mutates weekly and is re-ingested by the Tuesday Action; content-hash dedup ensures no commit when unchanged. Roster/draft/playerids/advstats/schedule/gamelogs files are registered **`inProgress: false` even while the current-season file mutates** — deliberate deviation from the `nfl/season-totals` convention. The app has no live fallback for any of these (unlike season-totals where Sleeper is the live source); it must get them from the store. Weekly mutability is handled by content-hash dedup (here) + `lastModified`-driven cache invalidation (app-side). Do not change this to `inProgress: true`.
 
 6. **Enrichment schemas are contracts.** Each file has required fields per entry. `injuries.segmentStartWeek` must match an absence segment in the matching season-totals file. `add` is an upsert keyed by natural key. Orphaned entries (no matching season-totals player/team) are flagged by `validate`; the app silently ignores them.
 
@@ -204,7 +204,7 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 | **Snapshot target season** | At schemaVersion 2, the app writes `targetSeason` explicitly in the snapshot envelope; `gradeSnapshot()` reads it directly. `deriveTargetSeason()` in `scripts/grade-snapshot.mjs` is the fallback for v1 snapshots only (maps Jan–Aug → same year, Sep–Dec → year+1; override: `--target-season YYYY`) | `scoringSettings` is captured verbatim in the snapshot envelope as of v2; **implemented**: `lib/fantasyPoints.mjs` + `buildInBasisOutcomes`; grades v2 snapshots in-basis |
 | **`calculateFantasyPoints` port** | `lib/fantasyPoints.mjs` must mirror the app's `src/utils/fantasyPoints.js` `calculateFantasyPoints` formula: loop `scoringSettings` keys, skip null multiplier/stat, 2-dp round. If the app changes its scoring math, mirror it here or in-basis grades diverge from how the app actually scored | `src/utils/fantasyPoints.js` — the source of truth; low churn (the dot-product is stable), but any change there must be reflected here |
 
-> *Note: `nflverse/playerids.json` (the `gsis_id → sleeper_id` crosswalk) is **internal to this repo** — consumed server-side by `scripts/update-advstats.mjs` to re-key advanced stats. It is not a cross-repo contract (the planned `src/api/playerIds.js` app loader was cut). `MIN_PLAYERID_ROWS` remains an internal sparsity constant.*
+> *Note: `nflverse/playerids.json` (the `gsis_id → sleeper_id` crosswalk) is **internal to this repo** — consumed server-side by `scripts/update-advstats.mjs` and `scripts/update-gamelogs.mjs` to re-key gsis-keyed stats. It is not a cross-repo contract (the planned `src/api/playerIds.js` app loader was cut). `MIN_PLAYERID_ROWS` remains an internal sparsity constant.*
 
 ---
 
@@ -229,6 +229,6 @@ Before reporting a task complete:
 
 ## Self-maintenance
 
-Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`schedule`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. The same trigger updates the family's row in `data-catalog.md` (this repo — storage registry). Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
+Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`schedule`/`gamelogs`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. The same trigger updates the family's row in `data-catalog.md` (this repo — storage registry). Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
 
 Keep this file thin — a navigation-and-rules layer, not a second README; push deep detail into README.md and link to it.
