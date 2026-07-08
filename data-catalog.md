@@ -89,6 +89,7 @@ _Last reconciled against manifest.json: 2026-07-04_
 - **Null semantics:** n/a — derived report, not a sourced dataset
 - **Consumption:** banked
 - **Keep-rationale:** projection-quality audit trail
+- **Note:** `grading/` also holds unregistered `<date>-e0a-verdict.md` analysis reports (see Non-served artifacts) — not part of this family.
 
 ## Enrichment overlay
 - **Served path / subcommand / refresh:** `enrichment/{coaching,scheme,injuries,notes}.json`; `bin/enrich.mjs`; hand-authored (the one non-script family)
@@ -192,7 +193,8 @@ _Last reconciled against manifest.json: 2026-07-04_
 
 Outside the catalog contract (no manifest entries, not app-consumed):
 
-- **`backtests/`** — offline analysis JSONs written by `bin/backtest.mjs --write`; not wired into smoke, not the snapshot grader.
+- **`backtests/`** — offline analysis JSONs written by `bin/backtest.mjs --write`; not wired into smoke, not the snapshot grader; also the E-0a panel/fit artifacts (`<date>-e0a-*.json`) from `bin/panel.mjs --write`.
+- **`grading/<date>-e0a-verdict.md`** — human-readable E-0a verdict written by `bin/panel.mjs --write`; unregistered analysis report (the registered `grading/<date>.json` family from `bin/grade.mjs` is unchanged).
 - **`raw/`** — legacy one-time dumps (league/roster/user/player-state Sleeper snapshots + CFBD player manifests, 14 files). The earlier 252 `raw/stats-*.json` dumps referenced by `.claude/tasks/retire-raw-stats.md` have already been retired and removed from disk.
 - **`ktc/quarantine/`** — script-produced when a KTC scrape trips the Spearman ordering guard; unregistered, app-ignored; does not exist yet — created on demand by `scripts/update-ktc.mjs` on the first guard trip (no scrape has been quarantined).
 - **`ktc/last-checked.json`** + **`nflverse/last-checked-roster.json`** — run markers, not data.

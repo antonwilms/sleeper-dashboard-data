@@ -1101,7 +1101,7 @@ Each row is a `(player, Y→Y+1)` pair pooled across 2012–2024 (predictor) →
 
 **Non-independence caveat** (in every report): recurring players across Y→Y+1 pairs mean rows are not independent; standard errors are optimistic. βs are effect-size estimates, not significance tests.
 
-**Note on `snapShare` coverage / effective panel:** `off_snp` is not tracked before 2020 in Sleeper data. Rows from pre-2020 seasons are listwise-dropped from any model using `snapShare` as a control (all metric runs and `--validate`). The **effective panel is ~2020–2024**; `meta.predictorYears` in each report reflects only the years that actually contributed surviving rows. The 2019 advstats file is also absent from disk (write failed; re-run `node bin/update.mjs advstats --year 2019 --force` to fill it — but its rows would be dropped anyway for missing `off_snp`, so it has no impact on results).
+**Note on `snapShare` coverage / effective panel:** `off_snp` is not tracked before 2020 in Sleeper data. Rows from pre-2020 seasons are listwise-dropped from any model using `snapShare` as a control (all metric runs and `--validate`). The **effective panel is ~2020–2024**; `meta.predictorYears` in each report reflects only the years that actually contributed surviving rows. The 2019 advstats file was backfilled by the B1 gap-fill (2026-07-03) and is on disk/manifest; its rows still listwise-drop from snap-controlled models for missing `off_snp`.
 
 ### D3 self-validation (`--validate`)
 
@@ -1134,6 +1134,29 @@ npm run backtest
 **Flags:** `--metric target_share|air_yards_share|wopr|racr|all` (snake_case canonical; camelCase also accepted) · `--position WR|TE|RB|all` · `--from YYYY` · `--to YYYY` · `--min-games N` · `--controls overallShare|snapShare|rzOwnRate` (comma-separated subset; default: all three; dropping `snapShare` recovers pre-2020 seasons at the cost of one control; `--metric` only, not `--validate`) · `--validate` · `--json` · `--write` · `--by-season`
 
 Reports are written to `backtests/<YYYY-MM-DD>-<metric>-<position>.json` (analysis only — no manifest entry).
+
+### E-0a grading baseline (`bin/panel.mjs`)
+
+The first committed numeric grading verdict (roadmap R1-HARNESS) — the gate instrument every scoring-affecting downstream item (R3-FIT, R3-EFFACT, R3-KTCMOM, R2's flip gate) waits on. It builds a feature→outcome panel, fits a ridge-regularized linear baseline per position, and grades the standing candidates (`airYardsShare`, `shareLevel`) for **incremental** held-out value over a reconstructable baseline — not the full app projection stack.
+
+**Inputs:** `nfl/season-totals/<year>.json` (v3), `nflverse/advstats/<year>.json` (WR/TE/RB position + `airYardsShare`), `nflverse/roster/<year>.json` (QB position fallback), and one pinned committed projection snapshot for `scoringSettings` (default `2026-07-05`). **Explicitly excluded** (view-only fence, CLAUDE.md Invariant): `nflverse/gamelogs/` and `nflverse/teamcontext/` must never feed this panel.
+
+**Methodology:** season-blocked forward-chaining CV (train on years before the eval year only); training-only standardization and imputation (no leakage — the training-fold position mean is recomputed per fold for the one degenerate-null feature, `consistencyCV`); ridge regression (no intercept, no GBM — legible per-feature coefficients only), default λ=1.0 with a `{0, 0.5, 1, 2, 4}` sensitivity sweep always reported; metrics are MAE (PPG units) and within-year Spearman rank correlation (never pooled across years); a mover cohort (team-change flag) is reported separately. Verdict labels (`CLEARS`/`NO-GAIN`/`DEGRADES`/`UNSTABLE`) follow ordered rules — see `.claude/tasks/grading-harness-e0a.md` §3 for the exact thresholds.
+
+**Attribution mode:** all share/team-derived features resolve teams through a single seam (`lib/panel.mjs` `teamKeyResolver`), default `'current-team'` — the reconstructable stand-in for the app's live `DEFAULT_ATTRIBUTION` (a player's season-Y team applied to all of his seasons, including his prior-season stats — this deliberately reproduces the app's mis-attribution mechanism, undercount included). `'per-season-team'` is reserved for the R2-REANCHOR gate slice and throws if requested.
+
+**Null policy:** data holes (`snapShare` pre-2020, a missing predictor/outcome year file, `teamRzShare`/share level below the team-denominator floor) → listwise exclusion, counted per dropReason; structural absence (`momentum`/`shareTrend` with no qualifying prior season) → impute 0 (neutral); degenerate `consistencyCV` → impute the training-fold position mean.
+
+**Artifacts** (`--write`): `backtests/<date>-e0a-panel.json` (the row-level panel), `backtests/<date>-e0a-fit.json` (baseline + candidate fit reports), `grading/<date>-e0a-verdict.md` (human-readable verdict). None of the three gets a manifest entry — same unregistered-analysis convention as `backtests/` generally.
+
+```sh
+node bin/panel.mjs                        # E-0a baseline + candidate grading (analysis-only)
+node bin/panel.mjs --write                 # persist the three artifacts above
+# npm shortcut
+npm run panel
+```
+
+Reproduce: `node bin/panel.mjs --write`.
 
 ---
 
