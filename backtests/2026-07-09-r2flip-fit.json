@@ -1,0 +1,971 @@
+{
+  "meta": {
+    "generatedAt": "2026-07-09T13:43:11.917Z",
+    "panelYears": {
+      "fromYear": 2020,
+      "toYear": 2024
+    },
+    "modes": [
+      "current-team",
+      "per-season-team"
+    ],
+    "basis": "custom",
+    "gates": {
+      "RB": {
+        "rush_att": 30
+      },
+      "WR": {
+        "rec_tgt": 20
+      },
+      "TE": {
+        "rec_tgt": 20
+      },
+      "QB": {
+        "pass_att": 100
+      }
+    },
+    "minOutcomeGames": 6,
+    "minTrainSeasons": 2,
+    "ridgeLambda": 1,
+    "ridgeSweep": [
+      0,
+      0.5,
+      1,
+      2,
+      4
+    ],
+    "evalYears": [
+      2022,
+      2023,
+      2024
+    ],
+    "thresholds": {
+      "nMinSensitivePooled": 60,
+      "overallRelMaeTol": 0.005,
+      "overallSpearmanTol": -0.01,
+      "cohortRelMaeTol": 0.02
+    }
+  },
+  "rowParity": {
+    "identical": true,
+    "n": 1309,
+    "checkedFeatures": [
+      "basePPG",
+      "consistencyCV",
+      "gamesPlayedY",
+      "intRate",
+      "momentum",
+      "rushYd",
+      "rzOwnRate",
+      "snapShare",
+      "tdRate",
+      "teamRzShare",
+      "ypa",
+      "ypt"
+    ]
+  },
+  "qbInvariance": {
+    "maeDeltaAbs": 0,
+    "spearmanDeltaAbs": 0,
+    "pass": true
+  },
+  "undercountRepair": {
+    "unattributedByYear": {
+      "currentTeam": {
+        "2020": {
+          "thisYear": 0,
+          "priorYear": 409
+        },
+        "2021": {
+          "thisYear": 0,
+          "priorYear": 278
+        },
+        "2022": {
+          "thisYear": 0,
+          "priorYear": 639
+        },
+        "2023": {
+          "thisYear": 0,
+          "priorYear": 586
+        },
+        "2024": {
+          "thisYear": 0,
+          "priorYear": 544
+        }
+      },
+      "perSeasonTeam": {
+        "2020": {
+          "thisYear": 0,
+          "priorYear": 0
+        },
+        "2021": {
+          "thisYear": 0,
+          "priorYear": 0
+        },
+        "2022": {
+          "thisYear": 0,
+          "priorYear": 0
+        },
+        "2023": {
+          "thisYear": 0,
+          "priorYear": 0
+        },
+        "2024": {
+          "thisYear": 0,
+          "priorYear": 0
+        }
+      }
+    }
+  },
+  "featureDelta": {
+    "perPosition": {
+      "WR": {
+        "perSegment": {
+          "single-team": {
+            "n": 357,
+            "meanAbsDelta": 0.004796433563828682,
+            "p90AbsDelta": 0.012383482171957505,
+            "maxAbsDelta": 0.025103373770777954
+          },
+          "historical-mover": {
+            "n": 105,
+            "meanAbsDelta": 0.009213034660867593,
+            "p90AbsDelta": 0.02287469415378207,
+            "maxAbsDelta": 0.07321097486873471
+          },
+          "no-ym1-record": {
+            "n": 95,
+            "meanAbsDelta": 0,
+            "p90AbsDelta": 0,
+            "maxAbsDelta": 0
+          }
+        },
+        "asymmetricImputationN": 0
+      },
+      "RB": {
+        "perSegment": {
+          "single-team": {
+            "n": 217,
+            "meanAbsDelta": 0.012494609318411967,
+            "p90AbsDelta": 0.03583752764432241,
+            "maxAbsDelta": 0.06108917848838205
+          },
+          "historical-mover": {
+            "n": 64,
+            "meanAbsDelta": 0.025933456740097678,
+            "p90AbsDelta": 0.055497759954360126,
+            "maxAbsDelta": 0.4125708176051426
+          },
+          "no-ym1-record": {
+            "n": 52,
+            "meanAbsDelta": 0,
+            "p90AbsDelta": 0,
+            "maxAbsDelta": 0
+          }
+        },
+        "asymmetricImputationN": 0
+      },
+      "TE": {
+        "perSegment": {
+          "single-team": {
+            "n": 198,
+            "meanAbsDelta": 0.0034436487281050325,
+            "p90AbsDelta": 0.008936453025681232,
+            "maxAbsDelta": 0.01820804820015555
+          },
+          "no-ym1-record": {
+            "n": 26,
+            "meanAbsDelta": 0,
+            "p90AbsDelta": 0,
+            "maxAbsDelta": 0
+          },
+          "historical-mover": {
+            "n": 43,
+            "meanAbsDelta": 0.007102134799773093,
+            "p90AbsDelta": 0.01756041795366131,
+            "maxAbsDelta": 0.10398824991526381
+          }
+        },
+        "asymmetricImputationN": 0
+      }
+    }
+  },
+  "perPosition": {
+    "WR": {
+      "overall": {
+        "currentTeam": {
+          "n": 339,
+          "mae": 2.693043360869658,
+          "spearmanMean": 0.7060167865990936,
+          "perYear": [
+            {
+              "evalYear": 2022,
+              "n": 111,
+              "mae": 2.7154620031303565,
+              "spearman": 0.7145489645489645
+            },
+            {
+              "evalYear": 2023,
+              "n": 117,
+              "mae": 2.8197488251208873,
+              "spearman": 0.7156933267394986
+            },
+            {
+              "evalYear": 2024,
+              "n": 111,
+              "mae": 2.537070310344156,
+              "spearman": 0.6872850122850123
+            }
+          ]
+        },
+        "perSeasonTeam": {
+          "n": 339,
+          "mae": 2.6942554019247074,
+          "spearmanMean": 0.7048801282506407,
+          "perYear": [
+            {
+              "evalYear": 2022,
+              "n": 111,
+              "mae": 2.7183104486190866,
+              "spearman": 0.7132765882765882
+            },
+            {
+              "evalYear": 2023,
+              "n": 117,
+              "mae": 2.8174415886654876,
+              "spearman": 0.7153636350012738
+            },
+            {
+              "evalYear": 2024,
+              "n": 111,
+              "mae": 2.540355455692754,
+              "spearman": 0.6854334854334855
+            }
+          ]
+        },
+        "delta": {
+          "mae": 0.001212041055049351,
+          "relMae": 0.0004500636984389102,
+          "spearman": -0.0011366583484528903
+        }
+      },
+      "cohorts": {
+        "sensitive": {
+          "n": 69,
+          "mae": {
+            "currentTeam": 2.5582904823884527,
+            "perSeasonTeam": 2.5542376556580377,
+            "delta": -0.00405282673041496,
+            "relDelta": -0.001584193334695593
+          },
+          "paired": {
+            "meanDeltaAbsErr": -0.004052826730413724,
+            "medianDeltaAbsErr": -0.009256523790189597,
+            "pctImproved": 57.971014492753625,
+            "maxAbsPredShift": 0.22044225587985444
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 28,
+              "currentTeam": 0.7476737821565408,
+              "perSeasonTeam": 0.7482211275314724
+            },
+            "2023": {
+              "n": 22,
+              "currentTeam": 0.5381140598531903,
+              "perSeasonTeam": 0.5313382269904009
+            },
+            "2024": {
+              "n": 19,
+              "currentTeam": 0.5894736842105263,
+              "perSeasonTeam": 0.5842105263157895
+            }
+          },
+          "nByYear": {
+            "2022": 28,
+            "2023": 22,
+            "2024": 19
+          }
+        },
+        "sensitiveForwardMover": {
+          "n": 33,
+          "mae": {
+            "currentTeam": 2.5301449541232226,
+            "perSeasonTeam": 2.531453230999617,
+            "delta": 0.0013082768763945651,
+            "relDelta": 0.0005170758593346782
+          },
+          "paired": {
+            "meanDeltaAbsErr": 0.0013082768763948746,
+            "medianDeltaAbsErr": -0.01068216527527266,
+            "pctImproved": 63.63636363636363,
+            "maxAbsPredShift": 0.22044225587985444
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 12,
+              "currentTeam": 0.6853146853146853,
+              "perSeasonTeam": 0.6853146853146853
+            },
+            "2023": {
+              "n": 10,
+              "currentTeam": 0.4303030303030303,
+              "perSeasonTeam": 0.4303030303030303
+            },
+            "2024": {
+              "n": 11,
+              "currentTeam": 0.6545454545454545,
+              "perSeasonTeam": 0.6545454545454545
+            }
+          }
+        },
+        "sensitiveNotForwardMover": {
+          "n": 36,
+          "mae": {
+            "currentTeam": 2.5840905499649134,
+            "perSeasonTeam": 2.5751233782615914,
+            "delta": -0.008967171703321952,
+            "relDelta": -0.0034701460842553322
+          },
+          "paired": {
+            "meanDeltaAbsErr": -0.008967171703321607,
+            "medianDeltaAbsErr": -0.003776775439871649,
+            "pctImproved": 52.77777777777778,
+            "maxAbsPredShift": 0.17524142140813836
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 16,
+              "currentTeam": 0.7735294117647059,
+              "perSeasonTeam": 0.7735294117647059
+            },
+            "2023": {
+              "n": 12,
+              "currentTeam": 0.5314685314685315,
+              "perSeasonTeam": 0.5314685314685315
+            },
+            "2024": {
+              "n": 8,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            }
+          }
+        },
+        "ym1TeamNull": {
+          "n": 0,
+          "mae": {
+            "currentTeam": null,
+            "perSeasonTeam": null,
+            "delta": null,
+            "relDelta": null
+          },
+          "paired": {
+            "meanDeltaAbsErr": null,
+            "medianDeltaAbsErr": null,
+            "pctImproved": null,
+            "maxAbsPredShift": null
+          },
+          "spearmanByYear": {}
+        },
+        "singleTeam": {
+          "n": 213,
+          "mae": {
+            "currentTeam": 2.827562918717757,
+            "perSeasonTeam": 2.830213383118853,
+            "delta": 0.0026504644010962863,
+            "relDelta": 0.0009373670815778765
+          },
+          "paired": {
+            "meanDeltaAbsErr": 0.0026504644010951293,
+            "medianDeltaAbsErr": 0.0028581718441333948,
+            "pctImproved": 47.88732394366197,
+            "maxAbsPredShift": 0.15026744367184897
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 68,
+              "currentTeam": 0.6998511279917548,
+              "perSeasonTeam": 0.6995839218231095
+            },
+            "2023": {
+              "n": 71,
+              "currentTeam": 0.7141851106639839,
+              "perSeasonTeam": 0.7130449362843729
+            },
+            "2024": {
+              "n": 74,
+              "currentTeam": 0.7054128100703443,
+              "perSeasonTeam": 0.7026582747130692
+            }
+          }
+        }
+      }
+    },
+    "RB": {
+      "overall": {
+        "currentTeam": {
+          "n": 197,
+          "mae": 3.258219886726721,
+          "spearmanMean": 0.6653388896234618,
+          "perYear": [
+            {
+              "evalYear": 2022,
+              "n": 61,
+              "mae": 3.6062610159922617,
+              "spearman": 0.5462189317821259
+            },
+            {
+              "evalYear": 2023,
+              "n": 69,
+              "mae": 3.3886634026624027,
+              "spearman": 0.6941176470588235
+            },
+            {
+              "evalYear": 2024,
+              "n": 67,
+              "mae": 2.8070092675511966,
+              "spearman": 0.7441535637321415
+            }
+          ]
+        },
+        "perSeasonTeam": {
+          "n": 197,
+          "mae": 3.2590103632544736,
+          "spearmanMean": 0.6699391661036447,
+          "perYear": [
+            {
+              "evalYear": 2022,
+              "n": 61,
+              "mae": 3.608346522946111,
+              "spearman": 0.5590692755156003
+            },
+            {
+              "evalYear": 2023,
+              "n": 69,
+              "mae": 3.4076292491395574,
+              "spearman": 0.6929850200949945
+            },
+            {
+              "evalYear": 2024,
+              "n": 67,
+              "mae": 2.787902768220742,
+              "spearman": 0.7471466198419666
+            }
+          ]
+        },
+        "delta": {
+          "mae": 0.0007904765277526593,
+          "relMae": 0.00024260993893410594,
+          "spearman": 0.004600276480182908
+        }
+      },
+      "cohorts": {
+        "sensitive": {
+          "n": 35,
+          "mae": {
+            "currentTeam": 2.551691873000079,
+            "perSeasonTeam": 2.4903234556255143,
+            "delta": -0.061368417374564554,
+            "relDelta": -0.024050089285432567
+          },
+          "paired": {
+            "meanDeltaAbsErr": -0.061368417374564097,
+            "medianDeltaAbsErr": 0.009830718040818809,
+            "pctImproved": 45.714285714285715,
+            "maxAbsPredShift": 0.6403169126087089
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 9,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            },
+            "2023": {
+              "n": 13,
+              "currentTeam": 0.7197802197802198,
+              "perSeasonTeam": 0.7527472527472527
+            },
+            "2024": {
+              "n": 13,
+              "currentTeam": 0.8791208791208791,
+              "perSeasonTeam": 0.8791208791208791
+            }
+          },
+          "nByYear": {
+            "2022": 9,
+            "2023": 13,
+            "2024": 13
+          }
+        },
+        "sensitiveForwardMover": {
+          "n": 10,
+          "mae": {
+            "currentTeam": 3.320763917190912,
+            "perSeasonTeam": 3.3090943549040843,
+            "delta": -0.011669562286827695,
+            "relDelta": -0.003514119816352126
+          },
+          "paired": {
+            "meanDeltaAbsErr": -0.011669562286827473,
+            "medianDeltaAbsErr": 0.040235142181702876,
+            "pctImproved": 30,
+            "maxAbsPredShift": 0.4347766420694157
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 3,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            },
+            "2023": {
+              "n": 5,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            },
+            "2024": {
+              "n": 2,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            }
+          }
+        },
+        "sensitiveNotForwardMover": {
+          "n": 25,
+          "mae": {
+            "currentTeam": 2.2440630553237457,
+            "perSeasonTeam": 2.1628150959140866,
+            "delta": -0.08124795940965912,
+            "relDelta": -0.03620573816627344
+          },
+          "paired": {
+            "meanDeltaAbsErr": -0.08124795940965875,
+            "medianDeltaAbsErr": -0.023357840830209753,
+            "pctImproved": 52,
+            "maxAbsPredShift": 0.6403169126087089
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 6,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            },
+            "2023": {
+              "n": 8,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            },
+            "2024": {
+              "n": 11,
+              "currentTeam": 0.8909090909090909,
+              "perSeasonTeam": 0.8909090909090909
+            }
+          }
+        },
+        "ym1TeamNull": {
+          "n": 0,
+          "mae": {
+            "currentTeam": null,
+            "perSeasonTeam": null,
+            "delta": null,
+            "relDelta": null
+          },
+          "paired": {
+            "meanDeltaAbsErr": null,
+            "medianDeltaAbsErr": null,
+            "pctImproved": null,
+            "maxAbsPredShift": null
+          },
+          "spearmanByYear": {}
+        },
+        "singleTeam": {
+          "n": 129,
+          "mae": {
+            "currentTeam": 3.325979705906315,
+            "perSeasonTeam": 3.3407863550336825,
+            "delta": 0.01480664912736751,
+            "relDelta": 0.004451815836721338
+          },
+          "paired": {
+            "meanDeltaAbsErr": 0.01480664912736858,
+            "medianDeltaAbsErr": 0.013718830715517605,
+            "pctImproved": 44.18604651162791,
+            "maxAbsPredShift": 0.7630687715209632
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 41,
+              "currentTeam": 0.6073170731707317,
+              "perSeasonTeam": 0.6177700348432056
+            },
+            "2023": {
+              "n": 44,
+              "currentTeam": 0.6928823114869627,
+              "perSeasonTeam": 0.6827343199436222
+            },
+            "2024": {
+              "n": 44,
+              "currentTeam": 0.7042988019732206,
+              "perSeasonTeam": 0.7128964059196617
+            }
+          }
+        }
+      }
+    },
+    "TE": {
+      "overall": {
+        "currentTeam": {
+          "n": 164,
+          "mae": 2.38405725205545,
+          "spearmanMean": 0.7023908775117039,
+          "perYear": [
+            {
+              "evalYear": 2022,
+              "n": 54,
+              "mae": 2.1065480015815314,
+              "spearman": 0.6793596340766153
+            },
+            {
+              "evalYear": 2023,
+              "n": 55,
+              "mae": 2.392240837282204,
+              "spearman": 0.7371345083181182
+            },
+            {
+              "evalYear": 2024,
+              "n": 55,
+              "mae": 2.648337294566725,
+              "spearman": 0.6902597402597402
+            }
+          ]
+        },
+        "perSeasonTeam": {
+          "n": 164,
+          "mae": 2.3793035418910784,
+          "spearmanMean": 0.703347819644356,
+          "perYear": [
+            {
+              "evalYear": 2022,
+              "n": 54,
+              "mae": 2.094707600505168,
+              "spearman": 0.6814941871545646
+            },
+            {
+              "evalYear": 2023,
+              "n": 55,
+              "mae": 2.3804967102549317,
+              "spearman": 0.7431591480131765
+            },
+            {
+              "evalYear": 2024,
+              "n": 55,
+              "mae": 2.6575318432515718,
+              "spearman": 0.684992784992785
+            }
+          ]
+        },
+        "delta": {
+          "mae": -0.0047537101643717605,
+          "relMae": -0.001993958056281274,
+          "spearman": 0.0009569421326520722
+        }
+      },
+      "cohorts": {
+        "sensitive": {
+          "n": 28,
+          "mae": {
+            "currentTeam": 2.7161676292941013,
+            "perSeasonTeam": 2.689208199069521,
+            "delta": -0.02695943022458014,
+            "relDelta": -0.00992553991654284
+          },
+          "paired": {
+            "meanDeltaAbsErr": -0.026959430224580787,
+            "medianDeltaAbsErr": -0.02311279297122182,
+            "pctImproved": 64.28571428571429,
+            "maxAbsPredShift": 0.36266935671297995
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 11,
+              "currentTeam": 0.8363636363636363,
+              "perSeasonTeam": 0.8545454545454545
+            },
+            "2023": {
+              "n": 10,
+              "currentTeam": 0.2727272727272727,
+              "perSeasonTeam": 0.41818181818181815
+            },
+            "2024": {
+              "n": 7,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            }
+          },
+          "nByYear": {
+            "2022": 11,
+            "2023": 10,
+            "2024": 7
+          }
+        },
+        "sensitiveForwardMover": {
+          "n": 9,
+          "mae": {
+            "currentTeam": 3.6075982799475974,
+            "perSeasonTeam": 3.547391656839601,
+            "delta": -0.06020662310799629,
+            "relDelta": -0.0166888379569997
+          },
+          "paired": {
+            "meanDeltaAbsErr": -0.06020662310799634,
+            "medianDeltaAbsErr": -0.014301852222249778,
+            "pctImproved": 66.66666666666666,
+            "maxAbsPredShift": 0.36266935671297995
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 3,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            },
+            "2023": {
+              "n": 4,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            },
+            "2024": {
+              "n": 2,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            }
+          }
+        },
+        "sensitiveNotForwardMover": {
+          "n": 19,
+          "mae": {
+            "currentTeam": 2.293911005300341,
+            "perSeasonTeam": 2.2827002453889564,
+            "delta": -0.011210759911384649,
+            "relDelta": -0.004887181710833994
+          },
+          "paired": {
+            "meanDeltaAbsErr": -0.011210759911383948,
+            "medianDeltaAbsErr": -0.03013247077953274,
+            "pctImproved": 63.1578947368421,
+            "maxAbsPredShift": 0.2607459971676134
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 8,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            },
+            "2023": {
+              "n": 6,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            },
+            "2024": {
+              "n": 5,
+              "currentTeam": null,
+              "perSeasonTeam": null
+            }
+          }
+        },
+        "ym1TeamNull": {
+          "n": 0,
+          "mae": {
+            "currentTeam": null,
+            "perSeasonTeam": null,
+            "delta": null,
+            "relDelta": null
+          },
+          "paired": {
+            "meanDeltaAbsErr": null,
+            "medianDeltaAbsErr": null,
+            "pctImproved": null,
+            "maxAbsPredShift": null
+          },
+          "spearmanByYear": {}
+        },
+        "singleTeam": {
+          "n": 119,
+          "mae": {
+            "currentTeam": 2.264936556618626,
+            "perSeasonTeam": 2.2675160534731735,
+            "delta": 0.002579496854547614,
+            "relDelta": 0.0011388826088791653
+          },
+          "paired": {
+            "meanDeltaAbsErr": 0.002579496854546489,
+            "medianDeltaAbsErr": -0.00013623470267631888,
+            "pctImproved": 50.42016806722689,
+            "maxAbsPredShift": 0.4731985326341963
+          },
+          "spearmanByYear": {
+            "2022": {
+              "n": 37,
+              "currentTeam": 0.7278330962541489,
+              "perSeasonTeam": 0.7446657183499289
+            },
+            "2023": {
+              "n": 39,
+              "currentTeam": 0.7972063373740192,
+              "perSeasonTeam": 0.7909307161300897
+            },
+            "2024": {
+              "n": 43,
+              "currentTeam": 0.7192691029900332,
+              "perSeasonTeam": 0.7127755964965268
+            }
+          }
+        }
+      }
+    },
+    "QB": {
+      "canaryOnly": true
+    }
+  },
+  "cohortPooled": {
+    "n": 132,
+    "relDMae": -0.009308432513130852,
+    "paired": {
+      "meanDeltaAbsErr": -0.024109118930276913,
+      "medianDeltaAbsErr": -0.009660769080672704,
+      "pctImproved": 56.060606060606055,
+      "maxAbsPredShift": 0.6403169126087089
+    }
+  },
+  "topPredShift": [
+    {
+      "pid": "2749",
+      "team": "MIA",
+      "evalYear": 2022,
+      "predCT": 11.674106156768104,
+      "predPS": 12.314423069376813,
+      "actual": 18.013333333333332
+    },
+    {
+      "pid": "3198",
+      "team": "BAL",
+      "evalYear": 2024,
+      "predCT": 18.670771166967082,
+      "predPS": 18.205974927960963,
+      "actual": 17.86764705882353
+    },
+    {
+      "pid": "4111",
+      "team": "CHI",
+      "evalYear": 2023,
+      "predCT": 9.217387452959416,
+      "predPS": 8.78261081089,
+      "actual": 3.4681818181818183
+    },
+    {
+      "pid": "3202",
+      "team": "LV",
+      "evalYear": 2023,
+      "predCT": 3.3811033593502264,
+      "predPS": 3.7437727160632064,
+      "actual": 6.711764705882352
+    },
+    {
+      "pid": "4034",
+      "team": "SF",
+      "evalYear": 2022,
+      "predCT": 18.88963354672738,
+      "predPS": 19.251734031721675,
+      "actual": 24.690625
+    },
+    {
+      "pid": "4149",
+      "team": "NO",
+      "evalYear": 2023,
+      "predCT": 6.626351052964661,
+      "predPS": 6.310151688063931,
+      "actual": 3.5892857142857144
+    },
+    {
+      "pid": "4111",
+      "team": "CAR",
+      "evalYear": 2022,
+      "predCT": 7.191772862155856,
+      "predPS": 7.497124124437662,
+      "actual": 10.216666666666667
+    },
+    {
+      "pid": "5850",
+      "team": "GB",
+      "evalYear": 2024,
+      "predCT": 15.639198077418655,
+      "predPS": 15.344814999023436,
+      "actual": 15.423333333333334
+    },
+    {
+      "pid": "4089",
+      "team": "LAC",
+      "evalYear": 2022,
+      "predCT": 7.515245352593823,
+      "predPS": 7.775991349761436,
+      "actual": 7.7733333333333325
+    },
+    {
+      "pid": "4866",
+      "team": "PHI",
+      "evalYear": 2024,
+      "predCT": 19.925856660651363,
+      "predPS": 19.692333861611377,
+      "actual": 14.51875
+    }
+  ],
+  "sweep": [
+    {
+      "lambda": 0.5,
+      "overallDMaeByPosition": {
+        "WR": 0.0013160101021156834,
+        "RB": 0.0022334543190045686,
+        "TE": -0.004567873948092327
+      },
+      "cohortDMae": -0.024046289473930393
+    },
+    {
+      "lambda": 1,
+      "overallDMaeByPosition": {
+        "WR": 0.001212041055049351,
+        "RB": 0.0007904765277526593,
+        "TE": -0.0047537101643717605
+      },
+      "cohortDMae": -0.02410911893027823
+    },
+    {
+      "lambda": 2,
+      "overallDMaeByPosition": {
+        "WR": 0.0009954867828945169,
+        "RB": -0.0012535113969245337,
+        "TE": -0.003376837397151
+      },
+      "cohortDMae": -0.02332753167603485
+    }
+  ],
+  "verdict": "FLIP-CLEARS",
+  "verdictInputs": {
+    "sensitivePooledN": 132,
+    "perPosition": [
+      {
+        "position": "WR",
+        "overallRelDMae": 0.0004500636984389102,
+        "dSpearman": -0.0011366583484528903
+      },
+      {
+        "position": "RB",
+        "overallRelDMae": 0.00024260993893410594,
+        "dSpearman": 0.004600276480182908
+      },
+      {
+        "position": "TE",
+        "overallRelDMae": -0.001993958056281274,
+        "dSpearman": 0.0009569421326520722
+      }
+    ],
+    "cohortPooledRelDMae": -0.009308432513130852
+  }
+}

@@ -11,12 +11,13 @@
  *
  * Usage: node bin/panel.mjs [options]
  *   --from YYYY --to YYYY             predictor-year range (default 2020–2024)
- *   --attribution current-team        seam flag; 'per-season-team' throws (reserved for R2)
+ *   --attribution current-team|per-season-team   seam flag (default current-team)
  *   --basis in-basis|half_ppr         default in-basis
  *   --scoring-from YYYY-MM-DD         scoring-source snapshot (default 2026-07-05)
  *   --min-games N                     outcome gate (default 6)
  *   --ridge X                         default 1.0 (sweep always reported)
- *   --json                            machine-readable FitReport to stdout
+ *   --flip-gate                       R2 dual-mode attribution comparison (both modes; drop --attribution)
+ *   --json                            machine-readable FitReport (FlipReport under --flip-gate) to stdout
  *   --write                           persist the three artifacts (backtests/ + grading/)
  */
 
@@ -29,6 +30,10 @@ import {
   buildFitReport,
   buildVerdictMarkdown,
   writeArtifacts,
+  runFlipGate,
+  buildFlipVerdictMarkdown,
+  buildMergedFlipPanel,
+  writeFlipArtifacts,
   DEFAULT_SCORING_SNAPSHOT,
 } from '../scripts/panel-run.mjs';
 import { PANEL_DEFAULTS } from '../lib/panel.mjs';
@@ -60,6 +65,7 @@ if (isMain) {
       const attribution = option('--attribution') ?? 'current-team';
       const basis = option('--basis') ?? 'in-basis';
       const scoringFrom = option('--scoring-from') ?? DEFAULT_SCORING_SNAPSHOT;
+      const flipGate = flag('--flip-gate');
 
       if ([fromYear, toYear, minOutcomeGames, ridgeLambda].some(v => isNaN(v))) {
         console.error('[panel] Error: --from, --to, --min-games, --ridge must be numeric');
@@ -69,24 +75,47 @@ if (isMain) {
         console.error("[panel] Error: --basis must be 'in-basis' or 'half_ppr'");
         process.exit(1);
       }
-
-      const panel = assemblePanel({ fromYear, toYear, attribution, basis, scoringFrom, minOutcomeGames });
-      const baseline = runBaseline(panel, { ridgeLambda });
-      const candidates = runCandidates(panel, { ridgeLambda, ridgeSweep: PANEL_DEFAULTS.ridgeSweep });
-      const fitReport = buildFitReport(panel, baseline, candidates, { ridgeLambda, ridgeSweep: PANEL_DEFAULTS.ridgeSweep });
-      const verdictMd = buildVerdictMarkdown(panel, fitReport);
-
-      if (asJson) {
-        console.log(JSON.stringify(fitReport, null, 2));
-      } else {
-        console.log(verdictMd);
+      if (flipGate && args.includes('--attribution')) {
+        console.error('[panel] Error: flip-gate runs both modes; drop --attribution');
+        process.exit(1);
       }
 
-      if (write) {
-        const { panelPath, fitPath, verdictPath } = writeArtifacts({ panel, fitReport, verdictMd });
-        console.log(`[panel] Wrote ${panelPath}`);
-        console.log(`[panel] Wrote ${fitPath}`);
-        console.log(`[panel] Wrote ${verdictPath}`);
+      if (flipGate) {
+        const { panels, cohortByKey, flipReport } = runFlipGate({ fromYear, toYear, basis, scoringFrom, minOutcomeGames, ridgeLambda, ridgeSweep: PANEL_DEFAULTS.ridgeSweep });
+        const verdictMd = buildFlipVerdictMarkdown(flipReport);
+
+        if (asJson) {
+          console.log(JSON.stringify(flipReport, null, 2));
+        } else {
+          console.log(verdictMd);
+        }
+
+        if (write) {
+          const mergedPanel = buildMergedFlipPanel({ panels, cohortByKey });
+          const { panelPath, fitPath, verdictPath } = writeFlipArtifacts({ mergedPanel, flipReport, verdictMd });
+          console.log(`[panel] Wrote ${panelPath}`);
+          console.log(`[panel] Wrote ${fitPath}`);
+          console.log(`[panel] Wrote ${verdictPath}`);
+        }
+      } else {
+        const panel = assemblePanel({ fromYear, toYear, attribution, basis, scoringFrom, minOutcomeGames });
+        const baseline = runBaseline(panel, { ridgeLambda });
+        const candidates = runCandidates(panel, { ridgeLambda, ridgeSweep: PANEL_DEFAULTS.ridgeSweep });
+        const fitReport = buildFitReport(panel, baseline, candidates, { ridgeLambda, ridgeSweep: PANEL_DEFAULTS.ridgeSweep });
+        const verdictMd = buildVerdictMarkdown(panel, fitReport);
+
+        if (asJson) {
+          console.log(JSON.stringify(fitReport, null, 2));
+        } else {
+          console.log(verdictMd);
+        }
+
+        if (write) {
+          const { panelPath, fitPath, verdictPath } = writeArtifacts({ panel, fitReport, verdictMd });
+          console.log(`[panel] Wrote ${panelPath}`);
+          console.log(`[panel] Wrote ${fitPath}`);
+          console.log(`[panel] Wrote ${verdictPath}`);
+        }
       }
 
       process.exit(0); // verdicts are findings, not pass/fail

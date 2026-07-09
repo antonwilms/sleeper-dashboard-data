@@ -95,13 +95,14 @@ Offline analysis (read-only over advstats + season-totals); **not** wired into s
 ```sh
 node bin/panel.mjs                        # E-0a baseline + candidate grading (analysis-only)
 node bin/panel.mjs --write                # persist backtests/<date>-e0a-{panel,fit}.json + grading/<date>-e0a-verdict.md
-# Flags: --from/--to YYYY, --attribution current-team, --basis in-basis|half_ppr,
-#        --scoring-from YYYY-MM-DD, --min-games N, --ridge X, --json, --write
+node bin/panel.mjs --flip-gate --write    # R2 flip gate: both attribution modes + before/after verdict (backtests/<date>-r2flip-*, grading/<date>-r2flip-verdict.md)
+# Flags: --from/--to YYYY, --attribution current-team|per-season-team, --basis in-basis|half_ppr,
+#        --scoring-from YYYY-MM-DD, --min-games N, --ridge X, --flip-gate, --json, --write
 ```
 
 Offline analysis (read-only over season-totals + advstats + roster + one snapshot); not wired
 into smoke; not the snapshot grader. Methodology: README → Analysis / Backtesting.
-npm shortcut: `npm run panel`.
+npm shortcuts: `npm run panel`, `npm run panel:flip`.
 
 ### Smoke & validation
 
@@ -146,10 +147,10 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `lib/grade.mjs` | Pure scorer — `scoreProjections(GradeInput) → GradeReport`; no I/O |
 | `bin/backtest.mjs` | Thin CLI over `scripts/backtest-run.mjs` — parses flags, dispatches `assembleCohort`/`runMetric`/`runValidate`, formats reports, `--write` to `backtests/` |
 | `lib/backtest.mjs` | Pure backtest stats (standardized OLS, quintiles, team totals); reuses `pearson` from `lib/grade.mjs`; no I/O; `solveOLS` accepts `{ ridgeLambda }`; exports `rankTransform`/`spearman` |
-| `bin/panel.mjs` | Thin CLI over `scripts/panel-run.mjs` — E-0a panel assembly + candidate grading, `--write` to `backtests/` + `grading/` |
-| `scripts/panel-run.mjs` | Panel orchestration adapter (injectable loaders; mirrors `scripts/backtest-run.mjs`); attribution-mode seam for R2 |
+| `bin/panel.mjs` | Thin CLI over `scripts/panel-run.mjs` — E-0a panel assembly + candidate grading, `--write` to `backtests/` + `grading/`; `--flip-gate` runs the R2 dual-mode attribution comparison |
+| `scripts/panel-run.mjs` | Panel orchestration adapter (injectable loaders; mirrors `scripts/backtest-run.mjs`); attribution-mode seam for R2; R2 flip-gate runner (`runFlipGate` — both modes, parity-gated, verdict per `.claude/tasks/r2-flip-gate.md`) |
 | `lib/panel.mjs` | Pure panel/fit logic — feature builders, forward-chain CV, ridge, spearman; no I/O |
-| `backtests/` | Backtest reports written by `bin/backtest.mjs --write`, one JSON per metric/position run (analysis only — no manifest entry); also `<date>-e0a-{panel,fit}.json` from `bin/panel.mjs --write` |
+| `backtests/` | Backtest reports written by `bin/backtest.mjs --write`, one JSON per metric/position run (analysis only — no manifest entry); also `<date>-e0a-{panel,fit}.json` from `bin/panel.mjs --write`; and `<date>-r2flip-{panel,fit}.json` from `--flip-gate --write` |
 | `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 3) |
 | `college/passing/` | CFBD passing stats, one file per year |
 | `college/receiving/` | CFBD receiving stats, one file per year |
@@ -158,7 +159,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `ktc/quarantine/` | Snapshots rejected by the ordering guard (script-produced, NOT manifest-registered, NOT app-read); review + promote manually |
 | `enrichment/` | Hand-authored overlay: coaching.json, scheme.json, injuries.json, notes.json |
 | `snapshots/` | Projection snapshots imported from the app export ZIP, keyed by UTC date (see [snapshot-workflow.md](snapshot-workflow.md)) |
-| `grading/` | Grading reports written by `bin/grade.mjs --write`, one JSON per snapshot date; plus unregistered `<date>-e0a-verdict.md` analysis reports from `bin/panel.mjs --write` (backtests-style exception to Invariant 3 — deliberate) |
+| `grading/` | Grading reports written by `bin/grade.mjs --write`, one JSON per snapshot date; plus unregistered `<date>-e0a-verdict.md` analysis reports from `bin/panel.mjs --write` (backtests-style exception to Invariant 3 — deliberate); and `<date>-r2flip-verdict.md` (same unregistered convention) |
 | `nflverse/roster/` | nflverse season rosters, one JSON per year (`<year>.json`), keyed by `sleeper_id` |
 | `nflverse/draft/` | nflverse combined draft picks (`draft_picks.json`), all years ≥ 2010 |
 | `nflverse/playerids.json` | nflverse gsis_id→sleeper_id crosswalk (DynastyProcess), all players — **internal-only**: consumed server-side by `scripts/update-advstats.mjs` and `scripts/update-gamelogs.mjs`, not by the app directly |

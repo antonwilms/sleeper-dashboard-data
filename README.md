@@ -1143,7 +1143,7 @@ The first committed numeric grading verdict (roadmap R1-HARNESS) — the gate in
 
 **Methodology:** season-blocked forward-chaining CV (train on years before the eval year only); training-only standardization and imputation (no leakage — the training-fold position mean is recomputed per fold for the one degenerate-null feature, `consistencyCV`); ridge regression (no intercept, no GBM — legible per-feature coefficients only), default λ=1.0 with a `{0, 0.5, 1, 2, 4}` sensitivity sweep always reported; metrics are MAE (PPG units) and within-year Spearman rank correlation (never pooled across years); a mover cohort (team-change flag) is reported separately. Verdict labels (`CLEARS`/`NO-GAIN`/`DEGRADES`/`UNSTABLE`) follow ordered rules — see `.claude/tasks/grading-harness-e0a.md` §3 for the exact thresholds.
 
-**Attribution mode:** all share/team-derived features resolve teams through a single seam (`lib/panel.mjs` `teamKeyResolver`), default `'current-team'` — the reconstructable stand-in for the app's live `DEFAULT_ATTRIBUTION` (a player's season-Y team applied to all of his seasons, including his prior-season stats — this deliberately reproduces the app's mis-attribution mechanism, undercount included). `'per-season-team'` is reserved for the R2-REANCHOR gate slice and throws if requested.
+**Attribution mode:** all share/team-derived features resolve teams through a single seam (`lib/panel.mjs` `teamKeyResolver`), default `'current-team'` — the reconstructable stand-in for the app's live `DEFAULT_ATTRIBUTION` (a player's season-Y team applied to all of his seasons, including his prior-season stats — this deliberately reproduces the app's mis-attribution mechanism, undercount included). `'per-season-team'` attributes each historical season to that season's own v3 team (era-accurate) — implemented for the R2-REANCHOR flip gate; see the R2 flip gate subsection below.
 
 **Null policy:** data holes (`snapShare` pre-2020, a missing predictor/outcome year file, `teamRzShare`/share level below the team-denominator floor) → listwise exclusion, counted per dropReason; structural absence (`momentum`/`shareTrend` with no qualifying prior season) → impute 0 (neutral); degenerate `consistencyCV` → impute the training-fold position mean.
 
@@ -1157,6 +1157,22 @@ npm run panel
 ```
 
 Reproduce: `node bin/panel.mjs --write`.
+
+### R2 flip gate (`--flip-gate`) — dual-mode attribution comparison
+
+The activation gate for the app's `DEFAULT_ATTRIBUTION` flip (roadmap R2-REANCHOR): it assembles the E-0a panel under both attribution modes and reports the before/after — it **recommends, it never flips** (`DEFAULT_ATTRIBUTION` stays `'current-team'` app-side; the flip is a separate app-repo activation commit gated on this verdict).
+
+**What diverges and why:** season-Y features are mode-identical by construction; the sole divergent quantity is `shareTrend`'s Y−1 leg, because `current-team` re-buckets a player's prior-season stats under his *anchor-year* team while `per-season-team` uses that season's own v3 team. Row sets, drops, and folds are therefore identical between modes (a paired design) — only `shareTrend` moves. QB touches no team key and is used as a runtime canary: its pooled MAE/Spearman must be byte-identical across modes or the gate throws.
+
+**The attribution-sensitive cohort** is row-grain, not the offseason-mover cohort the app's neutralization targets (forward movers team(Y+1)≠team(Y) — their panel features don't differ between modes at all, since attribution reads only Y and Y−1). The sensitive cohort is `historical-mover ∪ ym1-team-null` — rows whose own {Y−1, Y} team window spans more than one resolvable team. Each sensitive row is additionally flagged `forwardMover`: `false` is the app-realizable projection-path slice; `true` is a direct proxy for the ungated dynasty share-boost exposure (no neutralization there).
+
+**Verdict labels** (ordered, pre-registered `FLIP_THRESHOLDS`): **UNDERPOWERED** if pooled sensitive-cohort N (WR+RB+TE) < 60; **FLIP-DEGRADES** if any share position's overall relΔMAE > +0.005, or ΔSpearman < −0.01, or pooled sensitive-cohort relΔMAE > +0.02; **FLIP-CLEARS** otherwise.
+
+**Artifacts** (`--write`, unregistered — same convention as `backtests/` generally): `backtests/<date>-r2flip-panel.json` (merged both-mode panel — only `shareTrend` diverges, so one file, not two), `backtests/<date>-r2flip-fit.json` (the FlipReport), `grading/<date>-r2flip-verdict.md`.
+
+Reproduce: `node bin/panel.mjs --flip-gate --write` (dry-run without `--write`).
+
+Age-blindness note: unlike E-0a's candidate verdicts, this within-panel A/B is not discounted for age-blindness — both arms are equally age-blind, and attribution accuracy is orthogonal to the age omission.
 
 ---
 

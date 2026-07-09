@@ -20,8 +20,12 @@ import {
   runCandidates,
   buildFitReport,
   buildVerdictMarkdown,
+  runFlipGate,
+  buildFlipReport,
+  buildFlipVerdictMarkdown,
+  buildMergedFlipPanel,
 } from '../scripts/panel-run.mjs';
-import { PANEL_POSITIONS, BASELINE_FEATURES } from '../lib/panel.mjs';
+import { PANEL_POSITIONS, BASELINE_FEATURES, FLIP_VERDICTS } from '../lib/panel.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -240,6 +244,158 @@ describe('T-12: committed e0a artifact well-formedness', () => {
     for (const f of verdictFiles) {
       const md = fs.readFileSync(f, 'utf8');
       assert.ok(md.startsWith('# E-0a Grading Baseline Verdict'), `${f}: has the expected header`);
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-F7 — flip-gate integration (R2-REANCHOR, .claude/tasks/r2-flip-gate.md)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('T-F7: flip-gate integration (synthetic multi-year: mover + hole year + QB)', () => {
+  // Mirrors T-11's fixture: predictor years 2020-2023, 2021 is the hole year
+  // (advstats missing → whole year skipped), w2 is a mover (KC through 2022, DAL from 2023).
+  const SNAPSHOT = {
+    scoringBasis: 'half_ppr',
+    scoringSettings: { rec: 0.5, rec_yd: 0.1, rec_td: 6, rush_yd: 0.1, rush_td: 6, pass_yd: 0.04, pass_td: 4, pass_int: -2 },
+  };
+
+  function wrStats() { return { rec_tgt: 100, rec: 70, rec_yd: 900, rec_td: 6, rec_rz_tgt: 25, off_snp: 700, tm_off_snp: 1000 }; }
+  function rbStats() { return { rush_att: 220, rush_yd: 1000, rush_td: 8, rush_rz_att: 25, rec: 20, rec_yd: 120, off_snp: 600, tm_off_snp: 1000 }; }
+  function qbStats() { return { pass_att: 550, pass_yd: 4000, pass_td: 28, pass_int: 10, rush_yd: 150, off_snp: 1000, tm_off_snp: 1000 }; }
+
+  function makeSeasonTotals(year) {
+    const w2Team = year >= 2023 ? 'DAL' : 'KC';
+    return {
+      w1: { team: 'KC', gamesPlayed: 16, stats: wrStats(), fantasyPoints: 0, weeklyPoints: weeklyPoints(10) },
+      w2: { team: w2Team, gamesPlayed: 16, stats: wrStats(), fantasyPoints: 0, weeklyPoints: weeklyPoints(9) },
+      r1: { team: 'DAL', gamesPlayed: 16, stats: rbStats(), fantasyPoints: 0, weeklyPoints: weeklyPoints(11) },
+      r2: { team: 'DAL', gamesPlayed: 16, stats: rbStats(), fantasyPoints: 0, weeklyPoints: weeklyPoints(8) },
+      q1: { team: 'KC', gamesPlayed: 16, stats: qbStats(), fantasyPoints: 0, weeklyPoints: weeklyPoints(15) },
+    };
+  }
+
+  const SEASON_TOTALS = {};
+  for (let y = 2018; y <= 2024; y++) SEASON_TOTALS[y] = makeSeasonTotals(y);
+
+  const ADVSTATS = {};
+  for (const y of [2020, 2022, 2023]) { // 2021 deliberately omitted (the hole year)
+    ADVSTATS[y] = advstatsFile(y, [
+      { sleeperId: 'w1', position: 'WR', team: 'KC', airYardsShare: 0.28 },
+      { sleeperId: 'w2', position: 'WR', team: y >= 2023 ? 'DAL' : 'KC', airYardsShare: 0.22 },
+      { sleeperId: 'r1', position: 'RB', team: 'DAL', airYardsShare: 0.05 },
+      { sleeperId: 'r2', position: 'RB', team: 'DAL', airYardsShare: 0.04 },
+    ]);
+  }
+
+  const ROSTER = {};
+  for (const y of [2020, 2021, 2022, 2023]) {
+    ROSTER[y] = rosterFile(y, [{ sleeperId: 'q1', team: 'KC', position: 'QB' }]);
+  }
+
+  const load = {
+    loadSnapshot: (date) => (date === '2026-07-05' ? SNAPSHOT : null),
+    loadSeasonTotals: (year) => SEASON_TOTALS[year] ?? null,
+    loadAdvstats: (year) => ADVSTATS[year] ?? null,
+    loadRoster: (year) => ROSTER[year] ?? null,
+  };
+
+  const result = runFlipGate({ fromYear: 2020, toYear: 2023, scoringFrom: '2026-07-05', load });
+
+  test('FlipReport is well-formed: every §4.2 key present; parity + QB invariance hold; verdict is a known label', () => {
+    const fr = result.flipReport;
+    for (const key of ['meta', 'rowParity', 'qbInvariance', 'undercountRepair', 'featureDelta', 'perPosition', 'cohortPooled', 'sweep', 'verdict', 'verdictInputs']) {
+      assert.ok(key in fr, `FlipReport has key '${key}'`);
+    }
+    assert.equal(fr.rowParity.identical, true);
+    assert.equal(fr.qbInvariance.pass, true);
+    assert.ok(FLIP_VERDICTS.includes(fr.verdict), `verdict '${fr.verdict}' is a known label`);
+  });
+
+  test('buildFlipVerdictMarkdown contains the cohort table, the undercount table, and the verdict line', () => {
+    const md = buildFlipVerdictMarkdown(result.flipReport);
+    assert.ok(md.includes('| Position | Segment | n |'), 'segment table header present');
+    assert.ok(md.includes('current-team unattributed'), 'undercount table present');
+    assert.ok(new RegExp(`\\*\\*(${FLIP_VERDICTS.join('|')})\\*\\*`).test(md), 'verdict line present');
+  });
+
+  test('buildMergedFlipPanel rows carry attributionCohort + perSeasonTeam.shareTrend and nothing else diverges', () => {
+    const merged = buildMergedFlipPanel({ panels: result.panels, cohortByKey: result.cohortByKey });
+    for (const row of merged.rows) {
+      assert.ok(row.attributionCohort && typeof row.attributionCohort.segment === 'string');
+      if (row.position === 'QB') {
+        assert.ok(!('perSeasonTeam' in row), 'QB rows omit perSeasonTeam entirely (no shareTrend feature)');
+      } else {
+        assert.deepEqual(Object.keys(row.perSeasonTeam), ['shareTrend'], 'perSeasonTeam carries only shareTrend');
+      }
+    }
+  });
+
+  test('negative: a tampered mode-independent feature on one per-season row makes the parity gate throw', () => {
+    const tamperIdx = result.panels.perSeasonTeam.rows.findIndex(r => r.position !== 'QB');
+    assert.ok(tamperIdx >= 0, 'fixture has at least one non-QB row to tamper');
+    const tamperedPanels = {
+      currentTeam: result.panels.currentTeam,
+      perSeasonTeam: {
+        ...result.panels.perSeasonTeam,
+        rows: result.panels.perSeasonTeam.rows.map((r, i) =>
+          i === tamperIdx ? { ...r, features: { ...r.features, snapShare: (r.features.snapShare ?? 0) + 0.5 } } : r),
+      },
+    };
+    assert.throws(
+      () => buildFlipReport({
+        panels: tamperedPanels,
+        baselines: result.baselines,
+        cohortByKey: result.cohortByKey,
+        opts: { fromYear: 2020, toYear: 2023, minOutcomeGames: 6, ridgeLambda: 1, ridgeSweep: [0.5, 1, 2] },
+      }),
+      /parity violation/,
+      "the same parity guard runFlipGate relies on (buildFlipReport) throws on a tampered mode-independent feature"
+    );
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-F8 — committed r2flip artifact well-formedness (skips pre-run)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('T-F8: committed r2flip artifact well-formedness', () => {
+  function listMatching(dir, re) {
+    const abs = path.join(REPO_ROOT, dir);
+    if (!fs.existsSync(abs)) return [];
+    return fs.readdirSync(abs).filter(f => re.test(f)).map(f => path.join(abs, f));
+  }
+
+  const panelFiles = listMatching('backtests', /-r2flip-panel\.json$/);
+  const fitFiles = listMatching('backtests', /-r2flip-fit\.json$/);
+  const verdictFiles = listMatching('grading', /-r2flip-verdict\.md$/);
+
+  test('r2flip artifacts, if committed, are well-formed', (t) => {
+    if (panelFiles.length === 0 && fitFiles.length === 0 && verdictFiles.length === 0) {
+      t.skip('no r2flip artifacts on disk yet (pre-run CI stays green)');
+      return;
+    }
+
+    const segments = ['historical-mover', 'ym1-team-null', 'single-team', 'no-ym1-record'];
+    for (const f of panelFiles) {
+      const panel = JSON.parse(fs.readFileSync(f, 'utf8'));
+      assert.ok(panel.meta, `${f}: meta present`);
+      assert.deepEqual(panel.meta.modes, ['current-team', 'per-season-team'], `${f}: meta.modes lists both modes`);
+      for (const row of panel.rows) {
+        assert.ok(segments.includes(row.attributionCohort?.segment), `${f}: row ${row.sleeperId}/${row.predictorYear} has a known segment`);
+      }
+    }
+
+    for (const f of fitFiles) {
+      const fit = JSON.parse(fs.readFileSync(f, 'utf8'));
+      assert.ok(FLIP_VERDICTS.includes(fit.verdict), `${f}: verdict '${fit.verdict}' is a known label`);
+      assert.deepEqual(fit.meta.modes, ['current-team', 'per-season-team'], `${f}: meta.modes lists both modes`);
+      assert.equal(fit.rowParity.identical, true, `${f}: rowParity.identical`);
+    }
+
+    for (const f of verdictFiles) {
+      const md = fs.readFileSync(f, 'utf8');
+      assert.ok(md.includes('node bin/panel.mjs --flip-gate --write'), `${f}: contains the reproduce command`);
     }
   });
 });

@@ -30,7 +30,11 @@ import {
   standardizeTrainApply,
   fitAndScoreFold,
   decideVerdict,
+  classifyAttributionCohort,
+  summarizeFeatureDelta,
+  decideFlipVerdict,
 } from '../lib/panel.mjs';
+import { buildFlipReport } from '../scripts/panel-run.mjs';
 
 // ─── Fixture helpers (production envelope shapes) ─────────────────────────────
 
@@ -155,11 +159,19 @@ describe('T-2: attribution seam', () => {
     assert.equal(teamOf('p1', 2021), 'B', 'current-team ignores the season argument');
   });
 
-  test("'per-season-team' throws reserved-mode error", () => {
-    assert.throws(
-      () => teamKeyResolver('per-season-team', {}, 2022),
-      /reserved for the R2-REANCHOR gate slice/
-    );
+  test("'per-season-team' resolves each season's own v3 team; anchorYear is ignored", () => {
+    const totalsByYear = {
+      2020: { p1: totalsRec({ team: 'A', gamesPlayed: 16 }) },
+      2021: { p1: totalsRec({ team: 'B', gamesPlayed: 16 }) },
+      2022: { p1: totalsRec({ team: null, gamesPlayed: 16 }) },
+    };
+    // anchorYear (2099) is deliberately absent from totalsByYear — if the resolver
+    // used it instead of the season argument, every lookup below would return null.
+    const teamOf = teamKeyResolver('per-season-team', totalsByYear, 2099);
+    assert.equal(teamOf('p1', 2020), 'A', "resolves 2020's own team");
+    assert.equal(teamOf('p1', 2021), 'B', "resolves 2021's own team");
+    assert.equal(teamOf('p1', 2022), null, 'v3 team: null season → null');
+    assert.equal(teamOf('p1', 2019), null, 'season absent from totalsByYear → null');
   });
 
   test('unknown mode throws', () => {
@@ -461,5 +473,268 @@ describe('T-9: decideVerdict ordered rules', () => {
       spearmanMean: 0.02,
     };
     assert.equal(decideVerdict(deltas, sweepFlipped, 3.0), 'UNSTABLE');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-F1..T-F6 — R2 flip gate (roadmap R2-REANCHOR, .claude/tasks/r2-flip-gate.md)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function flipAdvstats(season, players) {
+  return { schemaVersion: 1, season, generatedAt: '2026-01-01T00:00:00.000Z', rowCount: players.length, unmapped: 0,
+    players: Object.fromEntries(players.map(p => [p.sleeperId, p])) };
+}
+function flipRoster(season, players) {
+  return { schemaVersion: 1, season, generatedAt: '2026-01-01T00:00:00.000Z', rowCount: players.length,
+    players: Object.fromEntries(players.map(p => [p.sleeperId, { team: p.team, position: p.position, status: 'ACT', fullName: p.sleeperId }])) };
+}
+
+describe('T-F2: both-mode parity + sole-divergence (mover fixture)', () => {
+  // Y=2022 (anchor), Y-1=2021. m1 moves A(2021)→B(2022); a1/b1 are non-movers whose
+  // Y-1 team-total denominators still shift by mode (§1(b)(ii) second-order drift).
+  const TOTALS_2021 = {
+    m1: totalsRec({ team: 'A', gamesPlayed: 16, stats: { rec_tgt: 30 } }),
+    a1: totalsRec({ team: 'A', gamesPlayed: 16, stats: { rec_tgt: 50 } }),
+    b1: totalsRec({ team: 'B', gamesPlayed: 16, stats: { rec_tgt: 40 } }),
+    q1: totalsRec({ team: 'A', gamesPlayed: 16, stats: { pass_att: 500, pass_yd: 3800, pass_td: 25, pass_int: 9, rush_yd: 60 } }),
+  };
+  const TOTALS_2022 = {
+    m1: totalsRec({ team: 'B', gamesPlayed: 16, stats: { rec_tgt: 45, rec_rz_tgt: 10, off_snp: 650, tm_off_snp: 1000 } }),
+    a1: totalsRec({ team: 'A', gamesPlayed: 16, stats: { rec_tgt: 60, rec_rz_tgt: 22, off_snp: 700, tm_off_snp: 1000 } }),
+    b1: totalsRec({ team: 'B', gamesPlayed: 16, stats: { rec_tgt: 55, rec_rz_tgt: 12, off_snp: 680, tm_off_snp: 1000 } }),
+    q1: totalsRec({ team: 'A', gamesPlayed: 16, stats: { pass_att: 550, pass_yd: 4000, pass_td: 28, pass_int: 10, rush_yd: 150 } }),
+  };
+  const outcomes2022 = outcomesMap({
+    m1: { gamesPlayed: 16, fantasyPoints: 160 }, a1: { gamesPlayed: 16, fantasyPoints: 180 },
+    b1: { gamesPlayed: 16, fantasyPoints: 170 }, q1: { gamesPlayed: 16, fantasyPoints: 300 },
+  });
+  const outcomes2023 = outcomesMap({
+    m1: { gamesPlayed: 16, fantasyPoints: 150 }, a1: { gamesPlayed: 16, fantasyPoints: 190 },
+    b1: { gamesPlayed: 16, fantasyPoints: 175 }, q1: { gamesPlayed: 16, fantasyPoints: 310 },
+  });
+  const ADVSTATS_2022 = flipAdvstats(2022, [
+    { sleeperId: 'm1', position: 'WR', team: 'B', airYardsShare: 0.2 },
+    { sleeperId: 'a1', position: 'WR', team: 'A', airYardsShare: 0.25 },
+    { sleeperId: 'b1', position: 'WR', team: 'B', airYardsShare: 0.18 },
+  ]);
+  const ROSTER_2022 = flipRoster(2022, [{ sleeperId: 'q1', team: 'A', position: 'QB' }]);
+
+  function assemble(attribution) {
+    const inputsByYear = {
+      2021: { seasonTotals: TOTALS_2021, outcomes: new Map(), advstats: null, roster: null },
+      2022: { seasonTotals: TOTALS_2022, outcomes: outcomes2022, advstats: ADVSTATS_2022, roster: ROSTER_2022 },
+      2023: { seasonTotals: {}, outcomes: outcomes2023, advstats: null, roster: null },
+    };
+    return assemblePanelRows(inputsByYear, { fromYear: 2022, toYear: 2022, attribution, minPredictorGames: 6, minOutcomeGames: 6 });
+  }
+
+  const ct = assemble('current-team');
+  const ps = assemble('per-season-team');
+
+  test('row keys and drop counts are identical across modes', () => {
+    const keyOf = (r) => `${r.sleeperId}|${r.predictorYear}|${r.position}`;
+    assert.deepEqual(ct.rows.map(keyOf).sort(), ps.rows.map(keyOf).sort());
+    const dropsOf = (cov) => cov.map(c => ({ position: c.position, year: c.year, surviving: c.surviving, drops: c.drops }));
+    assert.deepEqual(dropsOf(ct.coverage.perPositionYear), dropsOf(ps.coverage.perPositionYear));
+  });
+
+  test('every feature/candidate/outcome is identical except shareTrend; QB rows are byte-equal', () => {
+    const psByKey = new Map(ps.rows.map(r => [`${r.sleeperId}|${r.predictorYear}`, r]));
+    for (const ctRow of ct.rows) {
+      const psRow = psByKey.get(`${ctRow.sleeperId}|${ctRow.predictorYear}`);
+      assert.ok(psRow, `${ctRow.sleeperId} row exists in both modes`);
+      assert.equal(psRow.outcomePPG, ctRow.outcomePPG);
+      assert.deepEqual(psRow.candidates, ctRow.candidates);
+      for (const [key, val] of Object.entries(ctRow.features)) {
+        if (key === 'shareTrend') continue;
+        assert.equal(psRow.features[key], val, `${ctRow.sleeperId}.${key} should be mode-identical`);
+      }
+      if (ctRow.position === 'QB') {
+        assert.deepEqual(psRow, ctRow, 'QB row byte-equal across modes (attribution-invariant)');
+      }
+    }
+  });
+
+  test('mover row (m1) shareTrend differs across modes', () => {
+    const ctRow = ct.rows.find(r => r.sleeperId === 'm1');
+    const psRow = ps.rows.find(r => r.sleeperId === 'm1');
+    assert.notEqual(ctRow.features.shareTrend, psRow.features.shareTrend);
+  });
+
+  test('classifyAttributionCohort marks m1 historical-mover, equal to the committed mover flag', () => {
+    const teamsByYear = { 2021: TOTALS_2021, 2022: TOTALS_2022 };
+    const cohort = classifyAttributionCohort('m1', 2022, teamsByYear);
+    assert.equal(cohort.segment, 'historical-mover');
+    assert.equal(cohort.sensitive, true);
+    assert.equal(cohort.segment === 'historical-mover', computeMover('m1', 2022, teamsByYear));
+  });
+});
+
+describe('T-F3: neutralized-AND-multi-team overlap (historical-mover ∧ forwardMover)', () => {
+  // Player 'mv': team A (Y-1=2021) → B (Y=2022) → C (Y+1=2023).
+  const teamsByYear = {
+    2021: { mv: { team: 'A' } },
+    2022: { mv: { team: 'B' } },
+    2023: { mv: { team: 'C' } },
+  };
+
+  test('segment is historical-mover and forwardMover is true', () => {
+    const cohort = classifyAttributionCohort('mv', 2022, teamsByYear);
+    assert.equal(cohort.segment, 'historical-mover');
+    assert.equal(cohort.sensitive, true);
+    assert.equal(cohort.forwardMover, true);
+  });
+
+  function emptyBaselinePosition() {
+    return { perEvalYear: [], pooled: { n: 0, mae: null, spearmanMean: null }, movers: { n: 0, mae: null, spearmanByYear: {} }, describeFit: { coefficients: {} } };
+  }
+  function baselinePositionWith(pid, evalYear, predicted, actual) {
+    const mae = Math.abs(predicted - actual);
+    return {
+      perEvalYear: [{ evalYear, n: 1, mae, spearman: null, coefficients: {}, predictions: [{ pid, predicted, actual, mover: true }] }],
+      pooled: { n: 1, mae, spearmanMean: null },
+      movers: { n: 1, mae, spearmanByYear: {} },
+      describeFit: { coefficients: {} },
+    };
+  }
+  function makeRow(shareTrend) {
+    return {
+      sleeperId: 'mv', position: 'WR', predictorYear: 2022, team: 'B', mover: true,
+      features: { basePPG: 10, momentum: 0, gamesPlayedY: 16, consistencyCV: 0.2, shareTrend, snapShare: 0.7, rzOwnRate: 0.2, teamRzShare: 0.3, ypt: 8 },
+      candidates: { shareLevel: 0.4, airYardsShare: 0.3 },
+      outcomePPG: 12,
+    };
+  }
+  function makePanel(shareTrend) {
+    return {
+      meta: { generatedAt: '2026-07-08T00:00:00.000Z', panelYears: { fromYear: 2022, toYear: 2022 }, basis: { type: 'in-basis' } },
+      coverage: { perPositionYear: [], skippedYears: [], unattributedByYear: {} },
+      rows: [makeRow(shareTrend)],
+    };
+  }
+
+  test('shareTrend still differs across modes (no forward zeroing exists — §1.3); buildFlipReport buckets under sensitiveForwardMover, not sensitiveNotForwardMover', () => {
+    const panels = { currentTeam: makePanel(0.05), perSeasonTeam: makePanel(0.09) };
+    const baselines = {
+      currentTeam: { WR: baselinePositionWith('mv', 2022, 12.5, 12), RB: emptyBaselinePosition(), TE: emptyBaselinePosition() },
+      perSeasonTeam: { WR: baselinePositionWith('mv', 2022, 13.0, 12), RB: emptyBaselinePosition(), TE: emptyBaselinePosition() },
+    };
+    const cohortByKey = new Map([['mv|2022', classifyAttributionCohort('mv', 2022, teamsByYear)]]);
+    const opts = { fromYear: 2022, toYear: 2022, minOutcomeGames: 6, ridgeLambda: 1, ridgeSweep: [0.5, 1, 2] };
+
+    const flipReport = buildFlipReport({ panels, baselines, cohortByKey, opts });
+
+    assert.equal(flipReport.perPosition.WR.cohorts.sensitiveForwardMover.n, 1);
+    assert.equal(flipReport.perPosition.WR.cohorts.sensitiveNotForwardMover.n, 0);
+  });
+});
+
+describe('T-F4: C4 discipline under per-season-team mode', () => {
+  test('share(Y-1) under per-season-team is a ratio of summed components using the true Y-1 team', () => {
+    const totalsByYear = {
+      2021: {
+        p1: totalsRec({ team: 'A', gamesPlayed: 16, stats: { rec_tgt: 12 } }),
+        p2: totalsRec({ team: 'A', gamesPlayed: 16, stats: { rec_tgt: 8 } }),
+      },
+      2022: {
+        p1: totalsRec({ team: 'B', gamesPlayed: 16, stats: { rec_tgt: 20 } }), // p1 moved to B in 2022
+      },
+    };
+    const teamOf = teamKeyResolver('per-season-team', totalsByYear, 2022);
+    const teamTotalsByYear = { 2021: buildTeamTotalsForSeason(totalsByYear[2021], 2021, teamOf) };
+
+    assert.equal(teamTotalsByYear[2021].totals.A.recTgt, 20, 'team A 2021 recTgt = sum(12,8), not averaged');
+
+    const shareYm1 = computeShare('p1', 'WR', 2021, totalsByYear, teamTotalsByYear, teamOf);
+    assert.ok(Math.abs(shareYm1 - 12 / 20) < 1e-9, 'share(Y-1) = p1 rec_tgt / summed true-Y-1-team recTgt');
+  });
+});
+
+describe('T-F5: asymmetric imputation (Y-1 record with null v3 team)', () => {
+  const totalsByYear = {
+    2021: { p1: totalsRec({ team: null, gamesPlayed: 16, stats: { rec_tgt: 20 } }) },
+    2022: { p1: totalsRec({ team: 'X', gamesPlayed: 16, stats: { rec_tgt: 40, rec_rz_tgt: 10, off_snp: 700, tm_off_snp: 1000 } }) },
+  };
+
+  test('current-team resolves a real share(Y-1); per-season-team imputes it null; segment is ym1-team-null', () => {
+    const teamOfCT = teamKeyResolver('current-team', totalsByYear, 2022);
+    const teamTotalsCT = { 2021: buildTeamTotalsForSeason(totalsByYear[2021], 2021, teamOfCT) };
+    const shareYm1CT = computeShare('p1', 'WR', 2021, totalsByYear, teamTotalsCT, teamOfCT);
+    assert.ok(shareYm1CT != null, 'current-team resolves a non-null Y-1 share (anchor-year team stand-in)');
+
+    const teamOfPS = teamKeyResolver('per-season-team', totalsByYear, 2022);
+    const teamTotalsPS = { 2021: buildTeamTotalsForSeason(totalsByYear[2021], 2021, teamOfPS) };
+    const shareYm1PS = computeShare('p1', 'WR', 2021, totalsByYear, teamTotalsPS, teamOfPS);
+    assert.equal(shareYm1PS, null, 'per-season-team: v3 team null → computeShare returns null → shareTrend imputes to 0');
+
+    const cohort = classifyAttributionCohort('p1', 2022, totalsByYear);
+    assert.equal(cohort.segment, 'ym1-team-null');
+    assert.equal(cohort.sensitive, true);
+  });
+
+  test('summarizeFeatureDelta counts the row under asymmetricImputationN', () => {
+    const rowCT = { sleeperId: 'p1', predictorYear: 2022, features: { shareTrend: 0.05 } };
+    const rowPS = { sleeperId: 'p1', predictorYear: 2022, features: { shareTrend: 0 } };
+    const cohortByKey = new Map([['p1|2022', classifyAttributionCohort('p1', 2022, totalsByYear)]]);
+    const summary = summarizeFeatureDelta([rowCT], [rowPS], cohortByKey);
+    assert.equal(summary.asymmetricImputationN, 1);
+    assert.equal(summary.perSegment['ym1-team-null'].n, 1);
+  });
+});
+
+describe('T-F6: decideFlipVerdict ordered rules', () => {
+  const goodPerPosition = [
+    { position: 'WR', overallRelDMae: -0.01, dSpearman: 0.02 },
+    { position: 'RB', overallRelDMae: -0.02, dSpearman: 0.01 },
+    { position: 'TE', overallRelDMae: -0.01, dSpearman: 0.03 },
+  ];
+
+  test('UNDERPOWERED wins even when deltas degrade', () => {
+    const perPosition = [{ position: 'WR', overallRelDMae: 0.5, dSpearman: -0.5 }];
+    assert.equal(decideFlipVerdict({ sensitivePooledN: 59, perPosition, cohortPooledRelDMae: 0.5 }), 'UNDERPOWERED');
+  });
+
+  test('FLIP-CLEARS: n at threshold, no degradation anywhere', () => {
+    assert.equal(decideFlipVerdict({ sensitivePooledN: 60, perPosition: goodPerPosition, cohortPooledRelDMae: -0.01 }), 'FLIP-CLEARS');
+  });
+
+  test('FLIP-DEGRADES: cohort degradation beyond +2% even when every overall position improves', () => {
+    assert.equal(decideFlipVerdict({ sensitivePooledN: 100, perPosition: goodPerPosition, cohortPooledRelDMae: 0.021 }), 'FLIP-DEGRADES');
+  });
+
+  test('FLIP-DEGRADES: overall Spearman drop beyond -0.01 on any share position', () => {
+    const perPosition = [
+      { position: 'WR', overallRelDMae: -0.01, dSpearman: -0.011 },
+      { position: 'RB', overallRelDMae: -0.01, dSpearman: 0.02 },
+      { position: 'TE', overallRelDMae: -0.01, dSpearman: 0.02 },
+    ];
+    assert.equal(decideFlipVerdict({ sensitivePooledN: 100, perPosition, cohortPooledRelDMae: 0 }), 'FLIP-DEGRADES');
+  });
+
+  test('FLIP-DEGRADES: overall relΔMAE beyond +0.005 on any share position', () => {
+    const perPosition = [
+      { position: 'WR', overallRelDMae: 0.006, dSpearman: 0.02 },
+      { position: 'RB', overallRelDMae: -0.01, dSpearman: 0.02 },
+      { position: 'TE', overallRelDMae: -0.01, dSpearman: 0.02 },
+    ];
+    assert.equal(decideFlipVerdict({ sensitivePooledN: 100, perPosition, cohortPooledRelDMae: 0 }), 'FLIP-DEGRADES');
+  });
+
+  test('boundary: relΔMAE exactly at +0.005 and cohortRelDMae exactly at +0.02 → FLIP-CLEARS side (strict >)', () => {
+    const perPosition = [
+      { position: 'WR', overallRelDMae: 0.005, dSpearman: 0.02 },
+      { position: 'RB', overallRelDMae: -0.01, dSpearman: 0.02 },
+      { position: 'TE', overallRelDMae: -0.01, dSpearman: 0.02 },
+    ];
+    assert.equal(decideFlipVerdict({ sensitivePooledN: 100, perPosition, cohortPooledRelDMae: 0.02 }), 'FLIP-CLEARS');
+  });
+
+  test('boundary: dSpearman exactly at -0.01 → FLIP-CLEARS side (strict <)', () => {
+    const perPosition = [
+      { position: 'WR', overallRelDMae: 0, dSpearman: -0.01 },
+      { position: 'RB', overallRelDMae: 0, dSpearman: 0.02 },
+      { position: 'TE', overallRelDMae: 0, dSpearman: 0.02 },
+    ];
+    assert.equal(decideFlipVerdict({ sensitivePooledN: 100, perPosition, cohortPooledRelDMae: 0 }), 'FLIP-CLEARS');
   });
 });
