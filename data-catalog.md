@@ -25,7 +25,7 @@ header-compatible (column lookup by name; 2025 adds one additive `game_id` colum
 does not affect served shape — it is recorded here so provenance stays honest, not silent. See each
 family's Source + provenance field below for the per-family detail.
 
-_Last reconciled against manifest.json: 2026-07-04_
+_Last reconciled against manifest.json: 2026-07-18_
 
 ---
 
@@ -188,6 +188,18 @@ _Last reconciled against manifest.json: 2026-07-04_
 - **Null semantics:** rates null on zero denominator (never fabricated); a bye week is an absent row (no placeholder); components + rate both stored — rates never summable, only recomputed from summed components (season-figure recipes documented alongside the served family in README.md)
 - **Consumption:** banked view-only until the app loader ships; the projection-engine refactor consumes it later under its own task
 - **Keep-rationale:** cross-position context substrate — PROE (pass-tilt), pace, red-zone tendencies (kicker/TD-scorer equity), and defense-faced EPA splits (pass-funnel/run-funnel) condition every position's projection, not just one
+
+## Sleeper players-state (weekly status/injury/depth capture)
+- **Served path / subcommand / refresh:** `nfl/players-state/<date>.json`; `bin/update.mjs playerstate`; Saturday Action
+- **Source + provenance:** Sleeper `/v1/players/nfl` (current-state only; no upstream history)
+- **Grain:** player-week snapshot, date-keyed
+- **Join id(s):** sleeper_id (native)
+- **Coverage:** 2026-07 onward — no backfill possible, upstream is current-state only; this is the whole point of the capture
+- **schemaVersion:** 1
+- **Sparsity gate:** `MIN_PLAYERSTATE_ROWS = 600` + ≥28 distinct teams; per-record defects (empty/null name/team/position, `active !== true`, invalid `depthChartOrder`) are dropped with a warning rather than hard-thrown, so one malformed record never forfeits the whole capture week
+- **Null semantics:** all keys explicit, `null` = upstream null/absent; `newsUpdated`/`searchRank` excluded from the dedup hash (both churn continuously) but still written verbatim
+- **Consumption:** capture-only — no app, projection, grading, or backtest path reads this family; activation requires a graded gate
+- **Keep-rationale:** the only Sleeper-sourced record of `status`/`injury_status`/depth-chart state over time; every uncaptured week is permanently lost (no server-side history exists)
 
 ---
 

@@ -39,6 +39,7 @@ import { updateAdvStats }     from '../scripts/update-advstats.mjs';
 import { updateSchedule }    from '../scripts/update-schedule.mjs';
 import { updateGameLogs }    from '../scripts/update-gamelogs.mjs';
 import { updateTeamContext } from '../scripts/update-teamcontext.mjs';
+import { updatePlayerState } from '../scripts/update-playerstate.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -91,6 +92,7 @@ SUBCOMMANDS
   teamcontext                 pbp-derived team/game context (PROE, pace, RZ, defense-faced), team-week
   teamcontext --year YYYY     Team context for a specific season
   teamcontext --all           Backfill every season (≥ 2012)
+  playerstate                 Weekly Sleeper players-state snapshot (status/injury/depth), date-keyed
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
@@ -123,6 +125,8 @@ EXAMPLES
   node bin/update.mjs teamcontext --year 2023
   node bin/update.mjs teamcontext --year 2023 --dry-run
   node bin/update.mjs teamcontext --all
+  node bin/update.mjs playerstate
+  node bin/update.mjs playerstate --dry-run
 `);
 }
 
@@ -170,6 +174,9 @@ const opts = { year, category, force, dryRun, all };
         break;
       case 'teamcontext':
         await updateTeamContext(opts);
+        break;
+      case 'playerstate':
+        await updatePlayerState(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${subcommand}\n`);

@@ -32,6 +32,9 @@ sleeper-dashboard-data/
     season-totals/            — Sleeper per-player season aggregates (2012–present)
       2024.json
       ...
+    players-state/            — weekly Sleeper players-state snapshots (status/injury/depth), date-keyed, capture-only
+      2026-07-18.json
+      ...
   college/
     passing/                  — CFBD passing stats per player per season (2017–2025)
       2023.json
@@ -114,6 +117,68 @@ Pre-2021 NFL had 17 regular-season weeks. Those seasons store `X` at week 18 for
 `availability.absenceCause` is always `"unknown"` in Phase 5. It exists as a placeholder for future cause-of-absence enrichment (injury report scrape, manual annotation). An absence run ≥ 3 weeks is *suggestive* of injury but not labelled as such by this script — Sleeper stats alone cannot distinguish injury from suspension, healthy scratch, or personal absence.
 
 **Snap & red-zone field coverage:** `off_snp`, `tm_off_snp`, `rec_rz_tgt`, `rush_rz_att`, `pass_rz_att` are present in Sleeper data from ~2021 onward; seasons before then omit them. They flow through the generic sum-all-keys aggregation unchanged — the app degrades the dependent projection factors to neutral for older seasons (see sibling repo `usageMetrics.js` / `teamRzShare.js` / `durabilitySignals.js`).
+
+---
+
+### `nfl/players-state/<date>.json`
+
+Weekly capture of Sleeper's current-state-only `status`/`injury`/depth-chart fields. Sleeper
+serves no history for this endpoint and nothing server-side snapshots it, so every week that
+passes without capture permanently loses that week's state. **Capture-only:** no app, projection,
+grading, or backtest path reads this family; activation requires a graded gate.
+
+```json
+{
+  "schemaVersion": 1,
+  "date": "2026-07-18",
+  "capturedAt": "2026-07-18T14:11:32.000Z",
+  "source": "sleeper:v1/players/nfl",
+  "positions": ["QB", "RB", "WR", "TE", "FB", "K"],
+  "playerCount": 1012,
+  "players": {
+    "4046": {
+      "name": "Patrick Mahomes",
+      "team": "KC",
+      "position": "QB",
+      "fantasyPositions": ["QB"],
+      "status": "Active",
+      "injuryStatus": null,
+      "injuryBodyPart": null,
+      "injuryStartDate": null,
+      "injuryNotes": null,
+      "practiceParticipation": null,
+      "practiceDescription": null,
+      "depthChartPosition": "QB",
+      "depthChartOrder": 1,
+      "active": true,
+      "teamChangedAt": null,
+      "newsUpdated": 1774912523407,
+      "searchRank": 3
+    }
+  }
+}
+```
+
+**Membership filter:** include a player iff `active === true` AND `team !== null` AND
+(`position` ∈ `{QB, RB, WR, TE, FB, K}` or its `fantasy_positions` intersect that set). This
+excludes OL (Sleeper carries no depth-chart order for OL — see `data-catalog.md`), DEF
+pseudo-players, and the teamless-active tail (mostly retired/unsigned noise).
+
+**Included fields, condensed:** `name` (join/debug convenience, not load-bearing), `team`
+(membership key), `position`, `fantasyPositions`, `status`, `injuryStatus`, `injuryBodyPart`,
+`injuryStartDate`, `injuryNotes`, `practiceParticipation`, `practiceDescription`,
+`depthChartPosition`, `depthChartOrder`, `active`, `teamChangedAt` (team-churn-aligned),
+`newsUpdated`/`searchRank` (cheap market-relevance signals). Every key is written explicitly,
+`null` when upstream is null/absent — absence never means "not captured". Excluded: biographical/
+static fields, external crosswalk IDs, Sleeper-internal `metadata`/`competitions`.
+
+**Dedup semantics:** an unchanged week writes nothing — content-hash deduped against the most
+recent prior snapshot (KTC pattern), excluding the near-continuously-churning `newsUpdated` and
+`searchRank` fields from the hash so genuine offseason weeks with no roster/status change produce
+no commit. Absence of a date in this folder means either "no change that week" or "not yet
+captured" — run-evidence liveness lives in the A2 detector, not a marker file here. A same-day
+re-run with changed upstream overwrites that day's file, mirroring the KTC capture (first-write
+does not lock the day).
 
 ---
 
@@ -784,6 +849,9 @@ node bin/update.mjs teamcontext --year 2023
 node bin/update.mjs teamcontext         # current season
 node bin/update.mjs teamcontext --all   # backfill ≥ 2012
 
+# Capture a weekly Sleeper players-state snapshot (status/injury/depth), date-keyed
+node bin/update.mjs playerstate
+
 # Dry-run any subcommand (fetch + validate, no writes)
 # --dry-run also suppresses per-iteration fetch progress (the NFL week loop and
 #   KTC page loop); real (non-dry-run) ingests still print full progress.
@@ -797,6 +865,7 @@ node bin/update.mjs advstats --year 2023 --dry-run
 node bin/update.mjs schedule --year 2023 --dry-run
 node bin/update.mjs gamelogs --year 2023 --dry-run
 node bin/update.mjs teamcontext --year 2023 --dry-run
+node bin/update.mjs playerstate --dry-run
 
 # Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext)
 node bin/update.mjs nfl --year 2023 --force
@@ -821,7 +890,7 @@ Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actio
 npm run smoke
 ```
 
-Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs/teamcontext (no writes), validates enrichment, and runs the grade self-test. The smoke-test CI workflow runs a subset on pull requests (`npm test` + nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs + enrichment validation), not `npm run smoke` itself.
+Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs/teamcontext/playerstate (no writes), validates enrichment, and runs the grade self-test. The smoke-test CI workflow runs a subset on pull requests (`npm test` + nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs + enrichment validation), not `npm run smoke` itself.
 
 ### GitHub Actions
 
@@ -835,6 +904,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `nflverse-schedule.yml` | Friday 13:35 UTC + `workflow_dispatch` | Runs `node bin/update.mjs schedule` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-gamelogs.yml` | Saturday 13:47 UTC + `workflow_dispatch` | Runs `node bin/update.mjs gamelogs` (current season, after playerids), commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-teamcontext.yml` | Sunday 13:53 UTC + `workflow_dispatch` | Runs `node bin/update.mjs teamcontext` (current season), commits if content hash changed, purges jsDelivr CDN cache |
+| `weekly-playerstate.yml` | Saturday 14:11 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstate`; content-hash dedup (excluding churning `newsUpdated`/`searchRank` fields); commits the new dated snapshot if changed, purges jsDelivr CDN cache |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
