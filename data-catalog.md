@@ -40,6 +40,8 @@ _Last reconciled against manifest.json: 2026-07-04_
 - **Null semantics:** keys preserved as-is from Sleeper; `pass_rtg`/`cmp_pct` are weekly sums, never season-valid (rate-trap note)
 - **Consumption:** app-consumed (`src/api/dataStore.js`)
 - **Keep-rationale:** the canonical outcome/actuals store
+- **Row composition:** each season-totals file's entries are not uniformly player rows — numeric `sleeper_id` player rows; one `TEAM_<abbr>` whole-team aggregate pseudo-row per team (full stat keys, `gamesPlayed`, per-season `team` field; present since 2026-05-19, commit `135d8ac`); `<abbr>` DEF entries (team defenses; no offensive stat keys); and rare legacy suffixed ids (e.g. `1339z`, seen in 2021). **Contract: consumers must exclude `TEAM_*` rows from any cross-player summation** (the app does this via `teamContext.isTeamAggregateId`). The `TEAM_` prefix is a cross-repo contract — renaming or reformatting it is a breaking change to the app's denominator filter.
+- **`team` (v3, per-season):** scoring-load-bearing in the app since the R2 flip (2026-07-11) — projection attribution consumes it; the `aggregateWeeks` dominant-team rule is a silent-scoring-change surface (see CLAUDE.md cross-repo contracts).
 
 ## CFBD college stats
 - **Served path / subcommand / refresh:** `college/{passing,receiving,rushing}/<year>.json`; `bin/update.mjs cfbd --year [--category]`; no Action

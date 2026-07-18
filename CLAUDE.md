@@ -78,6 +78,8 @@ node bin/grade.mjs --self-test                          # fixture self-check (us
 
 npm shortcut: `npm run grade`.
 
+**Poisoned-snapshot window (2026-07-16 → 2026-07-18):** app snapshots written in this window carry ~½-scale `teamRzShare` and `shareVolatility` values, captured before the share-denominator fix (app, 2026-07-18) corrected the doubled `TEAM_*` denominator. These fields in that window are unreliable at absolute scale; exclude or correct them in the 2026 grading run.
+
 ### Backtest CLI — `bin/backtest.mjs`
 
 ```sh
@@ -213,7 +215,7 @@ This repo cannot edit the app. Any change affecting these must be called out in 
 | Contract | This repo | App counterpart |
 |---|---|---|
 | **Snapshot shape** | `snapshots/<date>.json` imported via `node bin/update.mjs snapshots`; `projection` field is verbatim `computeNextSeasonProjection` output; at schemaVersion 2 the envelope also carries top-level `targetSeason`, `currentSeason`, and verbatim `scoringSettings` | `src/utils/projectionSnapshot.js` (writer); `exportData.js` `classifyKey` (router) |
-| **season-totals schemaVersion** | Writes v3 | `src/api/dataStore.js` advertises `MAX_SUPPORTED_SCHEMA=3`; bumping needs both repos. Each record carries an additive per-season `team` (schedule-domain abbr, or `null`); the app joins game logs on `careerStats[season][pid].team` instead of current team. |
+| **season-totals schemaVersion** | Writes v3 | `src/api/dataStore.js` advertises `MAX_SUPPORTED_SCHEMA=3`; bumping needs both repos. Each record carries an additive per-season `team` (schedule-domain abbr, or `null`); the app joins game logs on `careerStats[season][pid].team` instead of current team. Each season-totals file also carries one `TEAM_<abbr>` whole-team aggregate pseudo-row per team alongside player rows and `<abbr>` DEF rows — consumers must exclude `TEAM_*` from cross-player summation (see data-catalog.md season-totals section for the full row-composition contract). Per-season `team` is scoring-load-bearing in the app since the R2 flip (2026-07-11): it feeds projection Steps 3/5h attribution (`resolveAttributedTeam`). The dominant-team derivation in `lib/sleeper.mjs` `aggregateWeeks` (most played weeks; ties → later stint; zero played → last seen; schedule-domain normalization) is therefore a silent-scoring-change surface — any edit to that rule changes app projections with no app-side diff. Treat changes as scoring changes: flag cross-repo and route through a graded gate. |
 | **Enrichment schemas** | Writes/validates `enrichment/*.json` | `src/api/enrichment.js` (`loadEnrichment`); `src/utils/enrichmentLookup.js`; field add/rename must be mirrored |
 | **Manifest contract** | manifest.json field names/shape | `dataStore.js` `getManifestEntry` / validators gate on `schemaVersion`, `inProgress`, `lastModified` |
 | **CFBD statType keys** | Row per `statType`; confirmed sets per category stored here | App pivots via `pivotStatRows`; statType set is a shared contract |
