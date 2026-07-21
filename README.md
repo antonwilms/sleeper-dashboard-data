@@ -905,11 +905,46 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `nflverse-gamelogs.yml` | Saturday 13:47 UTC + `workflow_dispatch` | Runs `node bin/update.mjs gamelogs` (current season, after playerids), commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-teamcontext.yml` | Sunday 13:53 UTC + `workflow_dispatch` | Runs `node bin/update.mjs teamcontext` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `weekly-playerstate.yml` | Saturday 14:11 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstate`; content-hash dedup (excluding churning `newsUpdated`/`searchRank` fields); commits the new dated snapshot if changed, purges jsDelivr CDN cache |
+| `cron-deadman.yml` | Daily 05:19 UTC + push to `main` + `workflow_dispatch` | Runs `node bin/deadman.mjs`; monitoring only — no writes, no manifest touch |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
 *Season-keyed purges (roster, advstats, schedule, gamelogs, teamcontext) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
+
+#### Cron dead-man detector (`cron-deadman.yml`)
+
+Protects every scheduled capture (all crons above, automatically) from silent loss — a job that
+stops running with no error, no trace. The expected-job set is not a separate registry: the
+detector enumerates `.github/workflows/*.yml`, extracts every `cron:` line (quoted or unquoted —
+a `cron:` value it cannot parse is never silently skipped, it is surfaced as a `malformed-cron`
+finding), and cross-checks each scheduled workflow against the GitHub Actions API. Any new
+workflow with a `cron:` line is covered on merge — do not add a parallel job registry.
+
+For each scheduled workflow, all four must hold or the run goes red:
+
+1. **Registered** — the local workflow file has a matching Actions-API workflow (matched on `path`).
+2. **Enabled** — API `state === "active"`; catches GitHub's 60-day `disabled_inactivity` auto-disable and manual disables.
+3. **Recent** — the latest run (any event, including a manual `workflow_dispatch`) has `created_at` within the cron's max-age window; a workflow with no runs at all is red once its own `created_at` exceeds the window (bootstrap grace for freshly added jobs).
+4. **Healthy** — that latest run's `conclusion` is `success` or `null` (in progress). A KTC quarantine trip deliberately fails its run (see above) — the detector re-flags it daily until resolved, which is correct: a quarantine needs human review.
+
+Cadence (max age before a job is considered missed), derived from the cron's day-of-week /
+day-of-month / month fields:
+
+| Pattern | Kind | Max age |
+|---|---|---|
+| day-of-week field ≠ `*` | weekly | 8 days |
+| day-of-month ≠ `*` and month ≠ `*` | yearly | 368 days |
+| day-of-month ≠ `*` | monthly | 33 days |
+| otherwise | daily | 2 days |
+
+A finding surfaces as a non-zero exit (red run), `::error::` annotations per finding, and a
+markdown table in the run's step summary — no auto-issues, no external services.
+
+**Limitations:**
+- **Self-monitoring.** The detector runs inside the same system it monitors (GitHub Actions). Mitigated by: daily cadence (a missed scheduler tick self-heals the next day); the `push` trigger on `main`, so any human push re-arms the check even if every cron is dead (note: pushes made with `GITHUB_TOKEN`, like the capture workflows' own commits, do not trigger `push` workflows — this is documented GitHub behavior and desirable here, it avoids recursion); and check 2 catching the auto-disable state directly. A total, silent, multi-day Actions-scheduler outage with no human push in between is the residual, accepted risk.
+- **Self-exemption from check 4.** The detector's own workflow (`cron-deadman.yml`) is excluded from the healthy/conclusion check only — checks 1–3 (registered, enabled, recent) still apply to it. This is deliberate: the detector exits non-zero by design whenever it surfaces a real finding, so its own latest-run `conclusion` is `failure` exactly when it is working correctly; without the exemption every genuine miss would also self-report as a redundant "detector failed" finding, and a by-design exit couldn't be told apart from a real detector breakage.
+- **Out of scope.** Staleness of the manual projection-snapshot import (`snapshots/` — `bin/import-snapshot.mjs` is user-run, not a cron) is not covered; that is a separate concern from monitoring scheduled Actions.
 
 ### Yearly maintenance
 

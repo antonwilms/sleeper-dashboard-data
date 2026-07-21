@@ -107,6 +107,16 @@ Offline analysis (read-only over season-totals + advstats + roster + one snapsho
 into smoke; not the snapshot grader. Methodology: README → Analysis / Backtesting.
 npm shortcuts: `npm run panel`, `npm run panel:flip`.
 
+### Dead-man CLI — `bin/deadman.mjs`
+
+```sh
+GITHUB_REPOSITORY=owner/repo GITHUB_TOKEN=$(gh auth token) node bin/deadman.mjs
+```
+
+Monitoring only — checks every scheduled workflow in `.github/workflows/*.yml` against Actions
+API run evidence; no flags. Runs daily via `.github/workflows/cron-deadman.yml`; needs a token
+locally (`gh auth token`), so it is not part of `npm run smoke`.
+
 ### Smoke & validation
 
 ```sh
@@ -154,6 +164,8 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `bin/panel.mjs` | Thin CLI over `scripts/panel-run.mjs` — E-0a panel assembly + candidate grading, `--write` to `backtests/` + `grading/`; `--flip-gate` runs the R2 dual-mode attribution comparison |
 | `scripts/panel-run.mjs` | Panel orchestration adapter (injectable loaders; mirrors `scripts/backtest-run.mjs`); attribution-mode seam for R2; R2 flip-gate runner (`runFlipGate` — both modes, parity-gated, verdict per `.claude/tasks/r2-flip-gate.md`) |
 | `lib/panel.mjs` | Pure panel/fit logic — feature builders, forward-chain CV, ridge, spearman; no I/O |
+| `scripts/check-crons.mjs` | Cron dead-man detector logic — auto-discovers scheduled workflows (`extractCrons`/`listScheduledWorkflows`), classifies cadence (`cronCadence`), evaluates each against Actions API run evidence (`evaluateWorkflow`), orchestrates + reports (`runDeadman`); monitoring only, no I/O to data files |
+| `bin/deadman.mjs` | Thin CLI over `scripts/check-crons.mjs`; reads `GITHUB_REPOSITORY`/`GITHUB_TOKEN`, exits non-zero on any finding |
 | `backtests/` | Backtest reports written by `bin/backtest.mjs --write`, one JSON per metric/position run (analysis only — no manifest entry); also `<date>-e0a-{panel,fit}.json` from `bin/panel.mjs --write`; and `<date>-r2flip-{panel,fit}.json` from `--flip-gate --write` |
 | `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 3) |
 | `college/passing/` | CFBD passing stats, one file per year |
@@ -183,6 +195,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `manifest.json` | Index of every script-written file with metadata |
 | `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation |
 | `.github/workflows/weekly-playerstate.yml` | Saturday weekly Sleeper players-state capture, content-hash dedup, CDN purge |
+| `.github/workflows/cron-deadman.yml` | Daily dead-man check: every scheduled workflow must have a recent successful run; red = a capture silently missed |
 | `.github/workflows/smoke-test.yml` | Smoke test CI (dry-runs + npm test unit validators) |
 | `data-catalog.md` | Living dataset index — one section per served family (path/source/grain/join/coverage/gate); every ingest slice updates its row (Done-definition) |
 

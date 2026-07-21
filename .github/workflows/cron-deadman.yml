@@ -1,0 +1,31 @@
+name: Cron dead-man detector
+
+on:
+  schedule:
+    # Daily 05:19 UTC — quiet slot, well clear of the 13:xx-14:xx capture crons; a missed
+    # scheduler tick self-heals the next day.
+    - cron: "19 5 * * *"
+  push:
+    branches: [main]   # human pushes re-arm the detector even if all crons are dead;
+                       # GITHUB_TOKEN pushes from capture Actions do not trigger this (no recursion)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deadman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Check scheduled captures ran
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node bin/deadman.mjs
