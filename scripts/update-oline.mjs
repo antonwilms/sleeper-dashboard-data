@@ -75,21 +75,33 @@ export async function updateOline({ year: yearOpt = null, all = false, dryRun = 
     }
 
     // Derive — throws on header drift or wrong-asset dt-year mismatch
-    const { teams, rowCount, teamCount, stateCount } = aggregateOlineStates(csv, { season });
-    console.log(`[oline] Derived ${rowCount} ol rows across ${stateCount} states for season ${season}`);
+    const { teams, rowCount: preRowCount, stateCount } = aggregateOlineStates(csv, { season });
+    console.log(`[oline] Derived ${preRowCount} ol rows across ${stateCount} states for season ${season}`);
 
-    // Sparsity gate
-    if (rowCount < MIN_OLINE_ROWS) {
+    // Sparsity gate — pre-validation, fail-fast before doing further work. Uses the aggregator's
+    // raw counts (not the post-drop counts below): a preliminary/truncated fetch should be
+    // rejected on its own terms, before validateOline's drops are even applied.
+    if (preRowCount < MIN_OLINE_ROWS) {
       console.log(
-        `[oline] season=${season} only ${rowCount} ol rows ` +
+        `[oline] season=${season} only ${preRowCount} ol rows ` +
         `(< MIN_OLINE_ROWS=${MIN_OLINE_ROWS}) — treating as preliminary/partial, skipping`
       );
       continue;
     }
 
-    // Validate
+    // Validate — drops ragged per-record defects (e.g. empty player name) from `teams` in
+    // place; capture proceeds rather than forfeiting the whole week.
     validateOline(teams, { year: season });
     console.log('[oline] Validation passed');
+
+    // Recompute rowCount/teamCount AFTER validation so the envelope + manifest recordCount
+    // reflect what the file actually holds post-drop, not the pre-drop derive counts above.
+    // This family is append-only, so a stale (overstated) count would be permanent.
+    // stateCount is unaffected by drops (states are never removed, only their ol[] entries).
+    const teamCount = Object.keys(teams).length;
+    const rowCount = Object.values(teams).reduce(
+      (s, t) => s + (t.states || []).reduce((s2, st) => s2 + (st.ol || []).length, 0), 0
+    );
 
     const dataPath = `nflverse/oline/${season}.json`;
     const existing = readJson(dataPath);

@@ -250,6 +250,34 @@ test('validateOline: a record with an empty player name is dropped with a warnin
   assert.equal(finalTotal, originalTotal, 'only the bad record should have been dropped');
 });
 
+test('validateOline: counting rowCount AFTER validateOline (not before) reflects the actual post-drop total — scripts/update-oline.mjs envelope/manifest fix', () => {
+  const teams = makeBulkTeams(MIN_OLINE_ROWS + 5);
+  const preDropCount = Object.values(teams).reduce(
+    (s, t) => s + t.states.reduce((s2, st) => s2 + st.ol.length, 0), 0
+  );
+
+  // A droppable record, present pre-validation (mirrors an upstream CSV row already parsed
+  // into ol[] before validateOline ever runs) — inflates the naive pre-validation count by 1.
+  teams.SF.states[0].ol.push({ slot: 'RT', rank: 2, name: '', gsisId: null, espnId: '13013' });
+  assert.equal(
+    Object.values(teams).reduce((s, t) => s + t.states.reduce((s2, st) => s2 + st.ol.length, 0), 0),
+    preDropCount + 1,
+    'sanity: the ragged record is counted before validation runs'
+  );
+
+  withWarnSpy(() => {
+    assert.doesNotThrow(() => validateOline(teams, { year: 2025 }));
+  });
+
+  // This is exactly what scripts/update-oline.mjs now recomputes AFTER the validateOline call
+  // for the envelope's rowCount/manifest recordCount — it must equal the true surviving total,
+  // not the stale pre-drop count (which would overstate by 1, permanently, for an append-only file).
+  const postDropCount = Object.values(teams).reduce(
+    (s, t) => s + t.states.reduce((s2, st) => s2 + st.ol.length, 0), 0
+  );
+  assert.equal(postDropCount, preDropCount, 'post-validation count must exclude the dropped ragged record');
+});
+
 test('validateOline: throws when enough dropped records push the total below MIN_OLINE_ROWS', () => {
   const teams = makeBulkTeams(MIN_OLINE_ROWS + 5);
   // Empty out names on 10 valid entries scattered across the first two states — leaves the
