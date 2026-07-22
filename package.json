@@ -11,7 +11,7 @@
     "grade": "node bin/grade.mjs",
     "enrich": "node bin/enrich.mjs",
     "validate:enrichment": "node bin/enrich.mjs validate",
-    "smoke": "node bin/update.mjs nfl --year 2023 --dry-run && node bin/update.mjs cfbd --year 2023 --dry-run && node bin/update.mjs ktc --dry-run && node bin/enrich.mjs validate && node bin/grade.mjs --self-test && node bin/update.mjs roster --year 2024 --dry-run && node bin/update.mjs draft --dry-run && node bin/update.mjs playerids --dry-run && node bin/update.mjs advstats --year 2023 --dry-run && node bin/update.mjs schedule --year 2023 --dry-run && node bin/update.mjs gamelogs --year 2023 --dry-run && node bin/update.mjs teamcontext --year 2023 --dry-run && node bin/update.mjs playerstate --dry-run",
+    "smoke": "node bin/update.mjs nfl --year 2023 --dry-run && node bin/update.mjs cfbd --year 2023 --dry-run && node bin/update.mjs ktc --dry-run && node bin/enrich.mjs validate && node bin/grade.mjs --self-test && node bin/update.mjs roster --year 2024 --dry-run && node bin/update.mjs draft --dry-run && node bin/update.mjs playerids --dry-run && node bin/update.mjs advstats --year 2023 --dry-run && node bin/update.mjs schedule --year 2023 --dry-run && node bin/update.mjs gamelogs --year 2023 --dry-run && node bin/update.mjs teamcontext --year 2023 --dry-run && node bin/update.mjs playerstate --dry-run && node bin/update.mjs oline --year 2025 --dry-run",
     "backtest": "node bin/backtest.mjs",
     "panel": "node bin/panel.mjs",
     "panel:flip": "node bin/panel.mjs --flip-gate",

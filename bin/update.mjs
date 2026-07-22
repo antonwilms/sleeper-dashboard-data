@@ -40,6 +40,7 @@ import { updateSchedule }    from '../scripts/update-schedule.mjs';
 import { updateGameLogs }    from '../scripts/update-gamelogs.mjs';
 import { updateTeamContext } from '../scripts/update-teamcontext.mjs';
 import { updatePlayerState } from '../scripts/update-playerstate.mjs';
+import { updateOline }       from '../scripts/update-oline.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -93,12 +94,15 @@ SUBCOMMANDS
   teamcontext --year YYYY     Team context for a specific season
   teamcontext --all           Backfill every season (≥ 2012)
   playerstate                 Weekly Sleeper players-state snapshot (status/injury/depth), date-keyed
+  oline                       nflverse OL composition per team-week (ESPN depth charts), TEAM-keyed
+  oline --year YYYY           OL composition for a specific season (≥ 2025)
+  oline --all                 Backfill ESPN-era seasons (≥ 2025)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
-  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext only)
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext/oline only)
   --year YYYY Target season year (nfl, cfbd, roster subcommands)
-  --all       Backfill all seasons (schedule/gamelogs/teamcontext subcommands)
+  --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline subcommands)
 
 EXAMPLES
   node bin/update.mjs nfl  --year 2024
@@ -127,6 +131,8 @@ EXAMPLES
   node bin/update.mjs teamcontext --all
   node bin/update.mjs playerstate
   node bin/update.mjs playerstate --dry-run
+  node bin/update.mjs oline --year 2025 --dry-run
+  node bin/update.mjs oline --all
 `);
 }
 
@@ -177,6 +183,9 @@ const opts = { year, category, force, dryRun, all };
         break;
       case 'playerstate':
         await updatePlayerState(opts);
+        break;
+      case 'oline':
+        await updateOline(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${subcommand}\n`);

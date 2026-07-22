@@ -64,6 +64,8 @@ sleeper-dashboard-data/
       2024.json
     teamcontext/              — pbp-derived team/game context (PROE, pace, RZ tendencies, defense-faced), one file per year, TEAM-keyed
       2024.json
+    oline/                    — nflverse OL composition per team-week (ESPN depth charts), one file per year, TEAM-keyed, capture-only
+      2025.json
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, CFBD player manifests, etc.)
 ```
@@ -748,6 +750,86 @@ node bin/update.mjs teamcontext --all      # backfill ≥ 2012
 
 ---
 
+### `nflverse/oline/<year>.json`
+
+OL composition forward capture produced by `bin/update.mjs oline [--year YYYY] [--all]`, sourced
+from `depth_charts_<year>.csv` in the nflverse `depth_charts` release (ESPN feed). This repo's
+**second team-keyed served family** (after teamcontext). **Capture-only — no consumer,
+enrichment, or scoring path reads it.**
+
+**ESPN-era floor:** `depth_charts_2024.csv` and earlier use a different legacy NFL-feed schema
+entirely (`season,club_code,week,…,depth_position`); the ESPN `dt` schema begins with the 2025
+file. `MIN_OLINE_SEASON = 2025` — pre-2025 backfill is out of scope (reconstructable later, zero
+loss risk; upstream retains the full daily chart history).
+
+**Weekly reduction:** upstream publishes near-daily. One state per (team, ISO-week): rows are
+bucketed by `isoWeekKey(dt)`, and only rows from the bucket's **max `dt`** (the week's latest
+chart) are kept — loss-free, since the daily grain stays recoverable upstream.
+
+**Served shape:**
+```json
+{
+  "schemaVersion": 1,
+  "season": 2026,
+  "generatedAt": "2026-07-18T14:37:20.000Z",
+  "source": "nflverse depth_charts (ESPN feed)",
+  "rowCount": 6812,
+  "teamCount": 32,
+  "stateCount": 544,
+  "teams": {
+    "SF": {
+      "states": [
+        {
+          "week": "2026-W29",
+          "date": "2026-07-18",
+          "dt": "2026-07-18T08:46:51Z",
+          "ol": [
+            { "slot": "LT", "rank": 1, "name": "Trent Williams",  "gsisId": "00-0027857", "espnId": "3116365" },
+            { "slot": "LG", "rank": 1, "name": "Robert Jones",    "gsisId": "00-0036596", "espnId": "4051305" },
+            { "slot": "C",  "rank": 1, "name": "Jake Brendel",    "gsisId": "00-0032701", "espnId": "2578355" },
+            { "slot": "RG", "rank": 1, "name": "Dominick Puni",   "gsisId": "00-0039351", "espnId": "4429795" },
+            { "slot": "RT", "rank": 1, "name": "Colton McKivitz", "gsisId": "00-0036256", "espnId": "3921690" },
+            { "slot": "LT", "rank": 2, "name": "Austen Pleasants","gsisId": "00-0035829", "espnId": "3912092" }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+**Field semantics:**
+- `week` — ISO-8601 week key of `dt` (`YYYY-Www`); `date`/`dt` — the chosen (max) upstream
+  timestamp for that week. States sorted ascending by `dt`; `ol` sorted slot order
+  (LT,LG,C,RG,RT) then `rank`.
+- Captured rows: upstream offense rows with `pos_abb ∈ {LT, LG, C, RG, RT}` — all ranks kept
+  (starters and depth; rank is data, never pre-filtered). Skill/defense/ST rows are dropped —
+  loss-free, upstream archives the full chart.
+- **`gsisId`/`espnId` — verbatim strings, format NOT validated:** UDFAs carry non-gsis
+  placeholder ids upstream (observed `"WIL597533"`, `"CRU840186"`). Null when upstream empty.
+- **No sleeper_id re-key** — OL are largely absent from the DynastyProcess crosswalk
+  (fantasy-oriented); joins are name/gsis-based later if ever needed. Keeps the family free of
+  the playerids Action-ordering dependency (teamcontext precedent).
+
+**Sparsity gate (`MIN_OLINE_ROWS = 160`):** ≈430 OL entries per full week across 32 teams; 160 ≈
+one thin week — high enough to catch a truncated/preliminary fetch.
+
+**`inProgress: false` (always — Invariant 5):** like the other nflverse families, the app has no
+live fallback; weekly mutation is handled by content-hash dedup + `lastModified`-driven cache
+invalidation. **Capture-only: no loader exists or is planned today.**
+
+**Weekly refresh:** `nflverse-oline.yml` runs Saturday 14:37 UTC (pre-Sunday state, off-the-hour
+— gamelogs Sat 13:47, playerstate Sat 14:11).
+
+```sh
+node bin/update.mjs oline --year 2025
+node bin/update.mjs oline --year 2025 --dry-run
+node bin/update.mjs oline            # current season
+node bin/update.mjs oline --all      # backfill ESPN-era seasons ≥ 2025
+```
+
+---
+
 ### `raw/<name>.json`
 
 Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
@@ -852,6 +934,11 @@ node bin/update.mjs teamcontext --all   # backfill ≥ 2012
 # Capture a weekly Sleeper players-state snapshot (status/injury/depth), date-keyed
 node bin/update.mjs playerstate
 
+# Fetch nflverse OL composition per team-week (ESPN depth charts), TEAM-keyed
+node bin/update.mjs oline --year 2025
+node bin/update.mjs oline               # current season
+node bin/update.mjs oline --all         # backfill ESPN-era seasons ≥ 2025
+
 # Dry-run any subcommand (fetch + validate, no writes)
 # --dry-run also suppresses per-iteration fetch progress (the NFL week loop and
 #   KTC page loop); real (non-dry-run) ingests still print full progress.
@@ -866,14 +953,16 @@ node bin/update.mjs schedule --year 2023 --dry-run
 node bin/update.mjs gamelogs --year 2023 --dry-run
 node bin/update.mjs teamcontext --year 2023 --dry-run
 node bin/update.mjs playerstate --dry-run
+node bin/update.mjs oline --year 2025 --dry-run
 
-# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext)
+# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext/oline)
 node bin/update.mjs nfl --year 2023 --force
 node bin/update.mjs roster --year 2024 --force
 node bin/update.mjs advstats --year 2023 --force
 node bin/update.mjs schedule --year 2023 --force
 node bin/update.mjs gamelogs --year 2023 --force
 node bin/update.mjs teamcontext --year 2023 --force
+node bin/update.mjs oline --year 2025 --force
 ```
 
 ### Environment variables
@@ -890,7 +979,7 @@ Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actio
 npm run smoke
 ```
 
-Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs/teamcontext/playerstate (no writes), validates enrichment, and runs the grade self-test. The smoke-test CI workflow runs a subset on pull requests (`npm test` + nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs + enrichment validation), not `npm run smoke` itself.
+Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs/teamcontext/playerstate/oline (no writes), validates enrichment, and runs the grade self-test. The smoke-test CI workflow runs a subset on pull requests (`npm test` + nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs + enrichment validation), not `npm run smoke` itself.
 
 ### GitHub Actions
 
@@ -905,6 +994,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `nflverse-gamelogs.yml` | Saturday 13:47 UTC + `workflow_dispatch` | Runs `node bin/update.mjs gamelogs` (current season, after playerids), commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-teamcontext.yml` | Sunday 13:53 UTC + `workflow_dispatch` | Runs `node bin/update.mjs teamcontext` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `weekly-playerstate.yml` | Saturday 14:11 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstate`; content-hash dedup (excluding churning `newsUpdated`/`searchRank` fields); commits the new dated snapshot if changed, purges jsDelivr CDN cache |
+| `nflverse-oline.yml` | Saturday 14:37 UTC + `workflow_dispatch` | Runs `node bin/update.mjs oline` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `cron-deadman.yml` | Daily 05:19 UTC + push to `main` + `workflow_dispatch` | Runs `node bin/deadman.mjs`; monitoring only — no writes, no manifest touch |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
 

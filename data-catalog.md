@@ -25,7 +25,7 @@ header-compatible (column lookup by name; 2025 adds one additive `game_id` colum
 does not affect served shape — it is recorded here so provenance stays honest, not silent. See each
 family's Source + provenance field below for the per-family detail.
 
-_Last reconciled against manifest.json: 2026-07-18_
+_Last reconciled against manifest.json: 2026-07-21_
 
 ---
 
@@ -188,6 +188,18 @@ _Last reconciled against manifest.json: 2026-07-18_
 - **Null semantics:** rates null on zero denominator (never fabricated); a bye week is an absent row (no placeholder); components + rate both stored — rates never summable, only recomputed from summed components (season-figure recipes documented alongside the served family in README.md)
 - **Consumption:** banked view-only until the app loader ships; the projection-engine refactor consumes it later under its own task
 - **Keep-rationale:** cross-position context substrate — PROE (pass-tilt), pace, red-zone tendencies (kicker/TD-scorer equity), and defense-faced EPA splits (pass-funnel/run-funnel) condition every position's projection, not just one
+
+## nflverse oline (OL composition, ESPN depth charts)
+- **Served path / subcommand / refresh:** `nflverse/oline/<year>.json`; `bin/update.mjs oline [--year|--all]`; Saturday Action
+- **Source + provenance:** nflverse `depth_charts` release (ESPN feed), `depth_charts_<year>.csv`. Pre-2025 assets (`depth_charts_2024.csv` and earlier) use a different legacy NFL-feed schema entirely (`season,club_code,week,…,depth_position`) and are deliberately unparsed
+- **Grain:** team × ISO-week × slot-rank — one state per (team, ISO-week), reduced from upstream's near-daily cadence by keeping only the week's max-`dt` chart (loss-free; upstream retains the full daily history)
+- **Join id(s):** team abbr (schedule-domain, current 32 codes only — ESPN era needs no historical era remap); `gsisId`/`espnId` verbatim per OL entry, no sleeper_id re-key (OL are largely absent from the DynastyProcess crosswalk)
+- **Coverage:** 2025 → present (`MIN_OLINE_SEASON`); pre-2025 exists upstream in the legacy schema, unparsed, reconstructable later
+- **schemaVersion:** 1
+- **Sparsity gate:** `MIN_OLINE_ROWS = 160` (internal — see CLAUDE.md Cross-repo contracts note; no app counterpart)
+- **Null semantics:** absent week = no chart published that week (honest-null, never fabricated); `gsisId`/`espnId` null when upstream empty; placeholder ids (e.g. `"WIL597533"`) kept verbatim, format not validated
+- **Consumption:** capture-only — no app, projection, grading, or backtest path reads this family
+- **Keep-rationale:** forward-capture insurance for OL composition/depth signal; Sleeper cannot express OL slots (0 of 510 OL records carry a depth-chart slot), so this is the only mechanical source for this signal
 
 ## Sleeper players-state (weekly status/injury/depth capture)
 - **Served path / subcommand / refresh:** `nfl/players-state/<date>.json`; `bin/update.mjs playerstate`; Saturday Action
