@@ -41,6 +41,52 @@ function fixtureResult() {
   return aggregateOlineStates(FIXTURE_CSV, { season: 2025 });
 }
 
+// ─── bulk teams helper (for validateOline tests that must clear MIN_OLINE_ROWS) ─────
+// validateOline's sparsity floor operates on the post-drop row count, so any test that
+// wants to observe drop-and-warn behavior (rather than the floor firing) needs enough
+// surviving valid rows. Each generated state holds one valid entry per OLINE_SLOTS slot
+// (rank 1, unique per state) — states never collide on (slot, rank) internally.
+
+const TEAMS_32 = [
+  'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE', 'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND',
+  'JAX', 'KC', 'LA', 'LAC', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG', 'NYJ', 'PHI', 'PIT', 'SEA', 'SF',
+  'TB', 'TEN', 'WAS',
+];
+
+function makeBulkTeams(totalRows) {
+  const teams = {};
+  let remaining = totalRows;
+  let day = 0;
+  while (remaining > 0) {
+    const team = TEAMS_32[day % TEAMS_32.length];
+    const rowsThisState = Math.min(OLINE_SLOTS.length, remaining);
+    const dt = `2025-08-${String(1 + (day % 27)).padStart(2, '0')}T09:00:00Z`;
+    const ol = OLINE_SLOTS.slice(0, rowsThisState).map(slot => ({
+      slot, rank: 1, name: `Player ${team}-${day}-${slot}`, gsisId: null, espnId: null,
+    }));
+    (teams[team] ??= { states: [] }).states.push({
+      week: `2025-W${String(1 + (day % 52)).padStart(2, '0')}`,
+      date: dt.slice(0, 10),
+      dt,
+      ol,
+    });
+    remaining -= rowsThisState;
+    day++;
+  }
+  return teams;
+}
+
+function withWarnSpy(fn) {
+  const calls = [];
+  const original = console.warn;
+  console.warn = (...args) => calls.push(args.join(' '));
+  try {
+    fn(calls);
+  } finally {
+    console.warn = original;
+  }
+}
+
 // ─── Aggregation shape ───────────────────────────────────────────────────────
 
 test('aggregateOlineStates: shape — teams/states/ol per schema; WR row dropped; slot-then-rank order', () => {
@@ -108,7 +154,11 @@ test('aggregateOlineStates: placeholder gsisId kept verbatim; validateOline pass
   const entry = weekA.ol.find(e => e.slot === 'LT' && e.rank === 2);
   assert.equal(entry.gsisId, 'WIL597533');
 
-  assert.doesNotThrow(() => validateOline(teams, { year: 2025 }));
+  // Pad with bulk valid rows so the MIN_OLINE_ROWS floor doesn't fire — this test targets
+  // the placeholder-id acceptance, not the sparsity gate.
+  const padded = makeBulkTeams(MIN_OLINE_ROWS);
+  padded.SF.states.push(...teams.SF.states);
+  assert.doesNotThrow(() => validateOline(padded, { year: 2025 }));
 });
 
 // ─── Wrong-asset guard ───────────────────────────────────────────────────────
@@ -134,31 +184,89 @@ function makeState(ol) {
   return { states: [{ week: '2025-W31', date: '2025-08-03', dt: '2025-08-03T09:00:00Z', ol }] };
 }
 
-test('validateOline: throws on duplicate (slot,rank) within one state', () => {
-  const teams = {
-    SF: makeState([
-      { slot: 'LT', rank: 1, name: 'A', gsisId: null, espnId: null },
-      { slot: 'LT', rank: 1, name: 'B', gsisId: null, espnId: null },
-    ]),
-  };
-  assert.throws(() => validateOline(teams, { year: 2025 }), /duplicate/);
+test('validateOline: drops the second of a duplicate (slot,rank) pair within one state — capture proceeds', () => {
+  const teams = makeBulkTeams(MIN_OLINE_ROWS);
+  const state = teams.SF.states[0];
+  const originalLen = state.ol.length;
+  // state.ol[0] is LT rank1 — push a colliding duplicate.
+  state.ol.push({ slot: state.ol[0].slot, rank: state.ol[0].rank, name: 'Duplicate', gsisId: null, espnId: null });
+
+  withWarnSpy((calls) => {
+    assert.doesNotThrow(() => validateOline(teams, { year: 2025 }));
+    assert.ok(calls.some(c => /duplicate/.test(c)), 'expected a duplicate-slot-rank warning');
+  });
+  assert.equal(state.ol.length, originalLen, 'duplicate entry must be dropped, not the original');
+  assert.ok(!state.ol.some(e => e.name === 'Duplicate'));
 });
 
-test('validateOline: throws on invalid slot', () => {
-  const teams = {
-    SF: makeState([{ slot: 'QB', rank: 1, name: 'A', gsisId: null, espnId: null }]),
-  };
-  assert.throws(() => validateOline(teams, { year: 2025 }), /invalid slot/);
+test('validateOline: drops an entry with an invalid slot — capture proceeds', () => {
+  const teams = makeBulkTeams(MIN_OLINE_ROWS);
+  const state = teams.SF.states[0];
+  const originalLen = state.ol.length;
+  state.ol.push({ slot: 'QB', rank: 1, name: 'Bad Slot', gsisId: null, espnId: null });
+
+  withWarnSpy((calls) => {
+    assert.doesNotThrow(() => validateOline(teams, { year: 2025 }));
+    assert.ok(calls.some(c => /invalid slot/.test(c)), 'expected an invalid-slot warning');
+  });
+  assert.equal(state.ol.length, originalLen);
+  assert.ok(!state.ol.some(e => e.name === 'Bad Slot'));
 });
 
-test('validateOline: throws on empty ol[]', () => {
-  const teams = { SF: makeState([]) };
-  assert.throws(() => validateOline(teams, { year: 2025 }), /empty ol/);
+test('validateOline: a state with empty ol[] contributes zero rows and does not itself throw', () => {
+  const teams = makeBulkTeams(MIN_OLINE_ROWS);
+  teams.SF.states.push({ week: '2025-W99', date: '2025-12-01', dt: '2025-12-01T00:00:00Z', ol: [] });
+  assert.doesNotThrow(() => validateOline(teams, { year: 2025 }));
 });
 
 test('validateOline: throws on team key outside the 32-team domain', () => {
   const teams = { XX: makeState([{ slot: 'LT', rank: 1, name: 'A', gsisId: null, espnId: null }]) };
   assert.throws(() => validateOline(teams, { year: 2025 }), /schedule domain/);
+});
+
+// ─── Per-record drop-and-warn (empty/missing name) ───────────────────────────
+
+test('validateOline: a record with an empty player name is dropped with a warning; capture succeeds', () => {
+  const teams = makeBulkTeams(MIN_OLINE_ROWS + 5);
+  const state = teams.SF.states[0];
+  const originalTotal = Object.values(teams).reduce(
+    (s, t) => s + t.states.reduce((s2, st) => s2 + st.ol.length, 0), 0
+  );
+  // Mirrors the observed live defect: an ESPN row with an espnId but empty player_name/gsisId.
+  state.ol.push({ slot: 'RT', rank: 2, name: '', gsisId: null, espnId: '13013' });
+
+  withWarnSpy((calls) => {
+    assert.doesNotThrow(() => validateOline(teams, { year: 2025 }));
+    assert.ok(
+      calls.some(c => /empty\/missing player name/.test(c)),
+      'expected an empty-name drop warning'
+    );
+  });
+
+  assert.ok(!state.ol.some(e => e.espnId === '13013'), 'the empty-name record must be absent');
+  const finalTotal = Object.values(teams).reduce(
+    (s, t) => s + t.states.reduce((s2, st) => s2 + st.ol.length, 0), 0
+  );
+  assert.equal(finalTotal, originalTotal, 'only the bad record should have been dropped');
+});
+
+test('validateOline: throws when enough dropped records push the total below MIN_OLINE_ROWS', () => {
+  const teams = makeBulkTeams(MIN_OLINE_ROWS + 5);
+  // Empty out names on 10 valid entries scattered across the first two states — leaves the
+  // surviving total at (MIN_OLINE_ROWS + 5 - 10), below the floor.
+  let blanked = 0;
+  outer:
+  for (const t of Object.values(teams)) {
+    for (const state of t.states) {
+      for (const entry of state.ol) {
+        if (blanked >= 10) break outer;
+        entry.name = '';
+        blanked++;
+      }
+    }
+  }
+  assert.equal(blanked, 10);
+  assert.throws(() => validateOline(teams, { year: 2025 }), /expected ≥ \d+/);
 });
 
 // ─── Sparsity ────────────────────────────────────────────────────────────────
