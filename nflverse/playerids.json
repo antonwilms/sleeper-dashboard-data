@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-08T15:38:55.110Z",
+  "generatedAt": "2026-07-22T15:18:38.562Z",
   "sourceSeason": 2026,
-  "rowCount": 6148,
+  "rowCount": 6149,
   "ids": {
     "MEN516487": {
       "sleeperId": "13269",
@@ -658,6 +658,11 @@
       "sleeperId": "13508",
       "name": "Hezekiah Masses",
       "position": "CB"
+    },
+    "PAY546690": {
+      "sleeperId": "13335",
+      "name": "Cole Payton",
+      "position": "QB"
     },
     "TRA291459": {
       "sleeperId": "13429",
