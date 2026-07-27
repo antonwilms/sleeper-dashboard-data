@@ -1052,10 +1052,16 @@
       "recordCount": 1015,
       "inProgress": false,
       "lastModified": "2026-07-25T15:17:54.625Z"
+    },
+    "ktc/snapshot-2026-07-27.json": {
+      "schemaVersion": 1,
+      "recordCount": 499,
+      "inProgress": true,
+      "lastModified": "2026-07-27T15:50:26.085Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-07-25T15:44:06.105Z"
+  "generatedAt": "2026-07-27T15:50:26.085Z"
 }
