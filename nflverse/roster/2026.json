@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "season": 2026,
-  "generatedAt": "2026-06-16T18:12:20.946Z",
-  "rowCount": 1636,
+  "generatedAt": "2026-07-28T15:39:39.758Z",
+  "rowCount": 1645,
   "players": {
     "19": {
       "team": "CIN",
@@ -9819,6 +9819,60 @@
       "position": "P",
       "status": "ACT",
       "fullName": "Kai Kroeger"
+    },
+    "13314": {
+      "team": "DET",
+      "position": "QB",
+      "status": "ACT",
+      "fullName": "Luke Altmyer"
+    },
+    "13388": {
+      "team": "IND",
+      "position": "LB",
+      "status": "ACT",
+      "fullName": "C.J. Allen"
+    },
+    "13402": {
+      "team": "BUF",
+      "position": "WR",
+      "status": "ACT",
+      "fullName": "Skyler Bell"
+    },
+    "13405": {
+      "team": "WAS",
+      "position": "RB",
+      "status": "ACT",
+      "fullName": "Kaytron Allen"
+    },
+    "13413": {
+      "team": "KC",
+      "position": "WR",
+      "status": "ACT",
+      "fullName": "Cyrus Allen"
+    },
+    "13516": {
+      "team": "MIN",
+      "position": "RB",
+      "status": "ACT",
+      "fullName": "Max Bredeson"
+    },
+    "13527": {
+      "team": "LAC",
+      "position": "DL",
+      "status": "ACT",
+      "fullName": "Nick Barrett"
+    },
+    "13584": {
+      "team": "BAL",
+      "position": "DL",
+      "status": "ACT",
+      "fullName": "Rayshaun Benny"
+    },
+    "13593": {
+      "team": "DEN",
+      "position": "LB",
+      "status": "ACT",
+      "fullName": "Taurean York"
     }
   }
 }
