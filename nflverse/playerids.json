@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-29T15:24:12.922Z",
+  "generatedAt": "2026-08-05T15:33:22.489Z",
   "sourceSeason": 2026,
-  "rowCount": 5978,
+  "rowCount": 6154,
   "ids": {
     "MEN516487": {
       "sleeperId": "13269",
@@ -14,9 +14,29 @@
       "name": "Ty Simpson",
       "position": "QB"
     },
+    "00-0040906": {
+      "sleeperId": "13404",
+      "name": "Garrett Nussmeier",
+      "position": "QB"
+    },
+    "00-0041561": {
+      "sleeperId": "13272",
+      "name": "Carson Beck",
+      "position": "QB"
+    },
+    "00-0041056": {
+      "sleeperId": "13303",
+      "name": "Cade Klubnik",
+      "position": "QB"
+    },
     "ALL015451": {
       "sleeperId": "13289",
       "name": "Drew Allar",
+      "position": "QB"
+    },
+    "00-0041251": {
+      "sleeperId": "13425",
+      "name": "Jalon Daniels",
       "position": "QB"
     },
     "00-0041453": {
@@ -24,9 +44,49 @@
       "name": "Luke Altmyer",
       "position": "QB"
     },
+    "00-0041027": {
+      "sleeperId": "13287",
+      "name": "Jeremiyah Love",
+      "position": "RB"
+    },
+    "00-0041512": {
+      "sleeperId": "13286",
+      "name": "Jadarian Price",
+      "position": "RB"
+    },
+    "00-0041013": {
+      "sleeperId": "13337",
+      "name": "Emmett Johnson",
+      "position": "RB"
+    },
+    "00-0041125": {
+      "sleeperId": "13424",
+      "name": "Seth McGowan",
+      "position": "RB"
+    },
+    "00-0040886": {
+      "sleeperId": "13288",
+      "name": "Nicholas Singleton",
+      "position": "RB"
+    },
+    "00-0041496": {
+      "sleeperId": "13345",
+      "name": "Jonah Coleman",
+      "position": "RB"
+    },
     "00-0041096": {
       "sleeperId": "13405",
       "name": "Kaytron Allen",
+      "position": "RB"
+    },
+    "00-0040959": {
+      "sleeperId": "13419",
+      "name": "Jaydn Ott",
+      "position": "RB"
+    },
+    "00-0041104": {
+      "sleeperId": "13347",
+      "name": "Demond Claiborne",
       "position": "RB"
     },
     "WAS569019": {
@@ -34,9 +94,139 @@
       "name": "Mike Washington Jr.",
       "position": "RB"
     },
+    "00-0040998": {
+      "sleeperId": "13416",
+      "name": "Roman Hemby",
+      "position": "RB"
+    },
+    "00-0041052": {
+      "sleeperId": "13414",
+      "name": "Kaelon Black",
+      "position": "RB"
+    },
+    "00-0041129": {
+      "sleeperId": "13403",
+      "name": "Jam Miller",
+      "position": "RB"
+    },
+    "00-0041217": {
+      "sleeperId": "13348",
+      "name": "J'Mari Taylor",
+      "position": "RB"
+    },
+    "00-0041312": {
+      "sleeperId": "13437",
+      "name": "Noah Whittington",
+      "position": "RB"
+    },
+    "00-0041415": {
+      "sleeperId": "13315",
+      "name": "Dean Connors",
+      "position": "RB"
+    },
+    "00-0041326": {
+      "sleeperId": "13277",
+      "name": "CJ Donaldson",
+      "position": "RB"
+    },
+    "00-0041191": {
+      "sleeperId": "13595",
+      "name": "Cash Jones",
+      "position": "RB"
+    },
+    "00-0041438": {
+      "sleeperId": "13279",
+      "name": "Carnell Tate",
+      "position": "WR"
+    },
+    "00-0041029": {
+      "sleeperId": "13281",
+      "name": "Jordyn Tyson",
+      "position": "WR"
+    },
+    "00-0040867": {
+      "sleeperId": "13294",
+      "name": "Makai Lemon",
+      "position": "WR"
+    },
+    "00-0041037": {
+      "sleeperId": "13346",
+      "name": "Denzel Boston",
+      "position": "WR"
+    },
+    "00-0041547": {
+      "sleeperId": "13298",
+      "name": "KC Concepcion",
+      "position": "WR"
+    },
+    "00-0041511": {
+      "sleeperId": "13276",
+      "name": "Omar Cooper Jr.",
+      "position": "WR"
+    },
+    "00-0041489": {
+      "sleeperId": "13274",
+      "name": "Germie Bernard",
+      "position": "WR"
+    },
+    "00-0040876": {
+      "sleeperId": "13268",
+      "name": "Elijah Sarratt",
+      "position": "WR"
+    },
+    "00-0041525": {
+      "sleeperId": "13311",
+      "name": "Chris Bell",
+      "position": "WR"
+    },
+    "00-0041044": {
+      "sleeperId": "13320",
+      "name": "Zachariah Branch",
+      "position": "WR"
+    },
     "00-0041443": {
       "sleeperId": "13402",
       "name": "Skyler Bell",
+      "position": "WR"
+    },
+    "00-0041047": {
+      "sleeperId": "13353",
+      "name": "Chris Brazzell II",
+      "position": "WR"
+    },
+    "00-0041132": {
+      "sleeperId": "13333",
+      "name": "Deion Burks",
+      "position": "WR"
+    },
+    "00-0041042": {
+      "sleeperId": "13285",
+      "name": "Malachi Fields",
+      "position": "WR"
+    },
+    "00-0041040": {
+      "sleeperId": "13301",
+      "name": "Antonio Williams",
+      "position": "WR"
+    },
+    "00-0041035": {
+      "sleeperId": "13417",
+      "name": "De'Zhaun Stribling",
+      "position": "WR"
+    },
+    "00-0041257": {
+      "sleeperId": "13316",
+      "name": "Eric Rivers",
+      "position": "WR"
+    },
+    "00-0041491": {
+      "sleeperId": "13309",
+      "name": "Aaron Anderson",
+      "position": "WR"
+    },
+    "00-0040870": {
+      "sleeperId": "13293",
+      "name": "Ja'Kobi Lane",
       "position": "WR"
     },
     "00-0040890": {
@@ -44,39 +234,584 @@
       "name": "Cyrus Allen",
       "position": "WR"
     },
+    "00-0041067": {
+      "sleeperId": "13420",
+      "name": "Bryce Lance",
+      "position": "WR"
+    },
+    "00-0041048": {
+      "sleeperId": "13317",
+      "name": "Ted Hurst",
+      "position": "WR"
+    },
+    "00-0041051": {
+      "sleeperId": "13411",
+      "name": "Zavion Thomas",
+      "position": "WR"
+    },
+    "00-0041004": {
+      "sleeperId": "13410",
+      "name": "Chase Roberts",
+      "position": "WR"
+    },
+    "00-0040953": {
+      "sleeperId": "13392",
+      "name": "Jeff Caldwell",
+      "position": "WR"
+    },
+    "00-0041293": {
+      "sleeperId": "13336",
+      "name": "Dane Key",
+      "position": "WR"
+    },
+    "00-0041248": {
+      "sleeperId": "13318",
+      "name": "Noah Thomas",
+      "position": "WR"
+    },
+    "00-0041070": {
+      "sleeperId": "13297",
+      "name": "Reggie Virgil",
+      "position": "WR"
+    },
+    "00-0041100": {
+      "sleeperId": "13394",
+      "name": "Josh Cameron",
+      "position": "WR"
+    },
+    "00-0041529": {
+      "sleeperId": "13338",
+      "name": "Kevin Coleman",
+      "position": "WR"
+    },
+    "00-0041550": {
+      "sleeperId": "13380",
+      "name": "Brenen Thompson",
+      "position": "WR"
+    },
+    "00-0041467": {
+      "sleeperId": "13541",
+      "name": "Lewis Bond",
+      "position": "WR"
+    },
+    "00-0041152": {
+      "sleeperId": "13708",
+      "name": "Kobe Prentice",
+      "position": "WR"
+    },
+    "00-0041216": {
+      "sleeperId": "13356",
+      "name": "Trebor Pena",
+      "position": "WR"
+    },
+    "00-0040912": {
+      "sleeperId": "13776",
+      "name": "Hank Beatty",
+      "position": "WR"
+    },
+    "00-0041179": {
+      "sleeperId": "13674",
+      "name": "Chris Hilton Jr.",
+      "position": "WR"
+    },
+    "00-0041099": {
+      "sleeperId": "13533",
+      "name": "Barion Brown",
+      "position": "WR"
+    },
+    "00-0041069": {
+      "sleeperId": "13477",
+      "name": "Colbie Young",
+      "position": "WR"
+    },
+    "00-0041032": {
+      "sleeperId": "13330",
+      "name": "Kenyon Sadiq",
+      "position": "TE"
+    },
+    "00-0041483": {
+      "sleeperId": "13349",
+      "name": "Eli Stowers",
+      "position": "TE"
+    },
+    "00-0041116": {
+      "sleeperId": "13282",
+      "name": "Jack Endries",
+      "position": "TE"
+    },
+    "00-0040939": {
+      "sleeperId": "13401",
+      "name": "Michael Trigg",
+      "position": "TE"
+    },
+    "00-0041510": {
+      "sleeperId": "13278",
+      "name": "Max Klare",
+      "position": "TE"
+    },
+    "00-0041077": {
+      "sleeperId": "13400",
+      "name": "Justin Joly",
+      "position": "TE"
+    },
+    "00-0041558": {
+      "sleeperId": "13322",
+      "name": "Sam Roush",
+      "position": "TE"
+    },
+    "00-0041036": {
+      "sleeperId": "13455",
+      "name": "T.J. Parker",
+      "position": "DE"
+    },
+    "00-0041509": {
+      "sleeperId": "13377",
+      "name": "Arvell Reese",
+      "position": "LB"
+    },
+    "00-0041028": {
+      "sleeperId": "13375",
+      "name": "Sonny Styles",
+      "position": "LB"
+    },
     "00-0041039": {
       "sleeperId": "13388",
       "name": "CJ Allen",
       "position": "LB"
+    },
+    "00-0040922": {
+      "sleeperId": "13591",
+      "name": "Deontae Lawson",
+      "position": "LB"
+    },
+    "00-0041479": {
+      "sleeperId": "13365",
+      "name": "Anthony Hill Jr.",
+      "position": "LB"
+    },
+    "00-0041087": {
+      "sleeperId": "13435",
+      "name": "Joe Royer",
+      "position": "TE"
+    },
+    "00-0041041": {
+      "sleeperId": "13319",
+      "name": "Oscar Delp",
+      "position": "TE"
+    },
+    "00-0041495": {
+      "sleeperId": "13391",
+      "name": "Jake Golday",
+      "position": "LB"
+    },
+    "00-0041527": {
+      "sleeperId": "13479",
+      "name": "Kyle Louis",
+      "position": "LB"
+    },
+    "00-0041033": {
+      "sleeperId": "13445",
+      "name": "Caleb Banks",
+      "position": "DT"
     },
     "JAC003008": {
       "sleeperId": "13457",
       "name": "Gabe Jacas",
       "position": "DE"
     },
+    "00-0041522": {
+      "sleeperId": "13453",
+      "name": "Jacob Rodriguez",
+      "position": "LB"
+    },
+    "00-0041441": {
+      "sleeperId": "13458",
+      "name": "Derrick Moore",
+      "position": "DE"
+    },
+    "00-0041494": {
+      "sleeperId": "13460",
+      "name": "Zion Young",
+      "position": "DE"
+    },
+    "00-0041502": {
+      "sleeperId": "13379",
+      "name": "Josiah Trotter",
+      "position": "LB"
+    },
+    "00-0041503": {
+      "sleeperId": "13299",
+      "name": "Nate Boerkircher",
+      "position": "TE"
+    },
+    "00-0041391": {
+      "sleeperId": "13454",
+      "name": "Davison Igbinosun",
+      "position": "CB"
+    },
+    "00-0041472": {
+      "sleeperId": "13307",
+      "name": "Marlin Klein",
+      "position": "TE"
+    },
+    "00-0041552": {
+      "sleeperId": "13472",
+      "name": "Tyler Onyedim",
+      "position": "DT"
+    },
+    "00-0041553": {
+      "sleeperId": "13466",
+      "name": "Keyron Crawford",
+      "position": "DE"
+    },
+    "00-0041464": {
+      "sleeperId": "13469",
+      "name": "Tacario Davis",
+      "position": "CB"
+    },
+    "00-0041523": {
+      "sleeperId": "13296",
+      "name": "Caleb Douglas",
+      "position": "WR"
+    },
+    "00-0040869": {
+      "sleeperId": "13468",
+      "name": "Chris McClellan",
+      "position": "DT"
+    },
+    "00-0041045": {
+      "sleeperId": "13476",
+      "name": "Albert Regis",
+      "position": "DT"
+    },
+    "00-0041046": {
+      "sleeperId": "13464",
+      "name": "Domonique Orange",
+      "position": "DT"
+    },
+    "00-0041393": {
+      "sleeperId": "13470",
+      "name": "Daylen Everette",
+      "position": "CB"
+    },
+    "00-0041524": {
+      "sleeperId": "13434",
+      "name": "Will Kacmarek",
+      "position": "TE"
+    },
+    "00-0040872": {
+      "sleeperId": "13381",
+      "name": "Jaishawn Barham",
+      "position": "LB"
+    },
+    "00-0041395": {
+      "sleeperId": "13421",
+      "name": "Eli Raridon",
+      "position": "TE"
+    },
+    "00-0041549": {
+      "sleeperId": "13504",
+      "name": "Darrell Jackson",
+      "position": "DT"
+    },
+    "00-0041555": {
+      "sleeperId": "13503",
+      "name": "Kaleb Proctor",
+      "position": "DT"
+    },
     "00-0041557": {
       "sleeperId": "13501",
       "name": "Gracen Halton",
       "position": "DT"
+    },
+    "00-0041497": {
+      "sleeperId": "13500",
+      "name": "Jadon Canady",
+      "position": "CB"
+    },
+    "00-0040875": {
+      "sleeperId": "13496",
+      "name": "Devin Moore",
+      "position": "CB"
+    },
+    "00-0041442": {
+      "sleeperId": "13494",
+      "name": "Jimmy Rolder",
+      "position": "LB"
+    },
+    "00-0041059": {
+      "sleeperId": "13493",
+      "name": "Wesley Williams",
+      "position": "DE"
+    },
+    "00-0040877": {
+      "sleeperId": "13492",
+      "name": "Dani Dennis-Sutton",
+      "position": "DE"
+    },
+    "00-0041397": {
+      "sleeperId": "13491",
+      "name": "Kaden Wetjen",
+      "position": "WR"
+    },
+    "00-0041465": {
+      "sleeperId": "13490",
+      "name": "Wade Woodaz",
+      "position": "LB"
+    },
+    "00-0041060": {
+      "sleeperId": "13489",
+      "name": "Malik Muhammad",
+      "position": "CB"
+    },
+    "00-0041444": {
+      "sleeperId": "13488",
+      "name": "Kaleb Elarms-Orr",
+      "position": "LB"
+    },
+    "00-0041063": {
+      "sleeperId": "13485",
+      "name": "Will Lee",
+      "position": "CB"
+    },
+    "00-0041066": {
+      "sleeperId": "13482",
+      "name": "Kendal Daniels",
+      "position": "LB"
+    },
+    "00-0041518": {
+      "sleeperId": "13481",
+      "name": "Bryce Boettcher",
+      "position": "LB"
+    },
+    "00-0040880": {
+      "sleeperId": "13480",
+      "name": "LT Overton",
+      "position": "DE"
+    },
+    "00-0041068": {
+      "sleeperId": "13478",
+      "name": "Ephesians Prysock",
+      "position": "CB"
     },
     "00-0041072": {
       "sleeperId": "13527",
       "name": "Nick Barrett",
       "position": "DT"
     },
+    "00-0041075": {
+      "sleeperId": "13524",
+      "name": "Justin Jefferson",
+      "position": "LB"
+    },
+    "00-0041078": {
+      "sleeperId": "13520",
+      "name": "Jaden Dugger",
+      "position": "LB"
+    },
+    "00-0041079": {
+      "sleeperId": "13519",
+      "name": "DeMonte Capehart",
+      "position": "DT"
+    },
+    "00-0041080": {
+      "sleeperId": "13518",
+      "name": "George Gumbs",
+      "position": "DE"
+    },
     "00-0041081": {
       "sleeperId": "13516",
       "name": "Max Bredeson",
       "position": "TE"
+    },
+    "00-0040885": {
+      "sleeperId": "13514",
+      "name": "Chandler Rivers",
+      "position": "CB"
+    },
+    "00-0041083": {
+      "sleeperId": "13513",
+      "name": "Charles Demmings",
+      "position": "CB"
+    },
+    "00-0041084": {
+      "sleeperId": "13408",
+      "name": "Tanner Koziol",
+      "position": "TE"
+    },
+    "00-0041085": {
+      "sleeperId": "13512",
+      "name": "Keyshaun Elliott",
+      "position": "LB"
     },
     "LAW090280": {
       "sleeperId": "13412",
       "name": "Kendrick Law",
       "position": "WR"
     },
+    "00-0041398": {
+      "sleeperId": "13433",
+      "name": "Riley Nowakowski",
+      "position": "TE"
+    },
+    "00-0040887": {
+      "sleeperId": "13273",
+      "name": "Josh Cuevas",
+      "position": "TE"
+    },
+    "00-0040888": {
+      "sleeperId": "13302",
+      "name": "Adam Randall",
+      "position": "RB"
+    },
+    "00-0040889": {
+      "sleeperId": "13508",
+      "name": "Hezekiah Masses",
+      "position": "CB"
+    },
+    "00-0040891": {
+      "sleeperId": "13335",
+      "name": "Cole Payton",
+      "position": "QB"
+    },
     "TRA291459": {
       "sleeperId": "13429",
       "name": "Seydou Traore",
+      "position": "TE"
+    },
+    "00-0041091": {
+      "sleeperId": "13506",
+      "name": "Zane Durant",
+      "position": "DT"
+    },
+    "00-0041092": {
+      "sleeperId": "13306",
+      "name": "Taylen Green",
+      "position": "QB"
+    },
+    "00-0041093": {
+      "sleeperId": "13551",
+      "name": "Karson Sharar",
+      "position": "LB"
+    },
+    "00-0041094": {
+      "sleeperId": "13308",
+      "name": "Bauer Sharp",
+      "position": "TE"
+    },
+    "00-0041102": {
+      "sleeperId": "13531",
+      "name": "Jack Kelly",
+      "position": "LB"
+    },
+    "00-0041484": {
+      "sleeperId": "13552",
+      "name": "Anterio Thompson",
+      "position": "DT"
+    },
+    "00-0041109": {
+      "sleeperId": "13542",
+      "name": "Namdi Obiazor",
+      "position": "LB"
+    },
+    "00-0041112": {
+      "sleeperId": "13555",
+      "name": "Harold Perkins",
+      "position": "LB"
+    },
+    "00-0040895": {
+      "sleeperId": "13313",
+      "name": "Emmanuel Henderson",
+      "position": "WR"
+    },
+    "00-0040896": {
+      "sleeperId": "13544",
+      "name": "Domani Jackson",
+      "position": "CB"
+    },
+    "00-0041106": {
+      "sleeperId": "13554",
+      "name": "C.J. Williams",
+      "position": "WR"
+    },
+    "00-0041447": {
+      "sleeperId": "13547",
+      "name": "Skyler Gill-Howard",
+      "position": "DT"
+    },
+    "00-0040900": {
+      "sleeperId": "13582",
+      "name": "Anthony Smith",
+      "position": "WR"
+    },
+    "00-0041114": {
+      "sleeperId": "13556",
+      "name": "TJ Hall",
+      "position": "CB"
+    },
+    "00-0041115": {
+      "sleeperId": "13569",
+      "name": "Toriano Pride",
+      "position": "CB"
+    },
+    "00-0041448": {
+      "sleeperId": "13575",
+      "name": "Tyre West",
+      "position": "DT"
+    },
+    "00-0041117": {
+      "sleeperId": "13557",
+      "name": "Athan Kaliakmanis",
+      "position": "QB"
+    },
+    "00-0040901": {
+      "sleeperId": "13422",
+      "name": "Jaren Kanak",
+      "position": "TE"
+    },
+    "00-0041119": {
+      "sleeperId": "13586",
+      "name": "Jackson Kuwatch",
+      "position": "LB"
+    },
+    "00-0041490": {
+      "sleeperId": "13423",
+      "name": "Eli Heidenreich",
+      "position": "RB"
+    },
+    "00-0041534": {
+      "sleeperId": "13558",
+      "name": "Tim Keenan",
+      "position": "DT"
+    },
+    "00-0041122": {
+      "sleeperId": "13588",
+      "name": "Zach Durfee",
+      "position": "DE"
+    },
+    "00-0041531": {
+      "sleeperId": "13566",
+      "name": "Max Llewellyn",
+      "position": "DE"
+    },
+    "00-0040904": {
+      "sleeperId": "13563",
+      "name": "Deven Eastern",
+      "position": "DT"
+    },
+    "00-0041449": {
+      "sleeperId": "13572",
+      "name": "Aiden Fisher",
+      "position": "LB"
+    },
+    "00-0041402": {
+      "sleeperId": "13573",
+      "name": "Quintayvious Hutchins",
+      "position": "DE"
+    },
+    "00-0041131": {
+      "sleeperId": "13580",
+      "name": "Carsen Ryan",
       "position": "TE"
     },
     "00-0040907": {
@@ -84,10 +819,155 @@
       "name": "Rayshaun Benny",
       "position": "DT"
     },
+    "00-0041133": {
+      "sleeperId": "13577",
+      "name": "Dallen Bentley",
+      "position": "TE"
+    },
+    "00-0041134": {
+      "sleeperId": "13579",
+      "name": "Red Murdock",
+      "position": "LB"
+    },
+    "00-0041123": {
+      "sleeperId": "13295",
+      "name": "Behren Morton",
+      "position": "QB"
+    },
+    "00-0040903": {
+      "sleeperId": "13565",
+      "name": "Andre Fuller",
+      "position": "CB"
+    },
+    "00-0040908": {
+      "sleeperId": "13562",
+      "name": "Keyshawn James-Newby",
+      "position": "DE"
+    },
+    "00-0040894": {
+      "sleeperId": "13329",
+      "name": "Malik Benson",
+      "position": "WR"
+    },
+    "00-0040948": {
+      "sleeperId": "13770",
+      "name": "J Michael Sturdivant",
+      "position": "WR"
+    },
+    "00-0041350": {
+      "sleeperId": "13291",
+      "name": "Kejon Owens",
+      "position": "RB"
+    },
+    "00-0041178": {
+      "sleeperId": "13418",
+      "name": "Robert Henry",
+      "position": "RB"
+    },
+    "00-0040955": {
+      "sleeperId": "13342",
+      "name": "John Michael Gyllenborg",
+      "position": "TE"
+    },
+    "00-0041149": {
+      "sleeperId": "13415",
+      "name": "Haynes King",
+      "position": "QB"
+    },
     "00-0041301": {
       "sleeperId": "13593",
       "name": "Taurean York",
       "position": "LB"
+    },
+    "00-0041323": {
+      "sleeperId": "13964",
+      "name": "Myles Montgomery",
+      "position": "RB"
+    },
+    "00-0041244": {
+      "sleeperId": "13946",
+      "name": "Jamal Haynes",
+      "position": "RB"
+    },
+    "00-0041158": {
+      "sleeperId": "13409",
+      "name": "Donaven McCulley",
+      "position": "WR"
+    },
+    "00-0040927": {
+      "sleeperId": "13331",
+      "name": "Dae'Quan Wright",
+      "position": "TE"
+    },
+    "00-0040944": {
+      "sleeperId": "13771",
+      "name": "Nyjalik Kelly",
+      "position": "DE"
+    },
+    "00-0041403": {
+      "sleeperId": "13810",
+      "name": "Rohan Jones",
+      "position": "TE"
+    },
+    "00-0040964": {
+      "sleeperId": "13778",
+      "name": "EJ Smith",
+      "position": "RB"
+    },
+    "00-0040934": {
+      "sleeperId": "13325",
+      "name": "Jordan Hudson",
+      "position": "WR"
+    },
+    "00-0041422": {
+      "sleeperId": "13321",
+      "name": "Dan Villari",
+      "position": "TE"
+    },
+    "00-0041279": {
+      "sleeperId": "13601",
+      "name": "Logan Fano",
+      "position": "DE"
+    },
+    "00-0041199": {
+      "sleeperId": "13826",
+      "name": "Caullin Lacy",
+      "position": "WR"
+    },
+    "00-0040937": {
+      "sleeperId": "13725",
+      "name": "Dominic Richardson",
+      "position": "RB"
+    },
+    "00-0041165": {
+      "sleeperId": "13844",
+      "name": "Coleman Bennett",
+      "position": "RB"
+    },
+    "00-0041329": {
+      "sleeperId": "13643",
+      "name": "Michael Heldman",
+      "position": "DE"
+    },
+    "00-0041451": {
+      "sleeperId": "14034",
+      "name": "Brock Rechsteiner",
+      "position": "WR"
+    },
+    "00-0041185": {
+      "sleeperId": "13343",
+      "name": "Vinny Anthony",
+      "position": "WR"
+    },
+    "00-0040945": {
+      "sleeperId": "13430",
+      "name": "RJ Maryland",
+      "position": "TE"
+    },
+    "00-0041006": {
+      "sleeperId": "13895",
+      "name": "Cian Slone",
+      "position": "DE"
     },
     "00-0040676": {
       "sleeperId": "12522",
@@ -3242,7 +4122,7 @@
     "00-0039526": {
       "sleeperId": "12087",
       "name": "Emany Johnson",
-      "position": "S"
+      "position": "LB"
     },
     "00-0036775": {
       "sleeperId": "7865",
@@ -10087,7 +10967,7 @@
     "00-0036045": {
       "sleeperId": "7451",
       "name": "Cam Gill",
-      "position": "DE"
+      "position": "LB"
     },
     "00-0035783": {
       "sleeperId": "7188",
