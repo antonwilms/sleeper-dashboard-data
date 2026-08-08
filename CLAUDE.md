@@ -82,7 +82,7 @@ node bin/grade.mjs --self-test                          # fixture self-check (us
 
 npm shortcut: `npm run grade`.
 
-**Poisoned-snapshot window (2026-07-16 → 2026-07-18):** app snapshots written in this window carry ~½-scale `teamRzShare` and `shareVolatility` values, captured before the share-denominator fix (app, 2026-07-18) corrected the doubled `TEAM_*` denominator. These fields in that window are unreliable at absolute scale; exclude or correct them in the 2026 grading run.
+**Poisoned-snapshot window (2026-07-16 → 2026-07-18):** app snapshots written in this window carry ~½-scale `teamRzShare` and `shareVolatility` values, captured before the share-denominator fix (app, 2026-07-18) corrected the doubled `TEAM_*` denominator. These fields in that window are unreliable at absolute scale; exclude or correct them in the 2026 grading run. The same doubled-denominator root cause was present in `lib/panel.mjs` `buildTeamTotalsForSeason` and was corrected 2026-08-08 (entity filter); the retrospective E-0a/flip panels reconstruct from season-totals, not snapshots, so this corrects the panel builder, not the snapshot window (which stays a forward-grading exclusion).
 
 ### Backtest CLI — `bin/backtest.mjs`
 
@@ -164,10 +164,10 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `bin/grade.mjs` | Grading harness CLI — parses flags, dispatches to `gradeSnapshot()` or `runSelfTest()` |
 | `lib/grade.mjs` | Pure scorer — `scoreProjections(GradeInput) → GradeReport`; no I/O |
 | `bin/backtest.mjs` | Thin CLI over `scripts/backtest-run.mjs` — parses flags, dispatches `assembleCohort`/`runMetric`/`runValidate`, formats reports, `--write` to `backtests/` |
-| `lib/backtest.mjs` | Pure backtest stats (standardized OLS, quintiles, team totals); reuses `pearson` from `lib/grade.mjs`; no I/O; `solveOLS` accepts `{ ridgeLambda }`; exports `rankTransform`/`spearman` |
+| `lib/backtest.mjs` | Pure backtest stats (standardized OLS, quintiles, team totals); reuses `pearson` from `lib/grade.mjs`; no I/O; `solveOLS` accepts `{ ridgeLambda }`; exports `rankTransform`/`spearman`; exports `isTeamAggregateId` (TEAM_* pseudo-row filter) |
 | `bin/panel.mjs` | Thin CLI over `scripts/panel-run.mjs` — E-0a panel assembly + candidate grading, `--write` to `backtests/` + `grading/`; `--flip-gate` runs the R2 dual-mode attribution comparison |
 | `scripts/panel-run.mjs` | Panel orchestration adapter (injectable loaders; mirrors `scripts/backtest-run.mjs`); attribution-mode seam for R2; R2 flip-gate runner (`runFlipGate` — both modes, parity-gated, verdict per `.claude/tasks/r2-flip-gate.md`) |
-| `lib/panel.mjs` | Pure panel/fit logic — feature builders, forward-chain CV, ridge, spearman; no I/O |
+| `lib/panel.mjs` | Pure panel/fit logic — feature builders, forward-chain CV, ridge, spearman; no I/O; `buildTeamTotalsForSeason` excludes `TEAM_<abbr>` aggregate pseudo-rows (entity filter, mirror of app `isTeamAggregateId`) — unfiltered they doubled every team denominator |
 | `scripts/check-crons.mjs` | Cron dead-man detector logic — auto-discovers scheduled workflows (`extractCrons`/`listScheduledWorkflows`), classifies cadence (`cronCadence`), evaluates each against Actions API run evidence (`evaluateWorkflow`), orchestrates + reports (`runDeadman`); monitoring only, no I/O to data files |
 | `bin/deadman.mjs` | Thin CLI over `scripts/check-crons.mjs`; reads `GITHUB_REPOSITORY`/`GITHUB_TOKEN`, exits non-zero on any finding |
 | `backtests/` | Backtest reports written by `bin/backtest.mjs --write`, one JSON per metric/position run (analysis only — no manifest entry); also `<date>-e0a-{panel,fit}.json` from `bin/panel.mjs --write`; and `<date>-r2flip-{panel,fit}.json` from `--flip-gate --write` |

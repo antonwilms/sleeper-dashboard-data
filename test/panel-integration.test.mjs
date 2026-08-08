@@ -25,7 +25,8 @@ import {
   buildFlipVerdictMarkdown,
   buildMergedFlipPanel,
 } from '../scripts/panel-run.mjs';
-import { PANEL_POSITIONS, BASELINE_FEATURES, FLIP_VERDICTS } from '../lib/panel.mjs';
+import { PANEL_POSITIONS, BASELINE_FEATURES, FLIP_VERDICTS, teamKeyResolver, buildTeamTotalsForSeason } from '../lib/panel.mjs';
+import { readJson } from '../lib/io.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -397,5 +398,43 @@ describe('T-F8: committed r2flip artifact well-formedness', () => {
       const md = fs.readFileSync(f, 'utf8');
       assert.ok(md.includes('node bin/panel.mjs --flip-gate --write'), `${f}: contains the reproduce command`);
     }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-P5 — live-data spot check (R3-FIT precondition, panel-scale-fix §3.2)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('T-P5: live-data spot check — TEAM_* exclusion on a real season-totals file', () => {
+  test('reconstructed team denominators are not ≈2× the summed real players; aggregateRowsExcluded ≈ team count', (t) => {
+    const seasonTotals = readJson('nfl/season-totals/2023.json');
+    if (!seasonTotals) {
+      t.skip('nfl/season-totals/2023.json not present in this checkout (sparse checkout — keeps CI green)');
+      return;
+    }
+
+    const teamOf = teamKeyResolver('current-team', { 2023: seasonTotals }, 2023);
+    const { totals, aggregateRowsExcluded } = buildTeamTotalsForSeason(seasonTotals, 2023, teamOf);
+
+    const teamCount = Object.keys(seasonTotals).filter(pid => pid.startsWith('TEAM_')).length;
+    assert.equal(aggregateRowsExcluded, teamCount, `aggregateRowsExcluded (${aggregateRowsExcluded}) equals the TEAM_* row count (${teamCount})`);
+    assert.ok(teamCount > 0, 'fixture sanity: the real file actually carries TEAM_* rows');
+
+    // Known high-volume team: sum the real player rows independently and compare
+    // against the reconstructed denominator — it must be close to (not ≈2× of)
+    // the player sum, i.e. the pre-fix doubling defect is gone.
+    const KNOWN_TEAM = 'KC';
+    let summedRecTgt = 0;
+    for (const [pid, rec] of Object.entries(seasonTotals)) {
+      if (pid.startsWith('TEAM_')) continue;
+      if (rec.team !== KNOWN_TEAM) continue;
+      summedRecTgt += rec.stats?.rec_tgt || 0;
+    }
+    const reconstructed = totals[KNOWN_TEAM]?.recTgt ?? 0;
+    assert.ok(summedRecTgt > 0, 'fixture sanity: KC has real players with rec_tgt in this file');
+    assert.ok(
+      reconstructed < summedRecTgt * 1.5,
+      `reconstructed KC recTgt (${reconstructed}) should be close to the summed-player total (${summedRecTgt}), not ≈2×`
+    );
   });
 });

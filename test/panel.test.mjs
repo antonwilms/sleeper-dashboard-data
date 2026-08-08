@@ -9,7 +9,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { standardize, solveOLS, rankTransform, spearman } from '../lib/backtest.mjs';
+import { standardize, solveOLS, rankTransform, spearman, isTeamAggregateId } from '../lib/backtest.mjs';
 import {
   PANEL_GATES,
   BASELINE_FEATURES,
@@ -21,6 +21,7 @@ import {
   computeConsistencyCV,
   computeMover,
   computeShare,
+  computeTeamRzShare,
   computeYpt,
   computeRzOwnRate,
   resolvePosition,
@@ -295,6 +296,88 @@ describe('T-4: data-hole listwise exclusion + coverage', () => {
     });
     // team recTgt = 25 >= TEAM_DENOM_MIN(20), so share(Y) survives; recRzTgt = 5 < 20 → teamRzShare null
     assert.equal(result.dropReason, 'noTeamDenominator');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-P — TEAM_* aggregate row exclusion (R3-FIT precondition, panel-scale-fix)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('T-P: TEAM_* aggregate-row exclusion', () => {
+  test('T-P1 isTeamAggregateId: id-prefix filter, not a team-code check', () => {
+    assert.equal(isTeamAggregateId('TEAM_IND'), true);
+    assert.equal(isTeamAggregateId('6813'), false);
+    assert.equal(isTeamAggregateId('IND'), false, 'IND DEF row is not a TEAM_ pseudo-row');
+    assert.equal(isTeamAggregateId(6813), false, 'non-string id');
+    assert.equal(isTeamAggregateId(null), false);
+  });
+
+  test('T-P2 doubling witness: TEAM_<abbr> aggregate row is excluded from the summed denominator', () => {
+    const totalsByYear = {
+      2022: {
+        p1: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 10, rush_att: 5, rec_rz_tgt: 10, rush_rz_att: 2 } }),
+        p2: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 8,  rush_att: 4, rec_rz_tgt: 8,  rush_rz_att: 1 } }),
+        p3: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 7,  rush_att: 3, rec_rz_tgt: 7,  rush_rz_att: 1 } }),
+        // Whole-team aggregate pseudo-row: stat keys equal the sum of the three players above.
+        // Pre-fix, buildTeamTotalsForSeason would have summed this on top of the player rows,
+        // producing totals.KC.recTgt === 50 (2×). Post-fix it must be excluded entirely.
+        TEAM_KC: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 25, rush_att: 12, rec_rz_tgt: 25, rush_rz_att: 4 } }),
+      },
+    };
+    const teamOf = teamKeyResolver('current-team', totalsByYear, 2022);
+    const result = buildTeamTotalsForSeason(totalsByYear[2022], 2022, teamOf);
+
+    assert.equal(result.totals.KC.recTgt, 25, 'sum of player rows only (NOT 50 — the pre-fix doubled value)');
+    assert.equal(result.totals.KC.rushAtt, 12);
+    assert.equal(result.totals.KC.recRzTgt, 25);
+    assert.equal(result.totals.KC.rushRzAtt, 4);
+    assert.equal(result.aggregateRowsExcluded, 1);
+    assert.equal(result.unattributed, 0);
+  });
+
+  test('T-P3 share scale: computeShare/computeTeamRzShare return the true (un-halved) share; below-floor team-year → null', () => {
+    const totalsByYear = {
+      2022: {
+        p1: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 10, rec_rz_tgt: 10 } }),
+        p2: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 8,  rec_rz_tgt: 8 } }),
+        p3: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 7,  rec_rz_tgt: 7 } }),
+        TEAM_KC: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 25, rec_rz_tgt: 25 } }),
+        // Below-TEAM_DENOM_MIN(20) team-year: single player, no aggregate row needed.
+        lo1: totalsRec({ team: 'LO', gamesPlayed: 16, stats: { rec_tgt: 5, rec_rz_tgt: 5 } }),
+      },
+    };
+    const teamOf = teamKeyResolver('current-team', totalsByYear, 2022);
+    const teamTotalsByYear = { 2022: buildTeamTotalsForSeason(totalsByYear[2022], 2022, teamOf) };
+
+    const share = computeShare('p1', 'WR', 2022, totalsByYear, teamTotalsByYear, teamOf);
+    assert.ok(Math.abs(share - 10 / 25) < 1e-9, `true-scale share should be 10/25=0.4, got ${share}`);
+
+    const teamRzShare = computeTeamRzShare('p1', 'WR', 2022, totalsByYear, teamTotalsByYear, teamOf);
+    assert.ok(Math.abs(teamRzShare - 10 / 25) < 1e-9, `true-scale teamRzShare should be 10/25=0.4, got ${teamRzShare}`);
+
+    const loShare = computeShare('lo1', 'WR', 2022, totalsByYear, teamTotalsByYear, teamOf);
+    assert.equal(loShare, null, 'team recTgt=5 < TEAM_DENOM_MIN(20) → null (floor still enforced on the corrected denominator)');
+  });
+
+  test('T-P4 coverage surfacing: assemblePanelRows exposes aggregateRowsExcludedByYear', () => {
+    const advstatsY = {
+      schemaVersion: 1, season: 2022, generatedAt: '2026-01-01T00:00:00.000Z', rowCount: 1, unmapped: 0,
+      players: { p1: { sleeperId: 'p1', position: 'WR', team: 'KC', airYardsShare: 0.2 } },
+    };
+    const inputsByYear = {
+      2022: {
+        seasonTotals: {
+          p1: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 60, rec_rz_tgt: 8, off_snp: 700, tm_off_snp: 1000 } }),
+          TEAM_KC: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 60, rec_rz_tgt: 8 } }),
+        },
+        outcomes: outcomesMap({ p1: { gamesPlayed: 16, fantasyPoints: 160 } }),
+        advstats: advstatsY,
+        roster: null,
+      },
+    };
+    const { coverage } = assemblePanelRows(inputsByYear, { fromYear: 2022, toYear: 2022, minPredictorGames: 6, minOutcomeGames: 6 });
+    assert.ok(coverage.aggregateRowsExcludedByYear, 'coverage.aggregateRowsExcludedByYear is present');
+    assert.equal(coverage.aggregateRowsExcludedByYear[2022].thisYear, 1, 'one TEAM_KC row excluded in 2022');
   });
 });
 
