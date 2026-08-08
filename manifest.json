@@ -1070,10 +1070,16 @@
       "recordCount": 500,
       "inProgress": true,
       "lastModified": "2026-08-03T15:52:21.174Z"
+    },
+    "nfl/players-state/2026-08-08.json": {
+      "schemaVersion": 1,
+      "recordCount": 1039,
+      "inProgress": false,
+      "lastModified": "2026-08-08T14:47:39.300Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-08-07T14:35:21.973Z"
+  "generatedAt": "2026-08-08T14:47:39.300Z"
 }
