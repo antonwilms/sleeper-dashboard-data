@@ -15,6 +15,7 @@
     "backtest": "node bin/backtest.mjs",
     "panel": "node bin/panel.mjs",
     "panel:flip": "node bin/panel.mjs --flip-gate",
+    "panel:fit": "node bin/panel.mjs --fit",
     "test": "node --test"
   },
   "engines": {

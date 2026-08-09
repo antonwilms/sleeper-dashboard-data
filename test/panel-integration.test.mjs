@@ -24,8 +24,13 @@ import {
   buildFlipReport,
   buildFlipVerdictMarkdown,
   buildMergedFlipPanel,
+  runFit,
+  buildFitVerdictMarkdown,
 } from '../scripts/panel-run.mjs';
-import { PANEL_POSITIONS, BASELINE_FEATURES, FLIP_VERDICTS, teamKeyResolver, buildTeamTotalsForSeason } from '../lib/panel.mjs';
+import {
+  PANEL_POSITIONS, BASELINE_FEATURES, FLIP_VERDICTS, teamKeyResolver, buildTeamTotalsForSeason,
+  FIT_VERDICT_LABELS, FIT_COMBINED_CLAMP, ENVELOPE_FACTORS,
+} from '../lib/panel.mjs';
 import { readJson } from '../lib/io.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -436,5 +441,256 @@ describe('T-P5: live-data spot check — TEAM_* exclusion on a real season-total
       reconstructed < summedRecTgt * 1.5,
       `reconstructed KC recTgt (${reconstructed}) should be close to the summed-player total (${summedRecTgt}), not ≈2×`
     );
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-F12 — R3-FIT full pipeline integration (.claude/tasks/r3fit-exponent-harness.md §9)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('T-F12: R3-FIT full pipeline (synthetic multi-year, multi-position dataset)', () => {
+  function weeklyPoints(base) {
+    const wp = {};
+    for (let w = 1; w <= 16; w++) wp[w] = base + (w % 3);
+    return wp;
+  }
+
+  const N_WR = 60;
+  const N_QB = 30;
+
+  function wrStats(mult) {
+    return {
+      rec_tgt: Math.round(90 * mult), rec: Math.round(60 * mult), rec_yd: Math.round(800 * mult), rec_td: 5,
+      rec_rz_tgt: Math.round(18 * mult), off_snp: Math.round(650 * mult), tm_off_snp: 1000,
+    };
+  }
+  function qbStats(mult) {
+    return {
+      pass_att: Math.round(500 * mult), pass_yd: Math.round(3800 * mult), pass_td: Math.round(26 * mult),
+      pass_int: 9, pass_rz_att: Math.round(60 * mult),
+    };
+  }
+
+  function makeSeasonTotals(y) {
+    // Each player gets an INDIVIDUAL linear career trend (slope varies by
+    // player index) on top of their base mult — otherwise every player's
+    // career is perfectly flat and momentum/regression/trajectory all pin,
+    // leaving QB (which has no other candidates — rzUsage is held-in-arm)
+    // with too few estimable factors regardless of statistical power.
+    const rows = {};
+    for (let i = 0; i < N_WR; i++) {
+      const trend = ((i % 8) - 3.5) * 0.02;
+      const mult = (0.85 + (i % 8) * 0.04) * (1 + trend * (y - 2012));
+      const fp = Math.round(wrStats(mult).rec_yd * 0.1 + wrStats(mult).rec * 0.5 + wrStats(mult).rec_td * 6);
+      rows['w' + i] = { team: 'KC', gamesPlayed: 16, stats: wrStats(mult), fantasyPoints: fp, weeklyPoints: weeklyPoints(fp / 16) };
+    }
+    for (let i = 0; i < N_QB; i++) {
+      const trend = ((i % 8) - 3.5) * 0.02;
+      const mult = (0.85 + (i % 8) * 0.04) * (1 + trend * (y - 2012));
+      const s = qbStats(mult);
+      const fp = Math.round(s.pass_yd * 0.04 + s.pass_td * 4 - s.pass_int * 2);
+      rows['q' + i] = { team: 'DAL', gamesPlayed: 16, stats: s, fantasyPoints: fp, weeklyPoints: weeklyPoints(fp / 16) };
+    }
+    return rows;
+  }
+
+  const SEASON_TOTALS = {};
+  for (let y = 2012; y <= 2025; y++) SEASON_TOTALS[y] = makeSeasonTotals(y);
+
+  const ADVSTATS = {};
+  const ROSTER = {};
+  for (let y = 2020; y <= 2024; y++) {
+    ADVSTATS[y] = {
+      schemaVersion: 1, season: y, generatedAt: '2026-01-01T00:00:00.000Z', rowCount: N_WR, unmapped: 0,
+      players: Object.fromEntries(Array.from({ length: N_WR }, (_, i) => ['w' + i, { sleeperId: 'w' + i, position: 'WR', team: 'KC' }])),
+    };
+    ROSTER[y] = {
+      schemaVersion: 1, season: y, generatedAt: '2026-01-01T00:00:00.000Z', rowCount: N_QB,
+      players: Object.fromEntries(Array.from({ length: N_QB }, (_, i) => ['q' + i, { team: 'DAL', position: 'QB', status: 'ACT', fullName: 'q' + i }])),
+    };
+  }
+
+  const load = {
+    loadSnapshot: () => null,
+    loadSeasonTotals: (year) => SEASON_TOTALS[year] ?? null,
+    loadAdvstats: (year) => ADVSTATS[year] ?? null,
+    loadRoster: (year) => ROSTER[year] ?? null,
+  };
+
+  const { panel, fitReport } = runFit({ fromYear: 2020, toYear: 2024, load });
+
+  test('FitReport well-formedness: per-position + pool + meta + fidelity + sensitivity all present and correctly shaped', () => {
+    assert.equal(fitReport.meta.basis, 'half_ppr');
+    assert.deepEqual(fitReport.meta.combinedClamp, FIT_COMBINED_CLAMP);
+    assert.deepEqual(fitReport.meta.envelopeFactors, ENVELOPE_FACTORS);
+    assert.equal(fitReport.meta.baselineOfRecord, 'grading/2026-08-08-e0a-verdict.md');
+    assert.equal(fitReport.meta.attribution, 'per-season-team');
+    assert.equal(fitReport.meta.historyFloor, 2012);
+    assert.ok(fitReport.pool && fitReport.pool.WRTE, 'pool.WRTE present');
+
+    for (const position of PANEL_POSITIONS) {
+      const r = fitReport.perPosition[position];
+      assert.ok(FIT_VERDICT_LABELS.includes(r.baseVerdict));
+      assert.ok(FIT_VERDICT_LABELS.includes(r.sensitivityVerdict));
+      assert.ok(FIT_VERDICT_LABELS.includes(r.verdict));
+      assert.ok('nFitRows' in r && 'nEvalRows' in r, `${position}: nFitRows/nEvalRows present`);
+      assert.ok('fitFactorsFull' in r && 'fitFactorsEstimated' in r && 'pinnedFactors' in r && 'heldInArmFactors' in r);
+      assert.ok('flatOneRates' in r);
+      assert.ok('foldNeutralization' in r && 'maxAbsWMinus1ByFold' in r && 'clampHits' in r && 'shippedRefitNeutralized' in r);
+    }
+
+    // WR should have real statistical power in this fixture (30 players x many years).
+    const wr = fitReport.perPosition.WR;
+    assert.notEqual(wr.verdict, 'INSUFFICIENT-POWER', 'fixture sanity: WR should clear the power gate');
+    assert.notEqual(wr.nFitRows, wr.nEvalRows, 'nFitRows (all predictor years) and nEvalRows (gate numerator) are distinct quantities');
+    assert.equal(wr.nToParam, wr.nEvalRows / wr.fitFactorsEstimated.length);
+    assert.ok(Number.isFinite(wr.meanLogResidual));
+    assert.ok(Array.isArray(wr.sweep) && wr.sweep.length === 5);
+    assert.ok('maePooled' in wr.deltas && 'maePerYear' in wr.deltas && 'spearmanMean' in wr.deltas);
+
+    // QB well-formedness — length checks hold regardless of verdict (fitFactorsFull
+    // is populated even under INSUFFICIENT-POWER).
+    const qb = fitReport.perPosition.QB;
+    assert.equal(qb.fitFactorsFull.length, 4, "QB's product set has 4 members (rzUsage held-in-arm included)");
+    if (qb.verdict !== 'INSUFFICIENT-POWER') {
+      assert.equal(Object.keys(qb.wFinal).length, 4, "QB's wFinal has 4 keys");
+      assert.equal(qb.fitFactorsEstimated.length, 3, "QB's estimable set has 3 members");
+      assert.ok(!qb.fitFactorsEstimated.includes('rzUsage'));
+    }
+  });
+
+  test('evaluateExponentModel carries no wFinal key — gradeExponentFit is the sole producer (§0.3 item 59)', () => {
+    // Structural guarantee, spot-checked at the report level: wFinal only
+    // ever appears once, at gradeExponentFit's own top level.
+    for (const position of PANEL_POSITIONS) {
+      const r = fitReport.perPosition[position];
+      if (r.fitted) assert.ok(!('wFinal' in r.fitted) && !('wFinal' in r.hand), `${position}: fitted/hand sub-objects (evaluateExponentModel's shape) carry no wFinal`);
+    }
+  });
+
+  test('buildFitVerdictMarkdown contains the coverage table, share-series coverage, fidelity block, guard-instrumentation purpose line, and per-position base/sensitivity/final lines', () => {
+    const md = buildFitVerdictMarkdown(fitReport);
+    assert.ok(md.includes('## Panel coverage'));
+    assert.ok(md.includes('Share-series coverage'));
+    assert.ok(md.includes('## Fidelity'));
+    assert.ok(md.includes('not parity-checked against app-computed ground truth'), 'the named-gap sentence is present');
+    assert.ok(md.includes('§3.0-C residual'));
+    assert.ok(md.includes('load-bearing or inert'), 'the guard-instrumentation purpose line is present');
+    for (const position of PANEL_POSITIONS) {
+      assert.ok(new RegExp(`### ${position}[\\s\\S]*?Base verdict:.*Sensitivity verdict:.*Final verdict:`).test(md), `${position} verdict line shows base/sensitivity/final`);
+    }
+    assert.ok(md.includes('CONSERVATIVE APPROXIMATION'), 'the clamp limitation caveat is present');
+    assert.ok(md.includes('Cancellation caveat'), 'the cancellation-outside-clamp-region caveat is present');
+  });
+
+  test('panel.coverage carries fitCoverage beside the standard E-0a coverage fields', () => {
+    assert.ok(panel.coverage.fitCoverage);
+    assert.ok(panel.coverage.aggregateRowsExcludedByYear, 'the landed entity-filter witness is still surfaced');
+    assert.ok(Array.isArray(panel.coverage.perPositionYear));
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-F13 — committed r3fit artifact well-formedness (skips pre-run)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('T-F13: committed r3fit artifact well-formedness', () => {
+  function listMatching(dir, re) {
+    const abs = path.join(REPO_ROOT, dir);
+    if (!fs.existsSync(abs)) return [];
+    return fs.readdirSync(abs).filter(f => re.test(f)).map(f => path.join(abs, f));
+  }
+
+  const panelFiles = listMatching('backtests', /-r3fit-panel\.json$/);
+  const fitFiles = listMatching('backtests', /-r3fit-fit\.json$/);
+  const verdictFiles = listMatching('grading', /-r3fit-verdict\.md$/);
+
+  test('r3fit artifacts, if committed, are well-formed', (t) => {
+    if (panelFiles.length === 0 && fitFiles.length === 0 && verdictFiles.length === 0) {
+      t.skip('no r3fit artifacts on disk yet (pre-run CI stays green)');
+      return;
+    }
+
+    for (const f of fitFiles) {
+      const fit = JSON.parse(fs.readFileSync(f, 'utf8'));
+      assert.ok(fit.meta, `${f}: meta present`);
+      for (const key of ['historyFloor', 'attribution', 'basis', 'alpha', 'combinedClamp', 'envelopeFactors', 'baselineOfRecord']) {
+        assert.ok(key in fit.meta, `${f}: meta.${key} present`);
+      }
+      assert.equal(fit.meta.attribution, 'per-season-team', `${f}: meta.attribution`);
+
+      assert.ok(fit.perPosition, `${f}: perPosition present`);
+      for (const position of PANEL_POSITIONS) {
+        const r = fit.perPosition[position];
+        assert.ok(r, `${f}: perPosition.${position} present`);
+        for (const key of ['nFitRows', 'nEvalRows', 'nToParam', 'fitFactorsFull', 'fitFactorsEstimated', 'pinnedFactors', 'heldInArmFactors', 'flatOneRates', 'foldNeutralization', 'maxAbsWMinus1ByFold', 'clampHits', 'shippedRefitNeutralized']) {
+          assert.ok(key in r, `${f}: perPosition.${position}.${key} present (nested, not top-level)`);
+        }
+        for (const label of [r.baseVerdict, r.sensitivityVerdict, r.verdict]) {
+          assert.ok(FIT_VERDICT_LABELS.includes(label), `${f}: ${position} verdict labels are known`);
+        }
+      }
+      assert.equal(fit.perPosition.QB.fitFactorsFull.length, 4, `${f}: QB fitFactorsFull length 4`);
+      assert.ok(fit.perPosition.QB.fitFactorsEstimated.every(x => fit.perPosition.QB.fitFactorsFull.includes(x)), `${f}: QB fitFactorsEstimated subset of fitFactorsFull`);
+      assert.ok(!fit.perPosition.QB.fitFactorsEstimated.includes('rzUsage'), `${f}: QB rzUsage never estimated`);
+
+      assert.ok(fit.fidelity, `${f}: fidelity present`);
+      assert.ok(Array.isArray(fit.fidelity.uncoveredFactors), `${f}: fidelity.uncoveredFactors present`);
+      for (const key of ['nullSeasonTeam', 'nonFiniteScale', 'nonPositiveOutcome', 'nonPositiveAnchor']) {
+        assert.ok(key in fit.fidelity.inputChainResiduals, `${f}: fidelity.inputChainResiduals.${key} present`);
+      }
+    }
+
+    for (const f of verdictFiles) {
+      const md = fs.readFileSync(f, 'utf8');
+      assert.ok(md.startsWith('# R3-FIT Verdict'), `${f}: has the expected header`);
+      assert.ok(md.includes('node bin/panel.mjs --fit --write'), `${f}: contains the reproduce command`);
+    }
+
+    for (const f of panelFiles) {
+      const panelJson = JSON.parse(fs.readFileSync(f, 'utf8'));
+      assert.ok(panelJson.coverage?.fitCoverage, `${f}: coverage.fitCoverage present`);
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// assemblePanel non-regression — withFactorMultipliers unset is byte-identical to today
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('R3-FIT non-regression: assemblePanel with withFactorMultipliers unset', () => {
+  const SNAPSHOT = { scoringBasis: 'half_ppr', scoringSettings: { rec: 0.5, rec_yd: 0.1, rec_td: 6 } };
+  function wrStats() { return { rec_tgt: 90, rec: 60, rec_yd: 800, rec_td: 5, rec_rz_tgt: 25, off_snp: 650, tm_off_snp: 1000 }; }
+  function weeklyPoints(base) { const wp = {}; for (let w = 1; w <= 16; w++) wp[w] = base + (w % 3); return wp; }
+
+  const SEASON_TOTALS = {};
+  for (let y = 2018; y <= 2025; y++) {
+    SEASON_TOTALS[y] = { w1: { team: 'KC', gamesPlayed: 16, stats: wrStats(), fantasyPoints: 150, weeklyPoints: weeklyPoints(9) } };
+  }
+  const ADVSTATS = {};
+  for (const y of [2020, 2021, 2022, 2023, 2024]) {
+    ADVSTATS[y] = { schemaVersion: 1, season: y, generatedAt: '2026-01-01T00:00:00.000Z', rowCount: 1, unmapped: 0, players: { w1: { sleeperId: 'w1', position: 'WR', team: 'KC' } } };
+  }
+  const load = {
+    loadSnapshot: (date) => (date === '2026-07-05' ? SNAPSHOT : null),
+    loadSeasonTotals: (year) => SEASON_TOTALS[year] ?? null,
+    loadAdvstats: (year) => ADVSTATS[year] ?? null,
+    loadRoster: () => null,
+  };
+
+  test('rows/coverage/meta are byte-identical whether or not the new opt-in params are even passed', () => {
+    const withoutFlag = assemblePanel({ fromYear: 2020, toYear: 2024, scoringFrom: '2026-07-05', load });
+    const withFlagFalse = assemblePanel({ fromYear: 2020, toYear: 2024, scoringFrom: '2026-07-05', load, withFactorMultipliers: false, historyFloor: 2012 });
+    assert.deepEqual(withoutFlag, withFlagFalse);
+  });
+
+  test('rows carry only the pre-existing E-0a shape (features/candidates), no multipliers/anchorBasePPG leak in', () => {
+    const panel = assemblePanel({ fromYear: 2020, toYear: 2024, scoringFrom: '2026-07-05', load });
+    assert.ok(panel.rows.length > 0);
+    for (const row of panel.rows) {
+      assert.ok('features' in row && 'candidates' in row);
+      assert.ok(!('multipliers' in row) && !('anchorBasePPG' in row));
+    }
+    assert.ok(!('fitCoverage' in panel.coverage));
   });
 });

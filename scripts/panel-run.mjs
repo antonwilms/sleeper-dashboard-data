@@ -39,6 +39,17 @@ import {
   summarizeModeDelta,
   summarizeFeatureDelta,
   decideFlipVerdict,
+  teamKeyResolver,
+  buildTeamTotalsForSeason,
+  attachFactorMultipliers,
+  gradeExponentFit,
+  HISTORY_FLOOR,
+  FIT_ALPHA_DEFAULT,
+  FIT_ALPHA_SWEEP,
+  FIT_COMBINED_CLAMP,
+  ENVELOPE_FACTORS,
+  FIT_MIN_N_TO_PARAM,
+  FIT_MAX_FLAT_ONE_RATE,
 } from '../lib/panel.mjs';
 
 export const DEFAULT_SCORING_SNAPSHOT = '2026-07-05';
@@ -94,6 +105,8 @@ export function assemblePanel({
   scoringFrom = DEFAULT_SCORING_SNAPSHOT,
   minOutcomeGames = PANEL_DEFAULTS.minOutcomeGames,
   load = DEFAULT_LOAD,
+  withFactorMultipliers = false,
+  historyFloor = null,
 }) {
   if (!ATTRIBUTION_MODES.includes(attribution)) {
     throw new Error(`[panel] unknown --attribution '${attribution}' — use current-team|per-season-team`);
@@ -102,7 +115,13 @@ export function assemblePanel({
   const { scoringSettings, basisMeta } = resolveScoring({ basis, scoringFrom, load });
   const scoring = basis === 'half_ppr' ? { basis: 'half_ppr' } : { basis: 'in-basis', scoringSettings };
 
-  const loadFromYear = fromYear - 2; // basePPG's Y-2 lookback
+  // R3-FIT (§3.3): under withFactorMultipliers, load season-totals/outcomes
+  // down to historyFloor so multi-season factors (basePPG/momentum/regression/
+  // trajectory/shareTrend) see the app's full qualifying history instead of
+  // the stock [fromYear-2..] window. advstats/roster are UNCHANGED — they stay
+  // [fromYear..toYear] (§3.3); assemblePanelRows' predictor loop is bounded
+  // the same way regardless of the widened load, so no spurious rows appear.
+  const loadFromYear = (withFactorMultipliers && historyFloor != null) ? historyFloor : fromYear - 2;
   const loadToYear = toYear + 1;     // outcome Y+1
   const years = [];
   for (let y = loadFromYear; y <= loadToYear; y++) years.push(y);
@@ -124,6 +143,33 @@ export function assemblePanel({
     fromYear, toYear, attribution, minOutcomeGames, minPredictorGames: PANEL_DEFAULTS.minPredictorGames,
   });
 
+  let finalRows = rows;
+  let finalCoverage = coverage;
+
+  if (withFactorMultipliers) {
+    // Per-loaded-year totals/outcomes/position-source maps (widens the E-0a
+    // Y/Y−1-pair team-totals build to every loaded year, ≤14 seasons — §3.4).
+    const totalsByYear = {};
+    const ppgByYear = {};
+    const advstatsByYear = {};
+    const rosterByYear = {};
+    for (const y of years) {
+      totalsByYear[y] = inputsByYear[y].seasonTotals;
+      ppgByYear[y] = inputsByYear[y].outcomes;
+      advstatsByYear[y] = inputsByYear[y].advstats;
+      rosterByYear[y] = inputsByYear[y].roster;
+    }
+    const teamOf = teamKeyResolver(attribution, totalsByYear, toYear);
+    const teamTotalsByYear = {};
+    for (const y of years) teamTotalsByYear[y] = buildTeamTotalsForSeason(totalsByYear[y], y, teamOf);
+
+    const { rows: fitRows, fitCoverage } = attachFactorMultipliers(rows, {
+      totalsByYear, teamTotalsByYear, ppgByYear, advstatsByYear, rosterByYear, fromYear, toYear,
+    });
+    finalRows = fitRows;
+    finalCoverage = { ...coverage, fitCoverage };
+  }
+
   const perYearBasis = {};
   for (const y of years) {
     const om = outcomeMapsByYear[y];
@@ -140,7 +186,7 @@ export function assemblePanel({
     minTrainSeasons: PANEL_DEFAULTS.minTrainSeasons,
   };
 
-  return { rows, coverage, meta };
+  return { rows: finalRows, coverage: finalCoverage, meta };
 }
 
 // ─── Baseline + candidates ──────────────────────────────────────────────────────
@@ -795,6 +841,369 @@ export function writeFlipArtifacts({ mergedPanel, flipReport, verdictMd }) {
 
   writeJsonStable(panelPath, mergedPanel);
   writeJsonStable(fitPath, flipReport);
+
+  const verdictAbs = repoPath(verdictPath);
+  fs.mkdirSync(path.dirname(verdictAbs), { recursive: true });
+  fs.writeFileSync(verdictAbs, verdictMd, 'utf8');
+
+  return { panelPath, fitPath, verdictPath };
+}
+
+// ─── R3-FIT — fitted per-position exponents (.claude/tasks/r3fit-exponent-harness.md) ──
+//
+// Mirrors the runFlipGate block above: assemblePanel (withFactorMultipliers)
+// → gradeExponentFit per position + WR+TE pool → the §3.0-A sensitivity
+// override → buildFitVerdictReport → buildFitVerdictMarkdown → writeFitArtifacts.
+
+const BASELINE_OF_RECORD = 'grading/2026-08-08-e0a-verdict.md';
+
+// §3.0-A sensitivity re-run — a FULL independent re-run (own selectFitFactors,
+// own folds) over the debut-Y−1-excluded row set. runFit owns the override
+// (base vs sensitivity label) because the sensitivity label is itself the
+// output of a grading pass, so it cannot be an input to the very function
+// that pass calls (decideFitVerdict) — §0.3 item 49.
+function runPositionWithSensitivity(rows, folds, sensitivityRows, sensitivityFolds, position, opts) {
+  const baseReport = gradeExponentFit(rows, folds, position, opts);
+  const sensitivityReport = gradeExponentFit(sensitivityRows, sensitivityFolds, position, opts);
+  const baseVerdict = baseReport.verdict;
+  const sensitivityVerdict = sensitivityReport.verdict;
+  const verdict = baseVerdict === sensitivityVerdict ? baseVerdict : 'UNSTABLE';
+  return {
+    ...baseReport,
+    baseVerdict, sensitivityVerdict, verdict,
+    sensitivityFitFactors: sensitivityReport.fitFactorsEstimated,
+  };
+}
+
+export function runFit({
+  fromYear = PANEL_DEFAULTS.fromYear,
+  toYear = PANEL_DEFAULTS.toYear,
+  basis = 'half_ppr',
+  scoringFrom = DEFAULT_SCORING_SNAPSHOT,
+  minOutcomeGames = PANEL_DEFAULTS.minOutcomeGames,
+  alpha = FIT_ALPHA_DEFAULT,
+  alphaSweep = FIT_ALPHA_SWEEP,
+  load = DEFAULT_LOAD,
+} = {}) {
+  // per-season-team is hardcoded — the app's live DEFAULT_ATTRIBUTION, not
+  // user-overridable (§6.3); the CLI-level guard against --fit --attribution
+  // lives in bin/panel.mjs (§6.4).
+  const panel = assemblePanel({
+    fromYear, toYear, attribution: 'per-season-team', basis, scoringFrom, minOutcomeGames, load,
+    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR,
+  });
+
+  const folds = panelFolds(panel);
+  const sensitivityRows = panel.rows.filter(r => !r.debutYMinus1);
+  const sensitivityFolds = forwardChainFolds(sensitivityRows.map(r => r.predictorYear), PANEL_DEFAULTS.minTrainSeasons);
+  const opts = { alpha, alphaSweep };
+
+  const perPosition = {};
+  for (const position of PANEL_POSITIONS) {
+    perPosition[position] = runPositionWithSensitivity(panel.rows, folds, sensitivityRows, sensitivityFolds, position, opts);
+  }
+
+  // WR+TE pool fallback (assessment §B.4) — cohorts stay position-separate
+  // (each row's multipliers were already computed under its TRUE position's
+  // cohort pools upstream, in attachFactorMultipliers); only the FIT is
+  // pooled, by relabelling rows onto the synthetic 'WRTE' position so the
+  // same gradeExponentFit machinery applies unforked.
+  const wrteRows = panel.rows.filter(r => r.position === 'WR' || r.position === 'TE').map(r => ({ ...r, position: 'WRTE' }));
+  const wrteSensitivityRows = sensitivityRows.filter(r => r.position === 'WR' || r.position === 'TE').map(r => ({ ...r, position: 'WRTE' }));
+  const wrte = runPositionWithSensitivity(wrteRows, folds, wrteSensitivityRows, sensitivityFolds, 'WRTE', opts);
+  const teShippableAlternative = perPosition.TE.verdict !== 'CLEARS' && wrte.verdict === 'CLEARS';
+  const pool = { WRTE: { ...wrte, teShippableAlternative } };
+
+  const fitReport = buildFitVerdictReport({ panel, perPosition, pool, folds, alpha, alphaSweep, basis });
+  return { panel, fitReport };
+}
+
+// §6.2 — assembles the final FitReport shape from the raw per-position/pool
+// grades (mirrors E-0a's buildFitReport, renamed per the §0.3 item 30
+// collision check). `coverage` mirrors panel.coverage so buildFitVerdictMarkdown
+// stays self-contained on the single `fitReport` argument the task specifies.
+export function buildFitVerdictReport({ panel, perPosition, pool, folds, alpha, alphaSweep, basis }) {
+  const fc = panel.coverage.fitCoverage;
+
+  let nonFiniteScale = 0;
+  for (const report of [...Object.values(perPosition), pool.WRTE]) {
+    for (const entry of Object.values(report.foldNeutralization ?? {})) {
+      nonFiniteScale += entry.reasons?.nonFiniteScale ?? 0;
+    }
+  }
+
+  return {
+    meta: {
+      generatedAt: panel.meta.generatedAt,
+      panelYears: panel.meta.panelYears,
+      historyFloor: HISTORY_FLOOR,
+      attribution: 'per-season-team',
+      basis,
+      alpha,
+      alphaSweep,
+      evalYears: folds.map(f => f.evalYear),
+      combinedClamp: FIT_COMBINED_CLAMP,
+      envelopeFactors: ENVELOPE_FACTORS,
+      baselineOfRecord: BASELINE_OF_RECORD,
+    },
+    coverage: panel.coverage,
+    perPosition,
+    pool,
+    fidelity: {
+      snapshotParity: 'Verified by test/panel-fit.test.mjs T-F10 (half-PPR basis, through the exported buildCohortPools, ' +
+        '5 of 7 factors against a committed 2025 snapshot fixture) — run `npm test`; a PASS precondition of this fit, not recomputed inline by --fit.',
+      uncoveredFactors: ['shareTrend', 'teamRzShare'],
+      inputChainResiduals: {
+        nullSeasonTeam: fc.nullSeasonTeam,
+        positionSource: 'Measured via T-F10 pool-composition tolerance (§3.0-C2) — not a standalone counter; budgeted in T-F10\'s tolerance.',
+        liveApiBasisResidual: 'Named, not measurable server-side (§3.0-C3): a client-cached live-API-fallback season would carry league scoring invisibly to this harness.',
+        zeroGpWithStats: fc.zeroGpWithStats,
+        nonFiniteFantasyPoints: fc.nonFiniteFantasyPoints,
+        nonFiniteScale,
+        nonPositiveOutcome: fc.nonPositiveOutcome,
+        nonPositiveAnchor: fc.nonPositiveAnchor,
+      },
+    },
+    sensitivity: {
+      debutYMinus1: fc.debutYMinus1,
+      sensitivityFitFactors: {
+        ...Object.fromEntries(PANEL_POSITIONS.map(p => [p, perPosition[p].sensitivityFitFactors])),
+        WRTE: pool.WRTE.sensitivityFitFactors,
+      },
+    },
+  };
+}
+
+// ─── Verdict markdown (§7 artifact 3) ───────────────────────────────────────────
+
+function fitFmt(v, digits = 3) {
+  return v == null || !Number.isFinite(v) ? 'n/a' : v.toFixed(digits);
+}
+
+const GUARD_PURPOSE_LINE =
+  'The first real run reveals whether the identifiability guard is load-bearing or inert — if inert across all ' +
+  'positions (nothing pinned, no fold neutralization), it becomes a candidate for removal in a later slice.';
+
+const FIDELITY_GAP_SENTENCE =
+  '`shareTrend` and `teamRzShare` are not parity-checked against app-computed ground truth; no committed snapshot ' +
+  'exists in the per-season-team + entity-filtered regime (store ends 2026-07-05; R2 flip 07-11; app denominator ' +
+  'fix 07-18). They rest on T-F5/T-F17/T-F11/T-F9/T-F14. Closure: extend T-F10 once a post-2026-07-18 snapshot is imported.';
+
+// Overrides §4/§5 — the honest limitations this reconstruction carries,
+// stated rather than implied "faithful" or "universal cancellation".
+const CLAMP_CONSERVATIVE_APPROXIMATION_NOTE =
+  'The app\'s `[0.67, 1.50]` combined-factor envelope is applied in BOTH arms (§1) — this is a CONSERVATIVE ' +
+  'APPROXIMATION of the app\'s clamp, not a faithful reconstruction: the reconstructed inner product wraps a reduced ' +
+  '5-factor sub-product (ENVELOPE_FACTORS) where production wraps 10 (the other 5 — qbQuality, breakout, bounceBack, ' +
+  'tdReliance, efficiency — are HELD-OMITTED). The reduced hand-arm inner product tops out well inside [0.67,1.50] ' +
+  '(~1.35 at the extreme), so `clampHits.hand` is 0 **by construction** — not evidence that production\'s clamp is ' +
+  'inert on real players. It catches the fitted arm\'s own inflation (exponents > 1 can push the reduced product past ' +
+  'where the hand product ever reaches) conservatively; it does not reproduce full production clamp incidence.';
+
+const CANCELLATION_OUTSIDE_CLAMP_NOTE =
+  'Cancellation caveat: a held, pinned, held-in-arm, or fold-neutralized factor\'s term is identical in both arms and ' +
+  'cancels in ΔMAE — but ONLY on rows where neither arm\'s inner product hits the clamp. On a row where one arm\'s ' +
+  'inner product truncates at 1.50 and the other\'s does not, the clamp is a non-linear transform applied after ' +
+  'summing, so the shared factor no longer cancels post-clamp. That is correct — it measures the real clamped ' +
+  'difference between the two predictions — not a defect in the pin/hold arithmetic.';
+
+function fitCoverageSection(coverage) {
+  const fc = coverage.fitCoverage;
+  const lines = [];
+  lines.push(`- Drop reasons: ${Object.entries(fc.droppedByReason).map(([r, n]) => `${r}=${n}`).join(', ') || 'none'}`);
+  lines.push(`- Truncated at ${HISTORY_FLOOR} floor: ${fc.truncatedAt2012}`);
+  lines.push(`- Forward-mover neutralized: ${fc.forwardMoverNeutralized}`);
+  lines.push(`- teamRzShare lastQSeason team===null (§3.0-C1): ${fc.nullSeasonTeam}`);
+  lines.push(`- Debut-in-Y−1 (sensitivity cohort): ${fc.debutYMinus1}`);
+  lines.push(`- zeroGpWithStats (expect 0): ${fc.zeroGpWithStats}`);
+  lines.push(`- nonFiniteFantasyPoints (expect 0): ${fc.nonFiniteFantasyPoints}`);
+  lines.push(`- nonPositiveOutcome (expect ~0): ${fc.nonPositiveOutcome}`);
+  lines.push(`- nonPositiveAnchor (expect ~0): ${fc.nonPositiveAnchor}`);
+  lines.push('');
+  lines.push('**Per-position, per-factor flatOneRate (decision, from selectFitFactors) beside sentinelRate (diagnostic, from fitCoverage):**');
+  lines.push('');
+  for (const position of PANEL_POSITIONS) {
+    const sentinel = fc.sentinelCounts[position] ?? {};
+    const flat = fc.flatOneCounts[position] ?? {};
+    const factors = [...new Set([...Object.keys(sentinel), ...Object.keys(flat)])];
+    lines.push(`- ${position}: ${factors.map(f => `${f} flatOneCount=${flat[f] ?? 0} sentinelCount=${sentinel[f] ?? 0}`).join(', ') || 'n/a'}`);
+  }
+  lines.push('');
+  lines.push('**Share-series coverage:**');
+  lines.push('');
+  const lengthStats = Object.entries(fc.seriesLengths).map(([p, arr]) =>
+    `${p}: n=${arr.length}, min=${arr.length ? Math.min(...arr) : 'n/a'}, max=${arr.length ? Math.max(...arr) : 'n/a'}`);
+  lines.push(`- Series length distribution: ${lengthStats.join('; ') || 'n/a'}`);
+  lines.push(`- Series drops: ${Object.entries(fc.seriesDrops).map(([r, n]) => `${r}=${n}`).join(', ')}`);
+  lines.push(`- recFallbackUsed: ${fc.recFallbackUsed} · subMinDenomKept: ${fc.subMinDenomKept} · shareGtOne: ${fc.shareGtOne}`);
+  return lines.join('\n');
+}
+
+function guardInstrumentationBlock(report) {
+  const lines = [];
+  lines.push(`  - Pinned by rule 0b: ${report.pinnedFactors.length > 0 ? report.pinnedFactors.map(f => `${f} (rate=${fitFmt(report.flatOneRates[f])})`).join(', ') : 'none'}`);
+  lines.push(`  - Held-in-arm: ${report.heldInArmFactors.length > 0 ? report.heldInArmFactors.join(', ') : 'none'}`);
+  lines.push(`  - Every fit candidate's flatOneRate: ${Object.entries(report.flatOneRates).map(([f, r]) => `${f}=${fitFmt(r)}`).join(', ') || 'n/a'}`);
+  const neutEntries = Object.entries(report.foldNeutralization ?? {});
+  lines.push(`  - Fold-level graceful neutralization: ${neutEntries.length > 0
+    ? neutEntries.map(([f, d]) => `${f}: ${d.folds} fold(s) (flatOnTrain=${d.reasons.flatOnTrain}, nonFiniteScale=${d.reasons.nonFiniteScale})`).join('; ')
+    : 'none'}`);
+  lines.push(`  - shippedRefitNeutralized: ${report.shippedRefitNeutralized?.length ? JSON.stringify(report.shippedRefitNeutralized) : '[] (expected)'}`);
+  lines.push(`  - maxAbsWMinus1ByFold: ${(report.maxAbsWMinus1ByFold ?? []).map(v => fitFmt(v, 4)).join(', ') || 'n/a'}`);
+  lines.push(`  - clampHits: fitted=${report.clampHits?.fitted ?? 'n/a'}, hand=${report.clampHits?.hand ?? 'n/a'} (hand ≈ 0 expected — see the conservative-approximation note in Methodology)`);
+  return lines.join('\n');
+}
+
+function wFinalLines(report) {
+  if (!report.wFinal) return '  - (no fit run — INSUFFICIENT-POWER)';
+  return report.fitFactorsFull.map(factor => {
+    const w = report.wFinal[factor];
+    const provenance = report.fitFactorsEstimated.includes(factor) ? 'estimated'
+      : report.pinnedFactors.includes(factor) ? 'pinned (rule 0b)'
+        : report.heldInArmFactors.includes(factor) ? 'held-in-arm (config)' : 'n/a';
+    return `  - ${factor}: ${fitFmt(w, 4)} (${provenance})`;
+  }).join('\n');
+}
+
+function positionSection(position, report) {
+  const lines = [`### ${position}`, ''];
+  lines.push(`**Base verdict:** ${report.baseVerdict} · **Sensitivity verdict:** ${report.sensitivityVerdict} · **Final verdict: ${report.verdict}**`, '');
+  lines.push(`- n fit rows: ${report.nFitRows} · n eval rows (gate numerator): ${report.nEvalRows} · params (|F_p^fit|): ${report.params} · n:p: ${fitFmt(report.nToParam, 1)}`, '');
+
+  if (report.verdict === 'INSUFFICIENT-POWER') {
+    lines.push(`n:p < ${FIT_MIN_N_TO_PARAM} — deferred, no fit run (rule 0). Hand-tuned exponents (w=1) stay in production for ${position}.`, '');
+    return lines.join('\n');
+  }
+
+  lines.push(`- Pooled MAE: fitted=${fitFmt(report.fitted.pooled.mae)}, hand=${fitFmt(report.hand.pooled.mae)}, ΔMAE=${fitFmt(report.deltas.maePooled)}`);
+  lines.push(`- ΔMAE per eval year: ${report.deltas.maePerYear.map(y => `${y.evalYear}: ${fitFmt(y.dMae)}`).join('; ')}`);
+  lines.push(`- ΔSpearman (pooled, n-weighted): ${fitFmt(report.deltas.spearmanMean)}`);
+  const flagged = Math.abs(report.meanLogResidual ?? 0) > 0.03;
+  lines.push(`- meanLogResidual (shipped all-rows refit): ${fitFmt(report.meanLogResidual, 4)}${flagged ? ' **[FLAGGED — |mean(y)| > 0.03]**' : ''}`);
+  lines.push(`- α-sweep: ${report.sweep.map(s => `α=${s.alpha}: ΔMAE=${fitFmt(s.dMae)}, ΔSpearman=${fitFmt(s.dSpearman)}`).join('; ')}`);
+  lines.push('', '**Guard instrumentation:**', guardInstrumentationBlock(report), '');
+  lines.push(`**wFinal (full F_p^full length — ${report.fitFactorsFull.length} entries — provenance-labelled):**`, wFinalLines(report), '');
+  if (report.verdict === 'CLEARS') {
+    lines.push(`**Shippable vector (α=0.5):** \`${JSON.stringify(report.wFinal)}\``, '');
+  }
+  const sensitivityDiffers = JSON.stringify([...report.sensitivityFitFactors].sort()) !== JSON.stringify([...report.fitFactorsEstimated].sort());
+  lines.push(`- Sensitivity re-run F_p^fit: ${report.sensitivityFitFactors.join(', ') || '(none estimated)'}${sensitivityDiffers ? ' — **differs from the base run\'s support**' : ''}`, '');
+  return lines.join('\n');
+}
+
+export function buildFitVerdictMarkdown(fitReport) {
+  const { meta, perPosition, pool, fidelity, coverage } = fitReport;
+  const date = meta.generatedAt.slice(0, 10);
+
+  const lines = [
+    `# R3-FIT Verdict — ${date}`,
+    '',
+    `**Config:** predictor years ${meta.panelYears.fromYear}–${meta.panelYears.toYear}, history floor ${meta.historyFloor}, ` +
+      `attribution=\`${meta.attribution}\`, basis=\`${meta.basis}\` (the app's own basis for store-served careerStats — no scoring ` +
+      `snapshot read), α=${meta.alpha} (sweep: ${meta.alphaSweep.join(', ')})`,
+    '',
+    `**Baseline of record:** ${meta.baselineOfRecord}`,
+    '',
+    '**Reproduce:** `node bin/panel.mjs --fit --write`',
+    '',
+    '## Panel coverage',
+    '',
+    fitCoverageSection(coverage),
+    '',
+    '## Guard instrumentation — is the identifiability guard load-bearing or inert?',
+    '',
+    GUARD_PURPOSE_LINE,
+    '',
+    '(Per-position detail is reported inside each position\'s section below.)',
+    '',
+    '## Fidelity',
+    '',
+    `- Snapshot parity: ${fidelity.snapshotParity}`,
+    `- Uncovered factors: ${fidelity.uncoveredFactors.join(', ')}`,
+    `- §3.0-C residual — nullSeasonTeam: ${fidelity.inputChainResiduals.nullSeasonTeam}`,
+    `- Position-source divergence: ${fidelity.inputChainResiduals.positionSource}`,
+    `- Live-API basis residual: ${fidelity.inputChainResiduals.liveApiBasisResidual}`,
+    `- zeroGpWithStats (certified inert, expect 0): ${fidelity.inputChainResiduals.zeroGpWithStats}`,
+    `- nonFiniteFantasyPoints (certified inert, expect 0): ${fidelity.inputChainResiduals.nonFiniteFantasyPoints}`,
+    `- nonFiniteScale (expect 0 — non-zero is a fidelity failure, not a benign neutralization): ${fidelity.inputChainResiduals.nonFiniteScale}`,
+    `- nonPositiveOutcome / nonPositiveAnchor (expect ~0): ${fidelity.inputChainResiduals.nonPositiveOutcome} / ${fidelity.inputChainResiduals.nonPositiveAnchor}`,
+    '',
+    FIDELITY_GAP_SENTENCE,
+    '',
+    '## Per position',
+    '',
+  ];
+
+  for (const position of PANEL_POSITIONS) {
+    lines.push(positionSection(position, perPosition[position]));
+  }
+
+  lines.push(
+    '## WR+TE pool result',
+    '',
+    positionSection('WR+TE (pooled)', pool.WRTE),
+    pool.WRTE.teShippableAlternative
+      ? '**TE did not clear on its own — the pooled vector is TE\'s shippable alternative.**'
+      : '(TE cleared on its own or the pool did not clear — no pooled fallback in play.)',
+    '',
+    '## Methodology notes',
+    '',
+    '- Age-blind (no server-side draft_picks→sleeper_id join) + reduced-pipeline (HELD-OMITTED factors — age, depth, ' +
+      'team, qbQuality, efficiency, comp, bounceBack, tdReliance, breakout — are out of BOTH arms) + provisional pending ' +
+      'R4 forward grading (assessment E-3c). A reduced-pipeline CLEARS is the pre-registered pre-2027 activation ' +
+      'criterion (roadmap D-1).',
+    '- Held factor list, three ways: HELD-OMITTED (out of both arms — the reduced-pipeline limitation); structural QB ' +
+      'sentinels (shareTrend/snapShare/teamRzShare — the app itself neutralizes these for QB); HELD-IN-ARM (QB rzUsage ' +
+      '— a real non-neutral app multiplier, reconstructed and carried in both QB arms at w=1, never a fit candidate).',
+    '- Omitted-variable caveat: omitting efficiencyFactor risks the usage exponents partially proxying for ' +
+      'per-opportunity efficiency; expected modest given the app treats usage/efficiency as orthogonal and ' +
+      'teamRzShare\'s partial-β was validated controlling for usage. Efficiency is the named stage-2 priority.',
+    '- Support-identity, not vector-identity (§8 item 1): fixing F_p^fit guarantees the shipped refit and every ' +
+      'scored fold share an identical factor SUPPORT — not an identical VECTOR. wFinal is an all-rows refit no fold ' +
+      'scored out of sample. One bounded exception: per-fold graceful neutralization can hold a retained factor at 1 ' +
+      'on a single fold — see foldNeutralization in each position\'s guard block before citing support-identity where ' +
+      'it fired materially.',
+    `- ${CLAMP_CONSERVATIVE_APPROXIMATION_NOTE}`,
+    `- ${CANCELLATION_OUTSIDE_CLAMP_NOTE}`,
+    '- Half-PPR denomination (§3.0-C3): the fit optimizes half-PPR accuracy — the app\'s own projectedPPG is ' +
+      'half-PPR-denominated on store-served data, so exponents are fit in the units they are applied in. The ' +
+      `${meta.baselineOfRecord} baseline of record runs a different basis (custom) and attribution (current-team), so ` +
+      'its MAEs are not directly comparable to this fit\'s arms — this fit\'s comparison is internal (fitted vs hand on ' +
+      'identical rows).',
+    '- Non-independence: recurring players across Y→Y+1 pairs mean rows are not independent; deltas are effect-size ' +
+      'estimates, not significance tests.',
+    '- Survivorship: outcome gate gamesPlayed(Y+1) ≥ 6 — the standard backtest survivorship caveat applies.',
+    `- INSUFFICIENT-POWER deferral (n:p < ${FIT_MIN_N_TO_PARAM}, on pooled EVAL n) + α-stability (ΔMAE sign stable ` +
+      'across α∈{0.25,0.5,1}) + the identifiability guard (rule 0b: one selectFitFactors call per position over ' +
+      `FIT_CANDIDATES, flat-1.0 rate ≥ ${FIT_MAX_FLAT_ONE_RATE} pins a factor at w=1 in both arms — pin, not drop) + ` +
+      'graceful per-fold degenerate-scale neutralization (never aborts the run) — all self-protecting: a thin/noisy ' +
+      'panel does not clear.',
+    '- The collinearity caveat on shrinkage uniformity: RMS scaling equalizes each factor\'s scale (making α ' +
+      'dimensionless and n-independent), but the fitted factors are correlated (the usage trio; momentum/trajectory), ' +
+      'so per-coefficient shrinkage is only exactly uniform under column orthogonality — second-order, unavoidable.',
+    '- Per-position n is reported beside every number — nFitRows vs nEvalRows (the gate\'s basis) are distinct and ' +
+      'both reported, never conflated.',
+    '- R1-SNAPS tension: the panel is panel-width-agnostic; this run\'s window is the narrow pre-R1-SNAPS 2020+ ' +
+      'default. After R1-SNAPS (fromYear→2013), the identical fit re-runs unchanged (config only) on roughly triple ' +
+      'the rows.',
+    '- `shareLevel` is not part of this unit (its 2026-08-08 CLEARS on WR/RB is a separate finding requiring its own ' +
+      'activation gate — this fit neither reads nor activates it).',
+    ''
+  );
+
+  return lines.join('\n');
+}
+
+// ─── Artifact writes (§7) ────────────────────────────────────────────────────────
+
+export function writeFitArtifacts({ panel, fitReport, verdictMd }) {
+  const date = fitReport.meta.generatedAt.slice(0, 10);
+  const panelPath = `backtests/${date}-r3fit-panel.json`;
+  const fitPath = `backtests/${date}-r3fit-fit.json`;
+  const verdictPath = `grading/${date}-r3fit-verdict.md`;
+
+  writeJsonStable(panelPath, panel);
+  writeJsonStable(fitPath, fitReport);
 
   const verdictAbs = repoPath(verdictPath);
   fs.mkdirSync(path.dirname(verdictAbs), { recursive: true });

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * bin/panel.mjs — E-0a grading-panel CLI (R1-HARNESS).
+ * bin/panel.mjs — E-0a grading-panel CLI (R1-HARNESS) + R3-FIT exponent harness.
  *
  * Offline, read-only analysis. Builds the feature→outcome panel (season-totals
  * v3 + advstats + roster-position + a pinned scoring snapshot), fits a
@@ -11,13 +11,15 @@
  *
  * Usage: node bin/panel.mjs [options]
  *   --from YYYY --to YYYY             predictor-year range (default 2020–2024)
- *   --attribution current-team|per-season-team   seam flag (default current-team)
- *   --basis in-basis|half_ppr         default in-basis
+ *   --attribution current-team|per-season-team   seam flag (default current-team; --fit pins per-season-team, rejects this flag)
+ *   --basis in-basis|half_ppr         default in-basis; --fit defaults to half_ppr (the app's own basis)
  *   --scoring-from YYYY-MM-DD         scoring-source snapshot (default 2026-07-05)
  *   --min-games N                     outcome gate (default 6)
  *   --ridge X                         default 1.0 (sweep always reported)
  *   --flip-gate                       R2 dual-mode attribution comparison (both modes; drop --attribution)
- *   --json                            machine-readable FitReport (FlipReport under --flip-gate) to stdout
+ *   --fit                             R3-FIT fitted per-position exponents (offline harness); mutually exclusive with --flip-gate
+ *   --alpha X                         R3-FIT shrinkage knob override (default 0.5; sweep {0.1,0.25,0.5,1,2} always reported)
+ *   --json                            machine-readable FitReport (FlipReport under --flip-gate, R3-FIT FitReport under --fit) to stdout
  *   --write                           persist the three artifacts (backtests/ + grading/)
  */
 
@@ -34,9 +36,12 @@ import {
   buildFlipVerdictMarkdown,
   buildMergedFlipPanel,
   writeFlipArtifacts,
+  runFit,
+  buildFitVerdictMarkdown,
+  writeFitArtifacts,
   DEFAULT_SCORING_SNAPSHOT,
 } from '../scripts/panel-run.mjs';
-import { PANEL_DEFAULTS } from '../lib/panel.mjs';
+import { PANEL_DEFAULTS, FIT_ALPHA_DEFAULT, FIT_ALPHA_SWEEP } from '../lib/panel.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -63,12 +68,18 @@ if (isMain) {
       const minOutcomeGames = parseInt(option('--min-games') ?? String(PANEL_DEFAULTS.minOutcomeGames), 10);
       const ridgeLambda = parseFloat(option('--ridge') ?? String(PANEL_DEFAULTS.ridgeLambda));
       const attribution = option('--attribution') ?? 'current-team';
-      const basis = option('--basis') ?? 'in-basis';
-      const scoringFrom = option('--scoring-from') ?? DEFAULT_SCORING_SNAPSHOT;
       const flipGate = flag('--flip-gate');
+      const fitMode = flag('--fit');
+      // Mode-aware basis default (§6.4 guard 2): --fit's own basis is half_ppr
+      // (the app's own store-served basis, §3.0-C3); every other mode keeps
+      // in-basis. option() returns null when the flag is absent, so an
+      // explicit --basis still wins over either default.
+      const basis = option('--basis') ?? (fitMode ? 'half_ppr' : 'in-basis');
+      const scoringFrom = option('--scoring-from') ?? DEFAULT_SCORING_SNAPSHOT;
+      const alpha = parseFloat(option('--alpha') ?? String(FIT_ALPHA_DEFAULT));
 
-      if ([fromYear, toYear, minOutcomeGames, ridgeLambda].some(v => isNaN(v))) {
-        console.error('[panel] Error: --from, --to, --min-games, --ridge must be numeric');
+      if ([fromYear, toYear, minOutcomeGames, ridgeLambda, alpha].some(v => isNaN(v))) {
+        console.error('[panel] Error: --from, --to, --min-games, --ridge, --alpha must be numeric');
         process.exit(1);
       }
       if (!['in-basis', 'half_ppr'].includes(basis)) {
@@ -79,8 +90,35 @@ if (isMain) {
         console.error('[panel] Error: flip-gate runs both modes; drop --attribution');
         process.exit(1);
       }
+      if (fitMode && flipGate) {
+        console.error('[panel] Error: --fit and --flip-gate are mutually exclusive');
+        process.exit(1);
+      }
+      // §6.4 guard 1: --fit pins per-season-team (the app's live default,
+      // load-bearing for the reconstruction) — silently ignoring an explicit
+      // --attribution here would be exactly the failure --flip-gate already refuses.
+      if (fitMode && args.includes('--attribution')) {
+        console.error('[panel] Error: --fit pins per-season-team attribution (the app\'s live default); drop --attribution');
+        process.exit(1);
+      }
 
-      if (flipGate) {
+      if (fitMode) {
+        const { panel, fitReport } = runFit({ fromYear, toYear, basis, scoringFrom, minOutcomeGames, alpha, alphaSweep: FIT_ALPHA_SWEEP });
+        const verdictMd = buildFitVerdictMarkdown(fitReport);
+
+        if (asJson) {
+          console.log(JSON.stringify(fitReport, null, 2));
+        } else {
+          console.log(verdictMd);
+        }
+
+        if (write) {
+          const { panelPath, fitPath, verdictPath } = writeFitArtifacts({ panel, fitReport, verdictMd });
+          console.log(`[panel] Wrote ${panelPath}`);
+          console.log(`[panel] Wrote ${fitPath}`);
+          console.log(`[panel] Wrote ${verdictPath}`);
+        }
+      } else if (flipGate) {
         const { panels, cohortByKey, flipReport } = runFlipGate({ fromYear, toYear, basis, scoringFrom, minOutcomeGames, ridgeLambda, ridgeSweep: PANEL_DEFAULTS.ridgeSweep });
         const verdictMd = buildFlipVerdictMarkdown(flipReport);
 
