@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-05T15:33:22.489Z",
+  "generatedAt": "2026-08-12T14:33:40.786Z",
   "sourceSeason": 2026,
-  "rowCount": 6154,
+  "rowCount": 6160,
   "ids": {
-    "MEN516487": {
+    "00-0041562": {
       "sleeperId": "13269",
       "name": "Fernando Mendoza",
       "position": "QB"
     },
-    "SIM639376": {
+    "00-0041568": {
       "sleeperId": "13275",
       "name": "Ty Simpson",
       "position": "QB"
@@ -29,7 +29,7 @@
       "name": "Cade Klubnik",
       "position": "QB"
     },
-    "ALL015451": {
+    "00-0041565": {
       "sleeperId": "13289",
       "name": "Drew Allar",
       "position": "QB"
@@ -304,9 +304,19 @@
       "name": "Trebor Pena",
       "position": "WR"
     },
+    "00-0041342": {
+      "sleeperId": "13621",
+      "name": "Dillon Bell",
+      "position": "WR"
+    },
     "00-0040912": {
       "sleeperId": "13776",
       "name": "Hank Beatty",
+      "position": "WR"
+    },
+    "00-0041368": {
+      "sleeperId": "13670",
+      "name": "Harrison Wallace",
       "position": "WR"
     },
     "00-0041179": {
@@ -414,7 +424,7 @@
       "name": "Caleb Banks",
       "position": "DT"
     },
-    "JAC003008": {
+    "00-0041569": {
       "sleeperId": "13457",
       "name": "Gabe Jacas",
       "position": "DE"
@@ -644,7 +654,7 @@
       "name": "Keyshaun Elliott",
       "position": "LB"
     },
-    "LAW090280": {
+    "00-0041446": {
       "sleeperId": "13412",
       "name": "Kendrick Law",
       "position": "WR"
@@ -674,7 +684,7 @@
       "name": "Cole Payton",
       "position": "QB"
     },
-    "TRA291459": {
+    "00-0041579": {
       "sleeperId": "13429",
       "name": "Seydou Traore",
       "position": "TE"
@@ -768,11 +778,6 @@
       "sleeperId": "13422",
       "name": "Jaren Kanak",
       "position": "TE"
-    },
-    "00-0041119": {
-      "sleeperId": "13586",
-      "name": "Jackson Kuwatch",
-      "position": "LB"
     },
     "00-0041490": {
       "sleeperId": "13423",
@@ -878,6 +883,11 @@
       "sleeperId": "13593",
       "name": "Taurean York",
       "position": "LB"
+    },
+    "00-0040919": {
+      "sleeperId": "13600",
+      "name": "Tyren Montgomery",
+      "position": "WR"
     },
     "00-0041323": {
       "sleeperId": "13964",
@@ -1234,6 +1244,11 @@
       "name": "Ricky White",
       "position": "WR"
     },
+    "00-0040531": {
+      "sleeperId": "12972",
+      "name": "Roc Taylor",
+      "position": "WR"
+    },
     "00-0040646": {
       "sleeperId": "12505",
       "name": "Jalen Royals",
@@ -1282,6 +1297,11 @@
     "00-0040551": {
       "sleeperId": "12478",
       "name": "Nick Nash",
+      "position": "WR"
+    },
+    "00-0040239": {
+      "sleeperId": "12721",
+      "name": "Kaden Prather",
       "position": "WR"
     },
     "00-0040128": {
@@ -2249,6 +2269,11 @@
       "name": "Joaquin Davis",
       "position": "WR"
     },
+    "00-0040553": {
+      "sleeperId": "12884",
+      "name": "Quincy Skinner",
+      "position": "WR"
+    },
     "00-0040552": {
       "sleeperId": "12883",
       "name": "Joshua Simon",
@@ -2427,6 +2452,11 @@
     "00-0040317": {
       "sleeperId": "13120",
       "name": "Jacoby Jones",
+      "position": "WR"
+    },
+    "00-0040388": {
+      "sleeperId": "12935",
+      "name": "Jakobie Keeney-James",
       "position": "WR"
     },
     "00-0039918": {
