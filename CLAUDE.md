@@ -141,7 +141,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `bin/enrich.mjs` | Enrichment overlay CLI → add / validate / list / remove |
 | `bin/import-snapshot.mjs` | One-command projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
 | `lib/validate.mjs` | Schema validators (incl. season-totals finiteness sweep, `findNonFinite`); contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` |
-| `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`, `RATE_KEYS`); used by the grading in-basis path — see Cross-repo contracts |
+| `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`, `RATE_KEYS`); used by the grading in-basis path — see Cross-repo contract registry |
 | `lib/cfbd.mjs` | CFBD API fetch helpers |
 | `lib/enrichment.mjs` | Enrichment schema validation helpers |
 | `lib/io.mjs` | File I/O utilities (`readJson`, `writeJsonStable`, `setStepOutput`) |
@@ -218,7 +218,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 2. **Never hand-edit primary data files** (`nfl/`, `college/`, `ktc/`, `snapshots/`). They are script-produced. Only `enrichment/` is hand-authored, and only via `bin/enrich.mjs`—direct JSON edits bypass validation.
 
-3. **manifest.json is the index.** Every script-written file must be registered with `recordCount`, `schemaVersion`, `lastModified`, and `inProgress` maintained. Treat manifest field names as a public API (see Cross-repo contracts).
+3. **manifest.json is the index.** Every script-written file must be registered with `recordCount`, `schemaVersion`, `lastModified`, and `inProgress` maintained. Treat manifest field names as a public API (see Cross-repo contract registry).
 
 4. **schemaVersion discipline.** NFL season-totals are at v3 (per-season `team`). KTC snapshots are at v1. Projection snapshots are at v2 (new envelope fields: `targetSeason`, `currentSeason`, `scoringSettings`). Bump `schemaVersion` only on an incompatible layout change. Snapshot schemaVersion is independent of the app's `MAX_SUPPORTED_SCHEMA`, which gates only season-totals files.
 
@@ -238,40 +238,59 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 ---
 
-## Cross-repo contracts (with sleeper-dashboard)
+## Cross-repo contract registry (with sleeper-dashboard)
 
-This repo cannot edit the app. Any change affecting these must be called out in the task summary so the sibling repo can be updated to match.
+This repo cannot edit the app. The **complete enumerated registry** — the entry-format definition and all 18 `CR-NN` entries — lives in [README.md → Cross-repo contract registry](README.md#cross-repo-contract-registry-with-sleeper-dashboard). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that section and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
 
-| Contract | This repo | App counterpart |
-|---|---|---|
-| **Snapshot shape** | `snapshots/<date>.json` imported via `node bin/update.mjs snapshots`; `projection` field is verbatim `computeNextSeasonProjection` output; at schemaVersion 2 the envelope also carries top-level `targetSeason`, `currentSeason`, and verbatim `scoringSettings` | `src/utils/projectionSnapshot.js` (writer); `exportData.js` `classifyKey` (router) |
-| **season-totals schemaVersion** | Writes v3 | `src/api/dataStore.js` advertises `MAX_SUPPORTED_SCHEMA=3`; bumping needs both repos. Each record carries an additive per-season `team` (schedule-domain abbr, or `null`); the app joins game logs on `careerStats[season][pid].team` instead of current team. Each season-totals file also carries one `TEAM_<abbr>` whole-team aggregate pseudo-row per team alongside player rows and `<abbr>` DEF rows — consumers must exclude `TEAM_*` from cross-player summation (see data-catalog.md season-totals section for the full row-composition contract). Per-season `team` is scoring-load-bearing in the app since the R2 flip (2026-07-11): it feeds projection Steps 3/5h attribution (`resolveAttributedTeam`). The dominant-team derivation in `lib/sleeper.mjs` `aggregateWeeks` (most played weeks; ties → later stint; zero played → last seen; schedule-domain normalization) is therefore a silent-scoring-change surface — any edit to that rule changes app projections with no app-side diff. Treat changes as scoring changes: flag cross-repo and route through a graded gate. |
-| **Enrichment schemas** | Writes/validates `enrichment/*.json` | `src/api/enrichment.js` (`loadEnrichment`); `src/utils/enrichmentLookup.js`; field add/rename must be mirrored |
-| **Manifest contract** | manifest.json field names/shape; new `nfl/players-state/*` entries are additive; app must ignore unknown families (it already keys `getManifestEntry` by path) | `dataStore.js` `getManifestEntry` / validators gate on `schemaVersion`, `inProgress`, `lastModified` |
-| **CFBD statType keys** | Row per `statType`; confirmed sets per category stored here | App pivots via `pivotStatRows`; statType set is a shared contract |
-| **Snap & RZ usage stat keys** | `off_snp`, `tm_off_snp`, `rec_rz_tgt`, `rush_rz_att`, `pass_rz_att` aggregated from Sleeper stats response and preserved as-is in `nfl/season-totals/<year>.json`; never stripped or filtered in any schema operation | `src/utils/usageMetrics.js` reads these fields; projection degrades silently to neutral if absent, so the dependency is invisible at runtime — do not remove or rename |
-| **`pass_cmp` stat key (QB passer rating)** | Preserved through season-totals aggregation; never stripped (flows through the generic sum-all-keys path in `lib/sleeper.mjs`). Note: stored `pass_rtg` and `cmp_pct` fields are weekly sums (not reliable season-level metrics) and are NOT consumed by the app — preserve as-is, no action needed | `src/utils/efficiencyMetrics.js` computes canonical NFL passer rating from `pass_cmp`, `pass_att`, `pass_yd`, `pass_td`, `pass_int`; `pass_cmp` is the new dependency (the latter four were previously implicit). Missing `pass_cmp` produces neutral `efficiencyFactor` (1.0); no errors, no schema bump required |
-| **`rec_air_yd` stat key (aDOT diagnostic)** | Preserved through season-totals aggregation; never stripped (same generic sum-all-keys path in `lib/sleeper.mjs`). Confirmed present 2012–present. Calibration note: values run ~½ industry aDOT magnitude (likely air yards on completed receptions only, not all targets) — ranking is preserved, absolute magnitude is not industry-standard; this is the app's concern, not the data repo's | `src/utils/seasonProjection.js` reads `rec_air_yd` and `rec_tgt` to compute `factors.adot` (WR/TE capture-only diagnostic; does **not** affect `projectedPPG`). Missing `rec_air_yd` produces `factors.adot: null`; no errors, no schema bump required (aDOT batch) |
-| **nflverse roster/draft** | `nflverse/roster/<year>.json` (keyed by `sleeper_id`; `{ team, position, status, fullName }` per player; `inProgress: false`, `schemaVersion: 1`) + `nflverse/draft/draft_picks.json` (`{ picksByYear: { [year]: DraftPick[] }, count }`) written by `bin/update.mjs roster`/`draft`; `MIN_ROSTER_IDS = 1500` is the shared sparsity constant | `src/api/nflRoster.js` reads roster via `tryDataStore`/`getManifestEntry` (Part 2); `src/api/nflDraft.js` reads draft picks the same way. The served JSON shapes + `MIN_ROSTER_IDS` constant are the contract — if either changes, update both repos |
-| **nflverse advstats (advanced receiving)** | `nflverse/advstats/<year>.json` keyed by `sleeper_id`; `{ gsisId, name, position, team, targetShare, airYardsShare, wopr, racr, components }` per player; WR/TE/RB; ratios recomputed season-level (never aggregated weekly); `inProgress:false`, `schemaVersion:1`; `MIN_ADVSTATS_ROWS = 250` shared sparsity constant; written by `bin/update.mjs advstats` | `src/api/advStats.js` reads via `tryDataStore`/`getManifestEntry` (Phase 1b); `seasonProjection.js` records `targetShare`/`airYardsShare`/`wopr`/`racr` as capture-only `factors` (WR/TE), retiring the Sleeper-aDOT calibration defect. Served shape + `MIN_ADVSTATS_ROWS` are the contract — change both repos together |
-| **nflverse schedule** | `nflverse/schedule/<year>.json`: `{ schemaVersion:1, season, generatedAt, rowCount, games[] }`; each game `{ gameId, season, week, gameType, homeTeam, awayTeam, homeScore, awayScore, result, spreadLine, totalLine, roof, surface, temp, wind }`; `inProgress:false`; `MIN_SCHEDULE_GAMES = 200` shared sparsity constant; written by `bin/update.mjs schedule` | **New app loader** (e.g. `src/api/nflSchedule.js`) reads via `tryDataStore`/`getManifestEntry`, same pattern as `nflRoster.js`. Served shape + `MIN_SCHEDULE_GAMES` are the contract — change both repos together |
-| **nflverse gamelogs (per-game player stats)** | `nflverse/gamelogs/<year>.json`: `{ schemaVersion:1, season, generatedAt, rowCount, playerCount, unmapped, players }`; `players` keyed by `sleeper_id`, each `{ gsisId, name, position, games[] }`; each game `{ week, seasonType, team, opponent, …per-game stats (sparse: absent key = null, never 0) }`. QB/RB/WR/TE/FB; 2012+; per-game grain; per-game rate fields are single-game values (never sum); `fantasyPoints*` are nflverse scoring (not app scoring). `inProgress:false`; `MIN_PLAYERGAME_ROWS = 3000` shared sparsity constant; written by `bin/update.mjs gamelogs`. **View-only — must never feed projection/scoring/grading.** Served shape + `MIN_PLAYERGAME_ROWS` are the contract — change both repos together | **New app loader** `src/api/nflGameLogs.js` reads via `tryDataStore`/`getManifestEntry`, same pattern as `nflRoster.js`; gates on `MAX_SUPPORTED_SCHEMA` (schemaVersion 1) and re-asserts `rowCount ≥ MIN_PLAYERGAME_ROWS`. Display/training only; must never import into `seasonProjection.js` or any scoring/grading path |
-| **nflverse teamcontext (team-context pack)** | `nflverse/teamcontext/<year>.json`: `{ schemaVersion:1, season, generatedAt, rowCount, teamCount, teams }`; `teams` keyed by **era-accurate team abbr** (schedule/season-totals domain — the pbp `eraTeam` remap exists precisely so this key matches), each `{ games[] }`; each game `{ week, seasonType, gameId, opponent, off:{...}, def:{...} }` (PROE, pace, red-zone tendencies, EPA/success, points — components + rate, per §4.3 aggregation recipes: never sum/average the stored per-game rates). `inProgress:false`; `MIN_TEAMCONTEXT_ROWS = 60` shared sparsity constant; written by `bin/update.mjs teamcontext`. **First TEAM-keyed served family** (every other family is `sleeper_id`-keyed) — no crosswalk dependency. **View-only — must never feed projection/scoring/grading.** Served shape + `MIN_TEAMCONTEXT_ROWS` are the contract — change both repos together | **New app loader** `src/api/teamContext.js` — `tryDataStore`/`getManifestEntry` pattern (same precedent as `nflGameLogs.js`); gates on `MAX_SUPPORTED_SCHEMA` and re-asserts `rowCount ≥ MIN_TEAMCONTEXT_ROWS`. **Chosen contract term (not an omission):** teamcontext ships `schemaVersion 1`, so no `MAX_SUPPORTED_SCHEMA` bump is needed to consume it — same gate the gamelogs row uses. First TEAM-keyed loader — its cache key is `(season, team)`, not `sleeper_id`; do not force it through the player-keyed loader helpers. Must never import into `seasonProjection.js` or any scoring/grading path |
-| **Snapshot target season** | At schemaVersion 2, the app writes `targetSeason` explicitly in the snapshot envelope; `gradeSnapshot()` reads it directly. `deriveTargetSeason()` in `scripts/grade-snapshot.mjs` is the fallback for v1 snapshots only (maps Jan–Aug → same year, Sep–Dec → year+1; override: `--target-season YYYY`) | `scoringSettings` is captured verbatim in the snapshot envelope as of v2; **implemented**: `lib/fantasyPoints.mjs` + `buildInBasisOutcomes`; grades v2 snapshots in-basis |
-| **`calculateFantasyPoints` port** | `lib/fantasyPoints.mjs` must mirror the app's `src/utils/fantasyPoints.js` `calculateFantasyPoints` formula: loop `scoringSettings` keys, skip null multiplier/stat, 2-dp round. If the app changes its scoring math, mirror it here or in-basis grades diverge from how the app actually scored | `src/utils/fantasyPoints.js` — the source of truth; low churn (the dot-product is stable), but any change there must be reflected here |
-| **R3-FIT factor-multiplier mirror** | `lib/projectionFactors.mjs` mirrors the app's `momentum.js` (`computeMomentum`), `regressionSignals.js` (`computeTrajectory`, `computeConsistency`), `teamContext.js` (`computeShareTrend`, `computeHistoricalShares` — the share-series builder incl. its gp≥8 gate, positive-own-volume requirement, WR/TE `rec` fallback, no-floor denominators, 3dp rounding — and `computeHistoricalTeamTotals` — the denominator builder incl. its `gamesPlayed≥1` gate and `TEAM_*` entity filter — and `resolveAttributedTeam`), `usageMetrics.js` (cohort gates, `refSeason` pool rule, count shrinkage, sentinel returns, the full `RZ_CONFIG` table incl. `RZ_CONFIG.QB` and the `(stats[rzKey] ?? 0)` numerator coalescence), `teamRzShare.js` (same + `MIN_TEAM_DENOM`, `minOpp`, its in-module 3dp factor rounding), and `seasonProjection.js` (the qualifying-season builder + rookie-vs-veteran routing, the basePPG per-length weight table, momentum/shareTrend label→factor maps, the forward-mover neutralization, **and the `combinedNewFactorRaw` envelope membership + `[0.67,1.50]` clamp** — `lib/panel.mjs`'s `predictWithExponents`). Also depends on the app reading store `fantasyPoints` **verbatim** (half-PPR, `lib/sleeper.mjs:212/240-243`) — `bin/panel.mjs --fit` pins `--basis half_ppr` for exact parity by construction. Which positions a factor is gated to is itself part of the mirror (e.g. QB `rzUsageFactor`, applied unposition-gated — held-in-arm, not omitted). Parity-guarded by `test/panel-fit.test.mjs`: T-F5/T-F17/T-F18 (construction-level, all 7 factors) + T-F10 (real committed snapshot, half-PPR basis, through the exported `buildCohortPools`, 5 of 7 — `momentum`/`regression`/`trajectory`/`snapShare`/`rzUsage`). **`shareTrend` and `teamRzShare` have no end-to-end app-ground-truth check** — no committed snapshot exists yet in the per-season-team + entity-filtered regime (store-side snapshots predate both the R2 flip and the 2026-08-08 denominator fix); closure is a one-line extension of T-F10 once a post-2026-07-18 snapshot is imported (roadmap R0-BANK) | `src/utils/momentum.js`, `regressionSignals.js`, `teamContext.js`, `usageMetrics.js`, `teamRzShare.js`, `seasonProjection.js` — the source of truth for every mirrored constant, gate, shrinkage K, qualifying threshold, routing condition, sentinel branch, series-construction branch, denominator accumulator, cohort reference season, and the `combinedNewFactorRaw` membership/clamp range. If any of these change, the fit reconstructs a factor (or clamp) the app no longer produces and the fitted exponents in `.claude/tasks/r3fit-exponent-harness.md`'s committed verdict stop transporting — re-fit required before further activation |
+**Rule.** Any change touching a listed contract **must emit that entry's `Mirror` text as Session 1 output**, in a `## Cross-repo impact` section of the task file, quoting the `CR-NN` id. Naming the contract in prose is not enough; the mirror instruction itself is the deliverable.
 
-> *Note: `nflverse/playerids.json` (the `gsis_id → sleeper_id` crosswalk) is **internal to this repo** — consumed server-side by `scripts/update-advstats.mjs` and `scripts/update-gamelogs.mjs` to re-key gsis-keyed stats. It is not a cross-repo contract (the planned `src/api/playerIds.js` app loader was cut). `MIN_PLAYERID_ROWS` remains an internal sparsity constant.*
-
-> *Note: `nflverse/oline/<year>.json` (OL composition per team-week, ESPN depth charts) is **capture-only** — no app loader exists or is planned; there is no live consumer to keep in sync. It is not a cross-repo contract. `MIN_OLINE_ROWS` remains an internal sparsity constant (same precedent as `MIN_PLAYERID_ROWS` above). If a consumer is ever built, it must follow the teamcontext loader's pattern and stay out of projection/scoring/grading without a graded gate.*
+**A coupling that is not listed there does not exist for review purposes.** Introducing a genuinely new cross-repo coupling is the one residual case that routes to the Claude.ai project — see [Workflow convention](#workflow-convention).
 
 ---
 
 ## Sibling repo
 
-`sleeper-dashboard` is the React app that consumes this repo's files and produces the snapshots imported here. Its README documents the projection pipeline and data-store consumption. See Cross-repo contracts above.
+`sleeper-dashboard` is the React app that consumes this repo's files and produces the snapshots imported here. Its README documents the projection pipeline and data-store consumption. See [Cross-repo contract registry](#cross-repo-contract-registry-with-sleeper-dashboard) above.
 
 The canonical signal/feature registry — classifying every raw source, computed factor, and ephemeral capture by layer, coverage, and reconstructable-vs-ephemeral status — lives in the app repo at `docs/signal-registry.md`.
+
+---
+
+## Workflow convention
+
+**The standard loop is fully in-repo.** Every step — planning, review, approval, implementation — happens in this repository against live source. Nothing in the standard loop depends on an external tool or on a chat held outside it.
+
+```
+Session 1 (planning, opus)
+  → plan-reviewer subagent   ← the review gate
+  → human approval
+  → Session 2 (implementation, sonnet)
+```
+
+Features use a two-session flow: **opus plans**, **sonnet implements**.
+
+- Opus session: read relevant code, decide signatures and data shapes, write `.claude/tasks/<feature>.md`. **Do not edit any source files.** End the session.
+- Sonnet session: read the task file first, implement exactly what it specifies, run `npm run smoke`. If something is ambiguous or contradicts existing code, stop and ask — do not guess.
+
+The task file is the handoff artifact, not chat history. A planning session that edits source has broken the handoff.
+
+### Plan review
+
+The plan-reviewer subagent (`.claude/agents/plan-reviewer.md`) is the **primary review gate**, not a lint pass. Invoke it on the task file at the end of Session 1, before Session 2. Its mandate is three-part:
+
+1. **Factual / mechanical** — paths, function signatures, emitted JSON shapes, manifest entries, stat keys and step ordering, checked against live source.
+2. **Strategic / principles** — whether the planned approach is sound and conforms to the [Invariants](#invariants) above: a plan that is factually accurate but violates an invariant, or solves the problem the wrong way, gets flagged.
+3. **Cross-repo intent** — whether the plan touches an entry in [README.md → Cross-repo contract registry](README.md#cross-repo-contract-registry-with-sleeper-dashboard), and if so whether Session 1 emitted that entry's `Mirror` text. The reviewer checks against that registry only; it never reads the sibling tree.
+
+**Flags are advisory input to the human, not an auto-apply queue.** Session 1 reports them verbatim and does not act on them. The human decides what to fix. Session 2 starts only after human approval.
+
+### The Claude.ai project
+
+**Out of the standard loop.** The Claude.ai project is an occasional exploration tool — open-ended thinking, cross-repo reading, research that has not yet become a plan. It is not a review gate, it does not author task files, and no step of the standard loop waits on it.
+
+**The one residual case that still routes there:** a change that introduces a **brand-new cross-repo coupling not yet present in the registry**. A repo-scoped subagent can check a plan against a known list, but it cannot reason about a coupling that has never been written down, and it cannot read the sibling tree to discover one. Take that case to the Claude.ai project, which can hold both repos at once.
+
+Its output is not a decision — it is a **draft registry entry** in the format defined inside the mirrored region of [README.md → Cross-repo contract registry](README.md#cross-repo-contract-registry-with-sleeper-dashboard). That draft returns to Session 1, lands in both repos' registries in the same change, and is then subject to the normal in-repo gate like anything else. Extending an existing entry is *not* this case and stays in-repo.
 
 ---
 
@@ -281,7 +300,7 @@ Before reporting a task complete:
 1. Run `npm run smoke` — fix any red.
 2. For enrichment changes, run `npm run validate:enrichment` — fix any red.
 3. For any change touching a data file, confirm `manifest.json` is updated.
-4. Plan review: invoke the plan-reviewer subagent on the task file at the end of Session 1, before Session 2.
+4. Plan review: invoke the plan-reviewer subagent on the task file at the end of Session 1, before Session 2 — see [Workflow convention](#workflow-convention).
 5. For any change that adds a served family or alters a family's coverage/schema/gate, update its `data-catalog.md` row in the same change.
 
 ---
@@ -304,6 +323,6 @@ End-of-session sequence:
 
 ## Self-maintenance
 
-Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`schedule`/`gamelogs`/`teamcontext`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. The same trigger updates the family's row in `data-catalog.md` (this repo — storage registry). Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change affects a Cross-repo contract, state that explicitly in your task summary so the sibling repo can be updated to match.
+Keep this file current as part of every task's done-definition. If a change adds/renames a `bin/` subcommand, a `package.json` script, a data folder, a manifest field, or an enrichment/snapshot schema, update the relevant section in the same change. When a change adds, removes, or alters the historical coverage of an ingested field, stat key, or data source (`nfl`/`cfbd`/`ktc`/`roster`/`draft`/`advstats`/`playerids`/`schedule`/`gamelogs`/`teamcontext`/`enrichment`), flag the canonical signal registry for update: it lives in the app repo at `docs/signal-registry.md`. The same trigger updates the family's row in `data-catalog.md` (this repo — storage registry). Note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo updates the row. If a change touches an entry in [README.md → Cross-repo contract registry](README.md#cross-repo-contract-registry-with-sleeper-dashboard), emit that entry's `Mirror` text in a `## Cross-repo impact` section of the task file, quoting the `CR-NN` id — naming the contract in prose is not enough. If the change introduces a coupling the registry does not list, add the new entry to **both** repos in the same change (see [Workflow convention](#workflow-convention) for how a genuinely new coupling gets drafted).
 
 Keep this file thin — a navigation-and-rules layer, not a second README; push deep detail into README.md and link to it.

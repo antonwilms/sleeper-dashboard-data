@@ -5,8 +5,8 @@ refreshes, what joins it, and what's honestly missing. One section per family; `
 stays the machine-readable index — this doc adds the semantics. The *signal* registry (how the app
 consumes fields) lives in the app repo at `docs/signal-registry.md`; link, don't merge.
 
-**Doctrine:** all banked data is capture-only/view-only unless a Cross-repo contract in CLAUDE.md
-says otherwise — it never silently feeds projection/scoring/grading. Gaps are honest: an
+**Doctrine:** all banked data is capture-only/view-only unless an entry in the Cross-repo contract
+registry (README.md) says otherwise — it never silently feeds projection/scoring/grading. Gaps are honest: an
 upstream-absent year stays absent and documented; nothing is zero-filled, fabricated, or
 back-dated. Served paths follow the ad-blocker-safe naming rule (no `adv`/`ad`/`ads`/`analytics`/
 `tracking` tokens; the legacy `nflverse/advstats/` path is a known parked violation — do not
@@ -41,7 +41,7 @@ _Last reconciled against manifest.json: 2026-07-21_
 - **Consumption:** app-consumed (`src/api/dataStore.js`)
 - **Keep-rationale:** the canonical outcome/actuals store
 - **Row composition:** each season-totals file's entries are not uniformly player rows — numeric `sleeper_id` player rows; one `TEAM_<abbr>` whole-team aggregate pseudo-row per team (full stat keys, `gamesPlayed`, per-season `team` field; present since 2026-05-19, commit `135d8ac`); `<abbr>` DEF entries (team defenses; no offensive stat keys); and rare legacy suffixed ids (e.g. `1339z`, seen in 2021). **Contract: consumers must exclude `TEAM_*` rows from any cross-player summation** (the app does this via `teamContext.isTeamAggregateId`). The `TEAM_` prefix is a cross-repo contract — renaming or reformatting it is a breaking change to the app's denominator filter. Analysis consumers (`lib/panel.mjs`) exclude `TEAM_*` via `isTeamAggregateId` (mirrored in `lib/backtest.mjs`, 2026-08-08).
-- **`team` (v3, per-season):** scoring-load-bearing in the app since the R2 flip (2026-07-11) — projection attribution consumes it; the `aggregateWeeks` dominant-team rule is a silent-scoring-change surface (see CLAUDE.md cross-repo contracts).
+- **`team` (v3, per-season):** scoring-load-bearing in the app since the R2 flip (2026-07-11) — projection attribution consumes it; the `aggregateWeeks` dominant-team rule is a silent-scoring-change surface (see README.md → Cross-repo contract registry).
 
 ## CFBD college stats
 - **Served path / subcommand / refresh:** `college/{passing,receiving,rushing}/<year>.json`; `bin/update.mjs cfbd --year [--category]`; no Action
@@ -196,7 +196,7 @@ _Last reconciled against manifest.json: 2026-07-21_
 - **Join id(s):** team abbr (schedule-domain, current 32 codes only — ESPN era needs no historical era remap); `gsisId`/`espnId` verbatim per OL entry, no sleeper_id re-key (OL are largely absent from the DynastyProcess crosswalk)
 - **Coverage:** 2025 → present (`MIN_OLINE_SEASON`); pre-2025 exists upstream in the legacy schema, unparsed, reconstructable later
 - **schemaVersion:** 1
-- **Sparsity gate:** `MIN_OLINE_ROWS = 160` (internal — see CLAUDE.md Cross-repo contracts note; no app counterpart)
+- **Sparsity gate:** `MIN_OLINE_ROWS = 160` (internal — see README.md → Cross-repo contract registry note; no app counterpart)
 - **Null semantics:** absent week = no chart published that week (honest-null, never fabricated); `gsisId`/`espnId` null when upstream empty; placeholder ids (e.g. `"WIL597533"`) kept verbatim, format not validated
 - **Consumption:** capture-only — no app, projection, grading, or backtest path reads this family
 - **Keep-rationale:** forward-capture insurance for OL composition/depth signal; Sleeper cannot express OL slots (0 of 510 OL records carry a depth-chart slot), so this is the only mechanical source for this signal
