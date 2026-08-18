@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "season": 2026,
-  "generatedAt": "2026-08-11T14:33:38.130Z",
-  "rowCount": 1818,
+  "generatedAt": "2026-08-18T14:01:24.983Z",
+  "rowCount": 1820,
   "players": {
     "19": {
       "team": "CIN",
@@ -10846,6 +10846,12 @@
       "status": "ACT",
       "fullName": "Dominic Richardson"
     },
+    "13750": {
+      "team": "CLE",
+      "position": "RB",
+      "status": "ACT",
+      "fullName": "T.J. Harden"
+    },
     "13770": {
       "team": "GB",
       "position": "WR",
@@ -10893,6 +10899,12 @@
       "position": "LB",
       "status": "ACT",
       "fullName": "Cian Slone"
+    },
+    "13915": {
+      "team": "NE",
+      "position": "LB",
+      "status": "ACT",
+      "fullName": "Khalil Jacobs"
     },
     "13946": {
       "team": "CIN",
