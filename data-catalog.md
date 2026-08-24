@@ -25,7 +25,7 @@ header-compatible (column lookup by name; 2025 adds one additive `game_id` colum
 does not affect served shape — it is recorded here so provenance stays honest, not silent. See each
 family's Source + provenance field below for the per-family detail.
 
-_Last reconciled against manifest.json: 2026-07-21_
+_Last reconciled against manifest.json: 2026-08-24_
 
 ---
 
@@ -34,14 +34,14 @@ _Last reconciled against manifest.json: 2026-07-21_
 - **Source + provenance:** Sleeper stats API, aggregated server-side (`lib/sleeper.mjs`)
 - **Grain:** player-season + `weeklyPoints`/`weeklyStatus` arrays
 - **Join id(s):** sleeper_id (native key)
-- **Coverage:** 2012–2025; snap/RZ usage keys ≈2020/2021+ only; per-season `team` (schemaVersion 3); Market Efficiency-set keys (`pass_sack`, `pass_air_yd`, `rush_yac`, `rec_drop`) 2012+, `rush_btkl` 2015+ (zero finite rows 2012–2014) — app-side contract CR-19, view-only
-- **schemaVersion:** 3 (app `MAX_SUPPORTED_SCHEMA=3`)
+- **Coverage:** 2012–2025; snap/RZ usage keys ≈2020/2021+ only; per-season `team` (schemaVersion 3); Market Efficiency-set keys (`pass_sack`, `pass_air_yd`, `rush_yac`, `rec_drop`) 2012+, `rush_btkl` 2015+ (zero finite rows 2012–2014) — app-side contract CR-19, view-only; forward bye inference (`weeklyStatus` code `'B'`, D-1) applies **only** to the current/future season's ingest from 2026-08-24 on — every completed 2012–2025 file keeps `'X'` at every bye, permanently (Invariant 1: no re-derivation)
+- **schemaVersion:** 4 (app `MAX_SUPPORTED_SCHEMA=4`) — F-24 (2026-08-24) bumped 3→4: `idp_*` (17 keys) and `punt*` (6 keys) dropped from every non-`TEAM_*` row's `stats`; files also minified (`nfl/season-totals/` only — every other served family stays pretty-printed)
 - **Sparsity gate:** none — sentinel validation (`NFL_SENTINELS`) + finiteness sweep instead
 - **Null semantics:** keys preserved as-is from Sleeper; `pass_rtg`/`cmp_pct` are weekly sums, never season-valid (rate-trap note)
 - **Consumption:** app-consumed (`src/api/dataStore.js`)
 - **Keep-rationale:** the canonical outcome/actuals store
-- **Row composition:** each season-totals file's entries are not uniformly player rows — numeric `sleeper_id` player rows; one `TEAM_<abbr>` whole-team aggregate pseudo-row per team (full stat keys, `gamesPlayed`, per-season `team` field; present since 2026-05-19, commit `135d8ac`); `<abbr>` DEF entries (team defenses; no offensive stat keys); and rare legacy suffixed ids (e.g. `1339z`, seen in 2021). **Contract: consumers must exclude `TEAM_*` rows from any cross-player summation** (the app does this via `teamContext.isTeamAggregateId`). The `TEAM_` prefix is a cross-repo contract — renaming or reformatting it is a breaking change to the app's denominator filter. Analysis consumers (`lib/panel.mjs`) exclude `TEAM_*` via `isTeamAggregateId` (mirrored in `lib/backtest.mjs`, 2026-08-08).
-- **`team` (v3, per-season):** scoring-load-bearing in the app since the R2 flip (2026-07-11) — projection attribution consumes it; the `aggregateWeeks` dominant-team rule is a silent-scoring-change surface (see README.md → Cross-repo contract registry).
+- **Row composition:** each season-totals file's entries are not uniformly player rows — numeric `sleeper_id` player rows; one `TEAM_<abbr>` whole-team aggregate pseudo-row per team (full stat keys, `gamesPlayed`, per-season `team` field; present since 2026-05-19, commit `135d8ac`); `<abbr>` DEF entries (team defenses; no offensive stat keys); and rare legacy suffixed ids (e.g. `1339z`, seen in 2021). **Contract: consumers must exclude `TEAM_*` rows from any cross-player summation** (the app does this via `teamContext.isTeamAggregateId`). The `TEAM_` prefix is a cross-repo contract — renaming or reformatting it is a breaking change to the app's denominator filter. Analysis consumers (`lib/panel.mjs`) exclude `TEAM_*` via `isTeamAggregateId` (mirrored in `lib/backtest.mjs`, 2026-08-08). `TEAM_*` rows are exempt from the F-24 prune (preserved entire, including a `punts` key some of them carry).
+- **`team` (v3+, per-season):** scoring-load-bearing in the app since the R2 flip (2026-07-11) — projection attribution consumes it; the `aggregateWeeks` dominant-team rule is a silent-scoring-change surface (see README.md → Cross-repo contract registry). F-24's in-place field delete never moves `team` (verified empty diff across all 14 seasons at migration time); D-1's bye inference reads `team` but never writes it.
 
 ## CFBD college stats
 - **Served path / subcommand / refresh:** `college/{passing,receiving,rushing}/<year>.json`; `bin/update.mjs cfbd --year [--category]`; no Action

@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { aggregateWeeks, computeAvailability, normalizeTeamForSchedule, SCHEDULE_TEAM_ALIAS } from '../lib/sleeper.mjs';
+import {
+  aggregateWeeks, computeAvailability, normalizeTeamForSchedule, SCHEDULE_TEAM_ALIAS,
+  computeTeamByeWeeks, prunePlayerStats,
+} from '../lib/sleeper.mjs';
 
 // weeks are 1-indexed; e.g. ws({ 1: 'P', 6: 'D' })
 const ws = (o = {}) => Array.from({ length: 18 }, (_, i) => o[i + 1] ?? 'X');
@@ -366,4 +369,228 @@ test('drift guard: every SCHEDULE_TEAM_ALIAS value is in the schedule team domai
       `SCHEDULE_TEAM_ALIAS maps ${from} → ${to}, but ${to} is not in the schedule team domain`
     );
   }
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// Suite 4 — F-24 prune (prunePlayerStats) + D-1 bye inference
+// ═══════════════════════════════════════════════════════════════════
+
+test('F24-1 — denylist: idp_*/punt* keys dropped, CR-11/12/13/19 + kicking + bonus_ + kr_/pr_ survive', () => {
+  const totals = {
+    p1: {
+      stats: {
+        // idp_* (17 keys, one sample)
+        idp_tkl: 5, idp_sack: 1,
+        // punt* (6 keys, one sample)
+        punts: 4, punt_yds: 160,
+        // CR-11 (usage/RZ)
+        off_snp: 40, tm_off_snp: 60, rec_rz_tgt: 2, rush_rz_att: 1, pass_rz_att: 0,
+        // CR-12
+        pass_cmp: 20,
+        // CR-13
+        rec_air_yd: 100,
+        // CR-19
+        pass_sack: 2, pass_air_yd: 50, rush_yac: 10, rush_btkl: 1, rec_drop: 1,
+        // kicking (must survive — never pruned)
+        fga: 2, fgm: 1, xpa: 1, xpm: 1,
+        // bonus_* (must survive)
+        bonus_rec_te: 1,
+        // kr_/pr_ (must survive)
+        kr_yd: 20, pr_yd: 10,
+      },
+    },
+  };
+  prunePlayerStats(totals);
+  const stats = totals.p1.stats;
+  assert.deepStrictEqual(Object.keys(stats).filter(k => k.startsWith('idp_') || k.startsWith('punt')), []);
+  for (const k of ['off_snp', 'tm_off_snp', 'rec_rz_tgt', 'rush_rz_att', 'pass_rz_att',
+                   'pass_cmp', 'rec_air_yd', 'pass_sack', 'pass_air_yd', 'rush_yac',
+                   'rush_btkl', 'rec_drop', 'fga', 'fgm', 'xpa', 'xpm', 'bonus_rec_te',
+                   'kr_yd', 'pr_yd']) {
+    assert.ok(k in stats, `${k} should survive the prune`);
+  }
+});
+
+test('F24-2 — TEAM_* rows are preserved entire, including a punts key', () => {
+  const totals = {
+    TEAM_KC: { stats: { punts: 4, idp_tkl: 5, gp: 17 }, team: 'KC', gamesPlayed: 17 },
+    '123':   { stats: { punts: 4, idp_tkl: 5 } },
+  };
+  prunePlayerStats(totals);
+  assert.deepStrictEqual(totals.TEAM_KC.stats, { punts: 4, idp_tkl: 5, gp: 17 });
+  assert.deepStrictEqual(totals['123'].stats, {});
+});
+
+test('F24-3 — shape: prune never adds/removes top-level rows, never touches non-stats fields', () => {
+  const totals = {
+    p1: { stats: { idp_tkl: 5, gp: 1 }, team: 'KC', gamesPlayed: 1, dnpWeeks: 0 },
+  };
+  prunePlayerStats(totals);
+  assert.deepStrictEqual(Object.keys(totals), ['p1']);
+  assert.equal(totals.p1.team, 'KC');
+  assert.equal(totals.p1.gamesPlayed, 1);
+});
+
+test('F24-4 — aggregateWeeks applies the prune at the end (idp_/punt gone from a player row)', () => {
+  const weekData = [
+    { week: 1, entries: [{ player_id: 'p1', team: 'KC', stats: { gp: 1, pts_half_ppr: 5, idp_tkl: 3, punts: 2 } }] },
+  ];
+  const totals = aggregateWeeks(weekData);
+  assert.deepStrictEqual(totals.p1.stats, { gp: 1, pts_half_ppr: 5 });
+});
+
+// D-1 fixtures: three teams, three REG weeks — each team has exactly one bye
+// (A: bye wk3, B: bye wk2, C: bye wk1).
+const D1_SCHEDULE = [
+  { week: 1, gameType: 'REG', homeTeam: 'B', awayTeam: 'A' },
+  { week: 2, gameType: 'REG', homeTeam: 'C', awayTeam: 'A' },
+  { week: 3, gameType: 'REG', homeTeam: 'C', awayTeam: 'B' },
+];
+
+test('D1-1 — computeTeamByeWeeks: each team gets exactly its one derived bye week', () => {
+  const byes = computeTeamByeWeeks(D1_SCHEDULE);
+  assert.deepStrictEqual([...byes.get('A')], [3]);
+  assert.deepStrictEqual([...byes.get('B')], [2]);
+  assert.deepStrictEqual([...byes.get('C')], [1]);
+});
+
+test('D1-2 — computeTeamByeWeeks: null/undefined/empty schedule → empty map, no throw', () => {
+  assert.deepStrictEqual(computeTeamByeWeeks(null), new Map());
+  assert.deepStrictEqual(computeTeamByeWeeks(undefined), new Map());
+  assert.deepStrictEqual(computeTeamByeWeeks([]), new Map());
+});
+
+test('D1-3 — single-team row: bye week flips X → B, byeWeeks increments', () => {
+  const weekData = [
+    { week: 1, entries: [{ player_id: 'p1', team: 'A', stats: { gp: 1, pts_half_ppr: 5 } }] },
+    { week: 2, entries: [{ player_id: 'p1', team: 'A', stats: { gp: 1, pts_half_ppr: 5 } }] },
+    // week 3 (A's bye): no entry at all for p1 — starts 'X'
+  ];
+  const totals = aggregateWeeks(weekData, D1_SCHEDULE);
+  assert.deepStrictEqual(totals.p1.weeklyStatus.slice(0, 3), ['P', 'P', 'B']);
+  assert.equal(totals.p1.byeWeeks, 1);
+});
+
+test('D1-4 — multi-team row: bye NOT written, stays X, byeWeeks 0', () => {
+  const weekData = [
+    { week: 1, entries: [{ player_id: 'p1', team: 'A', stats: { gp: 1, pts_half_ppr: 5 } }] },
+    { week: 2, entries: [{ player_id: 'p1', team: 'B', stats: { gp: 1, pts_half_ppr: 5 } }] },
+    // week 3 is A's bye — but p1 is a multi-team row (A + B), so no flip
+  ];
+  const totals = aggregateWeeks(weekData, D1_SCHEDULE);
+  assert.equal(totals.p1.weeklyStatus[2], 'X');
+  assert.equal(totals.p1.byeWeeks, 0);
+});
+
+test('D1-5 — never-played row (all gp=0): no team resolved via playedCounts → no flip at the bye week', () => {
+  const weekData = [
+    // a teammate with gp:1 makes team A "playing" week 1, so p1's gp:0 entry classifies as
+    // DNP by the base (pre-D-1) logic rather than an incidental bye — isolating the thing
+    // this test actually checks: week 3 (A's real bye) is never touched for a zero-played row.
+    { week: 1, entries: [
+      { player_id: 'p1', team: 'A', stats: { gp: 0 } },
+      { player_id: 'mate', team: 'A', stats: { gp: 1, pts_half_ppr: 5 } },
+    ] },
+  ];
+  const totals = aggregateWeeks(weekData, D1_SCHEDULE);
+  // p1 has zero played weeks; playedCounts.size === 0, so D-1 never applies regardless of
+  // week 1's own D/B classification (irrelevant here — this asserts no *bye-week* flip at wk3).
+  assert.equal(totals.p1.weeklyStatus[2], 'X');
+  assert.equal(totals.p1.byeWeeks, 0);
+});
+
+test("D1-6 — 'D' collision: a slot already 'D' at the team's bye is left alone, dnpWeeks unchanged", () => {
+  const weekData = [
+    { week: 1, entries: [{ player_id: 'p1', team: 'A', stats: { gp: 1, pts_half_ppr: 5 } }] },
+    { week: 2, entries: [{ player_id: 'p1', team: 'A', stats: { gp: 1, pts_half_ppr: 5 } }] },
+    // week 3 is A's bye, but p1 shows up DNP'd under team C (which IS playing wk3)
+    { week: 3, entries: [
+      { player_id: 'p1', team: 'C', stats: { gp: 0 } },
+      { player_id: 'other', team: 'C', stats: { gp: 1, pts_half_ppr: 3 } },
+    ] },
+  ];
+  const totals = aggregateWeeks(weekData, D1_SCHEDULE);
+  assert.equal(totals.p1.team, 'A'); // single-team resolution unaffected by the wk3 C cameo
+  assert.equal(totals.p1.weeklyStatus[2], 'D');
+  assert.equal(totals.p1.byeWeeks, 0);
+  assert.equal(totals.p1.dnpWeeks, 1);
+});
+
+test('D1-7 — LAR normalizes to LA before the schedule join and gets its bye', () => {
+  const schedule = [
+    { week: 1, gameType: 'REG', homeTeam: 'LA', awayTeam: 'SF' },
+    { week: 2, gameType: 'REG', homeTeam: 'SF', awayTeam: 'KC' }, // LA's bye at week 2
+    { week: 3, gameType: 'REG', homeTeam: 'LA', awayTeam: 'KC' },
+  ];
+  const weekData = [
+    { week: 1, entries: [{ player_id: 'p1', team: 'LAR', stats: { gp: 1, pts_half_ppr: 5 } }] },
+    { week: 3, entries: [{ player_id: 'p1', team: 'LAR', stats: { gp: 1, pts_half_ppr: 5 } }] },
+  ];
+  const totals = aggregateWeeks(weekData, schedule);
+  assert.equal(totals.p1.team, 'LA');
+  assert.deepStrictEqual(totals.p1.weeklyStatus.slice(0, 3), ['P', 'B', 'P']);
+});
+
+test('D1-8 — 17-week season: index 17 (week 18) is never written, even with a real bye', () => {
+  // Schedule spans only weeks 1-17 (no week-18 games at all — a 2012-2020-shaped season).
+  const schedule17 = [
+    { week: 1, gameType: 'REG', homeTeam: 'B', awayTeam: 'A' },
+    ...Array.from({ length: 16 }, (_, i) => ({
+      week: i + 2, gameType: 'REG', homeTeam: 'A', awayTeam: 'B',
+    })),
+  ];
+  const byes = computeTeamByeWeeks(schedule17);
+  for (const [, weeks] of byes) assert.ok(![...weeks].includes(18));
+
+  const weekData = [
+    { week: 1, entries: [{ player_id: 'p1', team: 'A', stats: { gp: 0 } }, { player_id: 'x', team: 'B', stats: { gp: 1, pts_half_ppr: 1 } }] },
+    ...Array.from({ length: 16 }, (_, i) => ({
+      week: i + 2, entries: [{ player_id: 'p1', team: 'A', stats: { gp: 1, pts_half_ppr: 5 } }],
+    })),
+  ];
+  const totals = aggregateWeeks(weekData, schedule17);
+  assert.equal(totals.p1.weeklyStatus[17], 'X'); // index 17 = week 18, never touched
+});
+
+test('D1-9 — no schedule passed → aggregateWeeks behaves exactly as before (no byes, no throw)', () => {
+  const weekData = [
+    { week: 1, entries: [{ player_id: 'p1', team: 'A', stats: { gp: 1, pts_half_ppr: 5 } }] },
+  ];
+  const withSchedule = aggregateWeeks(weekData, D1_SCHEDULE);
+  const withoutSchedule = aggregateWeeks(weekData);
+  assert.equal(withoutSchedule.p1.weeklyStatus[2], 'X');
+  assert.notEqual(withSchedule.p1.weeklyStatus[2], withoutSchedule.p1.weeklyStatus[2]);
+});
+
+test('D1/F24-capstone — a fully migrated fixture (prune + forward byes) still passes validateNflSeason', async () => {
+  const { validateNflSeason } = await import('../lib/validate.mjs');
+
+  // validateNflSeason enforces the real schedule-abbreviation domain (SCHEDULE_TEAMS in
+  // lib/validate.mjs), so — unlike D1_SCHEDULE's placeholder 'A'/'B'/'C' teams used
+  // elsewhere in this file — this fixture needs real domain codes.
+  const schedule = [
+    { week: 1, gameType: 'REG', homeTeam: 'DEN', awayTeam: 'KC' },
+    { week: 2, gameType: 'REG', homeTeam: 'LAC', awayTeam: 'KC' },
+    { week: 3, gameType: 'REG', homeTeam: 'LAC', awayTeam: 'DEN' },
+  ]; // KC's bye is week 3
+
+  // validateNflSeason's own population floor (≥400 rows, ≥30 with gamesPlayed≥14) is
+  // orthogonal to what this test checks, so pad with 16 weeks of full-season players
+  // (the schedule above only defines weeks 1-3, so the pad players' extra weeks 4-16
+  // don't interact with bye inference at all) alongside the one row actually under test.
+  const weekData = [];
+  for (let week = 1; week <= 16; week++) {
+    const entries = Array.from({ length: 400 }, (_, i) => (
+      { player_id: `pad${i}`, team: 'SEA', stats: { gp: 1, pts_half_ppr: 8 } }
+    ));
+    // p1 plays weeks 1-2 only; week 3 (KC's bye per the schedule) has no entry for p1 at all.
+    if (week <= 2) entries.push({ player_id: 'p1', team: 'KC', stats: { gp: 1, pts_half_ppr: 5, idp_tkl: 2, punts: 1 } });
+    weekData.push({ week, entries });
+  }
+
+  const totals = aggregateWeeks(weekData, schedule);
+  assert.deepStrictEqual(totals.p1.stats, { gp: 2, pts_half_ppr: 10 }); // idp_/punt pruned
+  assert.equal(totals.p1.weeklyStatus[2], 'B');
+  assert.equal(totals.p1.byeWeeks, 1);
+  assert.doesNotThrow(() => validateNflSeason(totals, { year: 9999 }));
 });

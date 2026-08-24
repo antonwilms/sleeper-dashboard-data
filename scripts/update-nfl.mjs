@@ -45,8 +45,13 @@ export async function updateNfl({ year, force, dryRun }) {
   // 1. Fetch 18 weeks from Sleeper
   const weekData = await fetchSeasonWeeks(year, { dryRun });
 
-  // 2. Aggregate into player totals
-  const totals = aggregateWeeks(weekData);
+  // 2. Aggregate into player totals. D-1 bye inference (lib/sleeper.mjs) is forward-only:
+  // only thread the schedule in while this season is still in-progress. A completed season
+  // re-aggregated later (dry-run or --force) must reproduce the once-migrated on-disk file
+  // bit-for-bit, including its untouched 'X' history — passing the schedule there would
+  // silently diverge the aggregation and break the nflHash skip.
+  const schedule = inProgress ? readJson(`nflverse/schedule/${year}.json`) : null;
+  const totals = aggregateWeeks(weekData, schedule?.games ?? null);
   console.log(`[nfl] Aggregated: ${Object.keys(totals).length} players`);
 
   // 3. Validate (throws on failure → non-zero exit → red CI)
@@ -84,16 +89,16 @@ export async function updateNfl({ year, force, dryRun }) {
     return;
   }
 
-  // 6. Write
-  writeJsonStable(dataPath, totals);
+  // 6. Write (minified — F-24; nfl/season-totals/ only, manifest.json stays pretty-printed)
+  writeJsonStable(dataPath, totals, { minify: true });
   console.log(`[nfl] Wrote ${dataPath} (${Object.keys(totals).length} players)`);
 
-  // 7. Update manifest (Phase 5: bump per-file schemaVersion to 2)
+  // 7. Update manifest (F-24: schemaVersion 4 — idp_*/punt* pruned from stats)
   updateManifestEntry({
     path: dataPath,
     recordCount: Object.keys(totals).length,
     inProgress,
-    schemaVersion: 3,
+    schemaVersion: 4,
   });
   console.log(`[nfl] Manifest updated (inProgress=${inProgress})`);
 }

@@ -149,6 +149,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `lib/manifest.mjs` | manifest.json read/write helpers |
 | `lib/sleeper.mjs` | Sleeper API fetch helpers |
 | `scripts/update-nfl.mjs` | NFL season-totals update logic |
+| `scripts/migrate-f24-prune.mjs` | One-shot F-24 historical rewrite — drops `idp_*`/`punt*` from every completed season file, minifies, bumps manifest to schemaVersion 4 (script-produced, Invariant 1 exception; `--dry-run` supported) |
 | `scripts/update-cfbd.mjs` | CFBD college stats update logic |
 | `scripts/update-ktc.mjs` | KTC snapshot capture logic; exports spearmanRho / ktcOrderingGuard (Spearman ordering guard) + KTC_ORDERING_THRESHOLD |
 | `scripts/register-snapshots.mjs` | Snapshot manifest registration |
@@ -176,7 +177,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `scripts/check-crons.mjs` | Cron dead-man detector logic — auto-discovers scheduled workflows (`extractCrons`/`listScheduledWorkflows`), classifies cadence (`cronCadence`), evaluates each against Actions API run evidence (`evaluateWorkflow`), orchestrates + reports (`runDeadman`); monitoring only, no I/O to data files |
 | `bin/deadman.mjs` | Thin CLI over `scripts/check-crons.mjs`; reads `GITHUB_REPOSITORY`/`GITHUB_TOKEN`, exits non-zero on any finding |
 | `backtests/` | Backtest reports written by `bin/backtest.mjs --write`, one JSON per metric/position run (analysis only — no manifest entry); also `<date>-e0a-{panel,fit}.json` from `bin/panel.mjs --write`; `<date>-r2flip-{panel,fit}.json` from `--flip-gate --write`; and `<date>-r3fit-{panel,fit}.json` from `--fit --write` |
-| `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 3) |
+| `nfl/season-totals/` | NFL per-season aggregate files (schemaVersion 4; minified, F-24) |
 | `college/passing/` | CFBD passing stats, one file per year |
 | `college/receiving/` | CFBD receiving stats, one file per year |
 | `college/rushing/` | CFBD rushing stats, one file per year |
@@ -216,11 +217,13 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 1. **Append-only for historical data.** Completed past seasons are never overwritten except to correct an error (requires a committed diff explaining why). Files with `inProgress: true` in manifest.json are in-season and may be re-exported (exception: KTC snapshots always register `inProgress: true` as a "current-value" marker yet remain append-only and are never re-exported — see Invariant 5).
 
+   *Exception (F-24, 2026-08-24): completed seasons were rewritten once to drop `idp_*` and `punt*` fields. No reader in either repo consumed them. Rationale in commit `<sha>`.*
+
 2. **Never hand-edit primary data files** (`nfl/`, `college/`, `ktc/`, `snapshots/`). They are script-produced. Only `enrichment/` is hand-authored, and only via `bin/enrich.mjs`—direct JSON edits bypass validation.
 
 3. **manifest.json is the index.** Every script-written file must be registered with `recordCount`, `schemaVersion`, `lastModified`, and `inProgress` maintained. Treat manifest field names as a public API (see Cross-repo contract registry).
 
-4. **schemaVersion discipline.** NFL season-totals are at v3 (per-season `team`); the app's `MAX_SUPPORTED_SCHEMA` ceiling is now 4, ahead of F-24's stat-key prune. KTC snapshots are at v1. Projection snapshots are at v2 (new envelope fields: `targetSeason`, `currentSeason`, `scoringSettings`). Bump `schemaVersion` only on an incompatible layout change. Snapshot schemaVersion is independent of the app's `MAX_SUPPORTED_SCHEMA` — that ceiling applies to every family the app reads through `tryDataStore`, not only season-totals; season-totals is simply the only family currently above v1, and snapshots have no `tryDataStore` reader in the first place.
+4. **schemaVersion discipline.** NFL season-totals are at v4 (per-season `team`; F-24's `idp_*`/`punt*` stat-key prune, 2026-08-24) — the app's `MAX_SUPPORTED_SCHEMA` ceiling was raised to 4 ahead of it. KTC snapshots are at v1. Projection snapshots are at v2 (new envelope fields: `targetSeason`, `currentSeason`, `scoringSettings`). Bump `schemaVersion` only on an incompatible layout change. Snapshot schemaVersion is independent of the app's `MAX_SUPPORTED_SCHEMA` — that ceiling applies to every family the app reads through `tryDataStore`, not only season-totals; season-totals is simply the only family currently above v1, and snapshots have no `tryDataStore` reader in the first place.
 
 5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup—no commit when content is unchanged. A scrape that fails the Spearman ordering guard is written to `ktc/quarantine/` (script-produced, unregistered, app-ignored) rather than `ktc/`, so a false trip never permanently loses data; it is not "primary data" under Invariant 2.
 
