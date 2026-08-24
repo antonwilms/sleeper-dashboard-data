@@ -1255,6 +1255,42 @@ Field order is fixed; no field is optional.
 - **Triggers:** `docs/signal-registry.md`  ‖  `data-catalog.md`, the signal-registry and Sibling-repo pointers in `CLAUDE.md`, the ingest scripts `scripts/update-{nfl,cfbd,ktc,roster,draft,playerids,advstats,schedule,gamelogs,teamcontext,playerstate,oline}.mjs`, the field-producing parsers/aggregators in `lib/nflverse.mjs` (`parseRosterCsv:164`, `parseDraftCsv:258`, `parsePlayerIdsCsv:350`, `aggregateAdvReceiving:476`, `parsePlayerGameLogs:741`, `parseSchedulesCsv:866`, `aggregateTeamContext:1012`, `aggregateOlineStates:1307`), `aggregateWeeks` in `lib/sleeper.mjs`, `lib/cfbd.mjs`, `lib/ktc.mjs`, and the **coverage-floor constants that encode historical coverage** — `MIN_DRAFT_YEAR:25`, `MIN_SCHEDULE_SEASON:38`, `MIN_GAMELOG_SEASON:50`, `MIN_TEAMCONTEXT_SEASON:55`, `MIN_OLINE_SEASON:60` in `lib/nflverse.mjs`
 - **Mirror:** This entry's data side is the one genuinely open set in the registry — a brand-new ingest adds a script the list above cannot already name. The listed sites are every one that exists today; a *new* one is caught by the near-side re-verification duty (the data repo's reviewer re-derives its own side against live `scripts/` and `lib/` on every review), not by this list. When a data-repo change adds, removes or reclassifies an ingested field, stat key or source — or alters its historical coverage or reconstructable-vs-ephemeral status — emit the exact `docs/signal-registry.md` row edit the app must make (layer · source · coverage · reconstructable-vs-ephemeral · current use), and update the family's `data-catalog.md` row on the data side in the same change. **Nothing fails in either repo when this drifts** — the registry simply becomes wrong, and since it is the inventory that governs snapshot-capture and grading-inclusion decisions, a stale row misroutes those decisions months later. The data repo cannot edit `docs/signal-registry.md`; the emitted row edit is the whole deliverable.
 
+#### CR-19 · Market Efficiency stat keys
+- **App side:** `src/components/market/Market.jsx`'s Efficiency column set — `dropbacks:596`,
+  `sackPct:597`, `ayPerAtt:598`, `yac:605`, `btkl:606`, `drops:616`; the `field:` expressions in
+  `src/utils/usageEfficiency.js` `METRIC_META` (`:39`, `:115`, `:121`, `:145`, `:151`, `:169`);
+  **and `src/utils/outlookPositionStats.js:128`** (`computeMetricValue`'s `sacks` metric), a second
+  `pass_sack` reader rendered by `dp/UsageEfficiencySection.jsx` and Market's *Outlook* set.
+  Enforced by `EFFICIENCY_SET_KEYS` in `src/__tests__/statKeysContract.test.js`.
+- **Data side:** `nfl/season-totals/<year>.json`, written by the generic sum-all-keys loop in
+  `lib/sleeper.mjs` `aggregateWeeks` (`Object.entries(stats)` at `:216`) via the writer
+  `scripts/update-nfl.mjs:88`; `findNonFinite:69` in `lib/validate.mjs`; `RATE_KEYS` in
+  `lib/fantasyPoints.mjs:21` (the one key filter that exists on this data today, read-side — none
+  of these five is in it).
+- **Invariant:** all five are season-total **counting** stats, sparsely populated by position and
+  games played (2025: `pass_sack` 102, `pass_air_yd` 117, `rush_btkl` 179, `rush_yac` 303,
+  `rec_drop` 308 rows). **Sparsity is normal and is not a signal of breakage; absence of the key
+  across the whole corpus is.** Sleeper omits zero-valued counting stats, so a present `0` does not
+  occur — "absent" and "genuinely zero" are indistinguishable at the row level, which is why the
+  corpus-wide check is the only real guard.
+- **Direction:** data→app
+- **Triggers:** `market/Market.jsx`'s Efficiency-set call sites, `utils/usageEfficiency.js`'s
+  `METRIC_META` field strings, `utils/outlookPositionStats.js:128`, `EFFICIENCY_SET_KEYS` in
+  `src/__tests__/statKeysContract.test.js`  ‖  the `Object.entries(stats)` sum loop in
+  `lib/sleeper.mjs` `aggregateWeeks:216`, the writer `scripts/update-nfl.mjs:88`, `findNonFinite:69`
+  in `lib/validate.mjs`, `RATE_KEYS` in `lib/fantasyPoints.mjs:21`
+- **Mirror:** Do not remove, rename or filter `pass_sack`, `pass_air_yd`, `rush_yac`, `rush_btkl`
+  or `rec_drop`. They drive five columns of Market's Efficiency set plus the Outlook `sacks` metric,
+  and **nothing in either repo fails when they vanish** — no error, no test failure. `rush_yac`,
+  `rush_btkl` and `rec_drop` degrade to `—`, which reads as "this player has no data" rather than
+  "the pipeline broke." `pass_sack` and `pass_air_yd` were worse until this entry was written: their
+  call sites divided by a denominator that survives the key's absence, so a missing key rendered a
+  confident **`0.0`** rather than blanking. Both were hardened in the same change; the hazard is
+  recorded because the *shape* invites the identical bug in any future consumer that divides by a
+  surviving denominator. These keys are **view-only** — unlike CR-11/12/13 they never touch
+  `projectedPPG`, the dynasty score or any `factors` entry, so changes need no graded gate; the cost
+  of losing them is silent display corruption, not silent scoring drift.
+
 <!-- CR-REGISTRY-END -->
 
 > *Note: `nflverse/playerids.json` (the `gsis_id → sleeper_id` crosswalk) is **internal to this repo** — consumed server-side by `scripts/update-advstats.mjs` and `scripts/update-gamelogs.mjs` to re-key gsis-keyed stats. It is not a cross-repo contract (the planned `src/api/playerIds.js` app loader was cut). `MIN_PLAYERID_ROWS` remains an internal sparsity constant.*

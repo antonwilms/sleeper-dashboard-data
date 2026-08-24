@@ -34,7 +34,7 @@ _Last reconciled against manifest.json: 2026-07-21_
 - **Source + provenance:** Sleeper stats API, aggregated server-side (`lib/sleeper.mjs`)
 - **Grain:** player-season + `weeklyPoints`/`weeklyStatus` arrays
 - **Join id(s):** sleeper_id (native key)
-- **Coverage:** 2012–2025; snap/RZ usage keys ≈2020/2021+ only; per-season `team` (schemaVersion 3)
+- **Coverage:** 2012–2025; snap/RZ usage keys ≈2020/2021+ only; per-season `team` (schemaVersion 3); Market Efficiency-set keys (`pass_sack`, `pass_air_yd`, `rush_yac`, `rec_drop`) 2012+, `rush_btkl` 2015+ (zero finite rows 2012–2014) — app-side contract CR-19, view-only
 - **schemaVersion:** 3 (app `MAX_SUPPORTED_SCHEMA=3`)
 - **Sparsity gate:** none — sentinel validation (`NFL_SENTINELS`) + finiteness sweep instead
 - **Null semantics:** keys preserved as-is from Sleeper; `pass_rtg`/`cmp_pct` are weekly sums, never season-valid (rate-trap note)
