@@ -217,7 +217,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 1. **Append-only for historical data.** Completed past seasons are never overwritten except to correct an error (requires a committed diff explaining why). Files with `inProgress: true` in manifest.json are in-season and may be re-exported (exception: KTC snapshots always register `inProgress: true` as a "current-value" marker yet remain append-only and are never re-exported — see Invariant 5).
 
-   *Exception (F-24, 2026-08-24): completed seasons were rewritten once to drop `idp_*` and `punt*` fields. No reader in either repo consumed them. Rationale in commit `<sha>`.*
+   *Exception (F-24, 2026-08-24): completed seasons were rewritten once to drop `idp_*` and `punt*` fields. No reader in either repo consumed them. Rationale in commit `482ae94`.*
 
 2. **Never hand-edit primary data files** (`nfl/`, `college/`, `ktc/`, `snapshots/`). They are script-produced. Only `enrichment/` is hand-authored, and only via `bin/enrich.mjs`—direct JSON edits bypass validation.
 
