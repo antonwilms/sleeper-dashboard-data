@@ -21,6 +21,19 @@ import { readJson, listDir } from '../lib/io.mjs';
 
 const mk = (name, value, pos = 'WR') => ({ name, value, position: pos, team: 'X' });
 
+const PICK_ROW_RE = /^(20\d\d) (Early|Mid|Late) (1st|2nd|3rd|4th)$/;
+
+/** Realistic KTC draft-pick rows: one per (class × tier × round), position null. */
+function mkPickRows(years = ['2026', '2027', '2028'], startValue = 3000) {
+  const rows = [];
+  let v = startValue;
+  for (const y of years)
+    for (const t of ['Early', 'Mid', 'Late'])
+      for (const r of ['1st', '2nd', '3rd', '4th'])
+        rows.push({ name: `${y} ${t} ${r}`, value: v--, position: null, team: null });
+  return rows;
+}
+
 function validBase() {
   const players = [];
   const qbNames = ['Josh Allen', 'Drake Maye', 'Caleb Williams', 'Jalen Hurts', 'Jayden Daniels'];
@@ -32,6 +45,7 @@ function validBase() {
     players.push(mk(`TE${i}`, 9999 - 10 - i, 'TE'));
   for (let i = 15; i < 300; i++)
     players.push(mk(`WR${i}`, 9999 - i));
+  players.push(...mkPickRows());
   return players;
 }
 
@@ -184,8 +198,9 @@ test('#16 validateKtc: empty name throws', () => {
 test('#17 validateKtc: >50% unrecognized positions throws', () => {
   const players = validBase();
   // Change WR-only slots (indices 15+) so QB/RB/TE minimums remain intact.
-  // 160/300 = 53% > 50% threshold triggers the position-selector guard.
-  for (let i = 15; i < 175; i++) players[i].position = 'XYZ';
+  // validBase() is now 336 rows (300 skill + 36 picks); need > 168 unrecognized
+  // to cross the 50% threshold — 169/336 ≈ 50.3%.
+  for (let i = 15; i < 15 + 169; i++) players[i].position = 'XYZ';
   assert.throws(() => validateKtc(players), /unrecognized position/i);
 });
 
@@ -211,4 +226,29 @@ test('#18 real snapshots: two latest pass ordering guard (ρ > 0.99)', () => {
     result.skipped || result.rho > 0.99,
     `expected rho > 0.99, got ${result.rho}`,
   );
+});
+
+// ─── validateKtc: draft-pick row floor (D-4) ─────────────────────────────────
+
+test('#19 validateKtc: realistic 36-row pick base (3 classes × 3 tiers × 4 rounds) passes the floor', () => {
+  const players = [...validBase().filter(p => !PICK_ROW_RE.test(p.name)), ...mkPickRows()];
+  assert.doesNotThrow(() => validateKtc(players));
+});
+
+test('#20 validateKtc: all draft-pick rows stripped throws', () => {
+  const players = validBase().filter(p => !PICK_ROW_RE.test(p.name));
+  assert.throws(() => validateKtc(players), /draft-pick rows/i);
+});
+
+test('#21 validateKtc: base missing only round-4 pick rows throws', () => {
+  const players = validBase().filter(p => !/ 4th$/.test(p.name));
+  assert.throws(() => validateKtc(players), /round 4th/i);
+});
+
+test('#22 validateKtc: a hypothetical 4th draft class (48 pick rows) still passes — floor, not equality', () => {
+  const players = [
+    ...validBase().filter(p => !PICK_ROW_RE.test(p.name)),
+    ...mkPickRows(['2026', '2027', '2028', '2029']),
+  ];
+  assert.doesNotThrow(() => validateKtc(players));
 });
