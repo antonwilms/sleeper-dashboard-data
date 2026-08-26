@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-19T14:02:11.636Z",
+  "generatedAt": "2026-08-26T14:08:28.972Z",
   "sourceSeason": 2026,
-  "rowCount": 6162,
+  "rowCount": 6183,
   "ids": {
     "00-0041562": {
       "sleeperId": "13269",
@@ -894,6 +894,11 @@
       "name": "TJ Harden",
       "position": "RB"
     },
+    "00-0041277": {
+      "sleeperId": "13339",
+      "name": "Davon Booth",
+      "position": "RB"
+    },
     "00-0041323": {
       "sleeperId": "13964",
       "name": "Myles Montgomery",
@@ -903,6 +908,16 @@
       "sleeperId": "13946",
       "name": "Jamal Haynes",
       "position": "RB"
+    },
+    "00-0041156": {
+      "sleeperId": "13816",
+      "name": "Mark Gronowski",
+      "position": "QB"
+    },
+    "00-0041372": {
+      "sleeperId": "13607",
+      "name": "Lander Barton",
+      "position": "LB"
     },
     "00-0041158": {
       "sleeperId": "13409",
@@ -988,6 +1003,21 @@
       "sleeperId": "13915",
       "name": "Khalil Jacobs",
       "position": "LB"
+    },
+    "00-0040930": {
+      "sleeperId": "13726",
+      "name": "Camden Brown",
+      "position": "WR"
+    },
+    "00-0041382": {
+      "sleeperId": "13635",
+      "name": "Avery Smith",
+      "position": "CB"
+    },
+    "00-0040621": {
+      "sleeperId": "13199",
+      "name": "Montorie Foster",
+      "position": "WR"
     },
     "00-0040676": {
       "sleeperId": "12522",
@@ -2179,6 +2209,11 @@
       "name": "Coleman Owen",
       "position": "WR"
     },
+    "00-0040526": {
+      "sleeperId": "12940",
+      "name": "Tre Stewart",
+      "position": "RB"
+    },
     "00-0040566": {
       "sleeperId": "12984",
       "name": "CJ Dippre",
@@ -2459,14 +2494,84 @@
       "name": "Karene Reid",
       "position": "LB"
     },
+    "00-0040636": {
+      "sleeperId": "13172",
+      "name": "Keyon Martin",
+      "position": "CB"
+    },
+    "00-0040501": {
+      "sleeperId": "12948",
+      "name": "Austin Keys",
+      "position": "LB"
+    },
+    "00-0037340": {
+      "sleeperId": "8799",
+      "name": "Zaire Mitchell-Paden",
+      "position": "TE"
+    },
+    "00-0040261": {
+      "sleeperId": "13165",
+      "name": "Easton Mascarenas-Arnold",
+      "position": "LB"
+    },
+    "00-0040067": {
+      "sleeperId": "13047",
+      "name": "Jacardia Wright",
+      "position": "RB"
+    },
+    "00-0040488": {
+      "sleeperId": "13122",
+      "name": "Carter Runyon",
+      "position": "TE"
+    },
+    "00-0040534": {
+      "sleeperId": "12971",
+      "name": "Ke'Shawn Williams",
+      "position": "WR"
+    },
+    "00-0039489": {
+      "sleeperId": "12389",
+      "name": "Hayden Rucci",
+      "position": "TE"
+    },
+    "00-0040326": {
+      "sleeperId": "12917",
+      "name": "Branson Combs",
+      "position": "LB"
+    },
+    "00-0040058": {
+      "sleeperId": "13151",
+      "name": "Nick Kallerup",
+      "position": "TE"
+    },
     "00-0040317": {
       "sleeperId": "13120",
       "name": "Jacoby Jones",
       "position": "WR"
     },
+    "00-0040363": {
+      "sleeperId": "12765",
+      "name": "Keleki Latu",
+      "position": "TE"
+    },
     "00-0040388": {
       "sleeperId": "12935",
       "name": "Jakobie Keeney-James",
+      "position": "WR"
+    },
+    "00-0040393": {
+      "sleeperId": "12954",
+      "name": "Kye Robichaux",
+      "position": "RB"
+    },
+    "00-0040265": {
+      "sleeperId": "13179",
+      "name": "Ja'Seem Reed",
+      "position": "WR"
+    },
+    "00-0040785": {
+      "sleeperId": "13264",
+      "name": "Dohnte Meyers",
       "position": "WR"
     },
     "00-0039918": {
