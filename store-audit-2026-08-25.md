@@ -5,19 +5,20 @@ what is quietly not landing. **Read-only** — every figure below was re-derived
 tree with throwaway scripts, plus five live HEAD/GET requests to nflverse, KeepTradeCut and
 GitHub to confirm upstream availability. Nothing in the repository was modified to produce it.
 
-**Working-tree state.** The audit ran against the tree at commit `da0bda4` **plus uncommitted
-in-flight work** — a partially-built weekly Action for `nfl/season-totals`
+**Working-tree state at audit time.** The audit ran against the tree at commit `da0bda4`
+**plus uncommitted in-flight work** — a then-partial weekly Action for `nfl/season-totals`
 (`.github/workflows/nfl-season-totals.yml`, plus changes to `scripts/update-nfl.mjs`,
-`bin/update.mjs`, `lib/validate.mjs` and two test files). That work is unrelated to every
+`bin/update.mjs`, `lib/validate.mjs` and two test files). *That work has since landed as
+`697ae73` + `f788832`; see the [Addendum](#addendum--2026-08-28).* It is unrelated to every
 finding below and invalidates none of them: the `lib/validate.mjs` change is scoped to
 `validateNflSeason` and does not touch `validateAdvStats` (C2), and the `bin/update.mjs` change
 is help text only, so the unvalidated `--year` in C6 is still live. Two figures below are
 tree-state figures rather than `da0bda4` figures and are marked as such.
 
-It is worth recording what that in-flight work closes, since this audit does not list it: until
-it lands, `nfl/season-totals` — the canonical outcome store the app reads and grading joins
-against — is the only served family with **no scheduled refresh at all**, and the dead-man
-cannot see the gap because there is no workflow for it to check.
+Worth recording what that work closes, since this audit does not list it as a finding: until it
+landed, `nfl/season-totals` — the canonical outcome store the app reads and grading joins
+against — was the only served family with **no scheduled refresh at all**, and the dead-man
+could not see the gap because there was no workflow for it to check.
 
 Unlike [data-catalog.md](data-catalog.md) and [README.md](README.md), this file is **not a
 living document** — it is a dated snapshot of findings. Items resolved here should be struck
@@ -281,7 +282,7 @@ all it is designed to see.
 **Fix.** `node bin/update.mjs oline --year 2025`, then the coverage assertion below so the next
 one surfaces on its own.
 
-### C8 · Three documentation drifts, one inside the review gate — **drift**
+### C8 · Four documentation drifts, two inside the review gate — **drift**
 
 The registry is, by this repo's own rule, the *sole authority* the plan-reviewer subagent reads.
 A stale line there is not a typo — it is a wrong answer given to every future plan review.
@@ -291,9 +292,15 @@ A stale line there is not a typo — it is a wrong answer given to every future 
 | `README.md:1184` (CR-09 Mirror) | "2019 is absent upstream (known gap; degrades to the empty shape)" | False — `nflverse/gamelogs/2019.json` is on disk with 4,073 targeted REG rows and registered; B1 filled it on 2026-07-03 |
 | `data-catalog.md:224` | "`raw/` — … no manifest entries" | False — the manifest holds 14 `raw/*` entries |
 | `CLAUDE.md` | two invariants numbered **8** | CDN purge URLs, and grading-never-recomputed |
+| `CLAUDE.md:247` (data) and `CLAUDE.md:227` (app) | "the entry-format definition and **all 18** `CR-NN` entries" | False as of 2026-08-26 — both registries hold **21**. CR-19, CR-20 and CR-21 landed without updating the count |
+
+The fourth is the same class as the first and lands in the same sentence that tells the
+plan-reviewer subagent what to treat as the complete registry — an undercount there is an
+instruction to ignore three live contracts. It is present in **both** repos and must be fixed
+in both, in one change.
 
 **Fix.** Correct the CR-09 Mirror text first (it is the one that can cause a bad decision), fix
-the `raw/` line, renumber the invariant. The catalog's "Last reconciled against manifest.json"
+the `raw/` line, renumber the invariant, correct the 18 → 21 count in both repos. The catalog's "Last reconciled against manifest.json"
 header is worth treating as a claim the reconcile script should be able to verify.
 
 ---
@@ -503,7 +510,7 @@ Ordered by value over effort. The first five are afternoons; the rest are slices
 | 1 | C7 | Run `oline --year 2025` | Closes a coverage hole the catalog already claims is closed | minutes |
 | 2 | C5 | Backfill 38 `lastModified`; unflag college 2024 | An app cache that can never invalidate is a live bug | ~1 h |
 | 3 | — | Promote the reconcile snippet to two tests | Makes C5 and C7 unable to recur; wires an existing check in | ~1 h |
-| 4 | C8 | Fix CR-09, the `raw/` line, the duplicate invariant 8 | CR-09 is authority for every future plan review | ~30 m |
+| 4 | C8 | Fix CR-09, the `raw/` line, the duplicate invariant 8, the 18 → 21 count (both repos) | CR-09 and the entry count are authority for every future plan review | ~30 m |
 | 5 | C6 | Validate `--year` in the dispatcher | Silent successful no-ops are the worst failure mode for a backfill | ~30 m |
 | 6 | E1 + E4 | Delete 208 MB of unread `raw/`; `git gc` | Removes 41% of every clone and checkout; nothing reads it | ~1 h |
 | 7 | C2 | Air-yards plausibility gate in `validateAdvStats` | Must land **before** the snap-count backfill widens the panel onto 2016 | ~2 h |
@@ -513,6 +520,45 @@ Ordered by value over effort. The first five are afternoons; the rest are slices
 | 11 | E5 | Merge advstats + gamelogs into one job | Halves the cost and removes a split-brain week | slice |
 | 12 | E3 · S1 · S3 | Sparse checkout; shared `stableHash`; reusable workflow | Cheap, low-risk, compounding | slice |
 | 13 | E2 · E7 | Pivot college; precomputed team-season pack | Biggest payload wins, but both need an app mirror | 2 slices |
+
+---
+
+## Addendum — 2026-08-28
+
+State three days after the audit, re-verified against both trees. Recorded here rather than
+edited into the findings above, so the dated snapshot stays intact.
+
+**Landed since the audit (data repo).** The in-season season-totals work described in the
+provenance note above is committed: `697ae73` (self-calibrating validator floor, preseason
+no-op, season-close skip, weekly cron) and `f788832` (correcting the floor's
+backwards-compatibility claim). `nfl/season-totals/2026.json` still does not exist, which is
+correct — it is preseason and `hasNoData` no-ops. CR-20 landed at `199fa4d`.
+
+**In flight (app repo).** §3 of `in-season-app-read.md` — `loadCurrentSeasonTotals`, the
+`currentSeasonTotals` wiring in `App.jsx`, the `opponentStrength.js` row-map refactor, and a
+CR-21 draft — is uncommitted in the app working tree.
+
+**Registry mirror verified.** Both registries now hold CR-01…CR-21, and the mirrored region is
+**byte-identical**, 228 lines, under the repo's own anchored check:
+
+```sh
+diff <(sed -n '/^<!-- CR-REGISTRY-BEGIN -->$/,/^<!-- CR-REGISTRY-END -->$/p' docs/cross-repo-registry.md) \
+     <(sed -n '/^<!-- CR-REGISTRY-BEGIN -->$/,/^<!-- CR-REGISTRY-END -->$/p' ../sleeper-dashboard-data/README.md)
+```
+
+Use the anchored form. An unanchored range match (`awk '/CR-REGISTRY-BEGIN/,/CR-REGISTRY-END/'`)
+sweeps in the *inline* backticked mentions of the sentinel and reports drift that is not there —
+which is exactly what the mirrored region's own first bullet warns about. I made that mistake
+before re-running it correctly.
+
+**Findings status.**
+
+| Finding | Status |
+|---|---|
+| C8a–c (CR-09 2019 line, `raw/` line, duplicate invariant 8) | **unchanged** — all three still present |
+| C8d (18 → 21 count) | **new**, introduced by CR-19/20/21 landing |
+| C5 (38 entries missing `lastModified`) | **unchanged** — still 38, and now more load-bearing: `loadCurrentSeasonTotals` makes permanent-TTL + `lastModified` compare the invalidation mechanism in a second loader. Season-totals entries all carry the field, so that loader is not hit; the 24 app-consumed `college/*` files still cannot invalidate |
+| all others | not re-checked; no committed change touches them |
 
 ---
 
