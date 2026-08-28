@@ -73,7 +73,8 @@ USAGE
   node bin/update.mjs <subcommand> [options]
 
 SUBCOMMANDS
-  nfl  --year YYYY            Fetch NFL season totals for YYYY from Sleeper
+  nfl                         Fetch NFL season totals for the current season from Sleeper
+  nfl  --year YYYY            Fetch NFL season totals for a specific year from Sleeper
   cfbd --year YYYY            Fetch CFBD college stats for YYYY (all categories)
   cfbd --year YYYY --category receiving|rushing|passing
   ktc                         Capture a KTC dynasty value snapshot for today
@@ -105,6 +106,7 @@ OPTIONS
   --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline subcommands)
 
 EXAMPLES
+  node bin/update.mjs nfl
   node bin/update.mjs nfl  --year 2024
   node bin/update.mjs cfbd --year 2023 --dry-run
   node bin/update.mjs ktc

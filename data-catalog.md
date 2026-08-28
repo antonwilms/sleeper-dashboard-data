@@ -30,7 +30,7 @@ _Last reconciled against manifest.json: 2026-08-24_
 ---
 
 ## Sleeper season totals
-- **Served path / subcommand / refresh:** `nfl/season-totals/<year>.json`; `bin/update.mjs nfl --year`; no Action (manual per-season; in-season files `inProgress: true` re-exported)
+- **Served path / subcommand / refresh:** `nfl/season-totals/<year>.json`; `bin/update.mjs nfl` (`--year` optional, defaults to the live season); **`.github/workflows/nfl-season-totals.yml`, Tuesday weekly (in-season-season-totals.md, 2026-08-28)** — in-season files (`inProgress: true`) are re-exported weekly; the validator's full-season floor is self-calibrating (`lib/validate.mjs` `validateNflSeason`, §2.1) so a partial in-season file no longer fails it; a completed season on the scheduled path SKIPS rather than writes (§2.3 — the old manifest-based refusal could still write a sealing regression on the very first run after the season closes; `--force` remains for a deliberate interactive correction)
 - **Source + provenance:** Sleeper stats API, aggregated server-side (`lib/sleeper.mjs`)
 - **Grain:** player-season + `weeklyPoints`/`weeklyStatus` arrays
 - **Join id(s):** sleeper_id (native key)

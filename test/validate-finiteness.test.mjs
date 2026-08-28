@@ -138,3 +138,45 @@ test('validateNflSeason: team null does not trigger team-domain check', () => {
   t['0'].team = null;
   assert.doesNotThrow(() => validateNflSeason(t, { year: 9999 }));
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// D. Self-calibrating full-season floor (in-season-season-totals.md §2.1)
+// ═══════════════════════════════════════════════════════════════════
+
+function makeTotalsAtGp(n, gp) {
+  const t = {};
+  for (let i = 0; i < n; i++) t[String(i)] = validRecord(gp);
+  return t;
+}
+
+test('§2.1: a complete season (maxGames=17) has threshold=14 — numerically identical to the old fixed floor', () => {
+  // 400 players at gp=17 (the real once-a-season shape); assert doesNotThrow, i.e. the derived
+  // threshold (17-3=14) is satisfied by these same 400 players, exactly as the old hardcoded
+  // `>= 14` floor was. This is the explicit backwards-compatibility assertion the task calls for.
+  assert.doesNotThrow(() => validateNflSeason(makeTotalsAtGp(400, 17), { year: 9999 }));
+});
+
+test('§2.1: a synthetic 4-week season (maxGames=4, threshold=1) passes — impossible under the old fixed >=14 floor', () => {
+  const t = makeTotalsAtGp(400, 4);
+  assert.doesNotThrow(() => validateNflSeason(t, { year: 9999 }));
+});
+
+test('§2.1: mid-season maxGames=5 → threshold=2; a genuinely broken scrape (few players, no cluster) still throws', () => {
+  // 400 "players" but only 10 have played any games at all (gp=5, well above threshold=2) —
+  // a broken/partial scrape still yields far fewer than 30 clustered near the leader.
+  const t = {};
+  for (let i = 0; i < 10; i++) t[String(i)] = validRecord(5);
+  for (let i = 10; i < 400; i++) t[String(i)] = validRecord(0);
+  assert.throws(
+    () => validateNflSeason(t, { year: 9999 }),
+    /gamesPlayed ≥ 2/
+  );
+});
+
+test('§2.1: maxGames=0 (all zero) floors the threshold at 1, not 0 or negative', () => {
+  const t = makeTotalsAtGp(400, 0);
+  assert.throws(
+    () => validateNflSeason(t, { year: 9999 }),
+    /gamesPlayed ≥ 1/
+  );
+});

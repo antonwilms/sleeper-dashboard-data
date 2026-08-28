@@ -1,0 +1,58 @@
+name: Weekly NFL season totals
+
+on:
+  schedule:
+    # Tuesday 15:05 UTC — after Monday Night Football settles, and staggered from the Tuesday
+    # roster job (13:23 UTC) so the two weekly committers don't race the push to main. Depends,
+    # in ordering terms, on the Friday nflverse schedule job (13:35 UTC): D-1's bye inference
+    # (lib/sleeper.mjs, threaded in update-nfl.mjs while inProgress) reads
+    # nflverse/schedule/<year>.json, and this run is the next weekday after Friday's in the
+    # weekly cycle. In practice the season's schedule is written long before week 1, so this is
+    # a dependency to record, not a blocker.
+    - cron: "05 15 * * 2"
+  workflow_dispatch: {}   # allow manual trigger for backfill / corrections
+
+permissions:
+  contents: write
+
+jobs:
+  season-totals:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch NFL season totals
+        id: fetch
+        run: node bin/update.mjs nfl
+
+      - name: Commit and purge if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add nfl/ manifest.json
+            git commit -m "nfl: season-totals $(date -u +%Y-%m-%d)"
+            # Retry with rebase on push rejection (multiple weekly committers on main)
+            git push || (git pull --rebase && git push)
+            # Purge jsDelivr CDN cache. SEASON is the NFL season resolved by the node step
+            # (Sleeper state.nfl.season), NOT the calendar year — they diverge Jan–Feb. See
+            # scripts/update-nfl.mjs (setStepOutput).
+            SEASON="${{ steps.fetch.outputs.season }}"
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
+            if [[ -n "$SEASON" ]]; then
+              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nfl/season-totals/${SEASON}.json" || true
+            else
+              echo "WARN: season step-output empty; skipped season-keyed season-totals purge"
+            fi
+          else
+            echo "No changes to commit."
+          fi

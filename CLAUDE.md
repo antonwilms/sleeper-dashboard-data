@@ -140,7 +140,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots / roster / draft / playerids / advstats / schedule / gamelogs / teamcontext subcommands |
 | `bin/enrich.mjs` | Enrichment overlay CLI → add / validate / list / remove |
 | `bin/import-snapshot.mjs` | One-command projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
-| `lib/validate.mjs` | Schema validators (incl. season-totals finiteness sweep, `findNonFinite`); contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` |
+| `lib/validate.mjs` | Schema validators (incl. season-totals finiteness sweep, `findNonFinite`); contains `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS`. `validateNflSeason`'s full-season floor is **self-calibrating** (in-season-season-totals.md §2.1) — `fullSeasonThreshold = max(1, maxGames - 3)`, `maxGames` the season's own observed max `gamesPlayed`, requiring ≥30 players at or above it. A complete season (`maxGames=17`) yields threshold 14, numerically identical to the old fixed floor; a partial in-season file yields a lower threshold instead of throwing on every run before week 14 |
 | `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`, `RATE_KEYS`); used by the grading in-basis path — see Cross-repo contract registry |
 | `lib/cfbd.mjs` | CFBD API fetch helpers |
 | `lib/enrichment.mjs` | Enrichment schema validation helpers |
@@ -148,7 +148,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `lib/ktc.mjs` | KTC scraper helpers |
 | `lib/manifest.mjs` | manifest.json read/write helpers |
 | `lib/sleeper.mjs` | Sleeper API fetch helpers |
-| `scripts/update-nfl.mjs` | NFL season-totals update logic |
+| `scripts/update-nfl.mjs` | NFL season-totals update logic. `--year` now optional — omitted resolves to the live season via `fetchCurrentNflSeason()` (`setStepOutput('season', …)`, in-season-season-totals.md §2.4, matching `update-teamcontext.mjs`/`update-schedule.mjs`). Two scheduled-path guards, both pure and exported for direct unit testing: `hasNoData(weekData)` (§2.2 — Sleeper serves 0 entries across all 18 weeks before a season starts; exits cleanly rather than letting the <400-player floor throw) and `shouldSkipCompletedSeason({inProgress, force, dryRun})` (§2.3 — a completed season on the scheduled path SKIPS rather than risking the write path; the OLD refusal guard tested the manifest's stale `existingEntry.inProgress` and could still write a sealing regression on the very first run after `state.season` rolls over — see the fix's own header comment; `--force` still overrides for a deliberate interactive correction, `--dry-run` stays exempt so a completed season can still be previewed without `--force`). `DEFAULT_DEPS` — an injectable I/O + fetch surface mirroring `scripts/panel-run.mjs`'s `DEFAULT_LOAD` pattern — lets `updateNfl({..., deps})` be control-flow-tested without touching the network or the real repo file tree |
 | `scripts/migrate-f24-prune.mjs` | One-shot F-24 historical rewrite — drops `idp_*`/`punt*` from every completed season file, minifies, bumps manifest to schemaVersion 4 (script-produced, Invariant 1 exception; `--dry-run` supported) |
 | `scripts/update-cfbd.mjs` | CFBD college stats update logic |
 | `scripts/update-ktc.mjs` | KTC snapshot capture logic; exports spearmanRho / ktcOrderingGuard (Spearman ordering guard) + KTC_ORDERING_THRESHOLD |
@@ -196,6 +196,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `nfl/players-state/` | Weekly Sleeper players-state snapshots (status/injury/depth), one JSON per date (`<YYYY-MM-DD>.json`), capture-only |
 | `nflverse/oline/` | nflverse OL composition per team-week (ESPN depth charts), one JSON per year (`<year>.json`), TEAM-keyed (not sleeper_id); `teams[abbr].states[]`; capture-only |
 | `.github/workflows/weekly-nflverse-roster.yml` | Tuesday weekly nflverse roster refresh, content-hash dedup, CDN purge |
+| `.github/workflows/nfl-season-totals.yml` | Tuesday weekly NFL season-totals refresh (in-season-season-totals.md, 2026-08-28) — `node bin/update.mjs nfl` (no `--year`; resolved inside the script from `fetchCurrentNflSeason()`), ordered after the Friday schedule job (D-1 bye inference reads `nflverse/schedule/<year>.json` while `inProgress`), content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-draft.yml` | Yearly (May 1) nflverse draft picks update, content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-playerids.yml` | Wednesday weekly gsis↔sleeper crosswalk refresh, content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-advstats.yml` | Thursday weekly advstats refresh (after playerids), content-hash dedup, CDN purge |
