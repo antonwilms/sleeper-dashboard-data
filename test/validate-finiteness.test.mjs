@@ -149,11 +149,23 @@ function makeTotalsAtGp(n, gp) {
   return t;
 }
 
-test('§2.1: a complete season (maxGames=17) has threshold=14 — numerically identical to the old fixed floor', () => {
-  // 400 players at gp=17 (the real once-a-season shape); assert doesNotThrow, i.e. the derived
-  // threshold (17-3=14) is satisfied by these same 400 players, exactly as the old hardcoded
-  // `>= 14` floor was. This is the explicit backwards-compatibility assertion the task calls for.
+test('§2.1: a synthetic maxGames=17 season derives threshold=14 — the old fixed floor', () => {
+  // 400 players at gp=17; the derived threshold (17-3=14) is satisfied by those same players,
+  // exactly as the old hardcoded `>= 14` floor was.
+  //
+  // NOTE: this is a SYNTHETIC shape, not "a complete season". Real 18-week seasons measure
+  // maxGames = 18 (a traded player catches two different byes — exactly 2 such players in 2025),
+  // so their derived threshold is 15, and the 16-game era derives 13. The task file first claimed
+  // the new floor was numerically identical to 14 on any complete season; that was wrong. The
+  // guard is unaffected either way — 1042 players clear the 2025 threshold against a floor of 30.
   assert.doesNotThrow(() => validateNflSeason(makeTotalsAtGp(400, 17), { year: 9999 }));
+});
+
+test('§2.1: a REAL-shaped 18-week season (maxGames=18 → threshold 15) passes', () => {
+  // The shape modern seasons actually have, per the note above.
+  const t = makeTotalsAtGp(400, 17);
+  t['outlier'] = validRecord(18);   // the traded player who catches two byes and sets maxGames
+  assert.doesNotThrow(() => validateNflSeason(t, { year: 9999 }));
 });
 
 test('§2.1: a synthetic 4-week season (maxGames=4, threshold=1) passes — impossible under the old fixed >=14 floor', () => {
