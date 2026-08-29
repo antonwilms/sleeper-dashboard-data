@@ -204,7 +204,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `.github/workflows/nflverse-schedule.yml` | Friday weekly nflverse schedule refresh (current season), content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-gamelogs.yml` | Saturday weekly nflverse gamelogs refresh (after playerids), content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-teamcontext.yml` | Sunday weekly team-context refresh, content-hash dedup, CDN purge |
-| `raw/` | Unprocessed Sleeper API responses and CFBD player manifests |
+| `raw/` | Unprocessed Sleeper API responses |
 | `manifest.json` | Index of every script-written file with metadata |
 | `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation |
 | `.github/workflows/weekly-playerstate.yml` | Saturday weekly Sleeper players-state capture, content-hash dedup, CDN purge |
@@ -318,7 +318,7 @@ End-of-session sequence:
 1. Stage and commit this session's changes with a descriptive message (planning: `plan: <feature>`; implementation: `feat: <feature>` / `fix: <feature>`).
 2. `git pull --rebase origin main` **before** pushing — the weekly/scheduled Actions push to main on cron and will reject a stale push.
 3. Resolve any rebase conflicts safely — they are almost always machine-generated bookkeeping files:
-   - `manifest.json`: resolve as a **union** — keep every entry from both sides. Never resolve by preferring one side wholesale; that silently drops the other side's entries (a real data-visibility loss even though the file still parses). After resolving, verify `python3 -m json.tool manifest.json` parses **and** that the entries this session wrote are still present (grep their full-path keys, e.g. `nflverse/advstats/2019.json` — full path with extension, not a bare fragment).
+   - `manifest.json`: resolve as a **union** — keep every entry from both sides. Never resolve by preferring one side wholesale; that silently drops the other side's entries (a real data-visibility loss even though the file still parses). After resolving, verify `python3 -m json.tool manifest.json` parses **and** that the entries this session wrote are still present (grep their full-path keys, e.g. `nflverse/advstats/2019.json` — full path with extension, not a bare fragment). **A session whose purpose is removing entries resolves as union-of-additions minus its own deletions** — the plain union rule is written for concurrent additions and will silently resurrect a deletion that lands in the same rebase window; verify by grepping that the removed keys are absent, not by eye.
    - Watermark files (`nflverse/last-checked-*.json` and similar): keep the later timestamp.
    - If a conflict is not a clean union — the same entry edited incompatibly on both sides — stop and report for a human decision; do not guess.
 4. `git push origin main` — plain push, never `--force`. If still rejected, an Action pushed during the rebase: pull --rebase again and retry; never force.

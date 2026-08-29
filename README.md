@@ -67,7 +67,7 @@ sleeper-dashboard-data/
     oline/                    — nflverse OL composition per team-week (ESPN depth charts), one file per year, TEAM-keyed, capture-only
       2025.json
   raw/                        — Everything else exported from IndexedDB
-                                (league data, player map, CFBD player manifests, etc.)
+                                (league data, player map, etc.)
 ```
 
 ---

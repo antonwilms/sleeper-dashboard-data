@@ -20,6 +20,17 @@ test('manifest: no raw/stats-*.json files on disk', () => {
   assert.deepEqual(present, [], `unexpected raw/stats files: ${present.length}`);
 });
 
+test('manifest: no retired raw/cfbd-players entries remain', () => {
+  const m = readManifest();
+  const leftover = Object.keys(m.files).filter(k => k.startsWith('raw/cfbd-players-'));
+  assert.deepEqual(leftover, [], `unexpected raw/cfbd-players entries: ${leftover.length}`);
+});
+
+test('manifest: no raw/cfbd-players-*.json files on disk', () => {
+  const present = fs.readdirSync('raw').filter(f => f.startsWith('cfbd-players-'));
+  assert.deepEqual(present, [], `unexpected raw/cfbd-players files: ${present.length}`);
+});
+
 // ═══════════════════════════════════════════════════════════════════
 // §5.1 — coverage: contiguity from each season-keyed family's floor to its
 // own maximum year present. currentSeason is deliberately NOT an upper
