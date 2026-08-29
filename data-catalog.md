@@ -149,7 +149,7 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Coverage:** **2012–2025 complete** (2019/2025 filled by B1 after the frozen legacy-tag fix)
 - **schemaVersion:** 1
 - **Sparsity gate:** `MIN_ADVSTATS_ROWS = 250` (cross-repo)
-- **Null semantics:** ratios null on zero denominators; RB negatives emitted
+- **Null semantics:** ratios null on zero denominators; RB negatives emitted. **2016 is a known-bad season for the air-yards-derived ratios**: `airYardsShare`/`wopr`/`racr` are upstream-corrupt (Σ airYards ÷ Σ targets = 3.96 vs a 7.80–9.07 archive range across the other 13 seasons) and are excluded from data-repo analysis per metric (`lib/backtest.mjs` `CORRUPT_PREDICTOR_SEASONS`); `targetShare` is unaffected and retained. `lib/validate.mjs` `validateAdvStats` gates future ingests on this band (`AY_PER_TARGET_MIN`/`MAX`, `lib/nflverse.mjs`), so re-fetching 2016 today throws unless upstream has since corrected it (advstats-2016-gate.md).
 - **Consumption:** app-consumed (`src/api/advStats.js`; capture-only factors)
 - **Keep-rationale:** opportunity-share truth (targetShare/WOPR/RACR). Path-naming: known ad-blocker-rule violation, parked.
 

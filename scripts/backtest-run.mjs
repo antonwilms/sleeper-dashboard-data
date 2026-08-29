@@ -23,6 +23,7 @@ import {
   D3_TARGETS,
   D3_TOLERANCE,
   D3_VALIDATE_CONTROLS,
+  CORRUPT_PREDICTOR_SEASONS,
 } from '../lib/backtest.mjs';
 
 export { D3_VALIDATE_CONTROLS };
@@ -129,7 +130,16 @@ function listwiseSurviving(rows, metric, controls) {
   return rows.filter(r => fields.every(f => r[f] != null && Number.isFinite(r[f])));
 }
 
-export function runMetric(rows, metric, position, { minOutcomeGames, fromYear, toYear, controls }) {
+export function runMetric(allRows, metric, position, { minOutcomeGames, fromYear, toYear, controls }) {
+  // advstats-2016-gate.md §5.2 — filter FIRST, before anything derives from `rows`. The
+  // obvious site (filtering `surviving`, below) is wrong: standardizedRegression takes the
+  // raw row set, so filtering only `surviving` would report "2016 excluded" from the predictor
+  // years while leaving it in the regression that produces β.
+  const excludedSeasons = CORRUPT_PREDICTOR_SEASONS[metric] ?? [];
+  const rows = excludedSeasons.length
+    ? allRows.filter(r => !excludedSeasons.includes(r.predictorYear))
+    : allRows;
+
   const effectiveControls = controls ?? METRIC_CONTROLS;
   const surviving = listwiseSurviving(rows, metric, effectiveControls);
   const predictorYears = [...new Set(surviving.map(r => r.predictorYear))].sort((a, b) => a - b);
@@ -173,6 +183,7 @@ export function runMetric(rows, metric, position, { minOutcomeGames, fromYear, t
     quintiles:       bins,
     monotonic,
     caveats,
+    excludedSeasons,
   };
 }
 

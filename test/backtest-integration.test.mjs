@@ -331,6 +331,64 @@ describe('Integration 10: default (no controls option) equals explicit 3-control
   });
 });
 
+// ─── 11. CORRUPT_PREDICTOR_SEASONS exclusion (advstats-2016-gate.md §5) ───────
+
+describe('Integration 11: 2016 excluded from airYardsShare/wopr/racr, not targetShare', () => {
+  // Standalone 3-year fixture (predictor 2015–2017, outcomes 2016–2018) — kept separate
+  // from the 2019–2022 fixture above so the exclusion years line up cleanly.
+  const YEAR_PLAYERS = {
+    2015: [makePlayer('y1', 'WR', 'KC', 0.30, 0.25), makePlayer('y2', 'WR', 'KC', 0.20, 0.16)],
+    2016: [makePlayer('y1', 'WR', 'KC', 0.30, 0.25), makePlayer('y2', 'WR', 'KC', 0.20, 0.16)],
+    2017: [makePlayer('y1', 'WR', 'KC', 0.30, 0.25), makePlayer('y2', 'WR', 'KC', 0.20, 0.16)],
+  };
+  const Y_ADVSTATS = Object.fromEntries(
+    Object.entries(YEAR_PLAYERS).map(([y, ps]) => [y, makeAdvstats(Number(y), ps)])
+  );
+  const Y_TOTALS_FOR = (recTgt, recRzTgt) => makeTotalsEntry(recTgt, recRzTgt, 900, 1000, 70);
+  const Y_SEASON_TOTALS = {
+    2015: { y1: Y_TOTALS_FOR(100, 25), y2: Y_TOTALS_FOR(80, 18) },
+    2016: { y1: Y_TOTALS_FOR(100, 25), y2: Y_TOTALS_FOR(80, 18) },
+    2017: { y1: Y_TOTALS_FOR(100, 25), y2: Y_TOTALS_FOR(80, 18) },
+    2018: { y1: Y_TOTALS_FOR(100, 25), y2: Y_TOTALS_FOR(80, 18) },
+  };
+  const Y_LOAD = {
+    loadAdvstats:     (yr) => Y_ADVSTATS[yr]     ?? null,
+    loadSeasonTotals: (yr) => Y_SEASON_TOTALS[yr] ?? null,
+  };
+
+  function yCohort() {
+    return assembleCohort({ position: 'WR', fromYear: 2015, toYear: 2018, minOutcomeGames: 6, load: Y_LOAD });
+  }
+
+  for (const metric of ['airYardsShare', 'wopr', 'racr']) {
+    test(`${metric}: 2016 dropped from predictorYears and n drops (not just the reported panel)`, () => {
+      const { rows } = yCohort();
+      const opts = { minOutcomeGames: 6, fromYear: 2015, toYear: 2018, controls: [] };
+
+      const filtered = runMetric(rows, metric, 'WR', opts);
+      assert.deepEqual(filtered.meta.predictorYears, [2015, 2017],
+        `expected 2016 absent from predictorYears, got ${JSON.stringify(filtered.meta.predictorYears)}`);
+      assert.deepEqual(filtered.excludedSeasons, [2016]);
+
+      // n must also drop — the regression-proof requirement from §5.2/§9: checking
+      // predictorYears alone is insufficient, since that check would pass even if β
+      // were still computed over the unfiltered (contaminated) row set.
+      const unfilteredRows = rows; // same rows; compare against a metric with no exclusion
+      const unfilteredReport = runMetric(unfilteredRows, 'targetShare', 'WR', opts);
+      assert.ok(filtered.n < unfilteredReport.n,
+        `expected filtered n (${filtered.n}) < unfiltered targetShare n (${unfilteredReport.n})`);
+    });
+  }
+
+  test('targetShare: 2016 is NOT excluded — predictorYears includes it, excludedSeasons is empty', () => {
+    const { rows } = yCohort();
+    const report = runMetric(rows, 'targetShare', 'WR', { minOutcomeGames: 6, fromYear: 2015, toYear: 2018, controls: [] });
+    assert.deepEqual(report.meta.predictorYears, [2015, 2016, 2017]);
+    assert.deepEqual(report.excludedSeasons, []);
+  });
+
+});
+
 // ─── 7. runValidate qualitative PASS ─────────────────────────────────────────
 
 describe('Integration 7: runValidate returns qualitative PASS', () => {

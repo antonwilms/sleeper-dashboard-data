@@ -26,11 +26,13 @@ import {
   parseRosterCsv, parseDraftCsv, MIN_ROSTER_IDS, MIN_DRAFT_YEAR,
   parsePlayerIdsCsv, MIN_PLAYERID_ROWS,
   aggregateAdvReceiving, rekeyBySleeper, MIN_ADVSTATS_ROWS,
+  AY_PER_TARGET_MIN, AY_PER_TARGET_MAX,
   parseSchedulesCsv, numOrNull, MIN_SCHEDULE_GAMES, MIN_SCHEDULE_SEASON,
   parsePlayerGameLogs, rekeyGameLogsBySleeper, MIN_PLAYERGAME_ROWS, MIN_GAMELOG_SEASON,
   aggregateTeamContext, eraTeam, MIN_TEAMCONTEXT_ROWS,
 } from '../lib/nflverse.mjs';
 import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule, validateGameLogs, validateTeamContext } from '../lib/validate.mjs';
+import { readJson } from '../lib/io.mjs';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -588,6 +590,66 @@ test('validateAdvStats: throws when targetShare is out of [0,1] range', () => {
   const players = makeAdvPlayers(MIN_ADVSTATS_ROWS);
   Object.values(players)[0].targetShare = 1.5;
   assert.throws(() => validateAdvStats(players, { year: 2023 }), Error);
+});
+
+// ─── H2. Air-yards plausibility band + |airYardsShare| ≤ 1 (advstats-2016-gate.md §3) ───
+
+/** Builds MIN_ADVSTATS_ROWS players whose Σ airYards ÷ Σ targets equals the given ratio. */
+function makeAdvPlayersAtRatio(ratio) {
+  const players = makeAdvPlayers(MIN_ADVSTATS_ROWS);
+  for (const p of Object.values(players)) {
+    p.components = { targets: 50, airYards: Math.round(50 * ratio), recYards: 600, receptions: 40, weeks: 17 };
+  }
+  return players;
+}
+
+test('validateAdvStats: throws when Σ airYards ÷ Σ targets is below AY_PER_TARGET_MIN (synthetic 2016-shaped ratio 3.96)', () => {
+  const players = makeAdvPlayersAtRatio(3.96);
+  assert.throws(() => validateAdvStats(players, { year: 2016 }), /3\.96/);
+});
+
+test('validateAdvStats: passes when Σ airYards ÷ Σ targets is in band (synthetic 2023-shaped ratio 7.82)', () => {
+  const players = makeAdvPlayersAtRatio(7.82);
+  assert.doesNotThrow(() => validateAdvStats(players, { year: 2023 }));
+});
+
+test(`validateAdvStats: ratio exactly at AY_PER_TARGET_MIN (${AY_PER_TARGET_MIN}) and AY_PER_TARGET_MAX (${AY_PER_TARGET_MAX}) both pass`, () => {
+  assert.doesNotThrow(() => validateAdvStats(makeAdvPlayersAtRatio(AY_PER_TARGET_MIN), { year: 2023 }));
+  assert.doesNotThrow(() => validateAdvStats(makeAdvPlayersAtRatio(AY_PER_TARGET_MAX), { year: 2023 }));
+});
+
+test('validateAdvStats: Σtargets === 0 skips the band check — no divide-by-zero, no NaN pass', () => {
+  const players = makeAdvPlayers(MIN_ADVSTATS_ROWS);
+  for (const p of Object.values(players)) {
+    p.components = { targets: 0, airYards: 0, recYards: 0, receptions: 0, weeks: 17 };
+    p.targetShare = null;
+    p.airYardsShare = null;
+    p.wopr = 0.1;   // keep at least one non-null ratio so the all-null guard doesn't also fire
+    p.racr = 0.1;
+  }
+  assert.doesNotThrow(() => validateAdvStats(players, { year: 2023 }));
+});
+
+test('validateAdvStats: |airYardsShare| > 1 throws; negative values (RB) pass', () => {
+  const passing = makeAdvPlayers(MIN_ADVSTATS_ROWS);
+  Object.values(passing)[0].airYardsShare = -0.5;
+  assert.doesNotThrow(() => validateAdvStats(passing, { year: 2023 }));
+
+  const throwing = makeAdvPlayers(MIN_ADVSTATS_ROWS);
+  Object.values(throwing)[0].airYardsShare = 1.5;
+  assert.throws(() => validateAdvStats(throwing, { year: 2023 }), /airYardsShare/);
+});
+
+test('validateAdvStats: the REAL nflverse/advstats/2016.json throws (corrupt upstream air yards)', () => {
+  const data = readJson('nflverse/advstats/2016.json');
+  assert.ok(data?.players, 'nflverse/advstats/2016.json not found on disk');
+  assert.throws(() => validateAdvStats(data.players, { year: 2016 }), /airYards.*targets|Σ/);
+});
+
+test('validateAdvStats: the REAL nflverse/advstats/2023.json passes', () => {
+  const data = readJson('nflverse/advstats/2023.json');
+  assert.ok(data?.players, 'nflverse/advstats/2023.json not found on disk');
+  assert.doesNotThrow(() => validateAdvStats(data.players, { year: 2023 }));
 });
 
 // ═══════════════════════════════════════════════════════════════════

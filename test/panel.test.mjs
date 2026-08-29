@@ -382,6 +382,62 @@ describe('T-P: TEAM_* aggregate-row exclusion', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// T-10 — CORRUPT_PREDICTOR_SEASONS: 2016 airYardsShare candidate nulled
+// (advstats-2016-gate.md §5.5 — lib/panel.mjs:292's seam, in scope now, not
+// deferred to R1-SNAPS: bin/panel.mjs --from 2013 reaches 2016 today.)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('T-10: CORRUPT_PREDICTOR_SEASONS nulls the airYardsShare candidate for an excluded year', () => {
+  function baseAdvstats(season, players) {
+    return { schemaVersion: 1, season, generatedAt: '2026-01-01T00:00:00.000Z', rowCount: players.length, unmapped: 0,
+      players: Object.fromEntries(players.map(p => [p.sleeperId, p])) };
+  }
+
+  function fixtureFor(anchorYear) {
+    const totalsByYear = {
+      [anchorYear]: {
+        p1: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 60, rec_rz_tgt: 25, off_snp: 700, tm_off_snp: 1000 } }),
+        p2: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { rec_tgt: 40, rec_rz_tgt: 20, off_snp: 600, tm_off_snp: 1000 } }),
+      },
+    };
+    const advstatsY = baseAdvstats(anchorYear, [
+      { sleeperId: 'p1', position: 'WR', team: 'KC', airYardsShare: 0.20 },
+      { sleeperId: 'p2', position: 'WR', team: 'KC', airYardsShare: 0.15 },
+    ]);
+    const teamOf = teamKeyResolver('current-team', totalsByYear, anchorYear);
+    const teamTotalsByYear = { [anchorYear]: buildTeamTotalsForSeason(totalsByYear[anchorYear], anchorYear, teamOf) };
+    const ppgByYear = {
+      [anchorYear]:     outcomesMap({ p1: { gamesPlayed: 16, fantasyPoints: 160 }, p2: { gamesPlayed: 16, fantasyPoints: 120 } }),
+      [anchorYear + 1]: outcomesMap({ p1: { gamesPlayed: 16, fantasyPoints: 170 }, p2: { gamesPlayed: 16, fantasyPoints: 130 } }),
+    };
+    return { totalsByYear, advstatsY, teamOf, teamTotalsByYear, ppgByYear };
+  }
+
+  test('2016: candidates.airYardsShare is null even though advstats has a real value (0.20)', () => {
+    const { totalsByYear, advstatsY, teamOf, teamTotalsByYear, ppgByYear } = fixtureFor(2016);
+    const result = buildPanelRow({
+      pid: 'p1', position: 'WR', anchorYear: 2016,
+      totalsByYear, ppgByYear, advstatsY, teamOf, teamTotalsByYear,
+      config: { minPredictorGames: 6, minOutcomeGames: 6 },
+    });
+    assert.equal(result.dropReason, undefined, `expected a built row, got dropReason=${result.dropReason}`);
+    assert.equal(result.row.candidates.airYardsShare, null, '2016 is a corrupt predictor season — candidate must be nulled');
+    assert.equal(result.row.candidates.shareLevel, 60 / 100, 'shareLevel (unrelated candidate) is unaffected');
+  });
+
+  test('2017: candidates.airYardsShare passes through the real advstats value unchanged', () => {
+    const { totalsByYear, advstatsY, teamOf, teamTotalsByYear, ppgByYear } = fixtureFor(2017);
+    const result = buildPanelRow({
+      pid: 'p1', position: 'WR', anchorYear: 2017,
+      totalsByYear, ppgByYear, advstatsY, teamOf, teamTotalsByYear,
+      config: { minPredictorGames: 6, minOutcomeGames: 6 },
+    });
+    assert.equal(result.dropReason, undefined, `expected a built row, got dropReason=${result.dropReason}`);
+    assert.equal(result.row.candidates.airYardsShare, 0.20, '2017 is not excluded — real advstats value passes through');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // T-5 — folds + leakage guard
 // ═══════════════════════════════════════════════════════════════════════════
 

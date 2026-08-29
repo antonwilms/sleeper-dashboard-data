@@ -29,7 +29,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { writeJsonStable } from '../lib/io.mjs';
-import { D3_TARGETS, D3_TOLERANCE } from '../lib/backtest.mjs';
+import { D3_TARGETS, D3_TOLERANCE, isCorruptPredictorSeason } from '../lib/backtest.mjs';
 import {
   METRICS,
   POSITIONS,
@@ -60,17 +60,21 @@ function fmt(v, digits = 4) {
 // ─── Human-readable formatter — metric run ────────────────────────────────────
 
 function formatHumanReport(report) {
-  const { meta, n, rawPearson, standardizedBeta, controlBetas, rSquared, collinearity, quintiles, monotonic, caveats } = report;
+  const { meta, n, rawPearson, standardizedBeta, controlBetas, rSquared, collinearity, quintiles, monotonic, caveats, excludedSeasons } = report;
   const controls = meta.controls ?? [];
   const minYr = meta.predictorYears[0] ?? null;
   const maxYr = meta.predictorYears[meta.predictorYears.length - 1] ?? null;
   const panelStr = minYr && maxYr ? `${minYr}–${maxYr}` : 'none';
   const snapNote = controls.includes('snapShare') ? ' (snapShare in controls — pre-2020 rows excluded)' : '';
+  const excludedLine = excludedSeasons && excludedSeasons.length
+    ? [`  Excluded seasons : ${excludedSeasons.join(', ')} (upstream-corrupt air yards — advstats-2016-gate.md)`]
+    : [];
   const lines = [
     `\n── ${meta.metric} / ${meta.position} (n=${n}) ─────────────────────────`,
     `  Predictor years : ${meta.predictorYears.join(', ')}`,
     `  Outcome years   : ${meta.outcomeYears.join(', ')}`,
     `  Effective panel : ${panelStr}${snapNote}`,
+    ...excludedLine,
     `  Raw Pearson r   : ${fmt(rawPearson)}`,
     `  Standardized β  : ${fmt(standardizedBeta)}   (candidate partial β)`,
     `  R²              : ${fmt(rSquared)}`,
@@ -201,6 +205,9 @@ if (isMain) {
             const seasonRows = rows.filter(r => r.predictorYear === Y);
             if (seasonRows.length === 0) continue;
             for (const metric of metrics) {
+              // advstats-2016-gate.md §5.4 — skip rather than let runMetric's own filter
+              // reduce this single-season slice to n=0 and print a degenerate block.
+              if (isCorruptPredictorSeason(metric, Y)) continue;
               const sr = runMetric(seasonRows, metric, position, { minOutcomeGames, fromYear: Y, toYear: Y + 1, controls });
               if (asJson) console.log(JSON.stringify(sr, null, 2));
               else        console.log(formatHumanReport(sr));
