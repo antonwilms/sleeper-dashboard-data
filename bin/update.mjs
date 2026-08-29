@@ -41,6 +41,7 @@ import { updateGameLogs }    from '../scripts/update-gamelogs.mjs';
 import { updateTeamContext } from '../scripts/update-teamcontext.mjs';
 import { updatePlayerState } from '../scripts/update-playerstate.mjs';
 import { updateOline }       from '../scripts/update-oline.mjs';
+import { parseAndValidateArgs } from '../lib/args.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -52,16 +53,10 @@ function flag(name) {
 
 function option(name) {
   const i = args.indexOf(name);
-  return i !== -1 ? args[i + 1] : null;
+  return i !== -1 && i + 1 < args.length ? args[i + 1] : null;
 }
 
 const subcommand = args[0];
-const dryRun     = flag('--dry-run');
-const force      = flag('--force');
-const all        = flag('--all');
-const yearRaw    = option('--year');
-const year       = yearRaw ? parseInt(yearRaw, 10) : null;
-const category   = option('--category');
 
 // ─── Help ─────────────────────────────────────────────────────────────────────
 
@@ -102,7 +97,7 @@ SUBCOMMANDS
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
   --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext/oline only)
-  --year YYYY Target season year (nfl, cfbd, roster subcommands)
+  --year YYYY Target season year (nfl, cfbd, roster, advstats, schedule, gamelogs, teamcontext, oline subcommands)
   --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline subcommands)
 
 EXAMPLES
@@ -145,11 +140,11 @@ if (!subcommand || subcommand === '--help' || subcommand === '-h') {
 
 // ─── Dispatch ─────────────────────────────────────────────────────────────────
 
-const opts = { year, category, force, dryRun, all };
-
 (async () => {
   try {
-    switch (subcommand) {
+    const opts = parseAndValidateArgs(args);
+
+    switch (opts.subcommand) {
       case 'nfl':
         await updateNfl(opts);
         break;
@@ -160,7 +155,7 @@ const opts = { year, category, force, dryRun, all };
         await updateKtc(opts);
         break;
       case 'snapshots':
-        registerSnapshots({ dryRun });
+        registerSnapshots({ dryRun: opts.dryRun });
         break;
       case 'roster':
         await updateRoster(opts);
@@ -190,7 +185,7 @@ const opts = { year, category, force, dryRun, all };
         await updateOline(opts);
         break;
       default:
-        console.error(`Unknown subcommand: ${subcommand}\n`);
+        console.error(`Unknown subcommand: ${opts.subcommand}\n`);
         printHelp();
         process.exit(1);
     }
