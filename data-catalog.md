@@ -25,7 +25,7 @@ header-compatible (column lookup by name; 2025 adds one additive `game_id` colum
 does not affect served shape — it is recorded here so provenance stays honest, not silent. See each
 family's Source + provenance field below for the per-family detail.
 
-_Last reconciled against manifest.json: 2026-08-24_
+_Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test` run — see Catalog-vs-manifest reconcile below._
 
 ---
 
@@ -229,31 +229,25 @@ Outside the catalog contract (not app-consumed; unregistered except where noted)
 
 ## Catalog-vs-manifest reconcile
 
-Run after any change to a served family (§ drift prevention below):
+`npm test` (`test/manifest.test.mjs`) is the live check — a hand-refreshed output block goes stale
+by construction (that is exactly how C7's oline gap survived undetected). It asserts, network-free,
+against the real `manifest.json` on every run:
 
-```sh
-node -e '
-const m = JSON.parse(require("fs").readFileSync("manifest.json","utf8")).files;
-for (const fam of ["advstats","gamelogs","roster","teamcontext"]) {
-  const years = Object.keys(m).filter(k => k.startsWith(`nflverse/${fam}/`))
-    .map(k => k.match(/(\d{4})\.json$/)?.[1]).filter(Boolean).sort();
-  console.log(fam, years.join(","));
-}'
-```
-
-Current output (2026-07-04), matching the coverage cells above verbatim:
-
-```
-advstats 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025
-gamelogs 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025
-roster 2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026
-teamcontext 2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025
-```
+- **Contiguity** — for each of ten season-keyed families (the four nflverse families gated by an
+  imported `MIN_*_SEASON` constant, plus `nflverse/advstats`, `nflverse/roster`,
+  `nfl/season-totals`, and the three `college/*` families, whose floors are documented here rather
+  than enforced in ingest), the years present are contiguous from the family's floor to its own
+  maximum — a family simply not having reached a later year yet is not a failure, a gap inside the
+  range is.
+- **Field completeness** — every `manifest.files` entry carries `lastModified`, `schemaVersion`,
+  `recordCount`, and `inProgress`.
+- **`nfl/season-totals` flag truth** — every year strictly below the family's max year has
+  `inProgress: false` (the D-5 tripwire).
 
 ## Drift prevention
 
 Three anchors, no new machinery: (1) the header's append convention line; (2) a CLAUDE.md
-Done-definition step so no slice completes without its catalog row; (3) the reconcile one-liner
-above, which compares coverage cells against `manifest.json` — cheap enough to run in any session
-that touches served data. An automated reconciliation script is a possible later nicety; out of
-scope for now.
+Done-definition step so no slice completes without its catalog row; (3) `npm test`
+(`test/manifest.test.mjs`), which compares coverage against `manifest.json` on every run — cheap
+enough to run in any session that touches served data, and CI-enforced rather than run by hand. An
+automated reconciliation script is a possible later nicety; out of scope for now.
