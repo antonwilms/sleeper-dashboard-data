@@ -19,7 +19,7 @@
  *   • targetShare–outcomePPG raw r > 0  (metric orientation check)
  */
 
-import { test, describe } from 'node:test';
+import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
@@ -29,6 +29,7 @@ import {
   runMetric,
   runValidate,
 } from '../scripts/backtest-run.mjs';
+import { CORRUPT_PREDICTOR_SEASONS } from '../lib/backtest.mjs';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -334,6 +335,23 @@ describe('Integration 10: default (no controls option) equals explicit 3-control
 // ─── 11. CORRUPT_PREDICTOR_SEASONS exclusion (advstats-2016-gate.md §5) ───────
 
 describe('Integration 11: 2016 excluded from airYardsShare/wopr/racr, not targetShare', () => {
+  // reingest-2016.md §5.2 — CORRUPT_PREDICTOR_SEASONS is empty in production (2016 was
+  // re-ingested clean). These tests are synthetic fixtures that merely use 2016 as a year
+  // label to exercise the exclusion machinery, so save/restore the real exported object
+  // around this describe block rather than widening runMetric's signature for a test seam.
+  // Restore in `after` (not at the end of each test body) so a failing assertion can't leak
+  // the entry into other test files.
+  before(() => {
+    CORRUPT_PREDICTOR_SEASONS.airYardsShare = [2016];
+    CORRUPT_PREDICTOR_SEASONS.wopr = [2016];
+    CORRUPT_PREDICTOR_SEASONS.racr = [2016];
+  });
+  after(() => {
+    delete CORRUPT_PREDICTOR_SEASONS.airYardsShare;
+    delete CORRUPT_PREDICTOR_SEASONS.wopr;
+    delete CORRUPT_PREDICTOR_SEASONS.racr;
+  });
+
   // Standalone 3-year fixture (predictor 2015–2017, outcomes 2016–2018) — kept separate
   // from the 2019–2022 fixture above so the exclusion years line up cleanly.
   const YEAR_PLAYERS = {

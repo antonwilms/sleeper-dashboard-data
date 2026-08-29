@@ -143,13 +143,13 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 
 ## nflverse advanced receiving
 - **Served path / subcommand / refresh:** `nflverse/advstats/<year>.json`; `bin/update.mjs advstats --year`; Thursday Action
-- **Source + provenance:** nflverse **`stats_player`** release (current tag, since 2026-07-03), `stats_player_week_<year>.csv` (weekly rows aggregated season-level; ratios recomputed from components, never summed weekly). **Provenance split:** seasons 2012–2018 and 2020–2024 were fetched from the legacy `player_stats` release tag (frozen 2025-05-06; this repo's `STATS_BASE` pointed at it until 2026-07-03). Seasons 2019 and 2025 were added by B1 on 2026-07-03 from the current `stats_player` tag, after the tag-switch fix — 2019's legacy-tag asset was a permanently broken "starter" upload, and 2025 was never mirrored to the legacy tag at all. Both eras are header-compatible (2025 adds one additive `game_id` column; parsers resolve columns by name).
+- **Source + provenance:** nflverse **`stats_player`** release (current tag, since 2026-07-03), `stats_player_week_<year>.csv` (weekly rows aggregated season-level; ratios recomputed from components, never summed weekly). **Provenance split:** seasons 2012–2015, 2017–2018 and 2020–2024 were fetched from the legacy `player_stats` release tag (frozen 2025-05-06; this repo's `STATS_BASE` pointed at it until 2026-07-03). Seasons 2019 and 2025 were added by B1 on 2026-07-03 from the current `stats_player` tag, after the tag-switch fix — 2019's legacy-tag asset was a permanently broken "starter" upload, and 2025 was never mirrored to the legacy tag at all. **2016 was re-ingested on 2026-08-30** from the current tag, correcting a corrupt legacy-tag asset (Σ airYards ÷ Σ targets had read 3.96 against a 7.80–9.07 archive range; the current-tag asset reads 8.48 — advstats-2016-gate.md found the corruption, reingest-2016.md fixed it at the source). Both eras are header-compatible (2025 adds one additive `game_id` column; parsers resolve columns by name).
 - **Grain:** player-season (WR/TE/RB)
 - **Join id(s):** sleeper_id (re-keyed via crosswalk)
 - **Coverage:** **2012–2025 complete** (2019/2025 filled by B1 after the frozen legacy-tag fix)
 - **schemaVersion:** 1
-- **Sparsity gate:** `MIN_ADVSTATS_ROWS = 250` (cross-repo)
-- **Null semantics:** ratios null on zero denominators; RB negatives emitted. **2016 is a known-bad season for the air-yards-derived ratios**: `airYardsShare`/`wopr`/`racr` are upstream-corrupt (Σ airYards ÷ Σ targets = 3.96 vs a 7.80–9.07 archive range across the other 13 seasons) and are excluded from data-repo analysis per metric (`lib/backtest.mjs` `CORRUPT_PREDICTOR_SEASONS`); `targetShare` is unaffected and retained. `lib/validate.mjs` `validateAdvStats` gates future ingests on this band (`AY_PER_TARGET_MIN`/`MAX`, `lib/nflverse.mjs`), so re-fetching 2016 today throws unless upstream has since corrected it (advstats-2016-gate.md).
+- **Sparsity gate:** `MIN_ADVSTATS_ROWS = 250` (cross-repo). `lib/validate.mjs` `validateAdvStats` also asserts a season-level air-yards plausibility band, Σ`airYards` ÷ Σ`targets` ∈ `[AY_PER_TARGET_MIN, AY_PER_TARGET_MAX]` = `[6, 11]` (`lib/nflverse.mjs`) — a forward guard against the legacy-tag corruption above, not a coverage floor.
+- **Null semantics:** ratios null on zero denominators; RB negatives emitted.
 - **Consumption:** app-consumed (`src/api/advStats.js`; capture-only factors)
 - **Keep-rationale:** opportunity-share truth (targetShare/WOPR/RACR). Path-naming: known ad-blocker-rule violation, parked.
 
@@ -167,7 +167,7 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 
 ## nflverse per-game stats
 - **Served path / subcommand / refresh:** `nflverse/gamelogs/<year>.json`; `bin/update.mjs gamelogs [--year|--all]`; Saturday Action
-- **Source + provenance:** same `stats_player` weekly asset as advstats, mined per-game. **Provenance split** (same mechanism as advstats above): seasons 2012–2018/2020–2024 originate from the frozen legacy `player_stats` tag (used by this repo's `STATS_BASE` until 2026-07-03); seasons 2019 and 2025 were added by B1 on 2026-07-03 from the live `stats_player` tag.
+- **Source + provenance:** same `stats_player` weekly asset as advstats, mined per-game. **Provenance split** (same mechanism as advstats above): seasons 2012–2015, 2017–2018 and 2020–2024 originate from the frozen legacy `player_stats` tag (used by this repo's `STATS_BASE` until 2026-07-03); seasons 2019 and 2025 were added by B1 on 2026-07-03 from the live `stats_player` tag. **2016 was re-ingested on 2026-08-30** from the current tag, correcting the same corrupt legacy-tag asset as the advstats family (REG-only Σ airYards ÷ Σ targets moved from 3.90 to 8.38; advstats-2016-gate.md / reingest-2016.md).
 - **Grain:** player-game (QB/RB/WR/TE/FB)
 - **Join id(s):** sleeper_id
 - **Coverage:** **2012–2025 complete** (2019/2025 filled by B1)

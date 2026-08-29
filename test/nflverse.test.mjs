@@ -640,10 +640,14 @@ test('validateAdvStats: |airYardsShare| > 1 throws; negative values (RB) pass', 
   assert.throws(() => validateAdvStats(throwing, { year: 2023 }), /airYardsShare/);
 });
 
-test('validateAdvStats: the REAL nflverse/advstats/2016.json throws (corrupt upstream air yards)', () => {
+test('validateAdvStats: the REAL nflverse/advstats/2016.json passes (re-ingested 2026-08-30, reingest-2016.md)', () => {
+  // C2 (advstats-2016-gate.md) found 2016 corrupt from a stale legacy-tag ingest and this
+  // test originally asserted the gate caught it. reingest-2016.md re-fetched 2016 from the
+  // current stats_player tag, which passes the same gate — the negative case (a genuinely
+  // corrupt season) stays covered by the synthetic-ratio fixture above.
   const data = readJson('nflverse/advstats/2016.json');
   assert.ok(data?.players, 'nflverse/advstats/2016.json not found on disk');
-  assert.throws(() => validateAdvStats(data.players, { year: 2016 }), /airYards.*targets|Σ/);
+  assert.doesNotThrow(() => validateAdvStats(data.players, { year: 2016 }));
 });
 
 test('validateAdvStats: the REAL nflverse/advstats/2023.json passes', () => {

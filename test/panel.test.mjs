@@ -6,10 +6,10 @@
  * like the production files (nfl/season-totals v3, nflverse/advstats, roster).
  */
 
-import { test, describe } from 'node:test';
+import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { standardize, solveOLS, rankTransform, spearman, isTeamAggregateId } from '../lib/backtest.mjs';
+import { standardize, solveOLS, rankTransform, spearman, isTeamAggregateId, CORRUPT_PREDICTOR_SEASONS } from '../lib/backtest.mjs';
 import {
   PANEL_GATES,
   BASELINE_FEATURES,
@@ -388,6 +388,14 @@ describe('T-P: TEAM_* aggregate-row exclusion', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('T-10: CORRUPT_PREDICTOR_SEASONS nulls the airYardsShare candidate for an excluded year', () => {
+  // reingest-2016.md §5.2 — CORRUPT_PREDICTOR_SEASONS is empty in production (2016 was
+  // re-ingested clean). This is a synthetic fixture that merely uses 2016 as a year label
+  // to exercise the null-out seam at lib/panel.mjs, so save/restore the real exported
+  // object around this describe block rather than widening buildPanelRow's config for a
+  // test seam. Restore in `after` so a failing assertion can't leak the entry.
+  before(() => { CORRUPT_PREDICTOR_SEASONS.airYardsShare = [2016]; });
+  after(() => { delete CORRUPT_PREDICTOR_SEASONS.airYardsShare; });
+
   function baseAdvstats(season, players) {
     return { schemaVersion: 1, season, generatedAt: '2026-01-01T00:00:00.000Z', rowCount: players.length, unmapped: 0,
       players: Object.fromEntries(players.map(p => [p.sleeperId, p])) };
