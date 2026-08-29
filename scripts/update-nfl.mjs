@@ -26,7 +26,7 @@
 import crypto from 'crypto';
 import { fetchSeasonWeeks, aggregateWeeks, fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 import { readJson, writeJsonStable, diffSummary, setStepOutput } from '../lib/io.mjs';
-import { updateManifestEntry } from '../lib/manifest.mjs';
+import { updateManifestEntry, setManifestInProgress } from '../lib/manifest.mjs';
 import { validateNflSeason } from '../lib/validate.mjs';
 
 export function nflHash(players) {
@@ -44,6 +44,7 @@ export const DEFAULT_DEPS = {
   readJson,
   writeJsonStable,
   updateManifestEntry,
+  setManifestInProgress,
   diffSummary,
   setStepOutput,
 };
@@ -82,7 +83,20 @@ export async function updateNfl({ year: yearOpt = null, force, dryRun, deps = {}
   const inProgress = year >= currentSeason;
   console.log(`[nfl] Year: ${year} | inProgress: ${inProgress} | currentSeason: ${currentSeason}`);
 
+  // §2.4 option (B) — the scheduled path never revisits a season once it rolls off `currentSeason`
+  // (the skip below is unreachable from cron, since `year` always resolves to `currentSeason`), so
+  // the season that just closed would otherwise keep `inProgress: true` forever. Seal it here, on
+  // every normal scheduled run, immediately after rollover. No-ops on every other run (§2.2
+  // contract 1/2: already false, or no entry yet). --dry-run stays exempt — this is not the
+  // skip-path's structural exemption, so it needs its own guard.
+  if (inProgress && !dryRun) {
+    const sealed = d.setManifestInProgress({ path: `nfl/season-totals/${year - 1}.json`, inProgress: false });
+    if (sealed) console.log(`[nfl] Sealed nfl/season-totals/${year - 1}.json (inProgress → false)`);
+  }
+
   if (shouldSkipCompletedSeason({ inProgress, force, dryRun })) {
+    const skipSealed = d.setManifestInProgress({ path: `nfl/season-totals/${year}.json`, inProgress: false });
+    if (skipSealed) console.log(`[nfl] Sealed nfl/season-totals/${year}.json (inProgress → false)`);
     console.log(
       `[nfl] nfl/season-totals/${year}.json: ${year} is a completed season (currentSeason=${currentSeason}) — ` +
       'skipping on the scheduled path. Pass --force to overwrite deliberately.'

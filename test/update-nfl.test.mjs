@@ -99,6 +99,7 @@ function countingFn(impl) {
 test('updateNfl §2.2: empty Sleeper response → returns cleanly, no write, no throw', async () => {
   const writeJsonStable = countingFn();
   const updateManifestEntry = countingFn();
+  const setManifestInProgress = countingFn();
   await updateNfl({
     year: 2026,
     force: false,
@@ -109,12 +110,17 @@ test('updateNfl §2.2: empty Sleeper response → returns cleanly, no write, no 
       readJson: () => null,
       writeJsonStable,
       updateManifestEntry,
+      setManifestInProgress,
       diffSummary: () => ({ identical: true, text: 'no change' }),
       setStepOutput: () => {},
     },
   });
   assert.equal(writeJsonStable.calls.length, 0);
   assert.equal(updateManifestEntry.calls.length, 0);
+  // §2.4 option (B) — inProgress is true (2026 === currentSeason), so the scheduled path's
+  // year-1 seal fires before the fetch, independent of what the fetch itself returns.
+  assert.equal(setManifestInProgress.calls.length, 1);
+  assert.deepEqual(setManifestInProgress.calls[0], [{ path: 'nfl/season-totals/2025.json', inProgress: false }]);
 });
 
 test('updateNfl §2.3: a resolved season older than current SKIPS — the stored file (B statuses, byeWeeks) is provably untouched', async () => {
@@ -138,6 +144,7 @@ test('updateNfl §2.3: a resolved season older than current SKIPS — the stored
   const fetchSeasonWeeks = countingFn();
   const writeJsonStable = countingFn();
   const updateManifestEntry = countingFn();
+  const setManifestInProgress = countingFn();
   const setStepOutput = countingFn();
 
   await updateNfl({
@@ -150,6 +157,7 @@ test('updateNfl §2.3: a resolved season older than current SKIPS — the stored
       readJson,
       writeJsonStable,
       updateManifestEntry,
+      setManifestInProgress,
       diffSummary: () => { throw new Error('diffSummary must not be reached — the skip happens before any diff'); },
       setStepOutput,
     },
@@ -162,6 +170,10 @@ test('updateNfl §2.3: a resolved season older than current SKIPS — the stored
   // the schedule-drop/hash-diverge chain from the bug report never even begins.
   assert.equal(fetchSeasonWeeks.calls.length, 0);
   assert.equal(readJson.calls.length, 0);
+  // §2.3 — the skip branch seals the completed season (call site 1). inProgress is false here
+  // (2026 rolled off current=2027), so §2.4's year-1 seal (call site 2) does not additionally fire.
+  assert.equal(setManifestInProgress.calls.length, 1);
+  assert.deepEqual(setManifestInProgress.calls[0], [{ path: 'nfl/season-totals/2026.json', inProgress: false }]);
   // §2.4 — the resolved season is still surfaced for the purge step even on a skip.
   assert.deepEqual(setStepOutput.calls[0], ['season', 2026]);
 
@@ -173,6 +185,7 @@ test('updateNfl §2.3: a resolved season older than current SKIPS — the stored
 
 test('updateNfl §2.4: year omitted resolves to the current season, and it is surfaced via setStepOutput', async () => {
   const setStepOutput = countingFn();
+  const setManifestInProgress = countingFn();
   await updateNfl({
     force: false,
     dryRun: false,
@@ -182,9 +195,73 @@ test('updateNfl §2.4: year omitted resolves to the current season, and it is su
       readJson: () => null,
       writeJsonStable: countingFn(),
       updateManifestEntry: countingFn(),
+      setManifestInProgress,
       diffSummary: () => ({ identical: true, text: 'no change' }),
       setStepOutput,
     },
   });
   assert.deepEqual(setStepOutput.calls[0], ['season', 2026]);
+  // §2.4 option (B) — this is the actual scheduled-path shape (no --year): inProgress is true,
+  // so the year-1 seal fires.
+  assert.equal(setManifestInProgress.calls.length, 1);
+  assert.deepEqual(setManifestInProgress.calls[0], [{ path: 'nfl/season-totals/2025.json', inProgress: false }]);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// §2.4 call site 2 — the year-1 seal's own --dry-run guard
+// ═══════════════════════════════════════════════════════════════════
+
+test('updateNfl §2.4: call site 2 does not fire under --dry-run even when inProgress is true', async () => {
+  const setManifestInProgress = countingFn();
+  await updateNfl({
+    year: 2026,
+    force: false,
+    dryRun: true,
+    deps: {
+      fetchCurrentNflSeason: async () => 2026,          // inProgress true — the case §2.4 targets
+      fetchSeasonWeeks: async () => emptyWeekData(),
+      readJson: () => null,
+      writeJsonStable: countingFn(),
+      updateManifestEntry: countingFn(),
+      setManifestInProgress,
+      diffSummary: () => ({ identical: true, text: 'no change' }),
+      setStepOutput: () => {},
+    },
+  });
+  assert.equal(setManifestInProgress.calls.length, 0);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// §5.3 — the --dry-run exemption, exercised end-to-end through updateNfl
+// ═══════════════════════════════════════════════════════════════════
+
+test('updateNfl §5.3: a completed season with --dry-run reaches neither call site; without --dry-run it seals via the skip path', async () => {
+  const baseDeps = (dryRun) => ({
+    fetchCurrentNflSeason: async () => 2027,  // year (2026) has rolled off current — completed season
+    fetchSeasonWeeks: async () => emptyWeekData(),
+    readJson: () => null,
+    writeJsonStable: countingFn(),
+    updateManifestEntry: countingFn(),
+    diffSummary: () => ({ identical: true, text: 'no change' }),
+    setStepOutput: () => {},
+  });
+
+  const setManifestInProgressDry = countingFn();
+  await updateNfl({
+    year: 2026,
+    force: false,
+    dryRun: true,
+    deps: { ...baseDeps(true), setManifestInProgress: setManifestInProgressDry },
+  });
+  assert.equal(setManifestInProgressDry.calls.length, 0);
+
+  const setManifestInProgressLive = countingFn();
+  await updateNfl({
+    year: 2026,
+    force: false,
+    dryRun: false,
+    deps: { ...baseDeps(false), setManifestInProgress: setManifestInProgressLive },
+  });
+  assert.equal(setManifestInProgressLive.calls.length, 1);
+  assert.deepEqual(setManifestInProgressLive.calls[0], [{ path: 'nfl/season-totals/2026.json', inProgress: false }]);
 });
