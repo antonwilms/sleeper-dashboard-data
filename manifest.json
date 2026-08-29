@@ -5,192 +5,268 @@
     "raw/-league-1312015497465716736.json": {
       "originalKey": "/league/1312015497465716736",
       "recordCount": 31,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/-league-1312015497465716736-drafts.json": {
       "originalKey": "/league/1312015497465716736/drafts",
       "recordCount": 1,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/-league-1312015497465716736-rosters.json": {
       "originalKey": "/league/1312015497465716736/rosters",
       "recordCount": 12,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/-league-1312015497465716736-users.json": {
       "originalKey": "/league/1312015497465716736/users",
       "recordCount": 12,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/-players-nfl.json": {
       "originalKey": "/players/nfl",
       "recordCount": 12180,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/-state-nfl.json": {
       "originalKey": "/state/nfl",
       "recordCount": 10,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/cfbd-players-2017.json": {
       "originalKey": "cfbd-players/2017",
       "recordCount": 100837,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/passing/2017.json": {
       "originalKey": "cfbd-players/2017/passing",
       "recordCount": 4690,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/receiving/2017.json": {
       "originalKey": "cfbd-players/2017/receiving",
       "recordCount": 12905,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/rushing/2017.json": {
       "originalKey": "cfbd-players/2017/rushing",
       "recordCount": 10555,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/cfbd-players-2018.json": {
       "originalKey": "cfbd-players/2018",
       "recordCount": 105281,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/passing/2018.json": {
       "originalKey": "cfbd-players/2018/passing",
       "recordCount": 5369,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/receiving/2018.json": {
       "originalKey": "cfbd-players/2018/receiving",
       "recordCount": 14345,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/rushing/2018.json": {
       "originalKey": "cfbd-players/2018/rushing",
       "recordCount": 11865,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/cfbd-players-2019.json": {
       "originalKey": "cfbd-players/2019",
       "recordCount": 102027,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/passing/2019.json": {
       "originalKey": "cfbd-players/2019/passing",
       "recordCount": 4998,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/receiving/2019.json": {
       "originalKey": "cfbd-players/2019/receiving",
       "recordCount": 13655,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/rushing/2019.json": {
       "originalKey": "cfbd-players/2019/rushing",
       "recordCount": 10865,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/cfbd-players-2020.json": {
       "originalKey": "cfbd-players/2020",
       "recordCount": 72298,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/passing/2020.json": {
       "originalKey": "cfbd-players/2020/passing",
       "recordCount": 3269,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/receiving/2020.json": {
       "originalKey": "cfbd-players/2020/receiving",
       "recordCount": 9595,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/rushing/2020.json": {
       "originalKey": "cfbd-players/2020/rushing",
       "recordCount": 7290,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/cfbd-players-2021.json": {
       "originalKey": "cfbd-players/2021",
       "recordCount": 107770,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/passing/2021.json": {
       "originalKey": "cfbd-players/2021/passing",
       "recordCount": 4809,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/receiving/2021.json": {
       "originalKey": "cfbd-players/2021/receiving",
       "recordCount": 13740,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/rushing/2021.json": {
       "originalKey": "cfbd-players/2021/rushing",
       "recordCount": 10690,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/cfbd-players-2022.json": {
       "originalKey": "cfbd-players/2022",
       "recordCount": 137519,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/passing/2022.json": {
       "originalKey": "cfbd-players/2022/passing",
       "recordCount": 7399,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/receiving/2022.json": {
       "originalKey": "cfbd-players/2022/receiving",
       "recordCount": 21155,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/rushing/2022.json": {
       "originalKey": "cfbd-players/2022/rushing",
       "recordCount": 16345,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/cfbd-players-2023.json": {
       "originalKey": "cfbd-players/2023",
       "recordCount": 129712,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/passing/2023.json": {
       "originalKey": "cfbd-players/2023/passing",
       "recordCount": 7028,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/receiving/2023.json": {
       "originalKey": "cfbd-players/2023/receiving",
       "recordCount": 20065,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/rushing/2023.json": {
       "originalKey": "cfbd-players/2023/rushing",
       "recordCount": 15365,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "raw/cfbd-players-2024.json": {
       "originalKey": "cfbd-players/2024",
       "recordCount": 132123,
-      "inProgress": false
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/passing/2024.json": {
       "originalKey": "cfbd-players/2024/passing",
       "recordCount": 7147,
-      "inProgress": true
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/receiving/2024.json": {
       "originalKey": "cfbd-players/2024/receiving",
       "recordCount": 20435,
-      "inProgress": true
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "college/rushing/2024.json": {
       "originalKey": "cfbd-players/2024/rushing",
       "recordCount": 15950,
-      "inProgress": true
+      "inProgress": false,
+      "lastModified": "2026-05-18T14:05:14.000Z",
+      "schemaVersion": 1
     },
     "ktc/snapshot-2026-05-18.json": {
       "originalKey": "ktc-values",
@@ -1111,5 +1187,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-08-28T23:11:09.496Z"
+  "generatedAt": "2026-08-29T15:22:47.075Z"
 }
