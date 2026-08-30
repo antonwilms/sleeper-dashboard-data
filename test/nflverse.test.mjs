@@ -1023,7 +1023,10 @@ function makeGamelogPlayers(count, { withStats = true } = {}) {
   const players = {};
   for (let i = 0; i < count; i++) {
     const game = { week: 1, seasonType: 'REG', team: 'DAL', opponent: 'CLE' };
-    if (withStats) game.receptions = 5;
+    // targets/receivingAirYards at an in-band ratio (8.0) so tests targeting OTHER
+    // checks (sparsity, targetShare bounds, the withStats=true drift case) don't
+    // incidentally trip the new air-yards band or its Σtargets===0 column-drift throw.
+    if (withStats) { game.receptions = 5; game.targets = 5; game.receivingAirYards = 40; }
     players[String(i + 1)] = {
       gsisId:   `00-000${String(i).padStart(4, '0')}`,
       name:     `Player ${i}`,
@@ -1039,10 +1042,13 @@ test('validateGameLogs: sparse season (totalRows < MIN_PLAYERGAME_ROWS) throws',
   assert.throws(() => validateGameLogs(players, { year: 2023 }), /game rows.*expected/);
 });
 
-test('validateGameLogs: missing stat fields (all rows omit air-yards) does not throw', () => {
-  // Valid: absent key = null = "stat not recorded", which is legal for sparse seasons
+test('validateGameLogs: missing non-air-yards stat fields does not throw', () => {
+  // Valid: absent key = null = "stat not recorded", which is legal for sparse seasons —
+  // as long as targets/receivingAirYards are present (satisfying the new §2 band; a
+  // genuinely all-missing receivingAirYards season is indistinguishable from corruption
+  // and SHOULD throw — ratio 0 is outside [6, 11] — so that case is not tested here).
   const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS);
-  // receivingAirYards is omitted from every game (pre-charting era legitimacy)
+  // receivingYards (not part of the air-yards band) is omitted from every game
   assert.doesNotThrow(() => validateGameLogs(players, { year: 2023 }));
 });
 
@@ -1071,6 +1077,68 @@ test('validateGameLogs: column-drift — game rows with only identity keys throw
 test('validateGameLogs: normal players with stat keys passes', () => {
   const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS, { withStats: true });
   assert.doesNotThrow(() => validateGameLogs(players, { year: 2023 }));
+});
+
+// ─── K2. Air-yards plausibility band, shared with validateAdvStats
+//         (gamelogs-airyards-gate.md §2 — deliberately inverts the advstats
+//         Σtargets===0 SKIP into a THROW; see §1.3/§2.1 for the omitted bound) ───
+
+/** MIN_PLAYERGAME_ROWS players, one game each, whose Σ receivingAirYards ÷ Σ targets equals ratio. */
+function makeGamelogPlayersAtRatio(ratio, { targets = 5 } = {}) {
+  const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS, { withStats: true });
+  for (const p of Object.values(players)) {
+    p.games[0].targets = targets;
+    p.games[0].receivingAirYards = targets * ratio; // exact per-row ratio — no rounding drift
+  }
+  return players;
+}
+
+test('validateGameLogs: throws when Σ receivingAirYards ÷ Σ targets is below AY_PER_TARGET_MIN (synthetic 2016-shaped ratio 3.93)', () => {
+  const players = makeGamelogPlayersAtRatio(3.93);
+  assert.throws(() => validateGameLogs(players, { year: 2016 }), /3\.93/);
+});
+
+test('validateGameLogs: passes when Σ receivingAirYards ÷ Σ targets is in band (synthetic 2016-shaped ratio 8.42, all-rows)', () => {
+  const players = makeGamelogPlayersAtRatio(8.42);
+  assert.doesNotThrow(() => validateGameLogs(players, { year: 2016 }));
+});
+
+test(`validateGameLogs: ratio exactly at AY_PER_TARGET_MIN (${AY_PER_TARGET_MIN}) and AY_PER_TARGET_MAX (${AY_PER_TARGET_MAX}) both pass`, () => {
+  assert.doesNotThrow(() => validateGameLogs(makeGamelogPlayersAtRatio(AY_PER_TARGET_MIN), { year: 2023 }));
+  assert.doesNotThrow(() => validateGameLogs(makeGamelogPlayersAtRatio(AY_PER_TARGET_MAX), { year: 2023 }));
+});
+
+test('validateGameLogs: Σtargets === 0 THROWS as column drift — the deliberate inversion of validateAdvStats\' skip', () => {
+  // parsePlayerGameLogs has no required `targets` column (unlike aggregateAdvReceiving,
+  // which hard-throws when `targets` is missing), so a renamed/dropped targets column
+  // would otherwise sail through the row floor and the format-drift guard and silently
+  // disable this gate. MIN_PLAYERGAME_ROWS rows, zero of them with targets, is
+  // definitionally drift, not an empty season — must throw, not skip (§2).
+  const players = makeGamelogPlayers(MIN_PLAYERGAME_ROWS, { withStats: true });
+  for (const p of Object.values(players)) {
+    p.games[0].targets = 0;
+    p.games[0].receivingAirYards = 0;
+  }
+  assert.throws(() => validateGameLogs(players, { year: 2023 }), /Σ targets = 0|column drift/);
+});
+
+test('validateGameLogs: a synthetic row at airYardsShare = 1.842 (D.J. Moore, 2022 wk6, real) passes — the §1.3/§2.1 regression lock', () => {
+  // Per-game airYardsShare divides by the team's NET air yards for that single game,
+  // which can be near zero or negative on pass-heavy-behind-the-line games — a receiver
+  // with positive air yards can legitimately exceed a 100% share. This is the test that
+  // stops a later slice from "completing the mirror" by adding an |airYardsShare| <= 1
+  // bound to validateGameLogs (advstats has one; gamelogs deliberately does not — five
+  // real rows across 2015/2022/2025 exceed it). Band-check fields stay in-range (ratio 8)
+  // so only the airYardsShare value itself is under test.
+  const players = makeGamelogPlayersAtRatio(8);
+  players['1'].games[0].airYardsShare = 1.84210526315789; // D.J. Moore, 2022 wk6: 35 recAY / 7 tgt
+  assert.doesNotThrow(() => validateGameLogs(players, { year: 2022 }));
+});
+
+test('validateGameLogs: the REAL nflverse/gamelogs/2016.json passes (re-ingested 2026-08-30, all-rows ratio 8.42)', () => {
+  const data = readJson('nflverse/gamelogs/2016.json');
+  assert.ok(data?.players, 'nflverse/gamelogs/2016.json not found on disk');
+  assert.doesNotThrow(() => validateGameLogs(data.players, { year: 2016 }));
 });
 
 // ═══════════════════════════════════════════════════════════════════

@@ -172,7 +172,7 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Join id(s):** sleeper_id
 - **Coverage:** **2012–2025 complete** (2019/2025 filled by B1)
 - **schemaVersion:** 1
-- **Sparsity gate:** `MIN_PLAYERGAME_ROWS = 3000` (cross-repo)
+- **Sparsity gate:** `MIN_PLAYERGAME_ROWS = 3000` (cross-repo). `lib/validate.mjs` `validateGameLogs` also asserts the same season-level air-yards plausibility band as advstats, Σ`receivingAirYards` ÷ Σ`targets` (all rows, REG+POST) ∈ `[AY_PER_TARGET_MIN, AY_PER_TARGET_MAX]` = `[6, 11]` (`lib/nflverse.mjs`) — a forward guard against the legacy-tag corruption above, not a coverage floor. Deliberately does NOT also carry advstats' `|airYardsShare| ≤ 1` bound: five per-game rows legitimately exceed it (team net air yards near zero on behind-the-line passes; gamelogs-airyards-gate.md §1.3).
 - **Null semantics:** omit-on-null (absent key = null, never 0); per-game rate fields verbatim, never summed; `fantasyPoints*` are nflverse scoring, never grading input
 - **Consumption:** app loader `src/api/nflGameLogs.js` — **view-only contract** (must never feed projection/scoring/grading)
 - **Keep-rationale:** per-game drill-down grain
