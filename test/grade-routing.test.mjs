@@ -1,9 +1,9 @@
 /**
  * test/grade-routing.test.mjs — Integration tests for the loadOutcomes routing seam.
  *
- * loadOutcomes reads nfl/season-totals/<year>.json from the real repo filesystem.
- * We write a sentinel file under year 9999 before tests and clean it up after,
- * so this remains test-only with no permanent data change.
+ * loadOutcomes/gradeSnapshot take an injectable `load` (DEFAULT_LOAD's shape,
+ * scripts/grade-snapshot.mjs) — fixtures are served from memory, no reads or
+ * writes touch the real repo filesystem.
  *
  * Coverage gap filled:
  *   - loadOutcomes v2 (scoringSettings present) → buildInBasisOutcomes path
@@ -11,20 +11,15 @@
  *   - gradeSnapshot routing: snapshot.scoringSettings extraction + dispatch
  */
 
-import { test, before, after } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'fs';
-import { repoPath, writeJsonStable } from '../lib/io.mjs';
 import { loadOutcomes, gradeSnapshot } from '../scripts/grade-snapshot.mjs';
 
 // ─── Sentinel paths ───────────────────────────────────────────────────────────
 
 const SENTINEL_YEAR   = 9999;
-const TOTALS_REL      = `nfl/season-totals/${SENTINEL_YEAR}.json`;
 const SNAP_V2_DATE    = '_routing_test_v2_';
 const SNAP_V1_DATE    = '_routing_test_v1_';
-const SNAP_V2_REL     = `snapshots/${SNAP_V2_DATE}.json`;
-const SNAP_V1_REL     = `snapshots/${SNAP_V1_DATE}.json`;
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -70,19 +65,16 @@ const SNAP_V1 = {
   },
 };
 
-// ─── Lifecycle ────────────────────────────────────────────────────────────────
+// ─── Injected load ────────────────────────────────────────────────────────────
 
-before(() => {
-  writeJsonStable(TOTALS_REL,   FIXTURE_TOTALS);
-  writeJsonStable(SNAP_V2_REL,  SNAP_V2);
-  writeJsonStable(SNAP_V1_REL,  SNAP_V1);
-});
-
-after(() => {
-  for (const rel of [TOTALS_REL, SNAP_V2_REL, SNAP_V1_REL]) {
-    try { fs.unlinkSync(repoPath(rel)); } catch { /* already gone */ }
-  }
-});
+const load = {
+  loadSeasonTotals: (year) => (year === SENTINEL_YEAR ? FIXTURE_TOTALS : null),
+  loadSnapshot: (date) => {
+    if (date === SNAP_V2_DATE) return SNAP_V2;
+    if (date === SNAP_V1_DATE) return SNAP_V1;
+    return null;
+  },
+};
 
 // Suppress gradeSnapshot's stdout output during routing tests.
 function suppressOutput(fn) {
@@ -94,7 +86,7 @@ function suppressOutput(fn) {
 // ─── loadOutcomes routing ─────────────────────────────────────────────────────
 
 test('loadOutcomes v2: scoringSettings present → buildInBasisOutcomes path', () => {
-  const result = loadOutcomes(SENTINEL_YEAR, SCORING_V2);
+  const result = loadOutcomes(SENTINEL_YEAR, SCORING_V2, load);
 
   assert.ok(result !== null, 'result not null');
   assert.equal(result.inBasis, true, 'inBasis === true');
@@ -120,7 +112,7 @@ test('loadOutcomes v2: scoringSettings present → buildInBasisOutcomes path', (
 });
 
 test('loadOutcomes v1: scoringSettings absent → buildHalfPprOutcomes path', () => {
-  const result = loadOutcomes(SENTINEL_YEAR, null);
+  const result = loadOutcomes(SENTINEL_YEAR, null, load);
 
   assert.ok(result !== null, 'result not null');
   assert.equal(result.inBasis, false, 'inBasis === false');
@@ -150,7 +142,7 @@ test('loadOutcomes returns null for missing year', () => {
 
 test('gradeSnapshot v2: snapshot.scoringSettings extracted → meta.inBasis true', () => {
   const report = suppressOutput(() =>
-    gradeSnapshot({ snapshotDate: SNAP_V2_DATE, dryRun: true })
+    gradeSnapshot({ snapshotDate: SNAP_V2_DATE, dryRun: true, load })
   );
 
   assert.ok(report !== null, 'report not null');
@@ -166,7 +158,7 @@ test('gradeSnapshot v2: snapshot.scoringSettings extracted → meta.inBasis true
 test('gradeSnapshot v1: no scoringSettings → meta.inBasis false', () => {
   // targetSeason: 9999 forced via opts so loadOutcomes hits the sentinel file.
   const report = suppressOutput(() =>
-    gradeSnapshot({ snapshotDate: SNAP_V1_DATE, targetSeason: SENTINEL_YEAR, dryRun: true })
+    gradeSnapshot({ snapshotDate: SNAP_V1_DATE, targetSeason: SENTINEL_YEAR, dryRun: true, load })
   );
 
   assert.ok(report !== null, 'report not null');

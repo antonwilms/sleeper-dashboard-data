@@ -109,9 +109,10 @@ test('RATE_KEYS recurrence guard: every `_lng` key in the served archive is cove
   const seenLngKeys = new Set();
   for (const file of files) {
     const data = readJson(`${dir}/${file}`);
-    // A file can legitimately vanish mid-scan: other test files (e.g.
-    // test/grade-routing.test.mjs) write/unlink a transient sentinel-year fixture
-    // under this same real directory, and node:test runs files concurrently.
+    // Defensive: this is a scan of a real served directory, not a fixture. No test
+    // currently writes into nfl/season-totals/ (test/grade-routing.test.mjs used to,
+    // via a transient sentinel-year fixture, but was moved to injected `load` fixtures),
+    // but a bare Object.values(null) crash is a bad way to learn that a future one does.
     if (!data) continue;
     for (const rec of Object.values(data)) {
       for (const k in (rec.stats ?? {})) {

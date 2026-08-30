@@ -681,7 +681,12 @@ describe('R3-FIT non-regression: assemblePanel with withFactorMultipliers unset'
   test('rows/coverage/meta are byte-identical whether or not the new opt-in params are even passed', () => {
     const withoutFlag = assemblePanel({ fromYear: 2020, toYear: 2024, scoringFrom: '2026-07-05', load });
     const withFlagFalse = assemblePanel({ fromYear: 2020, toYear: 2024, scoringFrom: '2026-07-05', load, withFactorMultipliers: false, historyFloor: 2012 });
-    assert.deepEqual(withoutFlag, withFlagFalse);
+    assert.deepEqual(withoutFlag.rows, withFlagFalse.rows);
+    assert.deepEqual(withoutFlag.coverage, withFlagFalse.coverage);
+    const stripStamp = ({ generatedAt, ...rest }) => rest;
+    assert.deepEqual(stripStamp(withoutFlag.meta), stripStamp(withFlagFalse.meta));
+    for (const p of [withoutFlag, withFlagFalse])
+      assert.match(p.meta.generatedAt, /^\d{4}-\d{2}-\d{2}T/, 'meta.generatedAt present and ISO-shaped');
   });
 
   test('rows carry only the pre-existing E-0a shape (features/candidates), no multipliers/anchorBasePPG leak in', () => {

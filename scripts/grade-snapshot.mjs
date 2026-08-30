@@ -116,16 +116,25 @@ export function buildInBasisOutcomes(seasonTotals, scoringSettings) {
 }
 
 /**
+ * Injectable I/O surface, mirroring scripts/panel-run.mjs's DEFAULT_LOAD.
+ */
+export const DEFAULT_LOAD = {
+  loadSeasonTotals: (year) => readJson(`nfl/season-totals/${year}.json`),
+  loadSnapshot:     (date) => readJson(`snapshots/${date}.json`),
+};
+
+/**
  * Load nfl/season-totals/<targetSeason>.json and build outcomes.
  * Returns null if the file does not exist.
  * When scoringSettings is provided, builds in-basis outcomes; otherwise half_ppr.
  *
  * @param {number} targetSeason
  * @param {object|null} scoringSettings  v2 snapshot scoringSettings, or null for v1
+ * @param {object} load  injectable loaders, defaults to DEFAULT_LOAD
  * @returns {{ outcomes: Map, inBasis: boolean, droppedTerms: string[], excludedRateKeys: string[], scoredKeyCount: number|null } | null}
  */
-export function loadOutcomes(targetSeason, scoringSettings = null) {
-  const data = readJson(`nfl/season-totals/${targetSeason}.json`);
+export function loadOutcomes(targetSeason, scoringSettings = null, load = DEFAULT_LOAD) {
+  const data = load.loadSeasonTotals(targetSeason);
   if (!data) return null;
   if (scoringSettings) {
     return { ...buildInBasisOutcomes(data, scoringSettings), inBasis: true };
@@ -213,11 +222,12 @@ export function buildGradeInputFromSnapshot(snapshot, outcomes, {
  * @param {boolean}      opts.json           emit JSON to stdout instead of human report
  * @param {boolean}      opts.strictBasis    skip non-half_ppr snapshots
  * @param {boolean}      opts.dryRun         suppress writes even if --write is set
+ * @param {object}       opts.load           injectable loaders, defaults to DEFAULT_LOAD
  * @returns {object|null}
  */
-export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = null, write = false, json = false, strictBasis = false, dryRun = false }) {
+export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = null, write = false, json = false, strictBasis = false, dryRun = false, load = DEFAULT_LOAD }) {
   // 1. Load snapshot
-  const snapshot = readJson(`snapshots/${snapshotDate}.json`);
+  const snapshot = load.loadSnapshot(snapshotDate);
   if (!snapshot) {
     throw new Error(
       `snapshots/${snapshotDate}.json not found. ` +
@@ -245,7 +255,7 @@ export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = nu
 
   // 4. Load outcomes (in-basis for v2, half_ppr for v1)
   const scoringSettings = snapshot.scoringSettings ?? null;
-  const loaded = loadOutcomes(targetSeason, scoringSettings);
+  const loaded = loadOutcomes(targetSeason, scoringSettings, load);
   if (!loaded) {
     console.log(
       `[grade] nfl/season-totals/${targetSeason}.json not found — ` +
