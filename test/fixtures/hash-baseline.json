@@ -1,0 +1,50 @@
+{
+  "cfbdHash": {
+    "file": "college/receiving/2023.json",
+    "digest": "de4fdde3b9d185f453c54e5ba82412cbf77f75bf3376652d813f1b5651673222"
+  },
+  "nflHash": {
+    "file": "nfl/season-totals/2023.json",
+    "digest": "faf8d1722c792ce00ec0965fbbabfb168cbdb29ca0883e77f8c55a88d783fccd"
+  },
+  "advstatsPlayersHash": {
+    "file": "nflverse/advstats/2023.json",
+    "digest": "4d1ff2cff7947358870b4c6a4abce9b382c9b98146a56af63fc6b873c8bf904d"
+  },
+  "gamelogsPlayersHash": {
+    "file": "nflverse/gamelogs/2023.json",
+    "digest": "31eebc9c2f0069f006d078b160867bc69378751f7a7af34cdc451f0af0a01489"
+  },
+  "rosterPlayersHash": {
+    "file": "nflverse/roster/2026.json",
+    "digest": "d48971945bb86b89cd12dc33389e9ef9d7250409f5d6939beba44b3fe6412c43"
+  },
+  "olineTeamsHash": {
+    "file": "nflverse/oline/2026.json",
+    "digest": "37690ce4724fb6dc41431f7286173c23c0b028bff0d4279e9faef0d7fb8da36b"
+  },
+  "teamcontextTeamsHash": {
+    "file": "nflverse/teamcontext/2025.json",
+    "digest": "2e77ee0a24cb4190b3c6f3a438c42d98b9705f0e932207ce7a9d2c45ebf51cd7"
+  },
+  "playerstatePlayersHash": {
+    "file": "nfl/players-state/2026-08-29.json",
+    "digest": "f9f7bafb8db77a05d6c2eeeee04c05b4d5e34c2f45d5fe67506bf889444d5cff"
+  },
+  "idsHash": {
+    "file": "nflverse/playerids.json",
+    "digest": "53415b2f6f0191bfed55702dcc809cca7f0d1910e9ccd398a79fdd1740868a64"
+  },
+  "picksByYearHash": {
+    "file": "nflverse/draft/draft_picks.json",
+    "digest": "54a2d76ced22b456ebd3882eff7f73da20f4836cbebbcebc5209aabf0f9ad7c3"
+  },
+  "gamesHash": {
+    "file": "nflverse/schedule/2026.json",
+    "digest": "e04c150b807f10b2274fd31390230665be7b77897f6a8867546437ff8eea5775"
+  },
+  "snapshotHash": {
+    "file": "ktc/snapshot-2026-08-24.json",
+    "digest": "06ab13140f7bbd014080f0d325c044ffaca1ba3f03dad00bdb06537be814d390"
+  }
+}
