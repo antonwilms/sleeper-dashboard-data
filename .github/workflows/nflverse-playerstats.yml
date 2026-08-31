@@ -25,6 +25,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Both families read the crosswalk (scripts/update-advstats.mjs, update-gamelogs.mjs
+          # readJson('nflverse/playerids.json')) — listed explicitly rather than relying on cone
+          # mode's parent-directory inclusion of nflverse/advstats' siblings (ci-consolidation.md §2.3).
+          sparse-checkout: |
+            lib
+            scripts
+            bin
+            manifest.json
+            package.json
+            package-lock.json
+            nflverse/advstats
+            nflverse/gamelogs
+            nflverse/playerids.json
+          sparse-checkout-cone-mode: true
 
       - uses: actions/setup-node@v4
         with:

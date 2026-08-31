@@ -12,43 +12,11 @@ permissions:
 
 jobs:
   roster:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Fetch nflverse roster
-        id: fetch
-        run: node bin/update.mjs roster
-
-      - name: Commit and purge if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add nflverse/ manifest.json
-            git commit -m "nflverse: roster $(date -u +%Y-%m-%d)"
-            # Retry with rebase on push rejection (multiple weekly committers on main)
-            git push || (git pull --rebase && git push)
-            # Purge jsDelivr CDN cache so weekly freshness isn't stuck behind @main cache.
-            # SEASON is the NFL season resolved by the node step (Sleeper state.nfl.season) —
-            # the year the roster file is keyed by. NOT the calendar year, which diverges
-            # Jan–Feb. See scripts/update-roster.mjs (setStepOutput).
-            SEASON="${{ steps.fetch.outputs.season }}"
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
-            if [[ -n "$SEASON" ]]; then
-              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/roster/${SEASON}.json" || true
-            else
-              echo "WARN: season step-output empty; skipped season-keyed roster purge"
-            fi
-          else
-            echo "No changes to commit."
-          fi
+    uses: ./.github/workflows/_ingest.yml
+    with:
+      subcommand: roster
+      sparse-paths: nflverse/roster
+      commit-scope: "nflverse/"
+      commit-message: "nflverse: roster"
+      purge-path: "nflverse/roster/<season>.json"
+      season-keyed: true

@@ -12,38 +12,11 @@ permissions:
 
 jobs:
   oline:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Fetch nflverse oline
-        id: fetch
-        run: node bin/update.mjs oline
-
-      - name: Commit and purge if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add nflverse/ manifest.json
-            git commit -m "nflverse: oline $(date -u +%Y-%m-%d)"
-            # Retry with rebase on push rejection (multiple weekly committers on main)
-            git push || (git pull --rebase && git push)
-            # Purge jsDelivr CDN cache. SEASON from the node step (Invariant 8) — calendar
-            # year and NFL season diverge Jan–Feb; never date -u +%Y here.
-            SEASON="${{ steps.fetch.outputs.season }}"
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
-            if [[ -n "$SEASON" ]]; then
-              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/oline/${SEASON}.json" || true
-            else
-              echo "WARN: season step-output empty; skipped season-keyed oline purge"
-            fi
-          else
-            echo "No changes to commit."
-          fi
+    uses: ./.github/workflows/_ingest.yml
+    with:
+      subcommand: oline
+      sparse-paths: nflverse/oline
+      commit-scope: "nflverse/"
+      commit-message: "nflverse: oline"
+      purge-path: "nflverse/oline/<season>.json"
+      season-keyed: true

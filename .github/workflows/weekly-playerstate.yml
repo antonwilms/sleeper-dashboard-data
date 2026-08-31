@@ -12,32 +12,10 @@ permissions:
 
 jobs:
   playerstate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - name: Install dependencies
-        run: npm ci
-      - name: Capture players-state snapshot
-        id: capture
-        run: node bin/update.mjs playerstate
-      - name: Commit and purge if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain)" ]]; then
-            SNAPSHOT_DATE=$(date -u +%Y-%m-%d)
-            git add nfl/players-state/ manifest.json
-            git commit -m "playerstate: snapshot ${SNAPSHOT_DATE}"
-            # Retry with rebase on push rejection (multiple weekly committers on main)
-            git push || (git pull --rebase && git push)
-            # Purge jsDelivr CDN cache (manifest first, then the dated file). Date-keyed
-            # family — exempt from the Invariant 8 season-output rule, same as KTC.
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nfl/players-state/${SNAPSHOT_DATE}.json" || true
-          else
-            echo "No changes to commit."
-          fi
+    uses: ./.github/workflows/_ingest.yml
+    with:
+      subcommand: playerstate
+      sparse-paths: nfl/players-state
+      commit-scope: "nfl/players-state/"
+      commit-message: "playerstate: snapshot"
+      purge-path: "nfl/players-state/<date>.json"

@@ -15,42 +15,11 @@ permissions:
 
 jobs:
   teamcontext:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Fetch nflverse teamcontext
-        id: fetch
-        run: node bin/update.mjs teamcontext
-
-      - name: Commit and purge if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add nflverse/ manifest.json
-            git commit -m "nflverse: teamcontext $(date -u +%Y-%m-%d)"
-            # Retry with rebase on push rejection (multiple weekly committers on main)
-            git push || (git pull --rebase && git push)
-            # Purge jsDelivr CDN cache. SEASON is the NFL season resolved by the node step
-            # (the year the teamcontext file is keyed by), NOT the calendar year — they diverge
-            # Jan–Feb. See scripts/update-teamcontext.mjs (setStepOutput).
-            SEASON="${{ steps.fetch.outputs.season }}"
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
-            if [[ -n "$SEASON" ]]; then
-              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/teamcontext/${SEASON}.json" || true
-            else
-              echo "WARN: season step-output empty; skipped season-keyed teamcontext purge"
-            fi
-          else
-            echo "No changes to commit."
-          fi
+    uses: ./.github/workflows/_ingest.yml
+    with:
+      subcommand: teamcontext
+      sparse-paths: nflverse/teamcontext
+      commit-scope: "nflverse/"
+      commit-message: "nflverse: teamcontext"
+      purge-path: "nflverse/teamcontext/<season>.json"
+      season-keyed: true

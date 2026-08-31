@@ -16,6 +16,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # listDir('ktc') finds the previous snapshot; quarantine/ is a write-only path but
+          # still needs to be in the cone for `git add` after cone-mode narrowing (ci-consolidation.md §2.3).
+          sparse-checkout: |
+            lib
+            scripts
+            bin
+            manifest.json
+            package.json
+            package-lock.json
+            ktc
+          sparse-checkout-cone-mode: true
 
       - uses: actions/setup-node@v4
         with:

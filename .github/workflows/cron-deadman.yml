@@ -19,6 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # scripts/check-crons.mjs reads only .github/workflows/*.yml (included by checkout
+          # regardless of sparse-checkout) — no data file, no manifest.json (ci-consolidation.md §2.3).
+          sparse-checkout: |
+            lib
+            scripts
+            bin
+            package.json
+            package-lock.json
+          sparse-checkout-cone-mode: true
       - uses: actions/setup-node@v4
         with:
           node-version: "20"

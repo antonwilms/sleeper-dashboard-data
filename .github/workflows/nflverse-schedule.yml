@@ -13,36 +13,11 @@ permissions:
 
 jobs:
   schedule:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-      - name: Install dependencies
-        run: npm ci
-      - name: Fetch nflverse schedule
-        id: fetch
-        run: node bin/update.mjs schedule
-      - name: Commit and purge if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add nflverse/ manifest.json
-            git commit -m "nflverse: schedule $(date -u +%Y-%m-%d)"
-            git push || (git pull --rebase && git push)
-            # SEASON = NFL season resolved by the node step (the year the file is keyed by),
-            # NOT the calendar year — they diverge Jan–Feb. See scripts/update-schedule.mjs
-            # (setStepOutput) and CLAUDE.md invariant 8.
-            SEASON="${{ steps.fetch.outputs.season }}"
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
-            if [[ -n "$SEASON" ]]; then
-              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/schedule/${SEASON}.json" || true
-            else
-              echo "WARN: season step-output empty; skipped season-keyed schedule purge"
-            fi
-          else
-            echo "No changes to commit."
-          fi
+    uses: ./.github/workflows/_ingest.yml
+    with:
+      subcommand: schedule
+      sparse-paths: nflverse/schedule
+      commit-scope: "nflverse/"
+      commit-message: "nflverse: schedule"
+      purge-path: "nflverse/schedule/<season>.json"
+      season-keyed: true

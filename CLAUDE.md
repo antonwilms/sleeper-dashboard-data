@@ -199,20 +199,21 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `nflverse/teamcontext/` | pbp-derived team/game context, one JSON per year, TEAM-keyed (not sleeper_id); `teams[abbr].games[]` |
 | `nfl/players-state/` | Weekly Sleeper players-state snapshots (status/injury/depth), one JSON per date (`<YYYY-MM-DD>.json`), capture-only |
 | `nflverse/oline/` | nflverse OL composition per team-week (ESPN depth charts), one JSON per year (`<year>.json`), TEAM-keyed (not sleeper_id); `teams[abbr].states[]`; capture-only |
-| `.github/workflows/weekly-nflverse-roster.yml` | Tuesday weekly nflverse roster refresh, content-hash dedup, CDN purge |
-| `.github/workflows/nfl-season-totals.yml` | Tuesday weekly NFL season-totals refresh (in-season-season-totals.md, 2026-08-28) — `node bin/update.mjs nfl` (no `--year`; resolved inside the script from `fetchCurrentNflSeason()`), ordered after the Friday schedule job (D-1 bye inference reads `nflverse/schedule/<year>.json` while `inProgress`), content-hash dedup, CDN purge |
-| `.github/workflows/nflverse-draft.yml` | Yearly (May 1) nflverse draft picks update, content-hash dedup, CDN purge |
-| `.github/workflows/nflverse-playerids.yml` | Wednesday weekly gsis↔sleeper crosswalk refresh, content-hash dedup, CDN purge |
-| `.github/workflows/nflverse-schedule.yml` | Friday weekly nflverse schedule refresh (current season), content-hash dedup, CDN purge |
-| `.github/workflows/nflverse-playerstats.yml` | Saturday weekly advstats + gamelogs refresh — fetches `stats_player_week_<year>.csv` ONCE and drives both families (`node bin/update.mjs playerstats`, after playerids), per-family error isolation with path-scoped commit/purge (playerstats-single-fetch.md §3.3) |
-| `.github/workflows/nflverse-teamcontext.yml` | Sunday weekly team-context refresh, content-hash dedup, CDN purge |
+| `.github/workflows/_ingest.yml` | Reusable `workflow_call` template (ci-consolidation.md §2.2) for the eight uniform weekly ingest jobs — sparse checkout (per-caller cone input, derived from a read audit of `scripts/update-*.mjs`, not family directory names), `npm ci`, `node bin/update.mjs <subcommand>`, commit + purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `weekly-playerstate.yml`. NOT used by `nflverse-playerstats.yml` (per-family conditional staging — an Invariant 3 safeguard) or `weekly-ktc.yml` (its trailing quarantine-alarm step can't exist on a `uses:` caller) — both stay standalone, alongside `cron-deadman.yml` and `smoke-test.yml` |
+| `.github/workflows/weekly-nflverse-roster.yml` | Tuesday weekly nflverse roster refresh, content-hash dedup, CDN purge — delegates to `_ingest.yml` |
+| `.github/workflows/nfl-season-totals.yml` | Tuesday weekly NFL season-totals refresh (in-season-season-totals.md, 2026-08-28) — `node bin/update.mjs nfl` (no `--year`; resolved inside the script from `fetchCurrentNflSeason()`), ordered after the Friday schedule job (D-1 bye inference reads `nflverse/schedule/<year>.json` while `inProgress`), content-hash dedup, CDN purge — delegates to `_ingest.yml`; its sparse-checkout cone includes `nflverse/schedule` alongside `nfl/season-totals` for exactly that bye-inference read |
+| `.github/workflows/nflverse-draft.yml` | Yearly (May 1) nflverse draft picks update, content-hash dedup, CDN purge — delegates to `_ingest.yml` |
+| `.github/workflows/nflverse-playerids.yml` | Wednesday weekly gsis↔sleeper crosswalk refresh, content-hash dedup, CDN purge — delegates to `_ingest.yml` |
+| `.github/workflows/nflverse-schedule.yml` | Friday weekly nflverse schedule refresh (current season), content-hash dedup, CDN purge — delegates to `_ingest.yml` |
+| `.github/workflows/nflverse-playerstats.yml` | Saturday weekly advstats + gamelogs refresh — fetches `stats_player_week_<year>.csv` ONCE and drives both families (`node bin/update.mjs playerstats`, after playerids), per-family error isolation with path-scoped commit/purge (playerstats-single-fetch.md §3.3); standalone, not an `_ingest.yml` caller (ci-consolidation.md §1.3) |
+| `.github/workflows/nflverse-teamcontext.yml` | Sunday weekly team-context refresh, content-hash dedup, CDN purge — delegates to `_ingest.yml` |
 | `raw/` | Unprocessed Sleeper API responses |
 | `manifest.json` | Index of every script-written file with metadata |
-| `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation |
-| `.github/workflows/weekly-playerstate.yml` | Saturday weekly Sleeper players-state capture, content-hash dedup, CDN purge |
-| `.github/workflows/nflverse-oline.yml` | Saturday weekly OL composition refresh (ESPN depth charts), content-hash dedup, CDN purge |
-| `.github/workflows/cron-deadman.yml` | Daily dead-man check: every scheduled workflow must have a recent successful run; red = a capture silently missed |
-| `.github/workflows/smoke-test.yml` | Smoke test CI (dry-runs + npm test unit validators) |
+| `.github/workflows/weekly-ktc.yml` | Weekly KTC snapshot automation; standalone, not an `_ingest.yml` caller — its trailing "fail if quarantined" step is the ordering guard's only alarm, and a `uses:` caller cannot carry `steps:` (ci-consolidation.md §1.3) |
+| `.github/workflows/weekly-playerstate.yml` | Saturday weekly Sleeper players-state capture, content-hash dedup, CDN purge — delegates to `_ingest.yml` |
+| `.github/workflows/nflverse-oline.yml` | Saturday weekly OL composition refresh (ESPN depth charts), content-hash dedup, CDN purge — delegates to `_ingest.yml` |
+| `.github/workflows/cron-deadman.yml` | Daily dead-man check: every scheduled workflow must have a recent successful run; red = a capture silently missed; standalone (reads `.github/workflows/*.yml` only, which checkout always includes) |
+| `.github/workflows/smoke-test.yml` | Smoke test CI (dry-runs + npm test unit validators); standalone, full checkout — PR-triggered not scheduled, and its dry-runs + test suite read too broadly across families to narrow safely (ci-consolidation.md §3.4) |
 | `data-catalog.md` | Living dataset index — one section per served family (path/source/grain/join/coverage/gate); every ingest slice updates its row (Done-definition) |
 
 ---

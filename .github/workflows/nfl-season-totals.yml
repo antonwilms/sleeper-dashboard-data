@@ -17,42 +17,17 @@ permissions:
 
 jobs:
   season-totals:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Fetch NFL season totals
-        id: fetch
-        run: node bin/update.mjs nfl
-
-      - name: Commit and purge if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add nfl/ manifest.json
-            git commit -m "nfl: season-totals $(date -u +%Y-%m-%d)"
-            # Retry with rebase on push rejection (multiple weekly committers on main)
-            git push || (git pull --rebase && git push)
-            # Purge jsDelivr CDN cache. SEASON is the NFL season resolved by the node step
-            # (Sleeper state.nfl.season), NOT the calendar year — they diverge Jan–Feb. See
-            # scripts/update-nfl.mjs (setStepOutput).
-            SEASON="${{ steps.fetch.outputs.season }}"
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
-            if [[ -n "$SEASON" ]]; then
-              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nfl/season-totals/${SEASON}.json" || true
-            else
-              echo "WARN: season step-output empty; skipped season-keyed season-totals purge"
-            fi
-          else
-            echo "No changes to commit."
-          fi
+    uses: ./.github/workflows/_ingest.yml
+    with:
+      subcommand: nfl
+      # nflverse/schedule is a cross-family read, not a directory-name guess: update-nfl.mjs
+      # reads nflverse/schedule/<year>.json for D-1 bye inference on every in-season run
+      # (readJson returns null on a missing file rather than throwing — a missing cone entry
+      # here would degrade silently, not fail loudly). ci-consolidation.md §2.3.
+      sparse-paths: |
+        nfl/season-totals
+        nflverse/schedule
+      commit-scope: "nfl/"
+      commit-message: "nfl: season-totals"
+      purge-path: "nfl/season-totals/<season>.json"
+      season-keyed: true
