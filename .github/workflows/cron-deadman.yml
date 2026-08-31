@@ -20,14 +20,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # scripts/check-crons.mjs reads only .github/workflows/*.yml (included by checkout
-          # regardless of sparse-checkout) — no data file, no manifest.json (ci-consolidation.md §2.3).
+          # scripts/check-crons.mjs reads .github/workflows/*.yml FROM DISK at runtime
+          # (listScheduledWorkflows → listDir/readFileSync) — it must be listed explicitly.
+          # Verified empirically: cone-mode sparse-checkout does NOT auto-include .github/ the
+          # way it auto-includes loose files at each listed directory's own level; omitting it
+          # here would make listDir('.github/workflows') return [], so the detector would find
+          # zero scheduled workflows and report zero failures — a silent false all-clear, not a
+          # loud failure. No data file, no manifest.json needed otherwise (ci-consolidation.md §2.3).
           sparse-checkout: |
             lib
             scripts
             bin
             package.json
             package-lock.json
+            .github
           sparse-checkout-cone-mode: true
       - uses: actions/setup-node@v4
         with:
