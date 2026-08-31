@@ -16,20 +16,14 @@
  * @param {boolean} opts.force   (accepted for API consistency; not used)
  */
 
-import crypto from 'crypto';
 import { fetchPlayerIdsCsv, parsePlayerIdsCsv, MIN_PLAYERID_ROWS } from '../lib/nflverse.mjs';
-import { readJson, writeJsonStable } from '../lib/io.mjs';
+import { readJson, writeJsonStable, stableHash, sortObjectKeys } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validatePlayerIds } from '../lib/validate.mjs';
 
 const PLAYERIDS_PATH = 'nflverse/playerids.json';
 
-export function idsHash(ids) {
-  // Sort keys for a stable hash regardless of insertion order
-  const sorted = Object.keys(ids).sort();
-  const stable = Object.fromEntries(sorted.map(k => [k, ids[k]]));
-  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
-}
+export const idsHash = ids => stableHash(ids, sortObjectKeys);
 
 export async function updatePlayerIds({ dryRun = false, force = false } = {}) {
   // 1. Fetch CSV (file should always exist — 404/504 is unexpected, throw)

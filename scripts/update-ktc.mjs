@@ -25,9 +25,8 @@
  * @param {boolean} opts.dryRun  Fetch + validate but don't write files
  */
 
-import crypto from 'crypto';
 import { fetchKtcSnapshot } from '../lib/ktc.mjs';
-import { readJson, writeJsonStable, listDir, setStepOutput } from '../lib/io.mjs';
+import { readJson, writeJsonStable, listDir, setStepOutput, stableHash } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateKtc } from '../lib/validate.mjs';
 import { pearson } from '../lib/grade.mjs';   // Spearman = Pearson on ranks; reused per CLAUDE.md nav map
@@ -36,13 +35,9 @@ function todayDateString() {
   return new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
 }
 
-export function snapshotHash(players) {
-  // Sort by name for stable hash regardless of fetch order
-  const sorted = players
-    .slice()
-    .sort((a, b) => a.name.localeCompare(b.name));
-  return crypto.createHash('sha256').update(JSON.stringify(sorted)).digest('hex');
-}
+// Sort by name for stable hash regardless of fetch order
+const byName = players => players.slice().sort((a, b) => a.name.localeCompare(b.name));
+export const snapshotHash = players => stableHash(players, byName);
 
 function findLastSnapshot() {
   const files = listDir('ktc')

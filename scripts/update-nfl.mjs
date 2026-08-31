@@ -23,17 +23,12 @@
  * @param {object}  [opts.deps]     Injectable I/O + fetch surface for tests — see DEFAULT_DEPS.
  */
 
-import crypto from 'crypto';
 import { fetchSeasonWeeks, aggregateWeeks, fetchCurrentNflSeason } from '../lib/sleeper.mjs';
-import { readJson, writeJsonStable, diffSummary, setStepOutput } from '../lib/io.mjs';
+import { readJson, writeJsonStable, diffSummary, setStepOutput, stableHash, sortObjectKeys } from '../lib/io.mjs';
 import { updateManifestEntry, setManifestInProgress } from '../lib/manifest.mjs';
 import { validateNflSeason } from '../lib/validate.mjs';
 
-export function nflHash(players) {
-  const sorted = Object.keys(players).sort();
-  const stable = Object.fromEntries(sorted.map(k => [k, players[k]]));
-  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
-}
+export const nflHash = players => stableHash(players, sortObjectKeys);
 
 // Injectable I/O + fetch surface — mirrors scripts/panel-run.mjs's DEFAULT_LOAD pattern, so the
 // §2.2/§2.3 control-flow branches (in-season-season-totals.md) are unit-testable without

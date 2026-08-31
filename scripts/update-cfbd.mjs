@@ -20,15 +20,13 @@
  * @param {boolean} opts.dryRun    Fetch + validate but don't write
  */
 
-import crypto from 'crypto';
 import { fetchCfbdCategory } from '../lib/cfbd.mjs';
-import { readJson, writeJsonStable } from '../lib/io.mjs';
+import { readJson, writeJsonStable, stableHash } from '../lib/io.mjs';
 import { readManifest, updateManifestEntry } from '../lib/manifest.mjs';
 import { validateCfbdCategory } from '../lib/validate.mjs';
 
-export function cfbdHash(rows) {
-  return crypto.createHash('sha256').update(JSON.stringify(rows)).digest('hex');
-}
+// Deliberately order-sensitive — no normaliser (stable-hash.md §1.1/§2.1).
+export const cfbdHash = rows => stableHash(rows);
 
 const ALL_CATEGORIES = ['receiving', 'rushing', 'passing'];
 

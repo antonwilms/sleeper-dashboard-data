@@ -26,20 +26,15 @@
  *   when non-null (same seam as `csv`; this script calls fetchCurrentNflSeason() unconditionally).
  */
 
-import crypto from 'crypto';
 import {
   fetchPlayerStatsCsv, aggregateAdvReceiving, rekeyBySleeper, MIN_ADVSTATS_ROWS,
 } from '../lib/nflverse.mjs';
-import { readJson, writeJsonStable, setStepOutput } from '../lib/io.mjs';
+import { readJson, writeJsonStable, setStepOutput, stableHash, sortObjectKeys } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateAdvStats } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 
-export function playersHash(players) {
-  const sorted = Object.keys(players).sort();
-  const stable = Object.fromEntries(sorted.map(k => [k, players[k]]));
-  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
-}
+export const playersHash = players => stableHash(players, sortObjectKeys);
 
 export async function updateAdvStats({
   year: yearOpt = null, dryRun = false, force = false, csv: csvOpt = null, currentSeason: currentSeasonOpt = null,

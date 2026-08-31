@@ -19,9 +19,8 @@
  * @param {boolean} opts.dryRun  Fetch + validate but don't write files
  */
 
-import crypto from 'crypto';
 import { fetchPlayersMap } from '../lib/sleeper.mjs';
-import { readJson, writeJsonStable, listDir } from '../lib/io.mjs';
+import { readJson, writeJsonStable, listDir, stableHash } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validatePlayersState } from '../lib/validate.mjs';
 
@@ -102,9 +101,7 @@ function stripHashFields(players) {
  * @param {object} players
  * @returns {string}  hex digest
  */
-export function playersHash(players) {
-  return crypto.createHash('sha256').update(JSON.stringify(stripHashFields(players))).digest('hex');
-}
+export const playersHash = players => stableHash(players, stripHashFields);
 
 function findLastSnapshot() {
   const files = listDir('nfl/players-state')

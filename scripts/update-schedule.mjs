@@ -22,18 +22,15 @@
  * @param {boolean}     opts.dryRun Fetch + validate, print plan, no writes.
  * @param {boolean}     opts.force  Overwrite completed past-season files.
  */
-import crypto from 'crypto';
 import { fetchSchedulesCsv, parseSchedulesCsv, MIN_SCHEDULE_GAMES } from '../lib/nflverse.mjs';
-import { readJson, writeJsonStable, setStepOutput } from '../lib/io.mjs';
+import { readJson, writeJsonStable, setStepOutput, stableHash } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateSchedule } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 
-export function gamesHash(games) {
-  // Sort by gameId for a stable hash regardless of CSV row order.
-  const stable = [...games].sort((a, b) => (a.gameId < b.gameId ? -1 : a.gameId > b.gameId ? 1 : 0));
-  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
-}
+// Sort by gameId for a stable hash regardless of CSV row order.
+const byGameId = games => [...games].sort((a, b) => (a.gameId < b.gameId ? -1 : a.gameId > b.gameId ? 1 : 0));
+export const gamesHash = games => stableHash(games, byGameId);
 
 export async function updateSchedule({ year: yearOpt = null, all = false, dryRun = false, force = false } = {}) {
   const currentSeason = await fetchCurrentNflSeason();

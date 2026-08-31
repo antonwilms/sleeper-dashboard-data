@@ -15,25 +15,24 @@
  * @param {boolean} opts.force   (accepted for API consistency; not used — no past-season gate)
  */
 
-import crypto from 'crypto';
 import { fetchDraftCsv, parseDraftCsv, fetchDraftTimestamp } from '../lib/nflverse.mjs';
-import { readJson, writeJsonStable } from '../lib/io.mjs';
+import { readJson, writeJsonStable, stableHash } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateDraft } from '../lib/validate.mjs';
 
 const DRAFT_PATH = 'nflverse/draft/draft_picks.json';
 
-export function picksByYearHash(picksByYear) {
-  // Sort years and picks within each year for a stable hash regardless of CSV row order.
+// Sort years and picks within each year for a stable hash regardless of CSV row order.
+function normalizePicksByYear(picksByYear) {
   const years = Object.keys(picksByYear).sort();
-  const stable = Object.fromEntries(
+  return Object.fromEntries(
     years.map(yr => [
       yr,
       [...picksByYear[yr]].sort((a, b) => a.round - b.round || a.pick - b.pick),
     ])
   );
-  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
 }
+export const picksByYearHash = picksByYear => stableHash(picksByYear, normalizePicksByYear);
 
 export async function updateDraft({ dryRun = false, force = false } = {}) {
   // 1. Fetch CSV (draft file always exists — 404 is unexpected, throw)

@@ -21,21 +21,15 @@
  * @param {boolean}     opts.force    Overwrite a completed past-season file
  */
 
-import crypto from 'crypto';
 import { fetchRosterCsv, parseRosterCsv, MIN_ROSTER_IDS } from '../lib/nflverse.mjs';
-import { readJson, writeJsonStable, setStepOutput } from '../lib/io.mjs';
+import { readJson, writeJsonStable, setStepOutput, stableHash, sortObjectKeys } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateRoster } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 
 const LAST_CHECKED_PATH = 'nflverse/last-checked-roster.json';
 
-export function playersHash(players) {
-  // Sort keys for a stable hash regardless of insertion order
-  const sorted = Object.keys(players).sort();
-  const stable = Object.fromEntries(sorted.map(k => [k, players[k]]));
-  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
-}
+export const playersHash = players => stableHash(players, sortObjectKeys);
 
 export async function updateRoster({ year: yearOpt = null, dryRun = false, force = false }) {
   // 1. Resolve year

@@ -30,20 +30,15 @@
  * @param {boolean}     opts.force   Overwrite a completed past-season file
  */
 
-import crypto from 'crypto';
 import {
   fetchPbpCsv, aggregateTeamContext, MIN_TEAMCONTEXT_ROWS, MIN_TEAMCONTEXT_SEASON,
 } from '../lib/nflverse.mjs';
-import { readJson, writeJsonStable, setStepOutput } from '../lib/io.mjs';
+import { readJson, writeJsonStable, setStepOutput, stableHash, sortObjectKeys } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateTeamContext } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 
-export function teamsHash(teams) {
-  const sorted = Object.keys(teams).sort();
-  const stable = Object.fromEntries(sorted.map(k => [k, teams[k]]));
-  return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
-}
+export const teamsHash = teams => stableHash(teams, sortObjectKeys);
 
 export async function updateTeamContext({ year: yearOpt = null, all = false, dryRun = false, force = false } = {}) {
   const currentSeason = await fetchCurrentNflSeason();
