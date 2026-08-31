@@ -78,8 +78,7 @@ test('cronCadence: real cron strings from the current workflow set classify corr
   const cases = [
     ['0 12 1 5 *', 'yearly', 368],   // nflverse-draft.yml
     ['29 13 * * 3', 'weekly', 8],    // nflverse-playerids.yml
-    ['41 13 * * 4', 'weekly', 8],    // nflverse-advstats.yml
-    ['47 13 * * 6', 'weekly', 8],    // nflverse-gamelogs.yml
+    ['47 13 * * 6', 'weekly', 8],    // nflverse-playerstats.yml (advstats + gamelogs, single-fetch)
     ['35 13 * * 5', 'weekly', 8],    // nflverse-schedule.yml
     ['53 13 * * 0', 'weekly', 8],    // nflverse-teamcontext.yml
     ['23 13 * * 2', 'weekly', 8],    // weekly-nflverse-roster.yml
@@ -95,7 +94,7 @@ test('cronCadence: real cron strings from the current workflow set classify corr
     if (kind === 'weekly') weeklyCount++;
     if (kind === 'yearly') yearlyCount++;
   }
-  assert.equal(weeklyCount, 8);
+  assert.equal(weeklyCount, 7);
   assert.equal(yearlyCount, 1);
 });
 

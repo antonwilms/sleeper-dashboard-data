@@ -38,6 +38,7 @@ import { updatePlayerIds }    from '../scripts/update-playerids.mjs';
 import { updateAdvStats }     from '../scripts/update-advstats.mjs';
 import { updateSchedule }    from '../scripts/update-schedule.mjs';
 import { updateGameLogs }    from '../scripts/update-gamelogs.mjs';
+import { updatePlayerStats } from '../scripts/update-playerstats.mjs';
 import { updateTeamContext } from '../scripts/update-teamcontext.mjs';
 import { updatePlayerState } from '../scripts/update-playerstate.mjs';
 import { updateOline }       from '../scripts/update-oline.mjs';
@@ -86,6 +87,8 @@ SUBCOMMANDS
   gamelogs                    nflverse per-game player stats (QB/RB/WR/TE/FB), keyed by sleeper_id
   gamelogs --year YYYY        Per-game logs for a specific season
   gamelogs --all              Backfill every season (≥ 2012)
+  playerstats                 Fetch stats_player_week_<year>.csv ONCE, drive advstats + gamelogs
+  playerstats --year YYYY     Single-fetch orchestrator for a specific season
   teamcontext                 pbp-derived team/game context (PROE, pace, RZ, defense-faced), team-week
   teamcontext --year YYYY     Team context for a specific season
   teamcontext --all           Backfill every season (≥ 2012)
@@ -96,8 +99,8 @@ SUBCOMMANDS
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
-  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext/oline only)
-  --year YYYY Target season year (nfl, cfbd, roster, advstats, schedule, gamelogs, teamcontext, oline subcommands)
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline only)
+  --year YYYY Target season year (nfl, cfbd, roster, advstats, schedule, gamelogs, playerstats, teamcontext, oline subcommands)
   --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline subcommands)
 
 EXAMPLES
@@ -123,6 +126,8 @@ EXAMPLES
   node bin/update.mjs gamelogs --year 2023
   node bin/update.mjs gamelogs --year 2023 --dry-run
   node bin/update.mjs gamelogs --all
+  node bin/update.mjs playerstats
+  node bin/update.mjs playerstats --year 2023 --dry-run
   node bin/update.mjs teamcontext --year 2023
   node bin/update.mjs teamcontext --year 2023 --dry-run
   node bin/update.mjs teamcontext --all
@@ -174,6 +179,9 @@ if (!subcommand || subcommand === '--help' || subcommand === '-h') {
         break;
       case 'gamelogs':
         await updateGameLogs(opts);
+        break;
+      case 'playerstats':
+        await updatePlayerStats(opts);
         break;
       case 'teamcontext':
         await updateTeamContext(opts);

@@ -1,0 +1,80 @@
+name: Weekly nflverse playerstats (advstats + gamelogs)
+
+on:
+  schedule:
+    # Saturday 13:47 UTC — gamelogs' former slot (playerstats-single-fetch.md §1.3). Must run
+    # AFTER the Wednesday playerids Action (13:29) so the re-key joins the freshest crosswalk
+    # committed to main. Base player_stats settle Tue/Wed post-games; Saturday is safe.
+    # Distinct slot from Mon(KTC)/Tue(roster)/Wed(playerids)/Fri(schedule). Off-hour :47,
+    # distinct day → no race with other committers.
+    #
+    # This job fetches stats_player_week_<year>.csv ONCE and drives both the advstats and
+    # gamelogs families from it (playerstats-single-fetch.md) — advstats moved here from its
+    # former Thursday slot (2 days fresher), gamelogs is unchanged. The point is atomicity:
+    # two jobs reading the same upstream file on different days could derive the two families
+    # from different upstream revisions within one week.
+    - cron: "47 13 * * 6"
+  workflow_dispatch: {}   # allow manual trigger for backfill / corrections
+
+permissions:
+  contents: write
+
+jobs:
+  playerstats:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch nflverse playerstats (advstats + gamelogs, one fetch)
+        id: fetch
+        run: node bin/update.mjs playerstats
+
+      - name: Commit and purge completed families
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          ADVSTATS_OK="${{ steps.fetch.outputs.advstats_ok }}"
+          GAMELOGS_OK="${{ steps.fetch.outputs.gamelogs_ok }}"
+          SEASON="${{ steps.fetch.outputs.season }}"
+
+          # Stage PATH-SCOPED, never `nflverse/` wholesale — both scripts write their data
+          # file before registering it in manifest.json, so an unguarded `git add nflverse/`
+          # here could commit an orphaned file with no manifest entry (Invariant 3) if the
+          # node step above threw partway through. Stage only what actually completed.
+          if [[ -f manifest.json ]]; then
+            git add manifest.json
+          fi
+          if [[ "$ADVSTATS_OK" == "true" && -n "$SEASON" && -f "nflverse/advstats/${SEASON}.json" ]]; then
+            git add "nflverse/advstats/${SEASON}.json"
+          fi
+          if [[ "$GAMELOGS_OK" == "true" && -n "$SEASON" && -f "nflverse/gamelogs/${SEASON}.json" ]]; then
+            git add "nflverse/gamelogs/${SEASON}.json"
+          fi
+
+          if ! git diff --cached --quiet -- manifest.json nflverse/advstats nflverse/gamelogs; then
+            git commit -m "nflverse: playerstats $(date -u +%Y-%m-%d)"
+            # Retry with rebase on push rejection (multiple weekly committers on main)
+            git push || (git pull --rebase && git push)
+            # Purge jsDelivr CDN cache — only for the families actually committed. SEASON is
+            # the NFL season resolved by the node step, NOT the calendar year (they diverge
+            # Jan–Feb). See scripts/update-playerstats.mjs (setStepOutput).
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
+            if [[ "$ADVSTATS_OK" == "true" && -n "$SEASON" ]]; then
+              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/advstats/${SEASON}.json" || true
+            fi
+            if [[ "$GAMELOGS_OK" == "true" && -n "$SEASON" ]]; then
+              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/gamelogs/${SEASON}.json" || true
+            fi
+          else
+            echo "No changes to commit."
+          fi

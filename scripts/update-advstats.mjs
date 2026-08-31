@@ -17,9 +17,13 @@
  *   - Missing crosswalk: throws in real runs (action-ordering bug); non-fatal in --dry-run.
  *
  * @param {object} opts
- * @param {number|null} opts.year     Season year; null = current season (from Sleeper API)
- * @param {boolean}     opts.dryRun   Fetch + validate, print plan, no writes
- * @param {boolean}     opts.force    Overwrite a completed past-season file
+ * @param {number|null} opts.year          Season year; null = current season (from Sleeper API)
+ * @param {boolean}     opts.dryRun        Fetch + validate, print plan, no writes
+ * @param {boolean}     opts.force         Overwrite a completed past-season file
+ * @param {string|null} opts.csv           Injected stats_player_week CSV text — skips the fetch
+ *   when non-null (playerstats orchestrator single-fetch seam, §3.1). Standalone callers omit this.
+ * @param {number|null} opts.currentSeason Injected current-season year — skips the Sleeper API call
+ *   when non-null (same seam as `csv`; this script calls fetchCurrentNflSeason() unconditionally).
  */
 
 import crypto from 'crypto';
@@ -37,9 +41,11 @@ function playersHash(players) {
   return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
 }
 
-export async function updateAdvStats({ year: yearOpt = null, dryRun = false, force = false } = {}) {
-  // 1. Resolve year
-  const currentSeason = await fetchCurrentNflSeason();
+export async function updateAdvStats({
+  year: yearOpt = null, dryRun = false, force = false, csv: csvOpt = null, currentSeason: currentSeasonOpt = null,
+} = {}) {
+  // 1. Resolve year — currentSeason is injectable (playerstats orchestrator single-fetch seam, §3.1)
+  const currentSeason = currentSeasonOpt ?? await fetchCurrentNflSeason();
   const year = yearOpt ?? currentSeason;
   const isPast = year < currentSeason;
 
@@ -47,9 +53,15 @@ export async function updateAdvStats({ year: yearOpt = null, dryRun = false, for
   // Surface the resolved NFL season to the Actions purge step (no-op locally).
   setStepOutput('season', year);
 
-  // 2. Fetch — graceful skip on 404/504 (year not yet published)
-  console.log(`[advstats] Fetching stats_player_week_${year}.csv…`);
-  const csv = await fetchPlayerStatsCsv(year);
+  // 2. Fetch — graceful skip on 404/504 (year not yet published). csv is injectable (§3.1);
+  // an injected csv flows through the same null-skip branch as a fetched one.
+  let csv = csvOpt;
+  if (csv === null) {
+    console.log(`[advstats] Fetching stats_player_week_${year}.csv…`);
+    csv = await fetchPlayerStatsCsv(year);
+  } else {
+    console.log(`[advstats] Using injected stats_player_week_${year}.csv (single-fetch orchestrator)`);
+  }
   if (csv === null) {
     console.log(`[advstats] year=${year} not published yet — skipping`);
     return;

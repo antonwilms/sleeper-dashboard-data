@@ -4,7 +4,7 @@ on:
   schedule:
     # Friday 13:35 UTC — after the week's Thu/Sun/Mon results settle and next week's
     # lines post. Off-hour :35, distinct day from KTC (Mon), roster (Tue), playerids
-    # (Wed), advstats (Thu) so weekly committers don't race the push to main.
+    # (Wed), playerstats/advstats+gamelogs (Sat) so weekly committers don't race the push to main.
     - cron: "35 13 * * 5"
   workflow_dispatch: {}   # manual trigger for backfill / corrections
 

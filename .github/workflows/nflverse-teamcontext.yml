@@ -3,8 +3,8 @@ name: Weekly nflverse teamcontext
 on:
   schedule:
     # Sunday 13:53 UTC — the only free weekday slot (Mon KTC / Tue roster / Wed playerids /
-    # Thu advstats / Fri schedule / Sat gamelogs); runs before Sunday kickoffs, so week N lands
-    # complete on the FOLLOWING Sunday (pbp for MNF settles Tue — any day ≥ Wed has the full
+    # Fri schedule / Sat playerstats [advstats+gamelogs]); runs before Sunday kickoffs, so week N
+    # lands complete on the FOLLOWING Sunday (pbp for MNF settles Tue — any day ≥ Wed has the full
     # prior week; acceptable one-week latency for a weekly pack). No crosswalk dependency
     # (team-keyed family) — unlike gamelogs, no ordering constraint on the playerids Action.
     - cron: "53 13 * * 0"

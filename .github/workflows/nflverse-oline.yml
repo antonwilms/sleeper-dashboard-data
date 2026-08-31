@@ -2,8 +2,8 @@ name: Weekly nflverse oline
 
 on:
   schedule:
-    # Saturday 14:37 UTC — pre-Sunday OL state; off-the-hour (gamelogs Sat 13:47,
-    # playerstate Sat 14:11). Upstream ESPN charts refresh daily ~07:30 UTC.
+    # Saturday 14:37 UTC — pre-Sunday OL state; off-the-hour (playerstats [advstats+gamelogs]
+    # Sat 13:47, playerstate Sat 14:11). Upstream ESPN charts refresh daily ~07:30 UTC.
     - cron: "37 14 * * 6"
   workflow_dispatch: {}   # manual trigger for backfill / corrections
 

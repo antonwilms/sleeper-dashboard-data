@@ -16,7 +16,7 @@
     "panel": "node bin/panel.mjs",
     "panel:flip": "node bin/panel.mjs --flip-gate",
     "panel:fit": "node bin/panel.mjs --fit",
-    "test": "node --test"
+    "test": "node --experimental-test-module-mocks --test"
   },
   "engines": {
     "node": ">=20"

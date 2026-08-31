@@ -502,8 +502,13 @@ survive re-keying; the app re-asserts the same gate on `rowCount`.
 **`inProgress: false`:** there is no live app fallback for these metrics (Sleeper does not expose
 them). Weekly mutability of the current season is handled by content-hash dedup + `lastModified`.
 
-**Weekly Thursday refresh:** `nflverse-advstats.yml` runs Thursday 13:41 UTC — after the Wednesday
-playerids Action — so it re-keys against the freshest crosswalk committed to main.
+**Weekly Saturday refresh:** `nflverse-playerstats.yml` runs Saturday 13:47 UTC — after the Wednesday
+playerids Action — so it re-keys against the freshest crosswalk committed to main. As of
+playerstats-single-fetch.md (2026-08-31), this and the gamelogs family below are derived from a
+single fetch of `stats_player_week_<year>.csv` (`node bin/update.mjs playerstats`), so the two
+families can no longer diverge across a day boundary within the same week. This moved advstats from
+its former Thursday slot; the standalone `advstats` subcommand below is unaffected and still fetches
+independently when invoked directly.
 
 ```sh
 node bin/update.mjs advstats --year 2023        # write 2023 (past season needs --force after first write)
@@ -578,8 +583,10 @@ ingest already fetches, now mined for per-game grain).
 - **`inProgress: false` always** — deliberate deviation (CLAUDE.md Invariant 5): the app has
   no live fallback; it must read from the store. Weekly mutation is handled by SHA-256 content-hash
   dedup + `lastModified` cache invalidation.
-- **Refresh:** Saturday 13:47 UTC (`nflverse-gamelogs.yml`), after Wednesday playerids so the
-  gsis re-key hits the freshest crosswalk.
+- **Refresh:** Saturday 13:47 UTC (`nflverse-playerstats.yml`, same single-fetch orchestrator as
+  advstats — see above), after Wednesday playerids so the gsis re-key hits the freshest crosswalk.
+  The standalone `gamelogs` subcommand below is unaffected and still fetches independently when
+  invoked directly (`--all` backfill always fetches per season, regardless of the orchestrator).
 
 ```sh
 node bin/update.mjs gamelogs --year 2023
@@ -989,9 +996,8 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `weekly-nflverse-roster.yml` | Tuesday 13:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs roster`, commits if content hash changed, purges jsDelivr CDN cache for changed files |
 | `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
 | `nflverse-playerids.yml` | Wednesday 13:29 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerids`, commits if content hash changed, purges jsDelivr CDN cache |
-| `nflverse-advstats.yml` | Thursday 13:41 UTC + `workflow_dispatch` | Runs `node bin/update.mjs advstats` (after playerids), commits if content changed, purges jsDelivr CDN cache |
 | `nflverse-schedule.yml` | Friday 13:35 UTC + `workflow_dispatch` | Runs `node bin/update.mjs schedule` (current season), commits if content hash changed, purges jsDelivr CDN cache |
-| `nflverse-gamelogs.yml` | Saturday 13:47 UTC + `workflow_dispatch` | Runs `node bin/update.mjs gamelogs` (current season, after playerids), commits if content hash changed, purges jsDelivr CDN cache |
+| `nflverse-playerstats.yml` | Saturday 13:47 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstats` (current season, after playerids) — fetches `stats_player_week_<year>.csv` ONCE and drives both advstats + gamelogs off it; per-family error isolation, path-scoped commit (only the families that completed), purges jsDelivr CDN cache for the committed families |
 | `nflverse-teamcontext.yml` | Sunday 13:53 UTC + `workflow_dispatch` | Runs `node bin/update.mjs teamcontext` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `weekly-playerstate.yml` | Saturday 14:11 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstate`; content-hash dedup (excluding churning `newsUpdated`/`searchRank` fields); commits the new dated snapshot if changed, purges jsDelivr CDN cache |
 | `nflverse-oline.yml` | Saturday 14:37 UTC + `workflow_dispatch` | Runs `node bin/update.mjs oline` (current season), commits if content hash changed, purges jsDelivr CDN cache |

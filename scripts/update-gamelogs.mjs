@@ -23,10 +23,15 @@
  *   - Missing crosswalk: throws in real runs (action-ordering bug); non-fatal in --dry-run.
  *
  * @param {object}      opts
- * @param {number|null} opts.year    Season year; null = current season (from Sleeper API)
- * @param {boolean}     opts.all     Backfill every season ≥ MIN_GAMELOG_SEASON
- * @param {boolean}     opts.dryRun  Fetch + validate, print plan, no writes
- * @param {boolean}     opts.force   Overwrite a completed past-season file
+ * @param {number|null} opts.year          Season year; null = current season (from Sleeper API)
+ * @param {boolean}     opts.all           Backfill every season ≥ MIN_GAMELOG_SEASON
+ * @param {boolean}     opts.dryRun        Fetch + validate, print plan, no writes
+ * @param {boolean}     opts.force         Overwrite a completed past-season file
+ * @param {string|null} opts.csv           Injected stats_player_week CSV text — skips the fetch
+ *   when non-null (playerstats orchestrator single-fetch seam, §3.1). Single-season path only;
+ *   `--all` always fetches per season (§1.5).
+ * @param {number|null} opts.currentSeason Injected current-season year — skips the Sleeper API call
+ *   when non-null (same seam as `csv`; this script calls fetchCurrentNflSeason() unconditionally).
  */
 
 import crypto from 'crypto';
@@ -45,8 +50,11 @@ function playersHash(players) {
   return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');
 }
 
-export async function updateGameLogs({ year: yearOpt = null, all = false, dryRun = false, force = false } = {}) {
-  const currentSeason = await fetchCurrentNflSeason();
+export async function updateGameLogs({
+  year: yearOpt = null, all = false, dryRun = false, force = false, csv: csvOpt = null, currentSeason: currentSeasonOpt = null,
+} = {}) {
+  // currentSeason is injectable (playerstats orchestrator single-fetch seam, §3.1)
+  const currentSeason = currentSeasonOpt ?? await fetchCurrentNflSeason();
 
   // Resolve target seasons
   let seasons;
@@ -86,9 +94,15 @@ export async function updateGameLogs({ year: yearOpt = null, all = false, dryRun
     console.log(`[gamelogs] season=${season} | currentSeason=${currentSeason}`);
     const isPast = season < currentSeason;
 
-    // Fetch — graceful skip on 404/504 (year not yet published)
-    console.log(`[gamelogs] Fetching stats_player_week_${season}.csv…`);
-    const csv = await fetchPlayerStatsCsv(season);
+    // Fetch — graceful skip on 404/504 (year not yet published). csv is injectable (§3.1) on the
+    // single-season path only — inside --all the fetch stays per-season (§1.5).
+    let csv = !all ? csvOpt : null;
+    if (csv === null) {
+      console.log(`[gamelogs] Fetching stats_player_week_${season}.csv…`);
+      csv = await fetchPlayerStatsCsv(season);
+    } else {
+      console.log(`[gamelogs] Using injected stats_player_week_${season}.csv (single-fetch orchestrator)`);
+    }
     if (csv === null) {
       console.log(`[gamelogs] season=${season} not published yet — skipping`);
       continue;

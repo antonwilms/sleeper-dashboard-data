@@ -33,6 +33,8 @@ node bin/update.mjs schedule --year YYYY          # schedule for a specific seas
 node bin/update.mjs schedule --all                # backfill every season (≥ 1999)
 node bin/update.mjs gamelogs --year YYYY          # nflverse per-game player stats (QB/RB/WR/TE/FB), sleeper_id-keyed
 node bin/update.mjs gamelogs --all                # backfill every season (≥ 2012)
+node bin/update.mjs playerstats                   # single-fetch orchestrator — one CSV fetch drives both advstats + gamelogs
+node bin/update.mjs playerstats --year YYYY       # playerstats orchestrator for a specific season
 node bin/update.mjs teamcontext                   # pbp-derived team/game context (PROE, pace, RZ, defense-faced), team-week
 node bin/update.mjs teamcontext --year YYYY       # Team context for a specific season
 node bin/update.mjs teamcontext --all             # Backfill every season (≥ 2012)
@@ -43,7 +45,7 @@ node bin/update.mjs oline --all                   # Backfill ESPN-era seasons (�
 
 # Flags (any subcommand):
 #   --dry-run    fetch + validate, no writes
-#   --force      overwrite completed-season files (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext/oline)
+#   --force      overwrite completed-season files (nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline)
 #   --all        backfill all seasons (schedule/gamelogs/teamcontext/oline subcommands)
 ```
 
@@ -137,7 +139,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 
 | Path | Purpose |
 |---|---|
-| `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots / roster / draft / playerids / advstats / schedule / gamelogs / teamcontext subcommands |
+| `bin/update.mjs` | CLI dispatcher → nfl / cfbd / ktc / snapshots / roster / draft / playerids / advstats / schedule / gamelogs / playerstats / teamcontext subcommands |
 | `bin/enrich.mjs` | Enrichment overlay CLI → add / validate / list / remove |
 | `bin/import-snapshot.mjs` | One-command projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
 | `lib/args.mjs` | `bin/update.mjs` CLI argument validation — `parseAndValidateArgs(argv, opts)` rejects a malformed `--year`, an unrecognized flag, and `--all`+`--year` together (scoped to `ALL_SUBCOMMANDS`: schedule/gamelogs/teamcontext/oline); `MIN_CLI_YEAR` is a local typo-sanity bound, deliberately not an import of `lib/nflverse.mjs`'s coverage floors (CR-18) |
@@ -160,6 +162,7 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `scripts/update-advstats.mjs` | nflverse advanced receiving stats ingest — fetch weekly, recompute season ratios, re-key to sleeper_id, write `nflverse/advstats/<year>.json` |
 | `scripts/update-schedule.mjs` | nflverse schedules ingest — fetch combined games.csv, group by season, write `nflverse/schedule/<year>.json` |
 | `scripts/update-gamelogs.mjs` | nflverse per-game player stats ingest — fetch weekly CSV, parse per-game logs, re-key to sleeper_id, write `nflverse/gamelogs/<year>.json` |
+| `scripts/update-playerstats.mjs` | Single-fetch orchestrator (playerstats-single-fetch.md) — fetches `stats_player_week_<year>.csv` ONCE, drives `updateAdvStats`/`updateGameLogs` off the shared csv/currentSeason (both scripts' §3.1 injection seam), isolates a per-family throw (neither blocks the other), surfaces `advstats_ok`/`gamelogs_ok` step outputs for the workflow's path-scoped commit |
 | `scripts/update-teamcontext.mjs` | pbp-derived team-context ingest — fetch gz, derive, write `nflverse/teamcontext/<year>.json` (no crosswalk read — team-keyed family) |
 | `scripts/update-playerstate.mjs` | Weekly Sleeper players-state capture — fetch, filter, pick, dedup, write `nfl/players-state/<date>.json`; exports `isCapturedPlayer`/`pickPlayerState`/`buildPlayersState`/`playersHash`/`SKILL_POSITIONS` |
 | `scripts/update-oline.mjs` | nflverse OL composition ingest — fetch depth_charts CSV, derive, write `nflverse/oline/<year>.json` (no crosswalk read — team-keyed family; capture-only) |
@@ -200,9 +203,8 @@ npm run validate:enrichment # alias for: node bin/enrich.mjs validate
 | `.github/workflows/nfl-season-totals.yml` | Tuesday weekly NFL season-totals refresh (in-season-season-totals.md, 2026-08-28) — `node bin/update.mjs nfl` (no `--year`; resolved inside the script from `fetchCurrentNflSeason()`), ordered after the Friday schedule job (D-1 bye inference reads `nflverse/schedule/<year>.json` while `inProgress`), content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-draft.yml` | Yearly (May 1) nflverse draft picks update, content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-playerids.yml` | Wednesday weekly gsis↔sleeper crosswalk refresh, content-hash dedup, CDN purge |
-| `.github/workflows/nflverse-advstats.yml` | Thursday weekly advstats refresh (after playerids), content-hash dedup, CDN purge |
 | `.github/workflows/nflverse-schedule.yml` | Friday weekly nflverse schedule refresh (current season), content-hash dedup, CDN purge |
-| `.github/workflows/nflverse-gamelogs.yml` | Saturday weekly nflverse gamelogs refresh (after playerids), content-hash dedup, CDN purge |
+| `.github/workflows/nflverse-playerstats.yml` | Saturday weekly advstats + gamelogs refresh — fetches `stats_player_week_<year>.csv` ONCE and drives both families (`node bin/update.mjs playerstats`, after playerids), per-family error isolation with path-scoped commit/purge (playerstats-single-fetch.md §3.3) |
 | `.github/workflows/nflverse-teamcontext.yml` | Sunday weekly team-context refresh, content-hash dedup, CDN purge |
 | `raw/` | Unprocessed Sleeper API responses |
 | `manifest.json` | Index of every script-written file with metadata |

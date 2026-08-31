@@ -3,7 +3,7 @@ name: Weekly players-state snapshot
 on:
   schedule:
     # Saturday 14:11 UTC — after Friday injury designations, before Sunday games.
-    # Off-the-hour to be polite to shared GHA runners; gamelogs runs Sat 13:47.
+    # Off-the-hour to be polite to shared GHA runners; playerstats (advstats+gamelogs) runs Sat 13:47.
     - cron: "11 14 * * 6"
   workflow_dispatch: {}   # manual trigger for testing / immediate first capture
 
