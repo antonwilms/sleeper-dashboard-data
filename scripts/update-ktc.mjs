@@ -36,7 +36,7 @@ function todayDateString() {
   return new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
 }
 
-function snapshotHash(players) {
+export function snapshotHash(players) {
   // Sort by name for stable hash regardless of fetch order
   const sorted = players
     .slice()

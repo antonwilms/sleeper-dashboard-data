@@ -39,7 +39,7 @@ import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateTeamContext } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 
-function teamsHash(teams) {
+export function teamsHash(teams) {
   const sorted = Object.keys(teams).sort();
   const stable = Object.fromEntries(sorted.map(k => [k, teams[k]]));
   return crypto.createHash('sha256').update(JSON.stringify(stable)).digest('hex');

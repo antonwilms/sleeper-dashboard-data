@@ -30,7 +30,7 @@ import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 
 const LAST_CHECKED_PATH = 'nflverse/last-checked-roster.json';
 
-function playersHash(players) {
+export function playersHash(players) {
   // Sort keys for a stable hash regardless of insertion order
   const sorted = Object.keys(players).sort();
   const stable = Object.fromEntries(sorted.map(k => [k, players[k]]));

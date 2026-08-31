@@ -24,7 +24,7 @@ import { validatePlayerIds } from '../lib/validate.mjs';
 
 const PLAYERIDS_PATH = 'nflverse/playerids.json';
 
-function idsHash(ids) {
+export function idsHash(ids) {
   // Sort keys for a stable hash regardless of insertion order
   const sorted = Object.keys(ids).sort();
   const stable = Object.fromEntries(sorted.map(k => [k, ids[k]]));
