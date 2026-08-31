@@ -1,0 +1,114 @@
+name: Reusable ingest job
+
+# Template for the eight uniform weekly ingest workflows (ci-consolidation.md §2.2, §3.2).
+# Each caller keeps its own `name`, `on: schedule` (verbatim cron + comment), and
+# `workflow_dispatch`, and delegates its body here via `jobs.<x>.uses:`.
+#
+# NOT used by nflverse-playerstats.yml (per-family conditional staging — an Invariant 3
+# safeguard a generic template would flatten) or weekly-ktc.yml (its trailing quarantine-alarm
+# step cannot exist on a `uses:` caller — GHA schema forbids `steps:` alongside `uses:`, and
+# folding it in would silently delete the ordering guard's only alarm). cron-deadman.yml and
+# smoke-test.yml are different animals and also stay standalone. See ci-consolidation.md §1.3.
+
+on:
+  workflow_call:
+    inputs:
+      subcommand:
+        description: "bin/update.mjs subcommand to run, e.g. 'draft', 'nfl', 'oline'"
+        required: true
+        type: string
+      sparse-paths:
+        description: >
+          Newline-separated repo-relative paths this caller's script reads or writes, beyond
+          the base cone (lib scripts bin manifest.json package*.json). Derived from a live read
+          audit of scripts/update-*.mjs (ci-consolidation.md §2.3) — NOT a family-directory
+          guess. List every path explicitly, including cross-family reads (e.g. nfl-season-totals
+          also reads nflverse/schedule; nflverse-playerstats [standalone] also reads
+          nflverse/playerids.json even though cone mode would likely include it anyway as a
+          sibling of nflverse/advstats — list it explicitly rather than rely on that).
+        required: true
+        type: string
+      commit-scope:
+        description: "git add scope for the family's data directory, e.g. 'nflverse/' or 'nfl/'"
+        required: true
+        type: string
+      commit-message:
+        description: "Commit message prefix; ' $(date -u +%Y-%m-%d)' is appended"
+        required: true
+        type: string
+      purge-path:
+        description: >
+          jsDelivr purge path relative to repo root. May contain the literal token <season>
+          (replaced with the fetch step's `season` output) or <date> (replaced with
+          `date -u +%Y-%m-%d`). A literal path with neither token (e.g. a crosswalk file) is
+          purged unconditionally.
+        required: true
+        type: string
+      season-keyed:
+        description: >
+          When true, an empty `season` step output skips the family purge with a WARN instead
+          of purging a malformed URL (Invariant 8) — the manifest purge still runs either way.
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            lib
+            scripts
+            bin
+            manifest.json
+            package.json
+            package-lock.json
+            ${{ inputs.sparse-paths }}
+          sparse-checkout-cone-mode: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch ${{ inputs.subcommand }}
+        id: fetch
+        run: node bin/update.mjs ${{ inputs.subcommand }}
+
+      - name: Commit and purge if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add ${{ inputs.commit-scope }} manifest.json
+            git commit -m "${{ inputs.commit-message }} $(date -u +%Y-%m-%d)"
+            # Retry with rebase on push rejection (multiple weekly committers on main)
+            git push || (git pull --rebase && git push)
+
+            # Purge jsDelivr CDN cache — manifest first, then the family file. SEASON is the
+            # NFL season resolved by the node step (Invariant 8) — never the calendar year,
+            # which diverges Jan–Feb. <date> is a plain UTC-date token for date-keyed families
+            # (e.g. playerstate); it is never empty so it never needs the season-keyed guard.
+            SEASON="${{ steps.fetch.outputs.season }}"
+            DATE=$(date -u +%Y-%m-%d)
+            PURGE_PATH="${{ inputs.purge-path }}"
+            PURGE_PATH="${PURGE_PATH//<season>/$SEASON}"
+            PURGE_PATH="${PURGE_PATH//<date>/$DATE}"
+
+            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
+            if [[ "${{ inputs.season-keyed }}" == "true" && -z "$SEASON" ]]; then
+              echo "WARN: season step-output empty; skipped season-keyed ${{ inputs.subcommand }} purge"
+            else
+              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/${PURGE_PATH}" || true
+            fi
+          else
+            echo "No changes to commit."
+          fi

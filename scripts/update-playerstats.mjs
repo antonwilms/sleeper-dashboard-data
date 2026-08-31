@@ -21,6 +21,9 @@
  * @param {number|null} opts.year    Season year; null = current season (from Sleeper API)
  * @param {boolean}     opts.dryRun  Fetch + validate, print plan, no writes
  * @param {boolean}     opts.force   Overwrite a completed past-season file
+ * @param {object}      [opts.deps]  Injectable { updateAdvStats, updateGameLogs } surface for
+ *   tests — see DEFAULT_DEPS. Mirrors the DEFAULT_DEPS/DEFAULT_LOAD seam already used by
+ *   scripts/update-nfl.mjs, scripts/panel-run.mjs and scripts/grade-snapshot.mjs.
  */
 
 import { fetchPlayerStatsCsv } from '../lib/nflverse.mjs';
@@ -29,7 +32,14 @@ import { setStepOutput } from '../lib/io.mjs';
 import { updateAdvStats } from './update-advstats.mjs';
 import { updateGameLogs } from './update-gamelogs.mjs';
 
-export async function updatePlayerStats({ year: yearOpt = null, dryRun = false, force = false } = {}) {
+// Injectable updater surface — lets §3.3's failure-isolation control flow be unit-tested with
+// throwing stubs instead of network-touching real updaters (or experimental module mocking).
+export const DEFAULT_DEPS = { updateAdvStats, updateGameLogs };
+
+export async function updatePlayerStats({
+  year: yearOpt = null, dryRun = false, force = false, deps = DEFAULT_DEPS,
+} = {}) {
+  const d = { ...DEFAULT_DEPS, ...deps };
   // 1-2. Resolve the season once.
   const currentSeason = await fetchCurrentNflSeason();
   const season = yearOpt ?? currentSeason;
@@ -55,7 +65,7 @@ export async function updatePlayerStats({ year: yearOpt = null, dryRun = false, 
   // (§3.3) — a throw from one does not prevent the other from running.
   let advstatsOk = true;
   try {
-    await updateAdvStats({ year: season, csv, currentSeason, dryRun, force });
+    await d.updateAdvStats({ year: season, csv, currentSeason, dryRun, force });
   } catch (err) {
     advstatsOk = false;
     console.error(`[playerstats] advstats failed: ${err.message}`);
@@ -63,7 +73,7 @@ export async function updatePlayerStats({ year: yearOpt = null, dryRun = false, 
 
   let gamelogsOk = true;
   try {
-    await updateGameLogs({ year: season, csv, currentSeason, dryRun, force });
+    await d.updateGameLogs({ year: season, csv, currentSeason, dryRun, force });
   } catch (err) {
     gamelogsOk = false;
     console.error(`[playerstats] gamelogs failed: ${err.message}`);
