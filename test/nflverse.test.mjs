@@ -379,8 +379,10 @@ test('validatePlayerIds: throws when >50% missing name', () => {
 // ═══════════════════════════════════════════════════════════════════
 
 // Subset header — weekly ratio columns present but must be ignored by the parser.
+// season_type carries 'REG' on every fixture row by default — the REG-only filter
+// (advstats-grain-and-share.md §3.1) must pass these rows through unfiltered.
 const ADV_HEADER =
-  'player_id,player_display_name,position,season,week,team,' +
+  'player_id,player_display_name,position,season,week,season_type,team,' +
   'targets,receiving_air_yards,receiving_yards,receptions,' +
   'target_share,air_yards_share,wopr,racr';
 
@@ -390,10 +392,10 @@ test('aggregateAdvReceiving: share math for single-team WR — weekly ratio colu
   // Team DAL wk1+wk2: WR-A and WR-B. 9.9 junk values in ratio columns prove they are ignored.
   // DAL totals: wk1=10tgts/100air, wk2=10tgts/100air → restricted denom for A = 20tgts/200air
   const csv = makeAdvCsv(
-    '00-0001,WR-A,WR,2023,1,DAL,6,60,90,5,9.9,9.9,9.9,9.9',
-    '00-0001,WR-A,WR,2023,2,DAL,4,40,60,3,9.9,9.9,9.9,9.9',
-    '00-0002,WR-B,WR,2023,1,DAL,4,40,60,3,9.9,9.9,9.9,9.9',
-    '00-0002,WR-B,WR,2023,2,DAL,6,60,90,5,9.9,9.9,9.9,9.9',
+    '00-0001,WR-A,WR,2023,1,REG,DAL,6,60,90,5,9.9,9.9,9.9,9.9',
+    '00-0001,WR-A,WR,2023,2,REG,DAL,4,40,60,3,9.9,9.9,9.9,9.9',
+    '00-0002,WR-B,WR,2023,1,REG,DAL,4,40,60,3,9.9,9.9,9.9,9.9',
+    '00-0002,WR-B,WR,2023,2,REG,DAL,6,60,90,5,9.9,9.9,9.9,9.9',
   );
   const { byGsis } = aggregateAdvReceiving(csv);
   const A = byGsis['00-0001'];
@@ -412,8 +414,8 @@ test('aggregateAdvReceiving: share math for single-team WR — weekly ratio colu
 
 test('aggregateAdvReceiving: recompute ignores weekly ratio columns — 9.9 values not propagated', () => {
   const csv = makeAdvCsv(
-    '00-0001,WR-A,WR,2023,1,DAL,6,60,90,5,9.9,9.9,9.9,9.9',
-    '00-0002,WR-B,WR,2023,1,DAL,4,40,60,3,9.9,9.9,9.9,9.9',
+    '00-0001,WR-A,WR,2023,1,REG,DAL,6,60,90,5,9.9,9.9,9.9,9.9',
+    '00-0002,WR-B,WR,2023,1,REG,DAL,4,40,60,3,9.9,9.9,9.9,9.9',
   );
   const { byGsis } = aggregateAdvReceiving(csv);
   const A = byGsis['00-0001'];
@@ -427,10 +429,10 @@ test('aggregateAdvReceiving: traded player volume-weighted targetShare', () => {
   // 00-0099 on ATL wk1 (3 tgts / team 10) and LA wk2 (2 tgts / team 20)
   // tgtNumer = (3/10)*3 + (2/20)*2 = 0.9 + 0.2 = 1.1; targetShare = 1.1/5 = 0.22
   const csv = makeAdvCsv(
-    '00-0099,Traded WR,WR,2023,1,ATL,3,30,45,2,0,0,0,0',
-    'QB-ATL,Filler QB,QB,2023,1,ATL,7,70,105,5,0,0,0,0',
-    '00-0099,Traded WR,WR,2023,2,LA,2,20,30,1,0,0,0,0',
-    'QB-LA,Filler QB,QB,2023,2,LA,18,180,270,12,0,0,0,0',
+    '00-0099,Traded WR,WR,2023,1,REG,ATL,3,30,45,2,0,0,0,0',
+    'QB-ATL,Filler QB,QB,2023,1,REG,ATL,7,70,105,5,0,0,0,0',
+    '00-0099,Traded WR,WR,2023,2,REG,LA,2,20,30,1,0,0,0,0',
+    'QB-LA,Filler QB,QB,2023,2,REG,LA,18,180,270,12,0,0,0,0',
   );
   const { byGsis } = aggregateAdvReceiving(csv);
   const p = byGsis['00-0099'];
@@ -443,8 +445,8 @@ test('aggregateAdvReceiving: traded player volume-weighted targetShare', () => {
 test('aggregateAdvReceiving: zero team+player air yards → airYardsShare and wopr null', () => {
   // Both WRs have 0 receiving_air_yards → team air total = 0; player recAirYards = 0
   const csv = makeAdvCsv(
-    '00-0001,WR-A,WR,2023,1,DAL,6,0,90,5,0,0,0,0',
-    '00-0002,WR-B,WR,2023,1,DAL,4,0,60,3,0,0,0,0',
+    '00-0001,WR-A,WR,2023,1,REG,DAL,6,0,90,5,0,0,0,0',
+    '00-0002,WR-B,WR,2023,1,REG,DAL,4,0,60,3,0,0,0,0',
   );
   const { byGsis } = aggregateAdvReceiving(csv);
   const A = byGsis['00-0001'];
@@ -456,8 +458,8 @@ test('aggregateAdvReceiving: zero team+player air yards → airYardsShare and wo
 
 test('aggregateAdvReceiving: racr null when player receiving_air_yards sums to 0', () => {
   const csv = makeAdvCsv(
-    '00-0001,WR-A,WR,2023,1,DAL,6,0,90,5,0,0,0,0',
-    '00-0002,WR-B,WR,2023,1,DAL,4,0,60,3,0,0,0,0',
+    '00-0001,WR-A,WR,2023,1,REG,DAL,6,0,90,5,0,0,0,0',
+    '00-0002,WR-B,WR,2023,1,REG,DAL,4,0,60,3,0,0,0,0',
   );
   const { byGsis } = aggregateAdvReceiving(csv);
   assert.equal(byGsis['00-0001'].racr, null);
@@ -466,8 +468,8 @@ test('aggregateAdvReceiving: racr null when player receiving_air_yards sums to 0
 test('aggregateAdvReceiving: RB targets counted in team denom but RB absent when excluded from positions', () => {
   // RB has 10 targets; WR has 5 — WR targetShare = 5/(10+5) = 0.333 when RBs excluded
   const csv = makeAdvCsv(
-    '00-RB,RB Player,RB,2023,1,DAL,10,80,60,8,0,0,0,0',
-    '00-WR,WR Player,WR,2023,1,DAL,5,50,75,4,0,0,0,0',
+    '00-RB,RB Player,RB,2023,1,REG,DAL,10,80,60,8,0,0,0,0',
+    '00-WR,WR Player,WR,2023,1,REG,DAL,5,50,75,4,0,0,0,0',
   );
   const { byGsis } = aggregateAdvReceiving(csv, { positions: ['WR', 'TE'] });
   assert.ok(!byGsis['00-RB'], 'RB should not be emitted');
@@ -486,8 +488,8 @@ test('aggregateAdvReceiving: missing team column → throws', () => {
 test('aggregateAdvReceiving: RB targetShare computed with default positions (RB included)', () => {
   // Default positions include RB — RB should be emitted alongside WR
   const csv = makeAdvCsv(
-    '00-RB,RB Player,RB,2023,1,DAL,5,30,50,4,0,0,0,0',
-    '00-WR,WR Player,WR,2023,1,DAL,10,100,150,8,0,0,0,0',
+    '00-RB,RB Player,RB,2023,1,REG,DAL,5,30,50,4,0,0,0,0',
+    '00-WR,WR Player,WR,2023,1,REG,DAL,10,100,150,8,0,0,0,0',
   );
   const { byGsis } = aggregateAdvReceiving(csv);
   const rb = byGsis['00-RB'];
@@ -501,8 +503,8 @@ test('aggregateAdvReceiving: RB net-negative receiving_air_yards → racr null; 
   // RB has -10 receiving_air_yards (behind-LOS targets); WR on same team has 100
   // Team total air yards = 90 (positive denominator → airYardsShare emits, negative)
   const csv = makeAdvCsv(
-    '00-RB,RB Player,RB,2023,1,DAL,5,-10,40,4,0,0,0,0',
-    '00-WR,WR Player,WR,2023,1,DAL,10,100,150,8,0,0,0,0',
+    '00-RB,RB Player,RB,2023,1,REG,DAL,5,-10,40,4,0,0,0,0',
+    '00-WR,WR Player,WR,2023,1,REG,DAL,10,100,150,8,0,0,0,0',
   );
   const { byGsis } = aggregateAdvReceiving(csv);
   const rb = byGsis['00-RB'];
