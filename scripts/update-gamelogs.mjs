@@ -32,6 +32,11 @@
  *   `--all` always fetches per season (§1.5).
  * @param {number|null} opts.currentSeason Injected current-season year — skips the Sleeper API call
  *   when non-null (same seam as `csv`; this script calls fetchCurrentNflSeason() unconditionally).
+ * @param {object}      [opts.deps]        Injectable I/O + fetch surface for tests — see
+ *   DEFAULT_DEPS (season-ingest-net.md §3.1). A different seam from csv/currentSeason above:
+ *   those are production input injection for the playerstats orchestrator; deps is I/O
+ *   injection for tests, reaching the force-gate/dedup/write branches that csv/currentSeason
+ *   cannot (they go through readJson/writeJsonStable/updateManifestEntry directly). Both stay.
  */
 
 import {
@@ -45,11 +50,22 @@ import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 
 export const playersHash = players => stableHash(players, sortObjectKeys);
 
+export const DEFAULT_DEPS = {
+  fetchCurrentNflSeason,
+  fetchPlayerStatsCsv,
+  readJson,
+  writeJsonStable,
+  updateManifestEntry,
+  setStepOutput,
+};
+
 export async function updateGameLogs({
   year: yearOpt = null, all = false, dryRun = false, force = false, csv: csvOpt = null, currentSeason: currentSeasonOpt = null,
+  deps = {},
 } = {}) {
+  const d = { ...DEFAULT_DEPS, ...deps };
   // currentSeason is injectable (playerstats orchestrator single-fetch seam, §3.1)
-  const currentSeason = currentSeasonOpt ?? await fetchCurrentNflSeason();
+  const currentSeason = currentSeasonOpt ?? await d.fetchCurrentNflSeason();
 
   // Resolve target seasons
   let seasons;
@@ -65,7 +81,7 @@ export async function updateGameLogs({
   }
 
   // Read crosswalk once before the loop (runs Wednesday; gamelogs Action runs Saturday)
-  const cw = readJson('nflverse/playerids.json');
+  const cw = d.readJson('nflverse/playerids.json');
   if (!cw?.ids) {
     if (dryRun) {
       console.warn(
@@ -83,7 +99,7 @@ export async function updateGameLogs({
 
   // Surface the season to the Actions purge step (single-season mode only — schedule pattern).
   // --all is a manual backfill; no season output (and no purge) needed.
-  if (!all) setStepOutput('season', seasons[0]);
+  if (!all) d.setStepOutput('season', seasons[0]);
 
   for (const season of seasons) {
     console.log(`[gamelogs] season=${season} | currentSeason=${currentSeason}`);
@@ -94,7 +110,7 @@ export async function updateGameLogs({
     let csv = !all ? csvOpt : null;
     if (csv === null) {
       console.log(`[gamelogs] Fetching stats_player_week_${season}.csv…`);
-      csv = await fetchPlayerStatsCsv(season);
+      csv = await d.fetchPlayerStatsCsv(season);
     } else {
       console.log(`[gamelogs] Using injected stats_player_week_${season}.csv (single-fetch orchestrator)`);
     }
@@ -128,7 +144,7 @@ export async function updateGameLogs({
     console.log('[gamelogs] Validation passed');
 
     const dataPath = `nflverse/gamelogs/${season}.json`;
-    const existing = readJson(dataPath);
+    const existing = d.readJson(dataPath);
 
     // Content-hash dedup
     const newHash  = playersHash(players);
@@ -158,7 +174,7 @@ export async function updateGameLogs({
     }
 
     // Write
-    writeJsonStable(dataPath, {
+    d.writeJsonStable(dataPath, {
       schemaVersion: 1,
       season:        parsed ?? season,
       generatedAt:   new Date().toISOString(),
@@ -170,7 +186,7 @@ export async function updateGameLogs({
     console.log(`[gamelogs] Wrote ${dataPath} (${rowCount} game rows, ${playerCount} players)`);
 
     // Manifest (inProgress: false — CLAUDE.md invariant 5, extended to gamelogs)
-    updateManifestEntry({ path: dataPath, recordCount: rowCount, inProgress: false, schemaVersion: 1 });
+    d.updateManifestEntry({ path: dataPath, recordCount: rowCount, inProgress: false, schemaVersion: 1 });
     console.log('[gamelogs] Manifest updated');
   }
 }

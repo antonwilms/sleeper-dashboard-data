@@ -19,6 +19,7 @@
  * @param {number|null} opts.year     Season year; null = current season (from Sleeper API)
  * @param {boolean}     opts.dryRun   Fetch + validate, print plan, no writes
  * @param {boolean}     opts.force    Overwrite a completed past-season file
+ * @param {object}      [opts.deps]   Injectable I/O + fetch surface for tests — see DEFAULT_DEPS.
  */
 
 import { fetchRosterCsv, parseRosterCsv, MIN_ROSTER_IDS } from '../lib/nflverse.mjs';
@@ -31,19 +32,35 @@ const LAST_CHECKED_PATH = 'nflverse/last-checked-roster.json';
 
 export const playersHash = players => stableHash(players, sortObjectKeys);
 
-export async function updateRoster({ year: yearOpt = null, dryRun = false, force = false }) {
+// Injectable I/O + fetch surface — mirrors scripts/update-nfl.mjs's DEFAULT_DEPS pattern
+// (season-ingest-net.md §3.1), so the force-gate/dedup/write branches — unreachable by input
+// injection alone, since they go through readJson/writeJsonStable/updateManifestEntry directly
+// — are unit-testable without touching the network or the real repo file tree.
+export const DEFAULT_DEPS = {
+  fetchCurrentNflSeason,
+  fetchRosterCsv,
+  readJson,
+  writeJsonStable,
+  updateManifestEntry,
+  setStepOutput,
+};
+
+// roster has no `all` parameter — lib/args.mjs ALL_SUBCOMMANDS excludes it (single-season only).
+export async function updateRoster({ year: yearOpt = null, dryRun = false, force = false, deps = {} }) {
+  const d = { ...DEFAULT_DEPS, ...deps };
+
   // 1. Resolve year
-  const currentSeason = await fetchCurrentNflSeason();
+  const currentSeason = await d.fetchCurrentNflSeason();
   const year = yearOpt ?? currentSeason;
   const isPast = year < currentSeason;
 
   console.log(`[roster] year=${year} | currentSeason=${currentSeason}`);
   // Surface the resolved NFL season to the Actions purge step (no-op locally).
-  setStepOutput('season', year);
+  d.setStepOutput('season', year);
 
   // 2. Fetch — graceful skip on 404/504 (file not yet published)
   console.log(`[roster] Fetching roster_${year}.csv…`);
-  const csv = await fetchRosterCsv(year);
+  const csv = await d.fetchRosterCsv(year);
 
   if (csv === null) {
     console.log(`[roster] year=${year} not published yet — skipping`);
@@ -68,7 +85,7 @@ export async function updateRoster({ year: yearOpt = null, dryRun = false, force
   console.log('[roster] Validation passed');
 
   const dataPath = `nflverse/roster/${year}.json`;
-  const existing = readJson(dataPath);
+  const existing = d.readJson(dataPath);
 
   // 6. Content-hash dedup — compare sorted players objects
   const newHash  = playersHash(players);
@@ -77,7 +94,7 @@ export async function updateRoster({ year: yearOpt = null, dryRun = false, force
   if (newHash === lastHash) {
     console.log(`[roster] Content identical to existing ${dataPath} — no write needed.`);
     if (!dryRun) {
-      writeJsonStable(LAST_CHECKED_PATH, {
+      d.writeJsonStable(LAST_CHECKED_PATH, {
         checkedAt: new Date().toISOString(),
         year,
         identical: true,
@@ -111,12 +128,12 @@ export async function updateRoster({ year: yearOpt = null, dryRun = false, force
     rowCount,
     players,
   };
-  writeJsonStable(dataPath, output);
+  d.writeJsonStable(dataPath, output);
   console.log(`[roster] Wrote ${dataPath} (${rowCount} players)`);
 
   // 10. Update manifest
   // inProgress: false — deliberate deviation (see module header + CLAUDE.md invariant)
-  updateManifestEntry({
+  d.updateManifestEntry({
     path:         dataPath,
     recordCount:  rowCount,
     inProgress:   false,
@@ -125,7 +142,7 @@ export async function updateRoster({ year: yearOpt = null, dryRun = false, force
   console.log('[roster] Manifest updated');
 
   // 11. Update last-checked marker
-  writeJsonStable(LAST_CHECKED_PATH, {
+  d.writeJsonStable(LAST_CHECKED_PATH, {
     checkedAt: new Date().toISOString(),
     year,
     identical: false,

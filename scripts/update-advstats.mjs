@@ -24,6 +24,11 @@
  *   when non-null (playerstats orchestrator single-fetch seam, §3.1). Standalone callers omit this.
  * @param {number|null} opts.currentSeason Injected current-season year — skips the Sleeper API call
  *   when non-null (same seam as `csv`; this script calls fetchCurrentNflSeason() unconditionally).
+ * @param {object}      [opts.deps]        Injectable I/O + fetch surface for tests — see
+ *   DEFAULT_DEPS (season-ingest-net.md §3.1). A different seam from csv/currentSeason above:
+ *   those are production input injection for the playerstats orchestrator; deps is I/O
+ *   injection for tests, reaching the force-gate/dedup/write branches that csv/currentSeason
+ *   cannot (they go through readJson/writeJsonStable/updateManifestEntry directly). Both stay.
  */
 
 import {
@@ -36,24 +41,36 @@ import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 
 export const playersHash = players => stableHash(players, sortObjectKeys);
 
+export const DEFAULT_DEPS = {
+  fetchCurrentNflSeason,
+  fetchPlayerStatsCsv,
+  readJson,
+  writeJsonStable,
+  updateManifestEntry,
+  setStepOutput,
+};
+
 export async function updateAdvStats({
   year: yearOpt = null, dryRun = false, force = false, csv: csvOpt = null, currentSeason: currentSeasonOpt = null,
+  deps = {},
 } = {}) {
+  const d = { ...DEFAULT_DEPS, ...deps };
+
   // 1. Resolve year — currentSeason is injectable (playerstats orchestrator single-fetch seam, §3.1)
-  const currentSeason = currentSeasonOpt ?? await fetchCurrentNflSeason();
+  const currentSeason = currentSeasonOpt ?? await d.fetchCurrentNflSeason();
   const year = yearOpt ?? currentSeason;
   const isPast = year < currentSeason;
 
   console.log(`[advstats] year=${year} | currentSeason=${currentSeason}`);
   // Surface the resolved NFL season to the Actions purge step (no-op locally).
-  setStepOutput('season', year);
+  d.setStepOutput('season', year);
 
   // 2. Fetch — graceful skip on 404/504 (year not yet published). csv is injectable (§3.1);
   // an injected csv flows through the same null-skip branch as a fetched one.
   let csv = csvOpt;
   if (csv === null) {
     console.log(`[advstats] Fetching stats_player_week_${year}.csv…`);
-    csv = await fetchPlayerStatsCsv(year);
+    csv = await d.fetchPlayerStatsCsv(year);
   } else {
     console.log(`[advstats] Using injected stats_player_week_${year}.csv (single-fetch orchestrator)`);
   }
@@ -67,7 +84,7 @@ export async function updateAdvStats({
   console.log(`[advstats] Aggregated ${aggCount} WR/TE/RB players from CSV`);
 
   // 4. Read crosswalk from disk (Phase 0a committed it; this Action runs Thursday, after Wednesday playerids)
-  const cw = readJson('nflverse/playerids.json');
+  const cw = d.readJson('nflverse/playerids.json');
   if (!cw?.ids) {
     if (dryRun) {
       console.warn(
@@ -104,7 +121,7 @@ export async function updateAdvStats({
   console.log('[advstats] Validation passed');
 
   const dataPath = `nflverse/advstats/${year}.json`;
-  const existing = readJson(dataPath);
+  const existing = d.readJson(dataPath);
 
   // 8. Content-hash dedup
   const newHash  = playersHash(players);
@@ -141,11 +158,11 @@ export async function updateAdvStats({
     unmapped,
     players,
   };
-  writeJsonStable(dataPath, output);
+  d.writeJsonStable(dataPath, output);
   console.log(`[advstats] Wrote ${dataPath} (${rowCount} players)`);
 
   // 12. Update manifest (inProgress: false — CLAUDE.md invariant 5, extended to advstats)
-  updateManifestEntry({
+  d.updateManifestEntry({
     path:          dataPath,
     recordCount:   rowCount,
     inProgress:    false,

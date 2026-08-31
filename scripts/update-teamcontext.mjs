@@ -28,6 +28,7 @@
  * @param {boolean}     opts.all     Backfill every season ≥ MIN_TEAMCONTEXT_SEASON
  * @param {boolean}     opts.dryRun  Fetch + validate, print plan, no writes
  * @param {boolean}     opts.force   Overwrite a completed past-season file
+ * @param {object}      [opts.deps]  Injectable I/O + fetch surface for tests — see DEFAULT_DEPS.
  */
 
 import {
@@ -40,8 +41,20 @@ import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 
 export const teamsHash = teams => stableHash(teams, sortObjectKeys);
 
-export async function updateTeamContext({ year: yearOpt = null, all = false, dryRun = false, force = false } = {}) {
-  const currentSeason = await fetchCurrentNflSeason();
+// Injectable I/O + fetch surface — mirrors scripts/update-nfl.mjs's DEFAULT_DEPS pattern
+// (season-ingest-net.md §3.1).
+export const DEFAULT_DEPS = {
+  fetchCurrentNflSeason,
+  fetchPbpCsv,
+  readJson,
+  writeJsonStable,
+  updateManifestEntry,
+  setStepOutput,
+};
+
+export async function updateTeamContext({ year: yearOpt = null, all = false, dryRun = false, force = false, deps = {} } = {}) {
+  const d = { ...DEFAULT_DEPS, ...deps };
+  const currentSeason = await d.fetchCurrentNflSeason();
 
   // Resolve target seasons
   let seasons;
@@ -58,7 +71,7 @@ export async function updateTeamContext({ year: yearOpt = null, all = false, dry
 
   // No crosswalk read — team-keyed family, no Action-ordering dependency (contrast gamelogs).
   // Surface the season to the Actions purge step (single-season mode only — schedule pattern).
-  if (!all) setStepOutput('season', seasons[0]);
+  if (!all) d.setStepOutput('season', seasons[0]);
 
   for (const season of seasons) {
     console.log(`[teamcontext] season=${season} | currentSeason=${currentSeason}`);
@@ -66,7 +79,7 @@ export async function updateTeamContext({ year: yearOpt = null, all = false, dry
 
     // Fetch — graceful skip on 404/504 (year not yet published)
     console.log(`[teamcontext] Fetching play_by_play_${season}.csv.gz…`);
-    const csv = await fetchPbpCsv(season);
+    const csv = await d.fetchPbpCsv(season);
     if (csv === null) {
       console.log(`[teamcontext] season=${season} not published yet — skipping`);
       continue;
@@ -90,7 +103,7 @@ export async function updateTeamContext({ year: yearOpt = null, all = false, dry
     console.log('[teamcontext] Validation passed');
 
     const dataPath = `nflverse/teamcontext/${season}.json`;
-    const existing = readJson(dataPath);
+    const existing = d.readJson(dataPath);
 
     // Content-hash dedup
     const newHash  = teamsHash(teams);
@@ -120,7 +133,7 @@ export async function updateTeamContext({ year: yearOpt = null, all = false, dry
     }
 
     // Write
-    writeJsonStable(dataPath, {
+    d.writeJsonStable(dataPath, {
       schemaVersion: 1,
       season,
       generatedAt: new Date().toISOString(),
@@ -131,7 +144,7 @@ export async function updateTeamContext({ year: yearOpt = null, all = false, dry
     console.log(`[teamcontext] Wrote ${dataPath} (${rowCount} team-game rows, ${teamCount} teams)`);
 
     // Manifest (inProgress: false — CLAUDE.md invariant 5, extended to teamcontext)
-    updateManifestEntry({ path: dataPath, recordCount: rowCount, inProgress: false, schemaVersion: 1 });
+    d.updateManifestEntry({ path: dataPath, recordCount: rowCount, inProgress: false, schemaVersion: 1 });
     console.log('[teamcontext] Manifest updated');
   }
 }

@@ -21,6 +21,7 @@
  * @param {boolean}     opts.all    Backfill all seasons.
  * @param {boolean}     opts.dryRun Fetch + validate, print plan, no writes.
  * @param {boolean}     opts.force  Overwrite completed past-season files.
+ * @param {object}      [opts.deps] Injectable I/O + fetch surface for tests — see DEFAULT_DEPS.
  */
 import { fetchSchedulesCsv, parseSchedulesCsv, MIN_SCHEDULE_GAMES } from '../lib/nflverse.mjs';
 import { readJson, writeJsonStable, setStepOutput, stableHash } from '../lib/io.mjs';
@@ -32,12 +33,26 @@ import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
 const byGameId = games => [...games].sort((a, b) => (a.gameId < b.gameId ? -1 : a.gameId > b.gameId ? 1 : 0));
 export const gamesHash = games => stableHash(games, byGameId);
 
-export async function updateSchedule({ year: yearOpt = null, all = false, dryRun = false, force = false } = {}) {
-  const currentSeason = await fetchCurrentNflSeason();
+// Injectable I/O + fetch surface — mirrors scripts/update-nfl.mjs's DEFAULT_DEPS pattern
+// (season-ingest-net.md §3.1). Structurally different from the other five: fetchSchedulesCsv
+// takes no season argument and is called ONCE before the season loop (§3.1) — it fetches one
+// combined games.csv, not a per-season asset.
+export const DEFAULT_DEPS = {
+  fetchCurrentNflSeason,
+  fetchSchedulesCsv,
+  readJson,
+  writeJsonStable,
+  updateManifestEntry,
+  setStepOutput,
+};
+
+export async function updateSchedule({ year: yearOpt = null, all = false, dryRun = false, force = false, deps = {} } = {}) {
+  const d = { ...DEFAULT_DEPS, ...deps };
+  const currentSeason = await d.fetchCurrentNflSeason();
 
   // Fetch once (combined CSV); throw on null — games.csv should always be published (draft analogue).
   console.log('[schedule] Fetching games.csv…');
-  const csv = await fetchSchedulesCsv();
+  const csv = await d.fetchSchedulesCsv();
   if (csv === null) {
     throw new Error(
       '[schedule] games.csv returned 404/504 — unexpected (file should always be published). ' +
@@ -55,7 +70,7 @@ export async function updateSchedule({ year: yearOpt = null, all = false, dryRun
 
   // Surface the season to the Actions purge step (single-season modes only; no-op locally).
   // The weekly Action always runs default mode → this is currentSeason.
-  if (!all) setStepOutput('season', seasons[0]);
+  if (!all) d.setStepOutput('season', seasons[0]);
 
   for (const season of seasons) {
     const games = gamesBySeason[String(season)] ?? [];
@@ -73,7 +88,7 @@ export async function updateSchedule({ year: yearOpt = null, all = false, dryRun
     validateSchedule(games, { year: season });
 
     const dataPath = `nflverse/schedule/${season}.json`;
-    const existing = readJson(dataPath);
+    const existing = d.readJson(dataPath);
     const newHash  = gamesHash(games);
     const lastHash = existing?.games ? gamesHash(existing.games) : null;
 
@@ -91,14 +106,14 @@ export async function updateSchedule({ year: yearOpt = null, all = false, dryRun
       throw new Error(`[schedule] ${dataPath} exists for completed season ${season}. Use --force to overwrite.`);
     }
 
-    writeJsonStable(dataPath, {
+    d.writeJsonStable(dataPath, {
       schemaVersion: 1,
       season,
       generatedAt:   new Date().toISOString(),
       rowCount:      games.length,
       games,
     });
-    updateManifestEntry({ path: dataPath, recordCount: games.length, inProgress: false, schemaVersion: 1 });
+    d.updateManifestEntry({ path: dataPath, recordCount: games.length, inProgress: false, schemaVersion: 1 });
     console.log(`[schedule] Wrote ${dataPath} (${games.length} games) + manifest`);
   }
 }
