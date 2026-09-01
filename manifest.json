@@ -379,9 +379,9 @@
     },
     "nflverse/roster/2026.json": {
       "schemaVersion": 1,
-      "recordCount": 1840,
+      "recordCount": 1748,
       "inProgress": false,
-      "lastModified": "2026-08-25T14:09:34.047Z"
+      "lastModified": "2026-09-01T17:20:58.421Z"
     },
     "snapshots/2026-06-13.json": {
       "schemaVersion": 2,
@@ -1149,5 +1149,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-08-31T19:30:37.424Z"
+  "generatedAt": "2026-09-01T17:20:58.421Z"
 }
