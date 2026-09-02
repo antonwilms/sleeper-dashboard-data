@@ -126,6 +126,40 @@ test('updateOline: force gate throws on a changed past season without --force', 
 });
 
 // ═══════════════════════════════════════════════════════════════════
+// post-drop counts — season-ingest-oline.md §1.2/§2.2: validateOline mutates `teams` in
+// place, dropping ragged records (here, a duplicate (slot,rank) pair within one state). The
+// sparsity gate deliberately uses the aggregator's raw PRE-drop count, but the envelope and
+// manifest recordCount must use the POST-drop count — an append-only family would otherwise
+// carry a permanently overstated recordCount with no validator to catch it. Written against
+// the UNCONVERTED updateOline, where it must already pass, before any conversion.
+// ═══════════════════════════════════════════════════════════════════
+
+test('updateOline: envelope rowCount and manifest recordCount are POST-drop, not the aggregator\'s pre-drop count', async () => {
+  // Base fixture is exactly MIN_OLINE_ROWS (160): 32 teams x 5 slots, one row each. Add one
+  // extra row sharing ARI's first (dt, slot=LT, rank=1) triple with a different player — the
+  // aggregator counts it (preRowCount=161), but validateOline drops it as a duplicate
+  // (slot,rank) within that state, so the post-drop count is back to 160.
+  const base = makeOlineCsv(2025);
+  const duplicateRow = '2025-08-01T09:00:00Z,ARI,Duplicate Player,9999999,00-09999,LT,1';
+  const csv = `${base}\n${duplicateRow}`;
+
+  const { aggregateOlineStates } = await import('../lib/nflverse.mjs');
+  const { rowCount: preRowCount } = aggregateOlineStates(csv, { season: 2025 });
+  assert.equal(preRowCount, 161, 'sanity check on the fixture: aggregator sees the duplicate row');
+
+  const { deps, calls } = spyDeps({ fetchDepthChartsCsv: async () => csv, readJson: () => null });
+  await updateOline({ year: 2025, dryRun: false, deps });
+
+  const [, body] = calls.writeJsonStable[0];
+  const recordCount = calls.updateManifestEntry[0][0].recordCount;
+
+  assert.equal(body.rowCount, 160, 'envelope rowCount must be the post-drop count');
+  assert.equal(recordCount, 160, 'manifest recordCount must be the post-drop count');
+  assert.notEqual(body.rowCount, preRowCount, 'envelope rowCount must not equal the pre-drop count');
+  assert.notEqual(recordCount, preRowCount, 'manifest recordCount must not equal the pre-drop count');
+});
+
+// ═══════════════════════════════════════════════════════════════════
 // write path — axis 6: oline's own envelope, including the literal `source` string
 // ═══════════════════════════════════════════════════════════════════
 
