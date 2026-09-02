@@ -28,6 +28,7 @@ import { readJson, writeJsonStable, setStepOutput, stableHash } from '../lib/io.
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateSchedule } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
+import { runSeasonKeyedIngest } from '../lib/seasonIngest.mjs';
 
 // Sort by gameId for a stable hash regardless of CSV row order.
 const byGameId = games => [...games].sort((a, b) => (a.gameId < b.gameId ? -1 : a.gameId > b.gameId ? 1 : 0));
@@ -72,48 +73,28 @@ export async function updateSchedule({ year: yearOpt = null, all = false, dryRun
   // The weekly Action always runs default mode → this is currentSeason.
   if (!all) d.setStepOutput('season', seasons[0]);
 
-  for (const season of seasons) {
-    const games = gamesBySeason[String(season)] ?? [];
-    const isPast = season < currentSeason;
-
-    if (games.length === 0) {
-      console.log(`[schedule] season ${season} not published yet — skipping`);
-      continue;
-    }
-    if (games.length < MIN_SCHEDULE_GAMES) {
-      console.log(`[schedule] season ${season} only ${games.length} games (< ${MIN_SCHEDULE_GAMES}) — preliminary, skipping`);
-      continue;
-    }
-
-    validateSchedule(games, { year: season });
-
-    const dataPath = `nflverse/schedule/${season}.json`;
-    const existing = d.readJson(dataPath);
-    const newHash  = gamesHash(games);
-    const lastHash = existing?.games ? gamesHash(existing.games) : null;
-
-    if (newHash === lastHash) {
-      console.log(`[schedule] season ${season}: identical to ${dataPath} — no change.`);
-      continue;
-    }
-    if (dryRun) {
-      const needsForce = isPast && existing && !force;
-      console.log(`[schedule] [dry-run] would write ${dataPath}: ${games.length} games` +
-        (needsForce ? ' (past season — needs --force to write for real)' : ''));
-      continue;
-    }
-    if (isPast && existing && !force) {
-      throw new Error(`[schedule] ${dataPath} exists for completed season ${season}. Use --force to overwrite.`);
-    }
-
-    d.writeJsonStable(dataPath, {
+  await runSeasonKeyedIngest({
+    family: 'schedule',
+    seasons,
+    currentSeason,
+    dryRun,
+    force,
+    deps: { readJson: d.readJson, writeJsonStable: d.writeJsonStable, updateManifestEntry: d.updateManifestEntry },
+    dataPath: season => `nflverse/schedule/${season}.json`,
+    derive: async season => gamesBySeason[String(season)] ?? [],
+    rowCount: games => games.length,
+    minRows: MIN_SCHEDULE_GAMES,
+    minRowsLabel: 'games',
+    validate: (games, { year }) => validateSchedule(games, { year }),
+    hash: games => gamesHash(games),
+    existingHash: existing => (existing?.games ? gamesHash(existing.games) : null),
+    envelope: (season, games) => ({
       schemaVersion: 1,
       season,
       generatedAt:   new Date().toISOString(),
       rowCount:      games.length,
       games,
-    });
-    d.updateManifestEntry({ path: dataPath, recordCount: games.length, inProgress: false, schemaVersion: 1 });
-    console.log(`[schedule] Wrote ${dataPath} (${games.length} games) + manifest`);
-  }
+    }),
+    manifestRecordCount: games => games.length,
+  });
 }
