@@ -38,8 +38,16 @@ import { readJson, writeJsonStable, setStepOutput, stableHash, sortObjectKeys } 
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateAdvStats } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
+import { runSeasonKeyedIngest } from '../lib/seasonIngest.mjs';
 
 export const playersHash = players => stableHash(players, sortObjectKeys);
+
+// Post-crosswalk player count — used by the gate, the envelope and the manifest recordCount.
+// One local, called from all three, so they cannot drift apart (the same reasoning as
+// oline's olRowCount, season-ingest-oline.md §2.1).
+function advstatsRowCount(players) {
+  return Object.keys(players).length;
+}
 
 export const DEFAULT_DEPS = {
   fetchCurrentNflSeason,
@@ -106,67 +114,47 @@ export async function updateAdvStats({
     console.log(`[advstats] ${unmapped} players had no crosswalk mapping — skipped`);
   }
 
-  // 6. Sparsity gate
-  const rowCount = Object.keys(players).length;
-  if (rowCount < MIN_ADVSTATS_ROWS) {
-    console.log(
-      `[advstats] year=${year} only ${rowCount} players after re-key ` +
-      `(< MIN_ADVSTATS_ROWS=${MIN_ADVSTATS_ROWS}) — treating as preliminary/partial, skipping`
-    );
-    return;
-  }
-
-  // 7. Validate
-  validateAdvStats(players, { year });
-  console.log('[advstats] Validation passed');
-
-  const dataPath = `nflverse/advstats/${year}.json`;
-  const existing = d.readJson(dataPath);
-
-  // 8. Content-hash dedup
-  const newHash  = playersHash(players);
-  const lastHash = existing?.players ? playersHash(existing.players) : null;
-  if (newHash === lastHash) {
-    console.log(`[advstats] Content identical to existing ${dataPath} — no change.`);
-    return;
-  }
-
-  // 9. Dry-run exit
-  if (dryRun) {
-    const needsForce = isPast && existing && !force;
-    console.log(
-      `[advstats] [dry-run] would write ${dataPath}: ${rowCount} players (${unmapped} unmapped)` +
-      (needsForce ? ' (past season — needs --force to write for real)' : '')
-    );
-    return;
-  }
-
-  // 10. Force gate: completed past seasons require --force to overwrite
-  if (isPast && existing && !force) {
-    throw new Error(
-      `[advstats] ${dataPath} already exists for completed season ${year}. ` +
-      'Use --force to overwrite.'
-    );
-  }
-
-  // 11. Write
-  const output = {
-    schemaVersion: 1,
-    season:        season ?? year,
-    generatedAt:   new Date().toISOString(),
-    rowCount,
-    unmapped,
-    players,
-  };
-  d.writeJsonStable(dataPath, output);
-  console.log(`[advstats] Wrote ${dataPath} (${rowCount} players)`);
-
-  // 12. Update manifest (inProgress: false — CLAUDE.md invariant 5, extended to advstats)
-  d.updateManifestEntry({
-    path:          dataPath,
-    recordCount:   rowCount,
-    inProgress:    false,
-    schemaVersion: 1,
+  // 6-12: sparsity gate, validate, dedup, dry-run, force gate, write, manifest — the shared
+  // spine (season-ingest-advstats.md §2.2). Single-season, so seasons is a one-element array;
+  // `derive` just hands back what steps 1-5 above already computed (schedule's topology).
+  await runSeasonKeyedIngest({
+    family: 'advstats',
+    seasons: [year],
+    currentSeason,
+    dryRun,
+    force,
+    deps: { readJson: d.readJson, writeJsonStable: d.writeJsonStable, updateManifestEntry: d.updateManifestEntry },
+    dataPath: () => `nflverse/advstats/${year}.json`,
+    derive: () => ({ players, season, unmapped }),
+    gateRowCount: o => advstatsRowCount(o.players),
+    minRows: MIN_ADVSTATS_ROWS,
+    validate: (o, opts) => {
+      validateAdvStats(o.players, opts);
+      console.log('[advstats] Validation passed');
+    },
+    hash: o => playersHash(o.players),
+    existingHash: existing => (existing?.players ? playersHash(existing.players) : null),
+    envelope: (s, o) => ({
+      schemaVersion: 1,
+      season:        o.season ?? s,
+      generatedAt:   new Date().toISOString(),
+      rowCount:      advstatsRowCount(o.players),
+      unmapped:      o.unmapped,
+      players:       o.players,
+    }),
+    manifestRecordCount: o => advstatsRowCount(o.players),
+    messages: {
+      notPublished: s => `[advstats] year=${s} not published yet — skipping`, // unreachable (§1.4)
+      sparsity: (s, rc) =>
+        `[advstats] year=${s} only ${rc} players after re-key ` +
+        `(< MIN_ADVSTATS_ROWS=${MIN_ADVSTATS_ROWS}) — treating as preliminary/partial, skipping`,
+      dedup: (s, path) => `[advstats] Content identical to existing ${path} — no change.`,
+      dryRun: (s, path, o, needsForce) =>
+        `[advstats] [dry-run] would write ${path}: ${advstatsRowCount(o.players)} players (${o.unmapped} unmapped)` +
+        (needsForce ? ' (past season — needs --force to write for real)' : ''),
+      forceGate: (s, path) => `[advstats] ${path} already exists for completed season ${s}. Use --force to overwrite.`,
+      afterWrite: (s, path, o) => `[advstats] Wrote ${path} (${advstatsRowCount(o.players)} players)`,
+      afterManifest: () => '[advstats] Manifest updated',
+    },
   });
-  console.log('[advstats] Manifest updated');
 }

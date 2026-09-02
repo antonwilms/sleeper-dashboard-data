@@ -68,41 +68,49 @@ test('updateAdvStats: fetchPlayerStatsCsv returns null (deps) → returns cleanl
 // sparsity gate (post-rekey rowCount < MIN_ADVSTATS_ROWS)
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateAdvStats: rowCount < MIN_ADVSTATS_ROWS after re-key → skipped, nothing written', async () => {
+test('updateAdvStats: rowCount < MIN_ADVSTATS_ROWS after re-key → skipped, nothing written', async (t) => {
   const csv = makeAdvCsv(5, 2023);
-  const { deps, calls } = spyDeps({ fetchPlayerStatsCsv: async () => csv, crosswalkCount: 5 });
+  const { deps, calls, logs } = spyDeps({ fetchPlayerStatsCsv: async () => csv, crosswalkCount: 5 }, t);
   await updateAdvStats({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes(
+    `[advstats] year=2023 only 5 players after re-key (< MIN_ADVSTATS_ROWS=${MIN_ADVSTATS_ROWS}) — treating as preliminary/partial, skipping`
+  ));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // dedup hit
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateAdvStats: dedup hit — nothing written', async () => {
+test('updateAdvStats: dedup hit — nothing written', async (t) => {
   const csv = makeAdvCsv(MIN_ADVSTATS_ROWS, 2023);
   const { aggregateAdvReceiving, rekeyBySleeper } = await import('../lib/nflverse.mjs');
   const { byGsis } = aggregateAdvReceiving(csv);
   const { players } = rekeyBySleeper(byGsis, makeCrosswalk(MIN_ADVSTATS_ROWS).ids);
-  const { deps, calls } = spyDeps({ fetchPlayerStatsCsv: async () => csv, dataPathResult: { players } });
+  const { deps, calls, logs } = spyDeps({ fetchPlayerStatsCsv: async () => csv, dataPathResult: { players } }, t);
   await updateAdvStats({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes('[advstats] Content identical to existing nflverse/advstats/2023.json — no change.'));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // dry-run exits BEFORE the force gate (contrast roster's axis-3 ordering)
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateAdvStats: --dry-run on a changed past season reports a plan, does not throw', async () => {
+test('updateAdvStats: --dry-run on a changed past season reports a plan, does not throw', async (t) => {
   const csv = makeAdvCsv(MIN_ADVSTATS_ROWS, 2023);
-  const { deps, calls } = spyDeps({
+  const { deps, calls, logs } = spyDeps({
     fetchPlayerStatsCsv: async () => csv,
     dataPathResult: { players: { X: { name: 'Someone Else' } } },
-  });
+  }, t);
   await assert.doesNotReject(() => updateAdvStats({ year: 2023, dryRun: true, force: false, deps }));
   assert.equal(calls.writeJsonStable.length, 0);
+  assert.ok(logs.includes(
+    `[advstats] [dry-run] would write nflverse/advstats/2023.json: ${MIN_ADVSTATS_ROWS} players (0 unmapped)` +
+    ' (past season — needs --force to write for real)'
+  ));
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -125,9 +133,9 @@ test('updateAdvStats: force gate throws on a changed past season without --force
 // write path
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateAdvStats: write path — data file + manifest entry, advstats\' own envelope', async () => {
+test('updateAdvStats: write path — data file + manifest entry, advstats\' own envelope', async (t) => {
   const csv = makeAdvCsv(MIN_ADVSTATS_ROWS, 2023);
-  const { deps, calls } = spyDeps({ fetchPlayerStatsCsv: async () => csv });
+  const { deps, calls, logs } = spyDeps({ fetchPlayerStatsCsv: async () => csv }, t);
   await updateAdvStats({ year: 2023, dryRun: false, deps });
 
   assert.equal(calls.writeJsonStable.length, 1);
@@ -142,6 +150,16 @@ test('updateAdvStats: write path — data file + manifest entry, advstats\' own 
 
   assert.equal(calls.updateManifestEntry.length, 1);
   assert.equal(calls.updateManifestEntry[0][0].inProgress, false);
+
+  // afterWrite fires between the write and the manifest call; afterManifest after — both
+  // previously unverified (dry runs never write, so byte-diffs never reached either hook).
+  const afterWriteMsg    = `[advstats] Wrote nflverse/advstats/2023.json (${MIN_ADVSTATS_ROWS} players)`;
+  const afterManifestMsg = '[advstats] Manifest updated';
+  const idxWrite    = logs.indexOf(afterWriteMsg);
+  const idxManifest = logs.indexOf(afterManifestMsg);
+  assert.notEqual(idxWrite, -1, 'afterWrite log missing');
+  assert.notEqual(idxManifest, -1, 'afterManifest log missing');
+  assert.ok(idxWrite < idxManifest, 'afterWrite must log before afterManifest');
 });
 
 // ═══════════════════════════════════════════════════════════════════
