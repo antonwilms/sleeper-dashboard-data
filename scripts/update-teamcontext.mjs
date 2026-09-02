@@ -95,7 +95,7 @@ export async function updateTeamContext({ year: yearOpt = null, all = false, dry
       console.log(`[teamcontext] Derived ${derived.rowCount} team-game rows for season ${season}`);
       return derived;
     },
-    rowCount: derived => derived.rowCount,
+    gateRowCount: derived => derived.rowCount,
     minRows: MIN_TEAMCONTEXT_ROWS,
     validate: (derived, { year }) => {
       validateTeamContext(derived.teams, { year });

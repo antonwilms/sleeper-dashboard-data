@@ -139,7 +139,7 @@ export async function updateGameLogs({
     },
     // GATE ONLY — parsedRowCount (pre-crosswalk). The envelope's own `rowCount` field is a
     // different, post-crosswalk number (o.rowCount below) — do not conflate the two (§1.3).
-    rowCount: o => o.parsedRowCount,
+    gateRowCount: o => o.parsedRowCount,
     minRows: MIN_PLAYERGAME_ROWS,
     validate: (o, { year }) => {
       validateGameLogs(o.players, { year });

@@ -82,7 +82,7 @@ export async function updateSchedule({ year: yearOpt = null, all = false, dryRun
     deps: { readJson: d.readJson, writeJsonStable: d.writeJsonStable, updateManifestEntry: d.updateManifestEntry },
     dataPath: season => `nflverse/schedule/${season}.json`,
     derive: async season => gamesBySeason[String(season)] ?? [],
-    rowCount: games => games.length,
+    gateRowCount: games => games.length,
     minRows: MIN_SCHEDULE_GAMES,
     validate: (games, { year }) => validateSchedule(games, { year }),
     hash: games => gamesHash(games),

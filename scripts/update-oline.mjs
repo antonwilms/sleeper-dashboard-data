@@ -107,7 +107,7 @@ export async function updateOline({ year: yearOpt = null, all = false, dryRun = 
     // PRE-drop — gate only. A preliminary/truncated fetch is rejected on its own terms,
     // before validateOline's drops are even applied. Every other callback below recomputes
     // from `o.teams` (post-mutation) via olRowCount — this is the one exception.
-    rowCount: o => o.preRowCount,
+    gateRowCount: o => o.preRowCount,
     minRows: MIN_OLINE_ROWS,
     validate: (o, { year }) => {
       // Drops ragged per-record defects (e.g. empty player name) from `teams` in place;
