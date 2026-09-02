@@ -1,10 +1,18 @@
 /**
  * test/stable-hash.test.mjs — verification for stable-hash.md.
  *
- * Twelve digest-equality assertions against test/fixtures/hash-baseline.json (§4 step 2):
- * each baseline digest was captured by calling the REAL pre-refactor function against a real
- * served file, before any body was rewritten as a stableHash wrapper. Matching proves the
- * refactor is bit-identical to what it replaced, not that a transcription matches itself.
+ * Eleven digest-equality assertions against test/fixtures/hash-baseline.json (§4 step 2).
+ * Eight of them still hold the original pre-refactor claim: each digest was captured by
+ * calling the real pre-refactor function against a real served file, before any body was
+ * rewritten as a stableHash wrapper, so matching proves the refactor is bit-identical to what
+ * it replaced. Three (roster, games, oline) were re-pointed at a different file in a later
+ * slice (season-ingest-teamcontext.md §1.3/§2.2) because their original file was a
+ * weekly-rewritten current-season asset — no immutable pre-refactor baseline survives for
+ * them, so their digests were recaptured from the CURRENT implementation instead and their
+ * tests are named accordingly: they are change detectors now, not pre-refactor proofs. A
+ * twelfth entry (idsHash) was dropped entirely — nflverse/playerids.json is a weekly-refreshed
+ * crosswalk with no immutable version at all, and a digest that must be regenerated on a
+ * schedule asserts nothing (§2.2).
  *
  * Plus regression guards for §2.1's identity default and the two order-sensitive shapes
  * (cfbd, playerstate) the audit's "sort everything" framing would have silently broken.
@@ -25,7 +33,6 @@ import { playersHash as rosterPlayersHash }      from '../scripts/update-roster.
 import { teamsHash as olineTeamsHash }           from '../scripts/update-oline.mjs';
 import { teamsHash as teamcontextTeamsHash }     from '../scripts/update-teamcontext.mjs';
 import { playersHash as playerstatePlayersHash } from '../scripts/update-playerstate.mjs';
-import { idsHash }           from '../scripts/update-playerids.mjs';
 import { picksByYearHash }   from '../scripts/update-draft.mjs';
 import { gamesHash }         from '../scripts/update-schedule.mjs';
 import { snapshotHash }      from '../scripts/update-ktc.mjs';
@@ -33,7 +40,8 @@ import { snapshotHash }      from '../scripts/update-ktc.mjs';
 const baseline = JSON.parse(fs.readFileSync(new URL('./fixtures/hash-baseline.json', import.meta.url), 'utf8'));
 
 // ═══════════════════════════════════════════════════════════════════
-// §4 step 6 — twelve digest equalities against the pre-refactor baseline
+// §4 step 6 — eleven digest equalities against the fixture (eight pre-refactor baselines,
+// three current-behaviour re-captures — see the module doc above)
 // ═══════════════════════════════════════════════════════════════════
 
 test('cfbdHash matches the pre-refactor baseline digest', () => {
@@ -56,12 +64,12 @@ test('gamelogs playersHash matches the pre-refactor baseline digest', () => {
   assert.equal(gamelogsPlayersHash(readJson(file).players), digest);
 });
 
-test('roster playersHash matches the pre-refactor baseline digest', () => {
+test('roster playersHash matches the pinned current-behaviour digest', () => {
   const { file, digest } = baseline.rosterPlayersHash;
   assert.equal(rosterPlayersHash(readJson(file).players), digest);
 });
 
-test('oline teamsHash matches the pre-refactor baseline digest', () => {
+test('oline teamsHash matches the pinned current-behaviour digest', () => {
   const { file, digest } = baseline.olineTeamsHash;
   assert.equal(olineTeamsHash(readJson(file).teams), digest);
 });
@@ -76,17 +84,12 @@ test('playerstate playersHash matches the pre-refactor baseline digest', () => {
   assert.equal(playerstatePlayersHash(readJson(file).players), digest);
 });
 
-test('idsHash matches the pre-refactor baseline digest', () => {
-  const { file, digest } = baseline.idsHash;
-  assert.equal(idsHash(readJson(file).ids), digest);
-});
-
 test('picksByYearHash matches the pre-refactor baseline digest', () => {
   const { file, digest } = baseline.picksByYearHash;
   assert.equal(picksByYearHash(readJson(file).picksByYear), digest);
 });
 
-test('gamesHash matches the pre-refactor baseline digest', () => {
+test('gamesHash matches the pinned current-behaviour digest', () => {
   const { file, digest } = baseline.gamesHash;
   assert.equal(gamesHash(readJson(file).games), digest);
 });

@@ -38,6 +38,7 @@ import { readJson, writeJsonStable, setStepOutput, stableHash, sortObjectKeys } 
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateTeamContext } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
+import { runSeasonKeyedIngest } from '../lib/seasonIngest.mjs';
 
 export const teamsHash = teams => stableHash(teams, sortObjectKeys);
 
@@ -73,78 +74,59 @@ export async function updateTeamContext({ year: yearOpt = null, all = false, dry
   // Surface the season to the Actions purge step (single-season mode only — schedule pattern).
   if (!all) d.setStepOutput('season', seasons[0]);
 
-  for (const season of seasons) {
-    console.log(`[teamcontext] season=${season} | currentSeason=${currentSeason}`);
-    const isPast = season < currentSeason;
+  await runSeasonKeyedIngest({
+    family: 'teamcontext',
+    seasons,
+    currentSeason,
+    dryRun,
+    force,
+    deps: { readJson: d.readJson, writeJsonStable: d.writeJsonStable, updateManifestEntry: d.updateManifestEntry },
+    dataPath: season => `nflverse/teamcontext/${season}.json`,
+    derive: async season => {
+      console.log(`[teamcontext] season=${season} | currentSeason=${currentSeason}`);
 
-    // Fetch — graceful skip on 404/504 (year not yet published)
-    console.log(`[teamcontext] Fetching play_by_play_${season}.csv.gz…`);
-    const csv = await d.fetchPbpCsv(season);
-    if (csv === null) {
-      console.log(`[teamcontext] season=${season} not published yet — skipping`);
-      continue;
-    }
+      // Fetch — graceful skip on 404/504 (year not yet published)
+      console.log(`[teamcontext] Fetching play_by_play_${season}.csv.gz…`);
+      const csv = await d.fetchPbpCsv(season);
+      if (csv === null) return null;
 
-    // Derive — throws on header drift or wrong-asset season mismatch
-    const { teams, rowCount, teamCount } = aggregateTeamContext(csv, { season });
-    console.log(`[teamcontext] Derived ${rowCount} team-game rows for season ${season}`);
-
-    // Sparsity gate
-    if (rowCount < MIN_TEAMCONTEXT_ROWS) {
-      console.log(
-        `[teamcontext] season=${season} only ${rowCount} team-game rows ` +
-        `(< MIN_TEAMCONTEXT_ROWS=${MIN_TEAMCONTEXT_ROWS}) — treating as preliminary/partial, skipping`
-      );
-      continue;
-    }
-
-    // Validate
-    validateTeamContext(teams, { year: season });
-    console.log('[teamcontext] Validation passed');
-
-    const dataPath = `nflverse/teamcontext/${season}.json`;
-    const existing = d.readJson(dataPath);
-
-    // Content-hash dedup
-    const newHash  = teamsHash(teams);
-    const lastHash = existing?.teams ? teamsHash(existing.teams) : null;
-    if (newHash === lastHash) {
-      console.log(`[teamcontext] Content identical to existing ${dataPath} — no change.`);
-      continue;
-    }
-
-    // Dry-run exit
-    if (dryRun) {
-      const needsForce = isPast && existing && !force;
-      console.log(
-        `[teamcontext] [dry-run] would write ${dataPath}: ${rowCount} team-game rows, ` +
-        `${teamCount} teams` +
-        (needsForce ? ' (past season — needs --force to write for real)' : '')
-      );
-      continue;
-    }
-
-    // Force gate: completed past seasons require --force to overwrite
-    if (isPast && existing && !force) {
-      throw new Error(
-        `[teamcontext] ${dataPath} already exists for completed season ${season}. ` +
-        'Use --force to overwrite.'
-      );
-    }
-
-    // Write
-    d.writeJsonStable(dataPath, {
+      // Derive — throws on header drift or wrong-asset season mismatch
+      const derived = aggregateTeamContext(csv, { season });
+      console.log(`[teamcontext] Derived ${derived.rowCount} team-game rows for season ${season}`);
+      return derived;
+    },
+    rowCount: derived => derived.rowCount,
+    minRows: MIN_TEAMCONTEXT_ROWS,
+    validate: (derived, { year }) => {
+      validateTeamContext(derived.teams, { year });
+      console.log('[teamcontext] Validation passed');
+    },
+    hash: derived => teamsHash(derived.teams),
+    existingHash: existing => (existing?.teams ? teamsHash(existing.teams) : null),
+    envelope: (season, derived) => ({
       schemaVersion: 1,
       season,
       generatedAt: new Date().toISOString(),
-      rowCount,
-      teamCount,
-      teams,
-    });
-    console.log(`[teamcontext] Wrote ${dataPath} (${rowCount} team-game rows, ${teamCount} teams)`);
-
-    // Manifest (inProgress: false — CLAUDE.md invariant 5, extended to teamcontext)
-    d.updateManifestEntry({ path: dataPath, recordCount: rowCount, inProgress: false, schemaVersion: 1 });
-    console.log('[teamcontext] Manifest updated');
-  }
+      rowCount:    derived.rowCount,
+      teamCount:   derived.teamCount,
+      teams:       derived.teams,
+    }),
+    manifestRecordCount: derived => derived.rowCount,
+    messages: {
+      notPublished: season => `[teamcontext] season=${season} not published yet — skipping`,
+      sparsity: (season, rc) =>
+        `[teamcontext] season=${season} only ${rc} team-game rows ` +
+        `(< MIN_TEAMCONTEXT_ROWS=${MIN_TEAMCONTEXT_ROWS}) — treating as preliminary/partial, skipping`,
+      dedup: (season, path) => `[teamcontext] Content identical to existing ${path} — no change.`,
+      dryRun: (season, path, derived, needsForce) =>
+        `[teamcontext] [dry-run] would write ${path}: ${derived.rowCount} team-game rows, ` +
+        `${derived.teamCount} teams` +
+        (needsForce ? ' (past season — needs --force to write for real)' : ''),
+      forceGate: (season, path) =>
+        `[teamcontext] ${path} already exists for completed season ${season}. Use --force to overwrite.`,
+      afterWrite: (season, path, derived) =>
+        `[teamcontext] Wrote ${path} (${derived.rowCount} team-game rows, ${derived.teamCount} teams)`,
+      afterManifest: () => '[teamcontext] Manifest updated',
+    },
+  });
 }

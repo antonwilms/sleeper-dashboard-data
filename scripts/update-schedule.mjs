@@ -84,7 +84,6 @@ export async function updateSchedule({ year: yearOpt = null, all = false, dryRun
     derive: async season => gamesBySeason[String(season)] ?? [],
     rowCount: games => games.length,
     minRows: MIN_SCHEDULE_GAMES,
-    minRowsLabel: 'games',
     validate: (games, { year }) => validateSchedule(games, { year }),
     hash: games => gamesHash(games),
     existingHash: existing => (existing?.games ? gamesHash(existing.games) : null),
@@ -96,5 +95,17 @@ export async function updateSchedule({ year: yearOpt = null, all = false, dryRun
       games,
     }),
     manifestRecordCount: games => games.length,
+    messages: {
+      notPublished: season => `[schedule] season ${season} not published yet — skipping`,
+      sparsity: (season, rc) =>
+        `[schedule] season ${season} only ${rc} games (< ${MIN_SCHEDULE_GAMES}) — preliminary, skipping`,
+      dedup: (season, path) => `[schedule] season ${season}: identical to ${path} — no change.`,
+      dryRun: (season, path, games, needsForce) =>
+        `[schedule] [dry-run] would write ${path}: ${games.length} games` +
+        (needsForce ? ' (past season — needs --force to write for real)' : ''),
+      forceGate: (season, path) => `[schedule] ${path} exists for completed season ${season}. Use --force to overwrite.`,
+      afterWrite: () => null,
+      afterManifest: (season, path, games) => `[schedule] Wrote ${path} (${games.length} games) + manifest`,
+    },
   });
 }

@@ -20,8 +20,8 @@
     "digest": "f928452d0be938f3810c68d3ac818e13e902a0a827f8c18902b986e24180c96e"
   },
   "olineTeamsHash": {
-    "file": "nflverse/oline/2026.json",
-    "digest": "37690ce4724fb6dc41431f7286173c23c0b028bff0d4279e9faef0d7fb8da36b"
+    "file": "nflverse/oline/2025.json",
+    "digest": "4373b1f8052e98d1dded4f0ec654150ea6169779b1ad1d5895c94aad12d8c95d"
   },
   "teamcontextTeamsHash": {
     "file": "nflverse/teamcontext/2025.json",
@@ -31,17 +31,13 @@
     "file": "nfl/players-state/2026-08-29.json",
     "digest": "f9f7bafb8db77a05d6c2eeeee04c05b4d5e34c2f45d5fe67506bf889444d5cff"
   },
-  "idsHash": {
-    "file": "nflverse/playerids.json",
-    "digest": "53415b2f6f0191bfed55702dcc809cca7f0d1910e9ccd398a79fdd1740868a64"
-  },
   "picksByYearHash": {
     "file": "nflverse/draft/draft_picks.json",
     "digest": "54a2d76ced22b456ebd3882eff7f73da20f4836cbebbcebc5209aabf0f9ad7c3"
   },
   "gamesHash": {
-    "file": "nflverse/schedule/2026.json",
-    "digest": "e04c150b807f10b2274fd31390230665be7b77897f6a8867546437ff8eea5775"
+    "file": "nflverse/schedule/2023.json",
+    "digest": "cc91f1ab9d056c9228047f37da9c3897a005fe2cb515420795dfb11cdbcf9bff"
   },
   "snapshotHash": {
     "file": "ktc/snapshot-2026-08-24.json",
