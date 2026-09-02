@@ -17,6 +17,7 @@ import assert   from 'node:assert/strict';
 
 import { updateTeamContext } from '../scripts/update-teamcontext.mjs';
 import { MIN_TEAMCONTEXT_ROWS } from '../lib/nflverse.mjs';
+import { spyDeps } from '../test-support/spy-deps.mjs';
 
 const TC_HEADER = [
   'game_id', 'season', 'week', 'season_type', 'posteam', 'defteam', 'home_team', 'away_team',
@@ -54,42 +55,31 @@ function makeTcCsv(season, gameCount) {
 
 const GAME_COUNT = Math.ceil(MIN_TEAMCONTEXT_ROWS / 2) + 2; // comfortably clears the floor
 
-function spyDeps(overrides = {}) {
-  const calls = { writeJsonStable: [], updateManifestEntry: [], setStepOutput: [] };
-  return {
-    deps: {
-      fetchCurrentNflSeason: async () => 2026,
-      setStepOutput: (...args) => calls.setStepOutput.push(args),
-      writeJsonStable: (...args) => calls.writeJsonStable.push(args),
-      updateManifestEntry: (...args) => calls.updateManifestEntry.push(args),
-      readJson: () => null,
-      ...overrides,
-    },
-    calls,
-  };
-}
-
 // ═══════════════════════════════════════════════════════════════════
 // not published
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateTeamContext: fetchPbpCsv returns null → season skipped, nothing written', async () => {
-  const { deps, calls } = spyDeps({ fetchPbpCsv: async () => null });
+test('updateTeamContext: fetchPbpCsv returns null → season skipped, nothing written', async (t) => {
+  const { deps, calls, logs } = spyDeps({ fetchPbpCsv: async () => null }, t);
   await updateTeamContext({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes('[teamcontext] season=2023 not published yet — skipping'));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // sparsity gate
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateTeamContext: rowCount < MIN_TEAMCONTEXT_ROWS → skipped, nothing written', async () => {
+test('updateTeamContext: rowCount < MIN_TEAMCONTEXT_ROWS → skipped, nothing written', async (t) => {
   const csv = makeTcCsv(2023, 3); // 6 rows, well below the 60-row floor
-  const { deps, calls } = spyDeps({ fetchPbpCsv: async () => csv });
+  const { deps, calls, logs } = spyDeps({ fetchPbpCsv: async () => csv }, t);
   await updateTeamContext({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes(
+    `[teamcontext] season=2023 only 6 team-game rows (< MIN_TEAMCONTEXT_ROWS=${MIN_TEAMCONTEXT_ROWS}) — treating as preliminary/partial, skipping`
+  ));
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -109,31 +99,36 @@ test('updateTeamContext: CSV season disagreeing with the requested season THROWS
 // dedup hit
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateTeamContext: dedup hit — nothing written', async () => {
+test('updateTeamContext: dedup hit — nothing written', async (t) => {
   const csv = makeTcCsv(2023, GAME_COUNT);
   const { aggregateTeamContext } = await import('../lib/nflverse.mjs');
   const { teams } = aggregateTeamContext(csv, { season: 2023 });
-  const { deps, calls } = spyDeps({
+  const { deps, calls, logs } = spyDeps({
     fetchPbpCsv: async () => csv,
     readJson: (path) => (path === 'nflverse/teamcontext/2023.json' ? { teams } : null),
-  });
+  }, t);
   await updateTeamContext({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes('[teamcontext] Content identical to existing nflverse/teamcontext/2023.json — no change.'));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // dry-run exits BEFORE the force gate (matches 4 of 5 siblings, contrast roster)
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateTeamContext: --dry-run on a changed past season reports a plan, does not throw', async () => {
+test('updateTeamContext: --dry-run on a changed past season reports a plan, does not throw', async (t) => {
   const csv = makeTcCsv(2023, GAME_COUNT);
-  const { deps, calls } = spyDeps({
+  const { deps, calls, logs } = spyDeps({
     fetchPbpCsv: async () => csv,
     readJson: (path) => (path === 'nflverse/teamcontext/2023.json' ? { teams: { XX: { games: [] } } } : null),
-  });
+  }, t);
   await assert.doesNotReject(() => updateTeamContext({ year: 2023, dryRun: true, force: false, deps }));
   assert.equal(calls.writeJsonStable.length, 0);
+  assert.ok(logs.includes(
+    `[teamcontext] [dry-run] would write nflverse/teamcontext/2023.json: ${GAME_COUNT * 2} team-game rows, 2 teams` +
+    ' (past season — needs --force to write for real)'
+  ));
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -156,9 +151,9 @@ test('updateTeamContext: force gate throws on a changed past season without --fo
 // write path — teamcontext's own envelope fields
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateTeamContext: write path — data file + manifest entry, teamcontext\'s own envelope', async () => {
+test('updateTeamContext: write path — data file + manifest entry, teamcontext\'s own envelope', async (t) => {
   const csv = makeTcCsv(2023, GAME_COUNT);
-  const { deps, calls } = spyDeps({ fetchPbpCsv: async () => csv, readJson: () => null });
+  const { deps, calls, logs } = spyDeps({ fetchPbpCsv: async () => csv, readJson: () => null }, t);
   await updateTeamContext({ year: 2023, dryRun: false, deps });
 
   assert.equal(calls.writeJsonStable.length, 1);
@@ -173,6 +168,16 @@ test('updateTeamContext: write path — data file + manifest entry, teamcontext\
 
   assert.equal(calls.updateManifestEntry.length, 1);
   assert.equal(calls.updateManifestEntry[0][0].inProgress, false);
+
+  // afterWrite fires between the write and the manifest call; afterManifest after — both
+  // previously unverified (dry runs never write, so byte-diffs never reached either hook).
+  const afterWriteMsg    = `[teamcontext] Wrote nflverse/teamcontext/2023.json (${GAME_COUNT * 2} team-game rows, 2 teams)`;
+  const afterManifestMsg = '[teamcontext] Manifest updated';
+  const idxWrite    = logs.indexOf(afterWriteMsg);
+  const idxManifest = logs.indexOf(afterManifestMsg);
+  assert.notEqual(idxWrite, -1, 'afterWrite log missing');
+  assert.notEqual(idxManifest, -1, 'afterManifest log missing');
+  assert.ok(idxWrite < idxManifest, 'afterWrite must log before afterManifest');
 });
 
 // ═══════════════════════════════════════════════════════════════════

@@ -47,6 +47,7 @@ import { readJson, writeJsonStable, setStepOutput, stableHash, sortObjectKeys } 
 import { updateManifestEntry } from '../lib/manifest.mjs';
 import { validateGameLogs } from '../lib/validate.mjs';
 import { fetchCurrentNflSeason } from '../lib/sleeper.mjs';
+import { runSeasonKeyedIngest } from '../lib/seasonIngest.mjs';
 
 export const playersHash = players => stableHash(players, sortObjectKeys);
 
@@ -101,92 +102,76 @@ export async function updateGameLogs({
   // --all is a manual backfill; no season output (and no purge) needed.
   if (!all) d.setStepOutput('season', seasons[0]);
 
-  for (const season of seasons) {
-    console.log(`[gamelogs] season=${season} | currentSeason=${currentSeason}`);
-    const isPast = season < currentSeason;
+  await runSeasonKeyedIngest({
+    family: 'gamelogs',
+    seasons,
+    currentSeason,
+    dryRun,
+    force,
+    deps: { readJson: d.readJson, writeJsonStable: d.writeJsonStable, updateManifestEntry: d.updateManifestEntry },
+    dataPath: season => `nflverse/gamelogs/${season}.json`,
+    derive: async season => {
+      console.log(`[gamelogs] season=${season} | currentSeason=${currentSeason}`);
 
-    // Fetch — graceful skip on 404/504 (year not yet published). csv is injectable (§3.1) on the
-    // single-season path only — inside --all the fetch stays per-season (§1.5).
-    let csv = !all ? csvOpt : null;
-    if (csv === null) {
-      console.log(`[gamelogs] Fetching stats_player_week_${season}.csv…`);
-      csv = await d.fetchPlayerStatsCsv(season);
-    } else {
-      console.log(`[gamelogs] Using injected stats_player_week_${season}.csv (single-fetch orchestrator)`);
-    }
-    if (csv === null) {
-      console.log(`[gamelogs] season=${season} not published yet — skipping`);
-      continue;
-    }
+      // Fetch — graceful skip on 404/504 (year not yet published). csv is injectable (§3.1) on
+      // the single-season path only — inside --all the fetch stays per-season (§1.5).
+      let csv = !all ? csvOpt : null;
+      if (csv === null) {
+        console.log(`[gamelogs] Fetching stats_player_week_${season}.csv…`);
+        csv = await d.fetchPlayerStatsCsv(season);
+      } else {
+        console.log(`[gamelogs] Using injected stats_player_week_${season}.csv (single-fetch orchestrator)`);
+      }
+      if (csv === null) return null;
 
-    // Parse — per-game rows for QB/RB/WR/TE/FB
-    const { byGsis, season: parsed, rowCount: parsedRowCount } = parsePlayerGameLogs(csv);
-    console.log(`[gamelogs] Parsed ${parsedRowCount} game rows for season ${season}`);
+      // Parse — per-game rows for QB/RB/WR/TE/FB
+      const { byGsis, season: parsed, rowCount: parsedRowCount } = parsePlayerGameLogs(csv);
+      console.log(`[gamelogs] Parsed ${parsedRowCount} game rows for season ${season}`);
 
-    // Re-key gsis → sleeper_id
-    const { players, unmapped } = rekeyGameLogsBySleeper(byGsis, cw.ids);
-    if (unmapped > 0) console.log(`[gamelogs] ${unmapped} players had no crosswalk mapping — skipped`);
+      // Re-key gsis → sleeper_id
+      const { players, unmapped } = rekeyGameLogsBySleeper(byGsis, cw.ids);
+      if (unmapped > 0) console.log(`[gamelogs] ${unmapped} players had no crosswalk mapping — skipped`);
 
-    const playerCount = Object.keys(players).length;
-    const rowCount    = Object.values(players).reduce((s, p) => s + p.games.length, 0);
+      const playerCount = Object.keys(players).length;
+      const rowCount    = Object.values(players).reduce((s, p) => s + p.games.length, 0);
 
-    // Sparsity gate (on parsed total — catches truncated fetches regardless of crosswalk gaps)
-    if (parsedRowCount < MIN_PLAYERGAME_ROWS) {
-      console.log(
-        `[gamelogs] season=${season} only ${parsedRowCount} game rows ` +
-        `(< MIN_PLAYERGAME_ROWS=${MIN_PLAYERGAME_ROWS}) — treating as preliminary/partial, skipping`
-      );
-      continue;
-    }
-
-    // Validate
-    validateGameLogs(players, { year: season });
-    console.log('[gamelogs] Validation passed');
-
-    const dataPath = `nflverse/gamelogs/${season}.json`;
-    const existing = d.readJson(dataPath);
-
-    // Content-hash dedup
-    const newHash  = playersHash(players);
-    const lastHash = existing?.players ? playersHash(existing.players) : null;
-    if (newHash === lastHash) {
-      console.log(`[gamelogs] Content identical to existing ${dataPath} — no change.`);
-      continue;
-    }
-
-    // Dry-run exit
-    if (dryRun) {
-      const needsForce = isPast && existing && !force;
-      console.log(
-        `[gamelogs] [dry-run] would write ${dataPath}: ${rowCount} game rows, ` +
-        `${playerCount} players (${unmapped} unmapped)` +
-        (needsForce ? ' (past season — needs --force to write for real)' : '')
-      );
-      continue;
-    }
-
-    // Force gate: completed past seasons require --force to overwrite
-    if (isPast && existing && !force) {
-      throw new Error(
-        `[gamelogs] ${dataPath} already exists for completed season ${season}. ` +
-        'Use --force to overwrite.'
-      );
-    }
-
-    // Write
-    d.writeJsonStable(dataPath, {
+      return { players, parsed, parsedRowCount, playerCount, rowCount, unmapped };
+    },
+    // GATE ONLY — parsedRowCount (pre-crosswalk). The envelope's own `rowCount` field is a
+    // different, post-crosswalk number (o.rowCount below) — do not conflate the two (§1.3).
+    rowCount: o => o.parsedRowCount,
+    minRows: MIN_PLAYERGAME_ROWS,
+    validate: (o, { year }) => {
+      validateGameLogs(o.players, { year });
+      console.log('[gamelogs] Validation passed');
+    },
+    hash: o => playersHash(o.players),
+    existingHash: existing => (existing?.players ? playersHash(existing.players) : null),
+    envelope: (season, o) => ({
       schemaVersion: 1,
-      season:        parsed ?? season,
+      season:        o.parsed ?? season,
       generatedAt:   new Date().toISOString(),
-      rowCount,
-      playerCount,
-      unmapped,
-      players,
-    });
-    console.log(`[gamelogs] Wrote ${dataPath} (${rowCount} game rows, ${playerCount} players)`);
-
-    // Manifest (inProgress: false — CLAUDE.md invariant 5, extended to gamelogs)
-    d.updateManifestEntry({ path: dataPath, recordCount: rowCount, inProgress: false, schemaVersion: 1 });
-    console.log('[gamelogs] Manifest updated');
-  }
+      rowCount:      o.rowCount,
+      playerCount:   o.playerCount,
+      unmapped:      o.unmapped,
+      players:       o.players,
+    }),
+    manifestRecordCount: o => o.rowCount,
+    messages: {
+      notPublished: season => `[gamelogs] season=${season} not published yet — skipping`,
+      sparsity: (season, rc) =>
+        `[gamelogs] season=${season} only ${rc} game rows ` +
+        `(< MIN_PLAYERGAME_ROWS=${MIN_PLAYERGAME_ROWS}) — treating as preliminary/partial, skipping`,
+      dedup: (season, path) => `[gamelogs] Content identical to existing ${path} — no change.`,
+      dryRun: (season, path, o, needsForce) =>
+        `[gamelogs] [dry-run] would write ${path}: ${o.rowCount} game rows, ` +
+        `${o.playerCount} players (${o.unmapped} unmapped)` +
+        (needsForce ? ' (past season — needs --force to write for real)' : ''),
+      forceGate: (season, path) =>
+        `[gamelogs] ${path} already exists for completed season ${season}. Use --force to overwrite.`,
+      afterWrite: (season, path, o) =>
+        `[gamelogs] Wrote ${path} (${o.rowCount} game rows, ${o.playerCount} players)`,
+      afterManifest: () => '[gamelogs] Manifest updated',
+    },
+  });
 }

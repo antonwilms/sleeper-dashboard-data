@@ -20,6 +20,7 @@ import assert   from 'node:assert/strict';
 
 import { updateRoster } from '../scripts/update-roster.mjs';
 import { MIN_ROSTER_IDS } from '../lib/nflverse.mjs';
+import { spyDeps } from '../test-support/spy-deps.mjs';
 
 const ROSTER_HEADER = 'season,team,position,depth_chart_position,status,full_name,sleeper_id';
 
@@ -30,21 +31,6 @@ function makeRosterCsv(count, season) {
     rows.push(`${season},BUF,QB,QB,ACT,Player ${i},${100000 + i}`);
   }
   return rows.join('\n');
-}
-
-function spyDeps(overrides = {}) {
-  const calls = { writeJsonStable: [], updateManifestEntry: [], setStepOutput: [] };
-  return {
-    deps: {
-      fetchCurrentNflSeason: async () => 2026,
-      setStepOutput: (...args) => calls.setStepOutput.push(args),
-      writeJsonStable: (...args) => calls.writeJsonStable.push(args),
-      updateManifestEntry: (...args) => calls.updateManifestEntry.push(args),
-      readJson: () => null,
-      ...overrides,
-    },
-    calls,
-  };
 }
 
 // ═══════════════════════════════════════════════════════════════════

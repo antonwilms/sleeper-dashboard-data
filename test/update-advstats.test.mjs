@@ -18,6 +18,7 @@ import assert   from 'node:assert/strict';
 
 import { updateAdvStats } from '../scripts/update-advstats.mjs';
 import { MIN_ADVSTATS_ROWS } from '../lib/nflverse.mjs';
+import { spyDeps as sharedSpyDeps } from '../test-support/spy-deps.mjs';
 
 const ADV_HEADER =
   'player_id,team,targets,season,week,position,player_display_name,receiving_air_yards,receiving_yards,receptions,season_type';
@@ -40,24 +41,16 @@ function makeCrosswalk(count) {
   return { ids };
 }
 
-function spyDeps({ crosswalkCount = MIN_ADVSTATS_ROWS, dataPathResult = null, ...overrides } = {}) {
-  const calls = { writeJsonStable: [], updateManifestEntry: [], setStepOutput: [] };
+function spyDeps({ crosswalkCount = MIN_ADVSTATS_ROWS, dataPathResult = null, ...overrides } = {}, t) {
   const dataPath = /nflverse\/advstats\/\d+\.json/;
-  return {
-    deps: {
-      fetchCurrentNflSeason: async () => 2026,
-      setStepOutput: (...args) => calls.setStepOutput.push(args),
-      writeJsonStable: (...args) => calls.writeJsonStable.push(args),
-      updateManifestEntry: (...args) => calls.updateManifestEntry.push(args),
-      readJson: (path) => {
-        if (path === 'nflverse/playerids.json') return makeCrosswalk(crosswalkCount);
-        if (dataPath.test(path)) return dataPathResult;
-        return null;
-      },
-      ...overrides,
+  return sharedSpyDeps({
+    readJson: (path) => {
+      if (path === 'nflverse/playerids.json') return makeCrosswalk(crosswalkCount);
+      if (dataPath.test(path)) return dataPathResult;
+      return null;
     },
-    calls,
-  };
+    ...overrides,
+  }, t);
 }
 
 // ═══════════════════════════════════════════════════════════════════

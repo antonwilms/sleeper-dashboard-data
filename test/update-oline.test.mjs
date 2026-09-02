@@ -18,6 +18,7 @@ import assert   from 'node:assert/strict';
 
 import { updateOline } from '../scripts/update-oline.mjs';
 import { MIN_OLINE_ROWS, OLINE_SLOTS } from '../lib/nflverse.mjs';
+import { spyDeps } from '../test-support/spy-deps.mjs';
 
 const OLINE_HEADER = 'dt,team,player_name,espn_id,gsis_id,pos_abb,pos_rank';
 
@@ -40,73 +41,67 @@ function makeOlineCsv(season) {
   return rows.join('\n');
 }
 
-function spyDeps(overrides = {}) {
-  const calls = { writeJsonStable: [], updateManifestEntry: [], setStepOutput: [] };
-  return {
-    deps: {
-      fetchCurrentNflSeason: async () => 2026,
-      setStepOutput: (...args) => calls.setStepOutput.push(args),
-      writeJsonStable: (...args) => calls.writeJsonStable.push(args),
-      updateManifestEntry: (...args) => calls.updateManifestEntry.push(args),
-      readJson: () => null,
-      ...overrides,
-    },
-    calls,
-  };
-}
-
 // ═══════════════════════════════════════════════════════════════════
 // not published
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateOline: fetchDepthChartsCsv returns null → season skipped, nothing written', async () => {
-  const { deps, calls } = spyDeps({ fetchDepthChartsCsv: async () => null });
+test('updateOline: fetchDepthChartsCsv returns null → season skipped, nothing written', async (t) => {
+  const { deps, calls, logs } = spyDeps({ fetchDepthChartsCsv: async () => null }, t);
   await updateOline({ year: 2025, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes('[oline] season=2025 not published yet — skipping'));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // sparsity gate
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateOline: rowCount < MIN_OLINE_ROWS → skipped, nothing written', async () => {
+test('updateOline: rowCount < MIN_OLINE_ROWS → skipped, nothing written', async (t) => {
   const csv = [OLINE_HEADER, '2025-08-01T09:00:00Z,KC,Player One,1,00-0001,LT,1'].join('\n');
-  const { deps, calls } = spyDeps({ fetchDepthChartsCsv: async () => csv });
+  const { deps, calls, logs } = spyDeps({ fetchDepthChartsCsv: async () => csv }, t);
   await updateOline({ year: 2025, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes(
+    `[oline] season=2025 only 1 ol rows (< MIN_OLINE_ROWS=${MIN_OLINE_ROWS}) — treating as preliminary/partial, skipping`
+  ));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // dedup hit
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateOline: dedup hit — nothing written', async () => {
+test('updateOline: dedup hit — nothing written', async (t) => {
   const csv = makeOlineCsv(2025);
   const { aggregateOlineStates } = await import('../lib/nflverse.mjs');
   const { teams } = aggregateOlineStates(csv, { season: 2025 });
-  const { deps, calls } = spyDeps({
+  const { deps, calls, logs } = spyDeps({
     fetchDepthChartsCsv: async () => csv,
     readJson: (path) => (path === 'nflverse/oline/2025.json' ? { teams } : null),
-  });
+  }, t);
   await updateOline({ year: 2025, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes('[oline] Content identical to existing nflverse/oline/2025.json — no change.'));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // dry-run exits BEFORE the force gate (contrast roster's axis-3 ordering)
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateOline: --dry-run on a changed past season reports a plan, does not throw', async () => {
+test('updateOline: --dry-run on a changed past season reports a plan, does not throw', async (t) => {
   const csv = makeOlineCsv(2025);
-  const { deps, calls } = spyDeps({
+  const { deps, calls, logs } = spyDeps({
     fetchDepthChartsCsv: async () => csv,
     readJson: (path) => (path === 'nflverse/oline/2025.json' ? { teams: { XX: { states: [] } } } : null),
-  });
+  }, t);
   await assert.doesNotReject(() => updateOline({ year: 2025, dryRun: true, force: false, deps }));
   assert.equal(calls.writeJsonStable.length, 0);
+  assert.ok(logs.includes(
+    `[oline] [dry-run] would write nflverse/oline/2025.json: ${MIN_OLINE_ROWS} ol rows, 32 teams, 32 states` +
+    ' (past season — needs --force to write for real)'
+  ));
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -163,9 +158,9 @@ test('updateOline: envelope rowCount and manifest recordCount are POST-drop, not
 // write path — axis 6: oline's own envelope, including the literal `source` string
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateOline: write path — data file + manifest entry, including the literal source string', async () => {
+test('updateOline: write path — data file + manifest entry, including the literal source string', async (t) => {
   const csv = makeOlineCsv(2025);
-  const { deps, calls } = spyDeps({ fetchDepthChartsCsv: async () => csv, readJson: () => null });
+  const { deps, calls, logs } = spyDeps({ fetchDepthChartsCsv: async () => csv, readJson: () => null }, t);
   await updateOline({ year: 2025, dryRun: false, deps });
 
   assert.equal(calls.writeJsonStable.length, 1);
@@ -181,6 +176,16 @@ test('updateOline: write path — data file + manifest entry, including the lite
 
   assert.equal(calls.updateManifestEntry.length, 1);
   assert.equal(calls.updateManifestEntry[0][0].inProgress, false);
+
+  // afterWrite fires between the write and the manifest call; afterManifest after — both
+  // previously unverified (dry runs never write, so byte-diffs never reached either hook).
+  const afterWriteMsg    = `[oline] Wrote nflverse/oline/2025.json (${MIN_OLINE_ROWS} ol rows, 32 teams, 32 states)`;
+  const afterManifestMsg = '[oline] Manifest updated';
+  const idxWrite    = logs.indexOf(afterWriteMsg);
+  const idxManifest = logs.indexOf(afterManifestMsg);
+  assert.notEqual(idxWrite, -1, 'afterWrite log missing');
+  assert.notEqual(idxManifest, -1, 'afterManifest log missing');
+  assert.ok(idxWrite < idxManifest, 'afterWrite must log before afterManifest');
 });
 
 // ═══════════════════════════════════════════════════════════════════

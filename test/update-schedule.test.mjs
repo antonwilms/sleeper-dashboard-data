@@ -21,6 +21,7 @@ import assert   from 'node:assert/strict';
 
 import { gamesHash, updateSchedule } from '../scripts/update-schedule.mjs';
 import { MIN_SCHEDULE_GAMES } from '../lib/nflverse.mjs';
+import { spyDeps } from '../test-support/spy-deps.mjs';
 
 const GAME_A = { gameId: '2023_01_DET_KC', season: 2023, week: 1, gameType: 'REG',
                  homeTeam: 'KC', awayTeam: 'DET', homeScore: 20, awayScore: 21,
@@ -61,21 +62,6 @@ function makeSchedCsv(season, count) {
   return rows.join('\n');
 }
 
-function spyDeps(overrides = {}) {
-  const calls = { writeJsonStable: [], updateManifestEntry: [], setStepOutput: [] };
-  return {
-    deps: {
-      fetchCurrentNflSeason: async () => 2026,
-      setStepOutput: (...args) => calls.setStepOutput.push(args),
-      writeJsonStable: (...args) => calls.writeJsonStable.push(args),
-      updateManifestEntry: (...args) => calls.updateManifestEntry.push(args),
-      readJson: () => null,
-      ...overrides,
-    },
-    calls,
-  };
-}
-
 // ─── whole-file fetch: throws on null, not a clean skip (§3.1/§5) ──────────────
 
 test('updateSchedule: fetchSchedulesCsv() returns null → THROWS, not a clean return', async () => {
@@ -88,53 +74,62 @@ test('updateSchedule: fetchSchedulesCsv() returns null → THROWS, not a clean r
 
 // ─── per-season "not published" (zero rows for that season in the combined file) ──
 
-test('updateSchedule: a season with zero rows in the combined file is skipped, nothing written', async () => {
+test('updateSchedule: a season with zero rows in the combined file is skipped, nothing written', async (t) => {
   const csv = makeSchedCsv(2022, MIN_SCHEDULE_GAMES); // only 2022 present
-  const { deps, calls } = spyDeps({ fetchSchedulesCsv: async () => csv });
+  const { deps, calls, logs } = spyDeps({ fetchSchedulesCsv: async () => csv }, t);
   await updateSchedule({ year: 2023, deps }); // requested season absent entirely
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes('[schedule] season 2023 not published yet — skipping'));
 });
 
 // ─── sparsity gate ──────────────────────────────────────────────────────────
 
-test('updateSchedule: games.length < MIN_SCHEDULE_GAMES → skipped, nothing written', async () => {
+test('updateSchedule: games.length < MIN_SCHEDULE_GAMES → skipped, nothing written', async (t) => {
   const csv = makeSchedCsv(2023, 5);
-  const { deps, calls } = spyDeps({ fetchSchedulesCsv: async () => csv });
+  const { deps, calls, logs } = spyDeps({ fetchSchedulesCsv: async () => csv }, t);
   await updateSchedule({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes(
+    `[schedule] season 2023 only 5 games (< ${MIN_SCHEDULE_GAMES}) — preliminary, skipping`
+  ));
 });
 
 // ─── dedup hit ──────────────────────────────────────────────────────────────
 
-test('updateSchedule: dedup hit — nothing written', async () => {
+test('updateSchedule: dedup hit — nothing written', async (t) => {
   const csv = makeSchedCsv(2023, MIN_SCHEDULE_GAMES);
   const { parseSchedulesCsv } = await import('../lib/nflverse.mjs');
   const { gamesBySeason } = parseSchedulesCsv(csv);
-  const { deps, calls } = spyDeps({
+  const { deps, calls, logs } = spyDeps({
     fetchSchedulesCsv: async () => csv,
     readJson: (path) => (path === 'nflverse/schedule/2023.json' ? { games: gamesBySeason['2023'] } : null),
-  });
+  }, t);
   await updateSchedule({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes('[schedule] season 2023: identical to nflverse/schedule/2023.json — no change.'));
 });
 
 // ─── dry-run exits BEFORE the force gate — opposite order from roster (axis 3 contrast) ──
 
-test('updateSchedule: --dry-run on a changed past season reports a plan, does NOT throw', async () => {
+test('updateSchedule: --dry-run on a changed past season reports a plan, does NOT throw', async (t) => {
   const csv = makeSchedCsv(2023, MIN_SCHEDULE_GAMES);
-  const { deps, calls } = spyDeps({
+  const { deps, calls, logs } = spyDeps({
     fetchSchedulesCsv: async () => csv,
     readJson: (path) => (path === 'nflverse/schedule/2023.json'
       ? { games: [{ gameId: 'different', homeTeam: 'X', awayTeam: 'Y' }] }
       : null),
-  });
+  }, t);
   // Unlike roster (season-ingest-net.md §1.1 axis 3), schedule's dry-run exit precedes its
   // force gate — this must NOT throw, even though the season is past, existing, and unforced.
   await assert.doesNotReject(() => updateSchedule({ year: 2023, dryRun: true, force: false, deps }));
   assert.equal(calls.writeJsonStable.length, 0);
+  assert.ok(logs.includes(
+    `[schedule] [dry-run] would write nflverse/schedule/2023.json: ${MIN_SCHEDULE_GAMES} games` +
+    ' (past season — needs --force to write for real)'
+  ));
 });
 
 // ─── force gate (non-dry-run) ───────────────────────────────────────────────
@@ -155,12 +150,12 @@ test('updateSchedule: force gate throws on a changed past season without --force
 
 // ─── write path ─────────────────────────────────────────────────────────────
 
-test('updateSchedule: write path — data file + manifest entry written, with schedule\'s own envelope', async () => {
+test('updateSchedule: write path — data file + manifest entry written, with schedule\'s own envelope', async (t) => {
   const csv = makeSchedCsv(2023, MIN_SCHEDULE_GAMES);
-  const { deps, calls } = spyDeps({
+  const { deps, calls, logs } = spyDeps({
     fetchSchedulesCsv: async () => csv,
     readJson: () => null,
-  });
+  }, t);
   await updateSchedule({ year: 2023, dryRun: false, deps });
 
   assert.equal(calls.writeJsonStable.length, 1);
@@ -173,6 +168,11 @@ test('updateSchedule: write path — data file + manifest entry written, with sc
   assert.equal(calls.updateManifestEntry[0][0].path, 'nflverse/schedule/2023.json');
   assert.equal(calls.updateManifestEntry[0][0].recordCount, MIN_SCHEDULE_GAMES);
   assert.equal(calls.updateManifestEntry[0][0].inProgress, false);
+
+  // afterWrite is null for schedule — it logs once, after the manifest write, not between.
+  assert.ok(logs.includes(
+    `[schedule] Wrote nflverse/schedule/2023.json (${MIN_SCHEDULE_GAMES} games) + manifest`
+  ));
 });
 
 // ─── --all: no per-season fetch to ignore — schedule fetches the combined CSV once regardless ──

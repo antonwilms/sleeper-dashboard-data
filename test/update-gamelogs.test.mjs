@@ -18,6 +18,7 @@ import assert   from 'node:assert/strict';
 
 import { updateGameLogs } from '../scripts/update-gamelogs.mjs';
 import { MIN_PLAYERGAME_ROWS } from '../lib/nflverse.mjs';
+import { spyDeps as sharedSpyDeps } from '../test-support/spy-deps.mjs';
 
 const GAMELOG_HEADER =
   'player_id,team,targets,season,week,position,player_display_name,receiving_air_yards,receiving_yards,receptions,season_type';
@@ -44,76 +45,77 @@ function makeCrosswalk(players) {
   return { ids };
 }
 
-function spyDeps({ crosswalkCount = PLAYERS, dataPathResult = null, ...overrides } = {}) {
-  const calls = { writeJsonStable: [], updateManifestEntry: [], setStepOutput: [] };
+function spyDeps({ crosswalkCount = PLAYERS, dataPathResult = null, ...overrides } = {}, t) {
   const dataPath = /nflverse\/gamelogs\/\d+\.json/;
-  return {
-    deps: {
-      fetchCurrentNflSeason: async () => 2026,
-      setStepOutput: (...args) => calls.setStepOutput.push(args),
-      writeJsonStable: (...args) => calls.writeJsonStable.push(args),
-      updateManifestEntry: (...args) => calls.updateManifestEntry.push(args),
-      readJson: (path) => {
-        if (path === 'nflverse/playerids.json') return makeCrosswalk(crosswalkCount);
-        if (dataPath.test(path)) return dataPathResult;
-        return null;
-      },
-      ...overrides,
+  return sharedSpyDeps({
+    readJson: (path) => {
+      if (path === 'nflverse/playerids.json') return makeCrosswalk(crosswalkCount);
+      if (dataPath.test(path)) return dataPathResult;
+      return null;
     },
-    calls,
-  };
+    ...overrides,
+  }, t);
 }
 
 // ═══════════════════════════════════════════════════════════════════
 // not published (single-season path)
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateGameLogs: fetchPlayerStatsCsv returns null (deps) → season skipped, nothing written', async () => {
-  const { deps, calls } = spyDeps({ fetchPlayerStatsCsv: async () => null });
+test('updateGameLogs: fetchPlayerStatsCsv returns null (deps) → season skipped, nothing written', async (t) => {
+  const { deps, calls, logs } = spyDeps({ fetchPlayerStatsCsv: async () => null }, t);
   await updateGameLogs({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes('[gamelogs] season=2023 not published yet — skipping'));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // sparsity gate (on parsed total, before crosswalk drop)
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateGameLogs: parsedRowCount < MIN_PLAYERGAME_ROWS → skipped, nothing written', async () => {
+test('updateGameLogs: parsedRowCount < MIN_PLAYERGAME_ROWS → skipped, nothing written', async (t) => {
   const csv = makeGamelogCsv(5, 2, 2023); // 10 rows
-  const { deps, calls } = spyDeps({ fetchPlayerStatsCsv: async () => csv });
+  const { deps, calls, logs } = spyDeps({ fetchPlayerStatsCsv: async () => csv }, t);
   await updateGameLogs({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes(
+    `[gamelogs] season=2023 only 10 game rows (< MIN_PLAYERGAME_ROWS=${MIN_PLAYERGAME_ROWS}) — treating as preliminary/partial, skipping`
+  ));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // dedup hit
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateGameLogs: dedup hit — nothing written', async () => {
+test('updateGameLogs: dedup hit — nothing written', async (t) => {
   const csv = makeGamelogCsv(PLAYERS, WEEKS, 2023);
   const { parsePlayerGameLogs, rekeyGameLogsBySleeper } = await import('../lib/nflverse.mjs');
   const { byGsis } = parsePlayerGameLogs(csv);
   const { players } = rekeyGameLogsBySleeper(byGsis, makeCrosswalk(PLAYERS).ids);
-  const { deps, calls } = spyDeps({ fetchPlayerStatsCsv: async () => csv, dataPathResult: { players } });
+  const { deps, calls, logs } = spyDeps({ fetchPlayerStatsCsv: async () => csv, dataPathResult: { players } }, t);
   await updateGameLogs({ year: 2023, deps });
   assert.equal(calls.writeJsonStable.length, 0);
   assert.equal(calls.updateManifestEntry.length, 0);
+  assert.ok(logs.includes('[gamelogs] Content identical to existing nflverse/gamelogs/2023.json — no change.'));
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // dry-run exits BEFORE the force gate (contrast roster's axis-3 ordering)
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateGameLogs: --dry-run on a changed past season reports a plan, does not throw', async () => {
+test('updateGameLogs: --dry-run on a changed past season reports a plan, does not throw', async (t) => {
   const csv = makeGamelogCsv(PLAYERS, WEEKS, 2023);
-  const { deps, calls } = spyDeps({
+  const { deps, calls, logs } = spyDeps({
     fetchPlayerStatsCsv: async () => csv,
     dataPathResult: { players: { X: { games: [] } } },
-  });
+  }, t);
   await assert.doesNotReject(() => updateGameLogs({ year: 2023, dryRun: true, force: false, deps }));
   assert.equal(calls.writeJsonStable.length, 0);
+  assert.ok(logs.includes(
+    `[gamelogs] [dry-run] would write nflverse/gamelogs/2023.json: ${PLAYERS * WEEKS} game rows, ` +
+    `${PLAYERS} players (0 unmapped) (past season — needs --force to write for real)`
+  ));
 });
 
 // ═══════════════════════════════════════════════════════════════════
@@ -136,9 +138,9 @@ test('updateGameLogs: force gate throws on a changed past season without --force
 // write path
 // ═══════════════════════════════════════════════════════════════════
 
-test('updateGameLogs: write path — data file + manifest entry, gamelogs\' own envelope', async () => {
+test('updateGameLogs: write path — data file + manifest entry, gamelogs\' own envelope', async (t) => {
   const csv = makeGamelogCsv(PLAYERS, WEEKS, 2023);
-  const { deps, calls } = spyDeps({ fetchPlayerStatsCsv: async () => csv });
+  const { deps, calls, logs } = spyDeps({ fetchPlayerStatsCsv: async () => csv }, t);
   await updateGameLogs({ year: 2023, dryRun: false, deps });
 
   assert.equal(calls.writeJsonStable.length, 1);
@@ -154,6 +156,16 @@ test('updateGameLogs: write path — data file + manifest entry, gamelogs\' own 
 
   assert.equal(calls.updateManifestEntry.length, 1);
   assert.equal(calls.updateManifestEntry[0][0].inProgress, false);
+
+  // afterWrite fires between the write and the manifest call; afterManifest after — both
+  // previously unverified (dry runs never write, so byte-diffs never reached either hook).
+  const afterWriteMsg    = `[gamelogs] Wrote nflverse/gamelogs/2023.json (${PLAYERS * WEEKS} game rows, ${PLAYERS} players)`;
+  const afterManifestMsg = '[gamelogs] Manifest updated';
+  const idxWrite    = logs.indexOf(afterWriteMsg);
+  const idxManifest = logs.indexOf(afterManifestMsg);
+  assert.notEqual(idxWrite, -1, 'afterWrite log missing');
+  assert.notEqual(idxManifest, -1, 'afterManifest log missing');
+  assert.ok(idxWrite < idxManifest, 'afterWrite must log before afterManifest');
 });
 
 // ═══════════════════════════════════════════════════════════════════
