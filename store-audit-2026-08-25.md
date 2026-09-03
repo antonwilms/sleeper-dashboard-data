@@ -282,7 +282,7 @@ all it is designed to see.
 **Fix.** `node bin/update.mjs oline --year 2025`, then the coverage assertion below so the next
 one surfaces on its own.
 
-### C8 · Four documentation drifts, two inside the review gate — **drift**
+### C8 · Four documentation drifts, two inside the review gate — ~~**drift**~~ **RESOLVED 2026-08-28**
 
 The registry is, by this repo's own rule, the *sole authority* the plan-reviewer subagent reads.
 A stale line there is not a typo — it is a wrong answer given to every future plan review.
@@ -300,8 +300,19 @@ instruction to ignore three live contracts. It is present in **both** repos and 
 in both, in one change.
 
 **Fix.** Correct the CR-09 Mirror text first (it is the one that can cause a bad decision), fix
-the `raw/` line, renumber the invariant, correct the 18 → 21 count in both repos. The catalog's "Last reconciled against manifest.json"
-header is worth treating as a claim the reconcile script should be able to verify.
+the `raw/` line, renumber the invariant, correct the 18 → 21 count in both repos. The catalog's
+"Last reconciled against manifest.json" header is worth treating as a claim the reconcile script
+should be able to verify.
+
+> **Resolved** — data repo `2d0f951`, app repo `e32ad7c`, 2026-08-28. All four corrected and
+> independently re-verified here: the CR-09 sentence is gone (0 occurrences); `data-catalog.md:224`
+> now states the 14 `raw/*` entries *are* registered, phrased to survive E1's future delete;
+> invariants renumbered so 8 = CDN purge and 9 = grading (the second was renumbered, so all six
+> live cross-references to invariant 8 still resolve); both `CLAUDE.md` files read "all 21
+> `CR-NN` entries" against 21 actual `#### CR-` headings, with no "all 18" left in either tree.
+> The anchored mirrored-region diff is clean at 228 lines, and `node --test` is 523/523.
+> Two extras came with it: CR-09's two stale *data-side* facts were corrected in the same pass,
+> and CR-18 was checked and discharged with no row edit owed.
 
 ---
 
@@ -510,7 +521,7 @@ Ordered by value over effort. The first five are afternoons; the rest are slices
 | 1 | C7 | Run `oline --year 2025` | Closes a coverage hole the catalog already claims is closed | minutes |
 | 2 | C5 | Backfill 38 `lastModified`; unflag college 2024 | An app cache that can never invalidate is a live bug | ~1 h |
 | 3 | — | Promote the reconcile snippet to two tests | Makes C5 and C7 unable to recur; wires an existing check in | ~1 h |
-| 4 | C8 | Fix CR-09, the `raw/` line, the duplicate invariant 8, the 18 → 21 count (both repos) | CR-09 and the entry count are authority for every future plan review | ~30 m |
+| ~~4~~ | ~~C8~~ | ~~Fix CR-09, the `raw/` line, the duplicate invariant 8, the 18 → 21 count (both repos)~~ | **Done** — `2d0f951` / `e32ad7c`, 2026-08-28 | ~~~30 m~~ |
 | 5 | C6 | Validate `--year` in the dispatcher | Silent successful no-ops are the worst failure mode for a backfill | ~30 m |
 | 6 | E1 + E4 | Delete 208 MB of unread `raw/`; `git gc` | Removes 41% of every clone and checkout; nothing reads it | ~1 h |
 | 7 | C2 | Air-yards plausibility gate in `validateAdvStats` | Must land **before** the snap-count backfill widens the panel onto 2016 | ~2 h |
@@ -555,10 +566,22 @@ before re-running it correctly.
 
 | Finding | Status |
 |---|---|
-| C8a–c (CR-09 2019 line, `raw/` line, duplicate invariant 8) | **unchanged** — all three still present |
-| C8d (18 → 21 count) | **new**, introduced by CR-19/20/21 landing |
+| C8a–c (CR-09 2019 line, `raw/` line, duplicate invariant 8) | ~~unchanged~~ → **resolved** `2d0f951` / `e32ad7c` |
+| C8d (18 → 21 count) | ~~new, introduced by CR-19/20/21 landing~~ → **resolved** in the same change |
 | C5 (38 entries missing `lastModified`) | **unchanged** — still 38, and now more load-bearing: `loadCurrentSeasonTotals` makes permanent-TTL + `lastModified` compare the invalidation mechanism in a second loader. Season-totals entries all carry the field, so that loader is not hit; the 24 app-consumed `college/*` files still cannot invalidate |
 | all others | not re-checked; no committed change touches them |
+
+**C8 closed (2026-08-28).** Verified independently against both trees, not taken on report —
+see the resolution note under C8. Two things worth carrying forward:
+
+- `.claude/agents/plan-reviewer.md` needed the same invariant-8 correction, but `.gitignore:7`
+  excludes `.claude/`, so that file has never been tracked. The fix is live on disk for the
+  subagent to read and is deliberately outside git history. **Consequence for this audit:** the
+  reviewer's own instructions are the one place where drift cannot be caught by a diff, a test,
+  or a fresh clone — worth remembering the next time a finding lands there.
+- The renumber changed the *second* invariant 8 (grading → 9), not the first, so every existing
+  cross-reference to "invariant 8" still points at the CDN-purge rule it always meant. That was
+  the right call and is the reason no reference needed updating.
 
 ---
 
