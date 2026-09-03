@@ -1,0 +1,33 @@
+[verify-roundtrip] Checking 27 file(s)…
+
+[verify-roundtrip] college/passing/2017.json: 4690 rows, 670 players — OK (missing=0, mismatched=0, textChanged=580)
+[verify-roundtrip] college/passing/2018.json: 5369 rows, 767 players — OK (missing=0, mismatched=0, textChanged=671)
+[verify-roundtrip] college/passing/2019.json: 4998 rows, 714 players — OK (missing=0, mismatched=0, textChanged=571)
+[verify-roundtrip] college/passing/2020.json: 3269 rows, 467 players — OK (missing=0, mismatched=0, textChanged=354)
+[verify-roundtrip] college/passing/2021.json: 4809 rows, 687 players — OK (missing=0, mismatched=0, textChanged=519)
+[verify-roundtrip] college/passing/2022.json: 7399 rows, 1057 players — OK (missing=0, mismatched=0, textChanged=852)
+[verify-roundtrip] college/passing/2023.json: 7028 rows, 1004 players — OK (missing=0, mismatched=0, textChanged=812)
+[verify-roundtrip] college/passing/2024.json: 7147 rows, 1021 players — OK (missing=0, mismatched=0, textChanged=808)
+[verify-roundtrip] college/passing/2025.json: 7497 rows, 1071 players — OK (missing=0, mismatched=0, textChanged=880)
+[verify-roundtrip] college/receiving/2017.json: 12905 rows, 2581 players — OK (missing=0, mismatched=0, textChanged=949)
+[verify-roundtrip] college/receiving/2018.json: 14345 rows, 2869 players — OK (missing=0, mismatched=0, textChanged=1187)
+[verify-roundtrip] college/receiving/2019.json: 13655 rows, 2731 players — OK (missing=0, mismatched=0, textChanged=1037)
+[verify-roundtrip] college/receiving/2020.json: 9595 rows, 1919 players — OK (missing=0, mismatched=0, textChanged=658)
+[verify-roundtrip] college/receiving/2021.json: 13740 rows, 2748 players — OK (missing=0, mismatched=0, textChanged=1045)
+[verify-roundtrip] college/receiving/2022.json: 21155 rows, 4231 players — OK (missing=0, mismatched=0, textChanged=1393)
+[verify-roundtrip] college/receiving/2023.json: 20065 rows, 4013 players — OK (missing=0, mismatched=0, textChanged=1307)
+[verify-roundtrip] college/receiving/2024.json: 20435 rows, 4087 players — OK (missing=0, mismatched=0, textChanged=1317)
+[verify-roundtrip] college/receiving/2025.json: 21255 rows, 4251 players — OK (missing=0, mismatched=0, textChanged=1350)
+[verify-roundtrip] college/rushing/2017.json: 10555 rows, 2111 players — OK (missing=0, mismatched=0, textChanged=698)
+[verify-roundtrip] college/rushing/2018.json: 11865 rows, 2373 players — OK (missing=0, mismatched=0, textChanged=878)
+[verify-roundtrip] college/rushing/2019.json: 10865 rows, 2173 players — OK (missing=0, mismatched=0, textChanged=724)
+[verify-roundtrip] college/rushing/2020.json: 7290 rows, 1458 players — OK (missing=0, mismatched=0, textChanged=462)
+[verify-roundtrip] college/rushing/2021.json: 10690 rows, 2138 players — OK (missing=0, mismatched=0, textChanged=709)
+[verify-roundtrip] college/rushing/2022.json: 16345 rows, 3269 players — OK (missing=0, mismatched=0, textChanged=1088)
+[verify-roundtrip] college/rushing/2023.json: 15365 rows, 3073 players — OK (missing=0, mismatched=0, textChanged=1020)
+[verify-roundtrip] college/rushing/2024.json: 15950 rows, 3190 players — OK (missing=0, mismatched=0, textChanged=1052)
+[verify-roundtrip] college/rushing/2025.json: 16590 rows, 3318 players — OK (missing=0, mismatched=0, textChanged=1144)
+
+[verify-roundtrip] Totals: 314871 rows across 27 files, 24065 values (7.6%) changed textual form (numerically identical — e.g. "1.000"→1). Value-preserving, not byte-preserving.
+
+[verify-roundtrip] PASSED — all 27 files reconstruct to their original row set (numeric comparison).

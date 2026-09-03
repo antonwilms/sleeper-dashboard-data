@@ -2,17 +2,20 @@
  * test/stable-hash.test.mjs — verification for stable-hash.md.
  *
  * Eleven digest-equality assertions against test/fixtures/hash-baseline.json (§4 step 2).
- * Eight of them still hold the original pre-refactor claim: each digest was captured by
+ * Seven of them still hold the original pre-refactor claim: each digest was captured by
  * calling the real pre-refactor function against a real served file, before any body was
  * rewritten as a stableHash wrapper, so matching proves the refactor is bit-identical to what
- * it replaced. Three (roster, games, oline) were re-pointed at a different file in a later
- * slice (season-ingest-teamcontext.md §1.3/§2.2) because their original file was a
- * weekly-rewritten current-season asset — no immutable pre-refactor baseline survives for
- * them, so their digests were recaptured from the CURRENT implementation instead and their
- * tests are named accordingly: they are change detectors now, not pre-refactor proofs. A
- * twelfth entry (idsHash) was dropped entirely — nflverse/playerids.json is a weekly-refreshed
- * crosswalk with no immutable version at all, and a digest that must be regenerated on a
- * schedule asserts nothing (§2.2).
+ * it replaced. Four (roster, games, oline, cfbd) were re-pointed at a recaptured digest in a
+ * later slice — roster/games/oline because their original file was a weekly-rewritten
+ * current-season asset (season-ingest-teamcontext.md §1.3/§2.2); cfbd because
+ * college-pivot-phase-b.md rewrote its pinned file (college/receiving/2023.json) from a
+ * long-form row array to the pivoted envelope, so the pre-refactor baseline no longer parses
+ * as the same shape at all — no immutable pre-refactor baseline survives for any of the four,
+ * so their digests were recaptured from the CURRENT implementation instead and their tests are
+ * named accordingly: they are change detectors now, not pre-refactor proofs. A twelfth entry
+ * (idsHash) was dropped entirely — nflverse/playerids.json is a weekly-refreshed crosswalk
+ * with no immutable version at all, and a digest that must be regenerated on a schedule
+ * asserts nothing (§2.2).
  *
  * Plus regression guards for §2.1's identity default and the two order-sensitive shapes
  * (cfbd, playerstate) the audit's "sort everything" framing would have silently broken.
@@ -44,7 +47,7 @@ const baseline = JSON.parse(fs.readFileSync(new URL('./fixtures/hash-baseline.js
 // three current-behaviour re-captures — see the module doc above)
 // ═══════════════════════════════════════════════════════════════════
 
-test('cfbdHash matches the pre-refactor baseline digest', () => {
+test('cfbdHash matches the pinned current-behaviour digest', () => {
   const { file, digest } = baseline.cfbdHash;
   assert.equal(cfbdHash(readJson(file)), digest);
 });

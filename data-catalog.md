@@ -46,14 +46,16 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 ## CFBD college stats
 - **Served path / subcommand / refresh:** `college/{passing,receiving,rushing}/<year>.json`; `bin/update.mjs cfbd --year [--category]`; no Action
 - **Source + provenance:** CFBD API (key required)
-- **Grain:** player-season stat rows (row per statType)
-- **Join id(s):** app-side matching via `pivotStatRows` (statType keys are a cross-repo contract)
+- **Grain:** player-season, one record per player (**pivoted envelope, schemaVersion 2, E2 Phase B, 2026-09-03** — previously one row per `(player, statType)`)
+- **Join id(s):** `players` keyed by `playerId`; app-side matching via `normalizeCollegeStats`/`collegeMatch.js` (statType keys are a cross-repo contract, CR-05)
 - **Coverage:** 2017–2025; pre-2017 exists upstream, unbackfilled (audit B18)
-- **schemaVersion:** 1
-- **Sparsity gate:** none — category/statType validation
-- **Null semantics:** absent statTypes absent
-- **Consumption:** app-consumed
+- **schemaVersion:** 2 (E2 Phase B, 2026-09-03 — bumped from 1; an incompatible layout change, under the app's `MAX_SUPPORTED_SCHEMA=4`)
+- **Sparsity gate:** per-category distinct-player floor — passing ≥230, rushing ≥700, receiving ≥950 (`lib/validate.mjs` `validateCfbdCategory`, replacing a single `distinctPlayers < 200` floor that was too loose for the two larger families) — plus exact statType-set equality per player and a finite-number check on every stat value
+- **Null semantics:** every player carries the category's full statType set (dense — §below); `conference` is never null in the stored data despite the pivot's defensive `?? null`
+- **Consumption:** app-consumed (`src/api/dataStore.js` `isValidCFBDRows`, `src/api/cfbd.js` `normalizeCollegeStats`)
 - **Keep-rationale:** prospect college drill-down
+- **Served shape (schemaVersion 2):** `{ schemaVersion: 2, season, category, generatedAt, rowCount, playerCount, players }` — `players` keyed by `playerId` → `{ playerId, player, team, position, conference, ...statTypes }`, stat values numeric (`parseFloat`d, previously strings). **`rowCount` is the original long-form row count** (this repo's convention: `rowCount` always means source rows, paired with a family-specific `*Count` for the map size — matches gamelogs/teamcontext/oline); **`playerCount`** is `Object.keys(players).length`. Confirmed stable statType sets, dense in every file: passing `ATT, COMPLETIONS, INT, PCT, TD, YDS, YPA` (7); receiving `LONG, REC, TD, YDS, YPR` (5); rushing `CAR, LONG, TD, YDS, YPC` (5).
+- **E2 Phase B migration (2026-09-03) — Invariant-1 justification:** this is a **shape migration**, not a correction, rewriting 27 completed-season files — the same class of exception F-24 used, stated with the same rigor. `scripts/migrate-college-pivot.mjs` pivoted all 27 files in place (no re-ingest — the live CFBD API is not re-queried, so this migration cannot be conflated with any upstream revision). **The transform is provably value-preserving, not byte-preserving**: reconstructing long-form rows from each pivoted file and comparing to the original as a set, with `stat` compared **numerically** (`parseFloat` both sides — a raw string comparison fails on all 314,871 rows, not zero, since `stat` was stored as a string and the pivot emits a number), matches on all 314,871 rows across all 27 files with zero missing/mismatched rows. **24,065 of those 314,871 values (7.6%) changed textual form** in the process (`"1.000"`→`1`, `"10.0"`→`10`, `"0.500"`→`0.5`, concentrated in the rate stats `PCT`/`YPA`/`YPC`/`YPR`) — the decimal formatting is not recoverable from the pivoted file. The audit trail is git history plus the retained `rowCount`, which preserves the original row count as provenance. Verification output committed at `verification/college-pivot-phase-b-roundtrip-proof.txt`.
 
 ## KTC dynasty values
 - **Served path / subcommand / refresh:** `ktc/snapshot-<date>.json`; `bin/update.mjs ktc`; Monday Action
