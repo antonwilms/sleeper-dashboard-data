@@ -972,6 +972,103 @@ node bin/update.mjs teamcontext --year 2023 --force
 node bin/update.mjs oline --year 2025 --force
 ```
 
+### Module notes
+
+Per-file behaviour that a session needs only when editing that file. The one-line index is
+[CLAUDE.md → Navigation map](CLAUDE.md#navigation-map).
+
+#### Analysis CLI flags
+
+Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot grader.
+
+`bin/backtest.mjs` — `--metric target_share|air_yards_share|wopr|racr|all` (camelCase also
+accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
+`--by-season`, `--json`, `--write`, `--validate`.
+
+`bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
+`--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
+`--flip-gate`, `--fit`, `--alpha X`, `--json`, `--write`. `--fit` defaults `--basis` to
+`half_ppr` (the app's own basis for store-served `careerStats`) while every other mode keeps
+`in-basis`, and it **rejects an explicit `--attribution`** because it pins `per-season-team` —
+the app's live default, load-bearing for the reconstruction.
+
+Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
+`<date>-r2flip-*`, `<date>-r3fit-*`) and `grading/` (`<date>-*-verdict.md`). Methodology:
+[Analysis / Backtesting](#analysis--backtesting).
+
+#### The poisoned-snapshot window (2026-07-16 → 2026-07-18)
+
+App snapshots written in this window carry ~½-scale `teamRzShare` and `shareVolatility`, captured
+before the share-denominator fix (app, 2026-07-18) corrected the doubled `TEAM_*` denominator.
+Those fields are unreliable at absolute scale in that window; exclude or correct them in the 2026
+grading run.
+
+The same doubled-denominator root cause was present in `lib/panel.mjs`'s
+`buildTeamTotalsForSeason` and was corrected separately on 2026-08-08 (entity filter). The
+retrospective E-0a/flip panels reconstruct from season-totals rather than snapshots, so that fix
+corrects the panel builder — **not** the snapshot window, which remains a forward-grading
+exclusion.
+
+#### `lib/validate.mjs` — self-calibrating full-season floor
+
+`validateNflSeason`'s full-season floor is not a fixed constant. It computes
+`fullSeasonThreshold = Math.max(1, maxGames - 3)`, where `maxGames` is the season file's own
+observed maximum `gamesPlayed`, and requires at least 30 players at or above it
+(`lib/validate.mjs:123–127`). A complete season (`maxGames = 17`) yields a threshold of 14 —
+numerically identical to the old fixed floor — while a partial in-season file yields a lower
+threshold instead of throwing on every run before week 14. Rationale:
+`sleeper-dashboard/.claude/tasks/in-season-season-totals.md` §2.1 (sibling repo).
+
+#### `scripts/update-nfl.mjs` — the two scheduled-path guards
+
+Both are pure and exported for direct unit testing.
+
+- `hasNoData(weekData)` — Sleeper serves 0 entries across all 18 weeks before a season starts.
+  The guard exits cleanly rather than letting the <400-player floor throw (§2.2).
+- `shouldSkipCompletedSeason({ inProgress, force, dryRun })` — a completed season on the
+  scheduled path **skips** rather than risking the write path. The older refusal guard tested the
+  manifest's stale `existingEntry.inProgress` and could still write a sealing regression on the
+  first run after `state.season` rolls over; see the fix's own header comment in the file.
+  `--force` still overrides for a deliberate interactive correction, and `--dry-run` stays exempt
+  so a completed season can be previewed without `--force` (§2.3).
+
+`--year` is optional: when omitted the live season resolves via `fetchCurrentNflSeason()` and is
+surfaced with `setStepOutput('season', …)` for the workflow's Invariant 8 purge URL — matching
+`update-teamcontext.mjs` and `update-schedule.mjs` (§2.4). `DEFAULT_DEPS` is an injectable
+I/O + fetch surface mirroring `scripts/panel-run.mjs`'s `DEFAULT_LOAD` pattern, so
+`updateNfl({ …, deps })` can be control-flow-tested without touching the network or the real repo
+file tree. Section references are to
+`sleeper-dashboard/.claude/tasks/in-season-season-totals.md` (sibling repo).
+
+#### `lib/nflverse.mjs` — floors vs. bands
+
+The `MIN_*` constants are **coverage floors** and encode historical coverage — they are CR-18
+trigger sites, so changing one is a signal-registry event. `AY_PER_TARGET_MIN` / `MAX` are
+different: an air-yards-per-target plausibility **band** shared by `validateAdvStats` and
+`validateGameLogs`, not a coverage floor. `lib/args.mjs`'s `MIN_CLI_YEAR = 1999` is a third thing
+again — a CLI typo-sanity bound, deliberately not imported from here.
+
+#### `scripts/migrate-*.mjs` — one-shot rewrites
+
+- `migrate-f24-prune.mjs` — drops `idp_*`/`punt*` from every completed season file, minifies,
+  bumps the manifest to `schemaVersion` 4. Invariant 1 exception; rationale in commit `2b06c5b`.
+- `migrate-college-pivot.mjs` — rewrites all 27 `college/{passing,receiving,rushing}/<year>.json`
+  files from a long-form row array to the pivoted player-keyed envelope via `lib/cfbd.mjs`
+  `pivotCfbdRows`, bumping `schemaVersion` to 2 and setting `recordCount` to the player count.
+  Idempotent (skips an already-pivoted file); a pure local transform with no network.
+  `scripts/verify-college-pivot-roundtrip.mjs` is the one-shot proof script — deliberately not a
+  committed test, because its **output** is committed instead, at
+  `verification/college-pivot-phase-b-roundtrip-proof.txt`. Full accounting: Invariant 1's E2
+  Phase B exception in [CLAUDE.md](CLAUDE.md#invariants) and the CFBD row in
+  [data-catalog.md](data-catalog.md).
+
+#### `scripts/update-playerstats.mjs` — single-fetch orchestration
+
+Fetches `stats_player_week_<year>.csv` once and drives both `updateAdvStats` and `updateGameLogs`
+off the shared csv/`currentSeason` (each script's §3.1 injection seam), isolating a per-family
+throw so neither blocks the other, and surfacing `advstats_ok` / `gamelogs_ok` step outputs for
+the workflow's path-scoped commit. See `.claude/tasks/playerstats-single-fetch.md` §3.3.
+
 ### Environment variables
 
 | Variable | Required for | Description |
@@ -994,6 +1091,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 |---|---|---|
 | `weekly-ktc.yml` | Monday 13:17 UTC + `workflow_dispatch` | Runs `node bin/update.mjs ktc`; per-row + Spearman-ordering integrity guards; commits the new snapshot (or a quarantined one under ktc/quarantine/ for review) if changed, purges jsDelivr CDN cache; fails the run if a snapshot was quarantined |
 | `weekly-nflverse-roster.yml` | Tuesday 13:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs roster`, commits if content hash changed, purges jsDelivr CDN cache for changed files |
+| `nfl-season-totals.yml` | Tuesday 15:05 UTC + `workflow_dispatch` | Runs `node bin/update.mjs nfl` (no `--year` — the live season is resolved inside the script via `fetchCurrentNflSeason()`), commits if content hash changed, purges jsDelivr CDN cache; delegates to `_ingest.yml`. Staggered behind the 13:23 roster job so the two Tuesday committers don't race the push to main; its sparse-checkout cone includes `nflverse/schedule` for D-1's in-season bye inference |
 | `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
 | `nflverse-playerids.yml` | Wednesday 13:29 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerids`, commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-schedule.yml` | Friday 13:35 UTC + `workflow_dispatch` | Runs `node bin/update.mjs schedule` (current season), commits if content hash changed, purges jsDelivr CDN cache |
@@ -1003,6 +1101,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `nflverse-oline.yml` | Saturday 14:37 UTC + `workflow_dispatch` | Runs `node bin/update.mjs oline` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `cron-deadman.yml` | Daily 05:19 UTC + push to `main` + `workflow_dispatch` | Runs `node bin/deadman.mjs`; monitoring only — no writes, no manifest touch |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
+| `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the eight uniform weekly ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml` or `weekly-ktc.yml` — see the file's own header for why |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
