@@ -4,6 +4,20 @@
  * Fetches roster_<year>.csv from the nflverse rosters release asset, normalises
  * to a sleeper_id-keyed JSON, and writes to nflverse/roster/<year>.json.
  *
+ * THE ONE SEASON-KEYED FAMILY NOT ON lib/seasonIngest.mjs's runSeasonKeyedIngest.
+ * Deliberate, not an oversight (.claude/tasks/season-ingest-roster.md §1.2/§2.1) — three
+ * divergences, none of which the helper can express without adding a parameter for exactly
+ * one consumer:
+ *   1. the dedup-hit branch writes nflverse/last-checked-roster.json (a side effect the
+ *      helper's `messages.dedup` cannot perform — it only returns a log string);
+ *   2. the write path writes that same marker again, AFTER updateManifestEntry (a second
+ *      side effect `messages.afterManifest` cannot perform, for the same reason);
+ *   3. the force gate runs BEFORE the dry-run exit, the opposite order from every other
+ *      converted family — so `--dry-run` on a changed past season throws here instead of
+ *      reporting a plan (test/update-roster.test.mjs:112 pins this on purpose).
+ * See the task file for the full reasoning, including why smuggling the marker writes into
+ * message builders was rejected (§2.2) and what converting anyway would require (§6).
+ *
  * Key behaviours:
  *   - 404/504: year not yet published → log and exit 0 (app probe falls back to year-1).
  *   - Sparsity gate: rowCount < MIN_ROSTER_IDS → preliminary file, skip.
