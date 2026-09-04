@@ -133,12 +133,15 @@ chat held outside it.
 
 ```
 Session 1 (planning, opus)
-→ plan-reviewer subagent ← plan gate
-→ human approval
+  → plan-reviewer subagent      ← plan gate
+  → human approval
 Session 2 (implementation, sonnet)
-→ done-definition ← machine gate
-→ back to Session 1 to verify ← judgment gate
-→ human sign-off
+  → done-definition             ← machine gate
+  → back to Session 1 to verify ← judgment gate
+      → implementation-reviewer on the diff
+      → flags: opus triages, writes `## Fix pass N`, fix-applier applies it
+      → implementation-reviewer re-run once on the fix diff
+  → human sign-off
 ```
 
 **Opus plans, sonnet implements, opus verifies.** A sonnet session that hits a design question
@@ -154,14 +157,20 @@ the task file did not anticipate stops and reports — it never improvises archi
 - **Verification** — paste that hand-back into the still-open Session 1, which invokes
   implementation-reviewer on the diff. **Verification reads the diff, never the hand-back alone** —
   a self-report cannot show what it left out.
+- **Fix pass** — if the review flags something, Session 1 triages it and appends `## Fix pass N` to
+  the same task file: what to change, where, and what to leave alone. The fix-applier subagent
+  implements that section; implementation-reviewer then re-runs **once** on the fix diff. Flags
+  surviving that round go to the human — never a third automatic round. **Session 1 still edits no
+  source itself**: the fix pass is a written spec and the applier is the only writer, so the task
+  file remains the complete record.
 
 The task file is the handoff artifact, not chat history. A planning session that edits source has
 broken the handoff.
 
-### Reviews
+### Reviews and fixes
 
-Two subagents, both read-only and both **advisory** — flags are reported verbatim and never
-auto-applied. The human decides; the next step starts only after approval.
+Three subagents. The two reviewers are read-only and **advisory** — flags are reported verbatim and
+never auto-applied. The human decides; the next step starts only after approval.
 
 - **plan-reviewer** (`.claude/agents/plan-reviewer.md`) — end of Session 1, on the task file.
   Factual/mechanical, conformance to the Invariants, cross-repo intent.
@@ -169,6 +178,10 @@ auto-applied. The human decides; the next step starts only after approval.
   during verification, on Session 2's diff. Fidelity to the task file including scope beyond its
   touch list; conformance to invariants no test guards; whether new or changed tests assert real
   behaviour rather than having been bent green.
+- **fix-applier** (`.claude/agents/fix-applier.md`) — invoked by Session 1 on a `## Fix pass N`
+  section. The only agent in this loop that writes. Implements that section exactly and nothing
+  else; if the fix looks wrong, incomplete, or reaches beyond what the section names, it stops and
+  reports rather than improvising.
 
 ### How to talk to Anton
 
