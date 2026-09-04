@@ -1048,6 +1048,16 @@ different: an air-yards-per-target plausibility **band** shared by `validateAdvS
 `validateGameLogs`, not a coverage floor. `lib/args.mjs`'s `MIN_CLI_YEAR = 1999` is a third thing
 again — a CLI typo-sanity bound, deliberately not imported from here.
 
+#### `lib/cfbd.mjs` — deterministic pivot output
+
+`pivotCfbdRows` is the long-form→pivoted-envelope transform, shared by `scripts/update-cfbd.mjs`
+(ingest) and `scripts/migrate-college-pivot.mjs` (the one-shot rewrite) so the two cannot drift
+apart. It re-keys `players` into **ascending-numeric `playerId` order**, which makes the written
+bytes deterministic regardless of the order CFBD returns the rows in: a byte-identical dataset
+fetched in a different row order must not produce a spurious rewrite, commit and CDN purge. This
+is separate from `update-cfbd.mjs`'s `cfbdHash` dedup, which is already order-insensitive because
+it hashes through `deepSortKeys`. Stated as JSDoc at `lib/cfbd.mjs:63-66`.
+
 #### `scripts/migrate-*.mjs` — one-shot rewrites
 
 - `migrate-f24-prune.mjs` — drops `idp_*`/`punt*` from every completed season file, minifies,
@@ -1058,9 +1068,8 @@ again — a CLI typo-sanity bound, deliberately not imported from here.
   Idempotent (skips an already-pivoted file); a pure local transform with no network.
   `scripts/verify-college-pivot-roundtrip.mjs` is the one-shot proof script — deliberately not a
   committed test, because its **output** is committed instead, at
-  `verification/college-pivot-phase-b-roundtrip-proof.txt`. Full accounting: Invariant 1's E2
-  Phase B exception in [CLAUDE.md](CLAUDE.md#invariants) and the CFBD row in
-  [data-catalog.md](data-catalog.md).
+  `verification/college-pivot-phase-b-roundtrip-proof.txt`. Full accounting: the CFBD college
+  stats row in [data-catalog.md](data-catalog.md), which is where Invariant 1 points.
 
 #### `scripts/update-playerstats.mjs` — single-fetch orchestration
 
@@ -1106,6 +1115,17 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
 *Season-keyed purges (roster, advstats, schedule, gamelogs, teamcontext) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
+
+**Why four workflows are standalone rather than `_ingest.yml` callers.**
+
+- `nflverse-playerstats.yml` — per-family conditional staging. One CSV fetch drives two families,
+  and each is staged only if its own step output says it succeeded; the reusable template has no
+  seam for that. This is an Invariant 3 safeguard: a failed family must not be registered.
+- `weekly-ktc.yml` — its quarantine-alarm step runs after the ingest and inspects
+  `ktc/quarantine/`. A `uses:` job body cannot carry additional steps, so delegating would drop
+  the alarm.
+- `cron-deadman.yml` — monitoring, not ingest. It writes no data file.
+- `smoke-test.yml` — CI, not ingest. It writes no data file.
 
 #### Cron dead-man detector (`cron-deadman.yml`)
 
