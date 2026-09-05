@@ -142,9 +142,12 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
   with no `gsis_id`) = manifest-adjacent `sleeperRowCount` in the file (not itself a manifest field). Both refreshed
   by the Wednesday Action.
 - **schemaVersion:** 2 (D2 — additive: `bySleeper` added, `ids` unchanged in shape/population; file is now minified)
-- **Sparsity gate:** `MIN_PLAYERID_ROWS = 5000` (internal, on `ids`/`rowCount` — unchanged). Two new fill-rate gates
+- **Sparsity gate:** `MIN_PLAYERID_ROWS = 5000` (internal, on `ids`/`rowCount` — unchanged). Two new fill-rate floors
   on `bySleeper`, both internal, deliberately **not** gated by `MIN_PLAYERID_ROWS`'s row-count logic:
-  `birthdate` ≥ 0.95 (measured 0.998, 2026-09-05) and `pfr_id` ≥ 0.85 (measured 0.944, 2026-09-05).
+  `birthdate` ≥ 0.95 (measured 0.998, 2026-09-05) and `pfr_id` ≥ 0.85 (measured 0.944, 2026-09-05). A third gate is a
+  **ceiling**, not a floor — undrafted rate ≤ 0.75 (measured 0.417, 2026-09-05) — the counterpart check for
+  `draft_round`/`draft_pick`/`draft_ovr`, which are deliberately never floor-gated (see *Null semantics* below); it
+  catches an upstream format break that would mark every row undrafted, without firing on the real ~42% share.
 - **Null semantics:** `ids` — rows lacking either id skipped (unchanged). `bySleeper` — `gsisId` is `null` for the
   ~199 rows with a `sleeper_id` and no `gsis_id`; `draft_round`/`draft_pick`/`draft_ovr` are `null` for undrafted
   players (42% of `bySleeper`, verified against `nflverse/draft/draft_picks.json` — this is the *undrafted*

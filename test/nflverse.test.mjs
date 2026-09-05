@@ -539,12 +539,14 @@ function makeIds(count) {
   return ids;
 }
 
-/** bySleeper fixture — every row fully filled (birthdate/pfrId rate 1.0) unless overridden. */
-function makeBySleeper(count, { birthdateRate = 1, pfrIdRate = 1 } = {}) {
+/** bySleeper fixture — every row fully filled (birthdate/pfrId rate 1.0, 0% undrafted) unless overridden. */
+function makeBySleeper(count, { birthdateRate = 1, pfrIdRate = 1, undraftedRate = 0 } = {}) {
   const bySleeper = {};
   const birthdateCut = Math.round(count * birthdateRate);
   const pfrIdCut     = Math.round(count * pfrIdRate);
+  const undraftedCut = Math.round(count * undraftedRate);
   for (let i = 0; i < count; i++) {
+    const isUndrafted = i < undraftedCut;
     bySleeper[String(i + 1000)] = {
       gsisId:     `00-${String(i).padStart(7, '0')}`,
       pfrId:      i < pfrIdCut ? `pfr${i}` : null,
@@ -552,10 +554,10 @@ function makeBySleeper(count, { birthdateRate = 1, pfrIdRate = 1 } = {}) {
       cfbrefId:   null,
       birthdate:  i < birthdateCut ? '1998-01-01' : null,
       draftYear:  2020,
-      draftRound: 1,
-      draftPick:  1,
-      draftOvr:   1,
-      undrafted:  false,
+      draftRound: isUndrafted ? null : 1,
+      draftPick:  isUndrafted ? null : 1,
+      draftOvr:   isUndrafted ? null : 1,
+      undrafted:  isUndrafted,
     };
   }
   return bySleeper;
@@ -591,16 +593,19 @@ test('validatePlayerIds: throws when >50% missing name', () => {
   assert.throws(() => validatePlayerIds(ids, bySleeper), Error);
 });
 
-test('validatePlayerIds: a fixture where every draft_round is null still passes (finding 2 regression)', () => {
+test('validatePlayerIds: a realistic undrafted share passes — no fill-rate floor on draft_round/draft_pick/draft_ovr (finding 2 regression)', () => {
   const ids = makeIds(MIN_PLAYERID_ROWS);
-  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS);
-  for (const v of Object.values(bySleeper)) {
-    v.draftRound = null;
-    v.draftPick  = null;
-    v.draftOvr   = null;
-    v.undrafted  = true;
-  }
+  // 60%: above the measured real share (42%) and below the 0.75 ceiling, so
+  // this passes because there is genuinely no floor — not because the share
+  // happens to be small.
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS, { undraftedRate: 0.6 });
   assert.doesNotThrow(() => validatePlayerIds(ids, bySleeper));
+});
+
+test('validatePlayerIds: throws when every row is undrafted (draft_round format-change scenario)', () => {
+  const ids = makeIds(MIN_PLAYERID_ROWS);
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS, { undraftedRate: 1 });
+  assert.throws(() => validatePlayerIds(ids, bySleeper), Error);
 });
 
 test('validatePlayerIds: throws when birthdate fill rate is below 0.95', () => {
