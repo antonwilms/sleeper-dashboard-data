@@ -226,3 +226,34 @@ The widened row filter means the first row to reach the `sourceSeason` capture c
 ### Leave alone
 
 `ids`'s shape and population. `rekeyBySleeper` / `rekeyGameLogsBySleeper`. `MIN_PLAYERID_ROWS` and `rowCount`'s meaning. The two-argument `validatePlayerIds` signature and both fill-rate floors. The `bySleeper` dedup preference logic, which the review verified correct in all four orderings. `CLAUDE.md` — Invariant 5 stays a report, not an edit. Do not touch the registry, and do not regenerate any data file.
+
+---
+
+## Fix pass 2
+
+One item. Fix pass 1's item 3 was left unimplemented, correctly: it contradicted a test this file itself specified, and the fix-applier stopped rather than guessing which side to break. **This section makes that call.** Work on `d2-crosswalk-parse-widening`, push to the same PR.
+
+### The conflict, and why both sides are right
+
+Fix pass 1 item 3 asks `validatePlayerIds` to throw when the undrafted rate exceeds 0.75. The *Tests to add* section of this file asks for "a fixture where every `draft_round` is null still passes (the regression test for finding 2)". A 100%-undrafted fixture is precisely what the ceiling exists to catch, so the two cannot both hold as written.
+
+They conflict only because I wrote one fixture to stand for two different guarantees:
+
+- **No fill-rate floor on the draft fields.** Finding 2's point: 42% of rows are legitimately undrafted, so a floor would fire on correct data forever. The right fixture for this is a *realistic* undrafted share, not a total one.
+- **A format break is still caught.** If upstream renames or reshapes `draft_round`, every row parses as `undrafted: true`, and with no floor and no ceiling nothing notices. The right fixture for this is a *total* undrafted share.
+
+Two guarantees, two fixtures. The original test conflated them.
+
+### Fix
+
+1. **Implement the ceiling** exactly as item 3 specified: in `validatePlayerIds`, throw when the undrafted rate over `bySleeper` exceeds **0.75** (measured 0.417, so the real share clears it by a wide margin). Comment it as the counterpart to the deliberately-ungated draft fields — a ceiling, not a floor, and why. Remove the `NOTE (Fix pass 1 item 3, NOT applied …)` block in `lib/validate.mjs` in the same edit; it describes a state that no longer exists.
+
+2. **Split the regression test into the two it was always doing.** Follow the fixture pattern the existing fill-rate gate tests already use.
+   - Rename the existing case to say what it actually guards — that a realistic undrafted share passes, i.e. there is no fill-rate floor on `draft_round`/`draft_pick`/`draft_ovr` — and change its fixture from 100% null to roughly **60%** null. That is above the measured 42% and below the 0.75 ceiling, so it passes for the right reason and would fail if anyone later added a floor.
+   - Add a new case asserting a **100%**-undrafted fixture throws, naming the format-change scenario in its title so the next reader knows it is not testing sparsity.
+
+3. **`data-catalog.md`** — the playerids row's gate list gains the ceiling alongside the two fill-rate floors, with its measured value. The applier flagged that row as not yet reflecting this; it is in scope now that the gate exists.
+
+### Leave alone
+
+Everything Fix pass 1 already landed, all of which verified clean: the three restored columns, the re-measured 2.02 MB figure, `shouldWritePlayerIds`, the rewritten manifest test, the `sourceSeason` guard, and the renamed gsis-skip tests. The two fill-rate floors keep their thresholds. `CLAUDE.md` stays untouched — Invariant 5 remains a report, not an edit.
