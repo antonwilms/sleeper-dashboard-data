@@ -135,13 +135,29 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Served path / subcommand / refresh:** `nflverse/playerids.json`; `bin/update.mjs playerids`; Wednesday Action
 - **Source + provenance:** DynastyProcess `db_playerids.csv`
 - **Grain:** player
-- **Join id(s):** IS the join (gsis_id → sleeperId, forward map only)
-- **Coverage:** all-history; ~6.1k of ~12.5k source rows served (rows lacking either id skipped); exact count = manifest `recordCount`, refreshed by the Wednesday Action
-- **schemaVersion:** 1
-- **Sparsity gate:** `MIN_PLAYERID_ROWS = 5000` (internal)
-- **Null semantics:** rows lacking either id skipped
-- **Consumption:** **internal-only** (server-side re-key for advstats/gamelogs; no app loader)
-- **Keep-rationale:** the id substrate every gsis-keyed ingest depends on. (Audit B6 will widen: pfr/espn maps.)
+- **Join id(s):** `ids` IS the join (gsis_id → sleeperId, forward map, unchanged since v1). D2 (2026-09-05) adds a
+  **reverse** index, `bySleeper` (sleeper_id → gsisId + external ids + draft capital) — no longer forward-only.
+- **Coverage:** all-history. `ids`: ~6.2k of ~12.5k source rows (rows lacking `gsis_id` or `sleeper_id` skipped);
+  exact count = manifest `recordCount`. `bySleeper`: ~6.4k rows (every row with a `sleeper_id`, including the ~199
+  with no `gsis_id`) = manifest-adjacent `sleeperRowCount` in the file (not itself a manifest field). Both refreshed
+  by the Wednesday Action.
+- **schemaVersion:** 2 (D2 — additive: `bySleeper` added, `ids` unchanged in shape/population; file is now minified)
+- **Sparsity gate:** `MIN_PLAYERID_ROWS = 5000` (internal, on `ids`/`rowCount` — unchanged). Two new fill-rate gates
+  on `bySleeper`, both internal, deliberately **not** gated by `MIN_PLAYERID_ROWS`'s row-count logic:
+  `birthdate` ≥ 0.95 (measured 0.998, 2026-09-05) and `pfr_id` ≥ 0.85 (measured 0.944, 2026-09-05).
+- **Null semantics:** `ids` — rows lacking either id skipped (unchanged). `bySleeper` — `gsisId` is `null` for the
+  ~199 rows with a `sleeper_id` and no `gsis_id`; `draft_round`/`draft_pick`/`draft_ovr` are `null` for undrafted
+  players (42% of `bySleeper`, verified against `nflverse/draft/draft_picks.json` — this is the *undrafted*
+  population, not missing data, so it is **never** fill-rate gated) and the row instead carries `undrafted: true`.
+  `ktc_id` is served but only **7% populated** (measured 2026-09-05) — real upstream sparsity, not a parser fault;
+  do not plan a join on it without independent backfill.
+- **Consumption:** **internal-only** (server-side re-key for advstats/gamelogs; no app loader). `bySleeper` is
+  capture-only as of D2 — nothing reads it yet; a future app reader is a new cross-repo coupling (see README.md
+  Cross-repo contract registry CR-18).
+- **Keep-rationale:** the id substrate every gsis-keyed ingest depends on. D2 widens the parse to also serve
+  `pfr_id`/`ktc_id`/`cfbref_id`/`birthdate`/draft capital, already present unparsed in the source file — `birthdate`
+  is the precondition for age-curve grading. `espn_id`/`college`/`team` are also present unclaimed in the source
+  (measured 2026-09-05) but not parsed by this slice — Audit B6's espn map remains unwidened.
 
 ## nflverse advanced receiving
 - **Served path / subcommand / refresh:** `nflverse/advstats/<year>.json`; `bin/update.mjs advstats --year`; Saturday Action (`nflverse-playerstats.yml`) — as of playerstats-single-fetch.md (2026-08-31), this family and gamelogs are derived from a **single fetch** of `stats_player_week_<year>.csv` by the `playerstats` orchestrator (`bin/update.mjs playerstats`), so the two families can no longer diverge across a day boundary within the same week; the standalone `advstats` subcommand above still exists (manual runs/backfill/smoke test) and fetches independently when invoked directly

@@ -33,6 +33,7 @@ import {
 } from '../lib/nflverse.mjs';
 import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule, validateGameLogs, validateTeamContext } from '../lib/validate.mjs';
 import { readJson } from '../lib/io.mjs';
+import { idsHash, bySleeperHash } from '../scripts/update-playerids.mjs';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -249,6 +250,15 @@ const PLAYERIDS_HEADER = 'mfl_id,gsis_id,sleeper_id,name,position,db_season';
 
 function makePlayerIdsCsv(...rows) { return [PLAYERIDS_HEADER, ...rows].join('\n'); }
 
+// D2 — the wide header carries all eleven columns parsePlayerIdsCsv now indexes
+// (espn_id/college/team are indexed per §A but not part of the 8-field bySleeper
+// shape — see Finding 4's measured "brief's 8-field subset" table).
+const PLAYERIDS_WIDE_HEADER =
+  'mfl_id,gsis_id,sleeper_id,name,position,db_season,birthdate,draft_year,' +
+  'draft_round,draft_pick,draft_ovr,pfr_id,ktc_id,cfbref_id,espn_id,college,team';
+
+function makeWidePlayerIdsCsv(...rows) { return [PLAYERIDS_WIDE_HEADER, ...rows].join('\n'); }
+
 test('parsePlayerIdsCsv: happy path — keyed by gsis_id, rowCount correct', () => {
   const csv = makePlayerIdsCsv(
     ',00-0034796,4984,Josh Allen,QB,2026',
@@ -332,6 +342,135 @@ test('parsePlayerIdsCsv: quoted name with comma preserved', () => {
   assert.equal(ids['00-0034796'].name, 'Smith, Jr.');
 });
 
+// ─── D2 — bySleeper parse-widening ────────────────────────────────────────
+
+test('parsePlayerIdsCsv: every new column parses with the right type — numbers coerced, ids left as strings', () => {
+  const csv = makeWidePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026,1996-05-21,2018,1,7,7,AlleJo02,4984,allen-josh,3918298,Wyoming,BUF',
+  );
+  const { bySleeper } = parsePlayerIdsCsv(csv);
+  assert.deepEqual(bySleeper['4984'], {
+    gsisId:     '00-0034796',
+    pfrId:      'AlleJo02',
+    ktcId:      '4984',
+    cfbrefId:   'allen-josh',
+    birthdate:  '1996-05-21',
+    draftYear:  2018,
+    draftRound: 1,
+    draftPick:  7,
+    draftOvr:   7,
+    undrafted:  false,
+  });
+});
+
+test('parsePlayerIdsCsv: NA and empty string both become null, per column', () => {
+  const csv = makeWidePlayerIdsCsv(
+    ',00-0034797,4985,Test Player,QB,2026,,NA,,,,NA,,,,,',
+  );
+  const { bySleeper } = parsePlayerIdsCsv(csv);
+  const entry = bySleeper['4985'];
+  assert.equal(entry.birthdate, null);
+  assert.equal(entry.draftYear, null);
+  assert.equal(entry.draftRound, null);
+  assert.equal(entry.draftPick, null);
+  assert.equal(entry.draftOvr, null);
+  assert.equal(entry.pfrId, null);
+  assert.equal(entry.ktcId, null);
+  assert.equal(entry.cfbrefId, null);
+});
+
+test('parsePlayerIdsCsv: undrafted is true exactly when draftRound is null', () => {
+  const csv = makeWidePlayerIdsCsv(
+    ',00-0034796,4984,Drafted Guy,QB,2026,1996-05-21,2018,1,7,7,,,,,,',
+    ',00-0034798,4986,Undrafted Guy,WR,2026,1998-01-01,2021,,,,,,,,,',
+  );
+  const { bySleeper } = parsePlayerIdsCsv(csv);
+  assert.equal(bySleeper['4984'].undrafted, false);
+  assert.equal(bySleeper['4986'].undrafted, true);
+  assert.equal(bySleeper['4986'].draftRound, null);
+  assert.equal(bySleeper['4986'].draftYear, 2021); // entry year, not draft capital — undrafted disambiguates
+});
+
+test('parsePlayerIdsCsv: duplicate gsis_id with matching sleeper_id keeps last and stays lossless in both indexes', () => {
+  const csv = makeWidePlayerIdsCsv(
+    ',00-0034796,4984,First Entry,QB,2026,,,,,,,,,,,',
+    ',00-0034796,4984,Second Entry,QB,2026,,,,,,,,,,,',
+  );
+  const { ids, bySleeper, rowCount } = parsePlayerIdsCsv(csv);
+  assert.equal(rowCount, 1);
+  assert.equal(ids['00-0034796'].name, 'Second Entry');
+  assert.equal(bySleeper['4984'].gsisId, '00-0034796');
+});
+
+test('parsePlayerIdsCsv: duplicate sleeper_id — row with a gsis_id wins over one with NA (sleeper-133 case)', () => {
+  const csv = makeWidePlayerIdsCsv(
+    ',NA,133,No Gsis,QB,2026,,,,,,,,,,,',
+    ',00-0022897,133,Has Gsis,QB,2026,,,,,,,,,,,',
+  );
+  const { bySleeper } = parsePlayerIdsCsv(csv);
+  assert.equal(bySleeper['133'].gsisId, '00-0022897');
+});
+
+test('parsePlayerIdsCsv: duplicate sleeper_id — gsis-bearing row wins even when it appears first', () => {
+  const csv = makeWidePlayerIdsCsv(
+    ',00-0022897,133,Has Gsis,QB,2026,,,,,,,,,,,',
+    ',NA,133,No Gsis,QB,2026,,,,,,,,,,,',
+  );
+  const { bySleeper } = parsePlayerIdsCsv(csv);
+  assert.equal(bySleeper['133'].gsisId, '00-0022897');
+});
+
+test('parsePlayerIdsCsv: bySleeper includes rows with no gsis_id, with gsisId: null', () => {
+  const csv = makeWidePlayerIdsCsv(
+    ',NA,7000,Sleeper Only,RB,2026,,,,,,,,,,,',
+  );
+  const { ids, bySleeper, rowCount, sleeperRowCount } = parsePlayerIdsCsv(csv);
+  assert.equal(rowCount, 0);
+  assert.equal(sleeperRowCount, 1);
+  assert.equal(ids['NA'], undefined);
+  assert.equal(bySleeper['7000'].gsisId, null);
+});
+
+test('parsePlayerIdsCsv: ids round-trips — every gsis_id in ids appears in bySleeper under its sleeperId', () => {
+  const csv = makeWidePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026,1996-05-21,2018,1,7,7,AlleJo02,4984,allen-josh,3918298,Wyoming,BUF',
+    ',NA,7000,Sleeper Only,RB,2026,,,,,,,,,,,',
+  );
+  const { ids, bySleeper } = parsePlayerIdsCsv(csv);
+  for (const [gsis, entry] of Object.entries(ids)) {
+    const viaBySleeper = bySleeper[entry.sleeperId];
+    assert.ok(viaBySleeper, `bySleeper missing sleeperId ${entry.sleeperId} for gsis ${gsis}`);
+    assert.equal(viaBySleeper.gsisId, gsis);
+  }
+});
+
+test('parsePlayerIdsCsv: content-hash dedup notices a change confined to sleeper-only rows', () => {
+  const base = makeWidePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026,,,,,,,,,,,',
+    ',NA,7000,Sleeper Only,RB,2026,,,,,,,,,,,',
+  );
+  const changed = makeWidePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026,,,,,,,,,,,',
+    ',NA,7000,Sleeper Only,RB,2027,,,,,,,,,,,', // db_season differs; row content otherwise same shape
+  );
+  const a = parsePlayerIdsCsv(base);
+  const b = parsePlayerIdsCsv(changed);
+  assert.deepEqual(a.ids, b.ids, 'fixture should keep ids identical across the two parses');
+  assert.deepEqual(a.bySleeper, b.bySleeper, 'db_season is not part of bySleeper, so both parses should still agree here');
+
+  // bySleeper itself must differ when a sleeper-only field changes, or dedup would wrongly skip the write.
+  const changed2 = makeWidePlayerIdsCsv(
+    ',00-0034796,4984,Josh Allen,QB,2026,,,,,,,,,,,',
+    ',NA,7000,Sleeper Only,RB,2026,1999-09-09,,,,,,,,,,',
+  );
+  const c = parsePlayerIdsCsv(changed2);
+  assert.deepEqual(a.ids, c.ids, 'ids must stay identical — only a bySleeper-only field changed');
+  assert.notDeepEqual(a.bySleeper, c.bySleeper);
+
+  assert.equal(idsHash(a.ids), idsHash(c.ids), 'ids hash must match — the change is confined to bySleeper');
+  assert.notEqual(bySleeperHash(a.bySleeper), bySleeperHash(c.bySleeper), 'bySleeper hash must differ so the write is not skipped');
+});
+
 // ═══════════════════════════════════════════════════════════════════
 // E. validatePlayerIds
 // ═══════════════════════════════════════════════════════════════════
@@ -348,30 +487,92 @@ function makeIds(count) {
   return ids;
 }
 
+/** bySleeper fixture — every row fully filled (birthdate/pfrId rate 1.0) unless overridden. */
+function makeBySleeper(count, { birthdateRate = 1, pfrIdRate = 1 } = {}) {
+  const bySleeper = {};
+  const birthdateCut = Math.round(count * birthdateRate);
+  const pfrIdCut     = Math.round(count * pfrIdRate);
+  for (let i = 0; i < count; i++) {
+    bySleeper[String(i + 1000)] = {
+      gsisId:     `00-${String(i).padStart(7, '0')}`,
+      pfrId:      i < pfrIdCut ? `pfr${i}` : null,
+      ktcId:      null,
+      cfbrefId:   null,
+      birthdate:  i < birthdateCut ? '1998-01-01' : null,
+      draftYear:  2020,
+      draftRound: 1,
+      draftPick:  1,
+      draftOvr:   1,
+      undrafted:  false,
+    };
+  }
+  return bySleeper;
+}
+
 test('validatePlayerIds: passes on valid input (MIN_PLAYERID_ROWS entries)', () => {
   const ids = makeIds(MIN_PLAYERID_ROWS);
-  assert.doesNotThrow(() => validatePlayerIds(ids));
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS);
+  assert.doesNotThrow(() => validatePlayerIds(ids, bySleeper));
 });
 
 test('validatePlayerIds: throws below gate (truncated source)', () => {
   const ids = makeIds(100);
-  assert.throws(() => validatePlayerIds(ids), Error);
+  const bySleeper = makeBySleeper(100);
+  assert.throws(() => validatePlayerIds(ids, bySleeper), Error);
 });
 
 test('validatePlayerIds: throws when an entry lacks sleeperId', () => {
   const ids = makeIds(MIN_PLAYERID_ROWS);
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS);
   // Corrupt one entry to have an empty sleeperId
   ids['00-0000000'].sleeperId = '';
-  assert.throws(() => validatePlayerIds(ids), Error);
+  assert.throws(() => validatePlayerIds(ids, bySleeper), Error);
 });
 
 test('validatePlayerIds: throws when >50% missing name', () => {
   const ids = makeIds(MIN_PLAYERID_ROWS);
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS);
   // Set all names to null
   for (const v of Object.values(ids)) {
     v.name = null;
   }
-  assert.throws(() => validatePlayerIds(ids), Error);
+  assert.throws(() => validatePlayerIds(ids, bySleeper), Error);
+});
+
+test('validatePlayerIds: a fixture where every draft_round is null still passes (finding 2 regression)', () => {
+  const ids = makeIds(MIN_PLAYERID_ROWS);
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS);
+  for (const v of Object.values(bySleeper)) {
+    v.draftRound = null;
+    v.draftPick  = null;
+    v.draftOvr   = null;
+    v.undrafted  = true;
+  }
+  assert.doesNotThrow(() => validatePlayerIds(ids, bySleeper));
+});
+
+test('validatePlayerIds: throws when birthdate fill rate is below 0.95', () => {
+  const ids = makeIds(MIN_PLAYERID_ROWS);
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS, { birthdateRate: 0.9 });
+  assert.throws(() => validatePlayerIds(ids, bySleeper), Error);
+});
+
+test('validatePlayerIds: passes when birthdate fill rate is at 0.95', () => {
+  const ids = makeIds(MIN_PLAYERID_ROWS);
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS, { birthdateRate: 0.95 });
+  assert.doesNotThrow(() => validatePlayerIds(ids, bySleeper));
+});
+
+test('validatePlayerIds: throws when pfr_id fill rate is below 0.85', () => {
+  const ids = makeIds(MIN_PLAYERID_ROWS);
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS, { pfrIdRate: 0.8 });
+  assert.throws(() => validatePlayerIds(ids, bySleeper), Error);
+});
+
+test('validatePlayerIds: passes when pfr_id fill rate is at 0.85', () => {
+  const ids = makeIds(MIN_PLAYERID_ROWS);
+  const bySleeper = makeBySleeper(MIN_PLAYERID_ROWS, { pfrIdRate: 0.85 });
+  assert.doesNotThrow(() => validatePlayerIds(ids, bySleeper));
 });
 
 // ═══════════════════════════════════════════════════════════════════

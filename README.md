@@ -436,31 +436,63 @@ the file `nflreadr::load_ff_playerids()` wraps). CORS-blocked in the browser; in
 and served via jsDelivr. This is the Phase-0 join key: nflverse advanced stats (`stats_player_week`,
 NGS) are keyed by `gsis_id`, which roster files do not carry.
 
+**schemaVersion 2 (D2, 2026-09-05 — additive, minified).** `ids` is unchanged in shape and population.
+A new `bySleeper` index is added — the file is served minified (`{ minify: true }`) since v2 is roughly
+a sevenfold size increase over v1 (measured: 0.67 MB v1 → 2.79 MB v2 minified).
+
 ```json
 {
-  "schemaVersion": 1,
-  "generatedAt": "2026-06-14T12:00:00.000Z",
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-05T12:00:00.000Z",
   "sourceSeason": 2026,
-  "rowCount": 6143,
+  "rowCount": 6193,
+  "sleeperRowCount": 6392,
   "ids": {
     "00-0034796": { "sleeperId": "4984", "name": "Josh Allen", "position": "QB" }
+  },
+  "bySleeper": {
+    "4984": {
+      "gsisId": "00-0034796", "pfrId": "AlleJo02", "ktcId": "4984", "cfbrefId": "allen-josh",
+      "birthdate": "1996-05-21", "draftYear": 2018, "draftRound": 1, "draftPick": 7,
+      "draftOvr": 7, "undrafted": false
+    }
   }
 }
 ```
 
 `ids` is keyed by **`gsis_id`**; the value carries `sleeperId` (the join payload) plus `name`/`position`
-(debug/validation only). Rows where either id is empty or `NA` in the source are skipped (cannot join).
-Duplicate `gsis_id`s use keep-last (confirmed lossless — colliding rows share the same `sleeperId`).
+(debug/validation only). Rows where `gsis_id` or `sleeper_id` is empty or `NA` in the source are
+excluded from `ids`. Duplicate `gsis_id`s use keep-last (pinned by test, not just comment —
+`test/nflverse.test.mjs` §D — confirmed lossless: colliding rows share the same `sleeperId`).
 
-**Forward map only.** The map is a bijection (`gsis_id` and `sleeper_id` each unique), so the app
-derives any reverse `sleeper_id → gsis_id` lookup by inverting `ids` in-memory. No reverse index is served.
+`bySleeper` is keyed by **`sleeper_id`**, and is the **reverse** index — it exists precisely because
+`ids` is not invertible in general (see next paragraph). A row is excluded from `bySleeper` only when
+`sleeper_id` itself is empty or `NA`; unlike `ids`, a missing `gsis_id` does not exclude a row —
+`gsisId` is simply `null` (~199 such rows measured 2026-09-05). Duplicate `sleeper_id`s prefer
+whichever row carries a `gsis_id` over one that doesn't (one measured conflict, sleeper `133`); when
+neither or both rows have one, last-wins. `draft_round`/`draft_pick`/`draft_ovr` are `null` for
+undrafted players — verified against `nflverse/draft/draft_picks.json`, not inferred — and `undrafted`
+is emitted explicitly so a consumer never has to read that null as "unknown." `ktc_id` is served but
+only 7% populated upstream; do not plan a join on it. `bySleeper` is capture-only — nothing reads it
+yet (see the `> *Note:*` below and CR-18 in the Cross-repo contract registry).
+
+**Not a bijection, and no longer forward-map-only.** Measured 2026-09-05: the source data has 5
+duplicated `gsis_id` values (harmless — colliding rows share the same `sleeper_id`) and 6 duplicated
+`sleeper_id` values, one of which conflicts (sleeper `133`, resolved as described above). `ids` and
+`bySleeper` are two independently-built indexes over the same rows, not a forward map plus an
+in-memory inversion of it — a consumer needing the reverse lookup should read `bySleeper` directly
+rather than inverting `ids`.
 
 **Sparsity gate (`MIN_PLAYERID_ROWS = 5000`):** the ingest refuses to write if fewer than 5000
-crosswalk rows parse; the app re-asserts the same gate on `rowCount`. If either side changes this
-constant, change both.
+`ids` rows parse (unchanged, unaffected by `bySleeper`'s wider population); there is no app-side
+gate to keep in sync since there is no app loader (see the `> *Note:*` below). Two further internal
+gates apply to `bySleeper`: `birthdate` fill rate ≥ 0.95 and `pfr_id` fill rate ≥ 0.85 (measured
+0.998/0.944). No gate exists for `draft_round`/`draft_pick`/`draft_ovr` (null means undrafted, not
+sparse) or `ktc_id` (genuinely 7% populated) — a fill-rate floor on either would fire on correct data.
 
-**`inProgress: false`:** like roster/draft, the app has no live fallback — it must read the crosswalk
-from the store. Content-hash dedup means no commit when unchanged.
+**`inProgress: false`:** internal-only family — there is no app loader to keep in sync (see the
+`> *Note:*` below). Content-hash dedup means no commit when unchanged; the dedup hash now covers
+both `ids` and `bySleeper`, so a week where only sleeper-only rows change still produces a write.
 
 **Weekly refresh:** the `nflverse-playerids.yml` GitHub Action runs every Wednesday and re-ingests
 the crosswalk so newly-active players become joinable within a week.

@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import { readManifest } from '../lib/manifest.mjs';
+import { readJson } from '../lib/io.mjs';
 import {
   MIN_SCHEDULE_SEASON,
   MIN_GAMELOG_SEASON,
@@ -113,4 +114,18 @@ test('manifest: every files entry carries lastModified, schemaVersion, recordCou
     .filter(([, entry]) => !entry.lastModified || !entry.schemaVersion || entry.recordCount === undefined || entry.inProgress === undefined)
     .map(([path]) => path);
   assert.deepEqual(incomplete, [], `entries missing a required field: ${incomplete.join(', ')}`);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// D2 §D2 — schemaVersion is written twice (the output file, the manifest
+// entry) and nothing cross-checks them; pin that they agree.
+// ═══════════════════════════════════════════════════════════════════
+
+test('manifest: nflverse/playerids.json schemaVersion matches its manifest entry', () => {
+  const m = readManifest();
+  const entry = m.files['nflverse/playerids.json'];
+  const file = readJson('nflverse/playerids.json');
+  assert.ok(entry, 'manifest is missing an nflverse/playerids.json entry');
+  assert.ok(file, 'nflverse/playerids.json not found on disk');
+  assert.equal(file.schemaVersion, entry.schemaVersion);
 });
