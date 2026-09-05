@@ -2,7 +2,7 @@
 
 **Model:** sonnet implements this file exactly. **Status:** planned (opus, 2026-09-05). **Slice:** D1b of the stellar-data batch (`../analysis/data-stellar-batch-brief.md` Arc A). **Repo:** data, plus a read-only checkout of the app.
 **Base:** data `4719464` on `main`; app `2bc5fd0` on `claude-md-slimming`. D1a shipped in app `7466b2e` + `5821210` and is this slice's prerequisite — the envelope now carries `inputStatus`, which is what the commit gate below asserts on.
-**Plan gate:** plan-reviewer has not run on this file yet.
+**Plan gate:** plan-reviewer run 2026-09-05, eleven flags, all folded in. Two of its findings corrected errors in this file's own first draft: the proposed cron collided with Saturday's oline job, and the dead-man check as written could not run under the staged rollout this file recommends.
 
 **Problem.** The model's own outputs are the only ephemeral family still captured by a human opening a browser. Thirty-four days were lost between July and September, permanently, and the loss clock runs at one snapshot per unopened day. Every other family is on a schedule.
 
@@ -25,7 +25,9 @@
 
 **Four corrections to the brief. Implement this file where they differ.**
 
-1. **The proposed cron time is wrong, and backwards.** The brief says "daily, ~06:00 UTC, after `weekly-ktc.yml` on Mondays". `weekly-ktc.yml` runs **Monday 13:17 UTC**, so 06:00 is seven hours *before* it: every Monday snapshot would carry the previous week's KTC values, which is the one day of the week where market data is about to move. `cron-deadman.yml` also documents 05:19 UTC as its quiet slot precisely because the capture crons sit at 13:xx–14:xx. **Use `41 14 * * *`** — after KTC has committed on Mondays, clear of the deadman, off-the-hour by the repo's own politeness convention.
+1. **The proposed cron time is wrong, and backwards.** The brief says "daily, ~06:00 UTC, after `weekly-ktc.yml` on Mondays". `weekly-ktc.yml` runs **Monday 13:17 UTC**, so 06:00 is seven hours *before* it: every Monday snapshot would carry the previous week's KTC values, which is the one day of the week where market data is about to move.
+
+   **Use `29 16 * * *`.** A daily job has to clear *every* weekly slot, not just Monday's, and the occupied set is 13:17 Mon · 13:23 Tue · 13:29 Wed · 13:35 Fri · 13:47 Sat · 13:53 Sun · 14:11 Sat · 14:37 Sat · 15:05 Tue · 12:00 May 1 · 05:19 daily. 16:29 sits clear of all of them, after the latest weekly committer (`nfl-season-totals.yml`, Tuesday 15:05), and off-the-hour by the repo's politeness convention. An earlier draft of this file said 14:41, which is four minutes behind Saturday's `nflverse-oline.yml` — tighter than any existing spacing in the table, and the kind of thing the repo's own staggering rationale exists to avoid.
 
 2. **No UI driving is needed, and this is the slice's biggest de-risking.** The brief describes selecting a league in the page. The app's boot effect auto-loads from `localStorage` and refetches the league by id: it reads `sleeper-user` and `sleeper-league` (`src/App.jsx:59-60`, boot effect `:717-738`), and only `storedUser.username` and `storedLeague.league_id` are load-bearing on that path. **Seed both with `page.addInitScript` before first navigation** and the app boots straight into a loaded league. No typing, no waiting on a league list, no click targets — which removes every selector this workflow would otherwise depend on, and with them the most likely source of silent breakage when the UI changes.
 
@@ -46,6 +48,9 @@ Headless app run, not a Node re-implementation. The brief's rationale holds and 
 - `npm ci && npm run build` in the app, then `npm run preview` (vite preview, port 4173) in the background.
 - `VITE_DATA_STORE_URL` points at **raw GitHub**, not jsDelivr: the CDN can serve a stale manifest for minutes after a push, and this job runs shortly after other capture jobs commit. Do **not** set `VITE_CFBD_API_KEY`; the store covers 2017–2025 and the API path is a fallback whose use will now show up in `inputStatus.careerStats` provenance.
 - Playwright drives the page, waits for the console marker, reads the IndexedDB record, and writes it to a file. Then `node bin/update.mjs snapshots` registers it, and the commit uses the rebase-retry convention from `weekly-ktc.yml:52`.
+- **Purge jsDelivr after committing.** Every other committing workflow does: the eight ingest jobs get it from `_ingest.yml`'s `purge-path` input, and the standalone `weekly-ktc.yml` and `nflverse-playerstats.yml` each purge inline. A standalone workflow cannot reuse `_ingest.yml`, so purge `manifest.json` explicitly, in the same `|| true` non-fatal style the others use. The snapshot file itself has no app-side reader and does not need purging; the manifest does, because `ktcHistory.js` enumerates `manifest.files` from the CDN.
+- **Do not inherit `weekly-ktc.yml`'s no-op branch.** That file's commit step wraps everything in `if [[ -n "$(git status --porcelain)" ]] … else echo "No changes to commit."` and exits green. Copied wholesale, a run that captured *nothing* becomes an indistinguishable green, which is the failure mode this whole slice exists to end. The two cases must have separate, explicit exits: an already-committed date (design D) is a green skip; an empty working tree after a capture that was supposed to produce a file is a **red** failure.
+- **Give the console-marker wait a real timeout budget.** Playwright's default is 30 seconds and a cold run will blow through it: fresh runner, no cache, full career load from raw GitHub, then the projection pipeline. Budget **180 seconds** for the marker and fail with the page's captured console output attached, not a bare timeout. Pipe the page's console to the job log from the start — when this breaks at 16:29 UTC unattended, that log is the only evidence there will be.
 
 ### B. Extraction and validation — a pure, testable function
 
@@ -63,8 +68,12 @@ The workflow's own logic must not live in YAML. Put the part worth testing in `l
 - `schemaVersion < 3` — a v2 envelope from a stale app build has no `inputStatus`, so it cannot be gated at all and must not enter the series unlabelled;
 - `inputStatus.college.loaded !== true`;
 - `inputStatus.nflDraft.loaded !== true`;
-- `inputStatus.nflDraft.detail.years` does not include `targetSeason` — the D1a rule, which works as written now that those years are numeric (app `5821210`). Note the January–April exception: before that year's draft the class does not exist, and the correct behaviour then is to skip the assertion, not to fail. Gate it on the current month, and say so in a comment.
+- `inputStatus.nflDraft.detail.years` does not include `targetSeason` — the D1a rule, which works as written now that those years are numeric (app `5821210`). Note the pre-draft exception: before that year's draft the class does not exist, and the correct behaviour then is to skip the assertion, not to fail. **The boundary is May 1**, because `nflverse-draft.yml` runs `0 12 1 5 *` and that ingest is what puts the class in the store. Skip the assertion when the UTC month is January through April; assert it from May onward. A May 1 run at 16:29 UTC is safely after that job's 12:00 commit. Put the reasoning in the comment, not just the month number.
+- `inputStatus.ktc.loaded !== true`, **or** `inputStatus.ktc.count` below a floor. This is the gap most worth closing: KTC is the one input the app fetches by scraping a third-party page live rather than reading from the store, so it is by far the likeliest thing a headless CI runner loses — a blocked request, a changed page, a proxy that only exists in dev. Losing it empties the market factors while every other label stays green, which is precisely the silent-neutral commit this arc exists to prevent. Recent snapshots match 436–464 players; pin the floor after one real run.
+- `inputStatus.depthChart.count` below a floor. Cheap, and a zero here means the roster load degraded.
 - `Object.keys(players).length` below a floor. Pin the floor after one real run; recent snapshots carry 715–832 players, so something like 500 is a sane starting guess, but **measure first**.
+
+**Pin every floor from one observed run, and write the observed number in the comment beside it.** A floor invented at planning time is either so low it never fires or so high it fires on a good day.
 
 `priorSnapshotTeams.loaded === false` is **not** a failure. On a fresh runner there is never a prior snapshot in IndexedDB, so it will be false on every single run. Do not gate on it, and write a comment saying why, or someone will "fix" it into the gate later.
 
@@ -72,9 +81,11 @@ The workflow's own logic must not live in YAML. Put the part worth testing in `l
 
 Skip-if-exists by UTC date is already the app's rule. The Action must **also** skip when `snapshots/<date>.json` is already committed, so a manual import earlier in the day wins and the job is a no-op rather than a conflict. Check the file before driving the browser at all — it makes the common re-run cheap.
 
-### E. Dead-man
+### E. Dead-man — phase 2 only
 
-No registration step exists: `listScheduledWorkflows` reads `.github/workflows/*.yml` from disk and keeps anything with a `cron:` line. Verify it picks the new file up by running `bin/deadman.mjs` locally against the repo once the workflow is committed, and report the output in the hand-back. The detector's own sparse-checkout already includes `.github`.
+No registration step exists: `listScheduledWorkflows` reads `.github/workflows/*.yml` from disk and keeps anything with a `cron:` line (`scripts/check-crons.mjs:62`, `extractCrons:38`). The detector's own sparse-checkout already includes `.github`.
+
+**That is exactly why this verification cannot run in phase 1.** A `workflow_dispatch`-only file has no `cron:` line, so `listScheduledWorkflows` skips it and `bin/deadman.mjs` reports nothing — not a failure, just silence, which would read as a pass. Do not attempt this check while the workflow is dispatch-only and do not report a clean deadman run as evidence in phase 1. It belongs to the cron switch-on: add the `cron:` line and the deadman picks the file up in the same change, and *that* is when running `bin/deadman.mjs` against the repo proves something.
 
 ---
 
@@ -86,6 +97,16 @@ No registration step exists: `listScheduledWorkflows` reads `.github/workflows/*
 
 No version bump here. This slice consumes the v3 envelope rather than changing it, and the README snapshot section is updated as the Mirror asks. Record that conclusion; do not skip the block.
 
+**CR-01's data-side trigger list gains two files the moment this lands.** `lib/snapshot-capture.mjs` and `scripts/capture-snapshot.mjs` become readers of `schemaVersion`, `inputStatus`, `players` and `targetSeason`, and the commit gate is then the most consequential envelope consumer in this repo. Add both to the entry's data-side `Triggers` and `Data side` in the same change. This is the app reviewer's only far-side authority for what this repo reads, so an omission here is invisible from over there — the registry's own rule, not a formality.
+
+### CR-18 · Signal registry rows (`docs/signal-registry.md`) — touched via `data-catalog.md` (`Direction: data→app`)
+
+> **Mirror:** This entry's data side is the one genuinely open set in the registry — a brand-new ingest adds a script the list above cannot already name. The listed sites are every one that exists today; a *new* one is caught by the near-side re-verification duty (the data repo's reviewer re-derives its own side against live `scripts/` and `lib/` on every review), not by this list. When a data-repo change adds, removes or reclassifies an ingested field, stat key or source — or alters its historical coverage or reconstructable-vs-ephemeral status — emit the exact `docs/signal-registry.md` row edit the app must make (layer · source · coverage · reconstructable-vs-ephemeral · current use), and update the family's `data-catalog.md` row on the data side in the same change. **Nothing fails in either repo when this drifts** — the registry simply becomes wrong, and since it is the inventory that governs snapshot-capture and grading-inclusion decisions, a stale row misroutes those decisions months later. The data repo cannot edit `docs/signal-registry.md`; the emitted row edit is the whole deliverable.
+
+The Docs list below rewrites this family's `data-catalog.md` row: its source and provenance stop being an app-side export imported by hand, and its refresh stops being "daily via app export". The field set also grows by six `inputStatus` labels. That is exactly the "alters its historical coverage or reconstructable-vs-ephemeral status" trigger, and this entry is one where **nothing fails in either repo when it drifts** — so emit the exact `docs/signal-registry.md` row edit the app must make (layer · source · coverage · reconstructable-vs-ephemeral · current use) as hand-back output. This repo cannot edit that file; the emitted row edit is the whole deliverable.
+
+Note the interaction with D1a: the app-side §3C rows were already moved to `v2+ snapshots` coverage and a v3 envelope reference. The row edit this slice emits is about the *capture mechanism* changing from human to scheduled, not about the version again.
+
 ### CR-22 · candidate — the data repo executes the app
 
 **This is the item that routes out of the in-repo loop. Do not draft the entry inside this slice.**
@@ -94,6 +115,8 @@ The coupling is new and real: after this slice the data repo depends on the app'
 
 **Hand this back rather than implementing it.** A new entry lands in both registries in the same change, from a session opened in the parent folder, and the registry region is sentinel-bounded and must stay byte-identical (see the app repo's *Drift check*). Session 2 stops at naming the coupling; Anton opens the parent-folder session.
 
+**Bound the window it leaves open.** CLAUDE.md is blunt that a coupling not in the registry does not exist for review purposes, so until CR-22 lands the app's reviewer has no far-side trigger for the `localStorage` key names, the console marker, or the IndexedDB layout — and an app slice can rename any of them with nothing to catch it. The staged rollout in *Risks* supplies the natural bound, so use it: **the cron is switched on only after CR-22 exists in both registries**, not merely after one green dispatch. Until then the workflow is `workflow_dispatch` only, and a rename breaks a manual run someone is watching rather than a silent daily one.
+
 ---
 
 ## Docs/README updates
@@ -101,6 +124,8 @@ The coupling is new and real: after this slice the data repo depends on the app'
 - **`snapshot-workflow.md`** — restructure. The Action becomes the primary path; the existing capture/export/import steps become "Fallback: manual capture", kept intact because a broken Action must still leave a way to capture today. Add what to do when the job fails its gate, which is to read the rejection reason rather than re-run blindly.
 - **`data-catalog.md`** — snapshots row: refresh becomes the daily Action, and note the v3 envelope.
 - **`README.md`** — the snapshot section, per CR-01's Mirror.
+- **`CLAUDE.md`** — two lines this slice falsifies. Invariant 4's version list still reads "projection snapshots **v2**"; D1a made the envelope v3 and this slice's gate rejects anything below 3, so the invariant and the gate would contradict each other. The `.github/workflows/` row (`CLAUDE.md:70`) also names exactly four deliberate non-callers; `daily-snapshot.yml` makes five, and that row names them individually so it cannot be left alone.
+- **`README.md`** — beyond CR-01's snapshot section: the GitHub Actions table needs a `daily-snapshot.yml` row, and the "Why four workflows are standalone rather than `_ingest.yml` callers" list (`README.md:1119`) needs its fifth entry, and its heading count. This one has the clearest reason of the set: it runs a browser against another repo's build, which `_ingest.yml`'s shape cannot express.
 - **`git-workflow.md`** — one line if the new job changes the set of scheduled committers to `main`, since that file's rebase guidance is written around them.
 
 ## Tests to add
@@ -109,14 +134,18 @@ The coupling is new and real: after this slice the data repo depends on the app'
 
 1. `lib/snapshot-capture.mjs` accepts a valid v3 record fixture and returns a registrable object.
 2. It rejects each gate condition separately, with a distinguishable reason: missing record, `schemaVersion` 2, `college.loaded === false`, `nflDraft.loaded === false`, `detail.years` without `targetSeason`, player count under the floor.
-3. It does **not** reject on `priorSnapshotTeams.loaded === false`. This is the regression test for the fresh-runner case, and it is the one most likely to be broken later by someone tightening the gate.
-4. The January–April draft-year exception: the same record that fails in September passes in February.
-5. Round-trip: the accepted object registers through `registerSnapshots` and lands in `manifest.json`, reusing the existing `test/register-snapshots.test.mjs` helpers.
+3. `ktc.loaded === false` and a below-floor `ktc.count` each reject, with distinguishable reasons. This is the gate guarding the input most likely to fail on a runner, so it gets its own case rather than riding along with the college/draft ones.
+4. It does **not** reject on `priorSnapshotTeams.loaded === false`. This is the regression test for the fresh-runner case, and it is the one most likely to be broken later by someone tightening the gate.
+5. The pre-draft exception, at its boundary: the same record that rejects in September passes in February, and April and May fall on opposite sides of the rule.
+6. Round-trip: the accepted object registers through `registerSnapshots` and lands in `manifest.json`, reusing the existing `test/register-snapshots.test.mjs` helpers.
 
 Playwright itself is exercised by the workflow's first real run, not by a unit test. Report that run's outcome in the hand-back; a green suite here proves the extraction logic, not the capture.
 
 ## Risks
 
 - **A red app `main` becomes a missing snapshot.** Pinning the app ref to a workflow input with a default bounds this, and the gate turns a bad build into a loud failure rather than a neutral snapshot. Accepted.
-- **This is the largest item in Arc A.** If it stalls, D1a already closed the labelling gap and the manual path still works. Prefer landing the pure extraction plus the gate first, with the workflow behind `workflow_dispatch` only, and switch on the cron in a follow-up once one manual dispatch has gone green end to end. That staging is recommended, not optional-by-default: turn the cron on only after a dispatch run has produced a committed snapshot.
+- **This is the largest item in Arc A.** If it stalls, D1a already closed the labelling gap and the manual path still works. **Land it in two phases, and treat that as the plan rather than a fallback.**
+  - *Phase 1* — the pure extraction, the gate, the tests, and the workflow behind `workflow_dispatch` only. Hand back with one manual dispatch run gone green end to end, the observed counts for every floor, and CR-22 named. No `cron:` line, and therefore no deadman check (§E).
+  - *Phase 2* — add the `cron:` line, verify `bin/deadman.mjs` now discovers the file, and retire the manual path to fallback status in the docs. **Gated on CR-22 landing in both registries**, per *Cross-repo impact*.
+  Splitting this way also keeps phase 1 reviewable: a browser driver, a cross-repo checkout, a new gate and a new scheduled committer in one diff is more than one review can hold.
 - **Secrets.** `SNAPSHOT_LEAGUE_ID` is the only one needed. Do not add `VITE_CFBD_API_KEY`.
