@@ -2,7 +2,7 @@
 
 **Model:** sonnet implements this file exactly. **Status:** planned (opus, 2026-09-05). **Slice:** D2 of the stellar-data batch (`../analysis/data-stellar-batch-brief.md` Arc A). **Repo:** data only.
 **Base:** `6d28047` on `main`. **Size:** the brief says an afternoon; that still holds for the parse, but see *Findings* — two of the fields it promises do not deliver what it expects.
-**Plan gate:** plan-reviewer has not run on this file yet.
+**Plan gate:** plan-reviewer run 2026-09-05, twelve flags, all folded in. One was an outright contradiction in this file's own first draft: it promised `bySleeper` would carry the 199 gsis-less rows while telling the implementer to leave in place the row filter that drops them.
 **Unblocks:** D4 (the `pfr_id` join for snap counts), D6 (age and draft capital in the retrospective harness). Both are data-side.
 
 **Problem.** `scripts/update-playerids.mjs` fetches `db_playerids.csv` every Wednesday and throws away all but three fields. Age, draft capital and five external ids are in the file already, unparsed. Age is the precondition for grading the age curve, which the review names as one of the never-tested factors.
@@ -62,11 +62,21 @@ So the missing 42% are undrafted free agents, and the absence is itself the sign
 
 ### A. Parse — `parsePlayerIdsCsv` in `lib/nflverse.mjs:359`
 
-Keep the existing header-lookup-by-name approach and the fail-loud on missing `gsis_id`/`sleeper_id` (`:376`). Add index lookups for the eleven columns, each `null` when the field is empty or the literal `NA` — the existing `'NA'` sentinel handling at `:393` is the pattern.
+Keep the existing header-lookup-by-name approach and the **header** fail-loud at `:376` — that one guards against upstream renaming a join column and must not move. Add index lookups for the eleven columns, each `null` when the field is empty or the literal `NA`.
+
+**The per-row filter has to change, and an earlier draft of this file was self-contradictory about it.** Line `:393` currently reads `if (!gsis || gsis === 'NA' || !sleeperId || sleeperId === 'NA') continue;`, which drops every gsis-less row — so `bySleeper` could not contain the 199 sleeper-only rows this file promises in §B and test 6. Split the condition by index:
+
+- **skip the row entirely** only when `sleeper_id` is missing or `NA`;
+- **add to `ids`** only when `gsis_id` is present and not `NA` (preserving today's `ids` population exactly);
+- **add to `bySleeper`** for every surviving row, with `gsisId: null` where there is none.
+
+`ids` therefore keeps its current 6,193-row shape and `bySleeper` gains the extra 199. Anything else either breaks the additive promise or silently drops the rows the index exists to serve.
 
 Coerce the five numeric fields (`draft_year`, `draft_round`, `draft_pick`, `draft_ovr`, plus nothing else) to `Number`, `null` on failure. Leave every id as a string: `sleeper_id` and `gsis_id` are already strings here and `pfr_id`/`cfbref_id` are not numeric at all.
 
 Emit `undrafted: draftRound === null` per finding 2, so the meaning is in the data rather than in a consumer's head.
+
+**Say what `draftYear` means for those rows, in the code and in the catalog.** It is 100% populated while 42% of rows are undrafted, so for that 42% it is an *entry* year, not draft capital. D6 reads both fields and would otherwise treat an undrafted player's entry year as a draft year. `undrafted` is what disambiguates them; neither field means anything alone.
 
 ### B. Shape — `schemaVersion: 2`, additive
 
@@ -74,16 +84,28 @@ Emit `undrafted: draftRound === null` per finding 2, so the meaning is in the da
 
 Add `bySleeper`, keyed by `sleeper_id`, carrying `{ gsisId, pfrId, ktcId, cfbrefId, birthdate, draftYear, draftRound, draftPick, draftOvr, undrafted }`. This is the index D4 and D6 actually consume, and it is the only place the 199 gsis-less rows can appear.
 
+**`rowCount` keeps counting `ids`, not `bySleeper`.** It feeds `MIN_PLAYERID_ROWS` in two places (`scripts/update-playerids.mjs:41-45`, `lib/validate.mjs:460`) and is the manifest's served `recordCount`, currently 6,185. Redefining it would move a sparsity floor and a manifest number for a reason unrelated to sparsity. Add `sleeperRowCount` beside it for the new index and leave `rowCount` alone.
+
 **The dedup rule is not "keep last" for `bySleeper`.** Measured: 5 duplicated `gsis_id` keys with **zero** conflicting `sleeper_id`, so the existing keep-last comment at `:401` is still true and stays. But there are **6 duplicated `sleeper_id` keys, and one conflicts**: sleeper `133` appears with `gsis_id` `NA` and with `00-0022897`. Naive keep-last would store `gsisId: null` and silently drop that player's only join. **When a `sleeper_id` repeats, prefer the row that has a `gsis_id`**; fall back to last-wins when neither or both have one. Comment the reason at the site.
 
 ### C. Gates — pinned from the measurements above
 
-`MIN_PLAYERID_ROWS = 5000` stays. Add two fill-rate gates in `validatePlayerIds` (`lib/validate.mjs`), both measured over rows carrying a `sleeper_id`:
+`MIN_PLAYERID_ROWS = 5000` stays.
+
+**`validatePlayerIds` needs a second argument first.** It is called as `validatePlayerIds(ids)` (`scripts/update-playerids.mjs:54`) and receives only the gsis-keyed map, whose population is 6,193. Both new gates are specified over the 6,392 rows that carry a `sleeper_id`, and that denominator exists only in `bySleeper`. Widen the signature to `validatePlayerIds(ids, bySleeper)` and update the one call site; compute the rates over `bySleeper`. Without this the gates would silently measure a different population than the one they are pinned against.
+
+Add two fill-rate gates, both over `bySleeper`:
 
 - `birthdate` ≥ **0.95** (measured 0.998)
 - `pfr_id` ≥ **0.85** (measured 0.944)
 
 Both sit far enough below today's value to absorb normal churn and far enough above zero to catch a column that stops being populated, which is the actual failure mode. **Do not add a gate for `draft_round`, `draft_pick`, `draft_ovr` (finding 2) or `ktc_id` (finding 1)** — a fill-rate gate on any of those fires on correct data. Write that reason into the code, or someone adds one later.
+
+### D. Two write-path hazards, both silent
+
+**1. Content-hash dedup would let `bySleeper` go stale.** `idsHash` hashes `ids` alone (`scripts/update-playerids.mjs:26`, compared at `:59-60`), and skips the write when it matches. A week in which only sleeper-only rows change — the 199, or the sleeper-`133` class resolving differently — produces an identical `ids` hash, no write, and a served `bySleeper` that quietly drifts from upstream. No error, no failing gate, and nothing downstream notices. **Hash both indexes.** Keep `idsHash`'s export and behaviour for anything already using it; add the combined hash at the comparison site.
+
+**2. `schemaVersion` is written twice and nothing cross-checks them.** The output object carries it (`:75`) and `updateManifestEntry` carries it again (`:89`). Both must become 2. `test/manifest.test.mjs:110` only asserts presence, so missing the second site drifts the file against its own manifest entry silently. Add a test asserting the two agree.
 
 ---
 
@@ -99,19 +121,30 @@ The row's honest content: coverage is historical and complete for all players, t
 
 ### No CR-06, and no new coupling yet
 
-CR-06 covers roster and draft, not playerids — the brief is right about that. No app reader changes in this slice, so no new coupling is created and no new entry is due **now**. When the app reads `bySleeper`, that is a new coupling and lands in both registries from a parent-folder session. Record it in `.claude/tasks/data-repo-backlog.md`'s app-side mirror as the next free `CR-NN`, not as CR-22 (finding 5).
+CR-06 covers roster and draft, not playerids — the brief is right about that. No app reader changes in this slice, so no new coupling is created and no new entry is due **now**. When the app reads `bySleeper`, that is a new coupling and lands in both registries from a parent-folder session, taking the next free `CR-NN` rather than 22 (finding 5).
+
+**Do not try to record that in `.claude/tasks/data-repo-backlog.md`** — an earlier draft of this file said to, and that file lives in the *app* repo, which this repo cannot edit. Name it in the hand-back instead and let Anton carry it.
+
+**The "internal-only" premise is load-bearing, so cite it.** This slice is capture-only because there is no app loader: the `> *Note:*` paragraph at `README.md:1472` records that `src/api/playerIds.js` was cut, and `data-catalog.md:143` agrees ("internal-only … no app loader"). Both sit outside the sentinel region, so they are this repo's own text, not mirrored. **`CLAUDE.md` Invariant 5 contradicts them** by listing `playerids` among the families whose `inProgress: false` is justified "because the app has no live fallback for them and must get them from the store", and `scripts/update-playerids.mjs:11` repeats the same stale claim in a comment. Two of the three sources say internal-only and they are the specific ones; Invariant 5's blanket list is the stale one. Report this rather than rewriting the invariant on the way past — a version bump on a family the app genuinely read would be an out-of-loop cross-repo action under Invariant 4, and it is only in-loop here because the loader was cut.
+
+**`[registry-stale]` — report, do not fix.** CR-18's near-side triggers enumerate twelve ingest scripts as `update-{nfl,cfbd,ktc,roster,draft,playerids,advstats,schedule,gamelogs,teamcontext,playerstate,oline}.mjs`. Fourteen exist: `scripts/update-enrichment.mjs` and `scripts/update-playerstats.mjs` are live writers absent from the list. Flag both in the hand-back; do not edit the registry.
 
 ---
 
 ## Docs/README updates
 
 - **`data-catalog.md`** — the playerids row: the new fields, the two new gates with their measured values, and the `undrafted` semantics. State that `ktc_id` is served but 7% populated, so nobody plans a join on it.
-- **`README.md` → `nflverse/playerids.json` (`:431`)** — the served-shape section: `schemaVersion: 2`, the `bySleeper` index, the field list, the dedup rule for repeated `sleeper_id`, and that the file is now minified.
-- **`CLAUDE.md`** — Invariant 4's version list does not currently name playerids; add it at v2 if the list is meant to be exhaustive, and leave it alone if it is not. Check before editing rather than assuming.
+- **`README.md` → `nflverse/playerids.json` (`:431`)** — the served-shape section: `schemaVersion: 2`, the `bySleeper` index, the field list, the dedup rule for repeated `sleeper_id`, and that the file is now minified. **Three existing claims in that section go false and must be corrected in the same edit**, not left for a reader to trip over:
+  - `:454` "**Forward map only.** The map is a bijection (`gsis_id` and `sleeper_id` each unique) … **No reverse index is served**". This slice serves exactly that reverse index. Note also that the bijection half was *already* false before this slice: the measurements in Step 0 found 5 duplicated `gsis_id` and 6 duplicated `sleeper_id` values, one of the latter conflicting. Correct both halves.
+  - `:461` "the app re-asserts the same gate on `rowCount`" — there is no app loader (see *Cross-repo impact*), so this describes something that does not exist.
+  - `:465` "the app has no live fallback — it must read the crosswalk from the store" — same stale premise, and the same one Invariant 5 repeats.
+- **`CLAUDE.md`** — two separate things. Invariant 4's version list does not name playerids; add it at v2 only if the list is meant to be exhaustive, checking rather than assuming. Invariant 5's stale grouping of playerids under "the app has no live fallback for them" is a **report, not an edit** — see *Cross-repo impact*. Also correct the same stale claim in `scripts/update-playerids.mjs:11`'s header comment, which this slice is editing anyway.
 
 ## Tests to add
 
-`test/nflverse.test.mjs`:
+**Two existing tests break and must be updated, not worked around.** `test/nflverse.test.mjs:259-260` asserts `deepEqual(ids['00-0034796'], { sleeperId, name, position })` on the whole entry object, so every added field fails it. Update both to the full new shape. Do **not** loosen them to a subset match or a property check: the strict whole-object form is what makes this file's "additive, current names and types" promise verifiable, and weakening it to accommodate the change is the one edit that would make the promise unfalsifiable.
+
+`test/nflverse.test.mjs`, new cases:
 
 1. A fixture with every new column parses, and each field lands with the right type — numbers coerced, ids left as strings.
 2. `NA` and empty string both become `null`, per column.
@@ -121,7 +154,10 @@ CR-06 covers roster and draft, not playerids — the brief is right about that. 
 6. `bySleeper` includes rows that have no `gsis_id`, with `gsisId: null`.
 7. `ids` round-trips: every `gsis_id` in `ids` appears in `bySleeper` under its `sleeperId`, and the shared fields agree.
 
-`test/manifest.test.mjs` — reconcile still passes with the v2 entry.
+8. A row with a `sleeper_id` and no `gsis_id` is skipped from `ids` but present in `bySleeper` with `gsisId: null` — the split-filter behaviour from §A. Paired with test 6 this is what pins the 199 rows.
+9. Content-hash dedup notices a change confined to sleeper-only rows: two parses whose `ids` are identical but whose `bySleeper` differs must produce different hashes, or the write is skipped and the index goes stale (§D1).
+
+`test/manifest.test.mjs` — reconcile still passes with the v2 entry, and the `schemaVersion` in the written file equals the one in its manifest entry (§D2).
 
 `lib/validate.mjs` coverage: each new gate throws below its threshold and passes above it, and **a fixture where every `draft_round` is null still passes** (the regression test for finding 2).
 
