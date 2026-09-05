@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "capturedAt": "2026-09-05T00:02:26.136Z",
+  "capturedAt": "2026-09-05T09:14:13.259Z",
   "targetSeason": 2026,
   "currentSeason": 2025,
   "scoringBasis": "custom",
@@ -53285,9 +53285,9 @@
         "positionPercentile": 35
       },
       "projection": {
-        "projectedPPG": 10.7,
+        "projectedPPG": 6.2,
         "projectedGames": 14,
-        "projectedTotalPts": 150.5,
+        "projectedTotalPts": 87.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -53313,12 +53313,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.194,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 228,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.693,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -53345,7 +53345,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -53358,9 +53359,9 @@
         "positionPercentile": 23
       },
       "projection": {
-        "projectedPPG": 10.1,
+        "projectedPPG": 6.8,
         "projectedGames": 14,
-        "projectedTotalPts": 140.9,
+        "projectedTotalPts": 95.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -53386,12 +53387,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.118,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 149,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.76,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -53499,9 +53500,9 @@
         "positionPercentile": 50
       },
       "projection": {
-        "projectedPPG": 12.9,
+        "projectedPPG": 8.8,
         "projectedGames": 14,
-        "projectedTotalPts": 181.1,
+        "projectedTotalPts": 123.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -53527,12 +53528,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.438,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 147,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.978,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -53572,9 +53573,9 @@
         "positionPercentile": 58
       },
       "projection": {
-        "projectedPPG": 13.6,
+        "projectedPPG": 10,
         "projectedGames": 14,
-        "projectedTotalPts": 189.8,
+        "projectedTotalPts": 140.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -53600,12 +53601,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.507,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 126,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.115,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -53645,9 +53646,9 @@
         "positionPercentile": 28
       },
       "projection": {
-        "projectedPPG": 14.8,
+        "projectedPPG": 9.2,
         "projectedGames": 14,
-        "projectedTotalPts": 207.3,
+        "projectedTotalPts": 128.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -53673,12 +53674,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.139,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 189,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.706,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -53706,7 +53707,8 @@
           "Young rookie ↑",
           "Low KTC ranking ↓",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -53719,9 +53721,9 @@
         "positionPercentile": 41
       },
       "projection": {
-        "projectedPPG": 11.2,
+        "projectedPPG": 7.6,
         "projectedGames": 14,
-        "projectedTotalPts": 156.4,
+        "projectedTotalPts": 106.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -53747,12 +53749,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.242,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 151,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.844,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -53865,9 +53867,9 @@
         "positionPercentile": 20
       },
       "projection": {
-        "projectedPPG": 4.3,
+        "projectedPPG": 2.9,
         "projectedGames": 14,
-        "projectedTotalPts": 60.3,
+        "projectedTotalPts": 41,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -53893,12 +53895,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.861,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 163,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.585,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -53938,9 +53940,9 @@
         "positionPercentile": 67
       },
       "projection": {
-        "projectedPPG": 8.1,
+        "projectedPPG": 6,
         "projectedGames": 14,
-        "projectedTotalPts": 113.9,
+        "projectedTotalPts": 84.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -53966,12 +53968,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.904,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 116,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.669,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54007,9 +54009,9 @@
       "depthChartOrder": null,
       "ktc": null,
       "projection": {
-        "projectedPPG": 8.3,
+        "projectedPPG": 4.8,
         "projectedGames": 14,
-        "projectedTotalPts": 116.4,
+        "projectedTotalPts": 67.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -54035,12 +54037,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.188,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 238,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.689,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54066,7 +54068,8 @@
         },
         "adjustmentSummary": [
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -54079,9 +54082,9 @@
         "positionPercentile": 38
       },
       "projection": {
-        "projectedPPG": 10.8,
+        "projectedPPG": 6.7,
         "projectedGames": 14,
-        "projectedTotalPts": 151,
+        "projectedTotalPts": 93.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -54107,12 +54110,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.199,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 184,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.743,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54138,7 +54141,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "College dominator ↑"
+          "College dominator ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -54148,9 +54152,9 @@
       "depthChartOrder": 3,
       "ktc": null,
       "projection": {
-        "projectedPPG": 13.3,
+        "projectedPPG": 7.7,
         "projectedGames": 14,
-        "projectedTotalPts": 186.5,
+        "projectedTotalPts": 108.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -54176,12 +54180,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.025,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 227,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.594,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54208,7 +54212,8 @@
         "adjustmentSummary": [
           "Older rookie ↓",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -54218,9 +54223,9 @@
       "depthChartOrder": 6,
       "ktc": null,
       "projection": {
-        "projectedPPG": 5.3,
+        "projectedPPG": 3,
         "projectedGames": 14,
-        "projectedTotalPts": 73.5,
+        "projectedTotalPts": 42.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -54246,12 +54251,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.05,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 248,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.609,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54277,7 +54282,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -54290,9 +54296,9 @@
         "positionPercentile": 84
       },
       "projection": {
-        "projectedPPG": 10.3,
+        "projectedPPG": 7.6,
         "projectedGames": 14,
-        "projectedTotalPts": 144.1,
+        "projectedTotalPts": 106.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -54318,12 +54324,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.144,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 105,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.846,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54361,9 +54367,9 @@
         "positionPercentile": 34
       },
       "projection": {
-        "projectedPPG": 6,
+        "projectedPPG": 4.9,
         "projectedGames": 14,
-        "projectedTotalPts": 84.2,
+        "projectedTotalPts": 69,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -54389,12 +54395,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.859,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 87,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.704,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54432,9 +54438,9 @@
         "positionPercentile": 52
       },
       "projection": {
-        "projectedPPG": 8.6,
+        "projectedPPG": 7.9,
         "projectedGames": 14,
-        "projectedTotalPts": 120.8,
+        "projectedTotalPts": 111.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -54460,12 +54466,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.233,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 58,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.134,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54491,7 +54497,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -54504,9 +54511,9 @@
         "positionPercentile": 71
       },
       "projection": {
-        "projectedPPG": 10.3,
+        "projectedPPG": 9.5,
         "projectedGames": 14,
-        "projectedTotalPts": 144.8,
+        "projectedTotalPts": 133.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -54532,12 +54539,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.478,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 34,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.36,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54565,7 +54572,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -54578,9 +54586,9 @@
         "positionPercentile": 48
       },
       "projection": {
-        "projectedPPG": 7.6,
+        "projectedPPG": 4.4,
         "projectedGames": 14,
-        "projectedTotalPts": 106.7,
+        "projectedTotalPts": 61.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -54606,12 +54614,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.089,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 235,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.631,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54636,7 +54644,8 @@
           "newTeam": "TB"
         },
         "adjustmentSummary": [
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -54649,9 +54658,9 @@
         "positionPercentile": 19
       },
       "projection": {
-        "projectedPPG": 10.8,
+        "projectedPPG": 8.9,
         "projectedGames": 14,
-        "projectedTotalPts": 151.9,
+        "projectedTotalPts": 124.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -54677,12 +54686,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.834,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 94,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.684,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54723,9 +54732,9 @@
         "positionPercentile": 83
       },
       "projection": {
-        "projectedPPG": 6.3,
+        "projectedPPG": 5.8,
         "projectedGames": 14,
-        "projectedTotalPts": 88.1,
+        "projectedTotalPts": 81,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -54751,12 +54760,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.258,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 46,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.157,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54783,7 +54792,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -54796,9 +54806,9 @@
         "positionPercentile": 72
       },
       "projection": {
-        "projectedPPG": 10.4,
+        "projectedPPG": 9.6,
         "projectedGames": 14,
-        "projectedTotalPts": 146.2,
+        "projectedTotalPts": 134.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -54824,12 +54834,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.16,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 60,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.067,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -54857,7 +54867,8 @@
           "Older rookie ↓",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -54870,9 +54881,9 @@
         "positionPercentile": 82
       },
       "projection": {
-        "projectedPPG": 14.1,
+        "projectedPPG": 10.4,
         "projectedGames": 14,
-        "projectedTotalPts": 197.1,
+        "projectedTotalPts": 145.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -54898,12 +54909,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.565,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 104,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.158,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55013,9 +55024,9 @@
         "positionPercentile": 62
       },
       "projection": {
-        "projectedPPG": 7.9,
+        "projectedPPG": 6.5,
         "projectedGames": 14,
-        "projectedTotalPts": 110.3,
+        "projectedTotalPts": 90.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -55041,12 +55052,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.126,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 74,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.923,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55084,9 +55095,9 @@
         "positionPercentile": 80
       },
       "projection": {
-        "projectedPPG": 7.7,
+        "projectedPPG": 5.3,
         "projectedGames": 14,
-        "projectedTotalPts": 108.4,
+        "projectedTotalPts": 73.7,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -55112,12 +55123,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.549,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 165,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.053,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55158,9 +55169,9 @@
         "positionPercentile": 4
       },
       "projection": {
-        "projectedPPG": 12.4,
+        "projectedPPG": 7.7,
         "projectedGames": 14,
-        "projectedTotalPts": 172.9,
+        "projectedTotalPts": 107.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -55186,12 +55197,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.95,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 181,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.589,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55219,7 +55230,8 @@
           "Young rookie ↑",
           "Low KTC ranking ↓",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -55232,9 +55244,9 @@
         "positionPercentile": 48
       },
       "projection": {
-        "projectedPPG": 12.8,
+        "projectedPPG": 7.9,
         "projectedGames": 14,
-        "projectedTotalPts": 179,
+        "projectedTotalPts": 110.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -55260,12 +55272,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.42,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 179,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.881,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55292,7 +55304,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -55305,9 +55318,9 @@
         "positionPercentile": 30
       },
       "projection": {
-        "projectedPPG": 8.1,
+        "projectedPPG": 6.6,
         "projectedGames": 14,
-        "projectedTotalPts": 113.2,
+        "projectedTotalPts": 92.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -55333,12 +55346,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.155,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 102,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.947,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55379,9 +55392,9 @@
         "positionPercentile": 56
       },
       "projection": {
-        "projectedPPG": 8.2,
+        "projectedPPG": 5.6,
         "projectedGames": 14,
-        "projectedTotalPts": 115.1,
+        "projectedTotalPts": 78.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -55407,12 +55420,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.175,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 166,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.799,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55451,9 +55464,9 @@
         "positionPercentile": 64
       },
       "projection": {
-        "projectedPPG": 6.2,
+        "projectedPPG": 5.7,
         "projectedGames": 14,
-        "projectedTotalPts": 87.3,
+        "projectedTotalPts": 80.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -55479,12 +55492,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.247,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 42,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.147,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55510,7 +55523,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -55523,9 +55537,9 @@
         "positionPercentile": 52
       },
       "projection": {
-        "projectedPPG": 8.9,
+        "projectedPPG": 6.6,
         "projectedGames": 14,
-        "projectedTotalPts": 125,
+        "projectedTotalPts": 92.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -55551,12 +55565,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.275,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 136,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.944,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55595,9 +55609,9 @@
         "positionPercentile": 32
       },
       "projection": {
-        "projectedPPG": 15,
+        "projectedPPG": 8.7,
         "projectedGames": 14,
-        "projectedTotalPts": 209.7,
+        "projectedTotalPts": 121.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -55623,12 +55637,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.152,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 231,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.668,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55655,7 +55669,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "Low KTC ranking ↓",
-          "College dominator ↑"
+          "College dominator ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -55668,9 +55683,9 @@
         "positionPercentile": 81
       },
       "projection": {
-        "projectedPPG": 10.1,
+        "projectedPPG": 10.3,
         "projectedGames": 14,
-        "projectedTotalPts": 141.6,
+        "projectedTotalPts": 144.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -55696,12 +55711,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.445,
+          "nflDraftMultiplier": 1.02,
+          "nflDraftRound": 1,
+          "nflDraftPick": 23,
+          "nflDraftTier": "r1-late",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.473,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55728,7 +55743,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -55741,9 +55757,9 @@
         "positionPercentile": 70
       },
       "projection": {
-        "projectedPPG": 5.9,
+        "projectedPPG": 4.4,
         "projectedGames": 14,
-        "projectedTotalPts": 82.3,
+        "projectedTotalPts": 60.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -55769,12 +55785,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.176,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 120,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.87,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55885,9 +55901,9 @@
         "positionPercentile": 54
       },
       "projection": {
-        "projectedPPG": 12.1,
+        "projectedPPG": 9.9,
         "projectedGames": 14,
-        "projectedTotalPts": 169.3,
+        "projectedTotalPts": 138.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -55913,12 +55929,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.344,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 83,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.102,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -55958,9 +55974,9 @@
         "positionPercentile": 40
       },
       "projection": {
-        "projectedPPG": 7,
+        "projectedPPG": 5.2,
         "projectedGames": 14,
-        "projectedTotalPts": 97.7,
+        "projectedTotalPts": 72.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -55986,12 +56002,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.997,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 133,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.738,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56030,9 +56046,9 @@
         "positionPercentile": 92
       },
       "projection": {
-        "projectedPPG": 9,
+        "projectedPPG": 7.4,
         "projectedGames": 14,
-        "projectedTotalPts": 126,
+        "projectedTotalPts": 103.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -56058,12 +56074,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.8,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 67,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.476,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56104,9 +56120,9 @@
         "positionPercentile": 95
       },
       "projection": {
-        "projectedPPG": 15,
+        "projectedPPG": 15.3,
         "projectedGames": 14,
-        "projectedTotalPts": 210,
+        "projectedTotalPts": 214.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -56132,12 +56148,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.667,
+          "nflDraftMultiplier": 1.02,
+          "nflDraftRound": 1,
+          "nflDraftPick": 22,
+          "nflDraftTier": "r1-late",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.7,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56165,7 +56181,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -56178,9 +56195,9 @@
         "positionPercentile": 83
       },
       "projection": {
-        "projectedPPG": 20.4,
+        "projectedPPG": 20.8,
         "projectedGames": 14,
-        "projectedTotalPts": 286.2,
+        "projectedTotalPts": 291.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -56206,12 +56223,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.572,
+          "nflDraftMultiplier": 1.02,
+          "nflDraftRound": 1,
+          "nflDraftPick": 25,
+          "nflDraftTier": "r1-late",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.604,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56239,7 +56256,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -56252,9 +56270,9 @@
         "positionPercentile": 61
       },
       "projection": {
-        "projectedPPG": 8,
+        "projectedPPG": 7.4,
         "projectedGames": 14,
-        "projectedTotalPts": 112.1,
+        "projectedTotalPts": 103.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -56280,12 +56298,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.144,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 55,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.053,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56310,7 +56328,8 @@
           "newTeam": "LAC"
         },
         "adjustmentSummary": [
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -56323,9 +56342,9 @@
         "positionPercentile": 50
       },
       "projection": {
-        "projectedPPG": 17.1,
+        "projectedPPG": 14,
         "projectedGames": 14,
-        "projectedTotalPts": 238.9,
+        "projectedTotalPts": 195.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -56351,12 +56370,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.313,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 92,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.076,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56396,9 +56415,9 @@
         "positionPercentile": 38
       },
       "projection": {
-        "projectedPPG": 14.3,
+        "projectedPPG": 8.9,
         "projectedGames": 14,
-        "projectedTotalPts": 200.6,
+        "projectedTotalPts": 124.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -56424,12 +56443,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.102,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 185,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.683,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56455,7 +56474,8 @@
         },
         "adjustmentSummary": [
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -56468,9 +56488,9 @@
         "positionPercentile": 89
       },
       "projection": {
-        "projectedPPG": 15.3,
+        "projectedPPG": 14.1,
         "projectedGames": 14,
-        "projectedTotalPts": 214.6,
+        "projectedTotalPts": 197.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -56496,12 +56516,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.703,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 36,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.567,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56528,7 +56548,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College dominator ↑"
+          "College dominator ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -56541,9 +56562,9 @@
         "positionPercentile": 94
       },
       "projection": {
-        "projectedPPG": 10.8,
+        "projectedPPG": 11,
         "projectedGames": 14,
-        "projectedTotalPts": 150.9,
+        "projectedTotalPts": 153.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -56569,12 +56590,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.54,
+          "nflDraftMultiplier": 1.02,
+          "nflDraftRound": 1,
+          "nflDraftPick": 19,
+          "nflDraftTier": "r1-late",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.57,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56601,7 +56622,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -56614,9 +56636,9 @@
         "positionPercentile": 15
       },
       "projection": {
-        "projectedPPG": 9.3,
+        "projectedPPG": 5.8,
         "projectedGames": 14,
-        "projectedTotalPts": 130.6,
+        "projectedTotalPts": 81,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -56642,12 +56664,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.037,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 188,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.643,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56675,7 +56697,8 @@
           "Young rookie ↑",
           "Low KTC ranking ↓",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -56688,9 +56711,9 @@
         "positionPercentile": 96
       },
       "projection": {
-        "projectedPPG": 9.2,
+        "projectedPPG": 9.3,
         "projectedGames": 14,
-        "projectedTotalPts": 128.4,
+        "projectedTotalPts": 129.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -56716,12 +56739,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.834,
+          "nflDraftMultiplier": 1.1,
+          "nflDraftRound": 1,
+          "nflDraftPick": 10,
+          "nflDraftTier": "r1-mid",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.85,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56749,7 +56772,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Early Round 1 NFL pick ↑"
         ]
       }
     },
@@ -56762,9 +56786,9 @@
         "positionPercentile": 95
       },
       "projection": {
-        "projectedPPG": 7.5,
+        "projectedPPG": 8.3,
         "projectedGames": 14,
-        "projectedTotalPts": 105.6,
+        "projectedTotalPts": 116.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -56790,12 +56814,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.508,
+          "nflDraftMultiplier": 1.1,
+          "nflDraftRound": 1,
+          "nflDraftPick": 14,
+          "nflDraftTier": "r1-mid",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.659,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56822,7 +56846,8 @@
         "adjustmentSummary": [
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Early Round 1 NFL pick ↑"
         ]
       }
     },
@@ -56835,9 +56860,9 @@
         "positionPercentile": 91
       },
       "projection": {
-        "projectedPPG": 12,
+        "projectedPPG": 11.1,
         "projectedGames": 14,
-        "projectedTotalPts": 168.5,
+        "projectedTotalPts": 155,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -56863,12 +56888,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.719,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 39,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.582,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -56895,7 +56920,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College dominator ↑"
+          "College dominator ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -56980,9 +57006,9 @@
         "positionPercentile": 62
       },
       "projection": {
-        "projectedPPG": 5.6,
+        "projectedPPG": 5.2,
         "projectedGames": 14,
-        "projectedTotalPts": 78.8,
+        "projectedTotalPts": 72.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -57008,12 +57034,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.126,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 50,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.036,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57039,7 +57065,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -57052,9 +57079,9 @@
         "positionPercentile": 72
       },
       "projection": {
-        "projectedPPG": 14,
+        "projectedPPG": 18.2,
         "projectedGames": 14,
-        "projectedTotalPts": 195.7,
+        "projectedTotalPts": 254.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -57080,12 +57107,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.075,
+          "nflDraftMultiplier": 1.3,
+          "nflDraftRound": 1,
+          "nflDraftPick": 1,
+          "nflDraftTier": "top-3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.398,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57110,7 +57137,8 @@
           "newTeam": "TEN"
         },
         "adjustmentSummary": [
-          "High KTC ranking ↑"
+          "High KTC ranking ↑",
+          "Top-3 NFL draft pick ↑↑"
         ]
       }
     },
@@ -57123,9 +57151,9 @@
         "positionPercentile": 32
       },
       "projection": {
-        "projectedPPG": 5.2,
+        "projectedPPG": 3.3,
         "projectedGames": 14,
-        "projectedTotalPts": 73.4,
+        "projectedTotalPts": 45.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -57151,12 +57179,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.749,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 208,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.465,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57184,7 +57212,8 @@
           "Young rookie ↑",
           "Low KTC ranking ↓",
           "Modest college production ↓",
-          "College production declining ↓"
+          "College production declining ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -57197,9 +57226,9 @@
         "positionPercentile": 54
       },
       "projection": {
-        "projectedPPG": 15.8,
+        "projectedPPG": 10.7,
         "projectedGames": 14,
-        "projectedTotalPts": 221.3,
+        "projectedTotalPts": 150.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -57225,12 +57254,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.216,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 144,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.827,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57269,9 +57298,9 @@
         "positionPercentile": 95
       },
       "projection": {
-        "projectedPPG": 11.7,
+        "projectedPPG": 13,
         "projectedGames": 14,
-        "projectedTotalPts": 163.4,
+        "projectedTotalPts": 181.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -57297,12 +57326,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.667,
+          "nflDraftMultiplier": 1.18,
+          "nflDraftRound": 1,
+          "nflDraftPick": 8,
+          "nflDraftTier": "top-8",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.85,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57330,7 +57359,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Early Round 1 NFL pick ↑"
         ]
       }
     },
@@ -57371,11 +57401,11 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
+          "nflDraftMultiplier": 1.18,
+          "nflDraftRound": 1,
+          "nflDraftPick": 6,
+          "nflDraftTier": "top-8",
+          "nflDraftMatchSource": "matched",
           "rookieMultiplierProduct": 1.85,
           "adot": null,
           "adotDelta": null,
@@ -57404,7 +57434,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Early Round 1 NFL pick ↑"
         ]
       }
     },
@@ -57417,9 +57448,9 @@
         "positionPercentile": 85
       },
       "projection": {
-        "projectedPPG": 12.9,
+        "projectedPPG": 11.9,
         "projectedGames": 14,
-        "projectedTotalPts": 180.9,
+        "projectedTotalPts": 166.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -57445,12 +57476,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.436,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 38,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.321,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57477,7 +57508,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College production declining ↓"
+          "College production declining ↓",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -57490,9 +57522,9 @@
         "positionPercentile": 68
       },
       "projection": {
-        "projectedPPG": 10.2,
+        "projectedPPG": 13,
         "projectedGames": 14,
-        "projectedTotalPts": 142.5,
+        "projectedTotalPts": 181.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -57518,12 +57550,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.454,
+          "nflDraftMultiplier": 1.3,
+          "nflDraftRound": 1,
+          "nflDraftPick": 2,
+          "nflDraftTier": "top-3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.85,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57551,7 +57583,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Top-3 NFL draft pick ↑↑"
         ]
       }
     },
@@ -57564,9 +57597,9 @@
         "positionPercentile": 43
       },
       "projection": {
-        "projectedPPG": 12.2,
+        "projectedPPG": 9,
         "projectedGames": 14,
-        "projectedTotalPts": 170.7,
+        "projectedTotalPts": 126.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -57592,12 +57625,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.355,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 114,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.003,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57636,9 +57669,9 @@
         "positionPercentile": 70
       },
       "projection": {
-        "projectedPPG": 8.3,
+        "projectedPPG": 4.8,
         "projectedGames": 14,
-        "projectedTotalPts": 115.7,
+        "projectedTotalPts": 67.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -57664,12 +57697,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.918,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 245,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.533,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57695,7 +57728,8 @@
         },
         "adjustmentSummary": [
           "Older rookie ↓",
-          "High KTC ranking ↑"
+          "High KTC ranking ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -57708,9 +57742,9 @@
         "positionPercentile": 75
       },
       "projection": {
-        "projectedPPG": 12.3,
+        "projectedPPG": 7.1,
         "projectedGames": 14,
-        "projectedTotalPts": 172.1,
+        "projectedTotalPts": 99.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -57736,12 +57770,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.366,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 233,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.792,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57768,7 +57802,8 @@
         "adjustmentSummary": [
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -57781,9 +57816,9 @@
         "positionPercentile": 58
       },
       "projection": {
-        "projectedPPG": 6.6,
+        "projectedPPG": 5.4,
         "projectedGames": 14,
-        "projectedTotalPts": 92.7,
+        "projectedTotalPts": 76,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -57809,12 +57844,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.946,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 70,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.776,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57852,9 +57887,9 @@
         "positionPercentile": 58
       },
       "projection": {
-        "projectedPPG": 8.7,
+        "projectedPPG": 7.1,
         "projectedGames": 14,
-        "projectedTotalPts": 122,
+        "projectedTotalPts": 100,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -57880,12 +57915,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.245,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 79,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.02,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -57992,9 +58027,9 @@
         "positionPercentile": 12
       },
       "projection": {
-        "projectedPPG": 5.1,
+        "projectedPPG": 3.8,
         "projectedGames": 14,
-        "projectedTotalPts": 71.9,
+        "projectedTotalPts": 53.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -58020,12 +58055,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.733,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 110,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.543,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58064,9 +58099,9 @@
         "positionPercentile": 49
       },
       "projection": {
-        "projectedPPG": 7.5,
+        "projectedPPG": 5.5,
         "projectedGames": 14,
-        "projectedTotalPts": 104.6,
+        "projectedTotalPts": 77.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -58092,12 +58127,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.067,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 103,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.79,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58135,9 +58170,9 @@
         "positionPercentile": 43
       },
       "projection": {
-        "projectedPPG": 8.2,
+        "projectedPPG": 6,
         "projectedGames": 14,
-        "projectedTotalPts": 114.4,
+        "projectedTotalPts": 84.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -58163,12 +58198,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.167,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 108,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.863,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58279,9 +58314,9 @@
         "positionPercentile": 30
       },
       "projection": {
-        "projectedPPG": 9.4,
+        "projectedPPG": 5.8,
         "projectedGames": 14,
-        "projectedTotalPts": 131.7,
+        "projectedTotalPts": 81.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -58307,12 +58342,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.045,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 193,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.648,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58339,7 +58374,8 @@
         "adjustmentSummary": [
           "Low KTC ranking ↓",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -58352,9 +58388,9 @@
         "positionPercentile": 46
       },
       "projection": {
-        "projectedPPG": 12.6,
+        "projectedPPG": 7.3,
         "projectedGames": 14,
-        "projectedTotalPts": 176.8,
+        "projectedTotalPts": 102.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -58380,12 +58416,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.403,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 236,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.814,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58412,7 +58448,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -58425,9 +58462,9 @@
         "positionPercentile": 76
       },
       "projection": {
-        "projectedPPG": 15.4,
+        "projectedPPG": 14.2,
         "projectedGames": 14,
-        "projectedTotalPts": 215.7,
+        "projectedTotalPts": 198.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -58453,12 +58490,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.185,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 40,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.09,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58486,7 +58523,8 @@
           "Older rookie ↓",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -58496,9 +58534,9 @@
       "depthChartOrder": 5,
       "ktc": null,
       "projection": {
-        "projectedPPG": 9.2,
+        "projectedPPG": 7.5,
         "projectedGames": 14,
-        "projectedTotalPts": 128.6,
+        "projectedTotalPts": 105.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -58524,12 +58562,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.313,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 69,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.076,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58569,9 +58607,9 @@
         "positionPercentile": 23
       },
       "projection": {
-        "projectedPPG": 6.5,
+        "projectedPPG": 4.8,
         "projectedGames": 14,
-        "projectedTotalPts": 90.5,
+        "projectedTotalPts": 67,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -58597,12 +58635,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.923,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 138,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.683,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58641,9 +58679,9 @@
         "positionPercentile": 44
       },
       "projection": {
-        "projectedPPG": 7.2,
+        "projectedPPG": 5.4,
         "projectedGames": 14,
-        "projectedTotalPts": 101.4,
+        "projectedTotalPts": 75,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -58669,12 +58707,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.035,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 128,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.766,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58778,9 +58816,9 @@
       "depthChartOrder": 3,
       "ktc": null,
       "projection": {
-        "projectedPPG": 3.6,
+        "projectedPPG": 2.4,
         "projectedGames": 14,
-        "projectedTotalPts": 49.9,
+        "projectedTotalPts": 34,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -58806,12 +58844,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.713,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 173,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.485,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58850,9 +58888,9 @@
         "positionPercentile": 29
       },
       "projection": {
-        "projectedPPG": 5.8,
+        "projectedPPG": 4,
         "projectedGames": 14,
-        "projectedTotalPts": 81.4,
+        "projectedTotalPts": 55.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -58878,12 +58916,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.83,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 158,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.565,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58921,9 +58959,9 @@
         "positionPercentile": 3
       },
       "projection": {
-        "projectedPPG": 6,
+        "projectedPPG": 3.7,
         "projectedGames": 14,
-        "projectedTotalPts": 83.6,
+        "projectedTotalPts": 51.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -58949,12 +58987,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.853,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 203,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.529,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -58981,7 +59019,8 @@
         "adjustmentSummary": [
           "Low KTC ranking ↓",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -58991,9 +59030,9 @@
       "depthChartOrder": 5,
       "ktc": null,
       "projection": {
-        "projectedPPG": 5,
+        "projectedPPG": 3.1,
         "projectedGames": 14,
-        "projectedTotalPts": 69.8,
+        "projectedTotalPts": 43.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -59019,12 +59058,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.998,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 202,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.618,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -59050,7 +59089,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "Modest college production ↓"
+          "Modest college production ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -59060,9 +59100,9 @@
       "depthChartOrder": 3,
       "ktc": null,
       "projection": {
-        "projectedPPG": 12.8,
+        "projectedPPG": 7.9,
         "projectedGames": 14,
-        "projectedTotalPts": 179.1,
+        "projectedTotalPts": 111,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -59088,12 +59128,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.984,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 197,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.61,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -59119,7 +59159,8 @@
         },
         "adjustmentSummary": [
           "Older rookie ↓",
-          "College dominator ↑"
+          "College dominator ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -59132,9 +59173,9 @@
         "positionPercentile": 3
       },
       "projection": {
-        "projectedPPG": 3.6,
+        "projectedPPG": 2.3,
         "projectedGames": 14,
-        "projectedTotalPts": 50.7,
+        "projectedTotalPts": 31.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -59160,12 +59201,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.724,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 219,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.45,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -59193,7 +59234,8 @@
           "Young rookie ↑",
           "Low KTC ranking ↓",
           "Modest college production ↓",
-          "College production declining ↓"
+          "College production declining ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -59206,9 +59248,9 @@
         "positionPercentile": 24
       },
       "projection": {
-        "projectedPPG": 6.9,
+        "projectedPPG": 4,
         "projectedGames": 14,
-        "projectedTotalPts": 96.4,
+        "projectedTotalPts": 55.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -59234,12 +59276,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.984,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 242,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.571,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -59265,7 +59307,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "Low KTC ranking ↓"
+          "Low KTC ranking ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -59275,9 +59318,9 @@
       "depthChartOrder": null,
       "ktc": null,
       "projection": {
-        "projectedPPG": 7.9,
+        "projectedPPG": 4.6,
         "projectedGames": 14,
-        "projectedTotalPts": 111.1,
+        "projectedTotalPts": 64.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -59303,12 +59346,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.134,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 244,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.658,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -59333,7 +59376,8 @@
           "newTeam": "DET"
         },
         "adjustmentSummary": [
-          "Young rookie ↑"
+          "Young rookie ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -59343,9 +59387,9 @@
       "depthChartOrder": 5,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4.3,
+        "projectedPPG": 2.5,
         "projectedGames": 14,
-        "projectedTotalPts": 59.9,
+        "projectedTotalPts": 34.7,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -59371,12 +59415,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.855,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 241,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.496,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -59401,7 +59445,8 @@
           "newTeam": "DEN"
         },
         "adjustmentSummary": [
-          "Modest college production ↓"
+          "Modest college production ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -61966,9 +62011,9 @@
         "positionPercentile": 57
       },
       "projection": {
-        "projectedPPG": 7.7,
+        "projectedPPG": 5.7,
         "projectedGames": 14,
-        "projectedTotalPts": 107.7,
+        "projectedTotalPts": 79.7,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -61994,12 +62039,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.099,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 115,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.813,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62035,9 +62080,9 @@
         "positionPercentile": 79
       },
       "projection": {
-        "projectedPPG": 20,
+        "projectedPPG": 24.1,
         "projectedGames": 14,
-        "projectedTotalPts": 280.4,
+        "projectedTotalPts": 336.7,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -62063,12 +62108,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.541,
+          "nflDraftMultiplier": 1.3,
+          "nflDraftRound": 1,
+          "nflDraftPick": 1,
+          "nflDraftTier": "top-3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.85,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62096,7 +62141,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Top-3 NFL draft pick ↑↑"
         ]
       }
     },
@@ -62109,9 +62155,9 @@
         "positionPercentile": 26
       },
       "projection": {
-        "projectedPPG": 5.6,
+        "projectedPPG": 3.4,
         "projectedGames": 14,
-        "projectedTotalPts": 77.7,
+        "projectedTotalPts": 48.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -62137,12 +62183,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.793,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 197,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.492,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62169,7 +62215,8 @@
         "adjustmentSummary": [
           "Older rookie ↓",
           "Low KTC ranking ↓",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -62182,9 +62229,9 @@
         "positionPercentile": 60
       },
       "projection": {
-        "projectedPPG": 16.1,
+        "projectedPPG": 13.2,
         "projectedGames": 14,
-        "projectedTotalPts": 225.4,
+        "projectedTotalPts": 184.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -62210,12 +62257,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.239,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 65,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.016,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62250,9 +62297,9 @@
       "depthChartOrder": 4,
       "ktc": null,
       "projection": {
-        "projectedPPG": 5.3,
+        "projectedPPG": 3.6,
         "projectedGames": 14,
-        "projectedTotalPts": 73.5,
+        "projectedTotalPts": 50,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -62278,12 +62325,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.05,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 173,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.714,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62322,9 +62369,9 @@
         "positionPercentile": 70
       },
       "projection": {
-        "projectedPPG": 9.5,
+        "projectedPPG": 8.8,
         "projectedGames": 14,
-        "projectedTotalPts": 133.7,
+        "projectedTotalPts": 123,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -62350,12 +62397,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.364,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 47,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.255,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62382,7 +62429,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -62395,9 +62443,9 @@
         "positionPercentile": 61
       },
       "projection": {
-        "projectedPPG": 16.5,
+        "projectedPPG": 18.1,
         "projectedGames": 14,
-        "projectedTotalPts": 230.4,
+        "projectedTotalPts": 253.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -62423,12 +62471,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.266,
+          "nflDraftMultiplier": 1.1,
+          "nflDraftRound": 1,
+          "nflDraftPick": 13,
+          "nflDraftTier": "r1-mid",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.392,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62454,7 +62502,8 @@
         },
         "adjustmentSummary": [
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Early Round 1 NFL pick ↑"
         ]
       }
     },
@@ -62467,9 +62516,9 @@
         "positionPercentile": 75
       },
       "projection": {
-        "projectedPPG": 9.8,
+        "projectedPPG": 10,
         "projectedGames": 14,
-        "projectedTotalPts": 137.3,
+        "projectedTotalPts": 140,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -62495,12 +62544,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.401,
+          "nflDraftMultiplier": 1.02,
+          "nflDraftRound": 1,
+          "nflDraftPick": 30,
+          "nflDraftTier": "r1-late",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.429,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62527,7 +62576,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -62609,9 +62659,9 @@
         "positionPercentile": 61
       },
       "projection": {
-        "projectedPPG": 5.5,
+        "projectedPPG": 5,
         "projectedGames": 14,
-        "projectedTotalPts": 76.6,
+        "projectedTotalPts": 70.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -62637,12 +62687,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.094,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 61,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.006,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62667,7 +62717,8 @@
           "newTeam": "LAR"
         },
         "adjustmentSummary": [
-          "College production declining ↓"
+          "College production declining ↓",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -62680,9 +62731,9 @@
         "positionPercentile": 90
       },
       "projection": {
-        "projectedPPG": 11.6,
+        "projectedPPG": 13,
         "projectedGames": 14,
-        "projectedTotalPts": 162.1,
+        "projectedTotalPts": 181.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -62708,12 +62759,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.654,
+          "nflDraftMultiplier": 1.18,
+          "nflDraftRound": 1,
+          "nflDraftPick": 4,
+          "nflDraftTier": "top-8",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.85,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62740,7 +62791,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Early Round 1 NFL pick ↑"
         ]
       }
     },
@@ -62753,9 +62805,9 @@
         "positionPercentile": 86
       },
       "projection": {
-        "projectedPPG": 10.7,
+        "projectedPPG": 12.7,
         "projectedGames": 14,
-        "projectedTotalPts": 150.2,
+        "projectedTotalPts": 177.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -62781,12 +62833,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.532,
+          "nflDraftMultiplier": 1.18,
+          "nflDraftRound": 1,
+          "nflDraftPick": 8,
+          "nflDraftTier": "top-8",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.808,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62813,7 +62865,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College dominator ↑"
+          "College dominator ↑",
+          "Early Round 1 NFL pick ↑"
         ]
       }
     },
@@ -62826,9 +62879,9 @@
         "positionPercentile": 21
       },
       "projection": {
-        "projectedPPG": 3.7,
+        "projectedPPG": 2.3,
         "projectedGames": 14,
-        "projectedTotalPts": 51.6,
+        "projectedTotalPts": 31.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -62854,12 +62907,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.737,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 221,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.45,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62887,7 +62940,8 @@
           "Young rookie ↑",
           "Low KTC ranking ↓",
           "Modest college production ↓",
-          "College production declining ↓"
+          "College production declining ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -62900,9 +62954,9 @@
         "positionPercentile": 69
       },
       "projection": {
-        "projectedPPG": 8,
+        "projectedPPG": 6.6,
         "projectedGames": 14,
-        "projectedTotalPts": 112,
+        "projectedTotalPts": 91.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -62928,12 +62982,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.143,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 74,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.937,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -62971,9 +63025,9 @@
         "positionPercentile": 88
       },
       "projection": {
-        "projectedPPG": 13.5,
+        "projectedPPG": 13.7,
         "projectedGames": 14,
-        "projectedTotalPts": 188.5,
+        "projectedTotalPts": 192.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -62999,12 +63053,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.496,
+          "nflDraftMultiplier": 1.02,
+          "nflDraftRound": 1,
+          "nflDraftPick": 32,
+          "nflDraftTier": "r1-late",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.526,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63031,7 +63085,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -63044,9 +63099,9 @@
         "positionPercentile": 97
       },
       "projection": {
-        "projectedPPG": 16.6,
+        "projectedPPG": 16.7,
         "projectedGames": 14,
-        "projectedTotalPts": 232.2,
+        "projectedTotalPts": 233.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -63072,12 +63127,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.843,
+          "nflDraftMultiplier": 1.3,
+          "nflDraftRound": 1,
+          "nflDraftPick": 3,
+          "nflDraftTier": "top-3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.85,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63105,7 +63160,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Top-3 NFL draft pick ↑↑"
         ]
       }
     },
@@ -63118,9 +63174,9 @@
         "positionPercentile": 64
       },
       "projection": {
-        "projectedPPG": 12.3,
+        "projectedPPG": 8.4,
         "projectedGames": 14,
-        "projectedTotalPts": 172.1,
+        "projectedTotalPts": 117,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -63146,12 +63202,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.366,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 165,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.929,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63190,9 +63246,9 @@
         "positionPercentile": 57
       },
       "projection": {
-        "projectedPPG": 15.4,
+        "projectedPPG": 12.6,
         "projectedGames": 14,
-        "projectedTotalPts": 215.1,
+        "projectedTotalPts": 176.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -63218,12 +63274,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.182,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 76,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.969,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63262,9 +63318,9 @@
         "positionPercentile": 74
       },
       "projection": {
-        "projectedPPG": 9.5,
+        "projectedPPG": 7.8,
         "projectedGames": 14,
-        "projectedTotalPts": 133,
+        "projectedTotalPts": 109.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -63290,12 +63346,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.357,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 80,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.113,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63335,9 +63391,9 @@
         "positionPercentile": 85
       },
       "projection": {
-        "projectedPPG": 11.1,
+        "projectedPPG": 11.3,
         "projectedGames": 14,
-        "projectedTotalPts": 155.6,
+        "projectedTotalPts": 158.7,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -63363,12 +63419,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.588,
+          "nflDraftMultiplier": 1.02,
+          "nflDraftRound": 1,
+          "nflDraftPick": 20,
+          "nflDraftTier": "r1-late",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.62,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63396,7 +63452,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -63406,9 +63463,9 @@
       "depthChartOrder": 3,
       "ktc": null,
       "projection": {
-        "projectedPPG": 13.3,
+        "projectedPPG": 7.7,
         "projectedGames": 14,
-        "projectedTotalPts": 186.5,
+        "projectedTotalPts": 108.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -63434,12 +63491,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.025,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 234,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.594,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63466,7 +63523,8 @@
         "adjustmentSummary": [
           "Older rookie ↓",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -63479,9 +63537,9 @@
         "positionPercentile": 66
       },
       "projection": {
-        "projectedPPG": 9.3,
+        "projectedPPG": 7.7,
         "projectedGames": 14,
-        "projectedTotalPts": 130.8,
+        "projectedTotalPts": 107.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -63507,12 +63565,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.335,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 75,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.095,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63551,9 +63609,9 @@
         "positionPercentile": 9
       },
       "projection": {
-        "projectedPPG": 5.5,
+        "projectedPPG": 3.8,
         "projectedGames": 14,
-        "projectedTotalPts": 77.6,
+        "projectedTotalPts": 52.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -63579,12 +63637,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.792,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 143,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.538,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63623,9 +63681,9 @@
         "positionPercentile": 84
       },
       "projection": {
-        "projectedPPG": 9.7,
+        "projectedPPG": 9.9,
         "projectedGames": 14,
-        "projectedTotalPts": 135.7,
+        "projectedTotalPts": 138.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -63651,12 +63709,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.385,
+          "nflDraftMultiplier": 1.02,
+          "nflDraftRound": 1,
+          "nflDraftPick": 24,
+          "nflDraftTier": "r1-late",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.412,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63682,7 +63740,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "High KTC ranking ↑"
+          "High KTC ranking ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -63692,9 +63751,9 @@
       "depthChartOrder": 2,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4.1,
+        "projectedPPG": 3.8,
         "projectedGames": 14,
-        "projectedTotalPts": 57.4,
+        "projectedTotalPts": 52.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -63720,12 +63779,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.82,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 56,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.754,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63751,7 +63810,8 @@
         },
         "adjustmentSummary": [
           "Older rookie ↓",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -63764,9 +63824,9 @@
         "positionPercentile": 68
       },
       "projection": {
-        "projectedPPG": 8.8,
+        "projectedPPG": 7.2,
         "projectedGames": 14,
-        "projectedTotalPts": 123.1,
+        "projectedTotalPts": 101,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -63792,12 +63852,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.256,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 71,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.03,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63836,9 +63896,9 @@
         "positionPercentile": 46
       },
       "projection": {
-        "projectedPPG": 11.5,
+        "projectedPPG": 7.8,
         "projectedGames": 14,
-        "projectedTotalPts": 161.4,
+        "projectedTotalPts": 109.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -63864,12 +63924,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.281,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 174,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.871,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63909,9 +63969,9 @@
         "positionPercentile": 46
       },
       "projection": {
-        "projectedPPG": 16,
+        "projectedPPG": 11.8,
         "projectedGames": 14,
-        "projectedTotalPts": 223.8,
+        "projectedTotalPts": 165.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -63937,12 +63997,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.23,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 110,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.91,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -63981,9 +64041,9 @@
         "positionPercentile": 72
       },
       "projection": {
-        "projectedPPG": 9.7,
+        "projectedPPG": 7.2,
         "projectedGames": 14,
-        "projectedTotalPts": 135.5,
+        "projectedTotalPts": 100.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -64009,12 +64069,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.075,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 122,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.796,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -64052,9 +64112,9 @@
         "positionPercentile": 35
       },
       "projection": {
-        "projectedPPG": 14,
+        "projectedPPG": 8.7,
         "projectedGames": 14,
-        "projectedTotalPts": 196.7,
+        "projectedTotalPts": 121.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -64080,12 +64140,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.081,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 182,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.67,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -64111,7 +64171,8 @@
         },
         "adjustmentSummary": [
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -64124,9 +64185,9 @@
         "positionPercentile": 33
       },
       "projection": {
-        "projectedPPG": 4.3,
+        "projectedPPG": 3.9,
         "projectedGames": 14,
-        "projectedTotalPts": 59.7,
+        "projectedTotalPts": 54.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -64152,12 +64213,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.853,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 59,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.785,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -64183,7 +64244,8 @@
         },
         "adjustmentSummary": [
           "Low KTC ranking ↓",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -64193,9 +64255,9 @@
       "depthChartOrder": 5,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4.4,
+        "projectedPPG": 2.7,
         "projectedGames": 14,
-        "projectedTotalPts": 61.2,
+        "projectedTotalPts": 37.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -64221,12 +64283,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.874,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 185,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.542,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -64251,7 +64313,8 @@
           "newTeam": "TB"
         },
         "adjustmentSummary": [
-          "Modest college production ↓"
+          "Modest college production ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -64264,9 +64327,9 @@
         "positionPercentile": 72
       },
       "projection": {
-        "projectedPPG": 10.4,
+        "projectedPPG": 8.5,
         "projectedGames": 14,
-        "projectedTotalPts": 145.6,
+        "projectedTotalPts": 119.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -64292,12 +64355,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.486,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 94,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.218,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -64335,9 +64398,9 @@
       "depthChartOrder": null,
       "ktc": null,
       "projection": {
-        "projectedPPG": 7.7,
+        "projectedPPG": 4.8,
         "projectedGames": 14,
-        "projectedTotalPts": 108,
+        "projectedTotalPts": 67,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -64363,12 +64426,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.102,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 199,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.683,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -64393,7 +64456,8 @@
           "newTeam": "SEA"
         },
         "adjustmentSummary": [
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -64610,9 +64674,9 @@
         "positionPercentile": 60
       },
       "projection": {
-        "projectedPPG": 8.6,
+        "projectedPPG": 7.1,
         "projectedGames": 14,
-        "projectedTotalPts": 121.1,
+        "projectedTotalPts": 99.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -64638,12 +64702,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.235,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 84,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.013,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -64751,9 +64815,9 @@
         "positionPercentile": 53
       },
       "projection": {
-        "projectedPPG": 4.4,
+        "projectedPPG": 3.6,
         "projectedGames": 14,
-        "projectedTotalPts": 62.3,
+        "projectedTotalPts": 51.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -64779,12 +64843,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.89,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 73,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.73,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -64822,9 +64886,9 @@
         "positionPercentile": 65
       },
       "projection": {
-        "projectedPPG": 9.3,
+        "projectedPPG": 7.6,
         "projectedGames": 14,
-        "projectedTotalPts": 130.1,
+        "projectedTotalPts": 106.7,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -64850,12 +64914,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.328,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 79,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.089,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -64963,9 +65027,9 @@
         "positionPercentile": 14
       },
       "projection": {
-        "projectedPPG": 4.1,
+        "projectedPPG": 3.4,
         "projectedGames": 14,
-        "projectedTotalPts": 57.6,
+        "projectedTotalPts": 47.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -64991,12 +65055,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.823,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 69,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.675,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -65173,9 +65237,9 @@
         "positionPercentile": 42
       },
       "projection": {
-        "projectedPPG": 6.3,
+        "projectedPPG": 3.9,
         "projectedGames": 14,
-        "projectedTotalPts": 88.6,
+        "projectedTotalPts": 55,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -65201,12 +65265,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.904,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 195,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.561,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -65231,7 +65295,8 @@
           "newTeam": "LV"
         },
         "adjustmentSummary": [
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -65244,9 +65309,9 @@
         "positionPercentile": 88
       },
       "projection": {
-        "projectedPPG": 7.1,
+        "projectedPPG": 7.2,
         "projectedGames": 14,
-        "projectedTotalPts": 98.9,
+        "projectedTotalPts": 100.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -65272,12 +65337,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.412,
+          "nflDraftMultiplier": 1.02,
+          "nflDraftRound": 1,
+          "nflDraftPick": 16,
+          "nflDraftTier": "r1-late",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.44,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -65304,7 +65369,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "High KTC ranking ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -65317,9 +65383,9 @@
         "positionPercentile": 28
       },
       "projection": {
-        "projectedPPG": 7.2,
+        "projectedPPG": 4.2,
         "projectedGames": 14,
-        "projectedTotalPts": 101,
+        "projectedTotalPts": 58.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -65345,12 +65411,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.031,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 254,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.598,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -65377,7 +65443,8 @@
         "adjustmentSummary": [
           "Low KTC ranking ↓",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -65390,9 +65457,9 @@
         "positionPercentile": 6
       },
       "projection": {
-        "projectedPPG": 11.4,
+        "projectedPPG": 7.7,
         "projectedGames": 14,
-        "projectedTotalPts": 159.1,
+        "projectedTotalPts": 108.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -65418,12 +65485,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.874,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 178,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.594,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -65531,9 +65598,9 @@
         "positionPercentile": 63
       },
       "projection": {
-        "projectedPPG": 12.7,
+        "projectedPPG": 8.7,
         "projectedGames": 14,
-        "projectedTotalPts": 178.3,
+        "projectedTotalPts": 121.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -65559,12 +65626,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.415,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 161,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.962,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -65604,9 +65671,9 @@
         "positionPercentile": 48
       },
       "projection": {
-        "projectedPPG": 8.2,
+        "projectedPPG": 5.6,
         "projectedGames": 14,
-        "projectedTotalPts": 114.9,
+        "projectedTotalPts": 78.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -65632,12 +65699,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.172,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 177,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.797,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -65879,9 +65946,9 @@
         "positionPercentile": 73
       },
       "projection": {
-        "projectedPPG": 11.7,
+        "projectedPPG": 8.6,
         "projectedGames": 14,
-        "projectedTotalPts": 163.5,
+        "projectedTotalPts": 121,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -65907,12 +65974,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.297,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 108,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.96,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -65951,9 +66018,9 @@
         "positionPercentile": 80
       },
       "projection": {
-        "projectedPPG": 10.8,
+        "projectedPPG": 10,
         "projectedGames": 14,
-        "projectedTotalPts": 151.8,
+        "projectedTotalPts": 139.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -65979,12 +66046,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.549,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 39,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.425,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66012,7 +66079,8 @@
           "Young rookie ↑",
           "High KTC ranking ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -66025,9 +66093,9 @@
         "positionPercentile": 53
       },
       "projection": {
-        "projectedPPG": 12,
+        "projectedPPG": 7.5,
         "projectedGames": 14,
-        "projectedTotalPts": 168.4,
+        "projectedTotalPts": 104.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -66053,12 +66121,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.336,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 198,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.828,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66085,7 +66153,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -66172,9 +66241,9 @@
         "positionPercentile": 78
       },
       "projection": {
-        "projectedPPG": 6,
+        "projectedPPG": 5.5,
         "projectedGames": 14,
-        "projectedTotalPts": 83.9,
+        "projectedTotalPts": 77.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -66200,12 +66269,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.198,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 54,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.102,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66230,7 +66299,8 @@
           "newTeam": "PHI"
         },
         "adjustmentSummary": [
-          "High KTC ranking ↑"
+          "High KTC ranking ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -66313,9 +66383,9 @@
         "positionPercentile": 51
       },
       "projection": {
-        "projectedPPG": 8.6,
+        "projectedPPG": 7,
         "projectedGames": 14,
-        "projectedTotalPts": 120.1,
+        "projectedTotalPts": 98.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -66341,12 +66411,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.225,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 83,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.005,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66454,9 +66524,9 @@
         "positionPercentile": 40
       },
       "projection": {
-        "projectedPPG": 7.8,
+        "projectedPPG": 5.8,
         "projectedGames": 14,
-        "projectedTotalPts": 109.4,
+        "projectedTotalPts": 81,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -66482,12 +66552,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.116,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 105,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.826,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66523,9 +66593,9 @@
       "depthChartOrder": 5,
       "ktc": null,
       "projection": {
-        "projectedPPG": 7.7,
+        "projectedPPG": 4.8,
         "projectedGames": 14,
-        "projectedTotalPts": 108,
+        "projectedTotalPts": 67,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -66551,12 +66621,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.102,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 191,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.683,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66581,7 +66651,8 @@
           "newTeam": "JAX"
         },
         "adjustmentSummary": [
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -66594,9 +66665,9 @@
         "positionPercentile": 43
       },
       "projection": {
-        "projectedPPG": 4.8,
+        "projectedPPG": 3.2,
         "projectedGames": 14,
-        "projectedTotalPts": 66.9,
+        "projectedTotalPts": 45.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -66622,12 +66693,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.956,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 152,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.65,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66739,9 +66810,9 @@
         "positionPercentile": 54
       },
       "projection": {
-        "projectedPPG": 7.3,
+        "projectedPPG": 5.4,
         "projectedGames": 14,
-        "projectedTotalPts": 102.9,
+        "projectedTotalPts": 76.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -66767,12 +66838,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.05,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 125,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.777,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66812,9 +66883,9 @@
         "positionPercentile": 29
       },
       "projection": {
-        "projectedPPG": 10.7,
+        "projectedPPG": 6.2,
         "projectedGames": 14,
-        "projectedTotalPts": 150,
+        "projectedTotalPts": 87,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -66840,12 +66911,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.824,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 249,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.478,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66871,7 +66942,8 @@
         },
         "adjustmentSummary": [
           "Older rookie ↓",
-          "Low KTC ranking ↓"
+          "Low KTC ranking ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -66884,9 +66956,9 @@
         "positionPercentile": 55
       },
       "projection": {
-        "projectedPPG": 11,
+        "projectedPPG": 6.8,
         "projectedGames": 14,
-        "projectedTotalPts": 154.1,
+        "projectedTotalPts": 95.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -66912,12 +66984,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.223,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 187,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.758,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -66943,7 +67015,8 @@
         },
         "adjustmentSummary": [
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -66956,9 +67029,9 @@
         "positionPercentile": 18
       },
       "projection": {
-        "projectedPPG": 4.9,
+        "projectedPPG": 3.3,
         "projectedGames": 14,
-        "projectedTotalPts": 68.9,
+        "projectedTotalPts": 46.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -66984,12 +67057,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.984,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 164,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.669,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67029,9 +67102,9 @@
         "positionPercentile": 50
       },
       "projection": {
-        "projectedPPG": 7.4,
+        "projectedPPG": 6,
         "projectedGames": 14,
-        "projectedTotalPts": 102.9,
+        "projectedTotalPts": 84.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -67057,12 +67130,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.05,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 89,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.861,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67101,9 +67174,9 @@
         "positionPercentile": 67
       },
       "projection": {
-        "projectedPPG": 8.5,
+        "projectedPPG": 5.8,
         "projectedGames": 14,
-        "projectedTotalPts": 119,
+        "projectedTotalPts": 80.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -67129,12 +67202,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.214,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 176,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.826,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67173,9 +67246,9 @@
         "positionPercentile": 56
       },
       "projection": {
-        "projectedPPG": 8.9,
+        "projectedPPG": 7.3,
         "projectedGames": 14,
-        "projectedTotalPts": 124.2,
+        "projectedTotalPts": 101.8,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -67201,12 +67274,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.985,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 90,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.808,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67384,9 +67457,9 @@
         "positionPercentile": 82
       },
       "projection": {
-        "projectedPPG": 8.6,
+        "projectedPPG": 7.9,
         "projectedGames": 14,
-        "projectedTotalPts": 119.9,
+        "projectedTotalPts": 110.3,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -67412,12 +67485,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.223,
+          "nflDraftMultiplier": 0.92,
+          "nflDraftRound": 2,
+          "nflDraftPick": 33,
+          "nflDraftTier": "r2",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 1.125,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67442,7 +67515,8 @@
           "newTeam": "SF"
         },
         "adjustmentSummary": [
-          "High KTC ranking ↑"
+          "High KTC ranking ↑",
+          "Day 2 NFL capital ↑"
         ]
       }
     },
@@ -67591,9 +67665,9 @@
         "positionPercentile": 44
       },
       "projection": {
-        "projectedPPG": 6.4,
+        "projectedPPG": 4.7,
         "projectedGames": 14,
-        "projectedTotalPts": 89.9,
+        "projectedTotalPts": 66.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -67619,12 +67693,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.917,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 136,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.679,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67663,9 +67737,9 @@
         "positionPercentile": 67
       },
       "projection": {
-        "projectedPPG": 5.8,
+        "projectedPPG": 4.7,
         "projectedGames": 14,
-        "projectedTotalPts": 81,
+        "projectedTotalPts": 66.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -67691,12 +67765,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.157,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 95,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.949,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67733,9 +67807,9 @@
       "depthChartOrder": 6,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4.7,
+        "projectedPPG": 2.7,
         "projectedGames": 14,
-        "projectedTotalPts": 66.2,
+        "projectedTotalPts": 38.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -67761,12 +67835,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.945,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 225,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.548,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67792,7 +67866,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "Modest college production ↓"
+          "Modest college production ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -67805,9 +67880,9 @@
         "positionPercentile": 33
       },
       "projection": {
-        "projectedPPG": 7.3,
+        "projectedPPG": 4.2,
         "projectedGames": 14,
-        "projectedTotalPts": 102.1,
+        "projectedTotalPts": 59.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -67833,12 +67908,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.81,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 230,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.47,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67864,7 +67939,8 @@
         },
         "adjustmentSummary": [
           "Low KTC ranking ↓",
-          "Modest college production ↓"
+          "Modest college production ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -67877,9 +67953,9 @@
         "positionPercentile": 39
       },
       "projection": {
-        "projectedPPG": 8.6,
+        "projectedPPG": 5,
         "projectedGames": 14,
-        "projectedTotalPts": 120.6,
+        "projectedTotalPts": 70,
         "confidence": "rookie",
         "factors": {
           "basePPG": 9,
@@ -67905,12 +67981,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.957,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 237,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.555,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -67937,7 +68013,8 @@
         "adjustmentSummary": [
           "Older rookie ↓",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -68089,9 +68166,9 @@
       "depthChartOrder": 3,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4.1,
+        "projectedPPG": 2.8,
         "projectedGames": 14,
-        "projectedTotalPts": 57.4,
+        "projectedTotalPts": 39,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -68117,12 +68194,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.82,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 180,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.558,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -68224,9 +68301,9 @@
       "depthChartOrder": 6,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4.1,
+        "projectedPPG": 2.8,
         "projectedGames": 14,
-        "projectedTotalPts": 57.4,
+        "projectedTotalPts": 39,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -68252,12 +68329,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.82,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 169,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.558,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -68293,9 +68370,9 @@
       "depthChartOrder": 2,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4.6,
+        "projectedPPG": 3.8,
         "projectedGames": 14,
-        "projectedTotalPts": 64.5,
+        "projectedTotalPts": 52.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -68321,12 +68398,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.922,
+          "nflDraftMultiplier": 0.82,
+          "nflDraftRound": 3,
+          "nflDraftPick": 87,
+          "nflDraftTier": "r3",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.756,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -68362,9 +68439,9 @@
       "depthChartOrder": 4,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4,
+        "projectedPPG": 2.7,
         "projectedGames": 14,
-        "projectedTotalPts": 55.7,
+        "projectedTotalPts": 37.9,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -68390,12 +68467,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.795,
+          "nflDraftMultiplier": 0.68,
+          "nflDraftRound": 5,
+          "nflDraftPick": 170,
+          "nflDraftTier": "r5",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.541,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -68574,9 +68651,9 @@
         "positionPercentile": 26
       },
       "projection": {
-        "projectedPPG": 3.9,
+        "projectedPPG": 3.2,
         "projectedGames": 14,
-        "projectedTotalPts": 55,
+        "projectedTotalPts": 44.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -68602,12 +68679,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.562,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 140,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.45,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -68645,9 +68722,9 @@
       "depthChartOrder": 6,
       "ktc": null,
       "projection": {
-        "projectedPPG": 5.7,
+        "projectedPPG": 4.2,
         "projectedGames": 14,
-        "projectedTotalPts": 80.4,
+        "projectedTotalPts": 59.5,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -68673,12 +68750,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.82,
+          "nflDraftMultiplier": 0.74,
+          "nflDraftRound": 4,
+          "nflDraftPick": 121,
+          "nflDraftTier": "r4",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.607,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -68785,9 +68862,9 @@
         "positionPercentile": 41
       },
       "projection": {
-        "projectedPPG": 7,
+        "projectedPPG": 4.4,
         "projectedGames": 14,
-        "projectedTotalPts": 98.3,
+        "projectedTotalPts": 61,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -68813,12 +68890,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.003,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 190,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.622,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -68844,7 +68921,8 @@
         },
         "adjustmentSummary": [
           "Young rookie ↑",
-          "College production declining ↓"
+          "College production declining ↓",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -68854,9 +68932,9 @@
       "depthChartOrder": null,
       "ktc": null,
       "projection": {
-        "projectedPPG": 8.3,
+        "projectedPPG": 5.2,
         "projectedGames": 14,
-        "projectedTotalPts": 116.4,
+        "projectedTotalPts": 72.2,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -68882,12 +68960,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.188,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 204,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.736,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -68913,7 +68991,8 @@
         },
         "adjustmentSummary": [
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -68923,9 +69002,9 @@
       "depthChartOrder": 9,
       "ktc": null,
       "projection": {
-        "projectedPPG": 9.2,
+        "projectedPPG": 5.7,
         "projectedGames": 14,
-        "projectedTotalPts": 128.6,
+        "projectedTotalPts": 79.7,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -68951,12 +69030,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.313,
+          "nflDraftMultiplier": 0.62,
+          "nflDraftRound": 6,
+          "nflDraftPick": 203,
+          "nflDraftTier": "r6",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.814,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -68983,7 +69062,8 @@
         "adjustmentSummary": [
           "Young rookie ↑",
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -68993,9 +69073,9 @@
       "depthChartOrder": 4,
       "ktc": null,
       "projection": {
-        "projectedPPG": 15.4,
+        "projectedPPG": 9,
         "projectedGames": 14,
-        "projectedTotalPts": 216.1,
+        "projectedTotalPts": 125.4,
         "confidence": "rookie",
         "factors": {
           "basePPG": 13,
@@ -69021,12 +69101,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 1.188,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 223,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.689,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -69052,7 +69132,8 @@
         },
         "adjustmentSummary": [
           "College dominator ↑",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -69062,9 +69143,9 @@
       "depthChartOrder": 6,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4.8,
+        "projectedPPG": 2.8,
         "projectedGames": 14,
-        "projectedTotalPts": 66.6,
+        "projectedTotalPts": 38.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -69090,12 +69171,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.951,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 256,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.552,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -69121,7 +69202,8 @@
         },
         "adjustmentSummary": [
           "Older rookie ↓",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -69131,9 +69213,9 @@
       "depthChartOrder": 5,
       "ktc": null,
       "projection": {
-        "projectedPPG": 4.8,
+        "projectedPPG": 2.8,
         "projectedGames": 14,
-        "projectedTotalPts": 66.5,
+        "projectedTotalPts": 38.6,
         "confidence": "rookie",
         "factors": {
           "basePPG": 5,
@@ -69159,12 +69241,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.95,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 248,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.551,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -69189,7 +69271,8 @@
           "newTeam": "CLE"
         },
         "adjustmentSummary": [
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
@@ -69199,9 +69282,9 @@
       "depthChartOrder": null,
       "ktc": null,
       "projection": {
-        "projectedPPG": 6.7,
+        "projectedPPG": 3.9,
         "projectedGames": 14,
-        "projectedTotalPts": 93.2,
+        "projectedTotalPts": 54.1,
         "confidence": "rookie",
         "factors": {
           "basePPG": 7,
@@ -69227,12 +69310,12 @@
           "primaryCategory": null,
           "primaryCategoryPoints": null,
           "secondaryCategoryPoints": null,
-          "nflDraftMultiplier": 1,
-          "nflDraftRound": null,
-          "nflDraftPick": null,
-          "nflDraftTier": null,
-          "nflDraftMatchSource": "unmatched",
-          "rookieMultiplierProduct": 0.951,
+          "nflDraftMultiplier": 0.58,
+          "nflDraftRound": 7,
+          "nflDraftPick": 218,
+          "nflDraftTier": "r7",
+          "nflDraftMatchSource": "matched",
+          "rookieMultiplierProduct": 0.552,
           "adot": null,
           "adotDelta": null,
           "adotSampleSize": null,
@@ -69258,7 +69341,8 @@
         },
         "adjustmentSummary": [
           "Older rookie ↓",
-          "College production improving ↑"
+          "College production improving ↑",
+          "Late-round NFL pick ↓"
         ]
       }
     },
