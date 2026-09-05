@@ -33,6 +33,25 @@ const PLAYERIDS_PATH = 'nflverse/playerids.json';
 export const idsHash       = ids       => stableHash(ids, sortObjectKeys);
 export const bySleeperHash = bySleeper => stableHash(bySleeper, sortObjectKeys);
 
+/**
+ * Pure predicate for the content-hash dedup decision (D2 §D1 / Fix pass 1
+ * item 4). Hashing `ids` alone would miss a week where only the sleeper-only
+ * rows change, leaving `bySleeper` to drift from upstream with no write and
+ * no failing gate — so a write is due whenever EITHER index's hash has moved,
+ * not only when both have. No existing file at all is always a write.
+ *
+ * @param {object|null} existing  Parsed existing nflverse/playerids.json, or null if absent
+ * @param {object} ids
+ * @param {object} bySleeper
+ * @returns {boolean} true if the file should be (re)written
+ */
+export function shouldWritePlayerIds(existing, ids, bySleeper) {
+  if (!existing) return true;
+  const lastIdsHash       = existing.ids       ? idsHash(existing.ids)             : null;
+  const lastBySleeperHash = existing.bySleeper ? bySleeperHash(existing.bySleeper) : null;
+  return idsHash(ids) !== lastIdsHash || bySleeperHash(bySleeper) !== lastBySleeperHash;
+}
+
 export async function updatePlayerIds({ dryRun = false, force = false } = {}) {
   // 1. Fetch CSV (file should always exist — 404/504 is unexpected, throw)
   console.log('[playerids] Fetching db_playerids.csv…');
@@ -62,16 +81,13 @@ export async function updatePlayerIds({ dryRun = false, force = false } = {}) {
   validatePlayerIds(ids, bySleeper);
   console.log('[playerids] Validation passed');
 
-  // 5. Content-hash dedup — compare both indexes. Hashing `ids` alone would miss
-  // a week where only the sleeper-only rows change, leaving bySleeper to drift
-  // from upstream with no write and no failing gate (D2 §D1).
+  // 5. Content-hash dedup — compare both indexes via the pure predicate.
+  // Hashing `ids` alone would miss a week where only the sleeper-only rows
+  // change, leaving bySleeper to drift from upstream with no write and no
+  // failing gate (D2 §D1).
   const existing = readJson(PLAYERIDS_PATH);
-  const newIdsHash       = idsHash(ids);
-  const newBySleeperHash = bySleeperHash(bySleeper);
-  const lastIdsHash       = existing?.ids       ? idsHash(existing.ids)             : null;
-  const lastBySleeperHash = existing?.bySleeper ? bySleeperHash(existing.bySleeper) : null;
 
-  if (newIdsHash === lastIdsHash && newBySleeperHash === lastBySleeperHash) {
+  if (!shouldWritePlayerIds(existing, ids, bySleeper)) {
     console.log(`[playerids] Content identical to existing ${PLAYERIDS_PATH} — no change.`);
     return;
   }
@@ -82,7 +98,8 @@ export async function updatePlayerIds({ dryRun = false, force = false } = {}) {
     return;
   }
 
-  // 7. Write (minified — v2 is a sevenfold size increase over v1; see D2 findings)
+  // 7. Write (minified — v2 measures roughly threefold v1's size, not sevenfold;
+  // see D2 findings and Fix pass 1 item 2 for the corrected, re-measured figure)
   const output = {
     schemaVersion: 2,
     generatedAt:   new Date().toISOString(),

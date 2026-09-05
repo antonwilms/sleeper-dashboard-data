@@ -155,9 +155,10 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
   capture-only as of D2 — nothing reads it yet; a future app reader is a new cross-repo coupling (see README.md
   Cross-repo contract registry CR-18).
 - **Keep-rationale:** the id substrate every gsis-keyed ingest depends on. D2 widens the parse to also serve
-  `pfr_id`/`ktc_id`/`cfbref_id`/`birthdate`/draft capital, already present unparsed in the source file — `birthdate`
-  is the precondition for age-curve grading. `espn_id`/`college`/`team` are also present unclaimed in the source
-  (measured 2026-09-05) but not parsed by this slice — Audit B6's espn map remains unwidened.
+  `pfr_id`/`ktc_id`/`cfbref_id`/`birthdate`/draft capital/`espn_id`/`college`/`team` — all eight, plus `undrafted`,
+  already present unparsed in the source file — `birthdate` is the precondition for age-curve grading. (Fix pass 1
+  item 1: `espn_id`/`college`/`team` were dropped from the first D2 implementation and are restored in `bySleeper`;
+  Audit B6's espn map is unaffected — this is the crosswalk's own `espnId`, not a separate map.)
 
 ## nflverse advanced receiving
 - **Served path / subcommand / refresh:** `nflverse/advstats/<year>.json`; `bin/update.mjs advstats --year`; Saturday Action (`nflverse-playerstats.yml`) — as of playerstats-single-fetch.md (2026-08-31), this family and gamelogs are derived from a **single fetch** of `stats_player_week_<year>.csv` by the `playerstats` orchestrator (`bin/update.mjs playerstats`), so the two families can no longer diverge across a day boundary within the same week; the standalone `advstats` subcommand above still exists (manual runs/backfill/smoke test) and fetches independently when invoked directly

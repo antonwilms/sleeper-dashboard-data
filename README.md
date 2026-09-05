@@ -438,7 +438,9 @@ NGS) are keyed by `gsis_id`, which roster files do not carry.
 
 **schemaVersion 2 (D2, 2026-09-05 — additive, minified).** `ids` is unchanged in shape and population.
 A new `bySleeper` index is added — the file is served minified (`{ minify: true }`) since v2 is roughly
-a sevenfold size increase over v1 (measured: 0.67 MB v1 → 2.79 MB v2 minified).
+a threefold size increase over v1 (measured: 0.67 MB v1 → 2.02 MB v2 minified, re-measured against the
+shipped shape per Fix pass 1 item 2 — the earlier 2.79 MB and 1.68 MB figures both predate the shipped
+`bySleeper` shape and are superseded).
 
 ```json
 {
@@ -454,7 +456,7 @@ a sevenfold size increase over v1 (measured: 0.67 MB v1 → 2.79 MB v2 minified)
     "4984": {
       "gsisId": "00-0034796", "pfrId": "AlleJo02", "ktcId": "4984", "cfbrefId": "allen-josh",
       "birthdate": "1996-05-21", "draftYear": 2018, "draftRound": 1, "draftPick": 7,
-      "draftOvr": 7, "undrafted": false
+      "draftOvr": 7, "undrafted": false, "espnId": "3918298", "college": "Wyoming", "team": "BUF"
     }
   }
 }
@@ -473,8 +475,10 @@ whichever row carries a `gsis_id` over one that doesn't (one measured conflict, 
 neither or both rows have one, last-wins. `draft_round`/`draft_pick`/`draft_ovr` are `null` for
 undrafted players — verified against `nflverse/draft/draft_picks.json`, not inferred — and `undrafted`
 is emitted explicitly so a consumer never has to read that null as "unknown." `ktc_id` is served but
-only 7% populated upstream; do not plan a join on it. `bySleeper` is capture-only — nothing reads it
-yet (see the `> *Note:*` below and CR-18 in the Cross-repo contract registry).
+only 7% populated upstream; do not plan a join on it. `espnId`, `college` and `team` round out the
+eleven parsed columns — all three are plain strings, `null` when empty or the literal `NA`, same as
+every other id/string field here. `bySleeper` is capture-only — nothing reads it yet (see the
+`> *Note:*` below and CR-18 in the Cross-repo contract registry).
 
 **Not a bijection, and no longer forward-map-only.** Measured 2026-09-05: the source data has 5
 duplicated `gsis_id` values (harmless — colliding rows share the same `sleeper_id`) and 6 duplicated

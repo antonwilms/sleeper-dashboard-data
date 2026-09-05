@@ -33,7 +33,7 @@ import {
 } from '../lib/nflverse.mjs';
 import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule, validateGameLogs, validateTeamContext } from '../lib/validate.mjs';
 import { readJson } from '../lib/io.mjs';
-import { idsHash, bySleeperHash } from '../scripts/update-playerids.mjs';
+import { idsHash, bySleeperHash, shouldWritePlayerIds } from '../scripts/update-playerids.mjs';
 
 // ─── Fixture helpers ──────────────────────────────────────────────────────────
 
@@ -251,8 +251,8 @@ const PLAYERIDS_HEADER = 'mfl_id,gsis_id,sleeper_id,name,position,db_season';
 function makePlayerIdsCsv(...rows) { return [PLAYERIDS_HEADER, ...rows].join('\n'); }
 
 // D2 — the wide header carries all eleven columns parsePlayerIdsCsv now indexes
-// (espn_id/college/team are indexed per §A but not part of the 8-field bySleeper
-// shape — see Finding 4's measured "brief's 8-field subset" table).
+// into bySleeper (espn_id/college/team were dropped by the first implementation
+// and restored by Fix pass 1 item 1 — see parsePlayerIdsCsv's JSDoc).
 const PLAYERIDS_WIDE_HEADER =
   'mfl_id,gsis_id,sleeper_id,name,position,db_season,birthdate,draft_year,' +
   'draft_round,draft_pick,draft_ovr,pfr_id,ktc_id,cfbref_id,espn_id,college,team';
@@ -270,24 +270,28 @@ test('parsePlayerIdsCsv: happy path — keyed by gsis_id, rowCount correct', () 
   assert.deepEqual(ids['00-0033873'], { sleeperId: '6794', name: 'Justin Jefferson', position: 'WR' });
 });
 
-test('parsePlayerIdsCsv: row missing gsis_id is skipped', () => {
+test('parsePlayerIdsCsv: row missing gsis_id is dropped from ids but kept in bySleeper with gsisId: null', () => {
   const csv = makePlayerIdsCsv(
     ',00-0034796,4984,Josh Allen,QB,2026',
-    ',,6794,Justin Jefferson,WR,2026',   // empty gsis_id → skip
+    ',,6794,Justin Jefferson,WR,2026',   // empty gsis_id → dropped from ids, kept in bySleeper
   );
-  const { ids, rowCount } = parsePlayerIdsCsv(csv);
+  const { ids, bySleeper, rowCount } = parsePlayerIdsCsv(csv);
   assert.equal(rowCount, 1);
   assert.ok(ids['00-0034796']);
+  assert.ok(!Object.values(ids).some(v => v.sleeperId === '6794'), 'gsis-less row must not appear in ids');
+  assert.equal(bySleeper['6794'].gsisId, null);
 });
 
-test('parsePlayerIdsCsv: row with NA gsis_id is skipped', () => {
+test('parsePlayerIdsCsv: row with NA gsis_id is dropped from ids but kept in bySleeper with gsisId: null', () => {
   const csv = makePlayerIdsCsv(
     ',00-0034796,4984,Josh Allen,QB,2026',
-    ',NA,6794,Justin Jefferson,WR,2026',  // NA gsis_id → skip
+    ',NA,6794,Justin Jefferson,WR,2026',  // NA gsis_id → dropped from ids, kept in bySleeper
   );
-  const { ids, rowCount } = parsePlayerIdsCsv(csv);
+  const { ids, bySleeper, rowCount } = parsePlayerIdsCsv(csv);
   assert.equal(rowCount, 1);
   assert.ok(ids['00-0034796']);
+  assert.ok(!Object.values(ids).some(v => v.sleeperId === '6794'), 'NA-gsis row must not appear in ids');
+  assert.equal(bySleeper['6794'].gsisId, null);
 });
 
 test('parsePlayerIdsCsv: row with missing sleeper_id is skipped', () => {
@@ -360,23 +364,35 @@ test('parsePlayerIdsCsv: every new column parses with the right type — numbers
     draftPick:  7,
     draftOvr:   7,
     undrafted:  false,
+    espnId:     '3918298',
+    college:    'Wyoming',
+    team:       'BUF',
   });
 });
 
+// Fix pass 1 item 7 — the original test only exercised the literal 'NA' for two
+// of the eight then-parsed columns; widen to both sentinel forms (empty string
+// and 'NA') for every one of the eleven optional columns, including the three
+// espnId/college/team restored by item 1.
+const PLAYERIDS_OPTIONAL_FIELDS = [
+  'birthdate', 'draftYear', 'draftRound', 'draftPick', 'draftOvr',
+  'pfrId', 'ktcId', 'cfbrefId', 'espnId', 'college', 'team',
+];
+
 test('parsePlayerIdsCsv: NA and empty string both become null, per column', () => {
+  const emptyExtras = PLAYERIDS_OPTIONAL_FIELDS.map(() => '').join(',');
+  const naExtras    = PLAYERIDS_OPTIONAL_FIELDS.map(() => 'NA').join(',');
   const csv = makeWidePlayerIdsCsv(
-    ',00-0034797,4985,Test Player,QB,2026,,NA,,,,NA,,,,,',
+    `,00-0034797,4985,Empty Player,QB,2026,${emptyExtras}`,
+    `,00-0034798,4986,NA Player,QB,2026,${naExtras}`,
   );
   const { bySleeper } = parsePlayerIdsCsv(csv);
-  const entry = bySleeper['4985'];
-  assert.equal(entry.birthdate, null);
-  assert.equal(entry.draftYear, null);
-  assert.equal(entry.draftRound, null);
-  assert.equal(entry.draftPick, null);
-  assert.equal(entry.draftOvr, null);
-  assert.equal(entry.pfrId, null);
-  assert.equal(entry.ktcId, null);
-  assert.equal(entry.cfbrefId, null);
+  for (const sleeperId of ['4985', '4986']) {
+    const entry = bySleeper[sleeperId];
+    for (const field of PLAYERIDS_OPTIONAL_FIELDS) {
+      assert.equal(entry[field], null, `bySleeper[${sleeperId}].${field} should be null`);
+    }
+  }
 });
 
 test('parsePlayerIdsCsv: undrafted is true exactly when draftRound is null', () => {
@@ -444,6 +460,19 @@ test('parsePlayerIdsCsv: ids round-trips — every gsis_id in ids appears in byS
   }
 });
 
+// Fix pass 1 item 5 — the widened row filter means a gsis-less row can now be
+// the first surviving row; sourceSeason must still be captured only from a row
+// that has a gsis_id, or a leading gsis-less row's db_season would silently win
+// where it previously could not.
+test('parsePlayerIdsCsv: sourceSeason is captured only from a row with a gsis_id, even when a gsis-less row comes first', () => {
+  const csv = makeWidePlayerIdsCsv(
+    ',NA,7000,Sleeper Only,RB,2099,,,,,,,,,,,',           // leading, gsis-less, different db_season
+    ',00-0034796,4984,Josh Allen,QB,2026,,,,,,,,,,,',      // first row with a gsis_id
+  );
+  const { sourceSeason } = parsePlayerIdsCsv(csv);
+  assert.equal(sourceSeason, 2026);
+});
+
 test('parsePlayerIdsCsv: content-hash dedup notices a change confined to sleeper-only rows', () => {
   const base = makeWidePlayerIdsCsv(
     ',00-0034796,4984,Josh Allen,QB,2026,,,,,,,,,,,',
@@ -469,6 +498,29 @@ test('parsePlayerIdsCsv: content-hash dedup notices a change confined to sleeper
 
   assert.equal(idsHash(a.ids), idsHash(c.ids), 'ids hash must match — the change is confined to bySleeper');
   assert.notEqual(bySleeperHash(a.bySleeper), bySleeperHash(c.bySleeper), 'bySleeper hash must differ so the write is not skipped');
+});
+
+// Fix pass 1 item 4 — the previous dedup test only pinned idsHash/bySleeperHash
+// on parser output; it did not pin the write DECISION, so reverting
+// scripts/update-playerids.mjs's comparison to the old single-hash form would
+// still pass it. Test the extracted pure predicate directly instead.
+test('shouldWritePlayerIds: no existing file → always writes', () => {
+  assert.equal(shouldWritePlayerIds(null, { a: 1 }, { b: 1 }), true);
+});
+
+test('shouldWritePlayerIds: identical ids and bySleeper → no write', () => {
+  const existing = { ids: { a: 1 }, bySleeper: { b: 1 } };
+  assert.equal(shouldWritePlayerIds(existing, { a: 1 }, { b: 1 }), false);
+});
+
+test('shouldWritePlayerIds: bySleeper-only change → writes', () => {
+  const existing = { ids: { a: 1 }, bySleeper: { b: 1 } };
+  assert.equal(shouldWritePlayerIds(existing, { a: 1 }, { b: 2 }), true);
+});
+
+test('shouldWritePlayerIds: ids-only change → writes', () => {
+  const existing = { ids: { a: 1 }, bySleeper: { b: 1 } };
+  assert.equal(shouldWritePlayerIds(existing, { a: 2 }, { b: 1 }), true);
 });
 
 // ═══════════════════════════════════════════════════════════════════

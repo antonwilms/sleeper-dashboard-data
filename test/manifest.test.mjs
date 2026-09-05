@@ -2,7 +2,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import { readManifest } from '../lib/manifest.mjs';
-import { readJson } from '../lib/io.mjs';
 import {
   MIN_SCHEDULE_SEASON,
   MIN_GAMELOG_SEASON,
@@ -119,13 +118,27 @@ test('manifest: every files entry carries lastModified, schemaVersion, recordCou
 // ═══════════════════════════════════════════════════════════════════
 // D2 §D2 — schemaVersion is written twice (the output file, the manifest
 // entry) and nothing cross-checks them; pin that they agree.
+//
+// Fix pass 1 item 4: comparing the LIVE nflverse/playerids.json and its live
+// manifest entry passed on the pre-change state (both still schemaVersion 1,
+// because this PR does not regenerate the data file — the Wednesday Action
+// owns that write) and would pass on a broken v2 write just as easily, since
+// neither side had actually moved. Pin the two write-time literals in
+// scripts/update-playerids.mjs directly instead — the output object's
+// schemaVersion and the updateManifestEntry call's schemaVersion — so a future
+// edit to one without the other fails this test.
 // ═══════════════════════════════════════════════════════════════════
 
-test('manifest: nflverse/playerids.json schemaVersion matches its manifest entry', () => {
-  const m = readManifest();
-  const entry = m.files['nflverse/playerids.json'];
-  const file = readJson('nflverse/playerids.json');
-  assert.ok(entry, 'manifest is missing an nflverse/playerids.json entry');
-  assert.ok(file, 'nflverse/playerids.json not found on disk');
-  assert.equal(file.schemaVersion, entry.schemaVersion);
+test('manifest: playerids write path keeps the file schemaVersion and its manifest entry in sync', () => {
+  const src = fs.readFileSync('scripts/update-playerids.mjs', 'utf8');
+
+  const outputMatch   = src.match(/const output = \{[\s\S]*?schemaVersion:\s*(\d+)/);
+  const manifestMatch = src.match(/updateManifestEntry\(\{[\s\S]*?schemaVersion:\s*(\d+)/);
+
+  assert.ok(outputMatch, 'could not find the written output object\'s schemaVersion literal');
+  assert.ok(manifestMatch, 'could not find the updateManifestEntry call\'s schemaVersion literal');
+  assert.equal(
+    outputMatch[1], manifestMatch[1],
+    'nflverse/playerids.json schemaVersion and its manifest entry schemaVersion have drifted apart'
+  );
 });
