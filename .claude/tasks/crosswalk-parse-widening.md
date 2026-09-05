@@ -166,3 +166,63 @@ CR-06 covers roster and draft, not playerids — the brief is right about that. 
 - **The brief called this an afternoon and the parse still is.** The cost is in the two findings, which are roadmap corrections rather than code. Do not let them expand the slice: parse, serve, gate, test, document, hand back.
 - **Size.** 2.79 MB minified is a fourfold growth in a file the app does not read. Acceptable now; it would need revisiting the day an app reader appears, and the pointer variant's number is recorded above for that conversation.
 - **Do not touch `rekeyBySleeper` / `rekeyGameLogsBySleeper`.** They consume `ids` keyed by `gsis_id`, which this slice leaves alone. If either needs a change, stop and report — that would mean the additive promise broke.
+
+---
+
+## Fix pass 1
+
+Session 1 triage of the implementation-reviewer flags on `5cba77f..74288f5` (PR #3). **The fix-applier implements this section and nothing else.** Work on the existing `d2-crosswalk-parse-widening` branch and push to the same PR; do not open a new one.
+
+Two of these trace to gaps in this file rather than to the implementation. Noted where they do, so the record is honest about where the defect entered.
+
+### 1. Three of the eleven columns were dropped — **must fix**
+
+`parsePlayerIdsCsv` indexes eight new columns (`lib/nflverse.mjs:416-423`). `espn_id`, `college` and `team` are indexed nowhere. This is a consequence of the declared deviation that the hand-back did not mention: §B put those three in `ids` ("it gains the new fields"), the implementation correctly left `ids` alone, and nothing in this file then forced the question — so they fell through the gap.
+
+**This file caused that, and the brief asked for eleven.** Do not narrow the brief silently.
+
+**Fix.** Add `espnId`, `college` and `team` to `bySleeper`, alongside the eight already there. All three are plain strings through `playerIdCell`. Measured cost is roughly 0.15 MB on a 1.68 MB file, which is not a reason to drop a field the brief named. Update the `bySleeper` shape in the JSDoc, the README served-shape section and the `data-catalog.md` row, whose current "not parsed by this slice" line becomes wrong.
+
+**Also fix the false comment this created.** `test/nflverse.test.mjs:253` reads "the wide header carries all eleven columns `parsePlayerIdsCsv` now indexes" while the parser indexed eight. After this fix the comment becomes true; make sure it is, rather than leaving it to be true by luck.
+
+### 2. Two size figures are presented as measured and are wrong — **must fix (this file's error)**
+
+`README.md:441` says "roughly a sevenfold size increase over v1 (measured: 0.67 MB v1 → 2.79 MB v2 minified)" and `scripts/update-playerids.mjs:85` repeats "sevenfold". Both come from this file's Step 0 table, which costed a variant where `ids` also carried the new fields. The shipped shape measures **1.68 MB**, about **2.5×**.
+
+**Fix.** Correct both sites to the measured 1.68 MB and ~2.5×, and re-measure after fix 1 lands rather than adjusting the number by arithmetic — the point of the flag is that a figure labelled "measured" must come from the thing that was built. Step 0's table stays as it is: it is a record of what was costed at planning time, and it is now annotated by this section.
+
+### 3. A `draft_round` format change would read as "everyone undrafted" — **must fix**
+
+`undrafted: draftRound === null` cannot distinguish undrafted from unparseable, and §C deliberately leaves the draft fields ungated, so an upstream format change yields `undrafted: true` on 100% of rows with nothing to catch it. Finding 2 is why a fill-rate *floor* is wrong there; it is not a reason to have no check at all.
+
+**Fix.** Add a ceiling rather than a floor, in `validatePlayerIds`: throw when the undrafted rate exceeds **0.75** (measured 0.42). A ceiling respects finding 2 — the legitimate 42% passes comfortably — while catching the one failure mode the absent floor leaves open. Comment it as the counterpart to the deliberately-ungated fields, so the next reader sees why it is a ceiling.
+
+### 4. Both §D fixes are pinned by tests that cannot fail — **must fix**
+
+- **Dedup (§D1).** `test/nflverse.test.mjs:447` asserts only that `idsHash` matches while `bySleeperHash` differs. Reverting `scripts/update-playerids.mjs:74` to the old single-hash comparison leaves it green, so the test does not pin the fix. **Extract the comparison into a small pure predicate** — `shouldWritePlayerIds(existing, ids, bySleeper)` in the same module, exported — and test that directly: identical both → false; `bySleeper`-only change → **true**; `ids`-only change → true; no existing file → true. Keep `idsHash` and `bySleeperHash` exported as they are.
+- **Manifest (§D2).** `test/manifest.test.mjs:124` compares the served file's `schemaVersion` to its manifest entry, and both are still 1 because the data file has not been regenerated — so it passes on the pre-change state and would pass on a broken one. **Rewrite it against a constructed fixture** rather than the live file: given a written file and its manifest entry, the two agree. Do not regenerate `nflverse/playerids.json` in this PR to make the test meaningful; the Wednesday Action owns that write.
+
+### 5. `sourceSeason` changed behaviour unasked — **must fix**
+
+The widened row filter means the first row to reach the `sourceSeason` capture can now be a gsis-less one, so a leading such row's `db_season` can win where it previously could not (`lib/nflverse.mjs:445-449`). No line of this file asked for that and no test pins it.
+
+**Fix.** Restore the prior behaviour by capturing `sourceSeason` only from rows that have a `gsis_id`, and add a one-line comment saying the widened filter is why the guard is explicit now. Add a test with a leading gsis-less row carrying a different `db_season`.
+
+### 6. Two test names now describe behaviour the diff removed — **must fix**
+
+`test/nflverse.test.mjs:273` and `:283` are named "row missing gsis_id is skipped" and "row with NA gsis_id is skipped". Those rows are no longer skipped: they land in `bySleeper`. Rename both and extend each to assert the row is absent from `ids` **and** present in `bySleeper` with `gsisId: null`. A test whose name asserts the opposite of the behaviour is worse than no test.
+
+### 7. Widen the NA coverage — **must fix**
+
+`test/nflverse.test.mjs:366` ("NA and empty string both become null, per column") exercises the literal `NA` for two of the eight columns only; the rest are empty-string. The `NA` sentinel is the one upstream-specific case here, so cover every column for both forms, including the three added in fix 1.
+
+### No change — considered and dismissed
+
+- **`ids` not gaining the new fields.** Session 2's stated reason was wrong — `rekeyBySleeper` and `rekeyGameLogsBySleeper` read only `crosswalkIds[gsis]?.sleeperId`, so extra fields would have been harmless. But the outcome is better than what §B specified: one payload, no duplication, and 1.68 MB against the 2.79 MB §B would have produced. **Keep it.** §B's "it gains the new fields" is superseded by this section; fix 1 is what closes the real gap it left.
+- **Invariant 4's version list left unedited.** Verified correct: the list omits every other v1 family, so it is not exhaustive and playerids does not belong in it.
+- **The two strict `deepEqual` tests passing unmodified.** Correct and expected once `ids` is unchanged. Leave them strict.
+- **CR-18's Mirror absent from the commit message.** The task file carries it and the hand-back emitted the row edit in full, which is the deliverable. No commit-message rewrite.
+
+### Leave alone
+
+`ids`'s shape and population. `rekeyBySleeper` / `rekeyGameLogsBySleeper`. `MIN_PLAYERID_ROWS` and `rowCount`'s meaning. The two-argument `validatePlayerIds` signature and both fill-rate floors. The `bySleeper` dedup preference logic, which the review verified correct in all four orderings. `CLAUDE.md` — Invariant 5 stays a report, not an edit. Do not touch the registry, and do not regenerate any data file.
