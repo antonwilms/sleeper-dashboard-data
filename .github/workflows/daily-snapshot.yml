@@ -1,0 +1,128 @@
+name: Daily projection snapshot capture
+
+# PHASE 1 (D1b): workflow_dispatch only. Deliberately no `cron:` line yet — see the task file's
+# Risks section (staged rollout) and Cross-repo impact §CR-22: the cron switch-on is gated on a
+# CR-22 registry entry landing in both repos, not merely on one green dispatch run. A
+# `workflow_dispatch`-only file also has no `cron:` line for scripts/check-crons.mjs to find,
+# so the dead-man monitor does not (and must not, in phase 1) see this job at all.
+on:
+  workflow_dispatch:
+    inputs:
+      app_ref:
+        description: >-
+          Ref (branch, tag or SHA) of antonwilms/sleeper-dashboard to build and run. Pinned to
+          an explicit input rather than a floating default so a red app `main` cannot silently
+          turn into a bad snapshot. Defaults to the branch D1a actually shipped on.
+        required: false
+        default: "claude-md-slimming"
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+
+    env:
+      SNAPSHOT_LEAGUE_ID: ${{ secrets.SNAPSHOT_LEAGUE_ID }}
+      APP_PREVIEW_URL: "http://localhost:4173"
+
+    steps:
+      - name: Checkout data repo
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            bin
+            lib
+            scripts
+            test
+            manifest.json
+            package.json
+            package-lock.json
+            snapshots
+          sparse-checkout-cone-mode: true
+
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          repository: antonwilms/sleeper-dashboard
+          ref: ${{ inputs.app_ref }}
+          path: app
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install data-repo dependencies
+        run: npm ci
+
+      # Playwright is a real dependency decision (D1b task file, Step 0 correction 3): this
+      # repo has zero devDependencies today. Install the driver in the workflow only, pinned,
+      # never touching package.json/package-lock.json — every other Action and smoke-test.yml
+      # stay on the fast, small `npm ci` they have today.
+      - name: Install Playwright (workflow-only, not persisted to package.json)
+        run: |
+          npm install --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+
+      - name: Build the app
+        working-directory: app
+        env:
+          # Raw GitHub, not jsDelivr: the CDN can serve a stale manifest for minutes after a
+          # push, and this job runs shortly after other capture jobs commit (Design §A).
+          VITE_DATA_STORE_URL: "https://raw.githubusercontent.com/antonwilms/sleeper-dashboard-data/main"
+          # Deliberately NOT set. The data store covers 2017–2025; the live CFBD path is a
+          # fallback whose use is now observable in the snapshot's own inputStatus.
+        run: |
+          npm ci
+          npm run build
+
+      - name: Start the app preview server
+        working-directory: app
+        run: |
+          npm run preview -- --port 4173 --strictPort &
+          for i in $(seq 1 30); do
+            if curl -sf "$APP_PREVIEW_URL" > /dev/null; then
+              echo "Preview server is up."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::Preview server did not come up within 30s"
+          exit 1
+
+      - name: Capture snapshot
+        id: capture
+        run: node scripts/capture-snapshot.mjs
+
+      - name: Register and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if [[ "${{ steps.capture.outputs.wrote }}" != "true" ]]; then
+            echo "Nothing captured this run (already committed today) — no-op."
+            exit 0
+          fi
+
+          node bin/update.mjs snapshots
+
+          # The gate that matters most: a capture step that reported success must have left a
+          # real diff. An empty tree here is not the same green no-op as "already committed
+          # today" (steps.capture.outputs.wrote already routed that case above) — it means the
+          # capture claimed success but no file landed, and that must be loud, not silent.
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "::error::Capture reported success but the working tree is clean — no snapshot was actually produced."
+            exit 1
+          fi
+
+          SNAPSHOT_DATE=$(date -u +%Y-%m-%d)
+          git add snapshots/ manifest.json
+          git commit -m "snapshot: ${SNAPSHOT_DATE} (daily-snapshot.yml)"
+          git push || (git pull --rebase && git push)
+
+          # Purge jsDelivr's manifest cache so the new snapshot is visible without waiting for
+          # TTL. The snapshot file itself has no app-side reader and does not need purging —
+          # only ktcHistory.js enumerates manifest.files from the CDN (Design §A).
+          curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true

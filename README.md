@@ -245,17 +245,31 @@ Values are KTC's proprietary 0–9999 scale. Matched to Sleeper player IDs at ru
 
 Daily projection snapshot produced by the app's pipeline, capturing the contemporaneous inputs and outputs used for season projections. One file per UTC date. Used for future backtesting — no consumer UI in v1.
 
+**Two capture paths as of D1b.** The primary path is `.github/workflows/daily-snapshot.yml` — a
+headless build+run of the app, gated on `lib/snapshot-capture.mjs` before it commits (phase 1:
+`workflow_dispatch` only, see the [GitHub Actions](#github-actions) table and CR-22 below). The
+manual browser+export path (below) remains the documented fallback and is **not** gated the same
+way — see [snapshot-workflow.md](snapshot-workflow.md).
+
 **First-league-of-the-day-wins:** if multiple leagues are opened in the same UTC day, the first one to complete the projection pipeline is captured; subsequent leagues are silently skipped. The `leagueId` field makes this detectable after the fact.
 
 ```json
 {
-  "schemaVersion":   2,
+  "schemaVersion":   3,
   "capturedAt":      "2026-05-19T14:23:11.812Z",
   "scoringBasis":    "half_ppr",
   "targetSeason":    2026,
   "currentSeason":   2025,
   "scoringSettings": { "rec": 0.5, "bonus_rec_rb": 0, "pass_td": 4, "...": "..." },
   "leagueId":        "1312015497465716736",
+  "inputStatus": {
+    "college":            { "loaded": true,  "count": 312, "detail": { "years": [] } },
+    "nflDraft":           { "loaded": true,  "count": 257, "detail": { "years": [2024, 2025, 2026], "matched": 41 } },
+    "ktc":                { "loaded": true,  "count": 441, "detail": { "rows": 500 } },
+    "priorSnapshotTeams": { "loaded": false, "count": 0 },
+    "depthChart":         { "loaded": true,  "count": 671 },
+    "careerStats":        { "loaded": true,  "count": 14, "detail": { "seasons": ["2012", "...", "2025"], "provenance": { "2025": "data-store" } } }
+  },
   "teamDepthCharts": {
     "BUF": {
       "QB": [{ "playerId": "4984", "fullName": "Josh Allen",  "depthOrder": 1, "status": "Active" }],
@@ -293,11 +307,24 @@ Daily projection snapshot produced by the app's pipeline, capturing the contempo
 
 **v2 is additive.** Existing v1 snapshots remain valid — `targetSeason`, `currentSeason`, and `scoringSettings` are simply absent. The grading harness falls back to the `capturedAt` heuristic (`deriveTargetSeason()`) for v1 snapshots.
 
+**`inputStatus` (v3, D1a/D1b).** Six labels for the gated projection inputs that would
+otherwise fail *silently neutral* — `college`, `nflDraft`, `ktc`, `priorSnapshotTeams`,
+`depthChart`, `careerStats` — each `{ loaded: boolean, count: number|null, detail?: object }`.
+This is a **label only**: the app's own write gate never refuses to write on a `false` (see
+`docs/architecture.md` → *Smoke-testing* in the app repo), so a v3 snapshot with a degraded
+input still exists — it is simply detectable. `priorSnapshotTeams.loaded` is legitimately
+`false` on the very first snapshot ever captured (no prior day to compare against); `nflDraft`
+is legitimately `false`/absent-from-`detail.years` in the January–April window before that
+year's draft class exists. v3 is additive — every v2 field keeps its name, type and meaning.
+**D1b's commit gate reads this block** to decide whether the daily Action's capture is safe to
+register at all (see [GitHub Actions](#github-actions) and `lib/snapshot-capture.mjs`); the
+manual import path does not run that gate.
+
 **`ktc`** is `null` if the player isn't in the KTC map; otherwise `{ value, positionPercentile }`.
 
 **`projection`** is the verbatim output of `computeNextSeasonProjection` — no field whitelist.
 
-**Import workflow:**
+**Import workflow (manual fallback — see `daily-snapshot.yml` for the primary, automatic path):**
 1. Click "Export data" in the app (wait for the projection pipeline to finish first).
 2. From this repo's root, run `npm run import:snapshot`.
 
@@ -1110,13 +1137,14 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `nflverse-oline.yml` | Saturday 14:37 UTC + `workflow_dispatch` | Runs `node bin/update.mjs oline` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `cron-deadman.yml` | Daily 05:19 UTC + push to `main` + `workflow_dispatch` | Runs `node bin/deadman.mjs`; monitoring only — no writes, no manifest touch |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
-| `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the eight uniform weekly ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml` or `weekly-ktc.yml` — see the file's own header for why |
+| `daily-snapshot.yml` (D1b, phase 1) | `workflow_dispatch` only — **no `cron:` line yet**, see CR-22 below | Checks out this repo plus a pinned ref of `antonwilms/sleeper-dashboard` into `app/`, builds and `vite preview`s the app headlessly, drives it with Playwright (localStorage-seeded, no UI interaction), reads the projection snapshot it wrote to IndexedDB, runs it through the commit gate (`lib/snapshot-capture.mjs`) and writes+registers+commits `snapshots/<date>.json` only on acceptance; purges the jsDelivr manifest cache. Rejects loudly (non-zero exit, no commit) rather than writing a neutral snapshot — see Cross-repo impact CR-01 below and `.claude/tasks/daily-snapshot-capture.md` |
+| `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the eight uniform weekly ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
 *Season-keyed purges (roster, advstats, schedule, gamelogs, teamcontext) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
 
-**Why four workflows are standalone rather than `_ingest.yml` callers.**
+**Why five workflows are standalone rather than `_ingest.yml` callers.**
 
 - `nflverse-playerstats.yml` — per-family conditional staging. One CSV fetch drives two families,
   and each is staged only if its own step output says it succeeded; the reusable template has no
@@ -1126,6 +1154,10 @@ The weekly KTC workflow commits only when content changes (SHA256 hash dedup). I
   the alarm.
 - `cron-deadman.yml` — monitoring, not ingest. It writes no data file.
 - `smoke-test.yml` — CI, not ingest. It writes no data file.
+- `daily-snapshot.yml` (D1b) — it runs a headless browser against a second repo's own build
+  (`npm ci && npm run build && npm run preview` in a cross-repo checkout, then Playwright), a
+  shape `_ingest.yml`'s single-subcommand `node bin/update.mjs <subcommand>` body cannot express
+  at all.
 
 #### Cron dead-man detector (`cron-deadman.yml`)
 
@@ -1238,10 +1270,10 @@ Field order is fixed; no field is optional.
 
 #### CR-01 · Projection snapshot envelope
 - **App side:** `src/utils/projectionSnapshot.js` (writer, `schemaVersion: 3`), `src/utils/exportData.js` `classifyKey` (routes `projection-snapshots/<date>` → `snapshots/<date>.json`), `src/utils/seasonProjection.js` (the verbatim `projection` payload)
-- **Data side:** `snapshots/<date>.json`, `bin/update.mjs snapshots`, `scripts/register-snapshots.mjs`, `scripts/grade-snapshot.mjs` (`deriveTargetSeason` is the v1-only fallback; `gradeSnapshot` reads the snapshot's `targetSeason`/`scoringSettings` envelope fields), `lib/grade.mjs` (scores the snapshot payload), `scripts/panel-run.mjs` `resolveScoring` (reads `snapshot.scoringSettings`), `bin/import-snapshot.mjs`, README snapshot section
+- **Data side:** `snapshots/<date>.json`, `bin/update.mjs snapshots`, `scripts/register-snapshots.mjs`, `scripts/grade-snapshot.mjs` (`deriveTargetSeason` is the v1-only fallback; `gradeSnapshot` reads the snapshot's `targetSeason`/`scoringSettings` envelope fields), `lib/grade.mjs` (scores the snapshot payload), `scripts/panel-run.mjs` `resolveScoring` (reads `snapshot.scoringSettings`), `bin/import-snapshot.mjs`, README snapshot section. **D1b:** `lib/snapshot-capture.mjs` (the commit gate — reads `schemaVersion`, `inputStatus`, `players`, `targetSeason`) and `scripts/capture-snapshot.mjs` (the Playwright orchestrator that calls it) are now readers too; the gate is the most consequential envelope consumer in this repo
 - **Invariant:** the snapshot envelope the app writes is byte-compatible with what the importer and grader expect — at v2 that includes top-level `targetSeason`, `currentSeason` and verbatim `scoringSettings`, with `projection` as unmodified `computeNextSeasonProjection` output. **At v3 (D1a)**, the envelope additionally carries top-level `inputStatus` — six gated-input labels (`college`, `nflDraft`, `ktc`, `priorSnapshotTeams`, `depthChart`, `careerStats`), each `{ loaded, count, detail? }` — additive only; it does not change the write gate or any v2 field.
 - **Direction:** app→data
-- **Triggers:** `src/utils/projectionSnapshot.js`, `classifyKey` in `src/utils/exportData.js`, the `factors` object shape in `src/utils/seasonProjection.js`  ‖  `scripts/register-snapshots.mjs`, `scripts/grade-snapshot.mjs`, `lib/grade.mjs`, `resolveScoring` in `scripts/panel-run.mjs`, `bin/import-snapshot.mjs`
+- **Triggers:** `src/utils/projectionSnapshot.js`, `classifyKey` in `src/utils/exportData.js`, the `factors` object shape in `src/utils/seasonProjection.js`  ‖  `scripts/register-snapshots.mjs`, `scripts/grade-snapshot.mjs`, `lib/grade.mjs`, `resolveScoring` in `scripts/panel-run.mjs`, `bin/import-snapshot.mjs`, `lib/snapshot-capture.mjs`, `scripts/capture-snapshot.mjs`
 - **Mirror:** State the new envelope shape and whether the snapshot `schemaVersion` bumped. On a bump, `scripts/register-snapshots.mjs` expectations, `scripts/grade-snapshot.mjs` reads and the README snapshot section all need updating in the data repo. **`scoringSettings` has a second reader beyond grading** — `scripts/panel-run.mjs` `resolveScoring` pins the fit's basis from a committed snapshot, so dropping or renaming that envelope field breaks the R3-FIT path (CR-15) as well as in-basis grading. This snapshot `schemaVersion` is independent of `dataStore.js` `MAX_SUPPORTED_SCHEMA` (a ceiling on every family read through `tryDataStore`, not season-totals-scoped — snapshots have no `tryDataStore` reader in the first place). Additive `factors` keys (`isTeamChange`/`prevTeam`/`newTeam`/`depthStale`) do **not** bump the version.
 
 #### CR-02 · season-totals schemaVersion & row composition
