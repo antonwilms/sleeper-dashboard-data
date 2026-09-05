@@ -71,13 +71,13 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Keep-rationale:** market-value time series
 
 ## Projection snapshots
-- **Served path / subcommand / refresh:** `snapshots/<date>.json`; `bin/import-snapshot.mjs` + `bin/update.mjs snapshots`; daily via app export
-- **Source + provenance:** app-side export (`src/utils/projectionSnapshot.js` writer), imported verbatim
+- **Served path / subcommand / refresh:** `snapshots/<date>.json`; `bin/import-snapshot.mjs` + `bin/update.mjs snapshots` (manual fallback) **or `.github/workflows/daily-snapshot.yml` (D1b, phase 1: `workflow_dispatch` only — no `cron:` line yet, see CR-22)** — headless build+run of the app, gated on `lib/snapshot-capture.mjs` before commit
+- **Source + provenance:** app-side export (`src/utils/projectionSnapshot.js` writer) — either a human's manual browser export (`bin/import-snapshot.mjs`) or `daily-snapshot.yml`'s headless Playwright run of the same app code, imported verbatim either way
 - **Grain:** player, dated
 - **Join id(s):** sleeper_id
 - **Coverage:** 2026-05-19 → present
-- **schemaVersion:** 2 (envelope: `targetSeason`, `currentSeason`, `scoringSettings`)
-- **Sparsity gate:** none — registration validates shape
+- **schemaVersion:** 3 (D1a — envelope: `targetSeason`, `currentSeason`, `scoringSettings`, `inputStatus`). The D1b commit gate (`lib/snapshot-capture.mjs`) rejects anything below schemaVersion 3 outright — a v2 snapshot has no `inputStatus` to gate on
+- **Sparsity gate:** the D1b commit gate — rejects (does not commit) when `inputStatus.college.loaded`/`inputStatus.nflDraft.loaded`/`inputStatus.ktc.loaded` is not `true`, when `inputStatus.ktc.count`/`inputStatus.depthChart.count`/player count fall below their observed-run floors, or when `inputStatus.nflDraft.detail.years` omits `targetSeason` (skipped Jan–Apr, the pre-draft window). Manual imports via `bin/import-snapshot.mjs` are **not** gated this way — registration there validates shape only, same as before
 - **Null semantics:** `projection` field is verbatim app output; no null-handling policy at this layer
 - **Consumption:** capture-only (grading input; never re-fed to projection)
 - **Keep-rationale:** the graded record of what the app predicted
