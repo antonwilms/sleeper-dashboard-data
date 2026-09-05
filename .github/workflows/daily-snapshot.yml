@@ -12,9 +12,9 @@ on:
         description: >-
           Ref (branch, tag or SHA) of antonwilms/sleeper-dashboard to build and run. Pinned to
           an explicit input rather than a floating default so a red app `main` cannot silently
-          turn into a bad snapshot. Defaults to the branch D1a actually shipped on.
+          turn into a bad snapshot. Defaults to the app repo's main branch.
         required: false
-        default: "claude-md-slimming"
+        default: "main"
 
 permissions:
   contents: write
