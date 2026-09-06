@@ -9,6 +9,8 @@
 
 > **Corrected, Fix pass 1 item 3.** D6a does not deliver this as one composed thirteen-step pipeline. `compBlend` is the app's post-hoc convex blend after the clamp, not a multiplicative term, and `predictWithExponents` has no stage to compose it — so the six new reconstructions are dispatched through `D6_NEW_FACTORS`, deliberately kept separate from `FULL_FACTORS`/`predictWithExponents`'s composition (sound, and it stays that way; forcing it in would mis-compute and destabilise the existing seven-factor calibration tests). What D6a actually delivers is **six correct reconstructions alongside the existing seven**, not a single composed thirteen-factor product. Widening the real product set to thirteen and fixing `predictWithExponents`' clamp ordering for `compBlend` is **D6b's first task, ahead of any calibration output** (§D) — a calibration constant computed before the composition is correct would be measuring a pipeline that does not exist.
 
+> **Corrected, Decision (Session 1, 2026-09-06).** Not "grade the veteran pipeline as shipped" either. **"Grade a historical reconstruction of the veteran pipeline, faithful in nine of thirteen steps, with three live-state divergences quantified and one step ungradable."** The three are `age`, `depth` and `teamOffense` — named, unclosable divergences against live app state (Fix pass 2); the one is `qbQuality` — an empty eligible window, ungradable rather than neutral (Fix pass 1 item 2). The calibration constants (§D) proceed under this framing, gated by the Decision section's two-run robustness check; the pruning verdict (§E) excludes all four from its nine-of-thirteen scope. Carry this same sentence into the verdict's opening.
+
 **Not in this slice.** Activating anything in the app, and changing any served family.
 
 ---
@@ -77,6 +79,8 @@ Pin `half_ppr` for every panel and verdict, with the parity carve-out in finding
 ### C. Parity — [D6a], and the gate on D6b
 
 Extend T-F10 to every factor, building the new fixture set per finding 6 and asserting its presence. **Parity is the precondition for D6b.** CR-15 records a known parity gap for `shareTrend` and `teamRzShare`; `snapshots/2026-09-05.json` is post-2026-07-18 and carries 297 and 236 non-neutral values respectively across its 425 veteran rows, so this is the first chance to close it. Say whether it closed.
+
+**Fix pass 2 item 3 — the six new factors' parity summary.** Three carry named, unclosable live-state divergences: `age` (live wall-clock age at snapshot time vs. birthdate at `lastQSeason`), `depth` (the app's live depth chart vs. D5's historical chart for the row's own season), and `teamOffense` (the app's live Sleeper roster state at snapshot time vs. the row's historical season-team — measured at 29.0% genuine offseason moves over 587 comparable rows, Fix pass 2). One is ungradable: `qbQuality` has an empty eligible window (Fix pass 1 item 2), not merely a narrow one. One is architecturally incomparable rather than parity-tested: `compBlend` is dispatched via `D6_NEW_FACTORS`, not composed through `predictWithExponents` (Fix pass 1 item 3), so there is no single composed value to hold against the app's post-hoc blend. One verifies: `efficiency`, within the stated pool-composition tolerance. This is the honest state of the parity gate, and D6b inherits it as-is.
 
 ### D. Calibration outputs — [D6b]
 
