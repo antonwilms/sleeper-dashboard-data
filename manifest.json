@@ -1329,7 +1329,7 @@
       "schemaVersion": 1,
       "recordCount": 6394,
       "inProgress": false,
-      "lastModified": "2026-09-06T01:28:44.681Z"
+      "lastModified": "2026-09-06T10:19:14.037Z"
     },
     "nflverse/snaps/2015.json": {
       "schemaVersion": 1,
@@ -1371,7 +1371,7 @@
       "schemaVersion": 1,
       "recordCount": 7127,
       "inProgress": false,
-      "lastModified": "2026-09-06T01:28:47.120Z"
+      "lastModified": "2026-09-06T10:19:15.014Z"
     },
     "nflverse/snaps/2022.json": {
       "schemaVersion": 1,
@@ -1383,13 +1383,13 @@
       "schemaVersion": 1,
       "recordCount": 7022,
       "inProgress": false,
-      "lastModified": "2026-09-06T01:28:47.865Z"
+      "lastModified": "2026-09-06T10:19:16.099Z"
     },
     "nflverse/snaps/2024.json": {
       "schemaVersion": 1,
       "recordCount": 7006,
       "inProgress": false,
-      "lastModified": "2026-09-06T01:28:48.287Z"
+      "lastModified": "2026-09-06T10:19:17.132Z"
     },
     "nflverse/snaps/2025.json": {
       "schemaVersion": 1,
@@ -1401,5 +1401,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-09-06T01:28:48.595Z"
+  "generatedAt": "2026-09-06T10:19:17.132Z"
 }

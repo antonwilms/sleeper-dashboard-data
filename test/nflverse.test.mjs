@@ -1793,7 +1793,7 @@ test('aggregateSnapCounts: served shape — offPct computed from summed offSnaps
     snapRow({ week: 1, player: 'WR A', pfrId: 'WRA01', position: 'WR', team: 'KC', offSnaps: 40 }),
     snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'KC', offSnaps: 60 }),
   );
-  const { byPfrId, season, rowCount } = aggregateSnapCounts(csv);
+  const { byPfrId, season, rowCount } = aggregateSnapCounts(csv, { season: 2016 });
   assert.equal(season, 2016);
   assert.equal(rowCount, 1); // 'G' is not an emitted position — only the WR row counts
   const wr = byPfrId['WRA01'];
@@ -1810,7 +1810,7 @@ test('aggregateSnapCounts: POST rows excluded — do not change any total', () =
     snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'KC', offSnaps: 60, gameType: 'REG' }),
     snapRow({ week: 2, player: 'WR A', pfrId: 'WRA01', position: 'WR', team: 'KC', offSnaps: 999, gameType: 'POST' }),
   );
-  const { byPfrId, rowCount } = aggregateSnapCounts(csv);
+  const { byPfrId, rowCount } = aggregateSnapCounts(csv, { season: 2016 });
   assert.equal(rowCount, 1);
   assert.equal(byPfrId['WRA01'].games, 1);
   assert.equal(byPfrId['WRA01'].offSnaps, 40);
@@ -1823,7 +1823,7 @@ test('aggregateSnapCounts: team-snap denominator is the MAX across a team\'s pla
     snapRow({ week: 1, player: 'RB B', pfrId: 'RBB01', position: 'RB', team: 'KC', offSnaps: 20 }),
     snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'KC', offSnaps: 65 }),
   );
-  const { byPfrId } = aggregateSnapCounts(csv);
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
   // sum would be 115, mean would be ~38.3 — the correct denominator is the max, 65
   assert.equal(byPfrId['WRA01'].teamOffSnaps, 65);
   assert.equal(byPfrId['RBB01'].teamOffSnaps, 65);
@@ -1834,7 +1834,7 @@ test('aggregateSnapCounts: team codes pass through unchanged — a 2016 fixture 
     snapRow({ week: 1, player: 'Player X', pfrId: 'PX01', position: 'WR', team: 'SD', offSnaps: 40 }),
     snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'SD', offSnaps: 60 }),
   );
-  const { byPfrId } = aggregateSnapCounts(csv);
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
   assert.equal(byPfrId['PX01'].team, 'SD');
 });
 
@@ -1849,7 +1849,7 @@ test('aggregateSnapCounts: traded player — week-restricted per-stint denominat
     snapRow({ gameId: 'g2', week: 2, player: 'Traded P', pfrId: 'TP01', position: 'WR', team: 'LA', offSnaps: 30 }),
     snapRow({ gameId: 'g2', week: 2, player: 'LA OL', pfrId: 'LOL', position: 'G', team: 'LA', offSnaps: 70 }),
   );
-  const { byPfrId } = aggregateSnapCounts(csv);
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
   const p = byPfrId['TP01'];
   assert.ok(p);
   assert.equal(p.traded, true);
@@ -1860,10 +1860,37 @@ test('aggregateSnapCounts: traded player — week-restricted per-stint denominat
   assert.equal(p.offPct, Math.round(50 / 120 * 1000) / 1000);
 });
 
+test('aggregateSnapCounts: a genuine offSnaps tie between stints — team and teams[0] agree, alphabetical tie-break (fix pass 1 item 4)', () => {
+  const csv = makeSnapsCsv(
+    // NYG week 1: player + an OL setting the team-game max
+    snapRow({ gameId: 'g1', week: 1, player: 'Tied P', pfrId: 'TIE01', position: 'WR', team: 'NYG', offSnaps: 20 }),
+    snapRow({ gameId: 'g1', week: 1, player: 'NYG OL', pfrId: 'NOL', position: 'G', team: 'NYG', offSnaps: 55 }),
+    // ATL week 2: same player, SAME offSnaps as the NYG stint — a genuine tie
+    snapRow({ gameId: 'g2', week: 2, player: 'Tied P', pfrId: 'TIE01', position: 'WR', team: 'ATL', offSnaps: 20 }),
+    snapRow({ gameId: 'g2', week: 2, player: 'ATL OL', pfrId: 'AOL', position: 'G', team: 'ATL', offSnaps: 60 }),
+  );
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
+  const p = byPfrId['TIE01'];
+  assert.ok(p);
+  assert.equal(p.traded, true);
+  // ATL < NYG alphabetically — the tie-break — and team must be teams[0], not a second,
+  // independently-derived answer that can disagree with it.
+  assert.deepEqual(p.teams, ['ATL', 'NYG']);
+  assert.equal(p.team, p.teams[0]);
+  assert.equal(p.team, 'ATL');
+});
+
 test('aggregateSnapCounts: missing pfr_player_id column → throws', () => {
   const csv = 'game_id,season,game_type,week,player,position,team,offense_snaps\n' +
     '2016_01,2016,REG,1,WR A,WR,KC,40';
-  assert.throws(() => aggregateSnapCounts(csv), /required columns missing/);
+  assert.throws(() => aggregateSnapCounts(csv, { season: 2016 }), /required columns missing/);
+});
+
+test('aggregateSnapCounts: wrong-asset CSV (season column mismatch) throws — fix pass 1 item 6', () => {
+  const csv = makeSnapsCsv(
+    snapRow({ week: 1, player: 'WR A', pfrId: 'WRA01', position: 'WR', team: 'KC', offSnaps: 40 }),
+  );
+  assert.throws(() => aggregateSnapCounts(csv, { season: 2017 }), /does not match requested season/);
 });
 
 test('pfrCrosswalkFromBySleeper: builds a pfrId→sleeperId reverse index, keep-first on a duplicate pfrId', () => {
@@ -1882,7 +1909,7 @@ test('rekeySnapsByPfr: an unmatched pfr_player_id lands in byPfr, increments unm
     snapRow({ week: 1, player: 'Unmapped', pfrId: 'UNM01', position: 'WR', team: 'KC', offSnaps: 20 }),
     snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'KC', offSnaps: 60 }),
   );
-  const { byPfrId } = aggregateSnapCounts(csv);
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
   const { players, byPfr, unmapped } = rekeySnapsByPfr(byPfrId, { MAP01: '999' });
   assert.ok(players['999']);
   assert.equal(players['UNM01'], undefined);

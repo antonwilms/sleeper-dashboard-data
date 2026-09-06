@@ -17,7 +17,9 @@
  *   - `byPfr` retains the unmapped residue (a departure from the advstats/gamelogs house
  *     pattern of dropping unmapped rows to a bare count — deliberate, see lib/nflverse.mjs).
  *   - Coverage floor: MIN_SNAPS_SEASON (2013 — snap_counts_2012.csv exists upstream but is
- *     header-only with zero data rows; see lib/nflverse.mjs).
+ *     header-only with zero data rows; see lib/nflverse.mjs). A below-floor `--year` is
+ *     rejected here, before the spine sees it — `validateSnaps`' own MIN_SNAPS_SEASON check
+ *     is a second line of defence that the CLI path cannot actually reach (fix pass 1 item 3).
  *   - Sparsity: the spine's own `minRows` is set to 1 here, DELIBERATELY not MIN_SNAPS_ROWS —
  *     every season this family backfills is already complete/published, so a genuine shortfall
  *     is a truncated fetch, not an unpublished season. `lib/validate.mjs` `validateSnaps` is
@@ -79,6 +81,17 @@ export async function updateSnaps({
       (_, i) => MIN_SNAPS_SEASON + i
     );
   } else if (yearOpt) {
+    // Reject a below-floor --year here, before the spine ever sees it. Without this,
+    // runSeasonKeyedIngest's own "not published" branch (a null/zero derive) swallows a
+    // below-floor year as a silent skip with exit 0 — validateSnaps' own MIN_SNAPS_SEASON
+    // throw below is unreachable from the CLI, since fetchSnapCountsCsv never returns a
+    // populated CSV for a season this family doesn't cover (fix pass 1 item 3).
+    if (yearOpt < MIN_SNAPS_SEASON) {
+      throw new Error(
+        `[snaps] --year ${yearOpt} is below MIN_SNAPS_SEASON=${MIN_SNAPS_SEASON} — refusing to ` +
+        'ingest (snap_counts_2012.csv exists upstream but is header-only; 2013 is the real floor).'
+      );
+    }
     seasons = [yearOpt];
   } else {
     seasons = [currentSeason];
@@ -119,7 +132,7 @@ export async function updateSnaps({
       const csv = await d.fetchSnapCountsCsv(season);
       if (csv === null) return null;
 
-      const { byPfrId, season: parsed, rowCount: parsedRowCount } = aggregateSnapCounts(csv);
+      const { byPfrId, season: parsed, rowCount: parsedRowCount } = aggregateSnapCounts(csv, { season });
       console.log(`[snaps] Parsed ${parsedRowCount} skill-position rows for season ${season}`);
 
       const { players, byPfr, unmapped } = rekeySnapsByPfr(byPfrId, pfrToSleeper);

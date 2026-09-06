@@ -99,7 +99,7 @@ SUBCOMMANDS
   oline --all                 Backfill ESPN-era seasons (≥ 2025)
   snaps                       nflverse PFR-sourced offensive snap shares (QB/RB/WR/TE/FB), sleeper_id-keyed
   snaps --year YYYY           Snap shares for a specific season
-  snaps --all                 Backfill every season (≥ 2012)
+  snaps --all                 Backfill every season (≥ 2013)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files

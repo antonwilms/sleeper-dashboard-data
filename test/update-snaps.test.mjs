@@ -71,6 +71,26 @@ test('updateSnaps: fetchSnapCountsCsv returns null (deps) → season skipped, no
 });
 
 // ═══════════════════════════════════════════════════════════════════
+// below-floor --year rejection (fix pass 1 item 3). Before this fix, MIN_SNAPS_SEASON was
+// only enforced inside validateSnaps — a branch the CLI path can never reach, because a
+// below-floor season's derive() always resolves to null/empty and runSeasonKeyedIngest's own
+// "not published" skip fires first (exit 0, not a rejection). This drives the real CLI path:
+// fetchSnapCountsCsv must never even be called. A direct-call test of validateSnaps' own
+// MIN_SNAPS_SEASON throw remains at test/nflverse.test.mjs as the second line of defence.
+// ═══════════════════════════════════════════════════════════════════
+
+test('updateSnaps: a --year below MIN_SNAPS_SEASON is rejected before the spine sees it', async () => {
+  const { deps, calls } = spyDeps({
+    fetchSnapCountsCsv: async () => { throw new Error('must not fetch — rejected before the spine'); },
+  });
+  await assert.rejects(
+    () => updateSnaps({ year: MIN_SNAPS_SEASON - 1, deps }),
+    /below MIN_SNAPS_SEASON/
+  );
+  assert.equal(calls.writeJsonStable.length, 0);
+});
+
+// ═══════════════════════════════════════════════════════════════════
 // the spine's own sparsity skip is deliberately near-inert here (SPINE_MIN_ROWS=1) — a small,
 // real fetch still gets validated and WRITTEN (the row-count floor lives in validateSnaps, and
 // throws instead of skipping — see the MIN_SNAPS_ROWS test in test/nflverse.test.mjs). Confirm
@@ -94,7 +114,7 @@ test('updateSnaps: a real but below-MIN_SNAPS_ROWS season throws (validateSnaps)
 test('updateSnaps: dedup hit — nothing written', async (t) => {
   const csv = makeSnapsCsv(PLAYERS, WEEKS, 2016);
   const { aggregateSnapCounts, pfrCrosswalkFromBySleeper, rekeySnapsByPfr } = await import('../lib/nflverse.mjs');
-  const { byPfrId } = aggregateSnapCounts(csv);
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
   const { players, byPfr } = rekeySnapsByPfr(byPfrId, pfrCrosswalkFromBySleeper(makeCrosswalk(PLAYERS).bySleeper));
   const { deps, calls, logs } = spyDeps({ fetchSnapCountsCsv: async () => csv, dataPathResult: { players, byPfr } }, t);
   await updateSnaps({ year: 2016, deps });

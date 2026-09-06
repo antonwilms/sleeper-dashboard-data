@@ -2,7 +2,8 @@ name: Yearly nflverse snap counts
 
 on:
   schedule:
-    # Monday 14:05 UTC in mid-February — post-season (the Super Bowl has settled by early
+    # 14:05 UTC on 15 February every year, whatever day of the week that lands on (the cron
+    # expression has no weekday field) — post-season (the Super Bowl has settled by early
     # February in every season this covers), after the Wednesday playerids Action has had a
     # full week to land the season's final crosswalk. In-season weekly refresh is out of scope
     # for this family (task snap-counts-backfill.md §A) — one settle-and-capture run per season.
