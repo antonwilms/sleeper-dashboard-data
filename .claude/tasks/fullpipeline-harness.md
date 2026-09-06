@@ -141,3 +141,62 @@ It is already three edits out of sync, queued in the parent folder's `PARKED.md`
 - **Parity is the whole slice**, which is why D6b is gated on it.
 - **Four of the six new factors depend on data with narrower coverage than the panel.** Findings 2, 3, 4, 8 and 9 are all the same shape: a factor that looks computed but is structurally neutral for part of the window. Every one needs its coverage stated in the verdict.
 - **Do not activate anything.** No app change, no served-family change, no factor pruned on this run.
+
+---
+
+## Fix pass 1 — D6a
+
+Session 1 triage of the D6a hand-back and diff (`9a185ac..fd8a850`, PR #6). **The fix-applier implements this section and nothing else.** Work on `d6a-fullpipeline-reconstructions` and push to the same PR.
+
+Verified before triage, so do not re-derive: the mirrored `CR-REGISTRY` region is untouched; the new parity block asserts fixture presence rather than skipping; `npm test` passes 836; and the teamOffense diagnostic reports mean |diff| 0.0318 and max 0.1300 over 48 players, which on a factor spanning 0.155 total is roughly **six rank slots on average and twenty-six at worst** — not noise.
+
+### 1. The teamOffense parity gap is caused by this file's finding 7, which is wrong — **must fix (Session 1's error)**
+
+Finding 7 told the implementer to reconstruct Step 7 under per-season-team attribution, citing CR-02's Mirror. That is right about the general contract and **wrong about this specific function**.
+
+`computeTeamContext`'s only caller pins it: `App.jsx:214` passes `{ attribution: 'current-team' }`, overriding the module default of `per-season-team`. Under that mode `resolveAttributedTeam` returns `player?.team ?? null`, so aggregate rows with no `playersMap` entry drop out on their own. The function's own note (`src/utils/teamContext.js:148-152`) says exactly this, and warns that migrating it to per-season attribution would require adopting `isTeamAggregateId` because the aggregate rows carry a per-season `team` and would otherwise double the ranking inputs.
+
+So the panel ranks teams under a different attribution than the app does, players land on different teams, team fantasy-point sums differ, and the ranks diverge. Six slots is entirely consistent with that.
+
+**Fix.** Reconstruct Step 7 under **current-team** attribution, matching the app's only caller, and say in the branch comment that this one function is pinned against the module default. **Keep the `isTeamAggregateId` filter** — it is inert under current-team, and it is the guard the app's own note asks for if the mode ever changes.
+
+Then **re-run the parity check and report the new numbers**. If it closes, promote the teamOffense test from diagnostic to an asserted parity check with a stated tolerance and row count. **If it does not close, stop and report** — that would mean a second, genuinely unknown cause, and it must not be widened away.
+
+Correct finding 7's text in this file in the same change, so the next reader does not re-derive the wrong instruction.
+
+### 2. `qbQuality` has an empty eligible window and cannot be graded — **must fix**
+
+The reconstruction is structurally neutral for 100% of rows: no KTC in the panel window, the dynasty-score branch is unportable, and the app's own population is fantasy-roster-scoped and not reconstructable offline. This is finding 4's problem in its most extreme form — not a factor with a narrow window, but one with **no window at all**.
+
+**Fix.** Record `qbQuality`'s eligible window as empty in the coverage output, and state in this file that **D6b must exclude it from the ablation entirely** rather than reporting it as a prune candidate. A factor held at 1.0 by construction will always look prunable. Keep the reconstruction — it is correct, and it becomes gradable the moment a KTC-covered window exists — but mark it ungraded rather than neutral-and-therefore-useless.
+
+### 3. Record what the architecture fork means for D6a's own claim — **must fix**
+
+The decision to dispatch the six new factors through `D6_NEW_FACTORS` rather than folding them into `FULL_FACTORS` is **sound and stays**: `compBlend` is the app's post-hoc convex blend after the clamp, not a multiplicative term, and `predictWithExponents` has no stage to compose it. Forcing it in would mis-compute and destabilise existing calibration tests.
+
+But it means **D6a does not deliver a panel that computes the thirteen steps as one composed pipeline**, which is what this file's own goal line promises. It delivers six correct reconstructions alongside the existing seven.
+
+**Fix.** Say so plainly in this file's goal and in §A, and make **the composition — widening the real product set to thirteen and fixing the clamp ordering — D6b's first task, ahead of any calibration output.** A calibration constant computed before the composition is correct would be measuring a pipeline that does not exist.
+
+### 4. The two unclosable divergences must reach the verdict, not just the test names — **must fix**
+
+`age` and `depth` are computed but not asserted equal, for stated reasons: the app takes age from live wall-clock at snapshot time and the panel from birthdate at `lastQSeason`, and the app reads a live depth chart where the panel reads D5's historical one. Both are genuine and neither is closable retrospectively.
+
+**Fix.** Record both in this file as **systematic reconstruction differences**, with the note that D6b's verdict must state them beside every constant those two factors contribute to. They are not test bookkeeping; they are a known bias in the output.
+
+### 5. The original parity gate still self-skips — **must fix**
+
+Finding 6's reasoning applies to `T-F10` itself, not only to the new block: at `test/panel-fit.test.mjs:1483` a missing fixture set calls `t.skip` and leaves the gate green. The new D6a block asserts presence correctly; the older one does not.
+
+**Fix.** Make T-F10 assert fixture presence the same way. This is a pre-existing behaviour rather than a regression, so if making it strict turns any CI path red, stop and report rather than reverting the assertion.
+
+### No change — considered and dismissed
+
+- **The `D6_NEW_FACTORS` fork.** Correct, per item 3. The fix is recording its consequence, not undoing it.
+- **`compBlend` as a synthetic ratio, and `pipelineConfidence` pinned.** Both were raised as questions and decided; they stand.
+- **Not widening the standalone backtest tool.** Correct — it has no injectable loader for the new family, and a comment-only clarification is the honest touch.
+- **The `shareTrend`/`teamRzShare` parity gap staying open.** Correct: closing it needs a post-2026-07-18 snapshot imported, which no one did this session. Unchanged from before this slice.
+
+### Leave alone
+
+Every unit test added for the six factors. The position fallback and its 2013-quarterback guard. The snap widening and the three edits it required. The fixture set. `lib/fantasyPoints.mjs`. The mirrored `CR-REGISTRY` region — still three edits out of sync and queued in the parent folder's `PARKED.md`.
