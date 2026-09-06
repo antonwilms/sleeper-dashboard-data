@@ -1465,8 +1465,10 @@ describe('T-F19: non-positive-ppg guard', () => {
 //
 describe('T-F10: real-player snapshot parity (the fidelity gate)', () => {
   const FIXTURE_DIR = path.join(REPO_ROOT, 'test/fixtures/r3fit-parity-2025');
-  const fixturesExist = ['season-totals-2025.slim.json', 'career-seasons.json', 'positions-2025.json', 'snapshot-2026-07-05.slim.json']
-    .every(f => fs.existsSync(path.join(FIXTURE_DIR, f)));
+  // Fix pass 1 item 5 — finding 6's reasoning ("a missing set leaves the gate
+  // green and silent") applies to this ORIGINAL gate too, not only the D6a
+  // block added alongside it. Presence is asserted explicitly, never t.skip.
+  const REQUIRED_FILES = ['season-totals-2025.slim.json', 'career-seasons.json', 'positions-2025.json', 'snapshot-2026-07-05.slim.json'];
 
   // §9's own worked example (one percentileRank point -> 1.2e-3 snap / 1.0e-3
   // rz, pre-shrinkage) budgets ~1 point of drift at 2e-3. Investigated against
@@ -1478,12 +1480,13 @@ describe('T-F10: real-player snapshot parity (the fidelity gate)', () => {
   // with headroom; still tight enough to catch a real divergence.
   const POOL_TOLERANCE = 3e-3;
 
-  test('parity gate', (t) => {
-    if (!fixturesExist) {
-      t.skip('T-F10 fixtures not present in this checkout (sparse checkout — keeps CI green)');
-      return;
+  test('fixture presence is asserted explicitly, not skipped (finding 6, Fix pass 1 item 5)', () => {
+    for (const f of REQUIRED_FILES) {
+      assert.ok(fs.existsSync(path.join(FIXTURE_DIR, f)), `required T-F10 parity fixture missing: ${f}`);
     }
+  });
 
+  test('parity gate', (t) => {
     const seasonTotals2025 = JSON.parse(fs.readFileSync(path.join(FIXTURE_DIR, 'season-totals-2025.slim.json'), 'utf8'));
     const careerSeasons = JSON.parse(fs.readFileSync(path.join(FIXTURE_DIR, 'career-seasons.json'), 'utf8'));
     const positions2025 = JSON.parse(fs.readFileSync(path.join(FIXTURE_DIR, 'positions-2025.json'), 'utf8'));
@@ -1871,7 +1874,24 @@ describe('D6a parity — six new factors against the committed 2025 snapshot fix
   const positionOf = (pid) => positionsWide[pid] ?? null;
   const teamTotals2025 = buildTeamTotalsForSeason(seasonTotalsWide, 2025, (p) => seasonTotalsWide[p]?.team ?? null);
   const pools = buildCohortPools(seasonTotalsWide, positionOf, teamTotals2025);
-  const teamOffenseRanks2025 = buildTeamOffenseRanks(teamTotals2025);
+
+  // Fix pass 1 item 1 — teamOffense reconstructs under CURRENT-team
+  // attribution, not per-season-team (finding 7's original text was wrong
+  // about this one function; see Step 0 finding 7's correction and
+  // §Design/A). Mirrors the production fix in lib/panel.mjs's
+  // attachFactorMultipliers: a SEPARATE, current-team-attributed totals map
+  // from teamTotals2025 above, which stays per-season-team for the cohort
+  // pools every OTHER factor reads. This fixture loads a single season
+  // (2025) only, so current-team's anchor year and per-season-team's season
+  // are necessarily the same year — the two attribution modes are
+  // numerically identical for this fixture (confirmed below: re-running
+  // after the fix reproduces the SAME mean/max, because this single-season
+  // fixture cannot exercise the distinction that matters across a real
+  // multi-year panel, where current-team pins every row to the panel's
+  // toYear regardless of the row's own season).
+  const currentTeamOf2025 = teamKeyResolver('current-team', { 2025: seasonTotalsWide }, 2025);
+  const teamOffenseTotals2025 = buildTeamTotalsForSeason(seasonTotalsWide, 2025, currentTeamOf2025);
+  const teamOffenseRanks2025 = buildTeamOffenseRanks(teamOffenseTotals2025);
 
   function latestDepthOrder(team, position, pid) {
     const weeks = depthFixture.weeks ?? {};
@@ -1888,16 +1908,20 @@ describe('D6a parity — six new factors against the committed 2025 snapshot fix
 
   // OPEN PARITY GAP — NOT asserted numerically equal, per the task's own
   // "do not widen a tolerance to make the gate pass" instruction. Investigated
-  // two hypotheses, both rejected: (1) exact match — fails broadly; (2) a
+  // three hypotheses now, all rejected: (1) exact match — fails broadly; (2) a
   // small population-noise tolerance (0.02, ~4 rank slots) — still fails for
   // ~60% of the sample, several by 8-10+ rank slots (e.g. one team ranks 6th
   // by this reconstruction's season-totals fantasyPoints sum but the app's
-  // own teamFactor implies rank 32). That spread is too large and inconsistent
-  // to be roster-population noise; restricting the sum to skill positions
-  // only (QB/RB/WR/TE via positionOf) narrows but does not close it. This
-  // reads as a genuine formula/population misunderstanding in the
-  // reconstruction (or in how this test's app-side reference is derived),
-  // not a tolerance question. STOP AND REPORT (per the task's own
+  // own teamFactor implies rank 32); restricting the sum to skill positions
+  // only (QB/RB/WR/TE via positionOf) narrows but does not close it either.
+  // (3) Fix pass 1 item 1 — per-season-team vs CURRENT-team attribution
+  // (finding 7's original, wrong instruction): switched to current-team
+  // above (teamOffenseTotals2025/currentTeamOf2025) and re-ran. Mean|diff|
+  // and max|diff| are IDENTICAL to before the fix (0.0318/0.1300 over the
+  // same 48 players) — this single-season fixture cannot distinguish the two
+  // modes (see the comment on teamOffenseTotals2025 above), so it cannot
+  // confirm or refute finding 7's correction either way. The divergence's
+  // real cause remains unidentified. STOP AND REPORT (per the task's own
   // instruction) rather than force a pass — flagged prominently in the
   // hand-back as an open item for plan-reviewer / Session 1, same standing as
   // "uncovered, rests on unit tests" for shareTrend/teamRzShare.
@@ -1907,7 +1931,7 @@ describe('D6a parity — six new factors against the committed 2025 snapshot fix
     let maxAbsDiff = 0;
     for (const pid of samplePids) {
       const factors = snapshot.players[pid].projection.factors;
-      const team = seasonTotals2025[pid]?.team ?? null;
+      const team = currentTeamOf2025(pid, 2025) ?? null;
       if (!team) continue;
       const rank = teamOffenseRanks2025[team] ?? null;
       const mine = reconstructTeamOffenseFactor(rank);

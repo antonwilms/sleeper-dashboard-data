@@ -7,6 +7,8 @@
 
 **Goal.** Grade the veteran pipeline **as shipped, all thirteen steps**, on one pinned basis, rookies in a separate panel — producing calibration constants and factor verdicts instead of waiting for January 2027.
 
+> **Corrected, Fix pass 1 item 3.** D6a does not deliver this as one composed thirteen-step pipeline. `compBlend` is the app's post-hoc convex blend after the clamp, not a multiplicative term, and `predictWithExponents` has no stage to compose it — so the six new reconstructions are dispatched through `D6_NEW_FACTORS`, deliberately kept separate from `FULL_FACTORS`/`predictWithExponents`'s composition (sound, and it stays that way; forcing it in would mis-compute and destabilise the existing seven-factor calibration tests). What D6a actually delivers is **six correct reconstructions alongside the existing seven**, not a single composed thirteen-factor product. Widening the real product set to thirteen and fixing `predictWithExponents`' clamp ordering for `compBlend` is **D6b's first task, ahead of any calibration output** (§D) — a calibration constant computed before the composition is correct would be measuring a pipeline that does not exist.
+
 **Not in this slice.** Activating anything in the app, and changing any served family.
 
 ---
@@ -39,6 +41,8 @@ So each of the six costs a branch, its inputs threaded into `attachFactorMultipl
 
 **7. The attribution instruction in the first draft was wrong, and the README is why.** It said the app pins current-team. CR-02's Mirror states per-season `team` has been scoring-load-bearing in the app since the R2 flip, via `resolveAttributedTeam`, consumed inside `computeTeamContext`'s own loops — the exact function Step 7 ports. `README.md:2022` still says otherwise and is **stale against the registry**, which is the authority. **Use per-season-team**, matching R3-FIT's own `attribution: 'per-season-team'`, or Step 7 is reconstructed under the older rule and comparability with R3-FIT breaks.
 
+> **Corrected, Fix pass 1 item 1.** The paragraph above is right about the general CR-02 contract and wrong about this specific function. `computeTeamContext`'s only caller pins it: `App.jsx:214` passes `{ attribution: 'current-team' }`, overriding the module default of per-season-team that `resolveAttributedTeam`'s *other* call sites (`teamRzShare.js:85`, `seasonProjection.js:488`, and `teamContext.js`'s own other consumers) correctly use. So Step 7 must be reconstructed under **current-team** attribution, not per-season-team — the opposite of what this finding originally said. `computeTeamContext`'s own note (`teamContext.js:148-152`) says exactly this and warns that migrating it to per-season attribution would require adopting `isTeamAggregateId`, because the aggregate rows carry a per-season `team` and would otherwise double the ranking inputs. See §Design/A and Fix pass 1 item 1 below.
+
 **8. The age curve needs a stated missing-birthdate policy.** Birthdate resolves for only **79–84%** of gp ≥ 8 rows across 2013–2025. Whether a missing age is a neutral 1.0 (the documented convention — sentinels are never drops) or a listwise drop changes both panel size and the calibration constant. **Choose neutral, matching the convention, and record the coverage rate per year in the verdict.**
 
 **9. The rookie panel's bound is worse than the first draft claimed.** KTC is neutral before 2026-05-18, and `college/` starts at **2017**, so for classes whose college seasons precede 2017 the college term is neutral too — **three of five inputs, not four**, for roughly 2013–2017. A finding whose purpose is honesty about what the panel measures must not itself overstate coverage.
@@ -55,9 +59,11 @@ So each of the six costs a branch, its inputs threaded into `attachFactorMultipl
 
 Per finding 1, each is a branch in `attachFactorMultipliers` with its inputs threaded into `ctx`, a `FULL_FACTORS` entry, a sentinel rule and a `fitCoverage` counter — plus a registry entry for documentation. Port the app's arithmetic exactly; where the app reads state the panel cannot see, state the deviation in the branch's own comment.
 
-- **Age (Step 2)** — `computeEmpiricalAgeCurves` + `ageCurve.js`. Age from D2 `birthdate`, missing → neutral per finding 8. **Curves built per predictor year from ≤ Y data only.**
-- **Depth (Step 8)** — D5, per findings 11 and the null rule: `null` is unknown → neutral, never re-indexed; a missing team is neutral. `depthPositions` carries the legacy per-slot grain; do not compare eras' ordinals as one measurement.
-- **Team offense (Step 7)** — `computeTeamContext` rank, **per-season-team attribution** per finding 7.
+**Corrected, Fix pass 1 item 3.** This section delivers six correct reconstructions dispatched via `D6_NEW_FACTORS`, alongside the existing seven — **not** one composed thirteen-step pipeline (see the corrected Goal line above for why the fork is sound and what it means for D6b).
+
+- **Age (Step 2)** — `computeEmpiricalAgeCurves` + `ageCurve.js`. Age from D2 `birthdate`, missing → neutral per finding 8. **Curves built per predictor year from ≤ Y data only.** **Systematic reconstruction difference (Fix pass 1 item 4, unclosable):** the app computes `ageDelta` from live wall-clock age at snapshot time; this reconstruction uses birthdate at `lastQSeason`. Same formula and curve, different reference date — computed and reported, never asserted equal to the app.
+- **Depth (Step 8)** — D5, per findings 11 and the null rule: `null` is unknown → neutral, never re-indexed; a missing team is neutral. `depthPositions` carries the legacy per-slot grain; do not compare eras' ordinals as one measurement. **Systematic reconstruction difference (Fix pass 1 item 4, unclosable):** the app reads a live depth chart at snapshot time; this reconstruction reads D5's historical depth chart for the row's own season. The two can disagree even for the same player-season — computed and reported, never asserted equal to the app.
+- **Team offense (Step 7)** — `computeTeamContext` rank, **current-team attribution** (Fix pass 1 item 1 — finding 7's original text was wrong about this one function; `App.jsx:214` pins `computeTeamContext`'s only caller to `current-team`, overriding the per-season-team module default every other D6a factor correctly uses).
 - **QB1 quality (Step 7b)** — D5 QB1 identity plus the app's PPG fallback. The dynasty-score branch is not reconstructable; the fallback is what the app itself uses when it is absent. Record the deviation.
 - **Efficiency (Step 5e)** — `efficiencyMetrics.js`. Inputs are served season-totals keys.
 - **Comp blend (Step 9)** — two-file port, computed against **≤ Y careers only**.
@@ -74,6 +80,8 @@ Extend T-F10 to every factor, building the new fixture set per finding 6 and ass
 
 ### D. Calibration outputs — [D6b]
 
+**D6b's first task, ahead of everything below (Fix pass 1 item 3):** widen the real, composed product set to thirteen factors and fix `predictWithExponents`' clamp ordering so `compBlend` composes correctly. A calibration constant computed before that composition is correct would be measuring a pipeline that does not exist.
+
 Per position, over `forwardChainFolds` (finding 10), within each factor's eligible window (finding 4):
 
 1. Median and mean `outcome / fullPipelinePPG`.
@@ -84,7 +92,7 @@ Per position, over `forwardChainFolds` (finding 10), within each factor's eligib
 ### E. Verdicts — [D6b]
 
 - **Step 4** — ΔMAE and ΔSpearman of removing the up-side (`outlierRatio < 0.85`) branches versus shipped, per position, plus the injury-gated variant.
-- **Factor pruning** — per-factor ablation, each held at 1.0, **reported within its eligible window** and alongside the R3-FIT exponents. Report, do not act.
+- **Factor pruning** — per-factor ablation, each held at 1.0, **reported within its eligible window** and alongside the R3-FIT exponents. Report, do not act. **Fix pass 1 item 2: exclude `qbQuality` from the ablation entirely** — its eligible window is empty (`fitCoverage.qbQuality.eligibleWindow`/`ungraded`, added Fix pass 1), not merely narrow, so it is structurally neutral for 100% of rows and would always look like a prune candidate for a reason that has nothing to do with signal. **Fix pass 1 item 4: report the `age` and `depth` systematic reconstruction differences (§Design/A) beside every constant those two factors contribute to** — they are a known bias in the output, not test bookkeeping, and must not be silently folded into the reported numbers as if they were noise.
 - **Rookie panel** — rookie-path rows in Y, predictor the reconstructed rookie projection subject to finding 9, outcome Y+1 PPG at gp ≥ 6. Report realised PPG by draft tier and position, ratio to projected, share hitting the 1.85 cap, and the top projected rookie's rank against where he finished.
 - **Files** — `grading/<date>-fullpipeline-verdict.md` and `backtests/<date>-fullpipeline-panel.json`.
 
