@@ -19,7 +19,8 @@
  *   --flip-gate                       R2 dual-mode attribution comparison (both modes; drop --attribution)
  *   --fit                             R3-FIT fitted per-position exponents (offline harness); mutually exclusive with --flip-gate
  *   --alpha X                         R3-FIT shrinkage knob override (default 0.5; sweep {0.1,0.25,0.5,1,2} always reported)
- *   --json                            machine-readable FitReport (FlipReport under --flip-gate, R3-FIT FitReport under --fit) to stdout
+ *   --fullpipeline                    D6b full-pipeline calibration + verdicts (13-factor composition); mutually exclusive with --fit/--flip-gate; basis always half_ppr, attribution always per-season-team (teamOffense alone reconstructed under current-team)
+ *   --json                            machine-readable FitReport (FlipReport under --flip-gate, R3-FIT FitReport under --fit, full-pipeline result under --fullpipeline) to stdout
  *   --write                           persist the three artifacts (backtests/ + grading/)
  */
 
@@ -39,6 +40,9 @@ import {
   runFit,
   buildFitVerdictMarkdown,
   writeFitArtifacts,
+  runFullPipeline,
+  buildFullPipelineVerdictMarkdown,
+  writeFullPipelineArtifacts,
   DEFAULT_SCORING_SNAPSHOT,
 } from '../scripts/panel-run.mjs';
 import { PANEL_DEFAULTS, FIT_ALPHA_DEFAULT, FIT_ALPHA_SWEEP } from '../lib/panel.mjs';
@@ -70,11 +74,12 @@ if (isMain) {
       const attribution = option('--attribution') ?? 'current-team';
       const flipGate = flag('--flip-gate');
       const fitMode = flag('--fit');
+      const fullPipelineMode = flag('--fullpipeline');
       // Mode-aware basis default (§6.4 guard 2): --fit's own basis is half_ppr
       // (the app's own store-served basis, §3.0-C3); every other mode keeps
       // in-basis. option() returns null when the flag is absent, so an
       // explicit --basis still wins over either default.
-      const basis = option('--basis') ?? (fitMode ? 'half_ppr' : 'in-basis');
+      const basis = option('--basis') ?? ((fitMode || fullPipelineMode) ? 'half_ppr' : 'in-basis');
       const scoringFrom = option('--scoring-from') ?? DEFAULT_SCORING_SNAPSHOT;
       const alpha = parseFloat(option('--alpha') ?? String(FIT_ALPHA_DEFAULT));
 
@@ -94,12 +99,39 @@ if (isMain) {
         console.error('[panel] Error: --fit and --flip-gate are mutually exclusive');
         process.exit(1);
       }
+      if (fullPipelineMode && (flipGate || fitMode)) {
+        console.error('[panel] Error: --fullpipeline is mutually exclusive with --fit/--flip-gate');
+        process.exit(1);
+      }
       // §6.4 guard 1: --fit pins per-season-team (the app's live default,
       // load-bearing for the reconstruction) — silently ignoring an explicit
       // --attribution here would be exactly the failure --flip-gate already refuses.
       if (fitMode && args.includes('--attribution')) {
         console.error('[panel] Error: --fit pins per-season-team attribution (the app\'s live default); drop --attribution');
         process.exit(1);
+      }
+      if (fullPipelineMode && args.includes('--attribution')) {
+        console.error('[panel] Error: --fullpipeline pins per-season-team attribution (teamOffense alone reconstructs under current-team internally); drop --attribution');
+        process.exit(1);
+      }
+
+      if (fullPipelineMode) {
+        const result = runFullPipeline({ fromYear, toYear });
+        const verdictMd = buildFullPipelineVerdictMarkdown(result);
+
+        if (asJson) {
+          console.log(JSON.stringify(result, null, 2));
+        } else {
+          console.log(verdictMd);
+        }
+
+        if (write) {
+          const { panelPath, verdictPath } = writeFullPipelineArtifacts({ result, verdictMd });
+          console.log(`[panel] Wrote ${panelPath}`);
+          console.log(`[panel] Wrote ${verdictPath}`);
+        }
+
+        process.exit(result.stopped ? 1 : 0); // STOPPED is a real failure signal, not a verdict to read past
       }
 
       if (fitMode) {

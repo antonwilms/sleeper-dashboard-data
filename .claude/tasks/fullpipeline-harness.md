@@ -37,6 +37,8 @@ So each of the six costs a branch, its inputs threaded into `attachFactorMultipl
 
 **4. Two factors have no data for most of the panel, which would make the ablation lie.** `README.md:121` records that `rec_rz_tgt`, `rush_rz_att` and `pass_rz_att` appear from ~2021, so `rzUsage` and `teamRzShare` sentinel to 1.0 across roughly two-thirds of a 2013–2025 panel. §E's ablation would then report both as prune candidates because they are **structurally neutral**, not because they lack signal. **Every factor gets an explicit eligible-year window, and the ablation reports within it.** A verdict that prunes a factor on absent data is worse than no verdict.
 
+> **Corrected, D6b (Session 2, 2026-09-07).** The premise is factually wrong against live source, and README.md:121 was wrong with it — corrected there in the same change. Measured directly against `nfl/season-totals/`: `rush_rz_att`/`rec_rz_tgt`/`pass_rz_att` carry real nonzero values back to 2013 (100% of qualifying RB rows in 2013 carry `rush_rz_att`; counts grow gradually with overall roster/data completeness — no discrete 2021 cutoff). This also matches what D6a's own live coverage counters already showed: `rzUsage`'s sentinel rate is a few percent, not two-thirds. `rzUsage` and `teamRzShare` are therefore **full-panel-eligible**, same as every other gradable factor except `qbQuality` (empty window, Fix pass 1 item 2). Confirmed with the user before implementing D6b's eligible-window logic — do not re-derive a post-2021 restriction from this finding's original text.
+
 **5. The basis pin and the parity gate cannot both be naive.** `snapshots/2026-09-05.json` and the pinned `2026-07-05` both carry `scoringBasis: "custom"`. Three of the six new factors are PPG-denominated and therefore basis-dependent. **The parity fixture stays in-basis while the fit stays `half_ppr`** — state that explicitly, or the implementer meets a universal mismatch and loosens the tolerance until the gate is decorative.
 
 **6. The parity test runs off committed fixtures and self-skips when they are absent.** T-F10 reads four files under `test/fixtures/r3fit-parity-2025/`, not `snapshots/<date>.json`. Retargeting means **building a new fixture set**, and a missing set leaves the gate green and silent. **Assert fixture presence explicitly** so absence fails rather than skips.
@@ -75,6 +77,8 @@ Also in D6a: finding 2's position fallback, and finding 3's three snap-widening 
 ### B. One basis — [D6a]
 
 Pin `half_ppr` for every panel and verdict, with the parity carve-out in finding 5. Retire the `custom`-basis E-0a comparison or re-run it on `half_ppr`. Record the decision and its reason; see the Docs note on where.
+
+> **Basis record location (D6b, Session 2, 2026-09-07).** `grading/` is defined in CLAUDE.md as output from `--write`, and Invariant 3's exception is scoped to `<date>-*-verdict.md` reports — an undated hand-authored policy file does not belong there as written. **This paragraph, plus `scripts/panel-run.mjs`'s `runFullPipeline` header comment, is the basis record** — no new hand-authored file was created under `grading/` or elsewhere; the decision and its reason live with the task file itself, which is where the Docs note asked for it to go.
 
 ### C. Parity — [D6a], and the gate on D6b
 
