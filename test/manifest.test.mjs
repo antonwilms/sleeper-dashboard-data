@@ -7,6 +7,7 @@ import {
   MIN_GAMELOG_SEASON,
   MIN_TEAMCONTEXT_SEASON,
   MIN_OLINE_SEASON,
+  MIN_SNAPS_SEASON,
 } from '../lib/nflverse.mjs';
 
 test('manifest: no retired raw/stats- entries remain', () => {
@@ -68,13 +69,14 @@ const FAMILY_FLOORS = {
   'nflverse/gamelogs': MIN_GAMELOG_SEASON,
   'nflverse/teamcontext': MIN_TEAMCONTEXT_SEASON,
   'nflverse/oline': MIN_OLINE_SEASON,
+  'nflverse/snaps': MIN_SNAPS_SEASON,
   ...LOCAL_FLOORS,
 };
 
-test('manifest: ten season-keyed families are contiguous from their floor to their own max year', () => {
+test('manifest: eleven season-keyed families are contiguous from their floor to their own max year', () => {
   const m = readManifest();
   const families = Object.keys(FAMILY_FLOORS);
-  assert.equal(families.length, 10, 'expected exactly ten families in the coverage table');
+  assert.equal(families.length, 11, 'expected exactly eleven families in the coverage table');
 
   for (const [family, floor] of Object.entries(FAMILY_FLOORS)) {
     const years = yearsForFamily(m.files, family).filter(y => y >= floor);

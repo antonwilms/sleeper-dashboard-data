@@ -42,6 +42,7 @@ import { updatePlayerStats } from '../scripts/update-playerstats.mjs';
 import { updateTeamContext } from '../scripts/update-teamcontext.mjs';
 import { updatePlayerState } from '../scripts/update-playerstate.mjs';
 import { updateOline }       from '../scripts/update-oline.mjs';
+import { updateSnaps }       from '../scripts/update-snaps.mjs';
 import { parseAndValidateArgs } from '../lib/args.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
@@ -96,12 +97,15 @@ SUBCOMMANDS
   oline                       nflverse OL composition per team-week (ESPN depth charts), TEAM-keyed
   oline --year YYYY           OL composition for a specific season (≥ 2025)
   oline --all                 Backfill ESPN-era seasons (≥ 2025)
+  snaps                       nflverse PFR-sourced offensive snap shares (QB/RB/WR/TE/FB), sleeper_id-keyed
+  snaps --year YYYY           Snap shares for a specific season
+  snaps --all                 Backfill every season (≥ 2012)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
-  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline only)
-  --year YYYY Target season year (nfl, cfbd, roster, advstats, schedule, gamelogs, playerstats, teamcontext, oline subcommands)
-  --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline subcommands)
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline/snaps only)
+  --year YYYY Target season year (nfl, cfbd, roster, advstats, schedule, gamelogs, playerstats, teamcontext, oline, snaps subcommands)
+  --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline/snaps subcommands)
 
 EXAMPLES
   node bin/update.mjs nfl
@@ -135,6 +139,8 @@ EXAMPLES
   node bin/update.mjs playerstate --dry-run
   node bin/update.mjs oline --year 2025 --dry-run
   node bin/update.mjs oline --all
+  node bin/update.mjs snaps --year 2016 --dry-run
+  node bin/update.mjs snaps --all
 `);
 }
 
@@ -191,6 +197,9 @@ if (!subcommand || subcommand === '--help' || subcommand === '-h') {
         break;
       case 'oline':
         await updateOline(opts);
+        break;
+      case 'snaps':
+        await updateSnaps(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${opts.subcommand}\n`);

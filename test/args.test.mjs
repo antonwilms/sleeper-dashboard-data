@@ -49,6 +49,10 @@ test('parseAndValidateArgs: schedule --all --year 2015 throws (combination, ALL_
   assert.throws(() => parseAndValidateArgs(['schedule', '--all', '--year', '2015']));
 });
 
+test('parseAndValidateArgs: snaps --all --year 2016 throws — snaps is on ALL_SUBCOMMANDS (§C regression)', () => {
+  assert.throws(() => parseAndValidateArgs(['snaps', '--all', '--year', '2016']));
+});
+
 // ═══════════════════════════════════════════════════════════════════
 // Acceptances — the ones a false positive would break
 // ═══════════════════════════════════════════════════════════════════
@@ -86,6 +90,10 @@ test('parseAndValidateArgs: nfl --all --year 2023 → no throw — nfl is not in
 
 test('parseAndValidateArgs: schedule --all → no throw (the documented --all path)', () => {
   assert.doesNotThrow(() => parseAndValidateArgs(['schedule', '--all']));
+});
+
+test('parseAndValidateArgs: snaps --all → no throw (the documented --all path)', () => {
+  assert.doesNotThrow(() => parseAndValidateArgs(['snaps', '--all']));
 });
 
 // ═══════════════════════════════════════════════════════════════════
