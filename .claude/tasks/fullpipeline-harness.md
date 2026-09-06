@@ -1,51 +1,51 @@
 # D6 — full-pipeline retrospective harness
 
-**Model:** sonnet implements this file exactly. **Status:** planned (opus, 2026-09-06). **Slice:** D6, Arc B of the stellar-data batch. **Repo:** data only.
-**Base:** `d188b2a` on `main`. **Plan gate:** plan-reviewer has not run on this file yet.
-**Precedent:** `.claude/tasks/r3fit-exponent-harness.md`, `r3fit-ordering.md`, `r3fit-panel-scale-fix.md`. Read all three before starting — this file assumes their conventions rather than restating them.
-**Dependencies, all landed:** D2 (crosswalk v2 — `birthdate`, draft capital), D4 (`nflverse/snaps` 2013–2025), D5 (`nflverse/depth` 2013–2025 with `week1Qb1` and `qb1Changed`).
+**Model:** sonnet implements this file exactly. **Status:** planned (opus, 2026-09-06), **rewritten after plan-reviewer**. **Slice:** D6, Arc B. **Repo:** data only.
+**Base:** `684a638` on `main`. **Plan gate:** plan-reviewer run 2026-09-06, sixteen flags. **Two were fatal to the first draft's design** — it built on a registry nothing reads, and assumed a 2013–2025 panel the position sources cannot currently produce. This file is the rewrite, not a patch.
+**Precedent:** `.claude/tasks/r3fit-exponent-harness.md`, `r3fit-ordering.md`, `r3fit-panel-scale-fix.md`. Read all three first.
+**Dependencies, all landed:** D2, D4, D5.
 
-**Goal.** Grade the veteran pipeline **as shipped, all thirteen steps, on 2013–2025**, one pinned basis, rookies in a separate panel. The output is the calibration constants and factor verdicts the analysis needs, instead of waiting for January 2027.
+**Goal.** Grade the veteran pipeline **as shipped, all thirteen steps**, on one pinned basis, rookies in a separate panel — producing calibration constants and factor verdicts instead of waiting for January 2027.
 
-**Not in this slice.** Activating anything in the app, and changing any served family. Constants and verdicts are inputs to the calibration arc, not changes to it.
+**Not in this slice.** Activating anything in the app, and changing any served family.
 
 ---
 
 ## Step 0 — verified against live source, 2026-09-06
 
-**The panel reconstructs seven factors today**, registered in `FACTOR_RECONSTRUCTORS` (`lib/projectionFactors.mjs`): `momentum`, `regression`, `trajectory`, `shareTrend`, `snapShare`, `rzUsage`, `teamRzShare`, plus `reconstructBasePPG` as the anchor. The registry comment calls itself "the single extension point", so the six additions go there rather than into new plumbing.
+**The panel reconstructs seven factors today**: `momentum`, `regression`, `trajectory`, `shareTrend`, `snapShare`, `rzUsage`, `teamRzShare`, plus `reconstructBasePPG`.
 
-**All six port sources exist and were located.** The brief names `findCareerComps`, which is not in `compsIntegration.js` — it lives in `careerComps.js` and is imported from there, so Step 9 is a **two-file** port, not one:
+**Port sources, all located.** `findCareerComps` lives in `careerComps.js`, not `compsIntegration.js`, so Step 9 is a two-file port: `computeCompBlend` (66 lines) plus `findCareerComps`/`compsProjectedPPG` (128). Age is `computeEmpiricalAgeCurves` in `dynastyScore.js` plus `ageCurve.js` (25). Efficiency is `efficiencyMetrics.js` (185). Team offense and QB1 quality are `computeTeamContext` and `computeQBQualityByTeam` in `teamContext.js`. Depth needs no port; it reads D5.
 
-| step | factor | app-side source | size |
-|---|---|---|---|
-| 2 | age curve | `computeEmpiricalAgeCurves` in `src/utils/dynastyScore.js` + `src/utils/ageCurve.js` | 25 lines for the curve module |
-| 5e | efficiency | `src/utils/efficiencyMetrics.js` | 185 |
-| 7 | team offense | `computeTeamContext` in `src/utils/teamContext.js` | — |
-| 7b | QB1 quality | `computeQBQualityByTeam`, same file | — |
-| 8 | depth | no port; reads D5's served family | — |
-| 9 | comp blend | `computeCompBlend` in `src/utils/compsIntegration.js` **and** `findCareerComps`/`compsProjectedPPG` in `src/utils/careerComps.js` | 66 + 128 |
-
-**The basis problem is already documented in this repo, so item 2 is confirmed rather than speculative.** `grading/2026-08-09-r3fit-verdict.md` says in its own words that the E-0a baseline "runs a different basis (custom) and attribution (current-team), so its MAEs are not directly comparable to this fit's arms". R3-FIT ran `half_ppr` with per-season-team attribution. Pinning `half_ppr` therefore aligns with the newer of the two, not against both.
-
-**`grading/anchor-policy.md` does not exist.** `.claude/tasks/anchor-policy.md` does, and is a task file rather than a policy record. The brief asks for the basis decision to live in the former, so this slice creates it.
-
-**Two things the panel already has, which change what must be built.** Season-blocked evaluation exists (`trainYears` versus a single `evalYear`), as does a training-only standardization and imputation guard described in its own comment as the leakage guard. And `qualifyingSeasons` is already computed per row, which is the confidence-tier input item 3(d) needs. None of that has to be invented.
+**The basis claim holds.** `grading/2026-08-09-r3fit-verdict.md:225` states in its own words that the E-0a baseline runs a different basis and attribution "so its MAEs are not directly comparable".
 
 ### Findings that change the slice
 
-**1. This is two slices, not one, and the split is not arbitrary.** The brief says "1–2 slices; the reconstruction of six steps is the bulk". Split on the seam the work already has:
+**1. `FACTOR_RECONSTRUCTORS` is not an extension point, and the first draft was built on the belief that it is.** Its only references are its own definition (`lib/projectionFactors.mjs:331`) and one test assertion (`test/panel-fit.test.mjs:707-711`). **Nothing in production reads it.** The live wiring is `FULL_FACTORS[position]` plus a hand-written `if (fullFactors.includes(...))` chain in `attachFactorMultipliers` (`lib/panel.mjs:1105-1163`), each branch doing its own input extraction, `sentinelHit` bookkeeping and `fitCoverage` counting.
 
-- **D6a — reconstruction.** The six factors into `FACTOR_RECONSTRUCTORS`, the basis pin, parity against the snapshot, and the leakage tests. Nothing is graded; the deliverable is a panel that computes all thirteen steps and agrees with the app.
-- **D6b — verdicts.** The calibration sweeps, the Step 4 verdict, factor ablation, the rookie panel, and the verdict file.
+So each of the six costs a branch, its inputs threaded into `attachFactorMultipliers`' `ctx` — which today carries only totals, teamTotals, ppg, advstats and roster, so **no depth, no birthdate, no college** — plus a `FULL_FACTORS` entry and a sentinel rule. Update the registry too, but as documentation and to keep its test honest, not as the mechanism.
 
-The reason to split here rather than anywhere else: **D6b's numbers are worthless if D6a's parity is wrong**, and parity is checkable on its own. Landing them together means a reviewer has to judge six ports and six statistical outputs in one diff, and the failure mode is a calibration constant derived from a subtly wrong reconstruction. Everything below is marked **[D6a]** or **[D6b]**.
+**2. A 2013–2025 panel cannot resolve positions today, and the failure is silent.** `resolvePosition` (`lib/panel.mjs:107-113`) reads advstats first, then roster. `nflverse/roster/` starts at **2016**, and advstats carries only WR/TE/RB — 2013 has `{WR:174, TE:107, RB:118}` and **no QB at all**. `readJson` returns null on a missing file rather than throwing, so 2013–2015 would drop every QB into the `UNK` bucket and truncate the other three positions to the ~400 players advstats covers, with no error anywhere.
 
-**2. Step 8 reads a year the app does not have, and it must be stated rather than assumed.** D5 established there is no preseason in the source at all, so "week 1 of Y+1 preseason" cannot be built. The available analogue is **Y+1 week 1 REG**. That is not leakage relative to the outcome — the app projects during the offseason using the then-current chart, and a week-1 chart is known before any Y+1 game is played — but it *looks* like leakage and will be challenged. Write the justification into the code, not just the task file.
+**Fix, and it is small: add the crosswalk as a third fallback.** `nflverse/playerids.json`'s `ids` map carries `position` alongside `sleeperId`, giving **2,709 skill players** keyed by Sleeper id, season-independent. It is already loaded for the age curve. D5's depth family is a viable second source (2013 gives QB 85, RB 117, WR 176, TE 115) but is per-season and narrower; prefer the crosswalk and keep depth as a cross-check. **Add a test asserting a 2013 QB resolves**, because the current failure mode is a silent bucket, not an exception.
 
-**3. The served depth arrays contain `null`, and the wrong reading silently promotes a backup.** D5 preserves an unresolved id as `null` at its original index precisely so the depth-1 slot stays true. Step 8's reconstruction must treat `null` as **unknown → neutral multiplier**, never as "no one", and must never re-index around it. The served block also carries `depthPositions`, the legacy per-slot grain, because legacy ranks within the slot while the ESPN era ranks within the position — do not compare the two eras' ordinals as if they were the same measurement.
+**3. D4 is not wired, so `snapShare` is neutral for every pre-2020 row.** `DEFAULT_LOAD.loadSnapShare` is still `null`. Widening is the three-edit change D4's own plan documented: re-point that loader at `nflverse/snaps/<year>.json`, flip `PANEL_DEFAULTS.fromYear` from 2020 to 2013, and revisit the pre-2020-undroppable assertions at `lib/backtest.mjs:290` and `bin/backtest.mjs:119`. **All three belong in D6a**, and the cross-validation that gates them already passed at r ≥ 0.998 per position. Without this the harness grades a factor that is structurally 1.0 across two-thirds of its own panel.
 
-**4. The rookie panel is bounded by KTC's absence, and the bound is most of its history.** KTC is ephemeral before 2026-05-18, so the brief holds it at 1.0. For 2013–2024 the rookie panel therefore grades baseline × age × college × draft with the market term neutral — four of five inputs. Say so in the verdict rather than presenting it as a full reconstruction, because the headline question it answers, whether the top rookie can outrank every veteran, is exactly the case where the market term would have mattered most.
+**4. Two factors have no data for most of the panel, which would make the ablation lie.** `README.md:121` records that `rec_rz_tgt`, `rush_rz_att` and `pass_rz_att` appear from ~2021, so `rzUsage` and `teamRzShare` sentinel to 1.0 across roughly two-thirds of a 2013–2025 panel. §E's ablation would then report both as prune candidates because they are **structurally neutral**, not because they lack signal. **Every factor gets an explicit eligible-year window, and the ablation reports within it.** A verdict that prunes a factor on absent data is worse than no verdict.
+
+**5. The basis pin and the parity gate cannot both be naive.** `snapshots/2026-09-05.json` and the pinned `2026-07-05` both carry `scoringBasis: "custom"`. Three of the six new factors are PPG-denominated and therefore basis-dependent. **The parity fixture stays in-basis while the fit stays `half_ppr`** — state that explicitly, or the implementer meets a universal mismatch and loosens the tolerance until the gate is decorative.
+
+**6. The parity test runs off committed fixtures and self-skips when they are absent.** T-F10 reads four files under `test/fixtures/r3fit-parity-2025/`, not `snapshots/<date>.json`. Retargeting means **building a new fixture set**, and a missing set leaves the gate green and silent. **Assert fixture presence explicitly** so absence fails rather than skips.
+
+**7. The attribution instruction in the first draft was wrong, and the README is why.** It said the app pins current-team. CR-02's Mirror states per-season `team` has been scoring-load-bearing in the app since the R2 flip, via `resolveAttributedTeam`, consumed inside `computeTeamContext`'s own loops — the exact function Step 7 ports. `README.md:2022` still says otherwise and is **stale against the registry**, which is the authority. **Use per-season-team**, matching R3-FIT's own `attribution: 'per-season-team'`, or Step 7 is reconstructed under the older rule and comparability with R3-FIT breaks.
+
+**8. The age curve needs a stated missing-birthdate policy.** Birthdate resolves for only **79–84%** of gp ≥ 8 rows across 2013–2025. Whether a missing age is a neutral 1.0 (the documented convention — sentinels are never drops) or a listwise drop changes both panel size and the calibration constant. **Choose neutral, matching the convention, and record the coverage rate per year in the verdict.**
+
+**9. The rookie panel's bound is worse than the first draft claimed.** KTC is neutral before 2026-05-18, and `college/` starts at **2017**, so for classes whose college seasons precede 2017 the college term is neutral too — **three of five inputs, not four**, for roughly 2013–2017. A finding whose purpose is honesty about what the panel measures must not itself overstate coverage.
+
+**10. The repo has no leave-one-year-out builder, and asking for one contradicts this file's own leakage rule.** The only fold builder is `forwardChainFolds` (`lib/panel.mjs:410-419`), expanding-window: `trainYears = sorted.slice(0, i)`. LOYO would put years *after* the eval year into training, which is precisely what §A forbids for the age curve and comp blend, and would yield a constant the app could not have used at the time. **Use `forwardChainFolds`.** Delete the phrase "leave-one-year-out".
+
+**11. Step 8's justification answers leakage but not fidelity.** A Y+1 week-1 chart is post-camp, post-cuts and post-preseason-injury; the app projects in the offseason off the then-current chart. That is **strictly more information than shipped**, and it biases the constant optimistically. Record it as a fidelity deviation in the same comment, distinct from the leakage argument. Also: 2017 week 1 has only 30 teams, and there are 1,278 nulls in the position arrays across 2013–2025, 150 of them at depth 1 — so Step 8 needs a **missing-team → neutral** rule beside the null rule.
 
 ---
 
@@ -53,83 +53,91 @@ The reason to split here rather than anywhere else: **D6b's numbers are worthles
 
 ### A. The six reconstructions — [D6a]
 
-Each goes into `FACTOR_RECONSTRUCTORS` with its `positions` and `kind`, matching the seven already there. Port the app's arithmetic exactly; where the app reads state the panel cannot see, state the deviation in the function's own comment.
+Per finding 1, each is a branch in `attachFactorMultipliers` with its inputs threaded into `ctx`, a `FULL_FACTORS` entry, a sentinel rule and a `fitCoverage` counter — plus a registry entry for documentation. Port the app's arithmetic exactly; where the app reads state the panel cannot see, state the deviation in the branch's own comment.
 
-- **Age (Step 2).** Port `computeEmpiricalAgeCurves` plus `ageCurve.js` interpolation. Age at season comes from D2's `birthdate`. **Build the curves per predictor year from ≤ Y data only.** This is the leakage rule that matters most here: a curve fitted on all seasons and applied to 2014 knows the future.
-- **Depth (Step 8).** From D5, per finding 2 and 3. Reconstruct the staleness guard as the app documents it.
-- **Team offense (Step 7).** Port `computeTeamContext`'s rank from season-totals. The app pins current-team attribution here; the panel's default is per-season-team. **Follow the app, and say so** — the point is to grade what ships.
-- **QB1 quality (Step 7b).** D5's QB1 identity plus the app's PPG fallback path. `computeQBQualityByTeam`'s dynasty-score branch is not reconstructable; use the fallback, which is what the app itself uses when the branch is absent, and record the deviation.
-- **Efficiency (Step 5e).** Port `computeEfficiencyFactor`. Every input is a season-totals key already served.
-- **Comp blend (Step 9).** Two-file port per Step 0. Compute against **≤ Y careers only** — the same leakage rule as the age curve, and the same test shape.
+- **Age (Step 2)** — `computeEmpiricalAgeCurves` + `ageCurve.js`. Age from D2 `birthdate`, missing → neutral per finding 8. **Curves built per predictor year from ≤ Y data only.**
+- **Depth (Step 8)** — D5, per findings 11 and the null rule: `null` is unknown → neutral, never re-indexed; a missing team is neutral. `depthPositions` carries the legacy per-slot grain; do not compare eras' ordinals as one measurement.
+- **Team offense (Step 7)** — `computeTeamContext` rank, **per-season-team attribution** per finding 7.
+- **QB1 quality (Step 7b)** — D5 QB1 identity plus the app's PPG fallback. The dynasty-score branch is not reconstructable; the fallback is what the app itself uses when it is absent. Record the deviation.
+- **Efficiency (Step 5e)** — `efficiencyMetrics.js`. Inputs are served season-totals keys.
+- **Comp blend (Step 9)** — two-file port, computed against **≤ Y careers only**.
+
+Also in D6a: finding 2's position fallback, and finding 3's three snap-widening edits.
 
 ### B. One basis — [D6a]
 
-Pin `half_ppr` for every panel and verdict. Either retire the `custom`-basis E-0a comparison or re-run it on `half_ppr`; do not leave two baselines whose MAEs cannot be compared, which is the state the R3-FIT verdict already complains about. Record the decision and its reason in a new `grading/anchor-policy.md`.
+Pin `half_ppr` for every panel and verdict, with the parity carve-out in finding 5. Retire the `custom`-basis E-0a comparison or re-run it on `half_ppr`. Record the decision and its reason; see the Docs note on where.
 
 ### C. Parity — [D6a], and the gate on D6b
 
-Extend the T-F10 parity test to **every** factor against `snapshots/2026-09-05.json`, the first snapshot with the rookie path running as documented. For veterans any post-2026-07-18 snapshot is valid. **Parity is the precondition for D6b**: if a reconstructed factor does not agree with the app's own recorded value on the same player-season, the calibration built on it is not measuring the shipped pipeline.
+Extend T-F10 to every factor, building the new fixture set per finding 6 and asserting its presence. **Parity is the precondition for D6b.** CR-15 records a known parity gap for `shareTrend` and `teamRzShare`; `snapshots/2026-09-05.json` is post-2026-07-18 and carries 297 and 236 non-neutral values respectively across its 425 veteran rows, so this is the first chance to close it. Say whether it closed.
 
 ### D. Calibration outputs — [D6b]
 
-Per position, season-blocked leave-one-year-out over 2013–2024 predicting 2014–2025:
+Per position, over `forwardChainFolds` (finding 10), within each factor's eligible window (finding 4):
 
-1. Median and mean of `outcome / fullPipelinePPG`.
-2. MAE of pipeline versus pipeline × c, for c from 0.80 to 1.00 in steps of 0.02.
+1. Median and mean `outcome / fullPipelinePPG`.
+2. MAE of pipeline versus pipeline × c, c from 0.80 to 1.00 step 0.02.
 3. Shrinkage sweep `anchor' = (1−k)·anchor + k·positionMean`, k in {0, 0.1, 0.2, 0.3}.
-4. All of the above split by qualifying-season count (1–2, 3–4, 5+), which is the confidence tier and is already on the row.
+4. All of the above by qualifying-season count (1–2, 3–4, 5+) — already on the row.
 
 ### E. Verdicts — [D6b]
 
-- **Step 4.** ΔMAE and ΔSpearman from removing the up-side (`outlierRatio < 0.85`) branches versus shipped, per position, plus the injury-gated variant using `classifyInjurySeason` on the down year.
-- **Factor pruning.** Per-factor ablation on the full stack: ΔMAE and ΔSpearman with each factor held at 1.0, reported next to the R3-FIT exponents. A factor whose removal improves both is a prune candidate. **Report, do not act.**
-- **Rookie panel.** Rows are rookie-path players in Y. Predictor is the reconstructed rookie projection subject to finding 4. Outcome is Y+1 PPG at gp ≥ 6. Report realised PPG by draft tier and position, the ratio to projected, the share hitting the 1.85 cap, and the rank of the top projected rookie among all projected players that year against where he actually finished.
-- **Files.** `grading/<date>-fullpipeline-verdict.md` in the R3-FIT format, and `backtests/<date>-fullpipeline-panel.json`.
+- **Step 4** — ΔMAE and ΔSpearman of removing the up-side (`outlierRatio < 0.85`) branches versus shipped, per position, plus the injury-gated variant.
+- **Factor pruning** — per-factor ablation, each held at 1.0, **reported within its eligible window** and alongside the R3-FIT exponents. Report, do not act.
+- **Rookie panel** — rookie-path rows in Y, predictor the reconstructed rookie projection subject to finding 9, outcome Y+1 PPG at gp ≥ 6. Report realised PPG by draft tier and position, ratio to projected, share hitting the 1.85 cap, and the top projected rookie's rank against where he finished.
+- **Files** — `grading/<date>-fullpipeline-verdict.md` and `backtests/<date>-fullpipeline-panel.json`.
 
 ---
 
 ## Cross-repo impact
 
-### CR-15 · R3-FIT factor-multiplier mirror — the entry this slice is about
+### CR-15 · R3-FIT factor-multiplier mirror — and this slice reverses its scope note
 
 > **Mirror:** Re-mirror the changed constant/gate/branch and **re-fit before any further exponent activation** — otherwise the fit reconstructs a factor the app no longer produces and the committed verdict in `.claude/tasks/r3fit-exponent-harness.md` stops transporting. Which positions a factor is gated to is itself part of the mirror. Note the known parity gap: `shareTrend` and `teamRzShare` have no end-to-end app-ground-truth check until a post-2026-07-18 snapshot is imported. **Nothing app-side fails when this drifts.** Scope note, verified by grep so it need not be re-derived: `dynastyScore.js` is named in `lib/projectionFactors.mjs:110` only as a *contrast* (its `weightedLinearRegression` copy is unfloored where the mirrored one floors the denominator at 4) — it is **not** mirrored and is deliberately not a trigger.
 
-This slice takes the mirror from seven factors to thirteen. Every ported reconstruction is a new mirrored surface, and the entry's warning is the operative one: nothing app-side fails when this drifts. **Extend the entry's own text to say the mirror now covers all thirteen steps**, and name each new reconstruction in the near-side triggers. The parity gate in §C is what keeps the claim honest.
+This takes the mirror from seven factors to thirteen. **It is more than an extension:** the entry's own scope note says `dynastyScore.js` is *deliberately* not a trigger, and §A Step 2 ports `computeEmpiricalAgeCurves` out of it. `ageCurve.js`, `efficiencyMetrics.js`, `compsIntegration.js` and `careerComps.js` are likewise absent from its app side. That is five new app-side surfaces plus a reversed decision. **Say so plainly in the hand-back** rather than presenting it as a trigger-list top-up.
 
-Note the entry's known parity gap for `shareTrend` and `teamRzShare`. `snapshots/2026-09-05.json` is post-2026-07-18, so §C's extension is also the first opportunity to close it — do that, and say whether it closed.
+### CR-01 · Projection snapshot envelope
 
-### CR-11 · Snap & red-zone usage stat keys — read, not changed
+> **Mirror:** State the new envelope shape and whether the snapshot `schemaVersion` bumped. On a bump, `scripts/register-snapshots.mjs` expectations, `scripts/grade-snapshot.mjs` reads and the README snapshot section all need updating in the data repo. **`scoringSettings` has a second reader beyond grading** — `scripts/panel-run.mjs` `resolveScoring` pins the fit's basis from a committed snapshot, so dropping or renaming that envelope field breaks the R3-FIT path (CR-15) as well as in-basis grading. This snapshot `schemaVersion` is independent of `dataStore.js` `MAX_SUPPORTED_SCHEMA` (a ceiling on every family read through `tryDataStore`, not season-totals-scoped — snapshots have no `tryDataStore` reader in the first place). Additive `factors` keys (`isTeamChange`/`prevTeam`/`newTeam`/`depthStale`) do **not** bump the version.
 
-> **Mirror:** Do not remove, rename or filter these keys. **The projection degrades silently to neutral when they are absent** — no error, no test failure, no visible symptom. The blast radius is wider than the projection: `durabilitySignals` mis-classifies contributor seasons, `teamContext`'s RZ denominators go to zero (so `teamRzShare` sentinels out), the Outlook snap% column empties, and — since dp-v2 Slice 5b — Market's Efficiency `SNAP%`/`RZ SH` columns go blank the same way, and the data repo's own panel/backtest reconstructions drift the same way. The dependency is invisible at runtime; this registry entry is the only thing recording it.
+§B touches basis resolution and §C reads the snapshot's `factors`. The Mirror is directly on point about `resolveScoring` being a second `scoringSettings` reader that pins the fit's basis.
 
-The reconstructions read these keys and change none of them. Record the conclusion.
+### CR-14 · `calculateFantasyPoints` port
 
-### CR-02 · season-totals row composition — read, not changed
+> **Mirror:** Any change to the scoring math must be ported to `lib/fantasyPoints.mjs` in the same cycle, or in-basis grades silently diverge from how the app actually scored — **and so does the R3-FIT panel** (CR-15), which builds its outcome column from the same port. **Nothing app-side fails when this drifts** — the divergence appears only as wrong grades and a wrong fit. Low churn (the dot-product is stable), which is exactly why the drift would go unnoticed. Note one deliberate asymmetry: `RATE_KEYS` (`lib/fantasyPoints.mjs:29`) is a data-side-only defensive guard excluding non-additive keys from the dot-product; it has **no app counterpart** and must not be "mirrored back" into the app.
 
-> **Mirror:** A version bump needs both repos. **Per-season `team` is scoring-load-bearing in the app since the R2 flip (2026-07-11)** — it feeds projection Steps 3/5h attribution via `resolveAttributedTeam`, so any edit to the `aggregateWeeks` dominant-team rule (most played weeks; ties → later stint; zero played → last seen; schedule-domain normalization) changes app projections **with no app-side diff**. Treat such edits as scoring changes and route them through a graded gate. Renaming the `TEAM_` pseudo-id scheme is breaking. **F-24 (2026-08-24), schemaVersion 3→4:** `idp_*`/`punt*` are dropped from every non-`TEAM_*` row's `stats` — a denylist, never an allowlist; CR-11/12/13/19's keys, kicking and `bonus_*` are unaffected, and no `schemaVersion` key is ever written into the season file itself (manifest-only). **D-1, same change, forward-only:** `aggregateWeeks` now also infers a single-team row's bye week(s) from the schedule and writes `'B'` into an `'X'` slot (history keeps `'X'`; a slot already `'D'` is left alone) — this **falsifies a written app-side assumption with no app-side diff**: `src/utils/availabilityGrid.js:4` states the served season-totals *"never emit `'B'`"*, and `src/utils/gameLog.js:130-160` already renders a `kind: 'bye'` row straight off served `weeklyStatus` — so forward seasons now produce real bye rows in `dp/GameLogSection.jsx` with no app-side code change at all. Correct the app comment in the same change.
+§D's outcome column runs through this port, and §B's E-0a decision reaches `buildInBasisOutcomes`.
 
-Steps 5e and 7 read season-totals heavily. No row composition changes. Record the conclusion, and note that the current-team attribution choice in §A is an app-fidelity decision rather than a contract change.
+### CR-11 and CR-02 — read, not changed
 
-### Registry drift — do not touch the mirrored region
+> **CR-11 Mirror:** Do not remove, rename or filter these keys. **The projection degrades silently to neutral when they are absent** — no error, no test failure, no visible symptom. The blast radius is wider than the projection: `durabilitySignals` mis-classifies contributor seasons, `teamContext`'s RZ denominators go to zero (so `teamRzShare` sentinels out), the Outlook snap% column empties, and — since dp-v2 Slice 5b — Market's Efficiency `SNAP%`/`RZ SH` columns go blank the same way, and the data repo's own panel/backtest reconstructions drift the same way. The dependency is invisible at runtime; this registry entry is the only thing recording it.
 
-The `CR-REGISTRY` region is **already three edits out of sync** with the app repo, recorded in the parent folder's `PARKED.md`. CR-15's text needs extending, which is a far-side-relevant change a data-repo session cannot mirror. **Emit the CR-15 edit as hand-back output and add it to the parked entry rather than writing it into the region.** That entry is now the queue for a parent-folder session.
+> **CR-02 Mirror:** A version bump needs both repos. **Per-season `team` is scoring-load-bearing in the app since the R2 flip (2026-07-11)** — it feeds projection Steps 3/5h attribution via `resolveAttributedTeam`, so any edit to the `aggregateWeeks` dominant-team rule (most played weeks; ties → later stint; zero played → last seen; schedule-domain normalization) changes app projections **with no app-side diff**. Treat such edits as scoring changes and route them through a graded gate. Renaming the `TEAM_` pseudo-id scheme is breaking. **F-24 (2026-08-24), schemaVersion 3→4:** `idp_*`/`punt*` are dropped from every non-`TEAM_*` row's `stats` — a denylist, never an allowlist; CR-11/12/13/19's keys, kicking and `bonus_*` are unaffected, and no `schemaVersion` key is ever written into the season file itself (manifest-only). **D-1, same change, forward-only:** `aggregateWeeks` now also infers a single-team row's bye week(s) from the schedule and writes `'B'` into an `'X'` slot (history keeps `'X'`; a slot already `'D'` is left alone) — this **falsifies a written app-side assumption with no app-side diff**: `src/utils/availabilityGrid.js:4` states the served season-totals *"never emit `'B'`"*, and `src/utils/gameLog.js:130-160` already renders a `kind: 'bye'` row straight off served `weeklyStatus` — so forward seasons now produce real bye rows in `dp/GameLogSection.jsx` with no app-side code change at all. Correct the app comment in the same change.
+
+No keys and no row composition change. **`[registry-stale]`, report only:** CR-02's near-side triggers omit `teamKeyResolver` (`lib/panel.mjs:63,66`) and `loadTeamLookup` (`scripts/panel-run.mjs:395-404`), and `scripts/panel-run.mjs` appears nowhere in its data-side list. Finding 7's attribution decision runs straight through the first of those.
+
+### Do not touch the mirrored region
+
+It is already three edits out of sync, queued in the parent folder's `PARKED.md`. **Emit CR-15's edit as hand-back output and add it to that entry.**
 
 ---
 
 ## Docs/README updates
 
-- **`grading/anchor-policy.md`** — new, per §B.
-- **`data-catalog.md`** — no new served family; note the panel's new inputs if the catalog records harness inputs.
-- **`.claude/tasks/data-repo-backlog.md`** does not exist in this repo; app-side asks go through the hand-back.
+- **The basis record** from §B. `grading/` is defined in CLAUDE.md as output from `--write`, and Invariant 3's exception is scoped to `<date>-*-verdict.md` reports, so an undated hand-authored policy file does not belong there as written. **Put it with the task files, or state the extension of the exception explicitly in the same change.**
+- **`README.md:2022`** — stale attribution claim, per finding 7. Correct it.
+- **`README.md:121`** — already correct on rz-key coverage; cite it in the catalog note for finding 4.
 
 ## Tests to add
 
-**[D6a]** Parity per factor against the snapshot (§C). Leakage guards for the age curve and comp blend: **shift Y and assert the curve changes** — a test that passes with a leaked curve is worse than none. Basis pin. Null-handling in Step 8: a `null` at depth 1 yields a neutral multiplier and never promotes index 1.
+**[D6a]** Per-factor parity with an explicit fixture-presence assertion (findings 5, 6). Leakage guards for the age curve and comp blend: **shift Y and assert the curve changes**. A 2013 QB resolves to `QB` (finding 2). A `null` at depth 1 yields neutral and never promotes index 1; a missing team yields neutral (finding 11). Basis pin.
 
-**[D6b]** Rookie panel assembly. Ablation harness symmetry: holding a factor at 1.0 reproduces the shipped number when that factor is already 1.0 for every row.
+**[D6b]** Rookie panel assembly. Ablation symmetry: holding an already-neutral factor at 1.0 reproduces the shipped number. Eligible-window enforcement: a factor is not reported outside its window (finding 4).
 
 ## Risks
 
-- **Parity is the whole slice.** A reconstruction that is subtly wrong produces a calibration constant that later changes scoring. This is why D6a lands first and D6b is gated on it.
-- **The age curve and comp blend are the leakage-prone pair.** Both fit on history and both are easy to build once over all seasons. The test that shifts Y is the guard.
-- **Do not activate anything.** The verdicts are inputs to the calibration arc. No app change, no served-family change, no factor pruned on the strength of this run.
+- **Parity is the whole slice**, which is why D6b is gated on it.
+- **Four of the six new factors depend on data with narrower coverage than the panel.** Findings 2, 3, 4, 8 and 9 are all the same shape: a factor that looks computed but is structurally neutral for part of the window. Every one needs its coverage stated in the verdict.
+- **Do not activate anything.** No app change, no served-family change, no factor pruned on this run.
