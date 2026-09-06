@@ -59,8 +59,17 @@ export const DEFAULT_LOAD = {
   loadAdvstats:     (year) => readJson(`nflverse/advstats/${year}.json`),
   loadRoster:       (year) => readJson(`nflverse/roster/${year}.json`),
   loadSnapshot:     (date) => readJson(`snapshots/${date}.json`),
-  // Isolated on purpose: R1-SNAPS re-points THIS ONE FUNCTION at nflverse/snaps/<year>.json.
-  loadSnapShare:    null,   // null = derive from season-totals off_snp/tm_off_snp (the 2020+ path)
+  // R1-SNAPS landed (D6a, finding 3): re-pointed at nflverse/snaps/<year>.json
+  // (D4), which supplies offSnaps/teamOffSnaps 2013-2025 — a cross-validated
+  // (r>=0.998/position) stand-in for season-totals' own off_snp/tm_off_snp,
+  // which are only populated 2020+. resolveSnapCounts (lib/panel.mjs) prefers
+  // the season-totals native fields when present; this fills the gap, never
+  // overrides a real 2020+ value.
+  loadSnapShare:    (year) => readJson(`nflverse/snaps/${year}.json`),
+  // D6a — D2 crosswalk (finding 2's position fallback + age's birthdate
+  // source) and D5 historical depth charts (Step 8).
+  loadPlayerIds:    () => readJson('nflverse/playerids.json'),
+  loadDepth:        (year) => readJson(`nflverse/depth/${year}.json`),
 };
 
 // ─── Scoring-basis resolution ──────────────────────────────────────────────────
@@ -139,8 +148,35 @@ export function assemblePanel({
     };
   }
 
+  // D6a finding 2 — season-independent pid->position crosswalk (nflverse/
+  // playerids.json bySleeper), the third resolvePosition fallback. Also the
+  // birthdate source for finding 8's age reconstruction (§Design/A). Optional
+  // loader — a test harness without loadPlayerIds gets no crosswalk/birthdate
+  // (both resolve to their existing neutral defaults).
+  const playerIds = typeof load.loadPlayerIds === 'function' ? load.loadPlayerIds() : null;
+  const crosswalk = {};
+  const birthdateBySleeper = {};
+  for (const [sleeperId, entry] of Object.entries(playerIds?.bySleeper ?? {})) {
+    if (entry?.birthdate) birthdateBySleeper[sleeperId] = entry.birthdate;
+  }
+  // Position per-sleeperId: playerids.json's `ids` map (gsis_id-keyed) carries
+  // {sleeperId, name, position} — reversed in-memory to sleeperId->position
+  // (mirrors the D4 snaps ingest's own pfrId reversal convention).
+  for (const entry of Object.values(playerIds?.ids ?? {})) {
+    if (entry?.sleeperId && entry?.position) crosswalk[entry.sleeperId] = entry.position;
+  }
+
+  // D6a finding 3 — snap-count fallback file per loaded year (2013-2025 via
+  // D4); undefined loader (a test harness) or a missing year both resolve to
+  // null, which resolveSnapCounts/buildCohortPools treat as "no fallback".
+  const snapsByYear = {};
+  if (typeof load.loadSnapShare === 'function') {
+    for (const y of years) snapsByYear[y] = load.loadSnapShare(y) ?? null;
+  }
+
   const { rows, coverage } = assemblePanelRows(inputsByYear, {
     fromYear, toYear, attribution, minOutcomeGames, minPredictorGames: PANEL_DEFAULTS.minPredictorGames,
+    crosswalk, snapsByYear,
   });
 
   let finalRows = rows;
@@ -163,8 +199,17 @@ export function assemblePanel({
     const teamTotalsByYear = {};
     for (const y of years) teamTotalsByYear[y] = buildTeamTotalsForSeason(totalsByYear[y], y, teamOf);
 
+    // D6a — D5 historical depth charts (Step 8), only needed under the fit
+    // path (D4/D5's own capture-only families are otherwise unread here).
+    const depthByYear = {};
+    if (typeof load.loadDepth === 'function') {
+      for (const y of years) depthByYear[y] = load.loadDepth(y) ?? null;
+    }
+    const birthdateOf = (pid) => birthdateBySleeper[pid] ?? null;
+
     const { rows: fitRows, fitCoverage } = attachFactorMultipliers(rows, {
       totalsByYear, teamTotalsByYear, ppgByYear, advstatsByYear, rosterByYear, fromYear, toYear,
+      crosswalk, snapsByYear, birthdateOf, depthByYear,
     });
     finalRows = fitRows;
     finalCoverage = { ...coverage, fitCoverage };

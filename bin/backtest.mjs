@@ -116,7 +116,8 @@ function formatValidateReport(resultRows, { fromYear, toYear, minOutcomeGames })
     console.log(`    own-rate β (rzOwnRate) = ${fmt(r.ownRateBeta)}  sign_pass = ${r.signPass}`);
     console.log(`    raw r (teamRzShare) = ${fmt(r.rawPearson)}  raw_pass = ${r.rawPass}`);
     console.log(`    monotonic = ${r.monotonic}`);
-    console.log(`    effective panel: ${panelStr} (pre-2020 dropped — off_snp not tracked)`);
+    console.log(`    effective panel: ${panelStr} (pre-2020 dropped — off_snp not tracked; ` +
+      `see nflverse/snaps for a wider, cross-validated source this standalone D3 tool does not read)`);
     console.log(`    contributing predictor years: ${r.predictorYears.join(', ') || 'none'}`);
     console.log(`    n = ${r.n}`);
     console.log(`    PASS criteria: β>0 ${r.betaPass ? '✓' : '✗'}  own-rate β<0 ${r.signPass ? '✓' : '✗'}  monotonic ${r.monoPass ? '✓' : '✗'}  raw r>0 ${r.rawPass ? '✓' : '✗'}`);

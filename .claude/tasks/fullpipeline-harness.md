@@ -7,6 +7,10 @@
 
 **Goal.** Grade the veteran pipeline **as shipped, all thirteen steps**, on one pinned basis, rookies in a separate panel — producing calibration constants and factor verdicts instead of waiting for January 2027.
 
+> **Corrected, Fix pass 1 item 3.** D6a does not deliver this as one composed thirteen-step pipeline. `compBlend` is the app's post-hoc convex blend after the clamp, not a multiplicative term, and `predictWithExponents` has no stage to compose it — so the six new reconstructions are dispatched through `D6_NEW_FACTORS`, deliberately kept separate from `FULL_FACTORS`/`predictWithExponents`'s composition (sound, and it stays that way; forcing it in would mis-compute and destabilise the existing seven-factor calibration tests). What D6a actually delivers is **six correct reconstructions alongside the existing seven**, not a single composed thirteen-factor product. Widening the real product set to thirteen and fixing `predictWithExponents`' clamp ordering for `compBlend` is **D6b's first task, ahead of any calibration output** (§D) — a calibration constant computed before the composition is correct would be measuring a pipeline that does not exist.
+
+> **Corrected, Decision (Session 1, 2026-09-06).** Not "grade the veteran pipeline as shipped" either. **"Grade a historical reconstruction of the veteran pipeline, faithful in nine of thirteen steps, with three live-state divergences quantified and one step ungradable."** The three are `age`, `depth` and `teamOffense` — named, unclosable divergences against live app state (Fix pass 2); the one is `qbQuality` — an empty eligible window, ungradable rather than neutral (Fix pass 1 item 2). The calibration constants (§D) proceed under this framing, gated by the Decision section's two-run robustness check; the pruning verdict (§E) excludes all four from its nine-of-thirteen scope. Carry this same sentence into the verdict's opening.
+
 **Not in this slice.** Activating anything in the app, and changing any served family.
 
 ---
@@ -39,6 +43,8 @@ So each of the six costs a branch, its inputs threaded into `attachFactorMultipl
 
 **7. The attribution instruction in the first draft was wrong, and the README is why.** It said the app pins current-team. CR-02's Mirror states per-season `team` has been scoring-load-bearing in the app since the R2 flip, via `resolveAttributedTeam`, consumed inside `computeTeamContext`'s own loops — the exact function Step 7 ports. `README.md:2022` still says otherwise and is **stale against the registry**, which is the authority. **Use per-season-team**, matching R3-FIT's own `attribution: 'per-season-team'`, or Step 7 is reconstructed under the older rule and comparability with R3-FIT breaks.
 
+> **Corrected, Fix pass 1 item 1.** The paragraph above is right about the general CR-02 contract and wrong about this specific function. `computeTeamContext`'s only caller pins it: `App.jsx:214` passes `{ attribution: 'current-team' }`, overriding the module default of per-season-team that `resolveAttributedTeam`'s *other* call sites (`teamRzShare.js:85`, `seasonProjection.js:488`, and `teamContext.js`'s own other consumers) correctly use. So Step 7 must be reconstructed under **current-team** attribution, not per-season-team — the opposite of what this finding originally said. `computeTeamContext`'s own note (`teamContext.js:148-152`) says exactly this and warns that migrating it to per-season attribution would require adopting `isTeamAggregateId`, because the aggregate rows carry a per-season `team` and would otherwise double the ranking inputs. See §Design/A and Fix pass 1 item 1 below.
+
 **8. The age curve needs a stated missing-birthdate policy.** Birthdate resolves for only **79–84%** of gp ≥ 8 rows across 2013–2025. Whether a missing age is a neutral 1.0 (the documented convention — sentinels are never drops) or a listwise drop changes both panel size and the calibration constant. **Choose neutral, matching the convention, and record the coverage rate per year in the verdict.**
 
 **9. The rookie panel's bound is worse than the first draft claimed.** KTC is neutral before 2026-05-18, and `college/` starts at **2017**, so for classes whose college seasons precede 2017 the college term is neutral too — **three of five inputs, not four**, for roughly 2013–2017. A finding whose purpose is honesty about what the panel measures must not itself overstate coverage.
@@ -55,9 +61,11 @@ So each of the six costs a branch, its inputs threaded into `attachFactorMultipl
 
 Per finding 1, each is a branch in `attachFactorMultipliers` with its inputs threaded into `ctx`, a `FULL_FACTORS` entry, a sentinel rule and a `fitCoverage` counter — plus a registry entry for documentation. Port the app's arithmetic exactly; where the app reads state the panel cannot see, state the deviation in the branch's own comment.
 
-- **Age (Step 2)** — `computeEmpiricalAgeCurves` + `ageCurve.js`. Age from D2 `birthdate`, missing → neutral per finding 8. **Curves built per predictor year from ≤ Y data only.**
-- **Depth (Step 8)** — D5, per findings 11 and the null rule: `null` is unknown → neutral, never re-indexed; a missing team is neutral. `depthPositions` carries the legacy per-slot grain; do not compare eras' ordinals as one measurement.
-- **Team offense (Step 7)** — `computeTeamContext` rank, **per-season-team attribution** per finding 7.
+**Corrected, Fix pass 1 item 3.** This section delivers six correct reconstructions dispatched via `D6_NEW_FACTORS`, alongside the existing seven — **not** one composed thirteen-step pipeline (see the corrected Goal line above for why the fork is sound and what it means for D6b).
+
+- **Age (Step 2)** — `computeEmpiricalAgeCurves` + `ageCurve.js`. Age from D2 `birthdate`, missing → neutral per finding 8. **Curves built per predictor year from ≤ Y data only.** **Systematic reconstruction difference (Fix pass 1 item 4, unclosable):** the app computes `ageDelta` from live wall-clock age at snapshot time; this reconstruction uses birthdate at `lastQSeason`. Same formula and curve, different reference date — computed and reported, never asserted equal to the app.
+- **Depth (Step 8)** — D5, per findings 11 and the null rule: `null` is unknown → neutral, never re-indexed; a missing team is neutral. `depthPositions` carries the legacy per-slot grain; do not compare eras' ordinals as one measurement. **Systematic reconstruction difference (Fix pass 1 item 4, unclosable):** the app reads a live depth chart at snapshot time; this reconstruction reads D5's historical depth chart for the row's own season. The two can disagree even for the same player-season — computed and reported, never asserted equal to the app.
+- **Team offense (Step 7)** — `computeTeamContext` rank, **current-team attribution** (Fix pass 1 item 1 — finding 7's original text was wrong about this one function; `App.jsx:214` pins `computeTeamContext`'s only caller to `current-team`, overriding the per-season-team module default every other D6a factor correctly uses).
 - **QB1 quality (Step 7b)** — D5 QB1 identity plus the app's PPG fallback. The dynasty-score branch is not reconstructable; the fallback is what the app itself uses when it is absent. Record the deviation.
 - **Efficiency (Step 5e)** — `efficiencyMetrics.js`. Inputs are served season-totals keys.
 - **Comp blend (Step 9)** — two-file port, computed against **≤ Y careers only**.
@@ -72,7 +80,11 @@ Pin `half_ppr` for every panel and verdict, with the parity carve-out in finding
 
 Extend T-F10 to every factor, building the new fixture set per finding 6 and asserting its presence. **Parity is the precondition for D6b.** CR-15 records a known parity gap for `shareTrend` and `teamRzShare`; `snapshots/2026-09-05.json` is post-2026-07-18 and carries 297 and 236 non-neutral values respectively across its 425 veteran rows, so this is the first chance to close it. Say whether it closed.
 
+**Fix pass 2 item 3 — the six new factors' parity summary.** Three carry named, unclosable live-state divergences: `age` (live wall-clock age at snapshot time vs. birthdate at `lastQSeason`), `depth` (the app's live depth chart vs. D5's historical chart for the row's own season), and `teamOffense` (the app's live Sleeper roster state at snapshot time vs. the row's historical season-team — measured at 29.0% genuine offseason moves over 587 comparable rows, Fix pass 2). One is ungradable: `qbQuality` has an empty eligible window (Fix pass 1 item 2), not merely a narrow one. One is architecturally incomparable rather than parity-tested: `compBlend` is dispatched via `D6_NEW_FACTORS`, not composed through `predictWithExponents` (Fix pass 1 item 3), so there is no single composed value to hold against the app's post-hoc blend. One verifies: `efficiency`, within the stated pool-composition tolerance. This is the honest state of the parity gate, and D6b inherits it as-is.
+
 ### D. Calibration outputs — [D6b]
+
+**D6b's first task, ahead of everything below (Fix pass 1 item 3):** widen the real, composed product set to thirteen factors and fix `predictWithExponents`' clamp ordering so `compBlend` composes correctly. A calibration constant computed before that composition is correct would be measuring a pipeline that does not exist.
 
 Per position, over `forwardChainFolds` (finding 10), within each factor's eligible window (finding 4):
 
@@ -84,7 +96,7 @@ Per position, over `forwardChainFolds` (finding 10), within each factor's eligib
 ### E. Verdicts — [D6b]
 
 - **Step 4** — ΔMAE and ΔSpearman of removing the up-side (`outlierRatio < 0.85`) branches versus shipped, per position, plus the injury-gated variant.
-- **Factor pruning** — per-factor ablation, each held at 1.0, **reported within its eligible window** and alongside the R3-FIT exponents. Report, do not act.
+- **Factor pruning** — per-factor ablation, each held at 1.0, **reported within its eligible window** and alongside the R3-FIT exponents. Report, do not act. **Fix pass 1 item 2: exclude `qbQuality` from the ablation entirely** — its eligible window is empty (`fitCoverage.qbQuality.eligibleWindow`/`ungraded`, added Fix pass 1), not merely narrow, so it is structurally neutral for 100% of rows and would always look like a prune candidate for a reason that has nothing to do with signal. **Fix pass 1 item 4: report the `age` and `depth` systematic reconstruction differences (§Design/A) beside every constant those two factors contribute to** — they are a known bias in the output, not test bookkeeping, and must not be silently folded into the reported numbers as if they were noise.
 - **Rookie panel** — rookie-path rows in Y, predictor the reconstructed rookie projection subject to finding 9, outcome Y+1 PPG at gp ≥ 6. Report realised PPG by draft tier and position, ratio to projected, share hitting the 1.85 cap, and the top projected rookie's rank against where he finished.
 - **Files** — `grading/<date>-fullpipeline-verdict.md` and `backtests/<date>-fullpipeline-panel.json`.
 
@@ -141,3 +153,129 @@ It is already three edits out of sync, queued in the parent folder's `PARKED.md`
 - **Parity is the whole slice**, which is why D6b is gated on it.
 - **Four of the six new factors depend on data with narrower coverage than the panel.** Findings 2, 3, 4, 8 and 9 are all the same shape: a factor that looks computed but is structurally neutral for part of the window. Every one needs its coverage stated in the verdict.
 - **Do not activate anything.** No app change, no served-family change, no factor pruned on this run.
+
+---
+
+## Fix pass 1 — D6a
+
+Session 1 triage of the D6a hand-back and diff (`9a185ac..fd8a850`, PR #6). **The fix-applier implements this section and nothing else.** Work on `d6a-fullpipeline-reconstructions` and push to the same PR.
+
+Verified before triage, so do not re-derive: the mirrored `CR-REGISTRY` region is untouched; the new parity block asserts fixture presence rather than skipping; `npm test` passes 836; and the teamOffense diagnostic reports mean |diff| 0.0318 and max 0.1300 over 48 players, which on a factor spanning 0.155 total is roughly **six rank slots on average and twenty-six at worst** — not noise.
+
+### 1. The teamOffense parity gap is caused by this file's finding 7, which is wrong — **must fix (Session 1's error)**
+
+Finding 7 told the implementer to reconstruct Step 7 under per-season-team attribution, citing CR-02's Mirror. That is right about the general contract and **wrong about this specific function**.
+
+`computeTeamContext`'s only caller pins it: `App.jsx:214` passes `{ attribution: 'current-team' }`, overriding the module default of `per-season-team`. Under that mode `resolveAttributedTeam` returns `player?.team ?? null`, so aggregate rows with no `playersMap` entry drop out on their own. The function's own note (`src/utils/teamContext.js:148-152`) says exactly this, and warns that migrating it to per-season attribution would require adopting `isTeamAggregateId` because the aggregate rows carry a per-season `team` and would otherwise double the ranking inputs.
+
+So the panel ranks teams under a different attribution than the app does, players land on different teams, team fantasy-point sums differ, and the ranks diverge. Six slots is entirely consistent with that.
+
+**Fix.** Reconstruct Step 7 under **current-team** attribution, matching the app's only caller, and say in the branch comment that this one function is pinned against the module default. **Keep the `isTeamAggregateId` filter** — it is inert under current-team, and it is the guard the app's own note asks for if the mode ever changes.
+
+Then **re-run the parity check and report the new numbers**. If it closes, promote the teamOffense test from diagnostic to an asserted parity check with a stated tolerance and row count. **If it does not close, stop and report** — that would mean a second, genuinely unknown cause, and it must not be widened away.
+
+Correct finding 7's text in this file in the same change, so the next reader does not re-derive the wrong instruction.
+
+### 2. `qbQuality` has an empty eligible window and cannot be graded — **must fix**
+
+The reconstruction is structurally neutral for 100% of rows: no KTC in the panel window, the dynasty-score branch is unportable, and the app's own population is fantasy-roster-scoped and not reconstructable offline. This is finding 4's problem in its most extreme form — not a factor with a narrow window, but one with **no window at all**.
+
+**Fix.** Record `qbQuality`'s eligible window as empty in the coverage output, and state in this file that **D6b must exclude it from the ablation entirely** rather than reporting it as a prune candidate. A factor held at 1.0 by construction will always look prunable. Keep the reconstruction — it is correct, and it becomes gradable the moment a KTC-covered window exists — but mark it ungraded rather than neutral-and-therefore-useless.
+
+### 3. Record what the architecture fork means for D6a's own claim — **must fix**
+
+The decision to dispatch the six new factors through `D6_NEW_FACTORS` rather than folding them into `FULL_FACTORS` is **sound and stays**: `compBlend` is the app's post-hoc convex blend after the clamp, not a multiplicative term, and `predictWithExponents` has no stage to compose it. Forcing it in would mis-compute and destabilise existing calibration tests.
+
+But it means **D6a does not deliver a panel that computes the thirteen steps as one composed pipeline**, which is what this file's own goal line promises. It delivers six correct reconstructions alongside the existing seven.
+
+**Fix.** Say so plainly in this file's goal and in §A, and make **the composition — widening the real product set to thirteen and fixing the clamp ordering — D6b's first task, ahead of any calibration output.** A calibration constant computed before the composition is correct would be measuring a pipeline that does not exist.
+
+### 4. The two unclosable divergences must reach the verdict, not just the test names — **must fix**
+
+`age` and `depth` are computed but not asserted equal, for stated reasons: the app takes age from live wall-clock at snapshot time and the panel from birthdate at `lastQSeason`, and the app reads a live depth chart where the panel reads D5's historical one. Both are genuine and neither is closable retrospectively.
+
+**Fix.** Record both in this file as **systematic reconstruction differences**, with the note that D6b's verdict must state them beside every constant those two factors contribute to. They are not test bookkeeping; they are a known bias in the output.
+
+### 5. The original parity gate still self-skips — **must fix**
+
+Finding 6's reasoning applies to `T-F10` itself, not only to the new block: at `test/panel-fit.test.mjs:1483` a missing fixture set calls `t.skip` and leaves the gate green. The new D6a block asserts presence correctly; the older one does not.
+
+**Fix.** Make T-F10 assert fixture presence the same way. This is a pre-existing behaviour rather than a regression, so if making it strict turns any CI path red, stop and report rather than reverting the assertion.
+
+### No change — considered and dismissed
+
+- **The `D6_NEW_FACTORS` fork.** Correct, per item 3. The fix is recording its consequence, not undoing it.
+- **`compBlend` as a synthetic ratio, and `pipelineConfidence` pinned.** Both were raised as questions and decided; they stand.
+- **Not widening the standalone backtest tool.** Correct — it has no injectable loader for the new family, and a comment-only clarification is the honest touch.
+- **The `shareTrend`/`teamRzShare` parity gap staying open.** Correct: closing it needs a post-2026-07-18 snapshot imported, which no one did this session. Unchanged from before this slice.
+
+### Leave alone
+
+Every unit test added for the six factors. The position fallback and its 2013-quarterback guard. The snap widening and the three edits it required. The fixture set. `lib/fantasyPoints.mjs`. The mirrored `CR-REGISTRY` region — still three edits out of sync and queued in the parent folder's `PARKED.md`.
+
+---
+
+## Fix pass 2 — D6a: the teamOffense cause, identified
+
+Fix pass 1 item 1 named attribution mode as the cause. **That hypothesis was untestable in the fixture used and is not the cause of the measured gap.** The applier switched the mode, re-ran, and got byte-identical numbers — mean |diff| 0.0318, max 0.1300 — because the parity fixture loads only 2025, so the panel's current-team anchor and the row's own season are the same year and the two modes collapse. Correct fix, wrong explanation, and the applier was right to stop rather than widen.
+
+### The actual cause, measured
+
+The app's current-team attribution reads **live Sleeper roster state at snapshot time**, not a historical team. Comparing `snapshots/2026-09-05.json` against `nfl/season-totals/2025.json` over the 587 comparable rows:
+
+| relationship between the 2025 season team and the Sep-2026 snapshot team | rows | share |
+|---|---|---|
+| same | 401 | 68.3% |
+| alias-only (`LA`/`LAR` and similar) | 16 | 2.7% |
+| **genuine offseason move** | **170** | **29.0%** |
+
+So when the app ranks team offense for the 2025 season, it attributes roughly **three players in ten to a team they did not play for that season**. The panel attributes them historically. Different team sums, different ranks — and a mean divergence of about six rank slots out of 32 is exactly that magnitude.
+
+**This is not a bug and it is not closable.** Live roster state at an arbitrary past date is ephemeral; no retrospective panel can reconstruct it. Step 7 therefore belongs with age and depth, not with efficiency.
+
+### What changes
+
+1. **Reclassify `teamOffense` as a named, unclosable divergence.** Rename the test from "OPEN PARITY GAP / cause unidentified" to a named divergence in the same style as age and depth, and record the 29% figure in the comment as the measured size of the effect. Keep it diagnostic; do not promote it to an asserted check, and do not widen a tolerance to make one pass.
+2. **Keep the current-team switch from fix pass 1.** It is still the correct reconstruction of the app's *mode*, and it is not a no-op on the real multi-year panel even though it is one on a single-season fixture. Fix pass 1's correction of finding 7 stands.
+3. **Three of the six new factors now have unclosable live-state divergences** — age (live wall-clock), depth (live chart), teamOffense (live roster). One is ungradable (`qbQuality`), one is architecturally incomparable (`compBlend`), one verifies (`efficiency`). **Record that summary in §C**, because it is the honest state of the parity gate and D6b inherits it.
+
+### The question this raises, for Anton rather than for an implementer
+
+D6's goal line says "grade the veteran pipeline **as shipped**". After this finding that phrasing is not defensible for three of the thirteen steps. What the harness can deliver is a **historical analogue with three quantified live-state divergences** — which is still worth having, and is still the only way to get calibration constants before January 2027, but it is a weaker claim than the brief makes.
+
+**Do not silently restate the goal.** Either Anton accepts the analogue framing and §C carries the caveat into every verdict, or D6b's scope narrows to the steps that can be reconstructed faithfully. That decision belongs to him, not to this file.
+
+---
+
+## Decision — the analogue framing, scoped by deliverable (Session 1, 2026-09-06)
+
+Fix pass 2 put a question to Anton. He delegated it. **The call is: accept the analogue framing, but split the deliverables by what each can actually support, and settle the doubt with a measurement rather than with this reasoning.**
+
+### Accepted: the calibration constants
+
+The primary deliverable survives the divergence, and the reason is structural rather than optimistic. `teamOffense` is a rank factor spanning 0.920 to 1.075 with a mean of 0.9975 across the 32 ranks. Misattributing 29% of players shuffles **which** row gets **which** rank; it does not shift the distribution. A mean-preserving shuffle adds variance to individual rows and leaves the aggregate multiplier close to where it was — and the aggregate multiplier is exactly what §D item 2 is solving for.
+
+So the optimism constant, the shrinkage sweep and the confidence tiers proceed, **with the caveat travelling in the verdict rather than in a footnote**.
+
+### Refused: the factor-pruning verdict for four of thirteen
+
+§E's ablation cannot speak for a factor whose input it is known to misattribute. **`teamOffense`, `age`, `depth` and `qbQuality` are excluded from the pruning verdict and reported as not gradable**, with the reason and the measured divergence beside each. That is four of thirteen, and saying so is a finding in its own right: it tells the calibration arc which factors still need a forward-graded window before anyone touches them.
+
+The remaining nine — the original seven plus `efficiency` plus `compBlend` treated as the app's post-hoc blend — carry the ablation.
+
+### Unaffected: the Step 4 verdict
+
+§E's Step 4 work reconstructs from PPG history alone. No live state, no divergence. It proceeds as written.
+
+### The guard that makes this a measurement, not a judgment
+
+**Before publishing any constant, run the calibration twice: once with the full stack, once with `teamOffense`, `age` and `depth` held at 1.0.** Report both constants side by side per position.
+
+- If they agree to within the sweep's own step size (0.02), the constant is robust to the divergence and the analogue framing is sound. Publish, with both numbers in the verdict.
+- **If they diverge by more than one step, stop and report.** That would mean the three live-state factors are shifting the aggregate rather than shuffling it, my structural argument is wrong, and D6b narrows to the faithfully-reconstructable steps.
+
+This is cheap — it is one extra run of an existing sweep — and it converts the whole decision from an argument into a number. Do it first, before any other §D output.
+
+### What the goal line now says
+
+Not "grade the veteran pipeline as shipped". **"Grade a historical reconstruction of the veteran pipeline, faithful in nine of thirteen steps, with three live-state divergences quantified and one step ungradable."** Longer, and true. Update §Goal to match, and carry the same sentence into the verdict's opening.
