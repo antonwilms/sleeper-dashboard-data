@@ -1,0 +1,29 @@
+name: Yearly nflverse snap counts
+
+on:
+  schedule:
+    # 14:05 UTC on 15 February every year, whatever day of the week that lands on (the cron
+    # expression has no weekday field) — post-season (the Super Bowl has settled by early
+    # February in every season this covers), after the Wednesday playerids Action has had a
+    # full week to land the season's final crosswalk. In-season weekly refresh is out of scope
+    # for this family (task snap-counts-backfill.md §A) — one settle-and-capture run per season.
+    - cron: "5 14 15 2 *"
+  workflow_dispatch: {}   # allow manual trigger for backfill / corrections
+
+permissions:
+  contents: write
+
+jobs:
+  snaps:
+    uses: ./.github/workflows/_ingest.yml
+    with:
+      subcommand: snaps
+      # Reads the crosswalk (scripts/update-snaps.mjs readJson('nflverse/playerids.json')) —
+      # listed explicitly, mirrors nflverse-playerstats.yml's own sparse-checkout comment.
+      sparse-paths: |
+        nflverse/snaps
+        nflverse/playerids.json
+      commit-scope: "nflverse/"
+      commit-message: "nflverse: snaps"
+      purge-path: "nflverse/snaps/<season>.json"
+      season-keyed: true

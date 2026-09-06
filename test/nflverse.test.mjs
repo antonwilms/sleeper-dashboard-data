@@ -17,6 +17,7 @@
  *   K. validateGameLogs
  *   L. aggregateTeamContext / eraTeam
  *   M. validateTeamContext
+ *   N. aggregateSnapCounts / pfrCrosswalkFromBySleeper / rekeySnapsByPfr / validateSnaps
  */
 
 import { test } from 'node:test';
@@ -30,8 +31,10 @@ import {
   parseSchedulesCsv, numOrNull, MIN_SCHEDULE_GAMES, MIN_SCHEDULE_SEASON,
   parsePlayerGameLogs, rekeyGameLogsBySleeper, MIN_PLAYERGAME_ROWS, MIN_GAMELOG_SEASON,
   aggregateTeamContext, eraTeam, MIN_TEAMCONTEXT_ROWS,
+  aggregateSnapCounts, pfrCrosswalkFromBySleeper, rekeySnapsByPfr,
+  MIN_SNAPS_SEASON, MIN_SNAPS_ROWS, SNAPS_JOIN_RATE_MIN,
 } from '../lib/nflverse.mjs';
-import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule, validateGameLogs, validateTeamContext } from '../lib/validate.mjs';
+import { validateRoster, validateDraft, validatePlayerIds, validateAdvStats, validateSchedule, validateGameLogs, validateTeamContext, validateSnaps } from '../lib/validate.mjs';
 import { readJson } from '../lib/io.mjs';
 import { idsHash, bySleeperHash, shouldWritePlayerIds } from '../scripts/update-playerids.mjs';
 
@@ -1759,4 +1762,207 @@ test('validateTeamContext: non-finite guard — Infinity in a component throws',
   const games = makeTcGames(MIN_TEAMCONTEXT_ROWS);
   games[0].off.epaSum = Infinity;
   assert.throws(() => validateTeamContext({ KC: { games } }, { year: 2023 }), /non-finite/);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// N. aggregateSnapCounts / pfrCrosswalkFromBySleeper / rekeySnapsByPfr / validateSnaps
+// ═══════════════════════════════════════════════════════════════════
+
+const SNAPS_HEADER =
+  'game_id,pfr_game_id,season,game_type,week,player,pfr_player_id,position,team,opponent,' +
+  'offense_snaps,offense_pct,defense_snaps,defense_pct,st_snaps,st_pct';
+
+function makeSnapsCsv(...dataRows) {
+  return [SNAPS_HEADER, ...dataRows].join('\n');
+}
+
+/** One skill-position row: gameId, week, player, pfrId, position, team, offSnaps, gameType. */
+function snapRow({ gameId = 'g', week, player, pfrId, position, team, offSnaps, gameType = 'REG' }) {
+  return `${gameId},pg,2016,${gameType},${week},${player},${pfrId},${position},${team},OPP,${offSnaps},0,0,0,0,0`;
+}
+
+function makeSnapsPlayers(overrides = {}) {
+  return {
+    filler: { pfrId: 'FILL', position: 'WR', team: 'KC', games: MIN_SNAPS_ROWS, offSnaps: 100, teamOffSnaps: 200, offPct: 0.5 },
+    ...overrides,
+  };
+}
+
+test('aggregateSnapCounts: served shape — offPct computed from summed offSnaps/teamOffSnaps', () => {
+  const csv = makeSnapsCsv(
+    snapRow({ week: 1, player: 'WR A', pfrId: 'WRA01', position: 'WR', team: 'KC', offSnaps: 40 }),
+    snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'KC', offSnaps: 60 }),
+  );
+  const { byPfrId, season, rowCount } = aggregateSnapCounts(csv, { season: 2016 });
+  assert.equal(season, 2016);
+  assert.equal(rowCount, 1); // 'G' is not an emitted position — only the WR row counts
+  const wr = byPfrId['WRA01'];
+  assert.ok(wr);
+  assert.equal(wr.games, 1);
+  assert.equal(wr.offSnaps, 40);
+  assert.equal(wr.teamOffSnaps, 60); // team-game MAX, not the WR's own value
+  assert.equal(wr.offPct, Math.round(40 / 60 * 1000) / 1000);
+});
+
+test('aggregateSnapCounts: POST rows excluded — do not change any total', () => {
+  const csv = makeSnapsCsv(
+    snapRow({ week: 1, player: 'WR A', pfrId: 'WRA01', position: 'WR', team: 'KC', offSnaps: 40, gameType: 'REG' }),
+    snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'KC', offSnaps: 60, gameType: 'REG' }),
+    snapRow({ week: 2, player: 'WR A', pfrId: 'WRA01', position: 'WR', team: 'KC', offSnaps: 999, gameType: 'POST' }),
+  );
+  const { byPfrId, rowCount } = aggregateSnapCounts(csv, { season: 2016 });
+  assert.equal(rowCount, 1);
+  assert.equal(byPfrId['WRA01'].games, 1);
+  assert.equal(byPfrId['WRA01'].offSnaps, 40);
+  assert.equal(byPfrId['WRA01'].teamOffSnaps, 60);
+});
+
+test('aggregateSnapCounts: team-snap denominator is the MAX across a team\'s players, not sum or mean', () => {
+  const csv = makeSnapsCsv(
+    snapRow({ week: 1, player: 'WR A', pfrId: 'WRA01', position: 'WR', team: 'KC', offSnaps: 30 }),
+    snapRow({ week: 1, player: 'RB B', pfrId: 'RBB01', position: 'RB', team: 'KC', offSnaps: 20 }),
+    snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'KC', offSnaps: 65 }),
+  );
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
+  // sum would be 115, mean would be ~38.3 — the correct denominator is the max, 65
+  assert.equal(byPfrId['WRA01'].teamOffSnaps, 65);
+  assert.equal(byPfrId['RBB01'].teamOffSnaps, 65);
+});
+
+test('aggregateSnapCounts: team codes pass through unchanged — a 2016 fixture carrying SD stays SD', () => {
+  const csv = makeSnapsCsv(
+    snapRow({ week: 1, player: 'Player X', pfrId: 'PX01', position: 'WR', team: 'SD', offSnaps: 40 }),
+    snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'SD', offSnaps: 60 }),
+  );
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
+  assert.equal(byPfrId['PX01'].team, 'SD');
+});
+
+test('aggregateSnapCounts: traded player — week-restricted per-stint denominators, teams[] sorted by snaps', () => {
+  const csv = makeSnapsCsv(
+    // ATL week 1: player + an OL setting the team-game max at 50
+    snapRow({ gameId: 'g1', week: 1, player: 'Traded P', pfrId: 'TP01', position: 'WR', team: 'ATL', offSnaps: 20 }),
+    snapRow({ gameId: 'g1', week: 1, player: 'ATL OL', pfrId: 'AOL', position: 'G', team: 'ATL', offSnaps: 50 }),
+    // ATL week 3: player is NOT on this team anymore — its 99-snap max must NOT be pulled in
+    snapRow({ gameId: 'g3', week: 3, player: 'ATL OL2', pfrId: 'AOL2', position: 'G', team: 'ATL', offSnaps: 99 }),
+    // LA week 2: player traded here, + an OL setting the team-game max at 70
+    snapRow({ gameId: 'g2', week: 2, player: 'Traded P', pfrId: 'TP01', position: 'WR', team: 'LA', offSnaps: 30 }),
+    snapRow({ gameId: 'g2', week: 2, player: 'LA OL', pfrId: 'LOL', position: 'G', team: 'LA', offSnaps: 70 }),
+  );
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
+  const p = byPfrId['TP01'];
+  assert.ok(p);
+  assert.equal(p.traded, true);
+  assert.deepEqual(p.teams, ['LA', 'ATL']); // LA=30 snaps > ATL=20 snaps
+  assert.equal(p.games, 2);
+  assert.equal(p.offSnaps, 50);       // 20 + 30
+  assert.equal(p.teamOffSnaps, 120);  // 50 (ATL wk1) + 70 (LA wk2) — NOT +99 (ATL wk3, a week the player wasn't on ATL)
+  assert.equal(p.offPct, Math.round(50 / 120 * 1000) / 1000);
+});
+
+test('aggregateSnapCounts: a genuine offSnaps tie between stints — team and teams[0] agree, alphabetical tie-break (fix pass 1 item 4)', () => {
+  const csv = makeSnapsCsv(
+    // NYG week 1: player + an OL setting the team-game max
+    snapRow({ gameId: 'g1', week: 1, player: 'Tied P', pfrId: 'TIE01', position: 'WR', team: 'NYG', offSnaps: 20 }),
+    snapRow({ gameId: 'g1', week: 1, player: 'NYG OL', pfrId: 'NOL', position: 'G', team: 'NYG', offSnaps: 55 }),
+    // ATL week 2: same player, SAME offSnaps as the NYG stint — a genuine tie
+    snapRow({ gameId: 'g2', week: 2, player: 'Tied P', pfrId: 'TIE01', position: 'WR', team: 'ATL', offSnaps: 20 }),
+    snapRow({ gameId: 'g2', week: 2, player: 'ATL OL', pfrId: 'AOL', position: 'G', team: 'ATL', offSnaps: 60 }),
+  );
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
+  const p = byPfrId['TIE01'];
+  assert.ok(p);
+  assert.equal(p.traded, true);
+  // ATL < NYG alphabetically — the tie-break — and team must be teams[0], not a second,
+  // independently-derived answer that can disagree with it.
+  assert.deepEqual(p.teams, ['ATL', 'NYG']);
+  assert.equal(p.team, p.teams[0]);
+  assert.equal(p.team, 'ATL');
+});
+
+test('aggregateSnapCounts: missing pfr_player_id column → throws', () => {
+  const csv = 'game_id,season,game_type,week,player,position,team,offense_snaps\n' +
+    '2016_01,2016,REG,1,WR A,WR,KC,40';
+  assert.throws(() => aggregateSnapCounts(csv, { season: 2016 }), /required columns missing/);
+});
+
+test('aggregateSnapCounts: wrong-asset CSV (season column mismatch) throws — fix pass 1 item 6', () => {
+  const csv = makeSnapsCsv(
+    snapRow({ week: 1, player: 'WR A', pfrId: 'WRA01', position: 'WR', team: 'KC', offSnaps: 40 }),
+  );
+  assert.throws(() => aggregateSnapCounts(csv, { season: 2017 }), /does not match requested season/);
+});
+
+test('pfrCrosswalkFromBySleeper: builds a pfrId→sleeperId reverse index, keep-first on a duplicate pfrId', () => {
+  const bySleeper = {
+    '100': { pfrId: 'AAA01' },
+    '200': { pfrId: 'BBB01' },
+    '300': { pfrId: 'AAA01' }, // duplicate pfrId — keep-first, so '100' wins
+    '400': { pfrId: null },
+  };
+  assert.deepEqual(pfrCrosswalkFromBySleeper(bySleeper), { AAA01: '100', BBB01: '200' });
+});
+
+test('rekeySnapsByPfr: an unmatched pfr_player_id lands in byPfr, increments unmapped, and does not appear in players', () => {
+  const csv = makeSnapsCsv(
+    snapRow({ week: 1, player: 'Mapped', pfrId: 'MAP01', position: 'WR', team: 'KC', offSnaps: 40 }),
+    snapRow({ week: 1, player: 'Unmapped', pfrId: 'UNM01', position: 'WR', team: 'KC', offSnaps: 20 }),
+    snapRow({ week: 1, player: 'OL Guy', pfrId: 'OL01', position: 'G', team: 'KC', offSnaps: 60 }),
+  );
+  const { byPfrId } = aggregateSnapCounts(csv, { season: 2016 });
+  const { players, byPfr, unmapped } = rekeySnapsByPfr(byPfrId, { MAP01: '999' });
+  assert.ok(players['999']);
+  assert.equal(players['UNM01'], undefined);
+  assert.ok(byPfr['UNM01']);
+  assert.equal(unmapped, 1);
+});
+
+test('validateSnaps: join rate below SNAPS_JOIN_RATE_MIN throws; at the floor passes', () => {
+  const players = makeSnapsPlayers();
+  assert.throws(() => validateSnaps(players, { year: 2016, joinRate: 0.5 }), /join rate/);
+  assert.doesNotThrow(() => validateSnaps(players, { year: 2016, joinRate: SNAPS_JOIN_RATE_MIN }));
+});
+
+test('validateSnaps: season below MIN_SNAPS_SEASON is rejected', () => {
+  const players = makeSnapsPlayers();
+  assert.throws(() => validateSnaps(players, { year: MIN_SNAPS_SEASON - 1, joinRate: 1 }), /MIN_SNAPS_SEASON/);
+  assert.doesNotThrow(() => validateSnaps(players, { year: MIN_SNAPS_SEASON, joinRate: 1 }));
+});
+
+test('validateSnaps: rowCount below MIN_SNAPS_ROWS throws — the real gate (spine\'s own sparsity skip is deliberately bypassed for this family, see scripts/update-snaps.mjs)', () => {
+  const players = { p: { pfrId: 'P1', position: 'WR', team: 'KC', games: MIN_SNAPS_ROWS - 1, offSnaps: 1, teamOffSnaps: 2, offPct: 0.5 } };
+  assert.throws(() => validateSnaps(players, { year: 2016, joinRate: 1 }), /player-game rows/);
+});
+
+test('validateSnaps: era-domain guard — LA at year<=2015 throws; STL at year>=2016 throws', () => {
+  const withLA  = makeSnapsPlayers({ p: { pfrId: 'P1', position: 'WR', team: 'LA',  games: 1, offSnaps: 1, teamOffSnaps: 2, offPct: 0.5 } });
+  const withSTL = makeSnapsPlayers({ p: { pfrId: 'P1', position: 'WR', team: 'STL', games: 1, offSnaps: 1, teamOffSnaps: 2, offPct: 0.5 } });
+  assert.throws(() => validateSnaps(withLA,  { year: 2015, joinRate: 1 }), /LA.*STL/);
+  assert.throws(() => validateSnaps(withSTL, { year: 2016, joinRate: 1 }), /STL/);
+  assert.doesNotThrow(() => validateSnaps(withSTL, { year: 2015, joinRate: 1 }));
+  assert.doesNotThrow(() => validateSnaps(withLA,  { year: 2016, joinRate: 1 }));
+});
+
+test('validateSnaps: era-domain guard — LAC/SD boundary at 2016/2017', () => {
+  const withLAC = makeSnapsPlayers({ p: { pfrId: 'P1', position: 'WR', team: 'LAC', games: 1, offSnaps: 1, teamOffSnaps: 2, offPct: 0.5 } });
+  const withSD  = makeSnapsPlayers({ p: { pfrId: 'P1', position: 'WR', team: 'SD',  games: 1, offSnaps: 1, teamOffSnaps: 2, offPct: 0.5 } });
+  assert.throws(() => validateSnaps(withLAC, { year: 2016, joinRate: 1 }), /LAC.*SD/);
+  assert.throws(() => validateSnaps(withSD,  { year: 2017, joinRate: 1 }), /SD/);
+});
+
+test('validateSnaps: era-domain guard — LV/OAK boundary at 2019/2020', () => {
+  const withLV  = makeSnapsPlayers({ p: { pfrId: 'P1', position: 'WR', team: 'LV',  games: 1, offSnaps: 1, teamOffSnaps: 2, offPct: 0.5 } });
+  const withOAK = makeSnapsPlayers({ p: { pfrId: 'P1', position: 'WR', team: 'OAK', games: 1, offSnaps: 1, teamOffSnaps: 2, offPct: 0.5 } });
+  assert.throws(() => validateSnaps(withLV,  { year: 2019, joinRate: 1 }), /LV.*OAK/);
+  assert.throws(() => validateSnaps(withOAK, { year: 2020, joinRate: 1 }), /OAK/);
+});
+
+test('validateSnaps: offPct outside [0,1] throws', () => {
+  const players = makeSnapsPlayers({ p: { pfrId: 'P1', position: 'WR', team: 'KC', games: 1, offSnaps: 1, teamOffSnaps: 2, offPct: 1.5 } });
+  assert.throws(() => validateSnaps(players, { year: 2016, joinRate: 1 }), /offPct out of \[0,1\]/);
+});
+
+test('validateSnaps: non-finite guard — Infinity in a component throws', () => {
+  const players = makeSnapsPlayers({ p: { pfrId: 'P1', position: 'WR', team: 'KC', games: 1, offSnaps: Infinity, teamOffSnaps: 2, offPct: null } });
+  assert.throws(() => validateSnaps(players, { year: 2016, joinRate: 1 }), /non-finite/);
 });

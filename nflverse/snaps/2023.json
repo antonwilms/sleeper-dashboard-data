@@ -1,0 +1,6428 @@
+{
+  "schemaVersion": 1,
+  "season": 2023,
+  "generatedAt": "2026-09-06T10:19:16.096Z",
+  "rowCount": 7022,
+  "playerCount": 627,
+  "unmapped": 6,
+  "players": {
+    "19": {
+      "pfrId": "FlacJo00",
+      "name": "Joe Flacco",
+      "position": "QB",
+      "team": "CLE",
+      "games": 5,
+      "offSnaps": 346,
+      "teamOffSnaps": 358,
+      "offPct": 0.966
+    },
+    "96": {
+      "pfrId": "RodgAa00",
+      "name": "Aaron Rodgers",
+      "position": "QB",
+      "team": "NYJ",
+      "games": 1,
+      "offSnaps": 4,
+      "teamOffSnaps": 54,
+      "offPct": 0.074
+    },
+    "111": {
+      "pfrId": "LewiMa00",
+      "name": "Marcedes Lewis",
+      "position": "TE",
+      "team": "CHI",
+      "games": 17,
+      "offSnaps": 332,
+      "teamOffSnaps": 1138,
+      "offPct": 0.292
+    },
+    "312": {
+      "pfrId": "SlatMa00",
+      "name": "Matthew Slater",
+      "position": "WR",
+      "team": "NE",
+      "games": 16,
+      "offSnaps": 0,
+      "teamOffSnaps": 993,
+      "offPct": 0
+    },
+    "345": {
+      "pfrId": "HoyeBr00",
+      "name": "Brian Hoyer",
+      "position": "QB",
+      "team": "LV",
+      "games": 3,
+      "offSnaps": 80,
+      "teamOffSnaps": 194,
+      "offPct": 0.412
+    },
+    "421": {
+      "pfrId": "StafMa00",
+      "name": "Matthew Stafford",
+      "position": "QB",
+      "team": "LA",
+      "games": 15,
+      "offSnaps": 1000,
+      "teamOffSnaps": 1023,
+      "offPct": 0.978
+    },
+    "616": {
+      "pfrId": "GrahJi00",
+      "name": "Jimmy Graham",
+      "position": "TE",
+      "team": "NO",
+      "games": 13,
+      "offSnaps": 171,
+      "teamOffSnaps": 890,
+      "offPct": 0.192
+    },
+    "827": {
+      "pfrId": "TaylTy00",
+      "name": "Tyrod Taylor",
+      "position": "QB",
+      "team": "NYG",
+      "games": 11,
+      "offSnaps": 373,
+      "teamOffSnaps": 753,
+      "offPct": 0.495
+    },
+    "829": {
+      "pfrId": "DaltAn00",
+      "name": "Andy Dalton",
+      "position": "QB",
+      "team": "CAR",
+      "games": 3,
+      "offSnaps": 81,
+      "teamOffSnaps": 210,
+      "offPct": 0.386
+    },
+    "862": {
+      "pfrId": "GabbBl00",
+      "name": "Blaine Gabbert",
+      "position": "QB",
+      "team": "KC",
+      "games": 2,
+      "offSnaps": 79,
+      "teamOffSnaps": 135,
+      "offPct": 0.585
+    },
+    "886": {
+      "pfrId": "JoneTa00",
+      "name": "Taiwan Jones",
+      "position": "RB",
+      "team": "NYG",
+      "games": 2,
+      "offSnaps": 0,
+      "teamOffSnaps": 138,
+      "offPct": 0
+    },
+    "928": {
+      "pfrId": "CobbRa00",
+      "name": "Randall Cobb",
+      "position": "WR",
+      "team": "NYJ",
+      "games": 11,
+      "offSnaps": 210,
+      "teamOffSnaps": 675,
+      "offPct": 0.311
+    },
+    "947": {
+      "pfrId": "JoneJu02",
+      "name": "Julio Jones",
+      "position": "WR",
+      "team": "PHI",
+      "games": 11,
+      "offSnaps": 231,
+      "teamOffSnaps": 704,
+      "offPct": 0.328
+    },
+    "1034": {
+      "pfrId": "BoldBr00",
+      "name": "Brandon Bolden",
+      "position": "RB",
+      "team": "LV",
+      "games": 17,
+      "offSnaps": 5,
+      "teamOffSnaps": 1046,
+      "offPct": 0.005
+    },
+    "1049": {
+      "pfrId": "TannRy00",
+      "name": "Ryan Tannehill",
+      "position": "QB",
+      "team": "TEN",
+      "games": 10,
+      "offSnaps": 500,
+      "teamOffSnaps": 618,
+      "offPct": 0.809
+    },
+    "1067": {
+      "pfrId": "JoneMa02",
+      "name": "Marvin Jones",
+      "position": "WR",
+      "team": "DET",
+      "games": 6,
+      "offSnaps": 178,
+      "teamOffSnaps": 411,
+      "offPct": 0.433
+    },
+    "1166": {
+      "pfrId": "CousKi00",
+      "name": "Kirk Cousins",
+      "position": "QB",
+      "team": "MIN",
+      "games": 8,
+      "offSnaps": 512,
+      "teamOffSnaps": 523,
+      "offPct": 0.979
+    },
+    "1234": {
+      "pfrId": "WilsRu00",
+      "name": "Russell Wilson",
+      "position": "QB",
+      "team": "DEN",
+      "games": 15,
+      "offSnaps": 938,
+      "teamOffSnaps": 942,
+      "offPct": 0.996
+    },
+    "1338": {
+      "pfrId": "BarkMa00",
+      "name": "Matt Barkley",
+      "position": "QB",
+      "team": "JAX",
+      "games": 1,
+      "offSnaps": 6,
+      "teamOffSnaps": 63,
+      "offPct": 0.095
+    },
+    "1339": {
+      "pfrId": "ErtzZa00",
+      "name": "Zach Ertz",
+      "position": "TE",
+      "team": "ARI",
+      "games": 7,
+      "offSnaps": 295,
+      "teamOffSnaps": 458,
+      "offPct": 0.644
+    },
+    "1346": {
+      "pfrId": "GoodMa00",
+      "name": "Marquise Goodwin",
+      "position": "WR",
+      "team": "CLE",
+      "games": 12,
+      "offSnaps": 122,
+      "teamOffSnaps": 890,
+      "offPct": 0.137
+    },
+    "1352": {
+      "pfrId": "WoodRo02",
+      "name": "Robert Woods",
+      "position": "WR",
+      "team": "HOU",
+      "games": 14,
+      "offSnaps": 666,
+      "teamOffSnaps": 948,
+      "offPct": 0.703
+    },
+    "1373": {
+      "pfrId": "SmitGe00",
+      "name": "Geno Smith",
+      "position": "QB",
+      "team": "SEA",
+      "games": 15,
+      "offSnaps": 906,
+      "teamOffSnaps": 931,
+      "offPct": 0.973
+    },
+    "1379": {
+      "pfrId": "JuszKy00",
+      "name": "Kyle Juszczyk",
+      "position": "FB",
+      "team": "SF",
+      "games": 17,
+      "offSnaps": 495,
+      "teamOffSnaps": 1066,
+      "offPct": 0.464
+    },
+    "1426": {
+      "pfrId": "HopkDe00",
+      "name": "DeAndre Hopkins",
+      "position": "WR",
+      "team": "TEN",
+      "games": 17,
+      "offSnaps": 758,
+      "teamOffSnaps": 1050,
+      "offPct": 0.722
+    },
+    "1466": {
+      "pfrId": "KelcTr00",
+      "name": "Travis Kelce",
+      "position": "TE",
+      "team": "KC",
+      "games": 15,
+      "offSnaps": 775,
+      "teamOffSnaps": 1007,
+      "offPct": 0.77
+    },
+    "1476": {
+      "pfrId": "MurrLa00",
+      "name": "Latavius Murray",
+      "position": "RB",
+      "team": "BUF",
+      "games": 16,
+      "offSnaps": 351,
+      "teamOffSnaps": 1086,
+      "offPct": 0.323
+    },
+    "1479": {
+      "pfrId": "AlleKe00",
+      "name": "Keenan Allen",
+      "position": "WR",
+      "team": "LAC",
+      "games": 13,
+      "offSnaps": 779,
+      "teamOffSnaps": 875,
+      "offPct": 0.89
+    },
+    "1535": {
+      "pfrId": "PattCo00",
+      "name": "Cordarrelle Patterson",
+      "position": "RB",
+      "team": "ATL",
+      "games": 14,
+      "offSnaps": 177,
+      "teamOffSnaps": 929,
+      "offPct": 0.191
+    },
+    "1689": {
+      "pfrId": "ThieAd00",
+      "name": "Adam Thielen",
+      "position": "WR",
+      "team": "CAR",
+      "games": 17,
+      "offSnaps": 1046,
+      "teamOffSnaps": 1149,
+      "offPct": 0.91
+    },
+    "1737": {
+      "pfrId": "KeenCa00",
+      "name": "Case Keenum",
+      "position": "QB",
+      "team": "HOU",
+      "games": 2,
+      "offSnaps": 113,
+      "teamOffSnaps": 152,
+      "offPct": 0.743
+    },
+    "1800": {
+      "pfrId": "MattJo00",
+      "name": "Jordan Matthews",
+      "position": "TE",
+      "team": "CAR",
+      "games": 1,
+      "offSnaps": 0,
+      "teamOffSnaps": 60,
+      "offPct": 0
+    },
+    "1833": {
+      "pfrId": "WillDa05",
+      "name": "Damien Williams",
+      "position": "RB",
+      "team": "ARI",
+      "games": 3,
+      "offSnaps": 28,
+      "teamOffSnaps": 219,
+      "offPct": 0.128
+    },
+    "1837": {
+      "pfrId": "GaroJi00",
+      "name": "Jimmy Garoppolo",
+      "position": "QB",
+      "team": "LV",
+      "games": 7,
+      "offSnaps": 325,
+      "teamOffSnaps": 417,
+      "offPct": 0.779
+    },
+    "1895": {
+      "pfrId": "McCaA.00",
+      "name": "A.J. McCarron",
+      "position": "QB",
+      "team": "CIN",
+      "games": 2,
+      "offSnaps": 17,
+      "teamOffSnaps": 124,
+      "offPct": 0.137
+    },
+    "1911": {
+      "pfrId": "SneaWi00",
+      "name": "Willie Snead",
+      "position": "WR",
+      "team": "SF",
+      "games": 4,
+      "offSnaps": 47,
+      "teamOffSnaps": 246,
+      "offPct": 0.191
+    },
+    "1992": {
+      "pfrId": "RobiAl02",
+      "name": "Allen Robinson",
+      "position": "WR",
+      "team": "PIT",
+      "games": 17,
+      "offSnaps": 771,
+      "teamOffSnaps": 1071,
+      "offPct": 0.72
+    },
+    "2028": {
+      "pfrId": "CarrDe02",
+      "name": "Derek Carr",
+      "position": "QB",
+      "team": "NO",
+      "games": 17,
+      "offSnaps": 978,
+      "teamOffSnaps": 1158,
+      "offPct": 0.845
+    },
+    "2073": {
+      "pfrId": "SmitKe03",
+      "name": "Keith Smith",
+      "position": "FB",
+      "team": "ATL",
+      "games": 13,
+      "offSnaps": 185,
+      "teamOffSnaps": 877,
+      "offPct": 0.211
+    },
+    "2078": {
+      "pfrId": "BeckOd00",
+      "name": "Odell Beckham Jr.",
+      "position": "WR",
+      "team": "BAL",
+      "games": 14,
+      "offSnaps": 465,
+      "teamOffSnaps": 939,
+      "offPct": 0.495
+    },
+    "2133": {
+      "pfrId": "AdamDa01",
+      "name": "Davante Adams",
+      "position": "WR",
+      "team": "LV",
+      "games": 17,
+      "offSnaps": 963,
+      "teamOffSnaps": 1046,
+      "offPct": 0.921
+    },
+    "2152": {
+      "pfrId": "BridTe00",
+      "name": "Teddy Bridgewater",
+      "position": "QB",
+      "team": "DET",
+      "games": 1,
+      "offSnaps": 3,
+      "teamOffSnaps": 60,
+      "offPct": 0.05
+    },
+    "2161": {
+      "pfrId": "McKiJe00",
+      "name": "Jerick McKinnon",
+      "position": "RB",
+      "team": "KC",
+      "games": 12,
+      "offSnaps": 264,
+      "teamOffSnaps": 815,
+      "offPct": 0.324
+    },
+    "2197": {
+      "pfrId": "CookBr00",
+      "name": "Brandin Cooks",
+      "position": "WR",
+      "team": "DAL",
+      "games": 16,
+      "offSnaps": 809,
+      "teamOffSnaps": 1097,
+      "offPct": 0.737
+    },
+    "2216": {
+      "pfrId": "EvanMi00",
+      "name": "Mike Evans",
+      "position": "WR",
+      "team": "TB",
+      "games": 17,
+      "offSnaps": 863,
+      "teamOffSnaps": 1103,
+      "offPct": 0.782
+    },
+    "2251": {
+      "pfrId": "ThomLo00",
+      "name": "Logan Thomas",
+      "position": "TE",
+      "team": "WAS",
+      "games": 16,
+      "offSnaps": 732,
+      "teamOffSnaps": 1053,
+      "offPct": 0.695
+    },
+    "2306": {
+      "pfrId": "WinsJa00",
+      "name": "Jameis Winston",
+      "position": "QB",
+      "team": "NO",
+      "games": 7,
+      "offSnaps": 76,
+      "teamOffSnaps": 451,
+      "offPct": 0.169
+    },
+    "2307": {
+      "pfrId": "MariMa01",
+      "name": "Marcus Mariota",
+      "position": "QB",
+      "team": "PHI",
+      "games": 3,
+      "offSnaps": 44,
+      "teamOffSnaps": 192,
+      "offPct": 0.229
+    },
+    "2309": {
+      "pfrId": "CoopAm00",
+      "name": "Amari Cooper",
+      "position": "WR",
+      "team": "CLE",
+      "games": 15,
+      "offSnaps": 883,
+      "teamOffSnaps": 1127,
+      "offPct": 0.783
+    },
+    "2319": {
+      "pfrId": "ParkDe01",
+      "name": "DeVante Parker",
+      "position": "WR",
+      "team": "NE",
+      "games": 13,
+      "offSnaps": 581,
+      "teamOffSnaps": 781,
+      "offPct": 0.744
+    },
+    "2320": {
+      "pfrId": "GordMe00",
+      "name": "Melvin Gordon",
+      "position": "RB",
+      "team": "BAL",
+      "games": 4,
+      "offSnaps": 56,
+      "teamOffSnaps": 244,
+      "offPct": 0.23
+    },
+    "2325": {
+      "pfrId": "AghoNe00",
+      "name": "Nelson Agholor",
+      "position": "WR",
+      "team": "BAL",
+      "games": 17,
+      "offSnaps": 582,
+      "teamOffSnaps": 1126,
+      "offPct": 0.517
+    },
+    "2334": {
+      "pfrId": "DorsPh00",
+      "name": "Phillip Dorsett",
+      "position": "WR",
+      "team": "DEN",
+      "games": 2,
+      "offSnaps": 34,
+      "teamOffSnaps": 133,
+      "offPct": 0.256
+    },
+    "2359": {
+      "pfrId": "AbduAm00",
+      "name": "Ameer Abdullah",
+      "position": "RB",
+      "team": "LV",
+      "games": 17,
+      "offSnaps": 216,
+      "teamOffSnaps": 1046,
+      "offPct": 0.207
+    },
+    "2374": {
+      "pfrId": "LockTy00",
+      "name": "Tyler Lockett",
+      "position": "WR",
+      "team": "SEA",
+      "games": 17,
+      "offSnaps": 839,
+      "teamOffSnaps": 1051,
+      "offPct": 0.798
+    },
+    "2381": {
+      "pfrId": "ConlCh00",
+      "name": "Chris Conley",
+      "position": "WR",
+      "team": "SF",
+      "games": 8,
+      "offSnaps": 110,
+      "teamOffSnaps": 506,
+      "offPct": 0.217
+    },
+    "2390": {
+      "pfrId": "KrofTy00",
+      "name": "Tyler Kroft",
+      "position": "TE",
+      "team": "MIA",
+      "games": 8,
+      "offSnaps": 43,
+      "teamOffSnaps": 525,
+      "offPct": 0.082
+    },
+    "2399": {
+      "pfrId": "MontTy01",
+      "name": "Ty Montgomery",
+      "position": "WR",
+      "team": "NE",
+      "games": 13,
+      "offSnaps": 42,
+      "teamOffSnaps": 830,
+      "offPct": 0.051
+    },
+    "2410": {
+      "pfrId": "CrowJa00",
+      "name": "Jamison Crowder",
+      "position": "WR",
+      "team": "WAS",
+      "games": 17,
+      "offSnaps": 139,
+      "teamOffSnaps": 1107,
+      "offPct": 0.126
+    },
+    "2422": {
+      "pfrId": "BellBl00",
+      "name": "Blake Bell",
+      "position": "TE",
+      "team": "KC",
+      "games": 17,
+      "offSnaps": 251,
+      "teamOffSnaps": 1130,
+      "offPct": 0.222
+    },
+    "2446": {
+      "pfrId": "PruiMy00",
+      "name": "MyCole Pruitt",
+      "position": "TE",
+      "team": "ATL",
+      "games": 17,
+      "offSnaps": 402,
+      "teamOffSnaps": 1130,
+      "offPct": 0.356
+    },
+    "2449": {
+      "pfrId": "DiggSt00",
+      "name": "Stefon Diggs",
+      "position": "WR",
+      "team": "BUF",
+      "games": 17,
+      "offSnaps": 949,
+      "teamOffSnaps": 1164,
+      "offPct": 0.815
+    },
+    "2460": {
+      "pfrId": "UzomC.00",
+      "name": "C.J. Uzomah",
+      "position": "TE",
+      "team": "NYJ",
+      "games": 12,
+      "offSnaps": 239,
+      "teamOffSnaps": 747,
+      "offPct": 0.32
+    },
+    "2471": {
+      "pfrId": "BurtMi00",
+      "name": "Michael Burton",
+      "position": "FB",
+      "team": "DEN",
+      "games": 17,
+      "offSnaps": 189,
+      "teamOffSnaps": 1072,
+      "offPct": 0.176
+    },
+    "2505": {
+      "pfrId": "WallDa01",
+      "name": "Darren Waller",
+      "position": "TE",
+      "team": "NYG",
+      "games": 12,
+      "offSnaps": 568,
+      "teamOffSnaps": 821,
+      "offPct": 0.692
+    },
+    "2545": {
+      "pfrId": "SwaiGe00",
+      "name": "Geoff Swaim",
+      "position": "TE",
+      "team": "ARI",
+      "games": 14,
+      "offSnaps": 337,
+      "teamOffSnaps": 926,
+      "offPct": 0.364
+    },
+    "2549": {
+      "pfrId": "SiemTr00",
+      "name": "Trevor Siemian",
+      "position": "QB",
+      "team": "NYJ",
+      "games": 5,
+      "offSnaps": 287,
+      "teamOffSnaps": 354,
+      "offPct": 0.811
+    },
+    "2673": {
+      "pfrId": "ByrdDa00",
+      "name": "Damiere Byrd",
+      "position": "WR",
+      "team": "ATL",
+      "games": 1,
+      "offSnaps": 19,
+      "teamOffSnaps": 69,
+      "offPct": 0.275
+    },
+    "2711": {
+      "pfrId": "HeinTa00",
+      "name": "Taylor Heinicke",
+      "position": "QB",
+      "team": "ATL",
+      "games": 5,
+      "offSnaps": 271,
+      "teamOffSnaps": 331,
+      "offPct": 0.819
+    },
+    "2749": {
+      "pfrId": "MostRa00",
+      "name": "Raheem Mostert",
+      "position": "RB",
+      "team": "MIA",
+      "games": 15,
+      "offSnaps": 555,
+      "teamOffSnaps": 977,
+      "offPct": 0.568
+    },
+    "2750": {
+      "pfrId": "CartDe02",
+      "name": "DeAndre Carter",
+      "position": "WR",
+      "team": "LV",
+      "games": 17,
+      "offSnaps": 102,
+      "teamOffSnaps": 1046,
+      "offPct": 0.098
+    },
+    "3048": {
+      "pfrId": "ManhCh00",
+      "name": "Chris Manhertz",
+      "position": "TE",
+      "team": "DEN",
+      "games": 16,
+      "offSnaps": 367,
+      "teamOffSnaps": 1011,
+      "offPct": 0.363
+    },
+    "3155": {
+      "pfrId": "TreaLa00",
+      "name": "Laquon Treadwell",
+      "position": "WR",
+      "team": "BAL",
+      "games": 5,
+      "offSnaps": 65,
+      "teamOffSnaps": 310,
+      "offPct": 0.21
+    },
+    "3161": {
+      "pfrId": "WentCa00",
+      "name": "Carson Wentz",
+      "position": "QB",
+      "team": "LA",
+      "games": 2,
+      "offSnaps": 70,
+      "teamOffSnaps": 134,
+      "offPct": 0.522
+    },
+    "3163": {
+      "pfrId": "GoffJa00",
+      "name": "Jared Goff",
+      "position": "QB",
+      "team": "DET",
+      "games": 17,
+      "offSnaps": 1175,
+      "teamOffSnaps": 1178,
+      "offPct": 0.997
+    },
+    "3164": {
+      "pfrId": "ElliEz00",
+      "name": "Ezekiel Elliott",
+      "position": "RB",
+      "team": "NE",
+      "games": 17,
+      "offSnaps": 539,
+      "teamOffSnaps": 1051,
+      "offPct": 0.513
+    },
+    "3198": {
+      "pfrId": "HenrDe00",
+      "name": "Derrick Henry",
+      "position": "RB",
+      "team": "TEN",
+      "games": 17,
+      "offSnaps": 558,
+      "teamOffSnaps": 1050,
+      "offPct": 0.531
+    },
+    "3199": {
+      "pfrId": "ThomMi05",
+      "name": "Michael Thomas",
+      "position": "WR",
+      "team": "NO",
+      "games": 10,
+      "offSnaps": 490,
+      "teamOffSnaps": 708,
+      "offPct": 0.692
+    },
+    "3200": {
+      "pfrId": "ShepSt00",
+      "name": "Sterling Shepard",
+      "position": "WR",
+      "team": "NYG",
+      "games": 15,
+      "offSnaps": 142,
+      "teamOffSnaps": 973,
+      "offPct": 0.146
+    },
+    "3202": {
+      "pfrId": "HoopAu00",
+      "name": "Austin Hooper",
+      "position": "TE",
+      "team": "LV",
+      "games": 17,
+      "offSnaps": 557,
+      "teamOffSnaps": 1046,
+      "offPct": 0.533
+    },
+    "3214": {
+      "pfrId": "HenrHu00",
+      "name": "Hunter Henry",
+      "position": "TE",
+      "team": "NE",
+      "games": 14,
+      "offSnaps": 664,
+      "teamOffSnaps": 883,
+      "offPct": 0.752
+    },
+    "3225": {
+      "pfrId": "BoydTy00",
+      "name": "Tyler Boyd",
+      "position": "WR",
+      "team": "CIN",
+      "games": 17,
+      "offSnaps": 824,
+      "teamOffSnaps": 1088,
+      "offPct": 0.757
+    },
+    "3242": {
+      "pfrId": "DrakKe00",
+      "name": "Kenyan Drake",
+      "position": "RB",
+      "team": "BAL",
+      "games": 3,
+      "offSnaps": 17,
+      "teamOffSnaps": 202,
+      "offPct": 0.084,
+      "traded": true,
+      "teams": [
+        "BAL",
+        "GB"
+      ]
+    },
+    "3257": {
+      "pfrId": "BrisJa00",
+      "name": "Jacoby Brissett",
+      "position": "QB",
+      "team": "WAS",
+      "games": 3,
+      "offSnaps": 46,
+      "teamOffSnaps": 176,
+      "offPct": 0.261
+    },
+    "3258": {
+      "pfrId": "VannNi00",
+      "name": "Nick Vannett",
+      "position": "TE",
+      "team": "LAC",
+      "games": 8,
+      "offSnaps": 125,
+      "teamOffSnaps": 546,
+      "offPct": 0.229
+    },
+    "3269": {
+      "pfrId": "MoorCh00",
+      "name": "Chris Moore",
+      "position": "WR",
+      "team": "TEN",
+      "games": 17,
+      "offSnaps": 596,
+      "teamOffSnaps": 1050,
+      "offPct": 0.568
+    },
+    "3271": {
+      "pfrId": "HigbTy00",
+      "name": "Tyler Higbee",
+      "position": "TE",
+      "team": "LA",
+      "games": 15,
+      "offSnaps": 866,
+      "teamOffSnaps": 1004,
+      "offPct": 0.863
+    },
+    "3286": {
+      "pfrId": "RobiDe01",
+      "name": "Demarcus Robinson",
+      "position": "WR",
+      "team": "LA",
+      "games": 16,
+      "offSnaps": 396,
+      "teamOffSnaps": 1092,
+      "offPct": 0.363
+    },
+    "3294": {
+      "pfrId": "PresDa01",
+      "name": "Dak Prescott",
+      "position": "QB",
+      "team": "DAL",
+      "games": 17,
+      "offSnaps": 1115,
+      "teamOffSnaps": 1184,
+      "offPct": 0.942
+    },
+    "3312": {
+      "pfrId": "WillJo07",
+      "name": "Jonathan Williams",
+      "position": "RB",
+      "team": "WAS",
+      "games": 1,
+      "offSnaps": 13,
+      "teamOffSnaps": 60,
+      "offPct": 0.217
+    },
+    "3321": {
+      "pfrId": "HillTy00",
+      "name": "Tyreek Hill",
+      "position": "WR",
+      "team": "MIA",
+      "games": 16,
+      "offSnaps": 695,
+      "teamOffSnaps": 1037,
+      "offPct": 0.67
+    },
+    "3362": {
+      "pfrId": "DrisJe00",
+      "name": "Jeff Driskel",
+      "position": "QB",
+      "team": "CLE",
+      "games": 1,
+      "offSnaps": 53,
+      "teamOffSnaps": 53,
+      "offPct": 1
+    },
+    "3391": {
+      "pfrId": "WashDw00",
+      "name": "Dwayne Washington",
+      "position": "RB",
+      "team": "DEN",
+      "games": 13,
+      "offSnaps": 1,
+      "teamOffSnaps": 811,
+      "offPct": 0.001
+    },
+    "3423": {
+      "pfrId": "AndeRo04",
+      "name": "Robbie Chosen",
+      "position": "WR",
+      "team": "MIA",
+      "games": 9,
+      "offSnaps": 135,
+      "teamOffSnaps": 576,
+      "offPct": 0.234
+    },
+    "3433": {
+      "pfrId": "EricAl01",
+      "name": "Alex Erickson",
+      "position": "WR",
+      "team": "LAC",
+      "games": 8,
+      "offSnaps": 329,
+      "teamOffSnaps": 543,
+      "offPct": 0.606
+    },
+    "3496": {
+      "pfrId": "AndeSt01",
+      "name": "Stephen Anderson",
+      "position": "TE",
+      "team": "LAC",
+      "games": 3,
+      "offSnaps": 4,
+      "teamOffSnaps": 194,
+      "offPct": 0.021
+    },
+    "3634": {
+      "pfrId": "RaymKa00",
+      "name": "Kalif Raymond",
+      "position": "WR",
+      "team": "DET",
+      "games": 17,
+      "offSnaps": 348,
+      "teamOffSnaps": 1178,
+      "offPct": 0.295
+    },
+    "3695": {
+      "pfrId": "HoltJ.01",
+      "name": "J.P. Holtz",
+      "position": "TE",
+      "team": "NO",
+      "games": 1,
+      "offSnaps": 1,
+      "teamOffSnaps": 82,
+      "offPct": 0.012
+    },
+    "3832": {
+      "pfrId": "HamxC.00",
+      "name": "C.J. Ham",
+      "position": "FB",
+      "team": "MIN",
+      "games": 17,
+      "offSnaps": 216,
+      "teamOffSnaps": 1121,
+      "offPct": 0.193
+    },
+    "3969": {
+      "pfrId": "FourLe00",
+      "name": "Leonard Fournette",
+      "position": "RB",
+      "team": "BUF",
+      "games": 2,
+      "offSnaps": 26,
+      "teamOffSnaps": 133,
+      "offPct": 0.195
+    },
+    "3976": {
+      "pfrId": "TrubMi00",
+      "name": "Mitchell Trubisky",
+      "position": "QB",
+      "team": "PIT",
+      "games": 5,
+      "offSnaps": 202,
+      "teamOffSnaps": 315,
+      "offPct": 0.641
+    },
+    "4017": {
+      "pfrId": "WatsDe00",
+      "name": "Deshaun Watson",
+      "position": "QB",
+      "team": "CLE",
+      "games": 6,
+      "offSnaps": 383,
+      "teamOffSnaps": 458,
+      "offPct": 0.836
+    },
+    "4018": {
+      "pfrId": "MixoJo00",
+      "name": "Joe Mixon",
+      "position": "RB",
+      "team": "CIN",
+      "games": 17,
+      "offSnaps": 752,
+      "teamOffSnaps": 1088,
+      "offPct": 0.691
+    },
+    "4029": {
+      "pfrId": "CookDa01",
+      "name": "Dalvin Cook",
+      "position": "RB",
+      "team": "NYJ",
+      "games": 15,
+      "offSnaps": 202,
+      "teamOffSnaps": 963,
+      "offPct": 0.21
+    },
+    "4033": {
+      "pfrId": "NjokDa00",
+      "name": "David Njoku",
+      "position": "TE",
+      "team": "CLE",
+      "games": 16,
+      "offSnaps": 970,
+      "teamOffSnaps": 1187,
+      "offPct": 0.817
+    },
+    "4034": {
+      "pfrId": "McCaCh01",
+      "name": "Christian McCaffrey",
+      "position": "RB",
+      "team": "SF",
+      "games": 16,
+      "offSnaps": 812,
+      "teamOffSnaps": 1005,
+      "offPct": 0.808
+    },
+    "4035": {
+      "pfrId": "KamaAl00",
+      "name": "Alvin Kamara",
+      "position": "RB",
+      "team": "NO",
+      "games": 13,
+      "offSnaps": 558,
+      "teamOffSnaps": 888,
+      "offPct": 0.628
+    },
+    "4037": {
+      "pfrId": "GodwCh00",
+      "name": "Chris Godwin",
+      "position": "WR",
+      "team": "TB",
+      "games": 17,
+      "offSnaps": 892,
+      "teamOffSnaps": 1103,
+      "offPct": 0.809
+    },
+    "4039": {
+      "pfrId": "KuppCo00",
+      "name": "Cooper Kupp",
+      "position": "WR",
+      "team": "LA",
+      "games": 12,
+      "offSnaps": 710,
+      "teamOffSnaps": 783,
+      "offPct": 0.907
+    },
+    "4040": {
+      "pfrId": "SmitJu00",
+      "name": "JuJu Smith-Schuster",
+      "position": "WR",
+      "team": "NE",
+      "games": 11,
+      "offSnaps": 461,
+      "teamOffSnaps": 710,
+      "offPct": 0.649
+    },
+    "4046": {
+      "pfrId": "MahoPa00",
+      "name": "Patrick Mahomes",
+      "position": "QB",
+      "team": "KC",
+      "games": 16,
+      "offSnaps": 1051,
+      "teamOffSnaps": 1072,
+      "offPct": 0.98
+    },
+    "4054": {
+      "pfrId": "AlieMo00",
+      "name": "Mo Alie-Cox",
+      "position": "TE",
+      "team": "IND",
+      "games": 17,
+      "offSnaps": 434,
+      "teamOffSnaps": 1148,
+      "offPct": 0.378
+    },
+    "4066": {
+      "pfrId": "EngrEv00",
+      "name": "Evan Engram",
+      "position": "TE",
+      "team": "JAX",
+      "games": 17,
+      "offSnaps": 917,
+      "teamOffSnaps": 1166,
+      "offPct": 0.786
+    },
+    "4068": {
+      "pfrId": "WillMi07",
+      "name": "Mike Williams",
+      "position": "WR",
+      "team": "LAC",
+      "games": 3,
+      "offSnaps": 167,
+      "teamOffSnaps": 215,
+      "offPct": 0.777
+    },
+    "4080": {
+      "pfrId": "JoneZa00",
+      "name": "Zay Jones",
+      "position": "WR",
+      "team": "JAX",
+      "games": 9,
+      "offSnaps": 475,
+      "teamOffSnaps": 650,
+      "offPct": 0.731
+    },
+    "4082": {
+      "pfrId": "SamuCu00",
+      "name": "Curtis Samuel",
+      "position": "WR",
+      "team": "WAS",
+      "games": 16,
+      "offSnaps": 571,
+      "teamOffSnaps": 1029,
+      "offPct": 0.555
+    },
+    "4089": {
+      "pfrId": "EverGe00",
+      "name": "Gerald Everett",
+      "position": "TE",
+      "team": "LAC",
+      "games": 15,
+      "offSnaps": 572,
+      "teamOffSnaps": 1024,
+      "offPct": 0.559
+    },
+    "4098": {
+      "pfrId": "HuntKa00",
+      "name": "Kareem Hunt",
+      "position": "RB",
+      "team": "CLE",
+      "games": 15,
+      "offSnaps": 339,
+      "teamOffSnaps": 1079,
+      "offPct": 0.314
+    },
+    "4111": {
+      "pfrId": "ForeDO00",
+      "name": "D'Onta Foreman",
+      "position": "RB",
+      "team": "CHI",
+      "games": 9,
+      "offSnaps": 269,
+      "teamOffSnaps": 636,
+      "offPct": 0.423
+    },
+    "4127": {
+      "pfrId": "BeatC.00",
+      "name": "C.J. Beathard",
+      "position": "QB",
+      "team": "JAX",
+      "games": 7,
+      "offSnaps": 113,
+      "teamOffSnaps": 463,
+      "offPct": 0.244
+    },
+    "4137": {
+      "pfrId": "ConnJa00",
+      "name": "James Conner",
+      "position": "RB",
+      "team": "ARI",
+      "games": 13,
+      "offSnaps": 533,
+      "teamOffSnaps": 862,
+      "offPct": 0.618
+    },
+    "4144": {
+      "pfrId": "SmitJo01",
+      "name": "Jonnu Smith",
+      "position": "TE",
+      "team": "ATL",
+      "games": 17,
+      "offSnaps": 653,
+      "teamOffSnaps": 1130,
+      "offPct": 0.578
+    },
+    "4147": {
+      "pfrId": "PeriSa00",
+      "name": "Samaje Perine",
+      "position": "RB",
+      "team": "DEN",
+      "games": 17,
+      "offSnaps": 360,
+      "teamOffSnaps": 1072,
+      "offPct": 0.336
+    },
+    "4149": {
+      "pfrId": "WillJa06",
+      "name": "Jamaal Williams",
+      "position": "RB",
+      "team": "NO",
+      "games": 13,
+      "offSnaps": 324,
+      "teamOffSnaps": 878,
+      "offPct": 0.369
+    },
+    "4171": {
+      "pfrId": "ReynJo00",
+      "name": "Josh Reynolds",
+      "position": "WR",
+      "team": "DET",
+      "games": 17,
+      "offSnaps": 832,
+      "teamOffSnaps": 1178,
+      "offPct": 0.706
+    },
+    "4177": {
+      "pfrId": "HollMa00",
+      "name": "Mack Hollins",
+      "position": "WR",
+      "team": "ATL",
+      "games": 13,
+      "offSnaps": 345,
+      "teamOffSnaps": 877,
+      "offPct": 0.393
+    },
+    "4179": {
+      "pfrId": "DobbJo00",
+      "name": "Joshua Dobbs",
+      "position": "QB",
+      "team": "ARI",
+      "games": 13,
+      "offSnaps": 854,
+      "teamOffSnaps": 884,
+      "offPct": 0.966,
+      "traded": true,
+      "teams": [
+        "ARI",
+        "MIN"
+      ]
+    },
+    "4183": {
+      "pfrId": "PeteNa00",
+      "name": "Nathan Peterman",
+      "position": "QB",
+      "team": "CHI",
+      "games": 2,
+      "offSnaps": 4,
+      "teamOffSnaps": 119,
+      "offPct": 0.034
+    },
+    "4189": {
+      "pfrId": "SaubEr00",
+      "name": "Eric Saubert",
+      "position": "TE",
+      "team": "HOU",
+      "games": 10,
+      "offSnaps": 117,
+      "teamOffSnaps": 665,
+      "offPct": 0.176,
+      "traded": true,
+      "teams": [
+        "HOU",
+        "DAL"
+      ]
+    },
+    "4197": {
+      "pfrId": "McKeIs00",
+      "name": "Isaiah McKenzie",
+      "position": "WR",
+      "team": "IND",
+      "games": 13,
+      "offSnaps": 117,
+      "teamOffSnaps": 888,
+      "offPct": 0.132
+    },
+    "4198": {
+      "pfrId": "AgneJa00",
+      "name": "Jamal Agnew",
+      "position": "WR",
+      "team": "JAX",
+      "games": 11,
+      "offSnaps": 201,
+      "teamOffSnaps": 737,
+      "offPct": 0.273
+    },
+    "4199": {
+      "pfrId": "JoneAa00",
+      "name": "Aaron Jones",
+      "position": "RB",
+      "team": "GB",
+      "games": 11,
+      "offSnaps": 354,
+      "teamOffSnaps": 721,
+      "offPct": 0.491
+    },
+    "4217": {
+      "pfrId": "KittGe00",
+      "name": "George Kittle",
+      "position": "TE",
+      "team": "SF",
+      "games": 16,
+      "offSnaps": 895,
+      "teamOffSnaps": 1005,
+      "offPct": 0.891
+    },
+    "4218": {
+      "pfrId": "TaylTr02",
+      "name": "Trent Taylor",
+      "position": "WR",
+      "team": "CHI",
+      "games": 17,
+      "offSnaps": 123,
+      "teamOffSnaps": 1138,
+      "offPct": 0.108
+    },
+    "4219": {
+      "pfrId": "McNiJe00",
+      "name": "Jeremy McNichols",
+      "position": "RB",
+      "team": "SF",
+      "games": 3,
+      "offSnaps": 0,
+      "teamOffSnaps": 185,
+      "offPct": 0
+    },
+    "4226": {
+      "pfrId": "ArmaAl00",
+      "name": "Alex Armah",
+      "position": "RB",
+      "team": "WAS",
+      "games": 8,
+      "offSnaps": 47,
+      "teamOffSnaps": 481,
+      "offPct": 0.098
+    },
+    "4234": {
+      "pfrId": "BrowNo00",
+      "name": "Noah Brown",
+      "position": "WR",
+      "team": "HOU",
+      "games": 10,
+      "offSnaps": 463,
+      "teamOffSnaps": 682,
+      "offPct": 0.679
+    },
+    "4274": {
+      "pfrId": "MoorDa03",
+      "name": "David Moore",
+      "position": "WR",
+      "team": "TB",
+      "games": 7,
+      "offSnaps": 105,
+      "teamOffSnaps": 447,
+      "offPct": 0.235
+    },
+    "4314": {
+      "pfrId": "MundJo00",
+      "name": "Johnny Mundt",
+      "position": "TE",
+      "team": "MIN",
+      "games": 17,
+      "offSnaps": 223,
+      "teamOffSnaps": 1121,
+      "offPct": 0.199
+    },
+    "4319": {
+      "pfrId": "PascZa00",
+      "name": "Zach Pascal",
+      "position": "WR",
+      "team": "ARI",
+      "games": 14,
+      "offSnaps": 202,
+      "teamOffSnaps": 938,
+      "offPct": 0.215
+    },
+    "4323": {
+      "pfrId": "DaniDa02",
+      "name": "Darrell Daniels",
+      "position": "TE",
+      "team": "DET",
+      "games": 3,
+      "offSnaps": 22,
+      "teamOffSnaps": 205,
+      "offPct": 0.107
+    },
+    "4335": {
+      "pfrId": "WalkPh00",
+      "name": "P.J. Walker",
+      "position": "QB",
+      "team": "CLE",
+      "games": 6,
+      "offSnaps": 243,
+      "teamOffSnaps": 453,
+      "offPct": 0.536
+    },
+    "4353": {
+      "pfrId": "RicaPa00",
+      "name": "Patrick Ricard",
+      "position": "FB",
+      "team": "BAL",
+      "games": 17,
+      "offSnaps": 443,
+      "teamOffSnaps": 1126,
+      "offPct": 0.393
+    },
+    "4381": {
+      "pfrId": "HillTa00",
+      "name": "Taysom Hill",
+      "position": "QB",
+      "team": "NO",
+      "games": 16,
+      "offSnaps": 425,
+      "teamOffSnaps": 1106,
+      "offPct": 0.384
+    },
+    "4435": {
+      "pfrId": "FirkAn00",
+      "name": "Anthony Firkser",
+      "position": "TE",
+      "team": "DET",
+      "games": 2,
+      "offSnaps": 2,
+      "teamOffSnaps": 148,
+      "offPct": 0.014
+    },
+    "4443": {
+      "pfrId": "BrowPh01",
+      "name": "Pharaoh Brown",
+      "position": "TE",
+      "team": "NE",
+      "games": 17,
+      "offSnaps": 399,
+      "teamOffSnaps": 1051,
+      "offPct": 0.38
+    },
+    "4454": {
+      "pfrId": "BourKe00",
+      "name": "Kendrick Bourne",
+      "position": "WR",
+      "team": "NE",
+      "games": 8,
+      "offSnaps": 371,
+      "teamOffSnaps": 508,
+      "offPct": 0.73
+    },
+    "4455": {
+      "pfrId": "BreiMa00",
+      "name": "Matt Breida",
+      "position": "RB",
+      "team": "NYG",
+      "games": 17,
+      "offSnaps": 288,
+      "teamOffSnaps": 1104,
+      "offPct": 0.261
+    },
+    "4464": {
+      "pfrId": "MullNi00",
+      "name": "Nick Mullens",
+      "position": "QB",
+      "team": "MIN",
+      "games": 5,
+      "offSnaps": 244,
+      "teamOffSnaps": 321,
+      "offPct": 0.76
+    },
+    "4574": {
+      "pfrId": "RushCo00",
+      "name": "Cooper Rush",
+      "position": "QB",
+      "team": "DAL",
+      "games": 7,
+      "offSnaps": 69,
+      "teamOffSnaps": 464,
+      "offPct": 0.149
+    },
+    "4602": {
+      "pfrId": "TonyRo00",
+      "name": "Robert Tonyan",
+      "position": "TE",
+      "team": "CHI",
+      "games": 17,
+      "offSnaps": 323,
+      "teamOffSnaps": 1138,
+      "offPct": 0.284
+    },
+    "4651": {
+      "pfrId": "ClemCo00",
+      "name": "Corey Clement",
+      "position": "RB",
+      "team": "ARI",
+      "games": 3,
+      "offSnaps": 0,
+      "teamOffSnaps": 180,
+      "offPct": 0
+    },
+    "4663": {
+      "pfrId": "EkelAu00",
+      "name": "Austin Ekeler",
+      "position": "RB",
+      "team": "LAC",
+      "games": 14,
+      "offSnaps": 630,
+      "teamOffSnaps": 959,
+      "offPct": 0.657
+    },
+    "4718": {
+      "pfrId": "OgunDa00",
+      "name": "Dare Ogunbowale",
+      "position": "RB",
+      "team": "HOU",
+      "games": 12,
+      "offSnaps": 108,
+      "teamOffSnaps": 809,
+      "offPct": 0.133
+    },
+    "4854": {
+      "pfrId": "CracRi00",
+      "name": "River Cracraft",
+      "position": "WR",
+      "team": "MIA",
+      "games": 10,
+      "offSnaps": 185,
+      "teamOffSnaps": 658,
+      "offPct": 0.281
+    },
+    "4866": {
+      "pfrId": "BarkSa00",
+      "name": "Saquon Barkley",
+      "position": "RB",
+      "team": "NYG",
+      "games": 14,
+      "offSnaps": 717,
+      "teamOffSnaps": 907,
+      "offPct": 0.791
+    },
+    "4881": {
+      "pfrId": "JackLa00",
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "team": "BAL",
+      "games": 16,
+      "offSnaps": 1040,
+      "teamOffSnaps": 1069,
+      "offPct": 0.973
+    },
+    "4892": {
+      "pfrId": "MayfBa00",
+      "name": "Baker Mayfield",
+      "position": "QB",
+      "team": "TB",
+      "games": 17,
+      "offSnaps": 1100,
+      "teamOffSnaps": 1103,
+      "offPct": 0.997
+    },
+    "4943": {
+      "pfrId": "DarnSa00",
+      "name": "Sam Darnold",
+      "position": "QB",
+      "team": "SF",
+      "games": 10,
+      "offSnaps": 130,
+      "teamOffSnaps": 655,
+      "offPct": 0.198
+    },
+    "4950": {
+      "pfrId": "KirkCh01",
+      "name": "Christian Kirk",
+      "position": "WR",
+      "team": "JAX",
+      "games": 12,
+      "offSnaps": 585,
+      "teamOffSnaps": 828,
+      "offPct": 0.707
+    },
+    "4951": {
+      "pfrId": "CharDJ00",
+      "name": "DJ Chark",
+      "position": "WR",
+      "team": "CAR",
+      "games": 15,
+      "offSnaps": 771,
+      "teamOffSnaps": 1012,
+      "offPct": 0.762
+    },
+    "4972": {
+      "pfrId": "RudoMa00",
+      "name": "Mason Rudolph",
+      "position": "QB",
+      "team": "PIT",
+      "games": 4,
+      "offSnaps": 199,
+      "teamOffSnaps": 251,
+      "offPct": 0.793
+    },
+    "4973": {
+      "pfrId": "HursHa00",
+      "name": "Hayden Hurst",
+      "position": "TE",
+      "team": "CAR",
+      "games": 9,
+      "offSnaps": 318,
+      "teamOffSnaps": 626,
+      "offPct": 0.508
+    },
+    "4981": {
+      "pfrId": "RidlCa00",
+      "name": "Calvin Ridley",
+      "position": "WR",
+      "team": "JAX",
+      "games": 17,
+      "offSnaps": 993,
+      "teamOffSnaps": 1166,
+      "offPct": 0.852
+    },
+    "4983": {
+      "pfrId": "MoorD.00",
+      "name": "D.J. Moore",
+      "position": "WR",
+      "team": "CHI",
+      "games": 17,
+      "offSnaps": 1029,
+      "teamOffSnaps": 1138,
+      "offPct": 0.904
+    },
+    "4984": {
+      "pfrId": "AlleJo02",
+      "name": "Josh Allen",
+      "position": "QB",
+      "team": "BUF",
+      "games": 17,
+      "offSnaps": 1126,
+      "teamOffSnaps": 1164,
+      "offPct": 0.967
+    },
+    "4985": {
+      "pfrId": "PennRa00",
+      "name": "Rashaad Penny",
+      "position": "RB",
+      "team": "PHI",
+      "games": 3,
+      "offSnaps": 31,
+      "teamOffSnaps": 204,
+      "offPct": 0.152
+    },
+    "4988": {
+      "pfrId": "ChubNi00",
+      "name": "Nick Chubb",
+      "position": "RB",
+      "team": "CLE",
+      "games": 2,
+      "offSnaps": 54,
+      "teamOffSnaps": 161,
+      "offPct": 0.335
+    },
+    "4993": {
+      "pfrId": "GesiMi00",
+      "name": "Mike Gesicki",
+      "position": "TE",
+      "team": "NE",
+      "games": 17,
+      "offSnaps": 530,
+      "teamOffSnaps": 1051,
+      "offPct": 0.504
+    },
+    "4995": {
+      "pfrId": "ThomIa00",
+      "name": "Ian Thomas",
+      "position": "TE",
+      "team": "CAR",
+      "games": 12,
+      "offSnaps": 216,
+      "teamOffSnaps": 816,
+      "offPct": 0.265
+    },
+    "5000": {
+      "pfrId": "EdmoCh00",
+      "name": "Chase Edmonds",
+      "position": "RB",
+      "team": "TB",
+      "games": 13,
+      "offSnaps": 156,
+      "teamOffSnaps": 856,
+      "offPct": 0.182
+    },
+    "5001": {
+      "pfrId": "SchuDa00",
+      "name": "Dalton Schultz",
+      "position": "TE",
+      "team": "HOU",
+      "games": 15,
+      "offSnaps": 739,
+      "teamOffSnaps": 1010,
+      "offPct": 0.732
+    },
+    "5008": {
+      "pfrId": "SmytDu00",
+      "name": "Durham Smythe",
+      "position": "TE",
+      "team": "MIA",
+      "games": 16,
+      "offSnaps": 785,
+      "teamOffSnaps": 1028,
+      "offPct": 0.764
+    },
+    "5010": {
+      "pfrId": "DissWi00",
+      "name": "Will Dissly",
+      "position": "TE",
+      "team": "SEA",
+      "games": 16,
+      "offSnaps": 380,
+      "teamOffSnaps": 976,
+      "offPct": 0.389
+    },
+    "5012": {
+      "pfrId": "AndrMa00",
+      "name": "Mark Andrews",
+      "position": "TE",
+      "team": "BAL",
+      "games": 10,
+      "offSnaps": 467,
+      "teamOffSnaps": 667,
+      "offPct": 0.7
+    },
+    "5022": {
+      "pfrId": "GoedDa00",
+      "name": "Dallas Goedert",
+      "position": "TE",
+      "team": "PHI",
+      "games": 14,
+      "offSnaps": 809,
+      "teamOffSnaps": 953,
+      "offPct": 0.849
+    },
+    "5026": {
+      "pfrId": "SmitTr03",
+      "name": "Tre'Quan Smith",
+      "position": "WR",
+      "team": "DEN",
+      "games": 1,
+      "offSnaps": 10,
+      "teamOffSnaps": 71,
+      "offPct": 0.141
+    },
+    "5032": {
+      "pfrId": "AkinJo00",
+      "name": "Jordan Akins",
+      "position": "TE",
+      "team": "CLE",
+      "games": 17,
+      "offSnaps": 231,
+      "teamOffSnaps": 1240,
+      "offPct": 0.186
+    },
+    "5038": {
+      "pfrId": "GallMi00",
+      "name": "Michael Gallup",
+      "position": "WR",
+      "team": "DAL",
+      "games": 17,
+      "offSnaps": 612,
+      "teamOffSnaps": 1184,
+      "offPct": 0.517
+    },
+    "5045": {
+      "pfrId": "SuttCo00",
+      "name": "Courtland Sutton",
+      "position": "WR",
+      "team": "DEN",
+      "games": 16,
+      "offSnaps": 782,
+      "teamOffSnaps": 1003,
+      "offPct": 0.78
+    },
+    "5046": {
+      "pfrId": "FreeRo00",
+      "name": "Royce Freeman",
+      "position": "RB",
+      "team": "LA",
+      "games": 14,
+      "offSnaps": 207,
+      "teamOffSnaps": 954,
+      "offPct": 0.217
+    },
+    "5086": {
+      "pfrId": "ValdMa00",
+      "name": "Marquez Valdes-Scantling",
+      "position": "WR",
+      "team": "KC",
+      "games": 16,
+      "offSnaps": 618,
+      "teamOffSnaps": 1072,
+      "offPct": 0.576
+    },
+    "5089": {
+      "pfrId": "WhitMi01",
+      "name": "Mike White",
+      "position": "QB",
+      "team": "MIA",
+      "games": 6,
+      "offSnaps": 53,
+      "teamOffSnaps": 401,
+      "offPct": 0.132
+    },
+    "5096": {
+      "pfrId": "McClRa00",
+      "name": "Ray-Ray McCloud",
+      "position": "WR",
+      "team": "SF",
+      "games": 12,
+      "offSnaps": 209,
+      "teamOffSnaps": 757,
+      "offPct": 0.276
+    },
+    "5113": {
+      "pfrId": "WilsCe01",
+      "name": "Cedrick Wilson Jr.",
+      "position": "WR",
+      "team": "MIA",
+      "games": 15,
+      "offSnaps": 545,
+      "teamOffSnaps": 968,
+      "offPct": 0.563
+    },
+    "5116": {
+      "pfrId": "BawdNi00",
+      "name": "Nick Bawden",
+      "position": "FB",
+      "team": "NYJ",
+      "games": 16,
+      "offSnaps": 127,
+      "teamOffSnaps": 1011,
+      "offPct": 0.126
+    },
+    "5121": {
+      "pfrId": "BerrBr00",
+      "name": "Braxton Berrios",
+      "position": "WR",
+      "team": "MIA",
+      "games": 16,
+      "offSnaps": 456,
+      "teamOffSnaps": 1028,
+      "offPct": 0.444
+    },
+    "5122": {
+      "pfrId": "ScotBo02",
+      "name": "Boston Scott",
+      "position": "RB",
+      "team": "PHI",
+      "games": 15,
+      "offSnaps": 68,
+      "teamOffSnaps": 1005,
+      "offPct": 0.068
+    },
+    "5127": {
+      "pfrId": "AlleKy00",
+      "name": "Kyle Allen",
+      "position": "QB",
+      "team": "BUF",
+      "games": 7,
+      "offSnaps": 38,
+      "teamOffSnaps": 478,
+      "offPct": 0.079
+    },
+    "5128": {
+      "pfrId": "WoodLo00",
+      "name": "Logan Woodside",
+      "position": "QB",
+      "team": "ATL",
+      "games": 1,
+      "offSnaps": 10,
+      "teamOffSnaps": 61,
+      "offPct": 0.164
+    },
+    "5133": {
+      "pfrId": "ConkTy00",
+      "name": "Tyler Conklin",
+      "position": "TE",
+      "team": "NYJ",
+      "games": 17,
+      "offSnaps": 772,
+      "teamOffSnaps": 1101,
+      "offPct": 0.701
+    },
+    "5134": {
+      "pfrId": "KirkKe00",
+      "name": "Keith Kirkwood",
+      "position": "WR",
+      "team": "NO",
+      "games": 13,
+      "offSnaps": 236,
+      "teamOffSnaps": 895,
+      "offPct": 0.264
+    },
+    "5137": {
+      "pfrId": "JameRi00",
+      "name": "Richie James",
+      "position": "WR",
+      "team": "KC",
+      "games": 9,
+      "offSnaps": 137,
+      "teamOffSnaps": 578,
+      "offPct": 0.237
+    },
+    "5154": {
+      "pfrId": "SherTr00",
+      "name": "Trent Sherfield",
+      "position": "WR",
+      "team": "BUF",
+      "games": 17,
+      "offSnaps": 392,
+      "teamOffSnaps": 1164,
+      "offPct": 0.337
+    },
+    "5171": {
+      "pfrId": "RadeKe00",
+      "name": "Kevin Rader",
+      "position": "TE",
+      "team": "TEN",
+      "games": 14,
+      "offSnaps": 146,
+      "teamOffSnaps": 874,
+      "offPct": 0.167
+    },
+    "5185": {
+      "pfrId": "LazaAl00",
+      "name": "Allen Lazard",
+      "position": "WR",
+      "team": "NYJ",
+      "games": 14,
+      "offSnaps": 685,
+      "teamOffSnaps": 905,
+      "offPct": 0.757
+    },
+    "5199": {
+      "pfrId": "PrinBy00",
+      "name": "Byron Pringle",
+      "position": "WR",
+      "team": "WAS",
+      "games": 17,
+      "offSnaps": 183,
+      "teamOffSnaps": 1107,
+      "offPct": 0.165
+    },
+    "5209": {
+      "pfrId": "BoonMi00",
+      "name": "Mike Boone",
+      "position": "RB",
+      "team": "HOU",
+      "games": 9,
+      "offSnaps": 102,
+      "teamOffSnaps": 597,
+      "offPct": 0.171
+    },
+    "5220": {
+      "pfrId": "IgweGo00",
+      "name": "Godwin Igwebuike",
+      "position": "RB",
+      "team": "ATL",
+      "games": 12,
+      "offSnaps": 2,
+      "teamOffSnaps": 778,
+      "offPct": 0.003,
+      "traded": true,
+      "teams": [
+        "ATL",
+        "PIT"
+      ]
+    },
+    "5235": {
+      "pfrId": "WellDa00",
+      "name": "David Wells",
+      "position": "TE",
+      "team": "TB",
+      "games": 5,
+      "offSnaps": 43,
+      "teamOffSnaps": 313,
+      "offPct": 0.137
+    },
+    "5248": {
+      "pfrId": "EdwaGu00",
+      "name": "Gus Edwards",
+      "position": "RB",
+      "team": "BAL",
+      "games": 17,
+      "offSnaps": 470,
+      "teamOffSnaps": 1126,
+      "offPct": 0.417
+    },
+    "5257": {
+      "pfrId": "BoylTi00",
+      "name": "Tim Boyle",
+      "position": "QB",
+      "team": "NYJ",
+      "games": 3,
+      "offSnaps": 122,
+      "teamOffSnaps": 183,
+      "offPct": 0.667
+    },
+    "5284": {
+      "pfrId": "WilsJe01",
+      "name": "Jeff Wilson",
+      "position": "RB",
+      "team": "MIA",
+      "games": 10,
+      "offSnaps": 148,
+      "teamOffSnaps": 639,
+      "offPct": 0.232
+    },
+    "5285": {
+      "pfrId": "DwelRo00",
+      "name": "Ross Dwelley",
+      "position": "TE",
+      "team": "SF",
+      "games": 12,
+      "offSnaps": 76,
+      "teamOffSnaps": 755,
+      "offPct": 0.101
+    },
+    "5323": {
+      "pfrId": "St.BEq00",
+      "name": "Equanimeous St. Brown",
+      "position": "WR",
+      "team": "CHI",
+      "games": 7,
+      "offSnaps": 213,
+      "teamOffSnaps": 475,
+      "offPct": 0.448
+    },
+    "5374": {
+      "pfrId": "WatsJu01",
+      "name": "Justin Watson",
+      "position": "WR",
+      "team": "KC",
+      "games": 16,
+      "offSnaps": 536,
+      "teamOffSnaps": 1062,
+      "offPct": 0.505
+    },
+    "5409": {
+      "pfrId": "HudsTa00",
+      "name": "Tanner Hudson",
+      "position": "TE",
+      "team": "CIN",
+      "games": 12,
+      "offSnaps": 276,
+      "teamOffSnaps": 773,
+      "offPct": 0.357
+    },
+    "5565": {
+      "pfrId": "CabiJa00",
+      "name": "Jason Cabinda",
+      "position": "FB",
+      "team": "DET",
+      "games": 4,
+      "offSnaps": 31,
+      "teamOffSnaps": 263,
+      "offPct": 0.118
+    },
+    "5695": {
+      "pfrId": "PoweBr00",
+      "name": "Brandon Powell",
+      "position": "WR",
+      "team": "MIN",
+      "games": 17,
+      "offSnaps": 407,
+      "teamOffSnaps": 1121,
+      "offPct": 0.363
+    },
+    "5773": {
+      "pfrId": "HodgKh00",
+      "name": "KhaDarel Hodge",
+      "position": "WR",
+      "team": "ATL",
+      "games": 17,
+      "offSnaps": 370,
+      "teamOffSnaps": 1130,
+      "offPct": 0.327
+    },
+    "5844": {
+      "pfrId": "HockTJ00",
+      "name": "T.J. Hockenson",
+      "position": "TE",
+      "team": "MIN",
+      "games": 15,
+      "offSnaps": 790,
+      "teamOffSnaps": 995,
+      "offPct": 0.794
+    },
+    "5846": {
+      "pfrId": "MetcDK00",
+      "name": "D.K. Metcalf",
+      "position": "WR",
+      "team": "SEA",
+      "games": 16,
+      "offSnaps": 831,
+      "teamOffSnaps": 991,
+      "offPct": 0.839
+    },
+    "5848": {
+      "pfrId": "BrowMa04",
+      "name": "Marquise Brown",
+      "position": "WR",
+      "team": "ARI",
+      "games": 14,
+      "offSnaps": 784,
+      "teamOffSnaps": 926,
+      "offPct": 0.847
+    },
+    "5849": {
+      "pfrId": "MurrKy00",
+      "name": "Kyler Murray",
+      "position": "QB",
+      "team": "ARI",
+      "games": 8,
+      "offSnaps": 538,
+      "teamOffSnaps": 546,
+      "offPct": 0.985
+    },
+    "5850": {
+      "pfrId": "JacoJo01",
+      "name": "Josh Jacobs",
+      "position": "RB",
+      "team": "LV",
+      "games": 13,
+      "offSnaps": 600,
+      "teamOffSnaps": 786,
+      "offPct": 0.763
+    },
+    "5854": {
+      "pfrId": "LockDr00",
+      "name": "Drew Lock",
+      "position": "QB",
+      "team": "SEA",
+      "games": 4,
+      "offSnaps": 145,
+      "teamOffSnaps": 240,
+      "offPct": 0.604
+    },
+    "5857": {
+      "pfrId": "FantNo00",
+      "name": "Noah Fant",
+      "position": "TE",
+      "team": "SEA",
+      "games": 17,
+      "offSnaps": 574,
+      "teamOffSnaps": 1051,
+      "offPct": 0.546
+    },
+    "5859": {
+      "pfrId": "BrowAJ00",
+      "name": "A.J. Brown",
+      "position": "WR",
+      "team": "PHI",
+      "games": 17,
+      "offSnaps": 1019,
+      "teamOffSnaps": 1147,
+      "offPct": 0.888
+    },
+    "5870": {
+      "pfrId": "JoneDa05",
+      "name": "Daniel Jones",
+      "position": "QB",
+      "team": "NYG",
+      "games": 6,
+      "offSnaps": 325,
+      "teamOffSnaps": 398,
+      "offPct": 0.817
+    },
+    "5872": {
+      "pfrId": "SamuDe00",
+      "name": "Deebo Samuel",
+      "position": "WR",
+      "team": "SF",
+      "games": 15,
+      "offSnaps": 708,
+      "teamOffSnaps": 954,
+      "offPct": 0.742
+    },
+    "5878": {
+      "pfrId": "HarrNK00",
+      "name": "N'Keal Harry",
+      "position": "WR",
+      "team": "MIN",
+      "games": 9,
+      "offSnaps": 23,
+      "teamOffSnaps": 596,
+      "offPct": 0.039
+    },
+    "5880": {
+      "pfrId": "CampPa00",
+      "name": "Parris Campbell",
+      "position": "WR",
+      "team": "NYG",
+      "games": 12,
+      "offSnaps": 207,
+      "teamOffSnaps": 782,
+      "offPct": 0.265
+    },
+    "5890": {
+      "pfrId": "HarrDa06",
+      "name": "Damien Harris",
+      "position": "RB",
+      "team": "BUF",
+      "games": 6,
+      "offSnaps": 60,
+      "teamOffSnaps": 394,
+      "offPct": 0.152
+    },
+    "5892": {
+      "pfrId": "MontDa01",
+      "name": "David Montgomery",
+      "position": "RB",
+      "team": "DET",
+      "games": 14,
+      "offSnaps": 453,
+      "teamOffSnaps": 947,
+      "offPct": 0.478
+    },
+    "5906": {
+      "pfrId": "KnoxDa00",
+      "name": "Dawson Knox",
+      "position": "TE",
+      "team": "BUF",
+      "games": 12,
+      "offSnaps": 487,
+      "teamOffSnaps": 812,
+      "offPct": 0.6
+    },
+    "5915": {
+      "pfrId": "IsabAn00",
+      "name": "Andy Isabella",
+      "position": "WR",
+      "team": "BUF",
+      "games": 2,
+      "offSnaps": 2,
+      "teamOffSnaps": 164,
+      "offPct": 0.012
+    },
+    "5916": {
+      "pfrId": "HendDa00",
+      "name": "Darrell Henderson",
+      "position": "RB",
+      "team": "LA",
+      "games": 4,
+      "offSnaps": 126,
+      "teamOffSnaps": 255,
+      "offPct": 0.494
+    },
+    "5917": {
+      "pfrId": "HardMe00",
+      "name": "Mecole Hardman",
+      "position": "WR",
+      "team": "KC",
+      "games": 11,
+      "offSnaps": 153,
+      "teamOffSnaps": 668,
+      "offPct": 0.229,
+      "traded": true,
+      "teams": [
+        "KC",
+        "NYJ"
+      ]
+    },
+    "5927": {
+      "pfrId": "McLaTe00",
+      "name": "Terry McLaurin",
+      "position": "WR",
+      "team": "WAS",
+      "games": 17,
+      "offSnaps": 941,
+      "teamOffSnaps": 1107,
+      "offPct": 0.85
+    },
+    "5937": {
+      "pfrId": "JohnDi01",
+      "name": "Diontae Johnson",
+      "position": "WR",
+      "team": "PIT",
+      "games": 13,
+      "offSnaps": 590,
+      "teamOffSnaps": 830,
+      "offPct": 0.711
+    },
+    "5938": {
+      "pfrId": "HumpLi01",
+      "name": "Lil'Jordan Humphrey",
+      "position": "WR",
+      "team": "DEN",
+      "games": 17,
+      "offSnaps": 428,
+      "teamOffSnaps": 1072,
+      "offPct": 0.399
+    },
+    "5947": {
+      "pfrId": "MeyeJa01",
+      "name": "Jakobi Meyers",
+      "position": "WR",
+      "team": "LV",
+      "games": 16,
+      "offSnaps": 903,
+      "teamOffSnaps": 1006,
+      "offPct": 0.898
+    },
+    "5955": {
+      "pfrId": "RenfHu00",
+      "name": "Hunter Renfrow",
+      "position": "WR",
+      "team": "LV",
+      "games": 17,
+      "offSnaps": 363,
+      "teamOffSnaps": 1046,
+      "offPct": 0.347
+    },
+    "5965": {
+      "pfrId": "BoykMi00",
+      "name": "Miles Boykin",
+      "position": "WR",
+      "team": "PIT",
+      "games": 17,
+      "offSnaps": 121,
+      "teamOffSnaps": 1071,
+      "offPct": 0.113
+    },
+    "5967": {
+      "pfrId": "PollTo00",
+      "name": "Tony Pollard",
+      "position": "RB",
+      "team": "DAL",
+      "games": 17,
+      "offSnaps": 836,
+      "teamOffSnaps": 1184,
+      "offPct": 0.706
+    },
+    "5970": {
+      "pfrId": "DortGr01",
+      "name": "Greg Dortch",
+      "position": "WR",
+      "team": "ARI",
+      "games": 16,
+      "offSnaps": 397,
+      "teamOffSnaps": 1056,
+      "offPct": 0.376
+    },
+    "5973": {
+      "pfrId": "OlivJo00",
+      "name": "Josh Oliver",
+      "position": "TE",
+      "team": "MIN",
+      "games": 17,
+      "offSnaps": 466,
+      "teamOffSnaps": 1121,
+      "offPct": 0.416
+    },
+    "5980": {
+      "pfrId": "GaskMy00",
+      "name": "Myles Gaskin",
+      "position": "RB",
+      "team": "LA",
+      "games": 3,
+      "offSnaps": 0,
+      "teamOffSnaps": 188,
+      "offPct": 0,
+      "traded": true,
+      "teams": [
+        "LA",
+        "MIN"
+      ]
+    },
+    "5985": {
+      "pfrId": "MoreFo00",
+      "name": "Foster Moreau",
+      "position": "TE",
+      "team": "NO",
+      "games": 15,
+      "offSnaps": 549,
+      "teamOffSnaps": 1032,
+      "offPct": 0.532
+    },
+    "5987": {
+      "pfrId": "MattAl01",
+      "name": "Alexander Mattison",
+      "position": "RB",
+      "team": "MIN",
+      "games": 16,
+      "offSnaps": 579,
+      "teamOffSnaps": 1053,
+      "offPct": 0.55
+    },
+    "5995": {
+      "pfrId": "HillJu00",
+      "name": "Justice Hill",
+      "position": "RB",
+      "team": "BAL",
+      "games": 16,
+      "offSnaps": 436,
+      "teamOffSnaps": 1054,
+      "offPct": 0.414
+    },
+    "6001": {
+      "pfrId": "SampDr00",
+      "name": "Drew Sample",
+      "position": "TE",
+      "team": "CIN",
+      "games": 17,
+      "offSnaps": 497,
+      "teamOffSnaps": 1088,
+      "offPct": 0.457
+    },
+    "6002": {
+      "pfrId": "OlliQa00",
+      "name": "Qadree Ollison",
+      "position": "RB",
+      "team": "PIT",
+      "games": 1,
+      "offSnaps": 1,
+      "teamOffSnaps": 62,
+      "offPct": 0.016
+    },
+    "6011": {
+      "pfrId": "MinsGa00",
+      "name": "Gardner Minshew II",
+      "position": "QB",
+      "team": "IND",
+      "games": 17,
+      "offSnaps": 972,
+      "teamOffSnaps": 1148,
+      "offPct": 0.847
+    },
+    "6012": {
+      "pfrId": "HomeTr00",
+      "name": "Travis Homer",
+      "position": "RB",
+      "team": "CHI",
+      "games": 16,
+      "offSnaps": 6,
+      "teamOffSnaps": 1072,
+      "offPct": 0.006
+    },
+    "6018": {
+      "pfrId": "GentZa00",
+      "name": "Zach Gentry",
+      "position": "TE",
+      "team": "LV",
+      "games": 1,
+      "offSnaps": 18,
+      "teamOffSnaps": 66,
+      "offPct": 0.273
+    },
+    "6032": {
+      "pfrId": "DossKe00",
+      "name": "Keelan Doss",
+      "position": "WR",
+      "team": "LAC",
+      "games": 5,
+      "offSnaps": 98,
+      "teamOffSnaps": 349,
+      "offPct": 0.281
+    },
+    "6037": {
+      "pfrId": "RypiBr00",
+      "name": "Brett Rypien",
+      "position": "QB",
+      "team": "LA",
+      "games": 2,
+      "offSnaps": 78,
+      "teamOffSnaps": 120,
+      "offPct": 0.65
+    },
+    "6039": {
+      "pfrId": "JohnTy02",
+      "name": "Ty Johnson",
+      "position": "RB",
+      "team": "BUF",
+      "games": 10,
+      "offSnaps": 91,
+      "teamOffSnaps": 715,
+      "offPct": 0.127
+    },
+    "6040": {
+      "pfrId": "JackTy01",
+      "name": "Tyree Jackson",
+      "position": "TE",
+      "team": "NYG",
+      "games": 2,
+      "offSnaps": 18,
+      "teamOffSnaps": 112,
+      "offPct": 0.161
+    },
+    "6068": {
+      "pfrId": "OzigDe01",
+      "name": "Devine Ozigbo",
+      "position": "RB",
+      "team": "DET",
+      "games": 3,
+      "offSnaps": 8,
+      "teamOffSnaps": 231,
+      "offPct": 0.035
+    },
+    "6069": {
+      "pfrId": "MorgSt02",
+      "name": "Stanley Morgan Jr.",
+      "position": "WR",
+      "team": "CIN",
+      "games": 3,
+      "offSnaps": 4,
+      "teamOffSnaps": 198,
+      "offPct": 0.02
+    },
+    "6074": {
+      "pfrId": "ParhDo00",
+      "name": "Donald Parham",
+      "position": "TE",
+      "team": "LAC",
+      "games": 14,
+      "offSnaps": 460,
+      "teamOffSnaps": 958,
+      "offPct": 0.48
+    },
+    "6075": {
+      "pfrId": "HorsJe00",
+      "name": "Jesper Horsted",
+      "position": "TE",
+      "team": "LV",
+      "games": 13,
+      "offSnaps": 8,
+      "teamOffSnaps": 796,
+      "offPct": 0.01
+    },
+    "6109": {
+      "pfrId": "IngoAl01",
+      "name": "Alec Ingold",
+      "position": "FB",
+      "team": "MIA",
+      "games": 17,
+      "offSnaps": 413,
+      "teamOffSnaps": 1098,
+      "offPct": 0.376
+    },
+    "6111": {
+      "pfrId": "BrowJa08",
+      "name": "Jake Browning",
+      "position": "QB",
+      "team": "CIN",
+      "games": 9,
+      "offSnaps": 469,
+      "teamOffSnaps": 565,
+      "offPct": 0.83
+    },
+    "6126": {
+      "pfrId": "SmitIr01",
+      "name": "Irv Smith Jr.",
+      "position": "TE",
+      "team": "CIN",
+      "games": 12,
+      "offSnaps": 330,
+      "teamOffSnaps": 756,
+      "offPct": 0.437
+    },
+    "6130": {
+      "pfrId": "SingDe00",
+      "name": "Devin Singletary",
+      "position": "RB",
+      "team": "HOU",
+      "games": 17,
+      "offSnaps": 629,
+      "teamOffSnaps": 1134,
+      "offPct": 0.555
+    },
+    "6136": {
+      "pfrId": "StidJa00",
+      "name": "Jarrett Stidham",
+      "position": "QB",
+      "team": "DEN",
+      "games": 3,
+      "offSnaps": 134,
+      "teamOffSnaps": 194,
+      "offPct": 0.691
+    },
+    "6144": {
+      "pfrId": "WillTr06",
+      "name": "Trayveon Williams",
+      "position": "RB",
+      "team": "CIN",
+      "games": 17,
+      "offSnaps": 156,
+      "teamOffSnaps": 1088,
+      "offPct": 0.143
+    },
+    "6149": {
+      "pfrId": "SlayDa01",
+      "name": "Darius Slayton",
+      "position": "WR",
+      "team": "NYG",
+      "games": 17,
+      "offSnaps": 896,
+      "teamOffSnaps": 1104,
+      "offPct": 0.812
+    },
+    "6151": {
+      "pfrId": "SandMi01",
+      "name": "Miles Sanders",
+      "position": "RB",
+      "team": "CAR",
+      "games": 16,
+      "offSnaps": 406,
+      "teamOffSnaps": 1080,
+      "offPct": 0.376
+    },
+    "6154": {
+      "pfrId": "SillDa01",
+      "name": "David Sills",
+      "position": "WR",
+      "team": "DEN",
+      "games": 3,
+      "offSnaps": 16,
+      "teamOffSnaps": 197,
+      "offPct": 0.081
+    },
+    "6171": {
+      "pfrId": "ThomCo04",
+      "name": "Cody Thompson",
+      "position": "WR",
+      "team": "SEA",
+      "games": 7,
+      "offSnaps": 23,
+      "teamOffSnaps": 456,
+      "offPct": 0.05
+    },
+    "6181": {
+      "pfrId": "WescTr00",
+      "name": "Trevon Wesco",
+      "position": "TE",
+      "team": "TEN",
+      "games": 15,
+      "offSnaps": 424,
+      "teamOffSnaps": 929,
+      "offPct": 0.456
+    },
+    "6185": {
+      "pfrId": "SticEa00",
+      "name": "Easton Stick",
+      "position": "QB",
+      "team": "LAC",
+      "games": 5,
+      "offSnaps": 320,
+      "teamOffSnaps": 351,
+      "offPct": 0.912
+    },
+    "6202": {
+      "pfrId": "JohnJa12",
+      "name": "Jakob Johnson",
+      "position": "FB",
+      "team": "LV",
+      "games": 13,
+      "offSnaps": 186,
+      "teamOffSnaps": 803,
+      "offPct": 0.232
+    },
+    "6223": {
+      "pfrId": "WinfJu00",
+      "name": "Juwann Winfree",
+      "position": "WR",
+      "team": "IND",
+      "games": 8,
+      "offSnaps": 21,
+      "teamOffSnaps": 538,
+      "offPct": 0.039
+    },
+    "6233": {
+      "pfrId": "SokoMa00",
+      "name": "Matt Sokol",
+      "position": "TE",
+      "team": "NE",
+      "games": 3,
+      "offSnaps": 14,
+      "teamOffSnaps": 168,
+      "offPct": 0.083
+    },
+    "6234": {
+      "pfrId": "HarrDe07",
+      "name": "Deonte Harty",
+      "position": "WR",
+      "team": "BUF",
+      "games": 16,
+      "offSnaps": 155,
+      "teamOffSnaps": 1069,
+      "offPct": 0.145
+    },
+    "6239": {
+      "pfrId": "TaylMa01",
+      "name": "Malik Taylor",
+      "position": "WR",
+      "team": "NYJ",
+      "games": 3,
+      "offSnaps": 51,
+      "teamOffSnaps": 211,
+      "offPct": 0.242
+    },
+    "6271": {
+      "pfrId": "ZaccOl01",
+      "name": "Olamide Zaccheaus",
+      "position": "WR",
+      "team": "PHI",
+      "games": 17,
+      "offSnaps": 471,
+      "teamOffSnaps": 1147,
+      "offPct": 0.411
+    },
+    "6290": {
+      "pfrId": "MillSc01",
+      "name": "Scott Miller",
+      "position": "WR",
+      "team": "ATL",
+      "games": 17,
+      "offSnaps": 267,
+      "teamOffSnaps": 1130,
+      "offPct": 0.236
+    },
+    "6323": {
+      "pfrId": "BeckAn01",
+      "name": "Andrew Beck",
+      "position": "FB",
+      "team": "HOU",
+      "games": 15,
+      "offSnaps": 322,
+      "teamOffSnaps": 998,
+      "offPct": 0.323
+    },
+    "6379": {
+      "pfrId": "BlasKh00",
+      "name": "Khari Blasingame",
+      "position": "FB",
+      "team": "CHI",
+      "games": 16,
+      "offSnaps": 186,
+      "teamOffSnaps": 1066,
+      "offPct": 0.174
+    },
+    "6402": {
+      "pfrId": "SimsSt00",
+      "name": "Steven Sims",
+      "position": "WR",
+      "team": "HOU",
+      "games": 3,
+      "offSnaps": 10,
+      "teamOffSnaps": 204,
+      "offPct": 0.049
+    },
+    "6421": {
+      "pfrId": "GuytJa01",
+      "name": "Jalen Guyton",
+      "position": "WR",
+      "team": "LAC",
+      "games": 8,
+      "offSnaps": 255,
+      "teamOffSnaps": 525,
+      "offPct": 0.486
+    },
+    "6451": {
+      "pfrId": "CarlSt00",
+      "name": "Stephen Carlson",
+      "position": "TE",
+      "team": "CHI",
+      "games": 1,
+      "offSnaps": 0,
+      "teamOffSnaps": 72,
+      "offPct": 0
+    },
+    "6453": {
+      "pfrId": "MontDJ01",
+      "name": "D.J. Montgomery",
+      "position": "WR",
+      "team": "IND",
+      "games": 7,
+      "offSnaps": 124,
+      "teamOffSnaps": 468,
+      "offPct": 0.265
+    },
+    "6598": {
+      "pfrId": "IrwiTr00",
+      "name": "Trenton Irwin",
+      "position": "WR",
+      "team": "CIN",
+      "games": 16,
+      "offSnaps": 429,
+      "teamOffSnaps": 1011,
+      "offPct": 0.424
+    },
+    "6659": {
+      "pfrId": "ReynCr00",
+      "name": "Craig Reynolds",
+      "position": "RB",
+      "team": "DET",
+      "games": 17,
+      "offSnaps": 132,
+      "teamOffSnaps": 1178,
+      "offPct": 0.112
+    },
+    "6662": {
+      "pfrId": "HessPa00",
+      "name": "Parker Hesse",
+      "position": "TE",
+      "team": "ATL",
+      "games": 3,
+      "offSnaps": 48,
+      "teamOffSnaps": 182,
+      "offPct": 0.264
+    },
+    "6694": {
+      "pfrId": "JohnDE04",
+      "name": "D'Ernest Johnson",
+      "position": "RB",
+      "team": "JAX",
+      "games": 17,
+      "offSnaps": 194,
+      "teamOffSnaps": 1166,
+      "offPct": 0.166
+    },
+    "6699": {
+      "pfrId": "OlszGu00",
+      "name": "Gunner Olszewski",
+      "position": "WR",
+      "team": "NYG",
+      "games": 12,
+      "offSnaps": 13,
+      "teamOffSnaps": 744,
+      "offPct": 0.017,
+      "traded": true,
+      "teams": [
+        "NYG",
+        "PIT"
+      ]
+    },
+    "6753": {
+      "pfrId": "GoreDe00",
+      "name": "Derrick Gore",
+      "position": "RB",
+      "team": "WAS",
+      "games": 6,
+      "offSnaps": 24,
+      "teamOffSnaps": 385,
+      "offPct": 0.062
+    },
+    "6768": {
+      "pfrId": "TagoTu00",
+      "name": "Tua Tagovailoa",
+      "position": "QB",
+      "team": "MIA",
+      "games": 17,
+      "offSnaps": 1045,
+      "teamOffSnaps": 1098,
+      "offPct": 0.952
+    },
+    "6770": {
+      "pfrId": "BurrJo01",
+      "name": "Joe Burrow",
+      "position": "QB",
+      "team": "CIN",
+      "games": 10,
+      "offSnaps": 602,
+      "teamOffSnaps": 640,
+      "offPct": 0.941
+    },
+    "6783": {
+      "pfrId": "JeudJe00",
+      "name": "Jerry Jeudy",
+      "position": "WR",
+      "team": "DEN",
+      "games": 16,
+      "offSnaps": 662,
+      "teamOffSnaps": 1008,
+      "offPct": 0.657
+    },
+    "6786": {
+      "pfrId": "LambCe00",
+      "name": "CeeDee Lamb",
+      "position": "WR",
+      "team": "DAL",
+      "games": 17,
+      "offSnaps": 991,
+      "teamOffSnaps": 1184,
+      "offPct": 0.837
+    },
+    "6790": {
+      "pfrId": "SwifDA00",
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "team": "PHI",
+      "games": 16,
+      "offSnaps": 630,
+      "teamOffSnaps": 1082,
+      "offPct": 0.582
+    },
+    "6794": {
+      "pfrId": "JeffJu00",
+      "name": "Justin Jefferson",
+      "position": "WR",
+      "team": "MIN",
+      "games": 10,
+      "offSnaps": 550,
+      "teamOffSnaps": 645,
+      "offPct": 0.853
+    },
+    "6797": {
+      "pfrId": "HerbJu00",
+      "name": "Justin Herbert",
+      "position": "QB",
+      "team": "LAC",
+      "games": 13,
+      "offSnaps": 838,
+      "teamOffSnaps": 875,
+      "offPct": 0.958
+    },
+    "6798": {
+      "pfrId": "ReagJa00",
+      "name": "Jalen Reagor",
+      "position": "WR",
+      "team": "NE",
+      "games": 11,
+      "offSnaps": 308,
+      "teamOffSnaps": 648,
+      "offPct": 0.475
+    },
+    "6801": {
+      "pfrId": "HiggTe00",
+      "name": "Tee Higgins",
+      "position": "WR",
+      "team": "CIN",
+      "games": 12,
+      "offSnaps": 573,
+      "teamOffSnaps": 774,
+      "offPct": 0.74
+    },
+    "6803": {
+      "pfrId": "AiyuBr00",
+      "name": "Brandon Aiyuk",
+      "position": "WR",
+      "team": "SF",
+      "games": 16,
+      "offSnaps": 803,
+      "teamOffSnaps": 983,
+      "offPct": 0.817
+    },
+    "6804": {
+      "pfrId": "LoveJo03",
+      "name": "Jordan Love",
+      "position": "QB",
+      "team": "GB",
+      "games": 17,
+      "offSnaps": 1083,
+      "teamOffSnaps": 1096,
+      "offPct": 0.988
+    },
+    "6806": {
+      "pfrId": "DobbJK00",
+      "name": "J.K. Dobbins",
+      "position": "RB",
+      "team": "BAL",
+      "games": 1,
+      "offSnaps": 30,
+      "teamOffSnaps": 64,
+      "offPct": 0.469
+    },
+    "6813": {
+      "pfrId": "TaylJo02",
+      "name": "Jonathan Taylor",
+      "position": "RB",
+      "team": "IND",
+      "games": 10,
+      "offSnaps": 386,
+      "teamOffSnaps": 669,
+      "offPct": 0.577
+    },
+    "6814": {
+      "pfrId": "ShenLa00",
+      "name": "Laviska Shenault Jr.",
+      "position": "WR",
+      "team": "CAR",
+      "games": 8,
+      "offSnaps": 92,
+      "teamOffSnaps": 561,
+      "offPct": 0.164
+    },
+    "6819": {
+      "pfrId": "PittMi01",
+      "name": "Michael Pittman Jr.",
+      "position": "WR",
+      "team": "IND",
+      "games": 16,
+      "offSnaps": 991,
+      "teamOffSnaps": 1077,
+      "offPct": 0.92
+    },
+    "6820": {
+      "pfrId": "EdwaCl00",
+      "name": "Clyde Edwards-Helaire",
+      "position": "RB",
+      "team": "KC",
+      "games": 15,
+      "offSnaps": 227,
+      "teamOffSnaps": 1016,
+      "offPct": 0.223
+    },
+    "6824": {
+      "pfrId": "PeopDo00",
+      "name": "Donovan Peoples-Jones",
+      "position": "WR",
+      "team": "CLE",
+      "games": 15,
+      "offSnaps": 511,
+      "teamOffSnaps": 1070,
+      "offPct": 0.478,
+      "traded": true,
+      "teams": [
+        "CLE",
+        "DET"
+      ]
+    },
+    "6826": {
+      "pfrId": "KmetCo00",
+      "name": "Cole Kmet",
+      "position": "TE",
+      "team": "CHI",
+      "games": 17,
+      "offSnaps": 878,
+      "teamOffSnaps": 1138,
+      "offPct": 0.772
+    },
+    "6828": {
+      "pfrId": "DillAJ00",
+      "name": "AJ Dillon",
+      "position": "RB",
+      "team": "GB",
+      "games": 15,
+      "offSnaps": 494,
+      "teamOffSnaps": 976,
+      "offPct": 0.506
+    },
+    "6843": {
+      "pfrId": "OkwuAl00",
+      "name": "Albert Okwuegbunam",
+      "position": "TE",
+      "team": "PHI",
+      "games": 4,
+      "offSnaps": 57,
+      "teamOffSnaps": 256,
+      "offPct": 0.223
+    },
+    "6845": {
+      "pfrId": "MossZa00",
+      "name": "Zack Moss",
+      "position": "RB",
+      "team": "IND",
+      "games": 14,
+      "offSnaps": 531,
+      "teamOffSnaps": 949,
+      "offPct": 0.56
+    },
+    "6847": {
+      "pfrId": "DuveDe00",
+      "name": "Devin Duvernay",
+      "position": "WR",
+      "team": "BAL",
+      "games": 13,
+      "offSnaps": 136,
+      "teamOffSnaps": 874,
+      "offPct": 0.156
+    },
+    "6850": {
+      "pfrId": "BryaHa00",
+      "name": "Harrison Bryant",
+      "position": "TE",
+      "team": "CLE",
+      "games": 17,
+      "offSnaps": 406,
+      "teamOffSnaps": 1240,
+      "offPct": 0.327
+    },
+    "6853": {
+      "pfrId": "JeffVa00",
+      "name": "Van Jefferson",
+      "position": "WR",
+      "team": "ATL",
+      "games": 17,
+      "offSnaps": 621,
+      "teamOffSnaps": 1148,
+      "offPct": 0.541,
+      "traded": true,
+      "teams": [
+        "ATL",
+        "LA"
+      ]
+    },
+    "6857": {
+      "pfrId": "JohnCo01",
+      "name": "Collin Johnson",
+      "position": "WR",
+      "team": "CHI",
+      "games": 3,
+      "offSnaps": 40,
+      "teamOffSnaps": 192,
+      "offPct": 0.208
+    },
+    "6865": {
+      "pfrId": "ParkCo02",
+      "name": "Colby Parkinson",
+      "position": "TE",
+      "team": "SEA",
+      "games": 17,
+      "offSnaps": 497,
+      "teamOffSnaps": 1051,
+      "offPct": 0.473
+    },
+    "6869": {
+      "pfrId": "TrauAd00",
+      "name": "Adam Trautman",
+      "position": "TE",
+      "team": "DEN",
+      "games": 17,
+      "offSnaps": 755,
+      "teamOffSnaps": 1072,
+      "offPct": 0.704
+    },
+    "6878": {
+      "pfrId": "McFaAn00",
+      "name": "Anthony McFarland Jr.",
+      "position": "RB",
+      "team": "PIT",
+      "games": 3,
+      "offSnaps": 6,
+      "teamOffSnaps": 186,
+      "offPct": 0.032
+    },
+    "6885": {
+      "pfrId": "VaugKe00",
+      "name": "Ke'Shawn Vaughn",
+      "position": "RB",
+      "team": "TB",
+      "games": 6,
+      "offSnaps": 60,
+      "teamOffSnaps": 381,
+      "offPct": 0.157
+    },
+    "6886": {
+      "pfrId": "ClayCh01",
+      "name": "Chase Claypool",
+      "position": "WR",
+      "team": "CHI",
+      "games": 12,
+      "offSnaps": 195,
+      "teamOffSnaps": 747,
+      "offPct": 0.261,
+      "traded": true,
+      "teams": [
+        "CHI",
+        "MIA"
+      ]
+    },
+    "6894": {
+      "pfrId": "WilcMi01",
+      "name": "Mitchell Wilcox",
+      "position": "TE",
+      "team": "CIN",
+      "games": 17,
+      "offSnaps": 230,
+      "teamOffSnaps": 1088,
+      "offPct": 0.211
+    },
+    "6904": {
+      "pfrId": "HurtJa00",
+      "name": "Jalen Hurts",
+      "position": "QB",
+      "team": "PHI",
+      "games": 17,
+      "offSnaps": 1103,
+      "teamOffSnaps": 1147,
+      "offPct": 0.962
+    },
+    "6908": {
+      "pfrId": "PeriLa00",
+      "name": "La'Mical Perine",
+      "position": "RB",
+      "team": "KC",
+      "games": 5,
+      "offSnaps": 59,
+      "teamOffSnaps": 308,
+      "offPct": 0.192
+    },
+    "6909": {
+      "pfrId": "BowdLy00",
+      "name": "Lynn Bowden Jr.",
+      "position": "WR",
+      "team": "NO",
+      "games": 15,
+      "offSnaps": 326,
+      "teamOffSnaps": 1016,
+      "offPct": 0.321
+    },
+    "6918": {
+      "pfrId": "AhmeSa01",
+      "name": "Salvon Ahmed",
+      "position": "RB",
+      "team": "MIA",
+      "games": 8,
+      "offSnaps": 135,
+      "teamOffSnaps": 521,
+      "offPct": 0.259
+    },
+    "6920": {
+      "pfrId": "HodgIs00",
+      "name": "Isaiah Hodgins",
+      "position": "WR",
+      "team": "NYG",
+      "games": 17,
+      "offSnaps": 511,
+      "teamOffSnaps": 1104,
+      "offPct": 0.463
+    },
+    "6926": {
+      "pfrId": "HopkBr01",
+      "name": "Brycen Hopkins",
+      "position": "TE",
+      "team": "LA",
+      "games": 15,
+      "offSnaps": 96,
+      "teamOffSnaps": 1017,
+      "offPct": 0.094
+    },
+    "6927": {
+      "pfrId": "WatkQu00",
+      "name": "Quez Watkins",
+      "position": "WR",
+      "team": "PHI",
+      "games": 9,
+      "offSnaps": 304,
+      "teamOffSnaps": 624,
+      "offPct": 0.487
+    },
+    "6931": {
+      "pfrId": "DallDe00",
+      "name": "DeeJay Dallas",
+      "position": "RB",
+      "team": "SEA",
+      "games": 17,
+      "offSnaps": 96,
+      "teamOffSnaps": 1051,
+      "offPct": 0.091
+    },
+    "6938": {
+      "pfrId": "AkerCa00",
+      "name": "Cam Akers",
+      "position": "RB",
+      "team": "MIN",
+      "games": 7,
+      "offSnaps": 139,
+      "teamOffSnaps": 475,
+      "offPct": 0.293,
+      "traded": true,
+      "teams": [
+        "MIN",
+        "LA"
+      ]
+    },
+    "6943": {
+      "pfrId": "DaviGa01",
+      "name": "Gabriel Davis",
+      "position": "WR",
+      "team": "BUF",
+      "games": 17,
+      "offSnaps": 966,
+      "teamOffSnaps": 1164,
+      "offPct": 0.83
+    },
+    "6945": {
+      "pfrId": "GibsAn00",
+      "name": "Antonio Gibson",
+      "position": "RB",
+      "team": "WAS",
+      "games": 16,
+      "offSnaps": 473,
+      "teamOffSnaps": 1026,
+      "offPct": 0.461
+    },
+    "6955": {
+      "pfrId": "RobiJa00",
+      "name": "James Robinson",
+      "position": "RB",
+      "team": "GB",
+      "games": 1,
+      "offSnaps": 4,
+      "teamOffSnaps": 64,
+      "offPct": 0.063
+    },
+    "6957": {
+      "pfrId": "ProcJa00",
+      "name": "James Proche",
+      "position": "WR",
+      "team": "CLE",
+      "games": 10,
+      "offSnaps": 59,
+      "teamOffSnaps": 710,
+      "offPct": 0.083
+    },
+    "6960": {
+      "pfrId": "JohnTy00",
+      "name": "Tyler Johnson",
+      "position": "WR",
+      "team": "LA",
+      "games": 1,
+      "offSnaps": 36,
+      "teamOffSnaps": 67,
+      "offPct": 0.537
+    },
+    "6963": {
+      "pfrId": "TaylPa01",
+      "name": "Patrick Taylor",
+      "position": "RB",
+      "team": "GB",
+      "games": 11,
+      "offSnaps": 226,
+      "teamOffSnaps": 695,
+      "offPct": 0.325
+    },
+    "6964": {
+      "pfrId": "McKeSe01",
+      "name": "Sean McKeon",
+      "position": "TE",
+      "team": "DAL",
+      "games": 9,
+      "offSnaps": 100,
+      "teamOffSnaps": 616,
+      "offPct": 0.162
+    },
+    "6970": {
+      "pfrId": "SullSt00",
+      "name": "Stephen Sullivan",
+      "position": "TE",
+      "team": "CAR",
+      "games": 11,
+      "offSnaps": 170,
+      "teamOffSnaps": 730,
+      "offPct": 0.233
+    },
+    "6984": {
+      "pfrId": "JoneTo04",
+      "name": "Tony Jones",
+      "position": "RB",
+      "team": "NO",
+      "games": 7,
+      "offSnaps": 132,
+      "teamOffSnaps": 446,
+      "offPct": 0.296,
+      "traded": true,
+      "teams": [
+        "NO",
+        "ARI"
+      ]
+    },
+    "6989": {
+      "pfrId": "CallMa01",
+      "name": "Marquez Callaway",
+      "position": "WR",
+      "team": "NO",
+      "games": 3,
+      "offSnaps": 28,
+      "teamOffSnaps": 181,
+      "offPct": 0.155
+    },
+    "6996": {
+      "pfrId": "HastJa02",
+      "name": "Jamycal Hasty",
+      "position": "RB",
+      "team": "JAX",
+      "games": 5,
+      "offSnaps": 6,
+      "teamOffSnaps": 336,
+      "offPct": 0.018,
+      "traded": true,
+      "teams": [
+        "JAX",
+        "NE"
+      ]
+    },
+    "7002": {
+      "pfrId": "JohnJu02",
+      "name": "Juwan Johnson",
+      "position": "TE",
+      "team": "NO",
+      "games": 13,
+      "offSnaps": 555,
+      "teamOffSnaps": 849,
+      "offPct": 0.654
+    },
+    "7009": {
+      "pfrId": "JackTr02",
+      "name": "Trishton Jackson",
+      "position": "WR",
+      "team": "MIN",
+      "games": 7,
+      "offSnaps": 80,
+      "teamOffSnaps": 497,
+      "offPct": 0.161
+    },
+    "7021": {
+      "pfrId": "DowdRi01",
+      "name": "Rico Dowdle",
+      "position": "RB",
+      "team": "DAL",
+      "games": 16,
+      "offSnaps": 247,
+      "teamOffSnaps": 1119,
+      "offPct": 0.221
+    },
+    "7045": {
+      "pfrId": "KellJo01",
+      "name": "Joshua Kelley",
+      "position": "RB",
+      "team": "LAC",
+      "games": 17,
+      "offSnaps": 392,
+      "teamOffSnaps": 1158,
+      "offPct": 0.339
+    },
+    "7049": {
+      "pfrId": "JennJa00",
+      "name": "Jauan Jennings",
+      "position": "WR",
+      "team": "SF",
+      "games": 13,
+      "offSnaps": 361,
+      "teamOffSnaps": 810,
+      "offPct": 0.446
+    },
+    "7050": {
+      "pfrId": "DeguJo00",
+      "name": "Josiah Deguara",
+      "position": "TE",
+      "team": "GB",
+      "games": 15,
+      "offSnaps": 196,
+      "teamOffSnaps": 976,
+      "offPct": 0.201
+    },
+    "7064": {
+      "pfrId": "EvanDa02",
+      "name": "Darrynton Evans",
+      "position": "RB",
+      "team": "CHI",
+      "games": 7,
+      "offSnaps": 93,
+      "teamOffSnaps": 474,
+      "offPct": 0.196,
+      "traded": true,
+      "teams": [
+        "CHI",
+        "MIA"
+      ]
+    },
+    "7066": {
+      "pfrId": "OsboKJ00",
+      "name": "K.J. Osborn",
+      "position": "WR",
+      "team": "MIN",
+      "games": 16,
+      "offSnaps": 821,
+      "teamOffSnaps": 1048,
+      "offPct": 0.783
+    },
+    "7075": {
+      "pfrId": "WoerCh00",
+      "name": "Charlie Woerner",
+      "position": "TE",
+      "team": "SF",
+      "games": 17,
+      "offSnaps": 312,
+      "teamOffSnaps": 1066,
+      "offPct": 0.293
+    },
+    "7082": {
+      "pfrId": "KeenDa00",
+      "name": "Dalton Keene",
+      "position": "TE",
+      "team": "HOU",
+      "games": 1,
+      "offSnaps": 8,
+      "teamOffSnaps": 75,
+      "offPct": 0.107
+    },
+    "7083": {
+      "pfrId": "HuntTy01",
+      "name": "Tyler Huntley",
+      "position": "QB",
+      "team": "BAL",
+      "games": 5,
+      "offSnaps": 86,
+      "teamOffSnaps": 308,
+      "offPct": 0.279
+    },
+    "7087": {
+      "pfrId": "WardJo00",
+      "name": "Jonathan Ward",
+      "position": "RB",
+      "team": "TEN",
+      "games": 8,
+      "offSnaps": 10,
+      "teamOffSnaps": 515,
+      "offPct": 0.019
+    },
+    "7090": {
+      "pfrId": "MoonDa00",
+      "name": "Darnell Mooney",
+      "position": "WR",
+      "team": "CHI",
+      "games": 15,
+      "offSnaps": 766,
+      "teamOffSnaps": 1016,
+      "offPct": 0.754
+    },
+    "7106": {
+      "pfrId": "CageLa01",
+      "name": "Lawrence Cager",
+      "position": "TE",
+      "team": "NYG",
+      "games": 11,
+      "offSnaps": 101,
+      "teamOffSnaps": 689,
+      "offPct": 0.147
+    },
+    "7204": {
+      "pfrId": "GillRe00",
+      "name": "Reggie Gilliam",
+      "position": "FB",
+      "team": "BUF",
+      "games": 17,
+      "offSnaps": 99,
+      "teamOffSnaps": 1164,
+      "offPct": 0.085
+    },
+    "7216": {
+      "pfrId": "RiccGi00",
+      "name": "Giovanni Ricci",
+      "position": "TE",
+      "team": "CAR",
+      "games": 5,
+      "offSnaps": 12,
+      "teamOffSnaps": 359,
+      "offPct": 0.033
+    },
+    "7233": {
+      "pfrId": "BaccAn00",
+      "name": "Andre Baccellia",
+      "position": "WR",
+      "team": "ARI",
+      "games": 5,
+      "offSnaps": 49,
+      "teamOffSnaps": 329,
+      "offPct": 0.149
+    },
+    "7337": {
+      "pfrId": "WinsEa00",
+      "name": "Easop Winston",
+      "position": "WR",
+      "team": "SEA",
+      "games": 1,
+      "offSnaps": 2,
+      "teamOffSnaps": 60,
+      "offPct": 0.033
+    },
+    "7351": {
+      "pfrId": "MerrKi00",
+      "name": "Kirk Merritt",
+      "position": "WR",
+      "team": "NO",
+      "games": 1,
+      "offSnaps": 2,
+      "teamOffSnaps": 65,
+      "offPct": 0.031
+    },
+    "7357": {
+      "pfrId": "ChisDa00",
+      "name": "Dan Chisena",
+      "position": "WR",
+      "team": "ARI",
+      "games": 4,
+      "offSnaps": 1,
+      "teamOffSnaps": 275,
+      "offPct": 0.004
+    },
+    "7404": {
+      "pfrId": "TogiNo00",
+      "name": "Noah Togiai",
+      "position": "TE",
+      "team": "PHI",
+      "games": 1,
+      "offSnaps": 7,
+      "teamOffSnaps": 66,
+      "offPct": 0.106
+    },
+    "7436": {
+      "pfrId": "KinsMa00",
+      "name": "Mason Kinsey",
+      "position": "WR",
+      "team": "TEN",
+      "games": 6,
+      "offSnaps": 25,
+      "teamOffSnaps": 353,
+      "offPct": 0.071
+    },
+    "7438": {
+      "pfrId": "WilkKr00",
+      "name": "Kristian Wilkerson",
+      "position": "WR",
+      "team": "LV",
+      "games": 2,
+      "offSnaps": 42,
+      "teamOffSnaps": 99,
+      "offPct": 0.424
+    },
+    "7496": {
+      "pfrId": "WestNi00",
+      "name": "Nick Westbrook-Ikhine",
+      "position": "WR",
+      "team": "TEN",
+      "games": 14,
+      "offSnaps": 611,
+      "teamOffSnaps": 874,
+      "offPct": 0.699
+    },
+    "7521": {
+      "pfrId": "BlaiCh00",
+      "name": "Chris Blair",
+      "position": "WR",
+      "team": "ATL",
+      "games": 1,
+      "offSnaps": 9,
+      "teamOffSnaps": 62,
+      "offPct": 0.145
+    },
+    "7523": {
+      "pfrId": "LawrTr00",
+      "name": "Trevor Lawrence",
+      "position": "QB",
+      "team": "JAX",
+      "games": 16,
+      "offSnaps": 1047,
+      "teamOffSnaps": 1103,
+      "offPct": 0.949
+    },
+    "7525": {
+      "pfrId": "SmitDe07",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "team": "PHI",
+      "games": 16,
+      "offSnaps": 1043,
+      "teamOffSnaps": 1082,
+      "offPct": 0.964
+    },
+    "7526": {
+      "pfrId": "WaddJa00",
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "team": "MIA",
+      "games": 14,
+      "offSnaps": 611,
+      "teamOffSnaps": 904,
+      "offPct": 0.676
+    },
+    "7527": {
+      "pfrId": "JoneMa05",
+      "name": "Mac Jones",
+      "position": "QB",
+      "team": "NE",
+      "games": 11,
+      "offSnaps": 635,
+      "teamOffSnaps": 709,
+      "offPct": 0.896
+    },
+    "7528": {
+      "pfrId": "HarrNa00",
+      "name": "Najee Harris",
+      "position": "RB",
+      "team": "PIT",
+      "games": 17,
+      "offSnaps": 569,
+      "teamOffSnaps": 1071,
+      "offPct": 0.531
+    },
+    "7529": {
+      "pfrId": "BrigGa00",
+      "name": "Gary Brightwell",
+      "position": "RB",
+      "team": "NYG",
+      "games": 7,
+      "offSnaps": 41,
+      "teamOffSnaps": 480,
+      "offPct": 0.085
+    },
+    "7530": {
+      "pfrId": "DarbFr00",
+      "name": "Frank Darby",
+      "position": "WR",
+      "team": "ATL",
+      "games": 1,
+      "offSnaps": 0,
+      "teamOffSnaps": 71,
+      "offPct": 0
+    },
+    "7535": {
+      "pfrId": "LongHu00",
+      "name": "Hunter Long",
+      "position": "TE",
+      "team": "LA",
+      "games": 4,
+      "offSnaps": 55,
+      "teamOffSnaps": 275,
+      "offPct": 0.2
+    },
+    "7536": {
+      "pfrId": "MorrQu00",
+      "name": "Quintin Morris",
+      "position": "TE",
+      "team": "BUF",
+      "games": 15,
+      "offSnaps": 185,
+      "teamOffSnaps": 1024,
+      "offPct": 0.181
+    },
+    "7538": {
+      "pfrId": "WilsZa00",
+      "name": "Zach Wilson",
+      "position": "QB",
+      "team": "NYJ",
+      "games": 12,
+      "offSnaps": 688,
+      "teamOffSnaps": 747,
+      "offPct": 0.921
+    },
+    "7540": {
+      "pfrId": "RodgAm00",
+      "name": "Amari Rodgers",
+      "position": "WR",
+      "team": "IND",
+      "games": 3,
+      "offSnaps": 25,
+      "teamOffSnaps": 208,
+      "offPct": 0.12
+    },
+    "7543": {
+      "pfrId": "EtieTr00",
+      "name": "Travis Etienne",
+      "position": "RB",
+      "team": "JAX",
+      "games": 17,
+      "offSnaps": 856,
+      "teamOffSnaps": 1166,
+      "offPct": 0.734
+    },
+    "7547": {
+      "pfrId": "StxxAm00",
+      "name": "Amon-Ra St. Brown",
+      "position": "WR",
+      "team": "DET",
+      "games": 16,
+      "offSnaps": 1010,
+      "teamOffSnaps": 1118,
+      "offPct": 0.903
+    },
+    "7551": {
+      "pfrId": "JackDe02",
+      "name": "Deon Jackson",
+      "position": "RB",
+      "team": "IND",
+      "games": 4,
+      "offSnaps": 52,
+      "teamOffSnaps": 267,
+      "offPct": 0.195,
+      "traded": true,
+      "teams": [
+        "IND",
+        "NYG",
+        "CLE"
+      ]
+    },
+    "7553": {
+      "pfrId": "PittKy00",
+      "name": "Kyle Pitts",
+      "position": "TE",
+      "team": "ATL",
+      "games": 17,
+      "offSnaps": 728,
+      "teamOffSnaps": 1130,
+      "offPct": 0.644
+    },
+    "7554": {
+      "pfrId": "McKiTr00",
+      "name": "Tre' McKitty",
+      "position": "TE",
+      "team": "LAC",
+      "games": 6,
+      "offSnaps": 66,
+      "teamOffSnaps": 422,
+      "offPct": 0.156
+    },
+    "7559": {
+      "pfrId": "SmitIh00",
+      "name": "Ihmir Smith-Marsette",
+      "position": "WR",
+      "team": "CAR",
+      "games": 17,
+      "offSnaps": 123,
+      "teamOffSnaps": 1149,
+      "offPct": 0.107
+    },
+    "7561": {
+      "pfrId": "MitcEl00",
+      "name": "Elijah Mitchell",
+      "position": "RB",
+      "team": "SF",
+      "games": 11,
+      "offSnaps": 161,
+      "teamOffSnaps": 703,
+      "offPct": 0.229
+    },
+    "7562": {
+      "pfrId": "AtweTu00",
+      "name": "Tutu Atwell",
+      "position": "WR",
+      "team": "LA",
+      "games": 16,
+      "offSnaps": 687,
+      "teamOffSnaps": 1073,
+      "offPct": 0.64
+    },
+    "7564": {
+      "pfrId": "ChasJa00",
+      "name": "Ja'Marr Chase",
+      "position": "WR",
+      "team": "CIN",
+      "games": 16,
+      "offSnaps": 890,
+      "teamOffSnaps": 1024,
+      "offPct": 0.869
+    },
+    "7565": {
+      "pfrId": "MarsTe00",
+      "name": "Terrace Marshall Jr.",
+      "position": "WR",
+      "team": "CAR",
+      "games": 9,
+      "offSnaps": 335,
+      "teamOffSnaps": 607,
+      "offPct": 0.552
+    },
+    "7567": {
+      "pfrId": "GainKe00",
+      "name": "Kenneth Gainwell",
+      "position": "RB",
+      "team": "PHI",
+      "games": 16,
+      "offSnaps": 442,
+      "teamOffSnaps": 1070,
+      "offPct": 0.413
+    },
+    "7568": {
+      "pfrId": "JordBr00",
+      "name": "Brevin Jordan",
+      "position": "TE",
+      "team": "HOU",
+      "games": 14,
+      "offSnaps": 283,
+      "teamOffSnaps": 929,
+      "offPct": 0.305
+    },
+    "7569": {
+      "pfrId": "CollNi00",
+      "name": "Nico Collins",
+      "position": "WR",
+      "team": "HOU",
+      "games": 15,
+      "offSnaps": 669,
+      "teamOffSnaps": 982,
+      "offPct": 0.681
+    },
+    "7571": {
+      "pfrId": "BateRa00",
+      "name": "Rashod Bateman",
+      "position": "WR",
+      "team": "BAL",
+      "games": 16,
+      "offSnaps": 610,
+      "teamOffSnaps": 1068,
+      "offPct": 0.571
+    },
+    "7583": {
+      "pfrId": "EhliSa00",
+      "name": "Sam Ehlinger",
+      "position": "QB",
+      "team": "IND",
+      "games": 1,
+      "offSnaps": 3,
+      "teamOffSnaps": 64,
+      "offPct": 0.047
+    },
+    "7585": {
+      "pfrId": "MillDa02",
+      "name": "Davis Mills",
+      "position": "QB",
+      "team": "HOU",
+      "games": 6,
+      "offSnaps": 53,
+      "teamOffSnaps": 404,
+      "offPct": 0.131
+    },
+    "7587": {
+      "pfrId": "BrowDy00",
+      "name": "Dyami Brown",
+      "position": "WR",
+      "team": "WAS",
+      "games": 17,
+      "offSnaps": 253,
+      "teamOffSnaps": 1107,
+      "offPct": 0.229
+    },
+    "7588": {
+      "pfrId": "WillJa10",
+      "name": "Javonte Williams",
+      "position": "RB",
+      "team": "DEN",
+      "games": 16,
+      "offSnaps": 493,
+      "teamOffSnaps": 1009,
+      "offPct": 0.489
+    },
+    "7591": {
+      "pfrId": "FielJu00",
+      "name": "Justin Fields",
+      "position": "QB",
+      "team": "CHI",
+      "games": 13,
+      "offSnaps": 829,
+      "teamOffSnaps": 861,
+      "offPct": 0.963
+    },
+    "7593": {
+      "pfrId": "SermTr00",
+      "name": "Trey Sermon",
+      "position": "RB",
+      "team": "IND",
+      "games": 14,
+      "offSnaps": 108,
+      "teamOffSnaps": 953,
+      "offPct": 0.113
+    },
+    "7594": {
+      "pfrId": "HubbCh01",
+      "name": "Chuba Hubbard",
+      "position": "RB",
+      "team": "CAR",
+      "games": 17,
+      "offSnaps": 679,
+      "teamOffSnaps": 1149,
+      "offPct": 0.591
+    },
+    "7595": {
+      "pfrId": "WallTy00",
+      "name": "Tylan Wallace",
+      "position": "WR",
+      "team": "BAL",
+      "games": 11,
+      "offSnaps": 65,
+      "teamOffSnaps": 748,
+      "offPct": 0.087
+    },
+    "7596": {
+      "pfrId": "MoorEl00",
+      "name": "Elijah Moore",
+      "position": "WR",
+      "team": "CLE",
+      "games": 17,
+      "offSnaps": 903,
+      "teamOffSnaps": 1240,
+      "offPct": 0.728
+    },
+    "7597": {
+      "pfrId": "YeboKe00",
+      "name": "Kenny Yeboah",
+      "position": "TE",
+      "team": "NYJ",
+      "games": 5,
+      "offSnaps": 123,
+      "teamOffSnaps": 354,
+      "offPct": 0.347
+    },
+    "7600": {
+      "pfrId": "FreiPa00",
+      "name": "Pat Freiermuth",
+      "position": "TE",
+      "team": "PIT",
+      "games": 12,
+      "offSnaps": 474,
+      "teamOffSnaps": 749,
+      "offPct": 0.633
+    },
+    "7601": {
+      "pfrId": "MoorRo02",
+      "name": "Rondale Moore",
+      "position": "WR",
+      "team": "ARI",
+      "games": 17,
+      "offSnaps": 757,
+      "teamOffSnaps": 1133,
+      "offPct": 0.668
+    },
+    "7602": {
+      "pfrId": "GranKy00",
+      "name": "Kylen Granson",
+      "position": "TE",
+      "team": "IND",
+      "games": 15,
+      "offSnaps": 496,
+      "teamOffSnaps": 1007,
+      "offPct": 0.493
+    },
+    "7605": {
+      "pfrId": "TrasKy00",
+      "name": "Kyle Trask",
+      "position": "QB",
+      "team": "TB",
+      "games": 2,
+      "offSnaps": 3,
+      "teamOffSnaps": 125,
+      "offPct": 0.024
+    },
+    "7606": {
+      "pfrId": "ToneKa00",
+      "name": "Kadarius Toney",
+      "position": "WR",
+      "team": "KC",
+      "games": 13,
+      "offSnaps": 230,
+      "teamOffSnaps": 882,
+      "offPct": 0.261
+    },
+    "7607": {
+      "pfrId": "CartMi03",
+      "name": "Michael Carter",
+      "position": "RB",
+      "team": "NYJ",
+      "games": 15,
+      "offSnaps": 224,
+      "teamOffSnaps": 984,
+      "offPct": 0.228,
+      "traded": true,
+      "teams": [
+        "NYJ",
+        "ARI"
+      ]
+    },
+    "7608": {
+      "pfrId": "HerbKh00",
+      "name": "Khalil Herbert",
+      "position": "RB",
+      "team": "CHI",
+      "games": 12,
+      "offSnaps": 357,
+      "teamOffSnaps": 795,
+      "offPct": 0.449
+    },
+    "7611": {
+      "pfrId": "StevRh00",
+      "name": "Rhamondre Stevenson",
+      "position": "RB",
+      "team": "NE",
+      "games": 12,
+      "offSnaps": 486,
+      "teamOffSnaps": 773,
+      "offPct": 0.629
+    },
+    "7612": {
+      "pfrId": "EskrDW00",
+      "name": "D'Wayne Eskridge",
+      "position": "WR",
+      "team": "SEA",
+      "games": 4,
+      "offSnaps": 18,
+      "teamOffSnaps": 228,
+      "offPct": 0.079
+    },
+    "7670": {
+      "pfrId": "PalmJo00",
+      "name": "Josh Palmer",
+      "position": "WR",
+      "team": "LAC",
+      "games": 10,
+      "offSnaps": 525,
+      "teamOffSnaps": 703,
+      "offPct": 0.747
+    },
+    "7694": {
+      "pfrId": "TremTo00",
+      "name": "Tommy Tremble",
+      "position": "TE",
+      "team": "CAR",
+      "games": 16,
+      "offSnaps": 554,
+      "teamOffSnaps": 1077,
+      "offPct": 0.514
+    },
+    "7703": {
+      "pfrId": "HarrJa03",
+      "name": "Jacob Harris",
+      "position": "WR",
+      "team": "JAX",
+      "games": 2,
+      "offSnaps": 14,
+      "teamOffSnaps": 139,
+      "offPct": 0.101
+    },
+    "7713": {
+      "pfrId": "DardJa00",
+      "name": "Jaelon Darden",
+      "position": "WR",
+      "team": "CLE",
+      "games": 1,
+      "offSnaps": 0,
+      "teamOffSnaps": 76,
+      "offPct": 0
+    },
+    "7716": {
+      "pfrId": "BateJo00",
+      "name": "John Bates",
+      "position": "TE",
+      "team": "WAS",
+      "games": 17,
+      "offSnaps": 500,
+      "teamOffSnaps": 1107,
+      "offPct": 0.452
+    },
+    "7720": {
+      "pfrId": "NwanKe00",
+      "name": "Kene Nwangwu",
+      "position": "RB",
+      "team": "MIN",
+      "games": 9,
+      "offSnaps": 13,
+      "teamOffSnaps": 593,
+      "offPct": 0.022
+    },
+    "7729": {
+      "pfrId": "FitzDe00",
+      "name": "Dez Fitzpatrick",
+      "position": "WR",
+      "team": "PIT",
+      "games": 1,
+      "offSnaps": 0,
+      "teamOffSnaps": 59,
+      "offPct": 0
+    },
+    "7746": {
+      "pfrId": "TramAu00",
+      "name": "Austin Trammell",
+      "position": "WR",
+      "team": "LA",
+      "games": 16,
+      "offSnaps": 73,
+      "teamOffSnaps": 1067,
+      "offPct": 0.068
+    },
+    "7757": {
+      "pfrId": "SkowBe00",
+      "name": "Ben Skowronek",
+      "position": "WR",
+      "team": "LA",
+      "games": 17,
+      "offSnaps": 216,
+      "teamOffSnaps": 1148,
+      "offPct": 0.188
+    },
+    "7771": {
+      "pfrId": "FunkJa00",
+      "name": "Jake Funk",
+      "position": "RB",
+      "team": "IND",
+      "games": 4,
+      "offSnaps": 13,
+      "teamOffSnaps": 277,
+      "offPct": 0.047
+    },
+    "7794": {
+      "pfrId": "EvanCh02",
+      "name": "Chris Evans",
+      "position": "RB",
+      "team": "CIN",
+      "games": 8,
+      "offSnaps": 24,
+      "teamOffSnaps": 503,
+      "offPct": 0.048
+    },
+    "7808": {
+      "pfrId": "MasoBe00",
+      "name": "Ben Mason",
+      "position": "TE",
+      "team": "BAL",
+      "games": 1,
+      "offSnaps": 1,
+      "teamOffSnaps": 57,
+      "offPct": 0.018
+    },
+    "7812": {
+      "pfrId": "FehoSi00",
+      "name": "Simi Fehoko",
+      "position": "WR",
+      "team": "LAC",
+      "games": 6,
+      "offSnaps": 24,
+      "teamOffSnaps": 392,
+      "offPct": 0.061
+    },
+    "7828": {
+      "pfrId": "GrayNo00",
+      "name": "Noah Gray",
+      "position": "TE",
+      "team": "KC",
+      "games": 17,
+      "offSnaps": 592,
+      "teamOffSnaps": 1130,
+      "offPct": 0.524
+    },
+    "7842": {
+      "pfrId": "FarrLu00",
+      "name": "Luke Farrell",
+      "position": "TE",
+      "team": "JAX",
+      "games": 17,
+      "offSnaps": 411,
+      "teamOffSnaps": 1166,
+      "offPct": 0.352
+    },
+    "7891": {
+      "pfrId": "WrigBr01",
+      "name": "Brock Wright",
+      "position": "TE",
+      "team": "DET",
+      "games": 14,
+      "offSnaps": 423,
+      "teamOffSnaps": 973,
+      "offPct": 0.435
+    },
+    "7944": {
+      "pfrId": "StraMi03",
+      "name": "Mike Strachan",
+      "position": "WR",
+      "team": "CAR",
+      "games": 4,
+      "offSnaps": 54,
+      "teamOffSnaps": 271,
+      "offPct": 0.199
+    },
+    "7946": {
+      "pfrId": "StolJa00",
+      "name": "Jack Stoll",
+      "position": "TE",
+      "team": "PHI",
+      "games": 17,
+      "offSnaps": 438,
+      "teamOffSnaps": 1147,
+      "offPct": 0.382
+    },
+    "7989": {
+      "pfrId": "TurnDJ00",
+      "name": "DJ Turner",
+      "position": "WR",
+      "team": "LV",
+      "games": 10,
+      "offSnaps": 12,
+      "teamOffSnaps": 603,
+      "offPct": 0.02
+    },
+    "7992": {
+      "pfrId": "BushMa00",
+      "name": "Matt Bushman",
+      "position": "TE",
+      "team": "KC",
+      "games": 1,
+      "offSnaps": 7,
+      "teamOffSnaps": 65,
+      "offPct": 0.108
+    },
+    "8013": {
+      "pfrId": "JoneTi00",
+      "name": "Tim Jones",
+      "position": "WR",
+      "team": "JAX",
+      "games": 17,
+      "offSnaps": 339,
+      "teamOffSnaps": 1166,
+      "offPct": 0.291
+    },
+    "8025": {
+      "pfrId": "PrenAd00",
+      "name": "Adam Prentice",
+      "position": "FB",
+      "team": "NO",
+      "games": 13,
+      "offSnaps": 125,
+      "teamOffSnaps": 857,
+      "offPct": 0.146
+    },
+    "8076": {
+      "pfrId": "BandMi00",
+      "name": "Michael Bandy",
+      "position": "WR",
+      "team": "DEN",
+      "games": 1,
+      "offSnaps": 2,
+      "teamOffSnaps": 69,
+      "offPct": 0.029
+    },
+    "8110": {
+      "pfrId": "FergJa00",
+      "name": "Jake Ferguson",
+      "position": "TE",
+      "team": "DAL",
+      "games": 17,
+      "offSnaps": 880,
+      "teamOffSnaps": 1184,
+      "offPct": 0.743
+    },
+    "8111": {
+      "pfrId": "OttoCa00",
+      "name": "Cade Otton",
+      "position": "TE",
+      "team": "TB",
+      "games": 17,
+      "offSnaps": 1064,
+      "teamOffSnaps": 1103,
+      "offPct": 0.965
+    },
+    "8112": {
+      "pfrId": "LondDr00",
+      "name": "Drake London",
+      "position": "WR",
+      "team": "ATL",
+      "games": 16,
+      "offSnaps": 860,
+      "teamOffSnaps": 1061,
+      "offPct": 0.811
+    },
+    "8114": {
+      "pfrId": "EzukEr00",
+      "name": "Erik Ezukanma",
+      "position": "WR",
+      "team": "MIA",
+      "games": 2,
+      "offSnaps": 29,
+      "teamOffSnaps": 130,
+      "offPct": 0.223
+    },
+    "8116": {
+      "pfrId": "StroPi00",
+      "name": "Pierre Strong",
+      "position": "RB",
+      "team": "CLE",
+      "games": 17,
+      "offSnaps": 169,
+      "teamOffSnaps": 1240,
+      "offPct": 0.136
+    },
+    "8117": {
+      "pfrId": "TolbJa00",
+      "name": "Jalen Tolbert",
+      "position": "WR",
+      "team": "DAL",
+      "games": 17,
+      "offSnaps": 477,
+      "teamOffSnaps": 1184,
+      "offPct": 0.403
+    },
+    "8118": {
+      "pfrId": "BellDa02",
+      "name": "David Bell",
+      "position": "WR",
+      "team": "CLE",
+      "games": 15,
+      "offSnaps": 217,
+      "teamOffSnaps": 1089,
+      "offPct": 0.199
+    },
+    "8119": {
+      "pfrId": "DotsJa00",
+      "name": "Jahan Dotson",
+      "position": "WR",
+      "team": "WAS",
+      "games": 17,
+      "offSnaps": 910,
+      "teamOffSnaps": 1107,
+      "offPct": 0.822
+    },
+    "8121": {
+      "pfrId": "DoubRo00",
+      "name": "Romeo Doubs",
+      "position": "WR",
+      "team": "GB",
+      "games": 17,
+      "offSnaps": 845,
+      "teamOffSnaps": 1096,
+      "offPct": 0.771
+    },
+    "8122": {
+      "pfrId": "KnigZo00",
+      "name": "Zonovan Knight",
+      "position": "RB",
+      "team": "DET",
+      "games": 2,
+      "offSnaps": 9,
+      "teamOffSnaps": 130,
+      "offPct": 0.069
+    },
+    "8125": {
+      "pfrId": "AustCa00",
+      "name": "Calvin Austin III",
+      "position": "WR",
+      "team": "PIT",
+      "games": 17,
+      "offSnaps": 374,
+      "teamOffSnaps": 1071,
+      "offPct": 0.349
+    },
+    "8126": {
+      "pfrId": "RobiWa01",
+      "name": "Wan'Dale Robinson",
+      "position": "WR",
+      "team": "NYG",
+      "games": 15,
+      "offSnaps": 641,
+      "teamOffSnaps": 966,
+      "offPct": 0.664
+    },
+    "8127": {
+      "pfrId": "KolaCh00",
+      "name": "Charlie Kolar",
+      "position": "TE",
+      "team": "BAL",
+      "games": 15,
+      "offSnaps": 230,
+      "teamOffSnaps": 981,
+      "offPct": 0.234
+    },
+    "8129": {
+      "pfrId": "PierDa01",
+      "name": "Dameon Pierce",
+      "position": "RB",
+      "team": "HOU",
+      "games": 14,
+      "offSnaps": 298,
+      "teamOffSnaps": 920,
+      "offPct": 0.324
+    },
+    "8130": {
+      "pfrId": "McBrTr01",
+      "name": "Trey McBride",
+      "position": "TE",
+      "team": "ARI",
+      "games": 17,
+      "offSnaps": 786,
+      "teamOffSnaps": 1133,
+      "offPct": 0.694
+    },
+    "8131": {
+      "pfrId": "LikeIs00",
+      "name": "Isaiah Likely",
+      "position": "TE",
+      "team": "BAL",
+      "games": 17,
+      "offSnaps": 497,
+      "teamOffSnaps": 1126,
+      "offPct": 0.441
+    },
+    "8132": {
+      "pfrId": "AllgTy00",
+      "name": "Tyler Allgeier",
+      "position": "RB",
+      "team": "ATL",
+      "games": 17,
+      "offSnaps": 360,
+      "teamOffSnaps": 1130,
+      "offPct": 0.319
+    },
+    "8134": {
+      "pfrId": "ShakKh00",
+      "name": "Khalil Shakir",
+      "position": "WR",
+      "team": "BUF",
+      "games": 17,
+      "offSnaps": 604,
+      "teamOffSnaps": 1164,
+      "offPct": 0.519
+    },
+    "8135": {
+      "pfrId": "BurkTr00",
+      "name": "Treylon Burks",
+      "position": "WR",
+      "team": "TEN",
+      "games": 11,
+      "offSnaps": 443,
+      "teamOffSnaps": 713,
+      "offPct": 0.621
+    },
+    "8136": {
+      "pfrId": "WhitRa01",
+      "name": "Rachaad White",
+      "position": "RB",
+      "team": "TB",
+      "games": 17,
+      "offSnaps": 861,
+      "teamOffSnaps": 1103,
+      "offPct": 0.781
+    },
+    "8137": {
+      "pfrId": "PickGe00",
+      "name": "George Pickens",
+      "position": "WR",
+      "team": "PIT",
+      "games": 17,
+      "offSnaps": 929,
+      "teamOffSnaps": 1071,
+      "offPct": 0.867
+    },
+    "8138": {
+      "pfrId": "CookJa01",
+      "name": "James Cook",
+      "position": "RB",
+      "team": "BUF",
+      "games": 17,
+      "offSnaps": 634,
+      "teamOffSnaps": 1164,
+      "offPct": 0.545
+    },
+    "8139": {
+      "pfrId": "WhitZa01",
+      "name": "Zamir White",
+      "position": "RB",
+      "team": "LV",
+      "games": 17,
+      "offSnaps": 229,
+      "teamOffSnaps": 1046,
+      "offPct": 0.219
+    },
+    "8140": {
+      "pfrId": "RossJu00",
+      "name": "Justyn Ross",
+      "position": "WR",
+      "team": "KC",
+      "games": 10,
+      "offSnaps": 136,
+      "teamOffSnaps": 672,
+      "offPct": 0.202
+    },
+    "8142": {
+      "pfrId": "PierAl00",
+      "name": "Alec Pierce",
+      "position": "WR",
+      "team": "IND",
+      "games": 17,
+      "offSnaps": 1090,
+      "teamOffSnaps": 1148,
+      "offPct": 0.949
+    },
+    "8143": {
+      "pfrId": "FordJe00",
+      "name": "Jerome Ford",
+      "position": "RB",
+      "team": "CLE",
+      "games": 17,
+      "offSnaps": 629,
+      "teamOffSnaps": 1240,
+      "offPct": 0.507
+    },
+    "8144": {
+      "pfrId": "OlavCh00",
+      "name": "Chris Olave",
+      "position": "WR",
+      "team": "NO",
+      "games": 16,
+      "offSnaps": 814,
+      "teamOffSnaps": 1096,
+      "offPct": 0.743
+    },
+    "8145": {
+      "pfrId": "RuckJe00",
+      "name": "Jeremy Ruckert",
+      "position": "TE",
+      "team": "NYJ",
+      "games": 15,
+      "offSnaps": 310,
+      "teamOffSnaps": 963,
+      "offPct": 0.322
+    },
+    "8146": {
+      "pfrId": "WilsGa00",
+      "name": "Garrett Wilson",
+      "position": "WR",
+      "team": "NYJ",
+      "games": 17,
+      "offSnaps": 1008,
+      "teamOffSnaps": 1101,
+      "offPct": 0.916
+    },
+    "8147": {
+      "pfrId": "MetcJo00",
+      "name": "John Metchie",
+      "position": "WR",
+      "team": "HOU",
+      "games": 16,
+      "offSnaps": 310,
+      "teamOffSnaps": 1057,
+      "offPct": 0.293
+    },
+    "8148": {
+      "pfrId": "WillJa11",
+      "name": "Jameson Williams",
+      "position": "WR",
+      "team": "DET",
+      "games": 12,
+      "offSnaps": 444,
+      "teamOffSnaps": 840,
+      "offPct": 0.529
+    },
+    "8150": {
+      "pfrId": "WillKy02",
+      "name": "Kyren Williams",
+      "position": "RB",
+      "team": "LA",
+      "games": 12,
+      "offSnaps": 678,
+      "teamOffSnaps": 826,
+      "offPct": 0.821
+    },
+    "8151": {
+      "pfrId": "WalkKe00",
+      "name": "Kenneth Walker III",
+      "position": "RB",
+      "team": "SEA",
+      "games": 15,
+      "offSnaps": 502,
+      "teamOffSnaps": 926,
+      "offPct": 0.542
+    },
+    "8153": {
+      "pfrId": "SpilIs00",
+      "name": "Isaiah Spiller",
+      "position": "RB",
+      "team": "LAC",
+      "games": 9,
+      "offSnaps": 111,
+      "teamOffSnaps": 609,
+      "offPct": 0.182
+    },
+    "8154": {
+      "pfrId": "RobiBr01",
+      "name": "Brian Robinson Jr.",
+      "position": "RB",
+      "team": "WAS",
+      "games": 15,
+      "offSnaps": 496,
+      "teamOffSnaps": 986,
+      "offPct": 0.503
+    },
+    "8155": {
+      "pfrId": "HallBr03",
+      "name": "Breece Hall",
+      "position": "RB",
+      "team": "NYJ",
+      "games": 17,
+      "offSnaps": 667,
+      "teamOffSnaps": 1101,
+      "offPct": 0.606
+    },
+    "8157": {
+      "pfrId": "ZappBa00",
+      "name": "Bailey Zappe",
+      "position": "QB",
+      "team": "NE",
+      "games": 10,
+      "offSnaps": 413,
+      "teamOffSnaps": 588,
+      "offPct": 0.702
+    },
+    "8159": {
+      "pfrId": "RiddDe00",
+      "name": "Desmond Ridder",
+      "position": "QB",
+      "team": "ATL",
+      "games": 15,
+      "offSnaps": 850,
+      "teamOffSnaps": 997,
+      "offPct": 0.853
+    },
+    "8160": {
+      "pfrId": "PickKe00",
+      "name": "Kenny Pickett",
+      "position": "QB",
+      "team": "PIT",
+      "games": 12,
+      "offSnaps": 670,
+      "teamOffSnaps": 750,
+      "offPct": 0.893
+    },
+    "8161": {
+      "pfrId": "WillMa12",
+      "name": "Malik Willis",
+      "position": "QB",
+      "team": "TEN",
+      "games": 3,
+      "offSnaps": 22,
+      "teamOffSnaps": 171,
+      "offPct": 0.129
+    },
+    "8162": {
+      "pfrId": "HoweSa00",
+      "name": "Sam Howell",
+      "position": "QB",
+      "team": "WAS",
+      "games": 17,
+      "offSnaps": 1061,
+      "teamOffSnaps": 1107,
+      "offPct": 0.958
+    },
+    "8167": {
+      "pfrId": "WatsCh00",
+      "name": "Christian Watson",
+      "position": "WR",
+      "team": "GB",
+      "games": 9,
+      "offSnaps": 446,
+      "teamOffSnaps": 579,
+      "offPct": 0.77
+    },
+    "8168": {
+      "pfrId": "MoorSk01",
+      "name": "Skyy Moore",
+      "position": "WR",
+      "team": "KC",
+      "games": 14,
+      "offSnaps": 495,
+      "teamOffSnaps": 942,
+      "offPct": 0.525
+    },
+    "8170": {
+      "pfrId": "MitcJa00",
+      "name": "James Mitchell",
+      "position": "TE",
+      "team": "DET",
+      "games": 15,
+      "offSnaps": 157,
+      "teamOffSnaps": 1048,
+      "offPct": 0.15
+    },
+    "8171": {
+      "pfrId": "PhilKy01",
+      "name": "Kyle Philips",
+      "position": "WR",
+      "team": "TEN",
+      "games": 9,
+      "offSnaps": 132,
+      "teamOffSnaps": 539,
+      "offPct": 0.245
+    },
+    "8172": {
+      "pfrId": "DulcGr00",
+      "name": "Greg Dulcich",
+      "position": "TE",
+      "team": "DEN",
+      "games": 2,
+      "offSnaps": 32,
+      "teamOffSnaps": 116,
+      "offPct": 0.276
+    },
+    "8174": {
+      "pfrId": "HarrKe01",
+      "name": "Kevin Harris",
+      "position": "RB",
+      "team": "NE",
+      "games": 4,
+      "offSnaps": 34,
+      "teamOffSnaps": 221,
+      "offPct": 0.154
+    },
+    "8177": {
+      "pfrId": "CalcGr00",
+      "name": "Grant Calcaterra",
+      "position": "TE",
+      "team": "PHI",
+      "games": 15,
+      "offSnaps": 118,
+      "teamOffSnaps": 1019,
+      "offPct": 0.116
+    },
+    "8180": {
+      "pfrId": "NailJa00",
+      "name": "Jalen Nailor",
+      "position": "WR",
+      "team": "MIN",
+      "games": 6,
+      "offSnaps": 94,
+      "teamOffSnaps": 396,
+      "offPct": 0.237
+    },
+    "8181": {
+      "pfrId": "HeywCo00",
+      "name": "Connor Heyward",
+      "position": "TE",
+      "team": "PIT",
+      "games": 17,
+      "offSnaps": 403,
+      "teamOffSnaps": 1071,
+      "offPct": 0.376
+    },
+    "8183": {
+      "pfrId": "PurdBr00",
+      "name": "Brock Purdy",
+      "position": "QB",
+      "team": "SF",
+      "games": 16,
+      "offSnaps": 936,
+      "teamOffSnaps": 1005,
+      "offPct": 0.931
+    },
+    "8185": {
+      "pfrId": "JohnJo12",
+      "name": "Johnny Johnson",
+      "position": "WR",
+      "team": "HOU",
+      "games": 1,
+      "offSnaps": 4,
+      "teamOffSnaps": 56,
+      "offPct": 0.071
+    },
+    "8188": {
+      "pfrId": "ThorTy00",
+      "name": "Tyquan Thornton",
+      "position": "WR",
+      "team": "NE",
+      "games": 9,
+      "offSnaps": 224,
+      "teamOffSnaps": 537,
+      "offPct": 0.417
+    },
+    "8194": {
+      "pfrId": "CorbJa01",
+      "name": "Jashaun Corbin",
+      "position": "RB",
+      "team": "NYG",
+      "games": 6,
+      "offSnaps": 15,
+      "teamOffSnaps": 391,
+      "offPct": 0.038
+    },
+    "8195": {
+      "pfrId": "RiveRo01",
+      "name": "Ronnie Rivers",
+      "position": "RB",
+      "team": "LA",
+      "games": 9,
+      "offSnaps": 93,
+      "teamOffSnaps": 610,
+      "offPct": 0.152
+    },
+    "8197": {
+      "pfrId": "HendPe01",
+      "name": "Peyton Hendershot",
+      "position": "TE",
+      "team": "DAL",
+      "games": 8,
+      "offSnaps": 159,
+      "teamOffSnaps": 568,
+      "offPct": 0.28
+    },
+    "8204": {
+      "pfrId": "MeltBo00",
+      "name": "Bo Melton",
+      "position": "WR",
+      "team": "GB",
+      "games": 5,
+      "offSnaps": 139,
+      "teamOffSnaps": 316,
+      "offPct": 0.44
+    },
+    "8205": {
+      "pfrId": "PachIs00",
+      "name": "Isiah Pacheco",
+      "position": "RB",
+      "team": "KC",
+      "games": 14,
+      "offSnaps": 568,
+      "teamOffSnaps": 941,
+      "offPct": 0.604
+    },
+    "8207": {
+      "pfrId": "GoodTy00",
+      "name": "Tyler Goodson",
+      "position": "RB",
+      "team": "IND",
+      "games": 6,
+      "offSnaps": 50,
+      "teamOffSnaps": 395,
+      "offPct": 0.127
+    },
+    "8210": {
+      "pfrId": "OkonCh00",
+      "name": "Chigoziem Okonkwo",
+      "position": "TE",
+      "team": "TEN",
+      "games": 17,
+      "offSnaps": 692,
+      "teamOffSnaps": 1050,
+      "offPct": 0.659
+    },
+    "8211": {
+      "pfrId": "DaviTy03",
+      "name": "Tyrion Davis-Price",
+      "position": "RB",
+      "team": "SF",
+      "games": 1,
+      "offSnaps": 7,
+      "teamOffSnaps": 71,
+      "offPct": 0.099
+    },
+    "8214": {
+      "pfrId": "TurnCo00",
+      "name": "Cole Turner",
+      "position": "TE",
+      "team": "WAS",
+      "games": 12,
+      "offSnaps": 142,
+      "teamOffSnaps": 819,
+      "offPct": 0.173
+    },
+    "8221": {
+      "pfrId": "IngrKe01",
+      "name": "Keaontay Ingram",
+      "position": "RB",
+      "team": "ARI",
+      "games": 8,
+      "offSnaps": 119,
+      "teamOffSnaps": 524,
+      "offPct": 0.227
+    },
+    "8223": {
+      "pfrId": "JoneVe00",
+      "name": "Velus Jones Jr.",
+      "position": "WR",
+      "team": "CHI",
+      "games": 14,
+      "offSnaps": 100,
+      "teamOffSnaps": 917,
+      "offPct": 0.109
+    },
+    "8225": {
+      "pfrId": "BellDa00",
+      "name": "Daniel Bellinger",
+      "position": "TE",
+      "team": "NYG",
+      "games": 17,
+      "offSnaps": 688,
+      "teamOffSnaps": 1104,
+      "offPct": 0.623
+    },
+    "8227": {
+      "pfrId": "QuitTe00",
+      "name": "Teagan Quitoriano",
+      "position": "TE",
+      "team": "HOU",
+      "games": 7,
+      "offSnaps": 158,
+      "teamOffSnaps": 467,
+      "offPct": 0.338
+    },
+    "8228": {
+      "pfrId": "WarrJa01",
+      "name": "Jaylen Warren",
+      "position": "RB",
+      "team": "PIT",
+      "games": 17,
+      "offSnaps": 519,
+      "teamOffSnaps": 1071,
+      "offPct": 0.485
+    },
+    "8230": {
+      "pfrId": "ChanTy01",
+      "name": "Ty Chandler",
+      "position": "RB",
+      "team": "MIN",
+      "games": 17,
+      "offSnaps": 307,
+      "teamOffSnaps": 1121,
+      "offPct": 0.274
+    },
+    "8235": {
+      "pfrId": "TourSa00",
+      "name": "Samori Toure",
+      "position": "WR",
+      "team": "GB",
+      "games": 11,
+      "offSnaps": 139,
+      "teamOffSnaps": 700,
+      "offPct": 0.199
+    },
+    "8249": {
+      "pfrId": "KrulLu00",
+      "name": "Lucas Krull",
+      "position": "TE",
+      "team": "DEN",
+      "games": 7,
+      "offSnaps": 166,
+      "teamOffSnaps": 465,
+      "offPct": 0.357
+    },
+    "8250": {
+      "pfrId": "MartTa00",
+      "name": "Tay Martin",
+      "position": "WR",
+      "team": "SF",
+      "games": 1,
+      "offSnaps": 3,
+      "teamOffSnaps": 70,
+      "offPct": 0.043
+    },
+    "8253": {
+      "pfrId": "ThomDe07",
+      "name": "Deven Thompkins",
+      "position": "WR",
+      "team": "TB",
+      "games": 17,
+      "offSnaps": 251,
+      "teamOffSnaps": 1103,
+      "offPct": 0.228
+    },
+    "8254": {
+      "pfrId": "ChesJu00",
+      "name": "Julius Chestnut",
+      "position": "RB",
+      "team": "TEN",
+      "games": 3,
+      "offSnaps": 7,
+      "teamOffSnaps": 176,
+      "offPct": 0.04
+    },
+    "8255": {
+      "pfrId": "BlacRa00",
+      "name": "Raheem Blackshear",
+      "position": "RB",
+      "team": "CAR",
+      "games": 12,
+      "offSnaps": 51,
+      "teamOffSnaps": 793,
+      "offPct": 0.064
+    },
+    "8408": {
+      "pfrId": "MasoJo00",
+      "name": "Jordan Mason",
+      "position": "RB",
+      "team": "SF",
+      "games": 17,
+      "offSnaps": 99,
+      "teamOffSnaps": 1066,
+      "offPct": 0.093
+    },
+    "8411": {
+      "pfrId": "AlleDe02",
+      "name": "Devon Allen",
+      "position": "WR",
+      "team": "PHI",
+      "games": 2,
+      "offSnaps": 0,
+      "teamOffSnaps": 150,
+      "offPct": 0
+    },
+    "8414": {
+      "pfrId": "CoveBr00",
+      "name": "Britain Covey",
+      "position": "WR",
+      "team": "PHI",
+      "games": 16,
+      "offSnaps": 58,
+      "teamOffSnaps": 1098,
+      "offPct": 0.053
+    },
+    "8475": {
+      "pfrId": "WashMo00",
+      "name": "Montrell Washington",
+      "position": "WR",
+      "team": "KC",
+      "games": 6,
+      "offSnaps": 2,
+      "teamOffSnaps": 420,
+      "offPct": 0.005
+    },
+    "8484": {
+      "pfrId": "KiefKo00",
+      "name": "Ko Kieft",
+      "position": "TE",
+      "team": "TB",
+      "games": 16,
+      "offSnaps": 207,
+      "teamOffSnaps": 1047,
+      "offPct": 0.198
+    },
+    "8489": {
+      "pfrId": "OgleAn00",
+      "name": "Andrew Ogletree",
+      "position": "TE",
+      "team": "IND",
+      "games": 12,
+      "offSnaps": 336,
+      "teamOffSnaps": 839,
+      "offPct": 0.4
+    },
+    "8500": {
+      "pfrId": "FitzJo00",
+      "name": "John FitzPatrick",
+      "position": "TE",
+      "team": "ATL",
+      "games": 9,
+      "offSnaps": 18,
+      "teamOffSnaps": 625,
+      "offPct": 0.029
+    },
+    "8523": {
+      "pfrId": "MuseNi00",
+      "name": "Nick Muse",
+      "position": "TE",
+      "team": "MIN",
+      "games": 2,
+      "offSnaps": 2,
+      "teamOffSnaps": 126,
+      "offPct": 0.016
+    },
+    "8527": {
+      "pfrId": "YounDa02",
+      "name": "Dareke Young",
+      "position": "WR",
+      "team": "SEA",
+      "games": 6,
+      "offSnaps": 9,
+      "teamOffSnaps": 367,
+      "offPct": 0.025
+    },
+    "8583": {
+      "pfrId": "SmarSt00",
+      "name": "Stone Smartt",
+      "position": "TE",
+      "team": "LAC",
+      "games": 16,
+      "offSnaps": 309,
+      "teamOffSnaps": 1090,
+      "offPct": 0.283
+    },
+    "8676": {
+      "pfrId": "ShahRa00",
+      "name": "Rashid Shaheed",
+      "position": "WR",
+      "team": "NO",
+      "games": 15,
+      "offSnaps": 604,
+      "teamOffSnaps": 1039,
+      "offPct": 0.581
+    },
+    "8756": {
+      "pfrId": "JohnBr23",
+      "name": "Brandon Johnson",
+      "position": "WR",
+      "team": "DEN",
+      "games": 13,
+      "offSnaps": 343,
+      "teamOffSnaps": 804,
+      "offPct": 0.427
+    },
+    "8800": {
+      "pfrId": "DaviMa02",
+      "name": "Malik Davis",
+      "position": "RB",
+      "team": "DAL",
+      "games": 3,
+      "offSnaps": 0,
+      "teamOffSnaps": 187,
+      "offPct": 0
+    },
+    "8840": {
+      "pfrId": "FothCo00",
+      "name": "Cole Fotheringham",
+      "position": "TE",
+      "team": "LV",
+      "games": 2,
+      "offSnaps": 21,
+      "teamOffSnaps": 130,
+      "offPct": 0.162
+    },
+    "8849": {
+      "pfrId": "ConnTa00",
+      "name": "Tanner Conner",
+      "position": "WR",
+      "team": "MIA",
+      "games": 3,
+      "offSnaps": 20,
+      "teamOffSnaps": 177,
+      "offPct": 0.113
+    },
+    "8861": {
+      "pfrId": "CharIr00",
+      "name": "Irvin Charles",
+      "position": "WR",
+      "team": "NYJ",
+      "games": 12,
+      "offSnaps": 43,
+      "teamOffSnaps": 814,
+      "offPct": 0.053
+    },
+    "8885": {
+      "pfrId": "FiskTu00",
+      "name": "Tucker Fisk",
+      "position": "TE",
+      "team": "ATL",
+      "games": 6,
+      "offSnaps": 72,
+      "teamOffSnaps": 370,
+      "offPct": 0.195
+    },
+    "8917": {
+      "pfrId": "TurpKa00",
+      "name": "KaVontae Turpin",
+      "position": "WR",
+      "team": "DAL",
+      "games": 16,
+      "offSnaps": 140,
+      "teamOffSnaps": 1106,
+      "offPct": 0.127
+    },
+    "9220": {
+      "pfrId": "HullEv00",
+      "name": "Evan Hull",
+      "position": "RB",
+      "team": "IND",
+      "games": 1,
+      "offSnaps": 8,
+      "teamOffSnaps": 72,
+      "offPct": 0.111
+    },
+    "9221": {
+      "pfrId": "GibbJa01",
+      "name": "Jahmyr Gibbs",
+      "position": "RB",
+      "team": "DET",
+      "games": 15,
+      "offSnaps": 596,
+      "teamOffSnaps": 1048,
+      "offPct": 0.569
+    },
+    "9222": {
+      "pfrId": "EvanZa00",
+      "name": "Zach Evans",
+      "position": "RB",
+      "team": "LA",
+      "games": 10,
+      "offSnaps": 16,
+      "teamOffSnaps": 656,
+      "offPct": 0.024
+    },
+    "9224": {
+      "pfrId": "BrowCh10",
+      "name": "Chase Brown",
+      "position": "RB",
+      "team": "CIN",
+      "games": 12,
+      "offSnaps": 93,
+      "teamOffSnaps": 774,
+      "offPct": 0.12
+    },
+    "9225": {
+      "pfrId": "BigsTa00",
+      "name": "Tank Bigsby",
+      "position": "RB",
+      "team": "JAX",
+      "games": 17,
+      "offSnaps": 141,
+      "teamOffSnaps": 1166,
+      "offPct": 0.121
+    },
+    "9226": {
+      "pfrId": "AchaDe00",
+      "name": "De'Von Achane",
+      "position": "RB",
+      "team": "MIA",
+      "games": 11,
+      "offSnaps": 300,
+      "teamOffSnaps": 705,
+      "offPct": 0.426
+    },
+    "9227": {
+      "pfrId": "AbanIs00",
+      "name": "Israel Abanikanda",
+      "position": "RB",
+      "team": "NYJ",
+      "games": 6,
+      "offSnaps": 77,
+      "teamOffSnaps": 411,
+      "offPct": 0.187
+    },
+    "9228": {
+      "pfrId": "YounBr01",
+      "name": "Bryce Young",
+      "position": "QB",
+      "team": "CAR",
+      "games": 16,
+      "offSnaps": 1068,
+      "teamOffSnaps": 1070,
+      "offPct": 0.998
+    },
+    "9229": {
+      "pfrId": "RichAn03",
+      "name": "Anthony Richardson",
+      "position": "QB",
+      "team": "IND",
+      "games": 4,
+      "offSnaps": 173,
+      "teamOffSnaps": 259,
+      "offPct": 0.668
+    },
+    "9231": {
+      "pfrId": "HallJa00",
+      "name": "Jaren Hall",
+      "position": "QB",
+      "team": "MIN",
+      "games": 3,
+      "offSnaps": 46,
+      "teamOffSnaps": 200,
+      "offPct": 0.23
+    },
+    "9479": {
+      "pfrId": "WashDa03",
+      "name": "Darnell Washington",
+      "position": "TE",
+      "team": "PIT",
+      "games": 17,
+      "offSnaps": 511,
+      "teamOffSnaps": 1071,
+      "offPct": 0.477
+    },
+    "9480": {
+      "pfrId": "StraBr00",
+      "name": "Brenton Strange",
+      "position": "TE",
+      "team": "JAX",
+      "games": 14,
+      "offSnaps": 307,
+      "teamOffSnaps": 959,
+      "offPct": 0.32
+    },
+    "9481": {
+      "pfrId": "MusgLu00",
+      "name": "Luke Musgrave",
+      "position": "TE",
+      "team": "GB",
+      "games": 11,
+      "offSnaps": 468,
+      "teamOffSnaps": 708,
+      "offPct": 0.661
+    },
+    "9482": {
+      "pfrId": "MayeMi00",
+      "name": "Michael Mayer",
+      "position": "TE",
+      "team": "LV",
+      "games": 14,
+      "offSnaps": 602,
+      "teamOffSnaps": 850,
+      "offPct": 0.708
+    },
+    "9483": {
+      "pfrId": "KuntZa00",
+      "name": "Zack Kuntz",
+      "position": "TE",
+      "team": "NYJ",
+      "games": 1,
+      "offSnaps": 2,
+      "teamOffSnaps": 65,
+      "offPct": 0.031
+    },
+    "9484": {
+      "pfrId": "KrafTu00",
+      "name": "Tucker Kraft",
+      "position": "TE",
+      "team": "GB",
+      "games": 17,
+      "offSnaps": 621,
+      "teamOffSnaps": 1096,
+      "offPct": 0.567
+    },
+    "9486": {
+      "pfrId": "WickDo00",
+      "name": "Dontayvion Wicks",
+      "position": "WR",
+      "team": "GB",
+      "games": 15,
+      "offSnaps": 458,
+      "teamOffSnaps": 966,
+      "offPct": 0.474
+    },
+    "9487": {
+      "pfrId": "WashPa01",
+      "name": "Parker Washington",
+      "position": "WR",
+      "team": "JAX",
+      "games": 9,
+      "offSnaps": 239,
+      "teamOffSnaps": 620,
+      "offPct": 0.385
+    },
+    "9488": {
+      "pfrId": "SmitJa06",
+      "name": "Jaxon Smith-Njigba",
+      "position": "WR",
+      "team": "SEA",
+      "games": 17,
+      "offSnaps": 675,
+      "teamOffSnaps": 1051,
+      "offPct": 0.642
+    },
+    "9490": {
+      "pfrId": "ScotTy00",
+      "name": "Tyler Scott",
+      "position": "WR",
+      "team": "CHI",
+      "games": 17,
+      "offSnaps": 439,
+      "teamOffSnaps": 1138,
+      "offPct": 0.386
+    },
+    "9492": {
+      "pfrId": "PalmTr00",
+      "name": "Trey Palmer",
+      "position": "WR",
+      "team": "TB",
+      "games": 17,
+      "offSnaps": 718,
+      "teamOffSnaps": 1103,
+      "offPct": 0.651
+    },
+    "9493": {
+      "pfrId": "NacuPu00",
+      "name": "Puka Nacua",
+      "position": "WR",
+      "team": "LA",
+      "games": 17,
+      "offSnaps": 1000,
+      "teamOffSnaps": 1148,
+      "offPct": 0.871
+    },
+    "9494": {
+      "pfrId": "MimsMa00",
+      "name": "Marvin Mims",
+      "position": "WR",
+      "team": "DEN",
+      "games": 16,
+      "offSnaps": 384,
+      "teamOffSnaps": 1003,
+      "offPct": 0.383
+    },
+    "9495": {
+      "pfrId": "JarrRa00",
+      "name": "Rakim Jarrett",
+      "position": "WR",
+      "team": "TB",
+      "games": 10,
+      "offSnaps": 115,
+      "teamOffSnaps": 656,
+      "offPct": 0.175
+    },
+    "9497": {
+      "pfrId": "HyatJa00",
+      "name": "Jalin Hyatt",
+      "position": "WR",
+      "team": "NYG",
+      "games": 17,
+      "offSnaps": 557,
+      "teamOffSnaps": 1104,
+      "offPct": 0.505
+    },
+    "9500": {
+      "pfrId": "DownJo00",
+      "name": "Josh Downs",
+      "position": "WR",
+      "team": "IND",
+      "games": 17,
+      "offSnaps": 788,
+      "teamOffSnaps": 1148,
+      "offPct": 0.686
+    },
+    "9501": {
+      "pfrId": "DougDe00",
+      "name": "Demario Douglas",
+      "position": "WR",
+      "team": "NE",
+      "games": 14,
+      "offSnaps": 481,
+      "teamOffSnaps": 870,
+      "offPct": 0.553
+    },
+    "9502": {
+      "pfrId": "DellNa00",
+      "name": "Tank Dell",
+      "position": "WR",
+      "team": "HOU",
+      "games": 11,
+      "offSnaps": 494,
+      "teamOffSnaps": 746,
+      "offPct": 0.662
+    },
+    "9504": {
+      "pfrId": "BoutKa00",
+      "name": "Kayshon Boutte",
+      "position": "WR",
+      "team": "NE",
+      "games": 5,
+      "offSnaps": 116,
+      "teamOffSnaps": 332,
+      "offPct": 0.349
+    },
+    "9505": {
+      "pfrId": "VaugDe00",
+      "name": "Deuce Vaughn",
+      "position": "RB",
+      "team": "DAL",
+      "games": 7,
+      "offSnaps": 61,
+      "teamOffSnaps": 488,
+      "offPct": 0.125
+    },
+    "9506": {
+      "pfrId": "TuckSe00",
+      "name": "Sean Tucker",
+      "position": "RB",
+      "team": "TB",
+      "games": 11,
+      "offSnaps": 32,
+      "teamOffSnaps": 712,
+      "offPct": 0.045
+    },
+    "9508": {
+      "pfrId": "SpeaTy00",
+      "name": "Tyjae Spears",
+      "position": "RB",
+      "team": "TEN",
+      "games": 17,
+      "offSnaps": 558,
+      "teamOffSnaps": 1050,
+      "offPct": 0.531
+    },
+    "9509": {
+      "pfrId": "RobiBi01",
+      "name": "Bijan Robinson",
+      "position": "RB",
+      "team": "ATL",
+      "games": 17,
+      "offSnaps": 771,
+      "teamOffSnaps": 1130,
+      "offPct": 0.682
+    },
+    "9511": {
+      "pfrId": "MitcKe01",
+      "name": "Keaton Mitchell",
+      "position": "RB",
+      "team": "BAL",
+      "games": 8,
+      "offSnaps": 135,
+      "teamOffSnaps": 540,
+      "offPct": 0.25
+    },
+    "9753": {
+      "pfrId": "CharZa00",
+      "name": "Zach Charbonnet",
+      "position": "RB",
+      "team": "SEA",
+      "games": 16,
+      "offSnaps": 478,
+      "teamOffSnaps": 991,
+      "offPct": 0.482
+    },
+    "9754": {
+      "pfrId": "JohnQu02",
+      "name": "Quentin Johnston",
+      "position": "WR",
+      "team": "LAC",
+      "games": 17,
+      "offSnaps": 748,
+      "teamOffSnaps": 1158,
+      "offPct": 0.646
+    },
+    "9756": {
+      "pfrId": "AddiJo00",
+      "name": "Jordan Addison",
+      "position": "WR",
+      "team": "MIN",
+      "games": 17,
+      "offSnaps": 921,
+      "teamOffSnaps": 1121,
+      "offPct": 0.822
+    },
+    "9757": {
+      "pfrId": "MillKe01",
+      "name": "Kendre Miller",
+      "position": "RB",
+      "team": "NO",
+      "games": 8,
+      "offSnaps": 112,
+      "teamOffSnaps": 566,
+      "offPct": 0.198
+    },
+    "9758": {
+      "pfrId": "StroCJ00",
+      "name": "C.J. Stroud",
+      "position": "QB",
+      "team": "HOU",
+      "games": 15,
+      "offSnaps": 968,
+      "teamOffSnaps": 982,
+      "offPct": 0.986
+    },
+    "9997": {
+      "pfrId": "FlowZa00",
+      "name": "Zay Flowers",
+      "position": "WR",
+      "team": "BAL",
+      "games": 16,
+      "offSnaps": 905,
+      "teamOffSnaps": 1069,
+      "offPct": 0.847
+    },
+    "9999": {
+      "pfrId": "LeviWi00",
+      "name": "Will Levis",
+      "position": "QB",
+      "team": "TEN",
+      "games": 9,
+      "offSnaps": 528,
+      "teamOffSnaps": 572,
+      "offPct": 0.923
+    },
+    "10212": {
+      "pfrId": "WhylJo01",
+      "name": "Josh Whyle",
+      "position": "TE",
+      "team": "TEN",
+      "games": 11,
+      "offSnaps": 156,
+      "teamOffSnaps": 672,
+      "offPct": 0.232
+    },
+    "10213": {
+      "pfrId": "TuckTr00",
+      "name": "Tre Tucker",
+      "position": "WR",
+      "team": "LV",
+      "games": 16,
+      "offSnaps": 334,
+      "teamOffSnaps": 987,
+      "offPct": 0.338
+    },
+    "10214": {
+      "pfrId": "AlleDa02",
+      "name": "Davis Allen",
+      "position": "TE",
+      "team": "LA",
+      "games": 15,
+      "offSnaps": 192,
+      "teamOffSnaps": 1013,
+      "offPct": 0.19
+    },
+    "10216": {
+      "pfrId": "McInKe00",
+      "name": "Kenny McIntosh",
+      "position": "RB",
+      "team": "SEA",
+      "games": 3,
+      "offSnaps": 0,
+      "teamOffSnaps": 184,
+      "offPct": 0
+    },
+    "10217": {
+      "pfrId": "TuneCl00",
+      "name": "Clayton Tune",
+      "position": "QB",
+      "team": "ARI",
+      "games": 7,
+      "offSnaps": 60,
+      "teamOffSnaps": 474,
+      "offPct": 0.127
+    },
+    "10218": {
+      "pfrId": "HutcXa00",
+      "name": "Xavier Hutchinson",
+      "position": "WR",
+      "team": "HOU",
+      "games": 16,
+      "offSnaps": 281,
+      "teamOffSnaps": 1066,
+      "offPct": 0.264
+    },
+    "10219": {
+      "pfrId": "RodrCh00",
+      "name": "Chris Rodriguez",
+      "position": "RB",
+      "team": "WAS",
+      "games": 13,
+      "offSnaps": 97,
+      "teamOffSnaps": 864,
+      "offPct": 0.112
+    },
+    "10220": {
+      "pfrId": "MallWi00",
+      "name": "Will Mallory",
+      "position": "TE",
+      "team": "IND",
+      "games": 12,
+      "offSnaps": 159,
+      "teamOffSnaps": 801,
+      "offPct": 0.199
+    },
+    "10221": {
+      "pfrId": "BellRo01",
+      "name": "Ronnie Bell",
+      "position": "WR",
+      "team": "SF",
+      "games": 17,
+      "offSnaps": 183,
+      "teamOffSnaps": 1066,
+      "offPct": 0.172
+    },
+    "10222": {
+      "pfrId": "ReedJa03",
+      "name": "Jayden Reed",
+      "position": "WR",
+      "team": "GB",
+      "games": 16,
+      "offSnaps": 578,
+      "teamOffSnaps": 1030,
+      "offPct": 0.561
+    },
+    "10223": {
+      "pfrId": "GrayEr01",
+      "name": "Eric Gray",
+      "position": "RB",
+      "team": "NYG",
+      "games": 13,
+      "offSnaps": 65,
+      "teamOffSnaps": 854,
+      "offPct": 0.076
+    },
+    "10224": {
+      "pfrId": "WillBr06",
+      "name": "Brayden Willis",
+      "position": "TE",
+      "team": "SF",
+      "games": 7,
+      "offSnaps": 48,
+      "teamOffSnaps": 449,
+      "offPct": 0.107
+    },
+    "10225": {
+      "pfrId": "MingJo00",
+      "name": "Jonathan Mingo",
+      "position": "WR",
+      "team": "CAR",
+      "games": 15,
+      "offSnaps": 910,
+      "teamOffSnaps": 1025,
+      "offPct": 0.888
+    },
+    "10226": {
+      "pfrId": "IosiAn00",
+      "name": "Andrei Iosivas",
+      "position": "WR",
+      "team": "CIN",
+      "games": 16,
+      "offSnaps": 266,
+      "teamOffSnaps": 1027,
+      "offPct": 0.259
+    },
+    "10227": {
+      "pfrId": "DurhPa00",
+      "name": "Payne Durham",
+      "position": "TE",
+      "team": "TB",
+      "games": 13,
+      "offSnaps": 128,
+      "teamOffSnaps": 846,
+      "offPct": 0.151
+    },
+    "10228": {
+      "pfrId": "JoneCh11",
+      "name": "Charlie Jones",
+      "position": "WR",
+      "team": "CIN",
+      "games": 11,
+      "offSnaps": 44,
+      "teamOffSnaps": 702,
+      "offPct": 0.063
+    },
+    "10229": {
+      "pfrId": "RiceRa01",
+      "name": "Rashee Rice",
+      "position": "WR",
+      "team": "KC",
+      "games": 16,
+      "offSnaps": 622,
+      "teamOffSnaps": 1072,
+      "offPct": 0.58
+    },
+    "10231": {
+      "pfrId": "HiggEl00",
+      "name": "Elijah Higgins",
+      "position": "TE",
+      "team": "ARI",
+      "games": 11,
+      "offSnaps": 192,
+      "teamOffSnaps": 741,
+      "offPct": 0.259
+    },
+    "10232": {
+      "pfrId": "WilsMi02",
+      "name": "Michael Wilson",
+      "position": "WR",
+      "team": "ARI",
+      "games": 13,
+      "offSnaps": 709,
+      "teamOffSnaps": 881,
+      "offPct": 0.805
+    },
+    "10234": {
+      "pfrId": "DaviDe02",
+      "name": "Derius Davis",
+      "position": "WR",
+      "team": "LAC",
+      "games": 17,
+      "offSnaps": 149,
+      "teamOffSnaps": 1158,
+      "offPct": 0.129
+    },
+    "10235": {
+      "pfrId": "JohnRo07",
+      "name": "Roschon Johnson",
+      "position": "RB",
+      "team": "CHI",
+      "games": 15,
+      "offSnaps": 395,
+      "teamOffSnaps": 1001,
+      "offPct": 0.395
+    },
+    "10236": {
+      "pfrId": "KincDa00",
+      "name": "Dalton Kincaid",
+      "position": "TE",
+      "team": "BUF",
+      "games": 16,
+      "offSnaps": 699,
+      "teamOffSnaps": 1103,
+      "offPct": 0.634
+    },
+    "10444": {
+      "pfrId": "TillCe01",
+      "name": "Cedric Tillman",
+      "position": "WR",
+      "team": "CLE",
+      "games": 14,
+      "offSnaps": 609,
+      "teamOffSnaps": 1011,
+      "offPct": 0.602
+    },
+    "10651": {
+      "pfrId": "IbraMo00",
+      "name": "Mohamed Ibrahim",
+      "position": "RB",
+      "team": "DET",
+      "games": 1,
+      "offSnaps": 0,
+      "teamOffSnaps": 75,
+      "offPct": 0
+    },
+    "10859": {
+      "pfrId": "LaPoSa01",
+      "name": "Sam LaPorta",
+      "position": "TE",
+      "team": "DET",
+      "games": 17,
+      "offSnaps": 981,
+      "teamOffSnaps": 1178,
+      "offPct": 0.833
+    },
+    "10860": {
+      "pfrId": "CunnMa00",
+      "name": "Malik Cunningham",
+      "position": "QB",
+      "team": "NE",
+      "games": 2,
+      "offSnaps": 10,
+      "teamOffSnaps": 117,
+      "offPct": 0.085,
+      "traded": true,
+      "teams": [
+        "NE",
+        "BAL"
+      ]
+    },
+    "10861": {
+      "pfrId": "VallXa00",
+      "name": "Xazavian Valladay",
+      "position": "RB",
+      "team": "NYJ",
+      "games": 1,
+      "offSnaps": 0,
+      "teamOffSnaps": 65,
+      "offPct": 0
+    },
+    "10862": {
+      "pfrId": "ThomDo02",
+      "name": "Dorian Thompson-Robinson",
+      "position": "QB",
+      "team": "CLE",
+      "games": 8,
+      "offSnaps": 214,
+      "teamOffSnaps": 593,
+      "offPct": 0.361
+    },
+    "10863": {
+      "pfrId": "PerrAT00",
+      "name": "A.T. Perry",
+      "position": "WR",
+      "team": "NO",
+      "games": 10,
+      "offSnaps": 343,
+      "teamOffSnaps": 646,
+      "offPct": 0.531
+    },
+    "10866": {
+      "pfrId": "OConAi00",
+      "name": "Aidan O'Connell",
+      "position": "QB",
+      "team": "LV",
+      "games": 11,
+      "offSnaps": 641,
+      "teamOffSnaps": 695,
+      "offPct": 0.922
+    },
+    "10867": {
+      "pfrId": "BoboJa00",
+      "name": "Jake Bobo",
+      "position": "WR",
+      "team": "SEA",
+      "games": 17,
+      "offSnaps": 304,
+      "teamOffSnaps": 1051,
+      "offPct": 0.289
+    },
+    "10870": {
+      "pfrId": "PrinDe00",
+      "name": "Deneric Prince",
+      "position": "RB",
+      "team": "KC",
+      "games": 2,
+      "offSnaps": 0,
+      "teamOffSnaps": 131,
+      "offPct": 0
+    },
+    "10871": {
+      "pfrId": "SchoLu00",
+      "name": "Luke Schoonmaker",
+      "position": "TE",
+      "team": "DAL",
+      "games": 17,
+      "offSnaps": 368,
+      "teamOffSnaps": 1184,
+      "offPct": 0.311
+    },
+    "10983": {
+      "pfrId": "ClifSe00",
+      "name": "Sean Clifford",
+      "position": "QB",
+      "team": "GB",
+      "games": 2,
+      "offSnaps": 13,
+      "teamOffSnaps": 134,
+      "offPct": 0.097
+    },
+    "11034": {
+      "pfrId": "BrooJa03",
+      "name": "Jalen Brooks",
+      "position": "WR",
+      "team": "DAL",
+      "games": 7,
+      "offSnaps": 77,
+      "teamOffSnaps": 492,
+      "offPct": 0.157
+    },
+    "11046": {
+      "pfrId": "DoweCo00",
+      "name": "Colton Dowell",
+      "position": "WR",
+      "team": "TEN",
+      "games": 10,
+      "offSnaps": 51,
+      "teamOffSnaps": 614,
+      "offPct": 0.083
+    },
+    "11053": {
+      "pfrId": "GreeAn00",
+      "name": "Antoine Green",
+      "position": "WR",
+      "team": "DET",
+      "games": 9,
+      "offSnaps": 106,
+      "teamOffSnaps": 625,
+      "offPct": 0.17
+    },
+    "11068": {
+      "pfrId": "TinsMi00",
+      "name": "Mitchell Tinsley",
+      "position": "WR",
+      "team": "WAS",
+      "games": 2,
+      "offSnaps": 3,
+      "teamOffSnaps": 122,
+      "offPct": 0.025
+    },
+    "11082": {
+      "pfrId": "SimsBe00",
+      "name": "Ben Sims",
+      "position": "TE",
+      "team": "GB",
+      "games": 17,
+      "offSnaps": 189,
+      "teamOffSnaps": 1096,
+      "offPct": 0.172
+    },
+    "11099": {
+      "pfrId": "JackKe02",
+      "name": "Kearis Jackson",
+      "position": "WR",
+      "team": "TEN",
+      "games": 2,
+      "offSnaps": 0,
+      "teamOffSnaps": 128,
+      "offPct": 0
+    },
+    "11104": {
+      "pfrId": "ThomSa00",
+      "name": "SaRodorick Thompson",
+      "position": "RB",
+      "team": "SEA",
+      "games": 1,
+      "offSnaps": 2,
+      "teamOffSnaps": 60,
+      "offPct": 0.033
+    },
+    "11114": {
+      "pfrId": "DotsEl00",
+      "name": "Elijah Dotson",
+      "position": "RB",
+      "team": "LAC",
+      "games": 4,
+      "offSnaps": 16,
+      "teamOffSnaps": 280,
+      "offPct": 0.057
+    },
+    "11139": {
+      "pfrId": "CookEl00",
+      "name": "Elijah Cooks",
+      "position": "WR",
+      "team": "JAX",
+      "games": 9,
+      "offSnaps": 108,
+      "teamOffSnaps": 586,
+      "offPct": 0.184
+    },
+    "11199": {
+      "pfrId": "DemeEm00",
+      "name": "Emari Demercado",
+      "position": "RB",
+      "team": "ARI",
+      "games": 14,
+      "offSnaps": 292,
+      "teamOffSnaps": 955,
+      "offPct": 0.306
+    },
+    "11201": {
+      "pfrId": "WhitBl01",
+      "name": "Blake Whiteheart",
+      "position": "TE",
+      "team": "ARI",
+      "games": 2,
+      "offSnaps": 2,
+      "teamOffSnaps": 122,
+      "offPct": 0.016
+    },
+    "11209": {
+      "pfrId": "PearHe00",
+      "name": "Henry Pearson",
+      "position": "TE",
+      "team": "GB",
+      "games": 2,
+      "offSnaps": 11,
+      "teamOffSnaps": 120,
+      "offPct": 0.092
+    },
+    "11210": {
+      "pfrId": "HeatMa00",
+      "name": "Malik Heath",
+      "position": "WR",
+      "team": "GB",
+      "games": 13,
+      "offSnaps": 260,
+      "teamOffSnaps": 849,
+      "offPct": 0.306
+    },
+    "11256": {
+      "pfrId": "BageTy00",
+      "name": "Tyson Bagent",
+      "position": "QB",
+      "team": "CHI",
+      "games": 5,
+      "offSnaps": 305,
+      "teamOffSnaps": 343,
+      "offPct": 0.889
+    },
+    "11257": {
+      "pfrId": "JackSh01",
+      "name": "Shedrick Jackson",
+      "position": "WR",
+      "team": "CIN",
+      "games": 3,
+      "offSnaps": 5,
+      "teamOffSnaps": 189,
+      "offPct": 0.026
+    },
+    "11280": {
+      "pfrId": "RussBr00",
+      "name": "Brady Russell",
+      "position": "TE",
+      "team": "SEA",
+      "games": 15,
+      "offSnaps": 16,
+      "teamOffSnaps": 928,
+      "offPct": 0.017
+    },
+    "11292": {
+      "pfrId": "DeViTo00",
+      "name": "Tommy DeVito",
+      "position": "QB",
+      "team": "NYG",
+      "games": 9,
+      "offSnaps": 406,
+      "teamOffSnaps": 550,
+      "offPct": 0.738
+    },
+    "11306": {
+      "pfrId": "GipsXa00",
+      "name": "Xavier Gipson",
+      "position": "WR",
+      "team": "NYJ",
+      "games": 17,
+      "offSnaps": 496,
+      "teamOffSnaps": 1101,
+      "offPct": 0.45
+    },
+    "11311": {
+      "pfrId": "BrowJa07",
+      "name": "Jason Brownlee",
+      "position": "WR",
+      "team": "NYJ",
+      "games": 7,
+      "offSnaps": 311,
+      "teamOffSnaps": 475,
+      "offPct": 0.655
+    },
+    "11370": {
+      "pfrId": "BrooCh00",
+      "name": "Chris Brooks",
+      "position": "RB",
+      "team": "MIA",
+      "games": 9,
+      "offSnaps": 36,
+      "teamOffSnaps": 575,
+      "offPct": 0.063
+    },
+    "11371": {
+      "pfrId": "HillJu02",
+      "name": "Julian Hill",
+      "position": "TE",
+      "team": "MIA",
+      "games": 15,
+      "offSnaps": 343,
+      "teamOffSnaps": 968,
+      "offPct": 0.354
+    },
+    "11378": {
+      "pfrId": "MimsJo00",
+      "name": "Jordan Mims",
+      "position": "RB",
+      "team": "NO",
+      "games": 2,
+      "offSnaps": 3,
+      "teamOffSnaps": 149,
+      "offPct": 0.02
+    },
+    "11381": {
+      "pfrId": "VokoTr00",
+      "name": "Travis Vokolek",
+      "position": "TE",
+      "team": "ARI",
+      "games": 2,
+      "offSnaps": 40,
+      "teamOffSnaps": 146,
+      "offPct": 0.274
+    },
+    "11384": {
+      "pfrId": "WrigOw00",
+      "name": "Owen Wright",
+      "position": "RB",
+      "team": "BAL",
+      "games": 1,
+      "offSnaps": 0,
+      "teamOffSnaps": 65,
+      "offPct": 0
+    },
+    "11421": {
+      "pfrId": "MillRy01",
+      "name": "Ryan Miller",
+      "position": "WR",
+      "team": "TB",
+      "games": 1,
+      "offSnaps": 3,
+      "teamOffSnaps": 62,
+      "offPct": 0.048
+    },
+    "11433": {
+      "pfrId": "AdkiNa00",
+      "name": "Nate Adkins",
+      "position": "TE",
+      "team": "DEN",
+      "games": 10,
+      "offSnaps": 60,
+      "teamOffSnaps": 621,
+      "offPct": 0.097
+    },
+    "11435": {
+      "pfrId": "WilsEm00",
+      "name": "Emanuel Wilson",
+      "position": "RB",
+      "team": "GB",
+      "games": 7,
+      "offSnaps": 36,
+      "teamOffSnaps": 463,
+      "offPct": 0.078
+    },
+    "11439": {
+      "pfrId": "McLaJa00",
+      "name": "Jaleel McLaughlin",
+      "position": "RB",
+      "team": "DEN",
+      "games": 17,
+      "offSnaps": 193,
+      "teamOffSnaps": 1072,
+      "offPct": 0.18
+    },
+    "11474": {
+      "pfrId": "DrumDy00",
+      "name": "Dylan Drummond",
+      "position": "WR",
+      "team": "DET",
+      "games": 1,
+      "offSnaps": 5,
+      "teamOffSnaps": 60,
+      "offPct": 0.083
+    },
+    "11508": {
+      "pfrId": "FantPr00",
+      "name": "Princeton Fant",
+      "position": "TE",
+      "team": "DAL",
+      "games": 2,
+      "offSnaps": 0,
+      "teamOffSnaps": 171,
+      "offPct": 0
+    },
+    "11510": {
+      "pfrId": "LuepHu00",
+      "name": "Hunter Luepke",
+      "position": "RB",
+      "team": "DAL",
+      "games": 17,
+      "offSnaps": 153,
+      "teamOffSnaps": 1184,
+      "offPct": 0.129
+    },
+    "11520": {
+      "pfrId": "JackLu00",
+      "name": "Lucky Jackson",
+      "position": "WR",
+      "team": "MIN",
+      "games": 3,
+      "offSnaps": 3,
+      "teamOffSnaps": 181,
+      "offPct": 0.017
+    }
+  },
+  "byPfr": {
+    "WillRo08": {
+      "pfrId": "WillRo08",
+      "name": "Rodney Williams",
+      "position": "TE",
+      "team": "PIT",
+      "games": 13,
+      "offSnaps": 55,
+      "teamOffSnaps": 833,
+      "offPct": 0.066
+    },
+    "LassKw00": {
+      "pfrId": "LassKw00",
+      "name": "Kwamie Lassiter II",
+      "position": "WR",
+      "team": "CIN",
+      "games": 1,
+      "offSnaps": 5,
+      "teamOffSnaps": 82,
+      "offPct": 0.061
+    },
+    "BynuTe00": {
+      "pfrId": "BynuTe00",
+      "name": "Terrell Bynum",
+      "position": "WR",
+      "team": "LAC",
+      "games": 1,
+      "offSnaps": 1,
+      "teamOffSnaps": 65,
+      "offPct": 0.015
+    },
+    "KampHu00": {
+      "pfrId": "KampHu00",
+      "name": "Hunter Kampmoyer",
+      "position": "TE",
+      "team": "LAC",
+      "games": 1,
+      "offSnaps": 1,
+      "teamOffSnaps": 66,
+      "offPct": 0.015
+    },
+    "PedeJo00": {
+      "pfrId": "PedeJo00",
+      "name": "Josh Pederson",
+      "position": "TE",
+      "team": "JAX",
+      "games": 3,
+      "offSnaps": 8,
+      "teamOffSnaps": 207,
+      "offPct": 0.039
+    },
+    "FernEt00": {
+      "pfrId": "FernEt00",
+      "name": "Ethan Fernea",
+      "position": "WR",
+      "team": "IND",
+      "games": 3,
+      "offSnaps": 2,
+      "teamOffSnaps": 194,
+      "offPct": 0.01
+    }
+  }
+}

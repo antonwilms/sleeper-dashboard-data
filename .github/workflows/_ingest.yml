@@ -1,6 +1,7 @@
 name: Reusable ingest job
 
-# Template for the eight uniform weekly ingest workflows (ci-consolidation.md §2.2, §3.2).
+# Template for the nine uniform ingest workflows (ci-consolidation.md §2.2, §3.2; nflverse-snaps.yml
+# added by snap-counts-backfill.md — the one caller on a yearly rather than weekly schedule).
 # Each caller keeps its own `name`, `on: schedule` (verbatim cron + comment), and
 # `workflow_dispatch`, and delegates its body here via `jobs.<x>.uses:`.
 #

@@ -165,5 +165,78 @@ Gate tests in `lib/validate.mjs`'s style: a join rate under 0.85 throws; a seaso
 
 - **The cross-validation is the real gate, and it can fail.** If r < 0.95 the slice still succeeds: the family is banked, the panel is unchanged, and the finding is that the two sources measure different things. Write that outcome up rather than treating it as a failed slice.
 - **Backfilling fourteen seasons is a lot of committed data.** Measure the served size for one season before running `--all`, and report it. If it is large, minify as `update-nfl.mjs` and the D2 crosswalk already do.
-- **The join rate is measured at 2016 and 2022 only, both after 2015.** The crosswalk is bounded by Sleeper's player universe, so coverage against 2012–2015 can only be worse, by an unmeasured amount. If a floor season trips the 0.85 throw partway through `--all`, earlier seasons are already written and committed. **That is the expected shape of the failure, not a corrupt state** — report which seasons landed and do not roll back.
+- **The join rate is measured at 2016 and 2022 only, both after 2015.** The crosswalk is bounded by Sleeper's player universe, so coverage against 2012–2015 can only be worse, by an unmeasured amount. **Corrected in fix pass 1 (item 2) — this bullet originally had the failure backwards.** Seasons run **ascending from `MIN_SNAPS_SEASON`**, and `validateSnaps` **throws** rather than skipping, so the weakest season (2013) is the *first* one `--all` touches. A future crosswalk regression aborts the whole backfill before any season is written — fail-fast and all-or-nothing, never a half-written family. That is the safer of the two possible shapes, at the cost of one bad season blocking the twelve good ones behind it in the same `--all` run. Report the abort and do not attempt a partial-continue.
 - **Do not re-derive a completed season in place** without a named Invariant-1 exception. This is a new family, so the first write of each season is an addition, not a re-derivation — but a second pass over an already-written season is not.
+
+---
+
+## Fix pass 1
+
+Session 1 triage of the implementation-reviewer flags on `dc13f32..602186e` (PR #4). **The fix-applier implements this section and nothing else.** Work on the existing `d4-snap-counts-backfill` branch and push to the same PR.
+
+Independently verified before triage, so do not re-derive: the 2012 asset really is header-only (154 bytes, no data rows); the cross-validation reproduces per position at QB 0.9984, RB 0.9988, WR 0.9997, TE 0.9997; `loadSnapShare` is still `null` and no panel, backtest or projection-factor file is in the diff.
+
+### 1. The catalog states a join rate the committed data contradicts — **must fix**
+
+`data-catalog.md` says the join rate is "0.981–0.999 across the 2013–2025 backfill". Recomputed from the thirteen committed files it is **0.854–0.995**. The weakest season is 2013 at **0.8537**, which clears `SNAPS_JOIN_RATE_MIN = 0.85` by **0.0037** — about two players.
+
+**Fix.** State the real range, name 2013 as the floor season with its actual figure, and say why it is low: the crosswalk is bounded by Sleeper's player universe, so a 2013 player who retired before Sleeper existed has no id and never will. This is attrition, not a defect, and the same effect measures 0.853 independently in D5's depth-chart planning. Add one line saying the margin at 2013 is thin enough that a crosswalk regression would trip it.
+
+### 2. The Risks assumption is inverted, and the real behaviour is better — **must fix (this file's error)**
+
+This file's Risks section says a tripped floor mid-`--all` leaves earlier seasons written and committed, and calls a partial backfill the expected shape of that failure. That is wrong for what shipped. Seasons run **ascending from the floor**, and `validateSnaps` throws, so 2013 — the weakest season — is the first one touched. A future crosswalk drift aborts the whole backfill before any season is rewritten.
+
+**Fix.** Correct the Risks bullet to describe the real behaviour. Note that it is the safer of the two, because an all-or-nothing failure cannot leave a half-written family, and that the trade is a single bad season blocking twelve good ones.
+
+### 3. `MIN_SNAPS_SEASON`'s throw is unreachable — **must fix**
+
+`validateSnaps` rejects a below-floor season, but no command-line path reaches it: `runSeasonKeyedIngest` classifies a below-floor `--year` as "not published yet" and the command exits **0** with a skip message. §C asked for a rejected year, and what shipped is a silent success. The test that covers it asserts a branch nothing can reach.
+
+**Fix.** Reject a below-floor `--year` in `scripts/update-snaps.mjs` before the spine sees it, so the CLI exits non-zero with a clear reason. Keep the validator check as the second line of defence. Then change the test to drive the **reachable** path — the CLI rejection — and keep a separate direct-call test for the validator if you want both.
+
+### 4. `team` and `teams[0]` disagree on four committed rows — **must fix**
+
+`team` breaks a snap-count tie alphabetically; `teams[0]` breaks it by insertion order. They disagree for four players in the committed data:
+
+| season | player | `team` | `teams` |
+|---|---|---|---|
+| 2014 | 1003 | SF | TB, SF |
+| 2021 | 8085 | JAX | TEN, LA, JAX |
+| 2023 | 5980 | LA | MIN, LA |
+| 2024 | 12050 | NYG | SEA, NYG |
+
+Serving two contradictory answers for one player's primary team is a defect, and no test covers a tie.
+
+**Fix.** One rule, one source: derive `team` from `teams[0]` so they cannot diverge, and pick the tie-break deliberately — snaps descending, then a stated deterministic secondary. Add a test with a genuine tie asserting both fields agree.
+
+**This requires rewriting four completed seasons, so name the Invariant-1 exception explicitly** in the commit message: seasons 2014, 2021, 2023 and 2024 are re-derived to correct a field that contradicts itself within the same row. Regenerate only those four. Verify afterwards that no other row in any season changed.
+
+### 5. Three documentation statements are false — **must fix**
+
+- `bin/update.mjs` help text says `snaps --all  Backfill every season (≥ 2012)`. The floor is 2013.
+- The workflow's cron comment claims a Monday run. `5 14 15 2 *` has no weekday field and fires on 15 February whatever day that is. Fix the comment, not the schedule — a yearly February run is right.
+- `data-catalog.md`'s `MIN_SNAPS_ROWS` note measures the **pre-crosswalk** population (2016 = 6,464 rows, 2022 = 7,033) while `validateSnaps` enforces the floor **post-crosswalk**. State which population the floor applies to, and confirm 3000 is still the intended fraction of the post-crosswalk counts rather than of the numbers quoted.
+
+### 6. No wrong-asset guard on the envelope's season — **must fix**
+
+`aggregateTeamContext` and `aggregateOlineStates` both assert the asset belongs to the requested season. This family takes the CSV's own `season` column with no assertion, so only the era-team guard would catch a mis-filed year. Under Invariant 1 a season written under the wrong year is permanent.
+
+**Fix.** Assert the CSV's `season` matches the requested season and throw on mismatch, matching the two existing guards. Add a test.
+
+### 7. Remove the registry annotation from the mirrored region — **must fix**
+
+The near-side maintenance was correct and stays: `snaps` in the brace list, `aggregateSnapCounts`, and `MIN_SNAPS_SEASON` all belong in CR-18's data-side `Triggers`. But the `[registry-stale]` note about `scripts/update-playerstats.mjs` was written **inside** the mirrored `CR-REGISTRY` region, and a data-repo session cannot mirror it to the app repo, so it creates drift in a region whose only value is being byte-identical.
+
+**Fix.** Delete that annotation from `README.md`, keeping the trigger-list maintenance. The finding is now recorded in the parent folder's `PARKED.md` where it survives without touching the region.
+
+### No change — considered and dismissed
+
+- **`MIN_SNAPS_SEASON = 2013`.** Verified independently. The deviation is a finding about the source.
+- **Throw in the validator rather than skip at the spine.** The right call, and well reasoned: every season this family backfills is already published.
+- **Unit tests in the shared file.** Matches the repo's actual split. The hand-back declared it.
+- **The skipped panel test.** Correctly blocked by the standing instruction not to wire the panel in this PR.
+- **The prerequisite crosswalk commit.** Correct, necessary, and properly separated.
+
+### Leave alone
+
+`loadSnapShare`, and every panel, backtest and projection-factor file. `PANEL_DEFAULTS.fromYear`. The nine season files not named in fix 4. The spine's `minRows: 1`. `SNAPS_JOIN_RATE_MIN`. Do not edit the app repo or any other part of the registry.

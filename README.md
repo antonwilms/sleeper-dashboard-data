@@ -900,6 +900,103 @@ node bin/update.mjs oline --all      # backfill ESPN-era seasons ≥ 2025
 
 ---
 
+### `nflverse/snaps/<year>.json`
+
+PFR-sourced offensive snap-share forward capture (R1-SNAPS), produced by `bin/update.mjs snaps
+[--year YYYY] [--all]`, sourced from `snap_counts_<year>.csv` in the nflverse `snap_counts`
+release. Exists to widen the panel/backtest's snap-share predictor past Sleeper's own
+`off_snp`/`tm_off_snp`, which are only populated from 2020 — see [Analysis /
+Backtesting](#analysis--backtesting).
+
+**`MIN_SNAPS_SEASON = 2013`, not the 2012 floor its sibling nflverse families share:**
+`snap_counts_2012.csv` exists upstream (HTTP 200) but is header-only, zero data rows — 2013 is
+the first season with real data.
+
+**Position scope:** QB, RB, WR, TE, FB — mirrors `nflverse/gamelogs`' default. **REG only**, same
+rule as advstats/gamelogs.
+
+**Served shape:**
+```json
+{
+  "schemaVersion": 1,
+  "season": 2016,
+  "generatedAt": "2026-09-06T01:31:07.000Z",
+  "rowCount": 6397,
+  "playerCount": 582,
+  "unmapped": 11,
+  "players": {
+    "19": {
+      "pfrId": "FlacJo00",
+      "name": "Joe Flacco",
+      "position": "QB",
+      "team": "BAL",
+      "games": 16,
+      "offSnaps": 1111,
+      "teamOffSnaps": 1134,
+      "offPct": 0.98
+    }
+  },
+  "byPfr": {
+    "GronGl01": {
+      "pfrId": "GronGl01",
+      "name": "Glenn Gronkowski",
+      "position": "FB",
+      "team": "BUF",
+      "games": 1,
+      "offSnaps": 8,
+      "teamOffSnaps": 49,
+      "offPct": 0.163
+    }
+  }
+}
+```
+
+**Field semantics:**
+- `players` is keyed by `sleeper_id`, joined from the source's `pfr_player_id` via the D2 crosswalk
+  (`nflverse/playerids.json` `.bySleeper[*].pfrId`, reversed in memory — there is no natural
+  pfrId-keyed index on disk).
+- **`byPfr` — a deliberate departure from the advstats/gamelogs house pattern.** Those two families
+  drop unmapped rows to a bare `unmapped` count; at this family's ~99% join rate the residue is
+  small and worth retaining (the rows that fail to join are the interesting ones), so unmapped
+  entries are kept here, keyed by their original `pfr_player_id`, same record shape as `players`.
+- **Team-snap denominator is an assumption:** a team's offensive snaps for a game is the **MAX**
+  `offense_snaps` across every player who appears for that team in that game (computed over ALL
+  positions on the roster that game, including OL — not just the emitted skill positions). Holds
+  because an offensive lineman who never leaves the field makes "max" a good proxy for the team's
+  true offensive-play count.
+- **Team codes pass through unchanged.** This source is already historically team-coded per season
+  (2016 carries `LA`/`SD`/`OAK`, matching each franchise's real 2016 name) — `eraTeam()` (used by
+  `nflverse/teamcontext`, whose pbp source normalizes to *current*-franchise codes) must never be
+  applied here; it would be a no-op today but wrong intent for the next person to reason from.
+- **Traded players** (`traded: true`, `teams[]` sorted by snaps descending) get **week-restricted
+  per-team-stint denominators** — mirrors `nflverse/advstats`' traded-player treatment: each stint's
+  denominator sums only the team-game maxima for the weeks the player actually has a row with that
+  team, never the team's season-wide total. `offPct` is Σ`offSnaps` ÷ Σ(per-stint)`teamOffSnaps` — a
+  straight ratio of two honestly-summed components, never an average of a stored per-game rate.
+
+**Sparsity gate:** `MIN_SNAPS_ROWS = 3000` (skill-position REG rows, zero-snap rows included) is
+enforced as a hard throw in `lib/validate.mjs` `validateSnaps` — **not** the season-keyed spine's
+own skip-and-continue sparsity check, which this family deliberately sets low. Every season this
+family backfills is already complete/published, so a shortfall is a truncated fetch, not an
+unpublished season, and gets a loud failure rather than a silent skip. Join-rate floor
+`SNAPS_JOIN_RATE_MIN = 0.85` over skill-position players is enforced the same way.
+
+**Capture-only, banked disabled.** `scripts/panel-run.mjs`'s `DEFAULT_LOAD.loadSnapShare` seam
+stays `null` — see [Analysis / Backtesting](#analysis--backtesting) for the cross-validation this
+family exists to support and why the fallback is not enabled yet.
+
+**Yearly refresh:** `nflverse-snaps.yml` runs mid-February (post-season; no in-season weekly
+refresh for this family).
+
+```sh
+node bin/update.mjs snaps --year 2016
+node bin/update.mjs snaps --year 2016 --dry-run
+node bin/update.mjs snaps            # current season
+node bin/update.mjs snaps --all      # backfill every season ≥ 2013
+```
+
+---
+
 ### `raw/<name>.json`
 
 Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
@@ -1009,6 +1106,11 @@ node bin/update.mjs oline --year 2025
 node bin/update.mjs oline               # current season
 node bin/update.mjs oline --all         # backfill ESPN-era seasons ≥ 2025
 
+# Fetch nflverse PFR-sourced offensive snap shares (QB/RB/WR/TE/FB), re-keyed to sleeper_id
+node bin/update.mjs snaps --year 2016
+node bin/update.mjs snaps               # current season
+node bin/update.mjs snaps --all         # backfill ≥ 2013
+
 # Dry-run any subcommand (fetch + validate, no writes)
 # --dry-run also suppresses per-iteration fetch progress (the NFL week loop and
 #   KTC page loop); real (non-dry-run) ingests still print full progress.
@@ -1024,8 +1126,9 @@ node bin/update.mjs gamelogs --year 2023 --dry-run
 node bin/update.mjs teamcontext --year 2023 --dry-run
 node bin/update.mjs playerstate --dry-run
 node bin/update.mjs oline --year 2025 --dry-run
+node bin/update.mjs snaps --year 2016 --dry-run
 
-# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext/oline)
+# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext/oline/snaps)
 node bin/update.mjs nfl --year 2023 --force
 node bin/update.mjs roster --year 2024 --force
 node bin/update.mjs advstats --year 2023 --force
@@ -1033,6 +1136,7 @@ node bin/update.mjs schedule --year 2023 --force
 node bin/update.mjs gamelogs --year 2023 --force
 node bin/update.mjs teamcontext --year 2023 --force
 node bin/update.mjs oline --year 2025 --force
+node bin/update.mjs snaps --year 2016 --force
 ```
 
 ### Module notes
@@ -1171,10 +1275,11 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `nflverse-teamcontext.yml` | Sunday 13:53 UTC + `workflow_dispatch` | Runs `node bin/update.mjs teamcontext` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `weekly-playerstate.yml` | Saturday 14:11 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstate`; content-hash dedup (excluding churning `newsUpdated`/`searchRank` fields); commits the new dated snapshot if changed, purges jsDelivr CDN cache |
 | `nflverse-oline.yml` | Saturday 14:37 UTC + `workflow_dispatch` | Runs `node bin/update.mjs oline` (current season), commits if content hash changed, purges jsDelivr CDN cache |
+| `nflverse-snaps.yml` | Feb 15 14:05 UTC + `workflow_dispatch` | Runs `node bin/update.mjs snaps` (current season) — yearly, post-season; no in-season weekly refresh for this family. Commits if content hash changed, purges jsDelivr CDN cache; delegates to `_ingest.yml` |
 | `cron-deadman.yml` | Daily 05:19 UTC + push to `main` + `workflow_dispatch` | Runs `node bin/deadman.mjs`; monitoring only — no writes, no manifest touch |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
 | `daily-snapshot.yml` (D1b, phase 1) | `workflow_dispatch` only — **no `cron:` line yet**, see CR-22 below | Checks out this repo plus a pinned ref of `antonwilms/sleeper-dashboard` into `app/`, builds and `vite preview`s the app headlessly, drives it with Playwright (localStorage-seeded, no UI interaction), reads the projection snapshot it wrote to IndexedDB, runs it through the commit gate (`lib/snapshot-capture.mjs`) and writes+registers+commits `snapshots/<date>.json` only on acceptance; purges the jsDelivr manifest cache. Rejects loudly (non-zero exit, no commit) rather than writing a neutral snapshot — see Cross-repo impact CR-01 below and `.claude/tasks/daily-snapshot-capture.md` |
-| `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the eight uniform weekly ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
+| `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the nine uniform ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `nflverse-snaps.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
@@ -1445,7 +1550,7 @@ Field order is fixed; no field is optional.
 - **Data side:** the signal-registry sentence in `CLAUDE.md` → *Self-maintenance*, the Sibling-repo pointer in `CLAUDE.md` → *Sibling repo*, `data-catalog.md` (data-side storage index — its header explicitly says the app's registry is the field-level index and to *"link, don't merge"*), and any ingest that adds/removes/reclassifies a field, stat key or source — `scripts/update-*.mjs`, `lib/sleeper.mjs`, `lib/nflverse.mjs`
 - **Invariant:** every ingested field, stat key and source in the data repo has a current row in the app repo's `docs/signal-registry.md`, with its layer, source, historical coverage, reconstructable-vs-ephemeral status and current use accurate as of the change that touched it.
 - **Direction:** data→app
-- **Triggers:** `docs/signal-registry.md`  ‖  `data-catalog.md`, the signal-registry and Sibling-repo pointers in `CLAUDE.md`, the ingest scripts `scripts/update-{nfl,cfbd,ktc,roster,draft,playerids,advstats,schedule,gamelogs,teamcontext,playerstate,oline}.mjs`, the field-producing parsers/aggregators in `lib/nflverse.mjs` (`parseRosterCsv`, `parseDraftCsv`, `parsePlayerIdsCsv`, `aggregateAdvReceiving`, `parsePlayerGameLogs`, `parseSchedulesCsv`, `aggregateTeamContext`, `aggregateOlineStates`), `aggregateWeeks` in `lib/sleeper.mjs`, `lib/cfbd.mjs`, `lib/ktc.mjs`, and the **coverage-floor constants that encode historical coverage** — `MIN_DRAFT_YEAR`, `MIN_SCHEDULE_SEASON`, `MIN_GAMELOG_SEASON`, `MIN_TEAMCONTEXT_SEASON`, `MIN_OLINE_SEASON` in `lib/nflverse.mjs`
+- **Triggers:** `docs/signal-registry.md`  ‖  `data-catalog.md`, the signal-registry and Sibling-repo pointers in `CLAUDE.md`, the ingest scripts `scripts/update-{nfl,cfbd,ktc,roster,draft,playerids,advstats,schedule,gamelogs,teamcontext,playerstate,oline,snaps}.mjs`, the field-producing parsers/aggregators in `lib/nflverse.mjs` (`parseRosterCsv`, `parseDraftCsv`, `parsePlayerIdsCsv`, `aggregateAdvReceiving`, `parsePlayerGameLogs`, `parseSchedulesCsv`, `aggregateTeamContext`, `aggregateOlineStates`, `aggregateSnapCounts`), `aggregateWeeks` in `lib/sleeper.mjs`, `lib/cfbd.mjs`, `lib/ktc.mjs`, and the **coverage-floor constants that encode historical coverage** — `MIN_DRAFT_YEAR`, `MIN_SCHEDULE_SEASON`, `MIN_GAMELOG_SEASON`, `MIN_TEAMCONTEXT_SEASON`, `MIN_OLINE_SEASON`, `MIN_SNAPS_SEASON` in `lib/nflverse.mjs`
 - **Mirror:** This entry's data side is the one genuinely open set in the registry — a brand-new ingest adds a script the list above cannot already name. The listed sites are every one that exists today; a *new* one is caught by the near-side re-verification duty (the data repo's reviewer re-derives its own side against live `scripts/` and `lib/` on every review), not by this list. When a data-repo change adds, removes or reclassifies an ingested field, stat key or source — or alters its historical coverage or reconstructable-vs-ephemeral status — emit the exact `docs/signal-registry.md` row edit the app must make (layer · source · coverage · reconstructable-vs-ephemeral · current use), and update the family's `data-catalog.md` row on the data side in the same change. **Nothing fails in either repo when this drifts** — the registry simply becomes wrong, and since it is the inventory that governs snapshot-capture and grading-inclusion decisions, a stale row misroutes those decisions months later. The data repo cannot edit `docs/signal-registry.md`; the emitted row edit is the whole deliverable.
 
 #### CR-19 · Market Efficiency stat keys
@@ -1834,7 +1939,7 @@ The **identifiability guard** (rule 0b) is one `selectFitFactors` call per posit
 
 *Is the guard load-bearing or inert?* Reported, not assumed: the verdict's guard-instrumentation block prints, per position, the pinned set (with each one's flat-1.0 rate), **every** fit candidate's flat-1.0 rate (not just the pinned ones — a retained factor sitting near 0.90 is the interesting number), how often per-fold graceful neutralization fired (by factor and reason), and the per-fold `max|w−1|` explosion tripwire. The first real run is what answers whether this guard is doing real work or is inert across every position — if inert everywhere, it becomes a candidate for removal in a later slice.
 
-**Panel size is the binding constraint.** Reading `grading/2026-08-08-e0a-verdict.md`'s pooled eval n: WR 339 (comfortable), RB 197 (adequate), TE 164 (marginal — lean on the WR+TE pool fallback), QB 92 (underpowered — expect NO-GAIN, the gate working as intended, not a failure). The `n:p<20` deferral, the identifiability guard, and the α-stability check are all levers that make a thin/noisy panel self-protecting rather than overfit. `roadmap.md` R1-SNAPS (panel width) is still open — the harness is panel-width-agnostic and re-runs unchanged (config only, `--from 2013`) once it lands, roughly tripling every position's n.
+**Panel size is the binding constraint.** Reading `grading/2026-08-08-e0a-verdict.md`'s pooled eval n: WR 339 (comfortable), RB 197 (adequate), TE 164 (marginal — lean on the WR+TE pool fallback), QB 92 (underpowered — expect NO-GAIN, the gate working as intended, not a failure). The `n:p<20` deferral, the identifiability guard, and the α-stability check are all levers that make a thin/noisy panel self-protecting rather than overfit. `roadmap.md` R1-SNAPS (panel width) is **banked, not yet enabled**: `nflverse/snaps/<year>.json` (2013–2025) now exists and its 2020–2024 overlap against Sleeper's own `off_snp`/`tm_off_snp` clears the cross-validation gate comfortably (RB/WR/TE, the real `snapShare` cohort scope: n=2,643, Pearson r=0.9995, MAD=0.0017 — see [data-catalog.md](data-catalog.md)'s snap-counts row). **The panel stays 2020+ (`PANEL_DEFAULTS.fromYear`) regardless** — enabling the fallback is a separate three-edit change (re-point `scripts/panel-run.mjs`'s `loadSnapShare`, flip `fromYear` to 2013, and revisit the pre-2020-undroppable assertions at `lib/backtest.mjs:290`/`bin/backtest.mjs:119`, plus a CR-15 re-fit before further exponent activation) that a passing cross-validation authorizes but does not itself perform — the harness is panel-width-agnostic and re-runs unchanged (config only, `--from 2013`) once that change lands, roughly tripling every position's n.
 
 **Parity coverage: 5 of 7, named gap on the other 2.** `momentum`, `regression`, `trajectory`, `snapShare`, `rzUsage` are checked against a real committed snapshot's app-computed factors (half-PPR basis, through the same exported `buildCohortPools`/reconstruct* functions the fit itself calls). `shareTrend` and `teamRzShare` have **no** end-to-end app-ground-truth check yet — no committed snapshot exists in the per-season-team + entity-filtered regime (the store's snapshots predate both the R2 flip and the 2026-08-08 denominator fix). They rest on construction-level tests instead (golden fixtures, series-construction parity, synthetic isolation, neutralization, usage-season anchoring). Closure path: extend the parity check to these two once a post-2026-07-18 snapshot is imported (roadmap R0-BANK) — a one-line change.
 
