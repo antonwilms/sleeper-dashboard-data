@@ -43,6 +43,7 @@ import { updateTeamContext } from '../scripts/update-teamcontext.mjs';
 import { updatePlayerState } from '../scripts/update-playerstate.mjs';
 import { updateOline }       from '../scripts/update-oline.mjs';
 import { updateSnaps }       from '../scripts/update-snaps.mjs';
+import { updateDepth }       from '../scripts/update-depth.mjs';
 import { parseAndValidateArgs } from '../lib/args.mjs';
 
 // ─── Argument parsing ─────────────────────────────────────────────────────────
@@ -100,12 +101,15 @@ SUBCOMMANDS
   snaps                       nflverse PFR-sourced offensive snap shares (QB/RB/WR/TE/FB), sleeper_id-keyed
   snaps --year YYYY           Snap shares for a specific season
   snaps --all                 Backfill every season (≥ 2013)
+  depth                       nflverse historical depth charts (QB/RB/WR/TE), sleeper_id-keyed, capture-only
+  depth --year YYYY           Depth chart for a specific season
+  depth --all                 Backfill every season (≥ 2013)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
-  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline/snaps only)
-  --year YYYY Target season year (nfl, cfbd, roster, advstats, schedule, gamelogs, playerstats, teamcontext, oline, snaps subcommands)
-  --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline/snaps subcommands)
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline/snaps/depth only)
+  --year YYYY Target season year (nfl, cfbd, roster, advstats, schedule, gamelogs, playerstats, teamcontext, oline, snaps, depth subcommands)
+  --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline/snaps/depth subcommands)
 
 EXAMPLES
   node bin/update.mjs nfl
@@ -141,6 +145,8 @@ EXAMPLES
   node bin/update.mjs oline --all
   node bin/update.mjs snaps --year 2016 --dry-run
   node bin/update.mjs snaps --all
+  node bin/update.mjs depth --year 2013 --dry-run
+  node bin/update.mjs depth --all
 `);
 }
 
@@ -200,6 +206,9 @@ if (!subcommand || subcommand === '--help' || subcommand === '-h') {
         break;
       case 'snaps':
         await updateSnaps(opts);
+        break;
+      case 'depth':
+        await updateDepth(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${opts.subcommand}\n`);
