@@ -208,3 +208,35 @@ Finding 6's reasoning applies to `T-F10` itself, not only to the new block: at `
 ### Leave alone
 
 Every unit test added for the six factors. The position fallback and its 2013-quarterback guard. The snap widening and the three edits it required. The fixture set. `lib/fantasyPoints.mjs`. The mirrored `CR-REGISTRY` region — still three edits out of sync and queued in the parent folder's `PARKED.md`.
+
+---
+
+## Fix pass 2 — D6a: the teamOffense cause, identified
+
+Fix pass 1 item 1 named attribution mode as the cause. **That hypothesis was untestable in the fixture used and is not the cause of the measured gap.** The applier switched the mode, re-ran, and got byte-identical numbers — mean |diff| 0.0318, max 0.1300 — because the parity fixture loads only 2025, so the panel's current-team anchor and the row's own season are the same year and the two modes collapse. Correct fix, wrong explanation, and the applier was right to stop rather than widen.
+
+### The actual cause, measured
+
+The app's current-team attribution reads **live Sleeper roster state at snapshot time**, not a historical team. Comparing `snapshots/2026-09-05.json` against `nfl/season-totals/2025.json` over the 587 comparable rows:
+
+| relationship between the 2025 season team and the Sep-2026 snapshot team | rows | share |
+|---|---|---|
+| same | 401 | 68.3% |
+| alias-only (`LA`/`LAR` and similar) | 16 | 2.7% |
+| **genuine offseason move** | **170** | **29.0%** |
+
+So when the app ranks team offense for the 2025 season, it attributes roughly **three players in ten to a team they did not play for that season**. The panel attributes them historically. Different team sums, different ranks — and a mean divergence of about six rank slots out of 32 is exactly that magnitude.
+
+**This is not a bug and it is not closable.** Live roster state at an arbitrary past date is ephemeral; no retrospective panel can reconstruct it. Step 7 therefore belongs with age and depth, not with efficiency.
+
+### What changes
+
+1. **Reclassify `teamOffense` as a named, unclosable divergence.** Rename the test from "OPEN PARITY GAP / cause unidentified" to a named divergence in the same style as age and depth, and record the 29% figure in the comment as the measured size of the effect. Keep it diagnostic; do not promote it to an asserted check, and do not widen a tolerance to make one pass.
+2. **Keep the current-team switch from fix pass 1.** It is still the correct reconstruction of the app's *mode*, and it is not a no-op on the real multi-year panel even though it is one on a single-season fixture. Fix pass 1's correction of finding 7 stands.
+3. **Three of the six new factors now have unclosable live-state divergences** — age (live wall-clock), depth (live chart), teamOffense (live roster). One is ungradable (`qbQuality`), one is architecturally incomparable (`compBlend`), one verifies (`efficiency`). **Record that summary in §C**, because it is the honest state of the parity gate and D6b inherits it.
+
+### The question this raises, for Anton rather than for an implementer
+
+D6's goal line says "grade the veteran pipeline **as shipped**". After this finding that phrasing is not defensible for three of the thirteen steps. What the harness can deliver is a **historical analogue with three quantified live-state divergences** — which is still worth having, and is still the only way to get calibration constants before January 2027, but it is a weaker claim than the brief makes.
+
+**Do not silently restate the goal.** Either Anton accepts the analogue framing and §C carries the caveat into every verdict, or D6b's scope narrows to the steps that can be reconstructed faithfully. That decision belongs to him, not to this file.
