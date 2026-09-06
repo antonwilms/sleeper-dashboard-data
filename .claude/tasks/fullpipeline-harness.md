@@ -240,3 +240,38 @@ So when the app ranks team offense for the 2025 season, it attributes roughly **
 D6's goal line says "grade the veteran pipeline **as shipped**". After this finding that phrasing is not defensible for three of the thirteen steps. What the harness can deliver is a **historical analogue with three quantified live-state divergences** — which is still worth having, and is still the only way to get calibration constants before January 2027, but it is a weaker claim than the brief makes.
 
 **Do not silently restate the goal.** Either Anton accepts the analogue framing and §C carries the caveat into every verdict, or D6b's scope narrows to the steps that can be reconstructed faithfully. That decision belongs to him, not to this file.
+
+---
+
+## Decision — the analogue framing, scoped by deliverable (Session 1, 2026-09-06)
+
+Fix pass 2 put a question to Anton. He delegated it. **The call is: accept the analogue framing, but split the deliverables by what each can actually support, and settle the doubt with a measurement rather than with this reasoning.**
+
+### Accepted: the calibration constants
+
+The primary deliverable survives the divergence, and the reason is structural rather than optimistic. `teamOffense` is a rank factor spanning 0.920 to 1.075 with a mean of 0.9975 across the 32 ranks. Misattributing 29% of players shuffles **which** row gets **which** rank; it does not shift the distribution. A mean-preserving shuffle adds variance to individual rows and leaves the aggregate multiplier close to where it was — and the aggregate multiplier is exactly what §D item 2 is solving for.
+
+So the optimism constant, the shrinkage sweep and the confidence tiers proceed, **with the caveat travelling in the verdict rather than in a footnote**.
+
+### Refused: the factor-pruning verdict for four of thirteen
+
+§E's ablation cannot speak for a factor whose input it is known to misattribute. **`teamOffense`, `age`, `depth` and `qbQuality` are excluded from the pruning verdict and reported as not gradable**, with the reason and the measured divergence beside each. That is four of thirteen, and saying so is a finding in its own right: it tells the calibration arc which factors still need a forward-graded window before anyone touches them.
+
+The remaining nine — the original seven plus `efficiency` plus `compBlend` treated as the app's post-hoc blend — carry the ablation.
+
+### Unaffected: the Step 4 verdict
+
+§E's Step 4 work reconstructs from PPG history alone. No live state, no divergence. It proceeds as written.
+
+### The guard that makes this a measurement, not a judgment
+
+**Before publishing any constant, run the calibration twice: once with the full stack, once with `teamOffense`, `age` and `depth` held at 1.0.** Report both constants side by side per position.
+
+- If they agree to within the sweep's own step size (0.02), the constant is robust to the divergence and the analogue framing is sound. Publish, with both numbers in the verdict.
+- **If they diverge by more than one step, stop and report.** That would mean the three live-state factors are shifting the aggregate rather than shuffling it, my structural argument is wrong, and D6b narrows to the faithfully-reconstructable steps.
+
+This is cheap — it is one extra run of an existing sweep — and it converts the whole decision from an argument into a number. Do it first, before any other §D output.
+
+### What the goal line now says
+
+Not "grade the veteran pipeline as shipped". **"Grade a historical reconstruction of the veteran pipeline, faithful in nine of thirteen steps, with three live-state divergences quantified and one step ungradable."** Longer, and true. Update §Goal to match, and carry the same sentence into the verdict's opening.
