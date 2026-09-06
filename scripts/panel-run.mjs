@@ -50,6 +50,23 @@ import {
   ENVELOPE_FACTORS,
   FIT_MIN_N_TO_PARAM,
   FIT_MAX_FLAT_ONE_RATE,
+  predictFullPipeline,
+  computeOptimismStats,
+  runSensitivityCheck,
+  SENSITIVITY_STEP,
+  SENSITIVITY_HOLD_FACTORS,
+  computeMaeSweep,
+  OPTIMISM_C_GRID,
+  computeShrinkageSweep,
+  SHRINKAGE_K_GRID,
+  groupByQualifyingTier,
+  QUALIFYING_TIERS,
+  runAblation,
+  ABLATION_GRADABLE_FACTORS,
+  NOT_GRADABLE_FACTORS,
+  runStep4Verdict,
+  assembleRookiePanel,
+  resolvePosition,
 } from '../lib/panel.mjs';
 
 export const DEFAULT_SCORING_SNAPSHOT = '2026-07-05';
@@ -1255,4 +1272,391 @@ export function writeFitArtifacts({ panel, fitReport, verdictMd }) {
   fs.writeFileSync(verdictAbs, verdictMd, 'utf8');
 
   return { panelPath, fitPath, verdictPath };
+}
+
+// ─── D6b — full-pipeline calibration + verdicts (.claude/tasks/fullpipeline- ──
+// ─── harness.md §D/§E + the Decision section's sensitivity guard) ─────────────
+//
+// §B basis pin: half_ppr for every panel and verdict (finding 5). This
+// function's own header comment IS the basis record the Docs section asks
+// for — see fullpipeline-harness.md §B, which states the decision and its
+// reason; no separate hand-authored grading/ file was created.
+
+const FULLPIPELINE_BASELINE_OF_RECORD = 'grading/2026-08-08-e0a-verdict.md';
+
+export function runFullPipeline({
+  fromYear = PANEL_DEFAULTS.fromYear,
+  toYear = PANEL_DEFAULTS.toYear,
+  load = DEFAULT_LOAD,
+} = {}) {
+  const panel = assemblePanel({
+    fromYear, toYear, attribution: 'per-season-team', basis: 'half_ppr', load,
+    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR,
+  });
+
+  const rowsByPosition = {};
+  for (const position of PANEL_POSITIONS) {
+    rowsByPosition[position] = panel.rows.filter(r => r.position === position);
+  }
+
+  // Decision (Session 1, 2026-09-06) — the guard that converts the analogue
+  // framing from an argument into a measurement. MUST run, and pass, before
+  // any other §D/§E output.
+  const sensitivity = runSensitivityCheck(rowsByPosition);
+
+  const meta = {
+    generatedAt: new Date().toISOString(),
+    panelYears: { fromYear, toYear },
+    historyFloor: HISTORY_FLOOR,
+    attribution: 'per-season-team (teamOffense alone reconstructed under current-team — Fix pass 1 item 1)',
+    basis: 'half_ppr',
+    baselineOfRecord: FULLPIPELINE_BASELINE_OF_RECORD,
+    goalLine: 'Grade a historical reconstruction of the veteran pipeline, faithful in nine of thirteen steps, ' +
+      'with three live-state divergences quantified (teamOffense, age, depth) and one step ungradable (qbQuality).',
+    notGradableFactors: NOT_GRADABLE_FACTORS,
+    sensitivityStep: SENSITIVITY_STEP,
+    sensitivityHoldFactors: SENSITIVITY_HOLD_FACTORS,
+  };
+
+  // §E Step 4 — "unaffected... reconstructs from PPG history alone" (the
+  // Decision, verbatim). This does not depend on teamOffense/age/depth
+  // resolving faithfully to a single historical "current" state the way the
+  // aggregate composition does — the comparison is shipped-vs-no-upside on
+  // regressionFactor only, with every other factor held identical in both
+  // arms (including the three divergent ones, which therefore contribute the
+  // SAME term to both sides of the delta and are not what the sensitivity
+  // check is testing). Computed UNCONDITIONALLY, before the gate.
+  const step4 = {};
+  for (const position of PANEL_POSITIONS) {
+    step4[position] = runStep4Verdict(rowsByPosition[position], {
+      injuryPredicate: (row) => (row.dnpWeeksLastQ ?? 0) >= 3,
+    });
+  }
+
+  // Rookie panel — an entirely SEPARATE reconstruction (baseline/ageMult/
+  // nflDraftMultiplier/ktcMult/collegeContribution), no dependency on the
+  // veteran pipeline's teamOffense/age/depth at all. Computed UNCONDITIONALLY,
+  // before the gate, for the same reason as Step 4 — its own position/birthdate/draft-info resolution
+  // (assemblePanel's internal crosswalk is not exposed outside that
+  // function; rebuilt here from the same source, nflverse/playerids.json —
+  // a small, deliberate duplication rather than reaching into assemblePanel's
+  // closure).
+  const playerIds = typeof load.loadPlayerIds === 'function' ? load.loadPlayerIds() : null;
+  const crosswalk = {};
+  const birthdateBySleeper = {};
+  const draftInfoBySleeper = {};
+  for (const [sleeperId, entry] of Object.entries(playerIds?.bySleeper ?? {})) {
+    if (entry?.birthdate) birthdateBySleeper[sleeperId] = entry.birthdate;
+    draftInfoBySleeper[sleeperId] = {
+      draftYear: entry?.draftYear ?? null, draftRound: entry?.draftRound ?? null, draftPick: entry?.draftPick ?? null,
+    };
+  }
+  for (const entry of Object.values(playerIds?.ids ?? {})) {
+    if (entry?.sleeperId && entry?.position) crosswalk[entry.sleeperId] = entry.position;
+  }
+
+  const rookieYears = [];
+  for (let y = HISTORY_FLOOR; y <= toYear + 1; y++) rookieYears.push(y);
+  const rookieOutcomeMaps = buildOutcomeMaps(rookieYears, { basis: 'half_ppr' }, load);
+  const rookieTotalsByYear = {};
+  const rookiePpgByYear = {};
+  for (const y of rookieYears) {
+    rookieTotalsByYear[y] = load.loadSeasonTotals(y) ?? {};
+    rookiePpgByYear[y] = rookieOutcomeMaps[y]?.outcomes ?? new Map();
+  }
+  const rookieAdvstatsByYear = {};
+  const rookieRosterByYear = {};
+  for (let y = fromYear; y <= toYear; y++) {
+    rookieAdvstatsByYear[y] = load.loadAdvstats(y);
+    rookieRosterByYear[y] = load.loadRoster(y);
+  }
+  const rookiePositionOf = (pid, y) => resolvePosition(pid, rookieAdvstatsByYear[y], rookieRosterByYear[y], crosswalk);
+
+  const rookiePanel = assembleRookiePanel({
+    totalsByYear: rookieTotalsByYear, ppgByYear: rookiePpgByYear,
+    positionOf: rookiePositionOf,
+    birthdateOf: (pid) => birthdateBySleeper[pid] ?? null,
+    draftInfoOf: (pid) => draftInfoBySleeper[pid] ?? null,
+    fromYear, toYear,
+  });
+
+  if (!sensitivity.allPass) {
+    // Decision section, verbatim: "if they diverge by more than one step,
+    // stop and report... D6b narrows to the faithfully-reconstructable
+    // steps." §D (calibration constants) and §E's factor-pruning ablation
+    // both depend on the same composed aggregate the sensitivity check just
+    // found unreliable — neither is produced. Step 4 and the rookie panel
+    // are unaffected (computed above) and are still reported: neither reads
+    // teamOffense/age/depth's absolute level, only regressionFactor
+    // (Step 4) or an entirely separate reconstruction (rookie panel).
+    return {
+      panel, meta, sensitivity, step4, rookiePanel, stopped: true,
+      stopReason: 'Sensitivity check FAILED: the full-stack and held-at-one (teamOffense/age/depth held at 1.0) ' +
+        'optimism constants diverge by more than one sweep step (0.02) for at least one position. Per the Decision ' +
+        'section, this means the three live-state factors are SHIFTING the aggregate rather than shuffling it — the ' +
+        'structural argument for publishing calibration constants does not hold. §D (calibration outputs) and §E\'s ' +
+        'factor-pruning ablation are NOT produced. Step 4 and the rookie panel are unaffected and are reported below ' +
+        '— the slice narrows to the steps that can be reconstructed faithfully.',
+    };
+  }
+
+  // §D — calibration outputs, per position, within qualifying-season tiers
+  // (item 4), each tier computing items 1-3 over its OWN population.
+  const calibration = {};
+  for (const position of PANEL_POSITIONS) {
+    const rows = rowsByPosition[position];
+    const perTier = {};
+    const tiers = groupByQualifyingTier(rows);
+    for (const tier of QUALIFYING_TIERS) {
+      const tierRows = tiers[tier];
+      perTier[tier] = {
+        n: tierRows.length,
+        optimism: computeOptimismStats(tierRows),
+        maeSweep: computeMaeSweep(tierRows),
+        shrinkageSweep: computeShrinkageSweep(tierRows),
+      };
+    }
+    calibration[position] = {
+      n: rows.length,
+      optimism: computeOptimismStats(rows),
+      maeSweep: computeMaeSweep(rows),
+      shrinkageSweep: computeShrinkageSweep(rows),
+      byQualifyingTier: perTier,
+    };
+  }
+
+  // §E — factor pruning (the nine gradable factors only).
+  const ablation = {};
+  for (const position of PANEL_POSITIONS) {
+    ablation[position] = runAblation(rowsByPosition[position], position);
+  }
+
+  return { panel, meta, sensitivity, calibration, ablation, step4, rookiePanel, stopped: false };
+}
+
+// ─── D6b verdict markdown + artifacts (§E "Files") ─────────────────────────────
+
+function fpFmt(v, digits = 3) {
+  return v == null || !Number.isFinite(v) ? 'n/a' : v.toFixed(digits);
+}
+
+function coverageRateFor(fitCoverage, position, factor) {
+  const byYear = fitCoverage.byYearCoverage?.[`${position}|${factor}`] ?? {};
+  const years = Object.keys(byYear).map(Number).sort((a, b) => a - b);
+  let total = 0, eligible = 0;
+  const perYear = years.map(y => {
+    const { total: t, eligible: e } = byYear[y];
+    total += t; eligible += e;
+    return `${y}: ${(t > 0 ? e / t : 0).toFixed(2)}`;
+  });
+  return { overall: total > 0 ? eligible / total : null, total, eligible, perYearString: perYear.join(', ') };
+}
+
+function sensitivitySection(sensitivity) {
+  const lines = ['| Position | Full-stack median ratio | Held-at-1 (teamOffense/age/depth) median ratio | |Δ| | Pass (≤0.02) |', '|---|---|---|---|---|'];
+  for (const [position, r] of Object.entries(sensitivity.perPosition)) {
+    lines.push(`| ${position} | ${fpFmt(r.full.medianRatio)} (n=${r.full.n}) | ${fpFmt(r.held.medianRatio)} (n=${r.held.n}) | ${fpFmt(r.absDiff, 4)} | ${r.pass ? 'YES' : 'NO'} |`);
+  }
+  return lines.join('\n');
+}
+
+function calibrationSection(position, calib) {
+  const lines = [`### ${position}`, ''];
+  lines.push(`- Optimism constant (median outcome/fullPipelinePPG): ${fpFmt(calib.optimism.medianRatio)} (mean ${fpFmt(calib.optimism.meanRatio)}, n=${calib.optimism.n})`);
+  lines.push(`- MAE sweep (c=0.80..1.00): ${calib.maeSweep.map(s => `c=${s.c.toFixed(2)}:${fpFmt(s.mae)}`).join(', ')}`);
+  lines.push(`- Shrinkage sweep (k=0,0.1,0.2,0.3): ${calib.shrinkageSweep.map(s => `k=${s.k}:${fpFmt(s.mae)}`).join(', ')}`);
+  lines.push('', '**By qualifying-season tier:**', '');
+  for (const tier of QUALIFYING_TIERS) {
+    const t = calib.byQualifyingTier[tier];
+    lines.push(`- ${tier} seasons (n=${t.n}): optimism median=${fpFmt(t.optimism.medianRatio)}; best MAE sweep c=${
+      t.maeSweep.reduce((best, s) => (s.mae != null && (best == null || s.mae < best.mae)) ? s : best, null)?.c ?? 'n/a'
+    }`);
+  }
+  lines.push('');
+  return lines.join('\n');
+}
+
+function ablationSection(position, ablationReport, fitCoverage) {
+  const lines = [`### ${position}`, '', `Shipped: MAE=${fpFmt(ablationReport.shippedMae)}, Spearman=${fpFmt(ablationReport.shippedSpearman)} (n=${ablationReport.n})`, ''];
+  lines.push('| Factor | ΔMAE (without − shipped) | ΔSpearman | Coverage rate (overall) |', '|---|---|---|---|');
+  for (const [factor, r] of Object.entries(ablationReport.perFactor)) {
+    const cov = coverageRateFor(fitCoverage, position, factor);
+    lines.push(`| ${factor} | ${fpFmt(r.dMae)} | ${fpFmt(r.dSpearman)} | ${fpFmt(cov.overall, 3)} |`);
+  }
+  return lines.join('\n');
+}
+
+function step4Section(position, s4) {
+  const o = s4.overall;
+  const lines = [`### ${position}`, '', `Overall (n=${o.n}): shipped MAE=${fpFmt(o.shippedMae)}, no-upside MAE=${fpFmt(o.noUpsideMae)}, ΔMAE=${fpFmt(o.dMae)}, ΔSpearman=${fpFmt(o.dSpearman)}`];
+  if (s4.injuryGated) {
+    const g = s4.injuryGated;
+    lines.push(`Injury-gated proxy (dnpWeeks≥3, n=${g.n}): shipped MAE=${fpFmt(g.shippedMae)}, no-upside MAE=${fpFmt(g.noUpsideMae)}, ΔMAE=${fpFmt(g.dMae)}, ΔSpearman=${fpFmt(g.dSpearman)}`);
+  }
+  return lines.join('\n');
+}
+
+function rookieSection(rookiePanel) {
+  const { rows, coverage } = rookiePanel;
+  const lines = [
+    `- Assembled: ${coverage.assembled}, surviving (outcome gate met): ${coverage.surviving}, drops: ${JSON.stringify(coverage.drops)}`,
+    `- Hit the 1.85 cap: ${coverage.hitCapCount}/${coverage.surviving} (${coverage.surviving > 0 ? ((coverage.hitCapCount / coverage.surviving) * 100).toFixed(1) : 'n/a'}%)`,
+    '',
+  ];
+  const byTierPosition = {};
+  for (const row of rows) {
+    const key = `${row.nflDraftTier ?? 'unmatched'}|${row.position}`;
+    (byTierPosition[key] ??= []).push(row);
+  }
+  lines.push('| Draft tier | Position | n | mean realised PPG | mean projected PPG | ratio (realised/projected) |', '|---|---|---|---|---|---|');
+  for (const [key, tierRows] of Object.entries(byTierPosition).sort()) {
+    const [tier, position] = key.split('|');
+    const meanRealised = tierRows.reduce((s, r) => s + r.outcomePPG, 0) / tierRows.length;
+    const meanProjected = tierRows.reduce((s, r) => s + r.projectedPPG, 0) / tierRows.length;
+    lines.push(`| ${tier} | ${position} | ${tierRows.length} | ${fpFmt(meanRealised, 1)} | ${fpFmt(meanProjected, 1)} | ${fpFmt(meanRealised / meanProjected, 2)} |`);
+  }
+  if (rows.length > 0) {
+    const topProjected = [...rows].sort((a, b) => b.projectedPPG - a.projectedPPG)[0];
+    const sameYearPosition = rows.filter(r => r.predictorYear === topProjected.predictorYear && r.position === topProjected.position)
+      .sort((a, b) => b.outcomePPG - a.outcomePPG);
+    const finishRank = sameYearPosition.findIndex(r => r.sleeperId === topProjected.sleeperId) + 1;
+    lines.push('', `Top projected rookie: pid ${topProjected.sleeperId} (${topProjected.position}, ${topProjected.predictorYear}), ` +
+      `projected ${fpFmt(topProjected.projectedPPG, 1)} PPG, finished ranked ${finishRank} of ${sameYearPosition.length} at position that class-year ` +
+      `(realised ${fpFmt(topProjected.outcomePPG, 1)} PPG).`);
+  }
+  return lines.join('\n');
+}
+
+export function buildFullPipelineVerdictMarkdown(result) {
+  const { meta } = result;
+  const date = meta.generatedAt.slice(0, 10);
+  const lines = [
+    `# Full-Pipeline Verdict — ${date}`,
+    '',
+    `**${meta.goalLine}**`,
+    '',
+    `**Config:** predictor years ${meta.panelYears.fromYear}–${meta.panelYears.toYear}, history floor ${meta.historyFloor}, ` +
+      `attribution=\`${meta.attribution}\`, basis=\`${meta.basis}\``,
+    '',
+    `**Baseline of record:** ${meta.baselineOfRecord}`,
+    '',
+    '**Reproduce:** `node bin/panel.mjs --fullpipeline --write`',
+    '',
+    '## Sensitivity check (Decision section) — run BEFORE any other output',
+    '',
+    sensitivitySection(result.sensitivity),
+    '',
+  ];
+
+  if (result.stopped) {
+    lines.push('## STOPPED', '', result.stopReason, '');
+    lines.push(
+      '## §E — Step 4 verdict (unaffected by the stop — reconstructs from PPG history alone)',
+      '',
+    );
+    for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position]));
+    lines.push('', '## Rookie panel (unaffected by the stop — an entirely separate reconstruction)', '', rookieSection(result.rookiePanel), '');
+    return lines.join('\n');
+  }
+
+  lines.push(
+    `All positions passed the sensitivity check (≤${meta.sensitivityStep} step) — both the full-stack and ` +
+      `held-at-1 (${meta.sensitivityHoldFactors.join('/')}) constants are reported below, side by side, per the Decision section.`,
+    '',
+    '## §D — Calibration outputs',
+    '',
+  );
+  for (const position of PANEL_POSITIONS) lines.push(calibrationSection(position, result.calibration[position]));
+
+  lines.push(
+    '## §E — Step 4 verdict (regression up-side branches, outlierRatio<0.85 forced to neutral)',
+    '',
+  );
+  for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position]));
+
+  lines.push(
+    '',
+    '## §E — Factor pruning (ablation, nine gradable factors; report only, no action)',
+    '',
+    `**Excluded from this ablation (not gradable — reported separately, per the Decision section):** ${NOT_GRADABLE_FACTORS.join(', ')}. ` +
+      'A factor held at 1.0 by construction (qbQuality) or with a named live-state divergence (teamOffense/age/depth) would always look ' +
+      'prunable for a reason unrelated to signal — see the not-gradable section below instead.',
+    '',
+  );
+  for (const position of PANEL_POSITIONS) lines.push(ablationSection(position, result.ablation[position], result.panel.coverage.fitCoverage));
+
+  const fc = result.panel.coverage.fitCoverage;
+  lines.push(
+    '',
+    '## Not-gradable factors — measured divergence, not a prune candidate',
+    '',
+    '- **teamOffense** — named, unclosable live-state divergence: the app\'s current-team attribution reads live Sleeper roster ' +
+      'state at snapshot time; measured at 29.0% genuine offseason moves over 587 comparable rows (Fix pass 2). Reconstructed under ' +
+      'current-team attribution (Fix pass 1 item 1) but still diverges from any single historical season\'s "current" state.',
+    '- **age** — named, unclosable live-state divergence: the app computes ageDelta from live wall-clock age at snapshot time; ' +
+      'this reconstruction uses birthdate at lastQSeason. Same formula/curve, different reference date.',
+    '- **depth** — named, unclosable live-state divergence: the app reads a live depth chart at snapshot time; this reconstruction ' +
+      'reads D5\'s historical chart for the row\'s own season.',
+    '- **qbQuality** — EMPTY eligible window, not merely narrow (Fix pass 1 item 2): no KTC coverage in the panel window, dynastyScore ' +
+      'unportable, and the app\'s own population is fantasy-roster-scoped. Structurally neutral for 100% of rows.',
+    '',
+    '## Coverage rate per year, every factor (§D/§E requirement)',
+    '',
+  );
+  for (const position of PANEL_POSITIONS) {
+    const factors = [...ABLATION_GRADABLE_FACTORS[position], ...NOT_GRADABLE_FACTORS.filter(f => f !== 'qbQuality' || position !== 'QB')];
+    lines.push(`### ${position}`, '');
+    for (const factor of factors) {
+      const cov = coverageRateFor(fc, position, factor);
+      if (cov.total === 0) continue;
+      lines.push(`- ${factor}: overall ${fpFmt(cov.overall, 3)} — ${cov.perYearString}`);
+    }
+    lines.push('');
+  }
+
+  lines.push('## Rookie panel', '', rookieSection(result.rookiePanel), '');
+
+  lines.push(
+    '## Methodology notes',
+    '',
+    '- **Analogue framing (verbatim, per the Decision):** ' + meta.goalLine,
+    '- The composed 13-factor product (predictFullPipeline, lib/panel.mjs) is a NEW function, not a rewrite of the R3-FIT ' +
+      'exponent engine\'s predictWithExponents — that engine stays scoped to the original seven factors and is untouched.',
+    '- Step 4 reconstructs from PPG history alone — no live state, no divergence — and proceeds unconditionally, unaffected ' +
+      'by the sensitivity gate.',
+    '- The injury-gated Step 4 variant uses dnpWeeks≥3 as a proxy (the app\'s own documented ">=3 weeks suggestive of injury" ' +
+      'convention) — the hand-authored enrichment/injuries.json has zero entries in this checkout and cannot gate anything.',
+    '- Rookie panel is a REDUCED reconstruction beyond finding 9\'s own "3 of 5, not 4" bound: only ageMult and ' +
+      'nflDraftMultiplier are real; ktcMult and collegeContribution are both always neutral (KTC history starts ' +
+      '2026-05-18, after the whole panel window; college-metrics port was not built this slice). Disclosed, not silently narrowed.',
+    '- No app change, no served-family change, no factor pruned or activated on this run.',
+    ''
+  );
+
+  return lines.join('\n');
+}
+
+// Drops the veteran panel's per-row detail (multipliers/shareSeries/
+// qualifyingSeasons for every surviving row — already reproducible via
+// `node bin/panel.mjs --fit` and, for this file's own composition, via
+// `--fullpipeline`) before serializing. Without this the artifact runs to
+// several MB, well past every other committed backtests/*.json (largest
+// precedent 2.2MB) for row detail this file's own verdict markdown never
+// reads. coverage/meta (the actual audit trail) are kept in full; the
+// rookie panel's rows ARE kept (they are the deliverable, not a byproduct).
+export function writeFullPipelineArtifacts({ result, verdictMd }) {
+  const date = result.meta.generatedAt.slice(0, 10);
+  const panelPath = `backtests/${date}-fullpipeline-panel.json`;
+  const verdictPath = `grading/${date}-fullpipeline-verdict.md`;
+
+  const { rows: _vetRows, ...panelWithoutRows } = result.panel;
+  const slimResult = { ...result, panel: panelWithoutRows };
+
+  writeJsonStable(panelPath, slimResult);
+
+  const verdictAbs = repoPath(verdictPath);
+  fs.mkdirSync(path.dirname(verdictAbs), { recursive: true });
+  fs.writeFileSync(verdictAbs, verdictMd, 'utf8');
+
+  return { panelPath, verdictPath };
 }

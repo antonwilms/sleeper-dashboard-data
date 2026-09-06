@@ -26,6 +26,13 @@ import {
   forwardChainFolds, classifyAttributionCohort,
   computeShare, computeSnapShare, resolvePosition, resolveSnapCounts,
   D6_NEW_FACTORS, FULL_FACTORS_D6, ENVELOPE_FACTORS_D6_ADDITIONS,
+  predictFullPipeline, computeOptimismStats, runSensitivityCheck,
+  SENSITIVITY_STEP, SENSITIVITY_HOLD_FACTORS,
+  computeMaeSweep, OPTIMISM_C_GRID, computeShrinkageSweep, SHRINKAGE_K_GRID,
+  qualifyingTierOf, groupByQualifyingTier, QUALIFYING_TIERS,
+  runAblation, ABLATION_GRADABLE_FACTORS, NOT_GRADABLE_FACTORS,
+  runStep4Verdict, assembleRookiePanel,
+  PANEL_POSITIONS,
 } from '../lib/panel.mjs';
 import {
   reconstructMomentumFactor, reconstructRegressionFactor, reconstructTrajectoryFactor,
@@ -38,6 +45,7 @@ import {
   reconstructQbQualityFactor,
   reconstructEfficiencyFactor, EFFICIENCY_METRICS, EFFICIENCY_MIN_COHORT_OPPS,
   buildCareerArcVector, findReconstructedCareerComps, compsProjectedPPG, reconstructCompBlendFactor,
+  reconstructRookieProjection, reconstructNflDraftFactor, reconstructRookieAgeFactor, ROOKIE_MULTIPLIER_CLAMP,
 } from '../lib/projectionFactors.mjs';
 import { runFit, buildFitVerdictReport, buildFitVerdictMarkdown, assemblePanel } from '../scripts/panel-run.mjs';
 
@@ -2048,5 +2056,288 @@ describe('D6a parity — six new factors against the committed 2025 snapshot fix
     t.diagnostic(`${nonZero}/${samplePids.length} sampled players have a real (nonzero) app compBlendWeight — ` +
       'the synthetic ratio factor is exercised by its own unit tests above, not cross-checked numerically here.');
     assert.ok(samplePids.length > 0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// D6b — the widened 13-factor composition, the sensitivity guard, calibration
+// helpers, the ablation, Step 4, and the rookie panel.
+// .claude/tasks/fullpipeline-harness.md §D/§E + the Decision section.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// A minimal synthetic "fit row" — multipliers for every factor FULL_FACTORS/
+// D6_NEW_FACTORS name for the given position, all defaulting to 1.0 (neutral)
+// unless overridden.
+function d6bFitRow(position, { anchorBasePPG = 10, outcomePPG = 10, qualifyingCount = 3, overrides = {} } = {}) {
+  const multipliers = {};
+  for (const f of [...FULL_FACTORS[position], ...D6_NEW_FACTORS[position]]) multipliers[f] = 1.0;
+  Object.assign(multipliers, overrides);
+  const qualifyingSeasons = Array.from({ length: qualifyingCount }, (_, i) => ({ season: 2015 + i, ppg: anchorBasePPG, gamesPlayed: 12 }));
+  return { position, sleeperId: `p${Math.random()}`, anchorBasePPG, outcomePPG, multipliers, qualifyingSeasons, dnpWeeksLastQ: 0 };
+}
+
+describe('D6b — predictFullPipeline (the composed 13-factor product)', () => {
+  test('all factors neutral -> predicted equals anchorBasePPG', () => {
+    const row = d6bFitRow('WR', { anchorBasePPG: 12 });
+    assert.equal(predictFullPipeline(row).predicted, 12);
+  });
+
+  test('an envelope factor >1 raises the inner product; an outer factor >1 raises it directly', () => {
+    const row = d6bFitRow('WR', { anchorBasePPG: 10, overrides: { momentum: 1.08, shareTrend: 1.08 } });
+    const predicted = predictFullPipeline(row).predicted;
+    assert.ok(predicted > 10);
+  });
+
+  test('holdAtOne excludes a factor from its log-sum, reproducing the neutral case', () => {
+    const row = d6bFitRow('WR', { anchorBasePPG: 10, overrides: { momentum: 1.08 } });
+    const held = predictFullPipeline(row, { holdAtOne: ['momentum'] }).predicted;
+    assert.equal(held, 10);
+  });
+
+  test('compBlend is a POST-outer-clamp multiplicative stage, not a log-additive term', () => {
+    const row = d6bFitRow('WR', { anchorBasePPG: 10, overrides: { compBlend: 1.10 } });
+    const withComp = predictFullPipeline(row).predicted;
+    const withoutComp = predictFullPipeline(row, { holdAtOne: ['compBlend'] }).predicted;
+    assert.ok(Math.abs(withComp - withoutComp * 1.10) < 1e-9, 'compBlend multiplies the already-composed outer-clamped value');
+  });
+
+  test('the inner envelope product is clamped to [0.67,1.50] before compBlend applies', () => {
+    const row = d6bFitRow('WR', { anchorBasePPG: 10, overrides: { momentum: 1.06, trajectory: 1.07, snapShare: 1.06, rzUsage: 1.05, teamRzShare: 1.05, qbQuality: 1.05, efficiency: 1.10 } });
+    const { preCompBlend } = predictFullPipeline(row);
+    assert.ok(preCompBlend <= 10 * FIT_COMBINED_CLAMP[1] + 1e-6);
+  });
+
+  test('a factor absent from the row (e.g. shareTrend for QB) is silently skipped, not NaN', () => {
+    const row = d6bFitRow('QB', { anchorBasePPG: 10 });
+    assert.equal(predictFullPipeline(row).predicted, 10);
+  });
+});
+
+describe('D6b — the sensitivity guard (Decision section)', () => {
+  test('computeOptimismStats: median/mean outcome-over-predicted ratio', () => {
+    const rows = [d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 10 }), d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 8 })];
+    const stats = computeOptimismStats(rows);
+    assert.equal(stats.n, 2);
+    assert.equal(stats.medianRatio, (1.0 + 0.8) / 2);
+  });
+
+  test('runSensitivityCheck: identical full-stack and held-at-one stats (teamOffense/age/depth all neutral) -> passes with absDiff 0', () => {
+    const rowsByPosition = { WR: [d6bFitRow('WR', { outcomePPG: 9 }), d6bFitRow('WR', { outcomePPG: 11 })] };
+    const result = runSensitivityCheck(rowsByPosition);
+    assert.equal(result.perPosition.WR.absDiff, 0);
+    assert.equal(result.perPosition.WR.pass, true);
+    assert.equal(result.allPass, true);
+  });
+
+  test('runSensitivityCheck: a large teamOffense/age/depth pull that a held-at-one run removes -> fails when the shift exceeds SENSITIVITY_STEP', () => {
+    // Construct rows where teamOffense/age/depth are the ONLY non-neutral
+    // factors and their removal materially changes the ratio.
+    const rows = [];
+    for (let i = 0; i < 20; i++) {
+      rows.push(d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 10, overrides: { teamOffense: 1.075, age: 1.10, depth: 1.05 } }));
+    }
+    const result = runSensitivityCheck({ WR: rows });
+    assert.ok(result.perPosition.WR.absDiff > SENSITIVITY_STEP);
+    assert.equal(result.perPosition.WR.pass, false);
+    assert.equal(result.allPass, false);
+  });
+});
+
+describe('D6b — calibration sweeps (§D items 2-4)', () => {
+  test('computeMaeSweep: c=1.00 reproduces the raw MAE; the grid matches OPTIMISM_C_GRID', () => {
+    const rows = [d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 8 })];
+    const sweep = computeMaeSweep(rows);
+    assert.equal(sweep.length, OPTIMISM_C_GRID.length);
+    const at1 = sweep.find(s => s.c === 1.00);
+    assert.ok(Math.abs(at1.mae - 2) < 1e-9);
+  });
+
+  test('computeShrinkageSweep: k=0 leaves predictions unshrunk; k grid matches SHRINKAGE_K_GRID', () => {
+    const rows = [d6bFitRow('WR', { anchorBasePPG: 8, outcomePPG: 8 }), d6bFitRow('WR', { anchorBasePPG: 12, outcomePPG: 12 })];
+    const sweep = computeShrinkageSweep(rows);
+    assert.equal(sweep.length, SHRINKAGE_K_GRID.length);
+    const atZero = sweep.find(s => s.k === 0);
+    assert.equal(atZero.mae, 0);
+  });
+
+  test('qualifyingTierOf / groupByQualifyingTier: boundaries at 2/3, 4/5', () => {
+    assert.equal(qualifyingTierOf(d6bFitRow('WR', { qualifyingCount: 2 })), '1-2');
+    assert.equal(qualifyingTierOf(d6bFitRow('WR', { qualifyingCount: 3 })), '3-4');
+    assert.equal(qualifyingTierOf(d6bFitRow('WR', { qualifyingCount: 4 })), '3-4');
+    assert.equal(qualifyingTierOf(d6bFitRow('WR', { qualifyingCount: 5 })), '5+');
+    const groups = groupByQualifyingTier([d6bFitRow('WR', { qualifyingCount: 1 }), d6bFitRow('WR', { qualifyingCount: 6 })]);
+    assert.equal(groups['1-2'].length, 1);
+    assert.equal(groups['5+'].length, 1);
+    assert.deepEqual(Object.keys(groups).sort(), [...QUALIFYING_TIERS].sort());
+  });
+});
+
+describe('D6b — factor pruning ablation (§E) and eligible-window enforcement (finding 4)', () => {
+  test('ablation symmetry: holding an ALREADY-NEUTRAL factor at 1.0 reproduces the shipped number exactly', () => {
+    const rows = Array.from({ length: 12 }, (_, i) => d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 9 + (i % 3) }));
+    const report = runAblation(rows, 'WR');
+    const r = report.perFactor.momentum; // momentum is neutral (1.0) on every synthetic row above
+    assert.equal(r.dMae, 0, 'holding an already-neutral factor at 1 changes nothing');
+  });
+
+  test('a non-neutral factor, held at 1, produces a nonzero ΔMAE', () => {
+    const rows = Array.from({ length: 12 }, (_, i) =>
+      d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 12, overrides: { momentum: 1.08 } }));
+    const report = runAblation(rows, 'WR');
+    assert.notEqual(report.perFactor.momentum.dMae, 0);
+  });
+
+  test('eligible-window enforcement: qbQuality is excluded from ABLATION_GRADABLE_FACTORS for every position', () => {
+    for (const position of PANEL_POSITIONS) {
+      assert.ok(!ABLATION_GRADABLE_FACTORS[position].includes('qbQuality'), `${position}: qbQuality must never be an ablation candidate`);
+    }
+  });
+
+  test('eligible-window enforcement: teamOffense/age/depth/qbQuality are the complete NOT_GRADABLE_FACTORS set, and none appear in any position\'s ablation list', () => {
+    assert.deepEqual([...NOT_GRADABLE_FACTORS].sort(), ['age', 'depth', 'qbQuality', 'teamOffense'].sort());
+    for (const position of PANEL_POSITIONS) {
+      for (const factor of NOT_GRADABLE_FACTORS) {
+        assert.ok(!ABLATION_GRADABLE_FACTORS[position].includes(factor), `${position}: ${factor} must not be reported as a prune candidate`);
+      }
+    }
+  });
+
+  test('runAblation never touches QB\'s absent factors (shareTrend/snapShare/teamRzShare/qbQuality)', () => {
+    assert.ok(!ABLATION_GRADABLE_FACTORS.QB.some(f => ['shareTrend', 'snapShare', 'teamRzShare', 'qbQuality'].includes(f)));
+  });
+});
+
+describe('D6b — Step 4 verdict (regression up-side removal + injury-gated proxy)', () => {
+  test('a row with outlierRatio>=0.85 is untouched by the no-upside variant', () => {
+    const row = d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 10, overrides: { regression: 1.05 } });
+    row.qualifyingSeasons = [{ season: 2020, ppg: 10, gamesPlayed: 12 }, { season: 2021, ppg: 10, gamesPlayed: 12 }]; // outlierRatio = 1.0
+    const result = runStep4Verdict([row]);
+    assert.equal(result.overall.dMae, 0);
+  });
+
+  test('a row with outlierRatio<0.85 has its regression factor forced to 1.0 in the no-upside variant, changing the prediction', () => {
+    const row = d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 10, overrides: { regression: 1.12 } });
+    row.qualifyingSeasons = [{ season: 2020, ppg: 10, gamesPlayed: 12 }, { season: 2021, ppg: 5, gamesPlayed: 12 }]; // outlierRatio = 5/7.5 = 0.667 < 0.85
+    const shipped = predictFullPipeline(row).predicted;
+    const result = runStep4Verdict([row]);
+    assert.notEqual(result.overall.dMae, 0);
+    assert.ok(Math.abs(result.overall.noUpsideMae - Math.abs(shipped / 1.12 - 10)) < 1e-6);
+  });
+
+  test('injuryPredicate restricts the comparison to the matching subset only', () => {
+    const injured = d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 10 });
+    injured.dnpWeeksLastQ = 5;
+    const healthy = d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: 10 });
+    healthy.dnpWeeksLastQ = 0;
+    const result = runStep4Verdict([injured, healthy], { injuryPredicate: (r) => r.dnpWeeksLastQ >= 3 });
+    assert.equal(result.injuryGated.n, 1);
+    assert.equal(result.overall.n, 2);
+  });
+
+  test('no injuryPredicate -> injuryGated is null', () => {
+    const result = runStep4Verdict([d6bFitRow('WR')]);
+    assert.equal(result.injuryGated, null);
+  });
+});
+
+describe('D6b — rookie reconstruction (finding 9, further reduced scope)', () => {
+  test('reconstructNflDraftFactor: the full tier table, verbatim', () => {
+    assert.deepEqual(reconstructNflDraftFactor(1, 1), { nflDraftMultiplier: 1.30, nflDraftTier: 'top-3' });
+    assert.deepEqual(reconstructNflDraftFactor(1, 3), { nflDraftMultiplier: 1.30, nflDraftTier: 'top-3' });
+    assert.deepEqual(reconstructNflDraftFactor(1, 4), { nflDraftMultiplier: 1.18, nflDraftTier: 'top-8' });
+    assert.deepEqual(reconstructNflDraftFactor(1, 15), { nflDraftMultiplier: 1.10, nflDraftTier: 'r1-mid' });
+    assert.deepEqual(reconstructNflDraftFactor(1, 32), { nflDraftMultiplier: 1.02, nflDraftTier: 'r1-late' });
+    assert.deepEqual(reconstructNflDraftFactor(2, 40), { nflDraftMultiplier: 0.92, nflDraftTier: 'r2' });
+    assert.deepEqual(reconstructNflDraftFactor(7, 240), { nflDraftMultiplier: 0.58, nflDraftTier: 'r7' });
+    assert.deepEqual(reconstructNflDraftFactor(null, null), { nflDraftMultiplier: 1.0, nflDraftTier: null }, 'undrafted/unmatched -> neutral');
+  });
+
+  test('reconstructRookieAgeFactor: the age-bucket table + the missing-input default (0.95, matching the app\'s age??23 fallback)', () => {
+    assert.equal(reconstructRookieAgeFactor(20), 1.15);
+    assert.equal(reconstructRookieAgeFactor(21), 1.15);
+    assert.equal(reconstructRookieAgeFactor(22), 1.05);
+    assert.equal(reconstructRookieAgeFactor(23), 0.95);
+    assert.equal(reconstructRookieAgeFactor(25), 0.82);
+    assert.equal(reconstructRookieAgeFactor(null), 0.95);
+  });
+
+  test('reconstructRookieProjection: ktcMult and collegeContribution are ALWAYS neutral (the disclosed reduced-scope deviation)', () => {
+    const proj = reconstructRookieProjection({ position: 'WR', ageAtDraft: 21, draftRound: 1, draftPick: 5 });
+    assert.equal(proj.ktcMult, 1.0);
+    assert.equal(proj.collegeContribution, 1.0);
+  });
+
+  test('reconstructRookieProjection: the 1.85 cap fires and hitCap is reported honestly', () => {
+    // ageMult(1.15) * nflDraftMultiplier(1.30) = 1.495 -- not enough alone to
+    // cap with ktc/college pinned at 1.0. hitCap should be false here.
+    const proj = reconstructRookieProjection({ position: 'WR', ageAtDraft: 20, draftRound: 1, draftPick: 1 });
+    assert.equal(proj.hitCap, false);
+    assert.ok(proj.cappedProduct <= ROOKIE_MULTIPLIER_CLAMP[1]);
+  });
+
+  test('reconstructRookieProjection: unknown position falls back to baseline 7, matching the app\'s own ?? 7', () => {
+    const proj = reconstructRookieProjection({ position: 'K', ageAtDraft: 22, draftRound: null, draftPick: null });
+    assert.equal(proj.projectedPPG, Math.round(7 * 1.05 * 10) / 10); // ageAtDraft 22 -> 1.05; no draft match -> nflDraftMultiplier 1.0
+  });
+});
+
+describe('D6b — assembleRookiePanel', () => {
+  function seasonRec(team, gp, fp) { return { team, gamesPlayed: gp, fantasyPoints: fp, stats: {} }; }
+
+  test('a player with NO qualifying (gp>=8) season anywhere <=Y and no prior appearance is rookie-routed', () => {
+    const totalsByYear = { 2020: { rookie1: seasonRec('KC', 10, 70) }, 2021: { rookie1: seasonRec('KC', 12, 120) } };
+    const ppgByYear = {
+      2020: new Map([['rookie1', { actualPPG: 7, actualGames: 10 }]]),
+      2021: new Map([['rookie1', { actualPPG: 10, actualGames: 12 }]]),
+    };
+    const { rows, coverage } = assembleRookiePanel({
+      totalsByYear, ppgByYear,
+      positionOf: () => 'WR',
+      birthdateOf: () => '1998-01-01',
+      draftInfoOf: () => ({ draftYear: 2020, draftRound: 3, draftPick: 70 }),
+      fromYear: 2020, toYear: 2020,
+    });
+    assert.equal(coverage.assembled, 1);
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].outcomePPG, 10);
+    assert.equal(rows[0].nflDraftTier, 'r3');
+  });
+
+  test('a player WITH a qualifying (gp>=8) season <=Y is NOT rookie-routed', () => {
+    const totalsByYear = { 2019: { vet1: seasonRec('KC', 10, 80) }, 2020: { vet1: seasonRec('KC', 10, 90) } };
+    const ppgByYear = {
+      2019: new Map([['vet1', { actualPPG: 8, actualGames: 10 }]]),
+      2020: new Map([['vet1', { actualPPG: 9, actualGames: 10 }]]),
+    };
+    const { rows, coverage } = assembleRookiePanel({
+      totalsByYear, ppgByYear, positionOf: () => 'WR',
+      birthdateOf: () => '1996-01-01', draftInfoOf: () => ({ draftYear: 2019, draftRound: 1, draftPick: 10 }),
+      fromYear: 2020, toYear: 2020,
+    });
+    assert.equal(coverage.assembled, 0);
+    assert.equal(rows.length, 0);
+  });
+
+  test('outcome gate: gp<6 at Y+1 drops the row (counted, not silently included)', () => {
+    const totalsByYear = { 2020: { rookie2: seasonRec('KC', 10, 70) } };
+    const ppgByYear = { 2020: new Map([['rookie2', { actualPPG: 7, actualGames: 10 }]]), 2021: new Map([['rookie2', { actualPPG: 10, actualGames: 3 }]]) };
+    const { rows, coverage } = assembleRookiePanel({
+      totalsByYear, ppgByYear, positionOf: () => 'RB',
+      birthdateOf: () => null, draftInfoOf: () => null,
+      fromYear: 2020, toYear: 2020,
+    });
+    assert.equal(rows.length, 0);
+    assert.equal(coverage.drops.noOutcome, 1);
+  });
+
+  test('an unresolvable position is excluded entirely (not counted as assembled)', () => {
+    const totalsByYear = { 2020: { x: seasonRec('KC', 10, 70) } };
+    const ppgByYear = { 2020: new Map(), 2021: new Map() };
+    const { coverage } = assembleRookiePanel({
+      totalsByYear, ppgByYear, positionOf: () => null,
+      birthdateOf: () => null, draftInfoOf: () => null,
+      fromYear: 2020, toYear: 2020,
+    });
+    assert.equal(coverage.assembled, 0);
   });
 });
