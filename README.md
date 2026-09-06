@@ -997,6 +997,126 @@ node bin/update.mjs snaps --all      # backfill every season ≥ 2013
 
 ---
 
+### `nflverse/depth/<year>.json`
+
+Historical depth-chart capture (D5), produced by `bin/update.mjs depth [--year YYYY] [--all]`,
+sourced from `depth_charts_<year>.csv` in the nflverse `depth_charts` release. Reclassifies
+`depth_chart_order`/QB1 identity from "ephemeral, never reconstructable" to reconstructable back to
+2013 — the prerequisite for a later slice's depth-order multiplier and QB-change flag, neither of
+which has any history today. **Capture-only: wires no factor.** No app, projection, grading,
+backtest, or panel path reads this family.
+
+**Two schemas share one release, split at `DEPTH_ESPN_FROM_SEASON = 2025`:** legacy (2013–2024,
+`aggregateDepthLegacy`) and ESPN (2025+, the same `dt` schema `nflverse/oline` reads,
+`aggregateDepthEspn`). The ESPN-era NFL week is derived from the **upstream** nfldata `games.csv`
+directly (`fetchSchedulesCsv` → `buildGamedayIndex`) — never the served `nflverse/schedule` family,
+which carries no date column. ESPN rows are reduced from a near-daily snapshot cadence to one chart
+per (team, NFL week), keeping only the rows at that bucket's max `dt` (shares `addToLatestDtBucket`
+with `nflverse/oline`'s own reduction).
+
+**`MIN_DEPTH_SEASON = 2013`** — a floor chosen for join/gate defensibility, not upstream absence
+(the `depth_charts` release itself goes back to 2001); a below-floor `--year` is rejected before the
+spine ever sees it, since pre-2013 assets carry real rows (unlike snaps' header-only 2012) and would
+not naturally route through the "not published" skip.
+
+**Position scope:** QB, RB, WR, TE.
+
+**Served shape:**
+```json
+{
+  "schemaVersion": 1,
+  "season": 2013,
+  "generatedAt": "2026-09-06T11:05:46.048Z",
+  "rowCount": 7718,
+  "playerCount": 493,
+  "unmapped": 85,
+  "outOfWindow": 0,
+  "weeks": {
+    "1": {
+      "ATL": {
+        "QB": ["24", null],
+        "RB": ["57", "949", "609", "215", null],
+        "WR": ["947", "4", "247", null, "945"],
+        "TE": [null, "352", "1642"],
+        "depthPositions": {
+          "QB": ["QB", "QB"],
+          "RB": ["RB", "RB", "RB", "RB", "RB"],
+          "WR": ["WR", "WR", "WR", "WR", "WR"],
+          "TE": ["TE", "TE", "TE"]
+        }
+      }
+    }
+  },
+  "week1Qb1": { "ATL": "24" },
+  "qb1Changed": null
+}
+```
+(ESPN-era team entries — 2025+ — carry `dt`/`date` instead of `depthPositions`; see below.)
+
+**Field semantics:**
+- `weeks[week][team][position]` is an ordered array — **array position is the depth order** — but
+  unlike every sibling family's `players`/`byPfr` maps, an entry that fails to join is kept as
+  **`null` at its original index**, never dropped. Dropping would shift every later entry down a
+  slot, silently promoting a depth-2 player into the depth-1 slot whenever the true depth-1 player
+  fails to join — verified against a live measurement: with position preserved, 2013 has exactly 31
+  teams with a joined depth-1 QB; a drop-and-reindex implementation measures 32 (crediting a team
+  whose *backup* QB happens to have joined instead).
+- **Legacy `depth_team` is not a total order within a position.** Measured on 2013: 2,125 of 6,342
+  `(club, week, position)` groups share a `depth_team` value, because legacy ranks **within
+  `depth_position`** (the slot) while ESPN's `pos_rank` ranks **within `pos_abb`** (the position) —
+  the two eras measure different things, not the same rank on different schemas. The served array is
+  still deterministic (`depth_team asc, depth_position asc, input order`), but a per-team
+  `depthPositions` sibling — parallel-indexed (nulls included) to each position's id array — is
+  emitted **only when at least one entry carries a non-null `depthPosition`**, i.e. only on
+  legacy-era files; ESPN-era files carry `dt`/`date` (the winning snapshot moment for that
+  team-week's reduction) in that slot instead, and never `depthPositions`.
+- `rowCount`/`playerCount` count resolved (non-null) entries only.
+- `unmapped`/`outOfWindow` are honest counts: `unmapped` is distinct skill-position ids with no
+  crosswalk mapping (the join-rate denominator's other half); `outOfWindow` (ESPN-era only) counts
+  `dt` timestamps whose date falls outside the REG-season window rather than dropping them silently.
+- `week1Qb1: { [team]: sleeperId|null }` is the depth-1 QB at week 1 REG — index 0 of the QB array,
+  not "any QB present that week".
+- `qb1Changed: { [team]: boolean } | null` compares `week1Qb1` against the **prior season's served
+  file**. `null` at `MIN_DEPTH_SEASON` (no prior season exists); a later season with a missing prior
+  file **throws** rather than silently yielding `null`, which would be indistinguishable from the
+  floor season's legitimate one. Two consequences of reading a prior served file rather than
+  recomputing: a correction to season Y−1 can never propagate into Y once Y is `--force`-gated
+  under Invariant 1, and a relocation year (e.g. 2016's `STL`→`LA`) reads as `qb1Changed: true` for
+  the new team code even when the same QB started both seasons, since the comparison is keyed by
+  team code with no era-remap.
+
+**Join:** `gsis_id` via the crosswalk's `.ids` map is primary (100% populated on legacy, 98.6% on
+ESPN skill rows); ESPN rows whose `gsis_id` is empty fall back to `espn_id` via
+`crosswalkFromBySleeper(bySleeper, 'espnId')` — generalizes `nflverse/snaps`' `pfrId` inversion
+pattern rather than duplicating it. **Prerequisite:** an ESPN-era season hard-errors if the
+crosswalk's `bySleeper` is absent or empty — regenerate to schemaVersion 2 first
+(`node bin/update.mjs playerids`).
+
+**Gates, all enforced as a hard throw in `lib/validate.mjs` `validateDepth`** (mirrors
+`nflverse/snaps`'s pattern — the spine's own sparsity skip is deliberately near-inert for this
+family, since every season it backfills is already complete/published):
+- `MIN_DEPTH_ROWS = 3500` over joined (non-null) skill rows.
+- 30–32 teams present at week 1 (exactly 32 in every season measured except 2017, which has 30 —
+  the MIA@TB week-1 game was postponed to week 11 that season for Hurricane Irma).
+- A depth-1 QB present for ≥ `MIN_DEPTH_QB1_TEAMS = 30` teams at week 1.
+- Skill-position join rate ≥ `DEPTH_JOIN_RATE_MIN = 0.80`, computed over **distinct** ids (not row
+  occurrences — an occurrence count inflates the rate and would defeat this floor's calibration).
+- Per-year team-code assertions at the three boundary pairs (`STL`↔`LA` 2015/2016, `SD`↔`LAC`
+  2016/2017, `OAK`↔`LV` 2019/2020) — this source is already historically team-coded, like
+  `nflverse/snaps`; `eraTeam()` must never be applied to it.
+
+**Weekly in-season refresh:** `nflverse-depth.yml` runs Saturdays (unlike `nflverse/snaps`'
+yearly-only cadence) — current-season QB1-change capture is the point of this family.
+
+```sh
+node bin/update.mjs depth --year 2013
+node bin/update.mjs depth --year 2013 --dry-run
+node bin/update.mjs depth            # current season
+node bin/update.mjs depth --all      # backfill every season ≥ 2013
+```
+
+---
+
 ### `raw/<name>.json`
 
 Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
@@ -1276,10 +1396,11 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `weekly-playerstate.yml` | Saturday 14:11 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstate`; content-hash dedup (excluding churning `newsUpdated`/`searchRank` fields); commits the new dated snapshot if changed, purges jsDelivr CDN cache |
 | `nflverse-oline.yml` | Saturday 14:37 UTC + `workflow_dispatch` | Runs `node bin/update.mjs oline` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-snaps.yml` | Feb 15 14:05 UTC + `workflow_dispatch` | Runs `node bin/update.mjs snaps` (current season) — yearly, post-season; no in-season weekly refresh for this family. Commits if content hash changed, purges jsDelivr CDN cache; delegates to `_ingest.yml` |
+| `nflverse-depth.yml` | Saturday 14:50 UTC + `workflow_dispatch` | Runs `node bin/update.mjs depth` (current season) — weekly, in-season (unlike `nflverse-snaps.yml`'s yearly cadence: current-season QB1-change capture is the point). After the Wednesday playerids job (crosswalk) and the Friday schedule job (upstream week derivation, ESPN-era). Commits if content hash changed, purges jsDelivr CDN cache; delegates to `_ingest.yml` |
 | `cron-deadman.yml` | Daily 05:19 UTC + push to `main` + `workflow_dispatch` | Runs `node bin/deadman.mjs`; monitoring only — no writes, no manifest touch |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
 | `daily-snapshot.yml` (D1b, phase 1) | `workflow_dispatch` only — **no `cron:` line yet**, see CR-22 below | Checks out this repo plus a pinned ref of `antonwilms/sleeper-dashboard` into `app/`, builds and `vite preview`s the app headlessly, drives it with Playwright (localStorage-seeded, no UI interaction), reads the projection snapshot it wrote to IndexedDB, runs it through the commit gate (`lib/snapshot-capture.mjs`) and writes+registers+commits `snapshots/<date>.json` only on acceptance; purges the jsDelivr manifest cache. Rejects loudly (non-zero exit, no commit) rather than writing a neutral snapshot — see Cross-repo impact CR-01 below and `.claude/tasks/daily-snapshot-capture.md` |
-| `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the nine uniform ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `nflverse-snaps.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
+| `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the ten uniform ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `nflverse-snaps.yml`, `nflverse-depth.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
@@ -1531,10 +1652,10 @@ Field order is fixed; no field is optional.
 
 #### CR-16 · Era-accurate team-code remap *(reconciliation — was buried in the teamcontext prose)*
 - **App side:** `src/utils/playerTeam.js` `eraTeam(abbr, season):32` — LA→STL ≤2015, SD/LAC ≤2016, OAK/LV ≤2019 — **and** `src/utils/nflStats.js` `SCHEDULE_TEAM_ALIAS:2` (`{ LAR: 'LA' }`) + `normalizeTeamForSchedule:4`, which `playerTeam.js:63` composes with `eraTeam`
-- **Data side:** `lib/nflverse.mjs` `eraTeam` (**the definition**), applied to pbp in `aggregateTeamContext`; `lib/sleeper.mjs` `SCHEDULE_TEAM_ALIAS` + `normalizeTeamForSchedule` (the data-side mirror of the app's alias, applied in `aggregateWeeks` to produce the season-totals `team`, whose already-normalized value D-1 (2026-08-24) then joins against the schedule's bye-week map, also in `aggregateWeeks`); the era-domain guard in `lib/validate.mjs` `validateTeamContext`
+- **Data side:** `lib/nflverse.mjs` `eraTeam` (**the definition**), applied to pbp in `aggregateTeamContext`; `lib/sleeper.mjs` `SCHEDULE_TEAM_ALIAS` + `normalizeTeamForSchedule` (the data-side mirror of the app's alias, applied in `aggregateWeeks` to produce the season-totals `team`, whose already-normalized value D-1 (2026-08-24) then joins against the schedule's bye-week map, also in `aggregateWeeks`); the era-domain guard in `lib/validate.mjs` `validateTeamContext`, and (D5) `validateDepth`
 - **Invariant:** both repos map franchise abbreviations to the same era-accurate code for the same season **through the same two-stage composition** (schedule-domain alias, then era remap), so team keys join across teamcontext, schedule and season-totals.
 - **Direction:** both
-- **Triggers:** `eraTeam` in `src/utils/playerTeam.js`, `SCHEDULE_TEAM_ALIAS` / `normalizeTeamForSchedule` in `src/utils/nflStats.js`  ‖  `eraTeam` in `lib/nflverse.mjs`, `SCHEDULE_TEAM_ALIAS` / `normalizeTeamForSchedule` in `lib/sleeper.mjs`, the era-domain guard in `lib/validate.mjs`
+- **Triggers:** `eraTeam` in `src/utils/playerTeam.js`, `SCHEDULE_TEAM_ALIAS` / `normalizeTeamForSchedule` in `src/utils/nflStats.js`  ‖  `eraTeam` in `lib/nflverse.mjs`, `SCHEDULE_TEAM_ALIAS` / `normalizeTeamForSchedule` in `lib/sleeper.mjs`, the era-domain guard in `lib/validate.mjs` (`validateTeamContext`, and — D5 — `validateDepth`)
 - **Mirror:** A future franchise move (or any change to an existing mapping) updates **both repos in the same change** — and there are **two** mirrored constants here, not one: the era remap *and* the schedule-domain alias (`lib/sleeper.mjs:21` says so in a comment: *"Mirrors the app's `src/utils/nflStats.js` `SCHEDULE_TEAM_ALIAS` exactly"*). A one-sided edit to either produces silently empty joins rather than an error — the team key simply never matches. Note `scripts/update-teamcontext.mjs` is **not** a trigger despite owning the teamcontext ingest: it names `eraTeam` only in a header comment (`:13`) and calls it via `aggregateTeamContext`, so grepping it for the remap finds nothing. **D-1 (2026-08-24) is a new consumer of this composition, not a new mapping** — `aggregateWeeks` joins a single-team row's already-normalized `team` against the nflverse schedule's bye weeks, so a future franchise move that isn't mirrored here silently loses that team's bye inference (degrades to `'X'`, no throw) in addition to the pre-existing teamcontext/schedule join failures this entry already covers.
 
 #### CR-17 · KTC value snapshots *(new — found by the completeness sweep, absent from both repos)*
@@ -1550,7 +1671,7 @@ Field order is fixed; no field is optional.
 - **Data side:** the signal-registry sentence in `CLAUDE.md` → *Self-maintenance*, the Sibling-repo pointer in `CLAUDE.md` → *Sibling repo*, `data-catalog.md` (data-side storage index — its header explicitly says the app's registry is the field-level index and to *"link, don't merge"*), and any ingest that adds/removes/reclassifies a field, stat key or source — `scripts/update-*.mjs`, `lib/sleeper.mjs`, `lib/nflverse.mjs`
 - **Invariant:** every ingested field, stat key and source in the data repo has a current row in the app repo's `docs/signal-registry.md`, with its layer, source, historical coverage, reconstructable-vs-ephemeral status and current use accurate as of the change that touched it.
 - **Direction:** data→app
-- **Triggers:** `docs/signal-registry.md`  ‖  `data-catalog.md`, the signal-registry and Sibling-repo pointers in `CLAUDE.md`, the ingest scripts `scripts/update-{nfl,cfbd,ktc,roster,draft,playerids,advstats,schedule,gamelogs,teamcontext,playerstate,oline,snaps}.mjs`, the field-producing parsers/aggregators in `lib/nflverse.mjs` (`parseRosterCsv`, `parseDraftCsv`, `parsePlayerIdsCsv`, `aggregateAdvReceiving`, `parsePlayerGameLogs`, `parseSchedulesCsv`, `aggregateTeamContext`, `aggregateOlineStates`, `aggregateSnapCounts`), `aggregateWeeks` in `lib/sleeper.mjs`, `lib/cfbd.mjs`, `lib/ktc.mjs`, and the **coverage-floor constants that encode historical coverage** — `MIN_DRAFT_YEAR`, `MIN_SCHEDULE_SEASON`, `MIN_GAMELOG_SEASON`, `MIN_TEAMCONTEXT_SEASON`, `MIN_OLINE_SEASON`, `MIN_SNAPS_SEASON` in `lib/nflverse.mjs`
+- **Triggers:** `docs/signal-registry.md`  ‖  `data-catalog.md`, the signal-registry and Sibling-repo pointers in `CLAUDE.md`, the ingest scripts `scripts/update-{nfl,cfbd,ktc,roster,draft,playerids,advstats,schedule,gamelogs,teamcontext,playerstate,oline,snaps,depth}.mjs`, the field-producing parsers/aggregators in `lib/nflverse.mjs` (`parseRosterCsv`, `parseDraftCsv`, `parsePlayerIdsCsv`, `aggregateAdvReceiving`, `parsePlayerGameLogs`, `parseSchedulesCsv`, `aggregateTeamContext`, `aggregateOlineStates`, `aggregateSnapCounts`, `aggregateDepthLegacy`, `aggregateDepthEspn`), `aggregateWeeks` in `lib/sleeper.mjs`, `lib/cfbd.mjs`, `lib/ktc.mjs`, and the **coverage-floor constants that encode historical coverage** — `MIN_DRAFT_YEAR`, `MIN_SCHEDULE_SEASON`, `MIN_GAMELOG_SEASON`, `MIN_TEAMCONTEXT_SEASON`, `MIN_OLINE_SEASON`, `MIN_SNAPS_SEASON`, `MIN_DEPTH_SEASON` in `lib/nflverse.mjs`
 - **Mirror:** This entry's data side is the one genuinely open set in the registry — a brand-new ingest adds a script the list above cannot already name. The listed sites are every one that exists today; a *new* one is caught by the near-side re-verification duty (the data repo's reviewer re-derives its own side against live `scripts/` and `lib/` on every review), not by this list. When a data-repo change adds, removes or reclassifies an ingested field, stat key or source — or alters its historical coverage or reconstructable-vs-ephemeral status — emit the exact `docs/signal-registry.md` row edit the app must make (layer · source · coverage · reconstructable-vs-ephemeral · current use), and update the family's `data-catalog.md` row on the data side in the same change. **Nothing fails in either repo when this drifts** — the registry simply becomes wrong, and since it is the inventory that governs snapshot-capture and grading-inclusion decisions, a stale row misroutes those decisions months later. The data repo cannot edit `docs/signal-registry.md`; the emitted row edit is the whole deliverable.
 
 #### CR-19 · Market Efficiency stat keys

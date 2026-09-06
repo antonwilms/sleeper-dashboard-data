@@ -1396,10 +1396,88 @@
       "recordCount": 6944,
       "inProgress": false,
       "lastModified": "2026-09-06T01:28:48.595Z"
+    },
+    "nflverse/depth/2013.json": {
+      "schemaVersion": 1,
+      "recordCount": 7718,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:05:46.048Z"
+    },
+    "nflverse/depth/2014.json": {
+      "schemaVersion": 1,
+      "recordCount": 7422,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:05:46.488Z"
+    },
+    "nflverse/depth/2015.json": {
+      "schemaVersion": 1,
+      "recordCount": 8569,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:05:46.958Z"
+    },
+    "nflverse/depth/2016.json": {
+      "schemaVersion": 1,
+      "recordCount": 8632,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:05:47.534Z"
+    },
+    "nflverse/depth/2017.json": {
+      "schemaVersion": 1,
+      "recordCount": 8555,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:12:08.127Z"
+    },
+    "nflverse/depth/2018.json": {
+      "schemaVersion": 1,
+      "recordCount": 8513,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:12:08.810Z"
+    },
+    "nflverse/depth/2019.json": {
+      "schemaVersion": 1,
+      "recordCount": 8622,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:12:09.218Z"
+    },
+    "nflverse/depth/2020.json": {
+      "schemaVersion": 1,
+      "recordCount": 8622,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:12:09.658Z"
+    },
+    "nflverse/depth/2021.json": {
+      "schemaVersion": 1,
+      "recordCount": 8803,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:12:10.092Z"
+    },
+    "nflverse/depth/2022.json": {
+      "schemaVersion": 1,
+      "recordCount": 8834,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:12:10.572Z"
+    },
+    "nflverse/depth/2023.json": {
+      "schemaVersion": 1,
+      "recordCount": 8766,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:12:10.985Z"
+    },
+    "nflverse/depth/2024.json": {
+      "schemaVersion": 1,
+      "recordCount": 8611,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:12:11.305Z"
+    },
+    "nflverse/depth/2025.json": {
+      "schemaVersion": 1,
+      "recordCount": 10411,
+      "inProgress": false,
+      "lastModified": "2026-09-06T11:12:14.483Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-09-06T10:19:17.132Z"
+  "generatedAt": "2026-09-06T11:12:14.483Z"
 }

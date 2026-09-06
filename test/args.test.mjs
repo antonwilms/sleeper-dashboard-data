@@ -53,6 +53,10 @@ test('parseAndValidateArgs: snaps --all --year 2016 throws — snaps is on ALL_S
   assert.throws(() => parseAndValidateArgs(['snaps', '--all', '--year', '2016']));
 });
 
+test('parseAndValidateArgs: depth --all --year 2016 throws — depth is on ALL_SUBCOMMANDS (D5 §C)', () => {
+  assert.throws(() => parseAndValidateArgs(['depth', '--all', '--year', '2016']));
+});
+
 // ═══════════════════════════════════════════════════════════════════
 // Acceptances — the ones a false positive would break
 // ═══════════════════════════════════════════════════════════════════
@@ -94,6 +98,10 @@ test('parseAndValidateArgs: schedule --all → no throw (the documented --all pa
 
 test('parseAndValidateArgs: snaps --all → no throw (the documented --all path)', () => {
   assert.doesNotThrow(() => parseAndValidateArgs(['snaps', '--all']));
+});
+
+test('parseAndValidateArgs: depth --all → no throw (the documented --all path)', () => {
+  assert.doesNotThrow(() => parseAndValidateArgs(['depth', '--all']));
 });
 
 // ═══════════════════════════════════════════════════════════════════

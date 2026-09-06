@@ -1,0 +1,36 @@
+name: Weekly nflverse depth charts
+
+on:
+  schedule:
+    # 14:50 UTC every Saturday — after the Wednesday playerids Action (13:29) has had days to
+    # land the season's crosswalk (this family's join depends on it — finding 3b hard-errors an
+    # ESPN-era season without a populated bySleeper) and after the Friday schedule Action
+    # (13:35), whose upstream games.csv this family also reads (finding 1) for the ESPN-era NFL
+    # week derivation. Clear of the occupied weekly-cron set (13:17 Mon, 13:23 Tue, 13:29 Wed,
+    # 13:35 Fri, 13:47 Sat, 13:53 Sun, 14:11 Sat, 14:37 Sat, 15:05 Tue — daily-snapshot-capture.md
+    # §Step 0) and off-the-hour by the repo's politeness convention. In-season weekly refresh
+    # (not yearly-only like snaps) because the current season's QB1-change capture is what
+    # matters most, per the task's §D cadence decision.
+    - cron: "50 14 * * 6"
+  workflow_dispatch: {}   # allow manual trigger for backfill / corrections
+
+permissions:
+  contents: write
+
+jobs:
+  depth:
+    uses: ./.github/workflows/_ingest.yml
+    with:
+      subcommand: depth
+      # Reads the crosswalk (scripts/update-depth.mjs readJson('nflverse/playerids.json')) —
+      # listed explicitly, mirrors nflverse-snaps.yml's own sparse-checkout comment. The upstream
+      # nfldata games.csv (finding 1's gameday index, ESPN-era only) is a live HTTP fetch
+      # (fetchSchedulesCsv), not a local repo path, so it needs no sparse-checkout entry — unlike
+      # nflverse/schedule (the SERVED family), which this script never reads.
+      sparse-paths: |
+        nflverse/depth
+        nflverse/playerids.json
+      commit-scope: "nflverse/"
+      commit-message: "nflverse: depth"
+      purge-path: "nflverse/depth/<season>.json"
+      season-keyed: true
