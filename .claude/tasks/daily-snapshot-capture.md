@@ -149,3 +149,60 @@ Playwright itself is exercised by the workflow's first real run, not by a unit t
   - *Phase 2* — add the `cron:` line, verify `bin/deadman.mjs` now discovers the file, and retire the manual path to fallback status in the docs. **Gated on CR-22 landing in both registries**, per *Cross-repo impact*.
   Splitting this way also keeps phase 1 reviewable: a browser driver, a cross-repo checkout, a new gate and a new scheduled committer in one diff is more than one review can hold.
 - **Secrets.** `SNAPSHOT_LEAGUE_ID` is the only one needed. Do not add `VITE_CFBD_API_KEY`.
+
+---
+
+## Phase 2 — closing the capture gap (planned opus, 2026-09-07)
+
+**Base:** data `fb45d12`, app `3d15296` (app is on `main` now, not `claude-md-slimming` — check before editing). **Plan gate:** not run.
+
+Phase 1 is merged and the workflow triggers only on manual dispatch. Phase 2 turns the schedule on. It is **two sessions in a fixed order**, because D1b's own gate says the cron waits for `CR-22`, and only a parent-folder session can create that entry.
+
+**Why this is now urgent rather than tidy.** D6b's result is that three factors cannot be graded retrospectively and need a forward window instead. The daily capture is the only thing that builds that window, and it is not running. Every day without it is a row that cannot be recreated — the thirty-four days lost this summer are the precedent, and they are gone for good.
+
+### Session A — parent folder (`Claude Projects/Sleeper Dashboard`), first
+
+The only session that can edit both registries in one change. Four jobs, one commit per repo.
+
+**A1. Sync the mirrored `CR-REGISTRY` region.** It is four edits out of sync, all data-side ahead of app-side, enumerated in `PARKED.md` → *Cross-repo registry drift*: two CR-01 additions from D1b phase 1, CR-18's trigger additions from D4, and CR-15's extension from D6a. **The fourth is the one to read carefully** — it reverses CR-15's own scope note, which deliberately excludes the file D6a's age port draws from.
+
+**Use the documented line-anchored check, not a plain string search.** The files mention the sentinels inline in prose, and a naive `index()` match hits the prose instead of the sentinel line. That mistake truncated the data repo's whole region once already. Finish with the check returning empty output.
+
+**A2. Author the two coupling entries, resolving the number collision.** `CR-22` has two claimants: E7's precomputed team-season pack (parked, blocked on it) and D1b's data-repo-executes-the-app coupling. **Give `CR-22` to D1b** — it is the one blocking live work — and `CR-23` to E7. Write both in the same change so the collision cannot recur.
+
+E7's entry has a specific failure to avoid, recorded in `PARKED.md`: a previous attempt was rejected because its App side named *"a new loader in `src/api/`"*, a category, which the entry format forbids. A parent-folder session can read `src/`, so name concrete files and exported symbols. That is the whole reason E7 has been parked.
+
+D1b's `CR-22` covers what the workflow depends on across the boundary: the two `localStorage` keys, the `[snapshot] wrote …` console marker, and the IndexedDB layout (`sleeper-dashboard` → `cache` → `projection-snapshots/<date>`). All three are app-side surfaces a rename would break silently.
+
+**A3. Write the four owed `docs/signal-registry.md` rows.** All four are emitted verbatim in their slices' hand-backs; none exists in the file today (verified: zero rows for both new families).
+
+| owed by | edit |
+|---|---|
+| D4 | new row, `nflverse/snaps` family — raw ingested, nflverse snap counts, coverage 2013+, reconstructable, unused/candidate |
+| D5 | new row, `nflverse/depth` family — same shape, coverage 2013+, reconstructable |
+| D5 | **reclassify** the existing depth-chart-order row (`:120`) from *ephemeral capture* to reconstructable 2013+, noting Sleeper's `depth_chart_order` remains the live input |
+| D2 | playerids row — age becomes reconstructable from `birthdate` |
+
+The reclassification carries a caveat D5 emitted with it: the served depth array can hold `null` where an id failed to join, and a consumer must read that as **unknown**, never as "no one", and never re-index around it.
+
+**A4. Clear the four items from `PARKED.md`** as they land, and move E7 out of blocked once `CR-23` exists.
+
+### Session B — data repo, after A
+
+**B1. Dispatch one run** with `app_ref=main`. This is the **first end-to-end proof of the v3 envelope**: D1a shipped `inputStatus` app-side, the gate rejects anything below schemaVersion 3, and every committed snapshot to date is v2. Nothing has yet demonstrated that the app writes what the gate accepts.
+
+**B2. Verify the committed file**, not the run's exit code. Confirm `schemaVersion: 3`, an `inputStatus` block present, and that the gate passed on real data rather than a fixture. Report the actual counts for `college`, `nflDraft`, `ktc` and `depthChart`.
+
+**If the gate rejects the real capture, that is the finding, not an obstacle.** Report it and stop. Do not relax a floor to make the first run pass — the floors exist because a silently-neutral capture is worse than no capture, which is the defect this whole arc was built to end.
+
+**B3. Add the cron** at `29 16 * * *`. Verified free against all thirteen occupied slots, clear of every weekly committer, and after the latest of them at 15:05 Tuesday.
+
+**B4. Verify the dead-man now discovers it.** §E explains why this could not run in phase 1: `listScheduledWorkflows` keeps only files carrying a `cron:` line, so a dispatch-only file returns silence that reads as a pass. Adding the line and running `bin/deadman.mjs` in the same change is the first time this check proves anything. Report its output.
+
+**B5. Retire the manual path** to fallback status in `snapshot-workflow.md`, and set the `data-catalog.md` snapshots row's refresh to the daily Action.
+
+### Risks
+
+- **Do not turn the cron on before `CR-22` exists.** That gate is D1b's own, and the reason is that until the entry exists the app can rename any of the three surfaces above with nothing to catch it.
+- **A1's region must be byte-identical at the end.** Verify with the documented check; a partial sync is worse than none, because it makes the check noisy and the next reader stops trusting it.
+- **The first scheduled run is unattended.** Confirm the manual dispatch is green before the cron's first fire, not after.
