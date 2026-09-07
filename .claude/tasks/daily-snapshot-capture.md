@@ -206,3 +206,42 @@ The reclassification carries a caveat D5 emitted with it: the served depth array
 - **Do not turn the cron on before `CR-22` exists.** That gate is D1b's own, and the reason is that until the entry exists the app can rename any of the three surfaces above with nothing to catch it.
 - **A1's region must be byte-identical at the end.** Verify with the documented check; a partial sync is worse than none, because it makes the check noisy and the next reader stops trusting it.
 - **The first scheduled run is unattended.** Confirm the manual dispatch is green before the cron's first fire, not after.
+
+---
+
+## Fix pass — Session A left `main` red (planned opus, 2026-09-07)
+
+**This is a parent-folder job**, because the fix edits a `CR-NN` entry and those are mirrored. Do not attempt it from either repo alone.
+
+Session A's content was right and I verified it: the drift check returns empty, both new entries exist in both registries, four signal-registry rows landed, and no source was touched. **But it left the data repo's test suite red at 866 of 867**, and I did not run the suite when I verified it. That is my miss.
+
+### What fails and why
+
+`test/registry.test.mjs` → *"every data-side symbol resolves in the file its entry names"*. Four failures, all `CR-23`:
+
+```
+CR-23: file not found — lib/teamSummary.mjs (claimed for `summariseTeamSeasons`)
+CR-23: `validateTeamSeasonSummary` does not resolve in lib/validate.mjs
+```
+
+The guard's own header says it exists to red "when a symbol is renamed, moved to another file, or deleted". **A not-yet-built symbol is none of those.** CR-23 documents a parked coupling whose data side has not been written, so it names files and symbols that do not exist yet. The guard has no concept for that and reads it as drift.
+
+### The fix: narrow CR-23's `Data side`, keep its `App side` intact
+
+`CR-23`'s **App side** is the part that mattered — it is what unblocked E7, whose previous entry was rejected for naming a category. The data repo cannot resolve `src/` symbols, so the guard never touches it, and **it stays exactly as written**.
+
+The **Data side** is the guarded half. Narrow it to what exists:
+
+- **Keep** `nflverse/team-season-summary.json` — a served-path template, which the guard already skips by design.
+- **Remove from `Data side`** the two unbuilt symbols and the unbuilt file: `lib/teamSummary.mjs` `summariseTeamSeasons`, and `validateTeamSeasonSummary` in `lib/validate.mjs`. `scripts/build-team-season-summary.mjs` also does not exist — remove it too, and check rather than assume.
+- **Move all three into the entry's `Invariant` or `Mirror` prose**, named just as concretely, phrased as what the data side *will* own when the pack is built. Nothing is lost: the naming survives, the guard stops reading it as drift, and the entry still tells a future session exactly where the work goes.
+
+Make the identical edit in both `sleeper-dashboard/docs/cross-repo-registry.md` and `sleeper-dashboard-data/README.md`, and finish with the documented **line-anchored** drift check returning empty.
+
+### What was considered and rejected
+
+Adding a `**PLANNED (<date>):**` status marker mirroring the existing `RETIRED` convention, with the guard skipping planned entries. It generalizes, and there will be more parked couplings. **Rejected for now because it weakens a live guard to accommodate one entry**, and the narrowing above costs nothing and loses nothing. Revisit if a second parked coupling needs the same treatment — at that point the marker earns its keep.
+
+### Verify
+
+`npm test` back to 867 of 867, the drift check empty, and no source file touched in either repo.
