@@ -5,11 +5,11 @@ headlessly (Playwright, `localStorage`-seeded — no manual browser step), reads
 wrote to IndexedDB, and — only if the snapshot passes the commit gate (`lib/snapshot-capture.mjs`)
 — registers, commits and pushes `snapshots/<date>.json`.
 
-**Phase 1 status: `workflow_dispatch` only, no `cron:` line yet.** See CR-22 in the [Cross-repo
-contract registry](README.md#cross-repo-contract-registry-with-sleeper-dashboard) — the cron
-switch-on is gated on that coupling landing in both repos' registries, not merely on one green
-dispatch. Until then, run it manually (Actions tab → "Daily projection snapshot capture" → Run
-workflow) or use the manual fallback below.
+**Phase 2 status: scheduled, `cron: "29 16 * * *"`.** CR-22 (see the [Cross-repo contract
+registry](README.md#cross-repo-contract-registry-with-sleeper-dashboard)) landed in both repos'
+registries, clearing the gate on the cron switch-on. The job also still takes
+`workflow_dispatch` for a manual re-run (Actions tab → "Daily projection snapshot capture" → Run
+workflow). The manual capture below is now the fallback for when the Action itself is broken.
 
 **When the job fails its gate, read the rejection reason — do not just re-run it.** The job's
 `Capture snapshot` step logs `::error::Snapshot rejected — <reason>` and exits non-zero; no

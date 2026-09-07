@@ -71,8 +71,8 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Keep-rationale:** market-value time series
 
 ## Projection snapshots
-- **Served path / subcommand / refresh:** `snapshots/<date>.json`; `bin/import-snapshot.mjs` + `bin/update.mjs snapshots` (manual fallback) **or `.github/workflows/daily-snapshot.yml` (D1b, phase 1: `workflow_dispatch` only — no `cron:` line yet, see CR-22)** — headless build+run of the app, gated on `lib/snapshot-capture.mjs` before commit
-- **Source + provenance:** app-side export (`src/utils/projectionSnapshot.js` writer) — either a human's manual browser export (`bin/import-snapshot.mjs`) or `daily-snapshot.yml`'s headless Playwright run of the same app code, imported verbatim either way
+- **Served path / subcommand / refresh:** `snapshots/<date>.json`; `.github/workflows/daily-snapshot.yml` (D1b, phase 2 — `cron: "29 16 * * *"`, CR-22 landed in both registries) — headless build+run of the app, gated on `lib/snapshot-capture.mjs` before commit. `bin/import-snapshot.mjs` + `bin/update.mjs snapshots` is now the manual fallback for when the Action is broken
+- **Source + provenance:** app-side export (`src/utils/projectionSnapshot.js` writer) — either `daily-snapshot.yml`'s headless Playwright run of the app code, or a human's manual browser export (`bin/import-snapshot.mjs`) as fallback, imported verbatim either way
 - **Grain:** player, dated
 - **Join id(s):** sleeper_id
 - **Coverage:** 2026-05-19 → present

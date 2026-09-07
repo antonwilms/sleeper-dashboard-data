@@ -1,11 +1,12 @@
 name: Daily projection snapshot capture
 
-# PHASE 1 (D1b): workflow_dispatch only. Deliberately no `cron:` line yet — see the task file's
-# Risks section (staged rollout) and Cross-repo impact §CR-22: the cron switch-on is gated on a
-# CR-22 registry entry landing in both repos, not merely on one green dispatch run. A
-# `workflow_dispatch`-only file also has no `cron:` line for scripts/check-crons.mjs to find,
-# so the dead-man monitor does not (and must not, in phase 1) see this job at all.
+# PHASE 2 (D1b): CR-22 now exists in both registries, so the cron is switched on. 16:29 UTC
+# clears all thirteen occupied weekly slots and sits after the latest weekly committer
+# (nfl-season-totals.yml, Tuesday 15:05) — see the task file's Step 0 correction 1. Adding this
+# line is also what makes scripts/check-crons.mjs / bin/deadman.mjs discover this workflow.
 on:
+  schedule:
+    - cron: "29 16 * * *"
   workflow_dispatch:
     inputs:
       app_ref:
