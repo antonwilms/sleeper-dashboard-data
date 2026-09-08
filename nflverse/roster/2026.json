@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "season": 2026,
-  "generatedAt": "2026-09-01T17:20:58.419Z",
-  "rowCount": 1748,
+  "generatedAt": "2026-09-08T17:17:11.946Z",
+  "rowCount": 1884,
   "players": {
     "19": {
       "team": "CIN",
@@ -21,6 +21,12 @@
       "position": "DL",
       "status": "ACT",
       "fullName": "Calais Campbell"
+    },
+    "260": {
+      "team": "CIN",
+      "position": "QB",
+      "status": "DEV",
+      "fullName": "Josh Johnson"
     },
     "421": {
       "team": "LA",
@@ -202,6 +208,12 @@
       "status": "ACT",
       "fullName": "Odell Beckham Jr."
     },
+    "2130": {
+      "team": "MIN",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Kyle Van Noy"
+    },
     "2133": {
       "team": "LA",
       "position": "WR",
@@ -240,7 +252,7 @@
     },
     "2308": {
       "team": "SEA",
-      "position": "DL",
+      "position": "LB",
       "status": "ACT",
       "fullName": "Dante Fowler Jr."
     },
@@ -262,6 +274,12 @@
       "status": "ACT",
       "fullName": "Bud Dupree"
     },
+    "2330": {
+      "team": "BUF",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Shaq Thompson"
+    },
     "2340": {
       "team": "HOU",
       "position": "DL",
@@ -271,7 +289,7 @@
     "2353": {
       "team": "LAC",
       "position": "LB",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Denzel Perryman"
     },
     "2359": {
@@ -388,6 +406,12 @@
       "status": "ACT",
       "fullName": "Sheldon Rankins"
     },
+    "3197": {
+      "team": "KC",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Emmanuel Ogbah"
+    },
     "3198": {
       "team": "BAL",
       "position": "RB",
@@ -454,11 +478,23 @@
       "status": "ACT",
       "fullName": "Jacoby Brissett"
     },
+    "3258": {
+      "team": "BAL",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Nick Vannett"
+    },
     "3268": {
       "team": "JAX",
       "position": "DB",
       "status": "ACT",
       "fullName": "Eric Murray"
+    },
+    "3269": {
+      "team": "BAL",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Chris Moore"
     },
     "3271": {
       "team": "LA",
@@ -694,6 +730,12 @@
       "status": "RET",
       "fullName": "Ahkello Witherspoon"
     },
+    "4126": {
+      "team": "WAS",
+      "position": "DB",
+      "status": "ACT",
+      "fullName": "Fabian Moreau"
+    },
     "4129": {
       "team": "JAX",
       "position": "DB",
@@ -826,6 +868,12 @@
       "status": "ACT",
       "fullName": "Al-Quadin Muhammad"
     },
+    "4274": {
+      "team": "CAR",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "David Moore"
+    },
     "4278": {
       "team": "DEN",
       "position": "DL",
@@ -856,6 +904,12 @@
       "status": "ACT",
       "fullName": "Patrick Ricard"
     },
+    "4371": {
+      "team": "NYG",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Josh Tupou"
+    },
     "4413": {
       "team": "MIN",
       "position": "LB",
@@ -868,11 +922,23 @@
       "status": "ACT",
       "fullName": "Adam Butler"
     },
+    "4443": {
+      "team": "IND",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Pharaoh Brown"
+    },
     "4454": {
       "team": "ARI",
       "position": "WR",
       "status": "ACT",
       "fullName": "Kendrick Bourne"
+    },
+    "4464": {
+      "team": "JAX",
+      "position": "QB",
+      "status": "DEV",
+      "fullName": "Nick Mullens"
     },
     "4574": {
       "team": "ATL",
@@ -891,6 +957,12 @@
       "position": "P",
       "status": "ACT",
       "fullName": "Cameron Johnston"
+    },
+    "4718": {
+      "team": "LV",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Dare Ogunbowale"
     },
     "4848": {
       "team": "PIT",
@@ -945,6 +1017,12 @@
       "position": "DB",
       "status": "ACT",
       "fullName": "Denzel Ward"
+    },
+    "4965": {
+      "team": "CHI",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Marcus Davenport"
     },
     "4967": {
       "team": "BUF",
@@ -1108,6 +1186,12 @@
       "status": "ACT",
       "fullName": "Courtland Sutton"
     },
+    "5048": {
+      "team": "WAS",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Isaac Yiadom"
+    },
     "5049": {
       "team": "NYJ",
       "position": "DL",
@@ -1156,6 +1240,18 @@
       "status": "ACT",
       "fullName": "Sebastian Joseph-Day"
     },
+    "5075": {
+      "team": "SF",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Ogbo Okoronkwo"
+    },
+    "5087": {
+      "team": "LAC",
+      "position": "P",
+      "status": "ACT",
+      "fullName": "J.K. Scott"
+    },
     "5090": {
       "team": "LV",
       "position": "DL",
@@ -1183,14 +1279,32 @@
     "5119": {
       "team": "NYJ",
       "position": "K",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Jason Sanders"
+    },
+    "5121": {
+      "team": "NYG",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Braxton Berrios"
     },
     "5127": {
       "team": "BUF",
       "position": "QB",
       "status": "ACT",
       "fullName": "Kyle Allen"
+    },
+    "5133": {
+      "team": "DET",
+      "position": "TE",
+      "status": "ACT",
+      "fullName": "Tyler Conklin"
+    },
+    "5154": {
+      "team": "BUF",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Trent Sherfield"
     },
     "5158": {
       "team": "JAX",
@@ -1246,6 +1360,12 @@
       "status": "ACT",
       "fullName": "Foye Oluokun"
     },
+    "5333": {
+      "team": "TEN",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Jalyn Holmes"
+    },
     "5341": {
       "team": "LV",
       "position": "DB",
@@ -1297,8 +1417,14 @@
     "5409": {
       "team": "CIN",
       "position": "TE",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Tanner Hudson"
+    },
+    "5445": {
+      "team": "HOU",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "George Odum"
     },
     "5466": {
       "team": "TEN",
@@ -1311,6 +1437,12 @@
       "position": "DB",
       "status": "ACT",
       "fullName": "Charvarius Ward"
+    },
+    "5519": {
+      "team": "MIN",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Tavierre Thomas"
     },
     "5520": {
       "team": "IND",
@@ -1354,6 +1486,18 @@
       "status": "ACT",
       "fullName": "Robert Spillane"
     },
+    "5757": {
+      "team": "ATL",
+      "position": "LB",
+      "status": "ACT",
+      "fullName": "Josh Woods"
+    },
+    "5773": {
+      "team": "SF",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "KhaDarel Hodge"
+    },
     "5792": {
       "team": "WAS",
       "position": "DB",
@@ -1387,7 +1531,7 @@
     "5842": {
       "team": "MIA",
       "position": "DL",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Clelin Ferrell"
     },
     "5843": {
@@ -1504,6 +1648,12 @@
       "status": "RET",
       "fullName": "Parris Campbell"
     },
+    "5888": {
+      "team": "BAL",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Amani Oruwariye"
+    },
     "5892": {
       "team": "HOU",
       "position": "RB",
@@ -1564,6 +1714,12 @@
       "status": "ACT",
       "fullName": "Lil'Jordan Humphrey"
     },
+    "5944": {
+      "team": "CAR",
+      "position": "LB",
+      "status": "ACT",
+      "fullName": "Bobby Okereke"
+    },
     "5946": {
       "team": "PIT",
       "position": "DB",
@@ -1587,6 +1743,12 @@
       "position": "RB",
       "status": "ACT",
       "fullName": "Tony Pollard"
+    },
+    "5970": {
+      "team": "BUF",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Greg Dortch"
     },
     "5973": {
       "team": "MIN",
@@ -1630,11 +1792,29 @@
       "status": "ACT",
       "fullName": "Anthony Nelson"
     },
+    "6005": {
+      "team": "SF",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Kevin Givens"
+    },
+    "6006": {
+      "team": "WAS",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Byron Cowart"
+    },
     "6011": {
       "team": "ARI",
       "position": "QB",
       "status": "ACT",
       "fullName": "Gardner Minshew"
+    },
+    "6012": {
+      "team": "PIT",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Travis Homer"
     },
     "6025": {
       "team": "CAR",
@@ -1651,7 +1831,7 @@
     "6045": {
       "team": "LAC",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Gary Jennings"
     },
     "6056": {
@@ -1659,6 +1839,12 @@
       "position": "LB",
       "status": "ACT",
       "fullName": "Dre Greenlaw"
+    },
+    "6060": {
+      "team": "TB",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Sean Murphy-Bunting"
     },
     "6065": {
       "team": "TEN",
@@ -1677,6 +1863,12 @@
       "position": "P",
       "status": "ACT",
       "fullName": "Jake Bailey"
+    },
+    "6105": {
+      "team": "CIN",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Joe Giles-Harris"
     },
     "6109": {
       "team": "LAC",
@@ -1756,6 +1948,12 @@
       "status": "RES",
       "fullName": "David Sills"
     },
+    "6173": {
+      "team": "NE",
+      "position": "P",
+      "status": "DEV",
+      "fullName": "Mitch Wishnowsky"
+    },
     "6179": {
       "team": "JAX",
       "position": "LB",
@@ -1767,6 +1965,12 @@
       "position": "LB",
       "status": "ACT",
       "fullName": "Andrew Van Ginkel"
+    },
+    "6185": {
+      "team": "TB",
+      "position": "QB",
+      "status": "DEV",
+      "fullName": "Easton Stick"
     },
     "6214": {
       "team": "CLE",
@@ -1804,6 +2008,12 @@
       "status": "ACT",
       "fullName": "Marcus Epps"
     },
+    "6290": {
+      "team": "CHI",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Scott Miller"
+    },
     "6301": {
       "team": "CAR",
       "position": "DB",
@@ -1821,6 +2031,12 @@
       "position": "DB",
       "status": "ACT",
       "fullName": "Cam Lewis"
+    },
+    "6315": {
+      "team": "CAR",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Tyrel Dodson"
     },
     "6323": {
       "team": "NYJ",
@@ -1840,6 +2056,18 @@
       "status": "ACT",
       "fullName": "Del'Shawn Phillips"
     },
+    "6353": {
+      "team": "NYJ",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Troy Reeder"
+    },
+    "6386": {
+      "team": "LA",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Alex Bachman"
+    },
     "6416": {
       "team": "ARI",
       "position": "DB",
@@ -1858,6 +2086,12 @@
       "status": "ACT",
       "fullName": "Ashton Dulin"
     },
+    "6451": {
+      "team": "CHI",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Stephen Carlson"
+    },
     "6453": {
       "team": "IND",
       "position": "WR",
@@ -1869,6 +2103,12 @@
       "position": "LS",
       "status": "ACT",
       "fullName": "Matthew Orzech"
+    },
+    "6476": {
+      "team": "CLE",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "D'Angelo Ross"
     },
     "6485": {
       "team": "HOU",
@@ -1888,11 +2128,23 @@
       "status": "ACT",
       "fullName": "Joey Slye"
     },
+    "6529": {
+      "team": "LV",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Chris Myarick"
+    },
     "6555": {
       "team": "LV",
       "position": "P",
       "status": "ACT",
       "fullName": "AJ Cole"
+    },
+    "6588": {
+      "team": "DET",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Tom Kennedy"
     },
     "6610": {
       "team": "BUF",
@@ -1906,11 +2158,23 @@
       "status": "ACT",
       "fullName": "Luke Gifford"
     },
+    "6627": {
+      "team": "WAS",
+      "position": "DL",
+      "status": "ACT",
+      "fullName": "Shy Tuttle"
+    },
     "6650": {
       "team": "TB",
       "position": "K",
       "status": "ACT",
       "fullName": "Chase McLaughlin"
+    },
+    "6659": {
+      "team": "WAS",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Craig Reynolds"
     },
     "6699": {
       "team": "NYG",
@@ -1935,6 +2199,12 @@
       "position": "QB",
       "status": "ACT",
       "fullName": "Joe Burrow"
+    },
+    "6781": {
+      "team": "CAR",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Isaiah Simmons"
     },
     "6782": {
       "team": "NO",
@@ -1996,6 +2266,12 @@
       "status": "ACT",
       "fullName": "Justin Herbert"
     },
+    "6798": {
+      "team": "MIA",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Jalen Reagor"
+    },
     "6799": {
       "team": "CLE",
       "position": "DB",
@@ -2038,6 +2314,12 @@
       "status": "ACT",
       "fullName": "Patrick Queen"
     },
+    "6809": {
+      "team": "SEA",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Trevon Diggs"
+    },
     "6813": {
       "team": "IND",
       "position": "RB",
@@ -2049,6 +2331,12 @@
       "position": "LB",
       "status": "ACT",
       "fullName": "Zack Baun"
+    },
+    "6817": {
+      "team": "CLE",
+      "position": "DB",
+      "status": "ACT",
+      "fullName": "Noah Igbinoghene"
     },
     "6818": {
       "team": "BAL",
@@ -2086,6 +2374,12 @@
       "status": "ACT",
       "fullName": "Kristian Fulton"
     },
+    "6833": {
+      "team": "HOU",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Bryce Hall"
+    },
     "6836": {
       "team": "ATL",
       "position": "DB",
@@ -2104,6 +2398,12 @@
       "status": "ACT",
       "fullName": "Jordan Elliott"
     },
+    "6843": {
+      "team": "LV",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Albert Okwuegbunam"
+    },
     "6847": {
       "team": "ARI",
       "position": "WR",
@@ -2119,8 +2419,20 @@
     "6851": {
       "team": "CLE",
       "position": "DL",
-      "status": "ACT",
+      "status": "CUT",
       "fullName": "Julian Okwara"
+    },
+    "6855": {
+      "team": "SF",
+      "position": "DB",
+      "status": "ACT",
+      "fullName": "Ashtyn Davis"
+    },
+    "6858": {
+      "team": "CHI",
+      "position": "DL",
+      "status": "ACT",
+      "fullName": "James Lynch"
     },
     "6860": {
       "team": "IND",
@@ -2128,11 +2440,23 @@
       "status": "ACT",
       "fullName": "Akeem Davis-Gaither"
     },
+    "6864": {
+      "team": "SF",
+      "position": "DL",
+      "status": "ACT",
+      "fullName": "Khalid Kareem"
+    },
     "6865": {
       "team": "LA",
       "position": "TE",
       "status": "ACT",
       "fullName": "Colby Parkinson"
+    },
+    "6867": {
+      "team": "NYG",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Malik Harrison"
     },
     "6868": {
       "team": "DET",
@@ -2155,8 +2479,20 @@
     "6876": {
       "team": "MIA",
       "position": "DB",
-      "status": "ACT",
+      "status": "CUT",
       "fullName": "A.J. Green"
+    },
+    "6882": {
+      "team": "ATL",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Darnay Holmes"
+    },
+    "6887": {
+      "team": "LA",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Larrell Murchison"
     },
     "6888": {
       "team": "TB",
@@ -2194,17 +2530,53 @@
       "status": "ACT",
       "fullName": "Brandon Jones"
     },
+    "6918": {
+      "team": "CHI",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Salvon Ahmed"
+    },
     "6921": {
       "team": "MIA",
       "position": "LB",
       "status": "ACT",
       "fullName": "Joshua Uche"
     },
+    "6923": {
+      "team": "BUF",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Geno Stone"
+    },
+    "6928": {
+      "team": "NE",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Kindle Vildor"
+    },
+    "6931": {
+      "team": "MIN",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "DeeJay Dallas"
+    },
     "6941": {
       "team": "LAC",
       "position": "LB",
       "status": "ACT",
       "fullName": "Troy Dye"
+    },
+    "6946": {
+      "team": "CLE",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Myles Bryant"
+    },
+    "6947": {
+      "team": "BAL",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "K'Von Wallace"
     },
     "6949": {
       "team": "MIA",
@@ -2260,6 +2632,12 @@
       "status": "RES",
       "fullName": "Mykal Walker"
     },
+    "7014": {
+      "team": "DET",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Joe Bachie"
+    },
     "7016": {
       "team": "LV",
       "position": "DB",
@@ -2283,6 +2661,18 @@
       "position": "LB",
       "status": "ACT",
       "fullName": "Willie Gay Jr."
+    },
+    "7036": {
+      "team": "TEN",
+      "position": "DB",
+      "status": "ACT",
+      "fullName": "Terrell Burgess"
+    },
+    "7039": {
+      "team": "LV",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Cody White"
     },
     "7042": {
       "team": "BUF",
@@ -2314,6 +2704,12 @@
       "status": "ACT",
       "fullName": "Jaylinn Hawkins"
     },
+    "7066": {
+      "team": "TEN",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "K.J. Osborn"
+    },
     "7069": {
       "team": "KC",
       "position": "DB",
@@ -2331,6 +2727,12 @@
       "position": "QB",
       "status": "ACT",
       "fullName": "Tyler Huntley"
+    },
+    "7087": {
+      "team": "BAL",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Jonathan Ward"
     },
     "7090": {
       "team": "NYG",
@@ -2374,6 +2776,12 @@
       "status": "ACT",
       "fullName": "Kam Curl"
     },
+    "7197": {
+      "team": "GB",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Kristian Welch"
+    },
     "7200": {
       "team": "DET",
       "position": "DB",
@@ -2385,6 +2793,12 @@
       "position": "RB",
       "status": "ACT",
       "fullName": "Reggie Gilliam"
+    },
+    "7215": {
+      "team": "SF",
+      "position": "P",
+      "status": "ACT",
+      "fullName": "Corliss Waitman"
     },
     "7224": {
       "team": "BUF",
@@ -2398,6 +2812,12 @@
       "status": "ACT",
       "fullName": "LaCale London"
     },
+    "7283": {
+      "team": "CLE",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Chris Williams"
+    },
     "7301": {
       "team": "CAR",
       "position": "DL",
@@ -2409,6 +2829,12 @@
       "position": "P",
       "status": "ACT",
       "fullName": "Tommy Townsend"
+    },
+    "7329": {
+      "team": "KC",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Cole Christiansen"
     },
     "7342": {
       "team": "BUF",
@@ -2434,11 +2860,23 @@
       "status": "ACT",
       "fullName": "Teair Tart"
     },
+    "7451": {
+      "team": "CAR",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Cam Gill"
+    },
     "7467": {
       "team": "ARI",
       "position": "P",
       "status": "ACT",
       "fullName": "Blake Gillikin"
+    },
+    "7496": {
+      "team": "IND",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Nick Westbrook-Ikhine"
     },
     "7521": {
       "team": "ATL",
@@ -2530,6 +2968,12 @@
       "status": "CUT",
       "fullName": "Tre' McKitty"
     },
+    "7559": {
+      "team": "ARI",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Ihmir Smith-Marsette"
+    },
     "7562": {
       "team": "LA",
       "position": "WR",
@@ -2547,6 +2991,12 @@
       "position": "RB",
       "status": "ACT",
       "fullName": "Kenny Gainwell"
+    },
+    "7568": {
+      "team": "HOU",
+      "position": "TE",
+      "status": "ACT",
+      "fullName": "Brevin Jordan"
     },
     "7569": {
       "team": "HOU",
@@ -2617,7 +3067,7 @@
     "7599": {
       "team": "MIN",
       "position": "RB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Jermar Jefferson"
     },
     "7600": {
@@ -2631,6 +3081,12 @@
       "position": "TE",
       "status": "ACT",
       "fullName": "Kylen Granson"
+    },
+    "7607": {
+      "team": "TEN",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Michael Carter"
     },
     "7610": {
       "team": "LAC",
@@ -2740,6 +3196,12 @@
       "status": "RES",
       "fullName": "Jeremiah Owusu-Koramoah"
     },
+    "7653": {
+      "team": "LV",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Azeez Ojulari"
+    },
     "7655": {
       "team": "PIT",
       "position": "DB",
@@ -2836,6 +3298,12 @@
       "status": "ACT",
       "fullName": "Alim McNeill"
     },
+    "7680": {
+      "team": "TB",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Ifeatu Melifonwu"
+    },
     "7681": {
       "team": "ARI",
       "position": "LB",
@@ -2889,6 +3357,12 @@
       "position": "DB",
       "status": "ACT",
       "fullName": "Andre Cisco"
+    },
+    "7704": {
+      "team": "CHI",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Buddy Johnson"
     },
     "7707": {
       "team": "NYJ",
@@ -2944,11 +3418,23 @@
       "status": "ACT",
       "fullName": "Derrick Barnes"
     },
+    "7727": {
+      "team": "ATL",
+      "position": "DL",
+      "status": "CUT",
+      "fullName": "Cameron Sample"
+    },
     "7730": {
       "team": "ATL",
       "position": "DB",
       "status": "RES",
       "fullName": "Darren Hall"
+    },
+    "7746": {
+      "team": "JAX",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Austin Trammell"
     },
     "7750": {
       "team": "LA",
@@ -3034,10 +3520,16 @@
       "status": "ACT",
       "fullName": "Simi Fehoko"
     },
+    "7814": {
+      "team": "LV",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Cameron McGrone"
+    },
     "7815": {
       "team": "NE",
       "position": "LB",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "K.J. Britt"
     },
     "7816": {
@@ -3067,7 +3559,7 @@
     "7823": {
       "team": "SF",
       "position": "DB",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Nate Hobbs"
     },
     "7827": {
@@ -3112,10 +3604,22 @@
       "status": "ACT",
       "fullName": "Luke Farrell"
     },
+    "7844": {
+      "team": "CLE",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Sam Kamara"
+    },
+    "7853": {
+      "team": "MIN",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Naquan Jones"
+    },
     "7865": {
       "team": "PIT",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Brandon Smith"
     },
     "7878": {
@@ -3127,7 +3631,7 @@
     "7880": {
       "team": "NYJ",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jack Heflin"
     },
     "7891": {
@@ -3148,6 +3652,12 @@
       "status": "ACT",
       "fullName": "Riley Patterson"
     },
+    "7936": {
+      "team": "DET",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Amen Ogbongbemiga"
+    },
     "7970": {
       "team": "NYG",
       "position": "DB",
@@ -3159,6 +3669,18 @@
       "position": "DB",
       "status": "ACT",
       "fullName": "Zayne Anderson"
+    },
+    "8001": {
+      "team": "MIA",
+      "position": "DL",
+      "status": "ACT",
+      "fullName": "Malik Herring"
+    },
+    "8002": {
+      "team": "BUF",
+      "position": "QB",
+      "status": "DEV",
+      "fullName": "Shane Buechele"
     },
     "8004": {
       "team": "DEN",
@@ -3172,10 +3694,34 @@
       "status": "CUT",
       "fullName": "Tarik Black"
     },
+    "8013": {
+      "team": "JAX",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Tim Jones"
+    },
+    "8020": {
+      "team": "DAL",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Curtis Robinson"
+    },
+    "8025": {
+      "team": "DEN",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Adam Prentice"
+    },
+    "8041": {
+      "team": "NE",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Shane Zylstra"
+    },
     "8076": {
       "team": "DEN",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Michael Bandy"
     },
     "8104": {
@@ -3214,6 +3760,12 @@
       "status": "CUT",
       "fullName": "Erik Ezukanma"
     },
+    "8116": {
+      "team": "GB",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Pierre Strong"
+    },
     "8117": {
       "team": "MIA",
       "position": "WR",
@@ -3238,6 +3790,12 @@
       "status": "ACT",
       "fullName": "Bam Knight"
     },
+    "8123": {
+      "team": "NE",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Hassan Haskins"
+    },
     "8125": {
       "team": "NYG",
       "position": "WR",
@@ -3255,6 +3813,12 @@
       "position": "TE",
       "status": "ACT",
       "fullName": "Charlie Kolar"
+    },
+    "8129": {
+      "team": "PHI",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Dameon Pierce"
     },
     "8130": {
       "team": "ARI",
@@ -3303,6 +3867,12 @@
       "position": "RB",
       "status": "ACT",
       "fullName": "James Cook"
+    },
+    "8139": {
+      "team": "NO",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Zamir White"
     },
     "8142": {
       "team": "IND",
@@ -3364,6 +3934,12 @@
       "status": "ACT",
       "fullName": "Breece Hall"
     },
+    "8157": {
+      "team": "NYJ",
+      "position": "QB",
+      "status": "DEV",
+      "fullName": "Bailey Zappe"
+    },
     "8160": {
       "team": "CAR",
       "position": "QB",
@@ -3394,11 +3970,23 @@
       "status": "ACT",
       "fullName": "Skyy Moore"
     },
+    "8170": {
+      "team": "DAL",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "James Mitchell"
+    },
     "8172": {
       "team": "MIA",
       "position": "TE",
       "status": "ACT",
       "fullName": "Greg Dulcich"
+    },
+    "8176": {
+      "team": "PHI",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Danny Gray"
     },
     "8177": {
       "team": "PHI",
@@ -3445,7 +4033,7 @@
     "8200": {
       "team": "NO",
       "position": "WR",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Kevin Austin Jr."
     },
     "8204": {
@@ -3457,7 +4045,7 @@
     "8205": {
       "team": "DET",
       "position": "RB",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Isiah Pacheco"
     },
     "8206": {
@@ -3465,6 +4053,12 @@
       "position": "QB",
       "status": "RES",
       "fullName": "Skylar Thompson"
+    },
+    "8207": {
+      "team": "ATL",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Tyler Goodson"
     },
     "8208": {
       "team": "DEN",
@@ -3493,14 +4087,26 @@
     "8220": {
       "team": "SF",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Sincere McCormick"
+    },
+    "8223": {
+      "team": "SEA",
+      "position": "RB",
+      "status": "DEV",
+      "fullName": "Velus Jones Jr."
     },
     "8225": {
       "team": "TEN",
       "position": "TE",
       "status": "ACT",
       "fullName": "Daniel Bellinger"
+    },
+    "8227": {
+      "team": "ARI",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Teagan Quitoriano"
     },
     "8228": {
       "team": "PIT",
@@ -3520,11 +4126,23 @@
       "status": "CUT",
       "fullName": "Samori Toure"
     },
+    "8249": {
+      "team": "DEN",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Lucas Krull"
+    },
     "8250": {
       "team": "DET",
       "position": "WR",
       "status": "ACT",
       "fullName": "Tay Martin"
+    },
+    "8253": {
+      "team": "LV",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Deven Thompkins"
     },
     "8254": {
       "team": "TEN",
@@ -3579,6 +4197,12 @@
       "position": "DL",
       "status": "ACT",
       "fullName": "Devonte Wyatt"
+    },
+    "8271": {
+      "team": "DAL",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Derion Kendrick"
     },
     "8273": {
       "team": "BUF",
@@ -3637,7 +4261,7 @@
     "8293": {
       "team": "CHI",
       "position": "DB",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Coby Bryant"
     },
     "8294": {
@@ -3651,6 +4275,12 @@
       "position": "DL",
       "status": "RES",
       "fullName": "Zachary Carter"
+    },
+    "8296": {
+      "team": "LAC",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Kaiir Elam"
     },
     "8298": {
       "team": "TEN",
@@ -3769,7 +4399,7 @@
     "8336": {
       "team": "KC",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Tyreke Smith"
     },
     "8339": {
@@ -3783,6 +4413,12 @@
       "position": "DB",
       "status": "RES",
       "fullName": "Cam Taylor-Britt"
+    },
+    "8342": {
+      "team": "PIT",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Esezi Otomewo"
     },
     "8343": {
       "team": "CIN",
@@ -3841,7 +4477,7 @@
     "8361": {
       "team": "TB",
       "position": "DB",
-      "status": "W04",
+      "status": "CUT",
       "fullName": "Pepe Williams"
     },
     "8362": {
@@ -3849,6 +4485,12 @@
       "position": "LB",
       "status": "ACT",
       "fullName": "Leo Chenal"
+    },
+    "8363": {
+      "team": "CHI",
+      "position": "LB",
+      "status": "ACT",
+      "fullName": "Jack Sanborn"
     },
     "8364": {
       "team": "LA",
@@ -3867,6 +4509,18 @@
       "position": "LB",
       "status": "ACT",
       "fullName": "D'Marco Jackson"
+    },
+    "8368": {
+      "team": "CLE",
+      "position": "DL",
+      "status": "ACT",
+      "fullName": "Sam Williams"
+    },
+    "8369": {
+      "team": "PHI",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Chance Campbell"
     },
     "8370": {
       "team": "DEN",
@@ -3895,7 +4549,7 @@
     "8375": {
       "team": "CLE",
       "position": "DL",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Kalia Davis"
     },
     "8376": {
@@ -3964,6 +4618,12 @@
       "status": "ACT",
       "fullName": "Martin Emerson"
     },
+    "8391": {
+      "team": "HOU",
+      "position": "DL",
+      "status": "ACT",
+      "fullName": "Dominique Robinson"
+    },
     "8392": {
       "team": "WAS",
       "position": "DB",
@@ -4021,8 +4681,14 @@
     "8413": {
       "team": "KC",
       "position": "QB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Chris Oladokun"
+    },
+    "8414": {
+      "team": "PHI",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Britain Covey"
     },
     "8423": {
       "team": "CHI",
@@ -4047,6 +4713,12 @@
       "position": "DB",
       "status": "ACT",
       "fullName": "DaRon Bland"
+    },
+    "8478": {
+      "team": "NYJ",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Samuel Womack"
     },
     "8481": {
       "team": "CIN",
@@ -4102,6 +4774,18 @@
       "status": "ACT",
       "fullName": "Elijah Hicks"
     },
+    "8510": {
+      "team": "CIN",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Russ Yeast"
+    },
+    "8517": {
+      "team": "SEA",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Rodney Thomas"
+    },
     "8519": {
       "team": "LAC",
       "position": "DB",
@@ -4113,6 +4797,12 @@
       "position": "DL",
       "status": "ACT",
       "fullName": "Daniel Hardy"
+    },
+    "8523": {
+      "team": "ATL",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Nick Muse"
     },
     "8527": {
       "team": "LV",
@@ -4126,10 +4816,16 @@
       "status": "ACT",
       "fullName": "Ryan Wright"
     },
+    "8532": {
+      "team": "NE",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Mike Brown"
+    },
     "8540": {
       "team": "SF",
       "position": "DL",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Sam Okuayinonu"
     },
     "8542": {
@@ -4138,11 +4834,41 @@
       "status": "ACT",
       "fullName": "Tristin McCollum"
     },
+    "8569": {
+      "team": "GB",
+      "position": "LB",
+      "status": "DEV",
+      "fullName": "Arron Mosby"
+    },
+    "8578": {
+      "team": "NYG",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Raheem Layne"
+    },
+    "8583": {
+      "team": "NO",
+      "position": "TE",
+      "status": "DEV",
+      "fullName": "Stone Smartt"
+    },
     "8618": {
       "team": "NYJ",
       "position": "LB",
       "status": "ACT",
       "fullName": "Marcelino McCrary-Ball"
+    },
+    "8620": {
+      "team": "LV",
+      "position": "LB",
+      "status": "ACT",
+      "fullName": "Segun Olubi"
+    },
+    "8654": {
+      "team": "TEN",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Timmy Horne"
     },
     "8659": {
       "team": "LA",
@@ -4189,7 +4915,7 @@
     "8702": {
       "team": "CHI",
       "position": "DB",
-      "status": "RES",
+      "status": "CUT",
       "fullName": "Jaylon Jones"
     },
     "8710": {
@@ -4216,6 +4942,12 @@
       "status": "ACT",
       "fullName": "Jacob Hummel"
     },
+    "8736": {
+      "team": "DAL",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Elijah Garcia"
+    },
     "8739": {
       "team": "LA",
       "position": "LB",
@@ -4237,8 +4969,14 @@
     "8755": {
       "team": "CHI",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Kaden Davis"
+    },
+    "8756": {
+      "team": "PIT",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Brandon Johnson"
     },
     "8776": {
       "team": "NYJ",
@@ -4252,10 +4990,16 @@
       "status": "CUT",
       "fullName": "Kendric Pryor"
     },
+    "8795": {
+      "team": "SEA",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "D'Anthony Bell"
+    },
     "8799": {
-      "team": "NO",
+      "team": "HOU",
       "position": "TE",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Zaire Mitchell-Paden"
     },
     "8800": {
@@ -4282,6 +5026,18 @@
       "status": "ACT",
       "fullName": "Isaiah Pola-Mao"
     },
+    "8850": {
+      "team": "DET",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Ben Stille"
+    },
+    "8857": {
+      "team": "KC",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Kader Kohou"
+    },
     "8860": {
       "team": "TEN",
       "position": "DB",
@@ -4300,6 +5056,12 @@
       "status": "RES",
       "fullName": "Ja'Marcus Ingram"
     },
+    "8914": {
+      "team": "NE",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Jeremiah Pharms Jr."
+    },
     "8917": {
       "team": "DAL",
       "position": "WR",
@@ -4315,7 +5077,7 @@
     "9220": {
       "team": "ARI",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Evan Hull"
     },
     "9221": {
@@ -4345,7 +5107,7 @@
     "9227": {
       "team": "DAL",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Israel Abanikanda"
     },
     "9228": {
@@ -4435,7 +5197,7 @@
     "9492": {
       "team": "NO",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Trey Palmer"
     },
     "9493": {
@@ -4453,7 +5215,7 @@
     "9497": {
       "team": "NYG",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jalin Hyatt"
     },
     "9500": {
@@ -4507,7 +5269,7 @@
     "9510": {
       "team": "PIT",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Lew Nichols III"
     },
     "9511": {
@@ -4555,7 +5317,7 @@
     "9998": {
       "team": "TEN",
       "position": "QB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Hendon Hooker"
     },
     "9999": {
@@ -4565,9 +5327,9 @@
       "fullName": "Will Levis"
     },
     "10210": {
-      "team": "PHI",
+      "team": "NE",
       "position": "TE",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Cameron Latu"
     },
     "10212": {
@@ -4591,7 +5353,7 @@
     "10215": {
       "team": "NYG",
       "position": "QB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jake Haener"
     },
     "10218": {
@@ -4613,9 +5375,9 @@
       "fullName": "Will Mallory"
     },
     "10221": {
-      "team": "NO",
+      "team": "LV",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Ronnie Bell"
     },
     "10222": {
@@ -4633,7 +5395,7 @@
     "10224": {
       "team": "SF",
       "position": "TE",
-      "status": "ACT",
+      "status": "CUT",
       "fullName": "Brayden Willis"
     },
     "10225": {
@@ -4655,9 +5417,9 @@
       "fullName": "Payne Durham"
     },
     "10228": {
-      "team": "CIN",
+      "team": "NYG",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Charlie Jones"
     },
     "10229": {
@@ -4695,6 +5457,12 @@
       "position": "TE",
       "status": "ACT",
       "fullName": "Dalton Kincaid"
+    },
+    "10444": {
+      "team": "NO",
+      "position": "WR",
+      "status": "DEV",
+      "fullName": "Cedric Tillman"
     },
     "10857": {
       "team": "LA",
@@ -4757,9 +5525,9 @@
       "fullName": "Myles Murphy"
     },
     "10877": {
-      "team": "NYJ",
+      "team": "MIA",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Mazi Smith"
     },
     "10878": {
@@ -4891,7 +5659,7 @@
     "10909": {
       "team": "CIN",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Isaiah Foskey"
     },
     "10911": {
@@ -4963,7 +5731,7 @@
     "10926": {
       "team": "HOU",
       "position": "LB",
-      "status": "RES",
+      "status": "CUT",
       "fullName": "Marte Mapu"
     },
     "10927": {
@@ -4981,7 +5749,7 @@
     "10929": {
       "team": "DEN",
       "position": "LB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Drew Sanders"
     },
     "10930": {
@@ -5005,7 +5773,7 @@
     "10934": {
       "team": "ATL",
       "position": "DL",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Zach Harrison"
     },
     "10935": {
@@ -5020,10 +5788,16 @@
       "status": "ACT",
       "fullName": "Ji'Ayir Brown"
     },
+    "10937": {
+      "team": "BAL",
+      "position": "K",
+      "status": "DEV",
+      "fullName": "Jake Moody"
+    },
     "10938": {
       "team": "WAS",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "DJ Johnson"
     },
     "10939": {
@@ -5075,9 +5849,9 @@
       "fullName": "Chamarri Conner"
     },
     "10952": {
-      "team": "IND",
+      "team": "NO",
       "position": "DL",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Colby Wooden"
     },
     "10954": {
@@ -5123,9 +5897,9 @@
       "fullName": "Robert Beal Jr."
     },
     "10969": {
-      "team": "ARI",
+      "team": "TEN",
       "position": "LB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Owen Pappoe"
     },
     "10970": {
@@ -5135,9 +5909,9 @@
       "fullName": "Henry To'oTo'o"
     },
     "10972": {
-      "team": "CHI",
+      "team": "WAS",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Terell Smith"
     },
     "10974": {
@@ -5149,13 +5923,13 @@
     "10975": {
       "team": "IND",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Daniel Scott"
     },
     "10978": {
-      "team": "SF",
+      "team": "LV",
       "position": "DB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Darrell Luter Jr."
     },
     "10980": {
@@ -5173,7 +5947,7 @@
     "10983": {
       "team": "CIN",
       "position": "QB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Sean Clifford"
     },
     "10984": {
@@ -5191,7 +5965,7 @@
     "10986": {
       "team": "ATL",
       "position": "DB",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Jammie Robinson"
     },
     "10988": {
@@ -5203,13 +5977,13 @@
     "10990": {
       "team": "WAS",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Darius Rush"
     },
     "10992": {
-      "team": "JAX",
+      "team": "ATL",
       "position": "LB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Yasir Abdullah"
     },
     "10993": {
@@ -5227,13 +6001,13 @@
     "10997": {
       "team": "TEN",
       "position": "DB",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Jerrick Reed II"
     },
     "10998": {
-      "team": "PHI",
+      "team": "NE",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jose Ramirez"
     },
     "10999": {
@@ -5269,7 +6043,7 @@
     "11007": {
       "team": "NE",
       "position": "P",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Bryce Baringer"
     },
     "11009": {
@@ -5311,7 +6085,7 @@
     "11019": {
       "team": "TEN",
       "position": "DB",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Erick Hallett"
     },
     "11020": {
@@ -5335,7 +6109,7 @@
     "11025": {
       "team": "SF",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jalen Graham"
     },
     "11027": {
@@ -5407,7 +6181,7 @@
     "11041": {
       "team": "BUF",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Andre Jones Jr."
     },
     "11042": {
@@ -5437,7 +6211,7 @@
     "11054": {
       "team": "CLE",
       "position": "DL",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Travis Bell"
     },
     "11056": {
@@ -5447,9 +6221,9 @@
       "fullName": "Jared Wayne"
     },
     "11058": {
-      "team": "IND",
+      "team": "NYJ",
       "position": "K",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Blake Grupe"
     },
     "11062": {
@@ -5471,21 +6245,21 @@
       "fullName": "Austin Ajiake"
     },
     "11068": {
-      "team": "CIN",
+      "team": "HOU",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Mitchell Tinsley"
     },
     "11082": {
       "team": "MIA",
       "position": "TE",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Ben Sims"
     },
     "11084": {
       "team": "LAC",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Andre Carter II"
     },
     "11086": {
@@ -5495,9 +6269,9 @@
       "fullName": "Ivan Pace Jr."
     },
     "11098": {
-      "team": "NYG",
+      "team": "LAC",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Caleb Murphy"
     },
     "11108": {
@@ -5509,7 +6283,7 @@
     "11121": {
       "team": "SEA",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "AJ Finley"
     },
     "11122": {
@@ -5542,6 +6316,12 @@
       "status": "ACT",
       "fullName": "Brycen Tremayne"
     },
+    "11160": {
+      "team": "DET",
+      "position": "DB",
+      "status": "DEV",
+      "fullName": "Nick Whiteside"
+    },
     "11168": {
       "team": "LA",
       "position": "WR",
@@ -5549,21 +6329,21 @@
       "fullName": "Xavier Smith"
     },
     "11173": {
-      "team": "PIT",
+      "team": "ARI",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "D'Shawn Jamison"
     },
     "11185": {
       "team": "TEN",
       "position": "DB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Kendell Brooks"
     },
     "11186": {
       "team": "MIA",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Carlos Washington"
     },
     "11193": {
@@ -5573,9 +6353,9 @@
       "fullName": "Brenton Cox Jr."
     },
     "11199": {
-      "team": "KC",
+      "team": "DAL",
       "position": "RB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Emari Demercado"
     },
     "11201": {
@@ -5611,7 +6391,7 @@
     "11251": {
       "team": "CIN",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Shaka Heyward"
     },
     "11256": {
@@ -5633,9 +6413,9 @@
       "fullName": "Andre Szmyt"
     },
     "11273": {
-      "team": "BUF",
+      "team": "KC",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Ben VanSumeren"
     },
     "11280": {
@@ -5663,9 +6443,9 @@
       "fullName": "Dyontae Johnson"
     },
     "11299": {
-      "team": "MIN",
+      "team": "CHI",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Zavier Scott"
     },
     "11304": {
@@ -5689,7 +6469,7 @@
     "11309": {
       "team": "GB",
       "position": "DB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Trey Dean III"
     },
     "11311": {
@@ -5701,7 +6481,7 @@
     "11315": {
       "team": "KC",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Cam Jones"
     },
     "11319": {
@@ -5737,13 +6517,13 @@
     "11343": {
       "team": "ARI",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Starling Thomas V"
     },
     "11345": {
       "team": "DET",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Chris Smith"
     },
     "11348": {
@@ -5755,7 +6535,7 @@
     "11350": {
       "team": "TEN",
       "position": "LB",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Mohamoud Diabate"
     },
     "11352": {
@@ -5767,7 +6547,7 @@
     "11353": {
       "team": "KC",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Tanner McCalister"
     },
     "11370": {
@@ -5785,7 +6565,7 @@
     "11376": {
       "team": "WAS",
       "position": "QB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Sam Hartman"
     },
     "11377": {
@@ -5809,7 +6589,7 @@
     "11391": {
       "team": "MIA",
       "position": "DB",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Ethan Bonner"
     },
     "11395": {
@@ -5837,9 +6617,9 @@
       "fullName": "Christian Izien"
     },
     "11429": {
-      "team": "HOU",
+      "team": "JAX",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Kaevon Merriweather"
     },
     "11432": {
@@ -5861,9 +6641,9 @@
       "fullName": "Emanuel Wilson"
     },
     "11439": {
-      "team": "DEN",
+      "team": "CLE",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jaleel McLaughlin"
     },
     "11440": {
@@ -5887,7 +6667,7 @@
     "11455": {
       "team": "BUF",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Anthony Kendall"
     },
     "11470": {
@@ -5899,13 +6679,13 @@
     "11474": {
       "team": "ATL",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Dylan Drummond"
     },
     "11481": {
       "team": "ATL",
       "position": "DB",
-      "status": "ACT",
+      "status": "CUT",
       "fullName": "Natrone Brooks"
     },
     "11487": {
@@ -5917,13 +6697,13 @@
     "11489": {
       "team": "MIN",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Kahlef Hailassie"
     },
     "11506": {
       "team": "NO",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jalen Moreno-Cropper"
     },
     "11508": {
@@ -5947,13 +6727,13 @@
     "11514": {
       "team": "DAL",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Isaiah Land"
     },
     "11520": {
       "team": "DET",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Lucky Jackson"
     },
     "11533": {
@@ -5977,7 +6757,7 @@
     "11557": {
       "team": "DAL",
       "position": "QB",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Joe Milton III"
     },
     "11559": {
@@ -6025,7 +6805,7 @@
     "11569": {
       "team": "MIA",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jarquez Hunter"
     },
     "11570": {
@@ -6043,7 +6823,7 @@
     "11573": {
       "team": "BUF",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Frank Gore Jr."
     },
     "11574": {
@@ -6085,7 +6865,7 @@
     "11582": {
       "team": "PHI",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Carson Steele"
     },
     "11583": {
@@ -6109,7 +6889,7 @@
     "11588": {
       "team": "HOU",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jawhar Jordan"
     },
     "11589": {
@@ -6319,7 +7099,7 @@
     "11644": {
       "team": "DEN",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Cody Schrader"
     },
     "11646": {
@@ -6335,15 +7115,15 @@
       "fullName": "Kimani Vidal"
     },
     "11648": {
-      "team": "ARI",
+      "team": "GB",
       "position": "QB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Kedon Slovis"
     },
     "11649": {
       "team": "CIN",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Kendall Milton"
     },
     "11650": {
@@ -6449,9 +7229,9 @@
       "fullName": "Cooper DeJean"
     },
     "11679": {
-      "team": "TB",
+      "team": "HOU",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Chris Braswell"
     },
     "11682": {
@@ -6529,7 +7309,7 @@
     "11699": {
       "team": "WAS",
       "position": "DL",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Jer'Zhan Newton"
     },
     "11700": {
@@ -6541,7 +7321,7 @@
     "11701": {
       "team": "LAC",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Junior Colson"
     },
     "11703": {
@@ -6593,9 +7373,9 @@
       "fullName": "Tip Reiman"
     },
     "11717": {
-      "team": "ARI",
+      "team": "NYG",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Elijah Jones"
     },
     "11720": {
@@ -6607,19 +7387,19 @@
     "11721": {
       "team": "ATL",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Bralen Trice"
     },
     "11722": {
       "team": "BAL",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Adisa Isaac"
     },
     "11724": {
-      "team": "CAR",
+      "team": "NYJ",
       "position": "LB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Trevin Wallace"
     },
     "11725": {
@@ -6677,13 +7457,13 @@
       "fullName": "Tyrice Knight"
     },
     "11736": {
-      "team": "CIN",
+      "team": "LAC",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jordan Jefferson"
     },
     "11738": {
-      "team": "LV",
+      "team": "NO",
       "position": "DB",
       "status": "ACT",
       "fullName": "Decamerion Richardson"
@@ -6763,7 +7543,7 @@
     "11754": {
       "team": "TB",
       "position": "LB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Mohamed Kamara"
     },
     "11755": {
@@ -6775,7 +7555,7 @@
     "11757": {
       "team": "CLE",
       "position": "LB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Edefuan Ulofoshio"
     },
     "11759": {
@@ -6799,7 +7579,7 @@
     "11762": {
       "team": "IND",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Anthony Gould"
     },
     "11763": {
@@ -6835,7 +7615,7 @@
     "11770": {
       "team": "ATL",
       "position": "LB",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "JD Bertrand"
     },
     "11771": {
@@ -6847,13 +7627,13 @@
     "11772": {
       "team": "CHI",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Deantre Prince"
     },
     "11775": {
-      "team": "GB",
+      "team": "MIA",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jaylin Simpson"
     },
     "11777": {
@@ -6907,7 +7687,7 @@
     "11790": {
       "team": "CLE",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Nathaniel Watson"
     },
     "11792": {
@@ -6919,7 +7699,7 @@
     "11795": {
       "team": "GB",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jaden Crumedy"
     },
     "11796": {
@@ -6949,7 +7729,7 @@
     "11801": {
       "team": "NYG",
       "position": "DB",
-      "status": "RES",
+      "status": "CUT",
       "fullName": "DJ James"
     },
     "11802": {
@@ -6967,19 +7747,19 @@
     "11805": {
       "team": "HOU",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jamal Hill"
     },
     "11806": {
       "team": "CAR",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Casey Washington"
     },
     "11807": {
-      "team": "NYG",
+      "team": "NE",
       "position": "LB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Darius Muasau"
     },
     "11808": {
@@ -6989,9 +7769,9 @@
       "fullName": "Jha'Quan Jackson"
     },
     "11809": {
-      "team": "NE",
+      "team": "MIA",
       "position": "DB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Marcellas Dial Jr."
     },
     "11811": {
@@ -7045,19 +7825,19 @@
     "11828": {
       "team": "KC",
       "position": "DL",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Marcus Harris"
     },
     "11829": {
       "team": "HOU",
       "position": "DL",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Solomon Byrd"
     },
     "11830": {
       "team": "ARI",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Kalen King"
     },
     "11831": {
@@ -7117,25 +7897,25 @@
     "11851": {
       "team": "JAX",
       "position": "QB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Carter Bradley"
     },
     "11855": {
-      "team": "NE",
+      "team": "MIA",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Amari Gainer"
     },
     "11860": {
       "team": "CHI",
       "position": "DB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Beanie Bishop Jr."
     },
     "11861": {
       "team": "PIT",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jacoby Windmon"
     },
     "11872": {
@@ -7171,7 +7951,7 @@
     "11921": {
       "team": "ARI",
       "position": "WR",
-      "status": "RES",
+      "status": "CUT",
       "fullName": "Xavier Weaver"
     },
     "11923": {
@@ -7217,9 +7997,9 @@
       "fullName": "Beau Brade"
     },
     "11959": {
-      "team": "TEN",
+      "team": "CLE",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Bryce Oliver"
     },
     "11963": {
@@ -7249,7 +8029,7 @@
     "11993": {
       "team": "CAR",
       "position": "DB",
-      "status": "W04",
+      "status": "CUT",
       "fullName": "Tyrek Funderburk"
     },
     "11994": {
@@ -7297,13 +8077,13 @@
     "12037": {
       "team": "DAL",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Reddy Steward"
     },
     "12045": {
-      "team": "NE",
+      "team": "WAS",
       "position": "TE",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jack Westover"
     },
     "12048": {
@@ -7331,9 +8111,9 @@
       "fullName": "PJ Jules"
     },
     "12062": {
-      "team": "CIN",
+      "team": "MIN",
       "position": "TE",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Cam Grandy"
     },
     "12068": {
@@ -7345,7 +8125,7 @@
     "12070": {
       "team": "GB",
       "position": "TE",
-      "status": "W04",
+      "status": "RES",
       "fullName": "McCallan Castles"
     },
     "12076": {
@@ -7367,9 +8147,9 @@
       "fullName": "Emany Johnson"
     },
     "12089": {
-      "team": "DAL",
+      "team": "MIA",
       "position": "DB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Julius Wood"
     },
     "12096": {
@@ -7381,7 +8161,7 @@
     "12102": {
       "team": "PHI",
       "position": "DB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Andre' Sam"
     },
     "12111": {
@@ -7407,6 +8187,12 @@
       "position": "DB",
       "status": "ACT",
       "fullName": "Charles Woods"
+    },
+    "12138": {
+      "team": "CAR",
+      "position": "DL",
+      "status": "DEV",
+      "fullName": "Anthony Goodlow"
     },
     "12140": {
       "team": "LA",
@@ -7435,7 +8221,7 @@
     "12164": {
       "team": "WAS",
       "position": "LB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Curtis Jacobs"
     },
     "12171": {
@@ -7471,13 +8257,13 @@
     "12230": {
       "team": "LA",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Cam Lampkin"
     },
     "12234": {
-      "team": "GB",
+      "team": "TEN",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Shemar Bartholomew"
     },
     "12243": {
@@ -7493,15 +8279,15 @@
       "fullName": "Swayze Bozeman"
     },
     "12269": {
-      "team": "HOU",
+      "team": "SF",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Brandon Codrington"
     },
     "12319": {
       "team": "CLE",
       "position": "DL",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Elijah Chatman"
     },
     "12345": {
@@ -7513,7 +8299,7 @@
     "12356": {
       "team": "DET",
       "position": "RB",
-      "status": "ACT",
+      "status": "CUT",
       "fullName": "Jabari Small"
     },
     "12357": {
@@ -7523,15 +8309,15 @@
       "fullName": "David Martin-Robinson"
     },
     "12389": {
-      "team": "SF",
+      "team": "JAX",
       "position": "TE",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Hayden Rucci"
     },
     "12391": {
       "team": "MIN",
       "position": "LB",
-      "status": "W04",
+      "status": "CUT",
       "fullName": "Kenny Dyson"
     },
     "12397": {
@@ -7547,9 +8333,9 @@
       "fullName": "Dondrea Tillman"
     },
     "12436": {
-      "team": "SEA",
+      "team": "LA",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jamie Sheriff"
     },
     "12455": {
@@ -7559,15 +8345,15 @@
       "fullName": "Brashard Smith"
     },
     "12457": {
-      "team": "DAL",
+      "team": "PHI",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jaydon Blue"
     },
     "12460": {
       "team": "ATL",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Antwane Wells Jr."
     },
     "12462": {
@@ -7621,7 +8407,7 @@
     "12475": {
       "team": "SEA",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Ricky White III"
     },
     "12476": {
@@ -7645,7 +8431,7 @@
     "12479": {
       "team": "PHI",
       "position": "RB",
-      "status": "RES",
+      "status": "CUT",
       "fullName": "Ja'Quinden Jackson"
     },
     "12480": {
@@ -7855,7 +8641,7 @@
     "12516": {
       "team": "TEN",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Kalel Mullings"
     },
     "12517": {
@@ -7879,7 +8665,7 @@
     "12520": {
       "team": "TEN",
       "position": "WR",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Xavier Restrepo"
     },
     "12521": {
@@ -7961,9 +8747,9 @@
       "fullName": "Jaylin Noel"
     },
     "12538": {
-      "team": "NYJ",
+      "team": "MIA",
       "position": "QB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Brady Cook"
     },
     "12539": {
@@ -7981,7 +8767,7 @@
     "12541": {
       "team": "LV",
       "position": "WR",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Dont'e Thornton Jr."
     },
     "12542": {
@@ -8013,6 +8799,12 @@
       "position": "WR",
       "status": "ACT",
       "fullName": "Kyle Williams"
+    },
+    "12548": {
+      "team": "GB",
+      "position": "K",
+      "status": "DEV",
+      "fullName": "Lenny Krieg"
     },
     "12552": {
       "team": "ARI",
@@ -8245,7 +9037,7 @@
     "12609": {
       "team": "NO",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Fadil Diggs"
     },
     "12610": {
@@ -8347,7 +9139,7 @@
     "12630": {
       "team": "SF",
       "position": "LB",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Nick Martin"
     },
     "12631": {
@@ -8383,7 +9175,7 @@
     "12637": {
       "team": "CHI",
       "position": "LB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Ruben Hyppolite II"
     },
     "12638": {
@@ -8413,7 +9205,7 @@
     "12643": {
       "team": "LAC",
       "position": "LB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Kyle Kennard"
     },
     "12644": {
@@ -8473,7 +9265,7 @@
     "12653": {
       "team": "JAX",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jack Kiser"
     },
     "12654": {
@@ -8509,7 +9301,7 @@
     "12659": {
       "team": "SEA",
       "position": "LB",
-      "status": "RES",
+      "status": "CUT",
       "fullName": "Pooh Paul Jr."
     },
     "12661": {
@@ -8585,9 +9377,9 @@
       "fullName": "Ty Hamilton"
     },
     "12677": {
-      "team": "NE",
+      "team": "PIT",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Bradyn Swinson"
     },
     "12678": {
@@ -8663,9 +9455,9 @@
       "fullName": "R.J. Mickens"
     },
     "12695": {
-      "team": "BAL",
+      "team": "PHI",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Robert Longerbeam"
     },
     "12696": {
@@ -8719,7 +9511,7 @@
     "12708": {
       "team": "JAX",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jalen McLeod"
     },
     "12710": {
@@ -8765,9 +9557,9 @@
       "fullName": "Korie Black"
     },
     "12717": {
-      "team": "DAL",
+      "team": "CIN",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Trikweze Bridges"
     },
     "12718": {
@@ -8803,7 +9595,7 @@
     "12724": {
       "team": "HOU",
       "position": "DL",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Kyonte Hamilton"
     },
     "12726": {
@@ -8827,7 +9619,7 @@
     "12732": {
       "team": "DET",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Dominic Lovett"
     },
     "12733": {
@@ -8881,13 +9673,13 @@
     "12746": {
       "team": "CHI",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "JP Richardson"
     },
     "12761": {
       "team": "CIN",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jordan Moore"
     },
     "12765": {
@@ -8905,13 +9697,13 @@
     "12773": {
       "team": "LAC",
       "position": "QB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "DJ Uiagalelei"
     },
     "12775": {
       "team": "MIN",
       "position": "QB",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Max Brosmer"
     },
     "12781": {
@@ -8923,7 +9715,7 @@
     "12787": {
       "team": "TB",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Josh Williams"
     },
     "12790": {
@@ -8933,9 +9725,9 @@
       "fullName": "John Bullock"
     },
     "12797": {
-      "team": "CLE",
+      "team": "CAR",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Ahmani Marshall"
     },
     "12817": {
@@ -8965,7 +9757,7 @@
     "12838": {
       "team": "LAC",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Nikko Reed"
     },
     "12840": {
@@ -8977,7 +9769,7 @@
     "12853": {
       "team": "DAL",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Justin Barron"
     },
     "12855": {
@@ -8987,15 +9779,15 @@
       "fullName": "Alijah Clark"
     },
     "12860": {
-      "team": "MIA",
+      "team": "LAC",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Theo Wease Jr."
     },
     "12863": {
       "team": "KC",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Andrew Armstrong"
     },
     "12879": {
@@ -9005,9 +9797,9 @@
       "fullName": "Chaz Chambliss"
     },
     "12883": {
-      "team": "ATL",
+      "team": "WAS",
       "position": "TE",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Joshua Simon"
     },
     "12884": {
@@ -9023,9 +9815,9 @@
       "fullName": "Beaux Collins"
     },
     "12897": {
-      "team": "ATL",
+      "team": "KC",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Nate Carter"
     },
     "12909": {
@@ -9049,19 +9841,19 @@
     "12925": {
       "team": "NYJ",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jamaal Pritchett"
     },
     "12927": {
-      "team": "GB",
+      "team": "TEN",
       "position": "DL",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Nazir Stackhouse"
     },
     "12928": {
       "team": "LAC",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Amar Johnson"
     },
     "12935": {
@@ -9091,7 +9883,7 @@
     "12955": {
       "team": "PIT",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Sebastian Castro"
     },
     "12956": {
@@ -9103,7 +9895,7 @@
     "12957": {
       "team": "CAR",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Corey Thornton"
     },
     "12961": {
@@ -9115,7 +9907,7 @@
     "12969": {
       "team": "NE",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Lan Larison"
     },
     "12971": {
@@ -9137,10 +9929,16 @@
       "fullName": "Elijah Ponder"
     },
     "12984": {
-      "team": "NE",
+      "team": "TB",
       "position": "TE",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "CJ Dippre"
+    },
+    "12993": {
+      "team": "SF",
+      "position": "DL",
+      "status": "CUT",
+      "fullName": "Jah Joyner"
     },
     "13000": {
       "team": "LA",
@@ -9151,13 +9949,13 @@
     "13011": {
       "team": "LA",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Brennan Presley"
     },
     "13019": {
       "team": "LV",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Greedy Vance"
     },
     "13024": {
@@ -9169,19 +9967,19 @@
     "13047": {
       "team": "SEA",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jacardia Wright"
     },
     "13048": {
-      "team": "SEA",
-      "position": "LB",
-      "status": "CUT",
+      "team": "ATL",
+      "position": "DL",
+      "status": "ACT",
       "fullName": "Jared Ivey"
     },
     "13074": {
       "team": "GB",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Isaiah Neyor"
     },
     "13075": {
@@ -9211,7 +10009,7 @@
     "13120": {
       "team": "WAS",
       "position": "WR",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Jacoby Jones"
     },
     "13121": {
@@ -9259,7 +10057,7 @@
     "13179": {
       "team": "CAR",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Ja'Seem Reed"
     },
     "13187": {
@@ -9283,7 +10081,7 @@
     "13202": {
       "team": "LAC",
       "position": "WR",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Dalevon Campbell"
     },
     "13215": {
@@ -9349,7 +10147,7 @@
     "13277": {
       "team": "NO",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "CJ Donaldson"
     },
     "13278": {
@@ -9493,25 +10291,25 @@
     "13313": {
       "team": "SEA",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Emmanuel Henderson Jr."
     },
     "13314": {
       "team": "DET",
       "position": "QB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Luke Altmyer"
     },
     "13315": {
       "team": "LA",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Dean Connors"
     },
     "13316": {
       "team": "TB",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Eric Rivers Jr."
     },
     "13317": {
@@ -9523,7 +10321,7 @@
     "13318": {
       "team": "CIN",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Noah Thomas"
     },
     "13319": {
@@ -9541,7 +10339,7 @@
     "13321": {
       "team": "LA",
       "position": "TE",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Dan Villari"
     },
     "13322": {
@@ -9553,7 +10351,7 @@
     "13325": {
       "team": "DAL",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jordan Hudson"
     },
     "13329": {
@@ -9583,7 +10381,7 @@
     "13336": {
       "team": "DEN",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Dane Key"
     },
     "13337": {
@@ -9599,9 +10397,9 @@
       "fullName": "Kevin Coleman Jr."
     },
     "13339": {
-      "team": "CLE",
+      "team": "IND",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Davon Booth"
     },
     "13342": {
@@ -9613,7 +10411,7 @@
     "13343": {
       "team": "ATL",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Vinny Anthony II"
     },
     "13345": {
@@ -9637,7 +10435,7 @@
     "13348": {
       "team": "JAX",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "J'Mari Taylor"
     },
     "13349": {
@@ -9645,6 +10443,12 @@
       "position": "TE",
       "status": "ACT",
       "fullName": "Eli Stowers"
+    },
+    "13350": {
+      "team": "BAL",
+      "position": "QB",
+      "status": "ACT",
+      "fullName": "Joe Fagnano"
     },
     "13353": {
       "team": "CAR",
@@ -9655,7 +10459,7 @@
     "13356": {
       "team": "JAX",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Trebor Pena"
     },
     "13365": {
@@ -9719,15 +10523,15 @@
       "fullName": "Josh Cameron"
     },
     "13400": {
-      "team": "DEN",
+      "team": "MIA",
       "position": "TE",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Justin Joly"
     },
     "13401": {
       "team": "DAL",
       "position": "TE",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Michael Trigg"
     },
     "13402": {
@@ -9769,7 +10573,7 @@
     "13410": {
       "team": "LV",
       "position": "WR",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Chase Roberts"
     },
     "13411": {
@@ -9805,7 +10609,7 @@
     "13416": {
       "team": "LV",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Roman Hemby"
     },
     "13417": {
@@ -9817,13 +10621,13 @@
     "13418": {
       "team": "WAS",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Robert Henry Jr."
     },
     "13419": {
       "team": "KC",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Jaydn Ott"
     },
     "13420": {
@@ -9871,7 +10675,7 @@
     "13432": {
       "team": "SF",
       "position": "TE",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Khalil Dinkins"
     },
     "13433": {
@@ -9895,7 +10699,7 @@
     "13437": {
       "team": "HOU",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Noah Whittington"
     },
     "13445": {
@@ -10018,6 +10822,12 @@
       "status": "ACT",
       "fullName": "Kendal Daniels"
     },
+    "13484": {
+      "team": "MIA",
+      "position": "LB",
+      "status": "RES",
+      "fullName": "Trey Moore"
+    },
     "13485": {
       "team": "CAR",
       "position": "DB",
@@ -10126,12 +10936,6 @@
       "status": "ACT",
       "fullName": "Chandler Rivers"
     },
-    "13516": {
-      "team": "MIN",
-      "position": "RB",
-      "status": "ACT",
-      "fullName": "Max Bredeson"
-    },
     "13518": {
       "team": "IND",
       "position": "DL",
@@ -10177,7 +10981,7 @@
     "13541": {
       "team": "HOU",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Lewis Bond"
     },
     "13542": {
@@ -10189,7 +10993,7 @@
     "13544": {
       "team": "GB",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Domani Jackson"
     },
     "13547": {
@@ -10225,7 +11029,7 @@
     "13556": {
       "team": "NO",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "TJ Hall"
     },
     "13557": {
@@ -10237,37 +11041,37 @@
     "13558": {
       "team": "LA",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Tim Keenan III"
     },
     "13562": {
       "team": "PHI",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Keyshawn James-Newby"
     },
     "13563": {
       "team": "SEA",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Deven Eastern"
     },
     "13565": {
       "team": "SEA",
       "position": "DB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Andre Fuller"
     },
     "13566": {
       "team": "MIA",
       "position": "DL",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Max Llewellyn"
     },
     "13569": {
-      "team": "BUF",
+      "team": "CLE",
       "position": "DB",
-      "status": "CUT",
+      "status": "ACT",
       "fullName": "Toriano Pride Jr."
     },
     "13572": {
@@ -10285,7 +11089,7 @@
     "13575": {
       "team": "DET",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Tyre West"
     },
     "13577": {
@@ -10297,7 +11101,7 @@
     "13579": {
       "team": "DEN",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Red Murdock"
     },
     "13580": {
@@ -10309,13 +11113,13 @@
     "13582": {
       "team": "DAL",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Anthony Smith"
     },
     "13584": {
       "team": "BAL",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Rayshaun Benny"
     },
     "13588": {
@@ -10339,31 +11143,31 @@
     "13595": {
       "team": "ATL",
       "position": "RB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Cash Jones"
     },
     "13600": {
       "team": "TEN",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Tyren Montgomery"
     },
     "13601": {
       "team": "CLE",
       "position": "DL",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Logan Fano"
     },
     "13607": {
       "team": "LAC",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Lander Barton"
     },
     "13621": {
       "team": "MIN",
       "position": "WR",
-      "status": "ACT",
+      "status": "DEV",
       "fullName": "Dillon Bell"
     },
     "13635": {
@@ -10378,22 +11182,28 @@
       "status": "RES",
       "fullName": "Michael Heldman"
     },
+    "13650": {
+      "team": "JAX",
+      "position": "DL",
+      "status": "ACT",
+      "fullName": "Bryan Thomas Jr."
+    },
     "13670": {
       "team": "ARI",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Harrison Wallace III"
     },
     "13674": {
       "team": "GB",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Chris Hilton Jr."
     },
     "13696": {
       "team": "BUF",
       "position": "WR",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Ja'Mori Maclin"
     },
     "13708": {
@@ -10405,7 +11215,7 @@
     "13725": {
       "team": "NYJ",
       "position": "RB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "Dominic Richardson"
     },
     "13726": {
@@ -10423,7 +11233,7 @@
     "13771": {
       "team": "GB",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Nyjalik Kelly"
     },
     "13776": {
@@ -10435,7 +11245,7 @@
     "13778": {
       "team": "KC",
       "position": "RB",
-      "status": "W04",
+      "status": "RES",
       "fullName": "EJ Smith"
     },
     "13810": {
@@ -10456,22 +11266,22 @@
       "status": "CUT",
       "fullName": "Caullin Lacy"
     },
-    "13844": {
-      "team": "MIA",
-      "position": "RB",
-      "status": "CUT",
-      "fullName": "Coleman Bennett"
-    },
     "13895": {
       "team": "LV",
       "position": "LB",
-      "status": "CUT",
+      "status": "DEV",
       "fullName": "Cian Slone"
+    },
+    "13906": {
+      "team": "GB",
+      "position": "RB",
+      "status": "CUT",
+      "fullName": "Jaden Nixon"
     },
     "13915": {
       "team": "NE",
       "position": "LB",
-      "status": "ACT",
+      "status": "RES",
       "fullName": "Khalil Jacobs"
     },
     "13946": {
@@ -10485,6 +11295,12 @@
       "position": "RB",
       "status": "RES",
       "fullName": "Myles Montgomery"
+    },
+    "13971": {
+      "team": "TB",
+      "position": "LB",
+      "status": "CUT",
+      "fullName": "Caden Fordham"
     },
     "14034": {
       "team": "NO",
