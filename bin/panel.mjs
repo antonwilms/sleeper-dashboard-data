@@ -20,7 +20,8 @@
  *   --fit                             R3-FIT fitted per-position exponents (offline harness); mutually exclusive with --flip-gate
  *   --alpha X                         R3-FIT shrinkage knob override (default 0.5; sweep {0.1,0.25,0.5,1,2} always reported)
  *   --fullpipeline                    D6b full-pipeline calibration + verdicts (13-factor composition); mutually exclusive with --fit/--flip-gate; basis always half_ppr, attribution always per-season-team (teamOffense alone reconstructed under current-team)
- *   --json                            machine-readable FitReport (FlipReport under --flip-gate, R3-FIT FitReport under --fit, full-pipeline result under --fullpipeline) to stdout
+ *   --rookie                          D-8/D-9/D-12/D-13 rookie outcome panels (debut/ungated/total-points); mutually exclusive with --fit/--flip-gate/--fullpipeline; rejects --from/--to/--attribution/--basis/--min-games — the three assemblies (legacy/debut/rookiePathAll) carry three different year semantics, one CLI pair cannot express them, the basis is pinned half_ppr, and the outcome gate is structural, not a knob (see .claude/tasks/rookie-outcome-panels.md §2.4)
+ *   --json                            machine-readable FitReport (FlipReport under --flip-gate, R3-FIT FitReport under --fit, full-pipeline result under --fullpipeline, rookie-panel result under --rookie) to stdout
  *   --write                           persist the three artifacts (backtests/ + grading/)
  */
 
@@ -43,6 +44,9 @@ import {
   runFullPipeline,
   buildFullPipelineVerdictMarkdown,
   writeFullPipelineArtifacts,
+  runRookiePanels,
+  buildRookieVerdictMarkdown,
+  writeRookieArtifacts,
   DEFAULT_SCORING_SNAPSHOT,
 } from '../scripts/panel-run.mjs';
 import { PANEL_DEFAULTS, FIT_ALPHA_DEFAULT, FIT_ALPHA_SWEEP } from '../lib/panel.mjs';
@@ -75,6 +79,7 @@ if (isMain) {
       const flipGate = flag('--flip-gate');
       const fitMode = flag('--fit');
       const fullPipelineMode = flag('--fullpipeline');
+      const rookieMode = flag('--rookie');
       // Mode-aware basis default (§6.4 guard 2): --fit's own basis is half_ppr
       // (the app's own store-served basis, §3.0-C3); every other mode keeps
       // in-basis. option() returns null when the flag is absent, so an
@@ -103,6 +108,18 @@ if (isMain) {
         console.error('[panel] Error: --fullpipeline is mutually exclusive with --fit/--flip-gate');
         process.exit(1);
       }
+      if (rookieMode && (flipGate || fitMode || fullPipelineMode)) {
+        console.error('[panel] Error: --rookie is mutually exclusive with --fit/--flip-gate/--fullpipeline');
+        process.exit(1);
+      }
+      if (rookieMode && ['--from', '--to', '--attribution', '--basis', '--min-games'].some(f => args.includes(f))) {
+        console.error(
+          '[panel] Error: --rookie rejects --from/--to/--attribution/--basis/--min-games — the three assemblies ' +
+          '(legacy/debut/rookiePathAll) carry three different year semantics, the basis is pinned half_ppr, and ' +
+          'the outcome gate is structural, not a knob'
+        );
+        process.exit(1);
+      }
       // §6.4 guard 1: --fit pins per-season-team (the app's live default,
       // load-bearing for the reconstruction) — silently ignoring an explicit
       // --attribution here would be exactly the failure --flip-gate already refuses.
@@ -113,6 +130,25 @@ if (isMain) {
       if (fullPipelineMode && args.includes('--attribution')) {
         console.error('[panel] Error: --fullpipeline pins per-season-team attribution (teamOffense alone reconstructs under current-team internally); drop --attribution');
         process.exit(1);
+      }
+
+      if (rookieMode) {
+        const result = runRookiePanels({});
+        const verdictMd = buildRookieVerdictMarkdown(result);
+
+        if (asJson) {
+          console.log(JSON.stringify(result, null, 2));
+        } else {
+          console.log(verdictMd);
+        }
+
+        if (write) {
+          const { panelPath, verdictPath } = writeRookieArtifacts({ result, verdictMd });
+          console.log(`[panel] Wrote ${panelPath}`);
+          console.log(`[panel] Wrote ${verdictPath}`);
+        }
+
+        process.exit(0);
       }
 
       if (fullPipelineMode) {

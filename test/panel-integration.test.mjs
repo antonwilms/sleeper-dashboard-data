@@ -26,6 +26,8 @@ import {
   buildMergedFlipPanel,
   runFit,
   buildFitVerdictMarkdown,
+  runRookiePanels,
+  buildRookieVerdictMarkdown,
 } from '../scripts/panel-run.mjs';
 import {
   PANEL_POSITIONS, BASELINE_FEATURES, FLIP_VERDICTS, teamKeyResolver, buildTeamTotalsForSeason,
@@ -650,6 +652,54 @@ describe('T-F13: committed r3fit artifact well-formedness', () => {
     for (const f of panelFiles) {
       const panelJson = JSON.parse(fs.readFileSync(f, 'utf8'));
       assert.ok(panelJson.coverage?.fitCoverage, `${f}: coverage.fitCoverage present`);
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// D-8/D-9/D-12/D-13 — committed rookie-panel artifact well-formedness (skips pre-run)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('rookie-outcome-panels: committed rookie artifact well-formedness', () => {
+  function listMatching(dir, re) {
+    const abs = path.join(REPO_ROOT, dir);
+    if (!fs.existsSync(abs)) return [];
+    return fs.readdirSync(abs).filter(f => re.test(f)).map(f => path.join(abs, f));
+  }
+
+  const panelFiles = listMatching('backtests', /-rookie-panel\.json$/);
+  const verdictFiles = listMatching('grading', /-rookie-verdict\.md$/);
+
+  test('rookie-panel artifacts, if committed, are well-formed', (t) => {
+    if (panelFiles.length === 0 && verdictFiles.length === 0) {
+      t.skip('no rookie-panel artifacts on disk yet (pre-run CI stays green)');
+      return;
+    }
+
+    for (const f of panelFiles) {
+      const result = JSON.parse(fs.readFileSync(f, 'utf8'));
+      assert.ok(result.meta, `${f}: meta present`);
+      assert.equal(result.meta.basis, 'half_ppr', `${f}: meta.basis`);
+      assert.ok(result.meta.basisScope?.appliesTo, `${f}: meta.basisScope.appliesTo present`);
+      assert.ok(Number.isInteger(result.meta.basisScope?.basisFreeZeroRows) && result.meta.basisScope.basisFreeZeroRows > 0,
+        `${f}: meta.basisScope.basisFreeZeroRows is a positive integer`);
+      assert.ok(result.pin, `${f}: pin present`);
+      assert.ok(result.legacy?.gated?.coverage && result.legacy?.ungated?.coverage, `${f}: legacy gated/ungated coverage present`);
+      assert.ok(result.debut?.coverage, `${f}: debut coverage present`);
+      assert.ok(result.rookiePathAll?.coverage, `${f}: rookiePathAll coverage present`);
+      for (const row of result.legacy.gated.rows) {
+        assert.ok(['played6plus', 'played1to5', 'rosteredZero', 'absentOnRoster', 'absentOffRoster', 'absentNoRosterFile'].includes(row.outcomeClass),
+          `${f}: row ${row.sleeperId}/${row.predictorYear} has a known outcomeClass`);
+      }
+      for (const row of result.debut.rows) {
+        assert.equal(row.targetSeason, row.entryYear, `${f}: debut row ${row.sleeperId} targetSeason === entryYear`);
+      }
+    }
+
+    for (const f of verdictFiles) {
+      const md = fs.readFileSync(f, 'utf8');
+      assert.ok(md.startsWith('# Rookie Outcome Panels Verdict'), `${f}: has the expected header`);
+      assert.ok(md.includes('node bin/panel.mjs --rookie --write'), `${f}: contains the reproduce command`);
     }
   });
 });
