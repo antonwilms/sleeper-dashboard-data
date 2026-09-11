@@ -2096,6 +2096,25 @@ Reproduce: `node bin/panel.mjs --fit --write`.
 
 This unit **builds and commits the fit only** — it activates nothing. Shipping a CLEARS position's exponents into `seasonProjection.js` is a separate, app-repo unit (`r3fit-activation.md`), gated on the committed verdict here.
 
+### D-8/D-9/D-12/D-13 rookie outcome panels (`bin/panel.mjs --rookie`)
+
+Turns the rookie panel from one survivor-gated second-season PPG panel into one harness that also grades a **debut** season, an **ungated** outcome, and **realised total points** — see `.claude/tasks/rookie-outcome-panels.md`. One row shape, one predictor (`reconstructRookieProjection`, always uncorrected — see below), one extracted predicate (`rookiePathStateAt`).
+
+**Three assemblies, one call each to `assembleRookiePanel`:** `legacy` (`season-presence` enumerator, gate 6, predictor years 2013–2024) — the pre-existing reproduction pin, plus an ungated pass that classifies every row into a six-state `outcomeClass` (D-9); `debut` (`entry-cohort` enumerator, `debutOnly`, no gate, entry/target 2013–2025) — grades the entry season itself (D-8); `rookiePathAll` (`entry-cohort`, no gate, same years) — every rookie-path season per entrant, feeding the games-ladder reconciliation (D-12) and the total-points residual (D-13).
+
+**Artifacts** (`--write`, unregistered — same convention as `backtests/` generally): `backtests/<date>-rookie-panel.json`, `grading/<date>-rookie-verdict.md`.
+
+```sh
+node bin/panel.mjs --rookie                # analysis-only
+node bin/panel.mjs --rookie --write        # persist both artifacts above
+```
+
+`--rookie` rejects `--from`/`--to`/`--attribution`/`--basis`/`--min-games` — the three assemblies carry three different year semantics, the basis is pinned `half_ppr`, and the outcome gate (`minOutcomeGames`, accepting only `6` or `null`) is structural, not a knob.
+
+**The re-fit trap (CR-15).** `reconstructRookieProjection` is the permanent uncorrected fit predictor and declares `appliedCorrections: []`; `assembleRookiePanel` throws if a predictor's declaration is missing or non-empty, so the app's rookie calibration/games-ladder constants can never re-enter a panel regenerated for fitting. The corrected predictor, `reconstructShippedRookieProjection`, is a reserved name with no body yet.
+
+Reproduce: `node bin/panel.mjs --rookie --write`.
+
 ---
 
 ## Data sources and attribution

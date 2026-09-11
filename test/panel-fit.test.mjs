@@ -33,6 +33,8 @@ import {
   runAblation, ABLATION_GRADABLE_FACTORS, NOT_GRADABLE_FACTORS,
   runStep4Verdict, assembleRookiePanel,
   PANEL_POSITIONS,
+  rookiePathStateAt, classifyRookieOutcome, enumerateEntryCohortRows, OUTCOME_PLAYED_THRESHOLD,
+  computeSeasonPoints,
 } from '../lib/panel.mjs';
 import {
   reconstructMomentumFactor, reconstructRegressionFactor, reconstructTrajectoryFactor,
@@ -46,8 +48,9 @@ import {
   reconstructEfficiencyFactor, EFFICIENCY_METRICS, EFFICIENCY_MIN_COHORT_OPPS,
   buildCareerArcVector, findReconstructedCareerComps, compsProjectedPPG, reconstructCompBlendFactor,
   reconstructRookieProjection, reconstructNflDraftFactor, reconstructRookieAgeFactor, ROOKIE_MULTIPLIER_CLAMP,
+  EMPTY_CORRECTIONS,
 } from '../lib/projectionFactors.mjs';
-import { runFit, buildFitVerdictReport, buildFitVerdictMarkdown, assemblePanel } from '../scripts/panel-run.mjs';
+import { runFit, buildFitVerdictReport, buildFitVerdictMarkdown, assemblePanel, DEFAULT_LOAD, buildOutcomeMaps } from '../scripts/panel-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -2339,5 +2342,447 @@ describe('D6b — assembleRookiePanel', () => {
       fromYear: 2020, toYear: 2020,
     });
     assert.equal(coverage.assembled, 0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// D-8/D-9/D-12/D-13 — rookie-outcome-panels.md §6
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('rookie-outcome-panels §6 test 1 — reproduction pin (the gate on this whole slice)', () => {
+  test('assembleRookiePanel with default options reproduces backtests/2026-09-06-fullpipeline-panel.json\'s rookiePanel exactly', () => {
+    const fromYear = 2013, toYear = 2024;
+    const playerIds = DEFAULT_LOAD.loadPlayerIds();
+    const crosswalk = {};
+    const birthdateBySleeper = {};
+    const draftInfoBySleeper = {};
+    for (const [sleeperId, entry] of Object.entries(playerIds?.bySleeper ?? {})) {
+      if (entry?.birthdate) birthdateBySleeper[sleeperId] = entry.birthdate;
+      draftInfoBySleeper[sleeperId] = {
+        draftYear: entry?.draftYear ?? null, draftRound: entry?.draftRound ?? null, draftPick: entry?.draftPick ?? null,
+        undrafted: entry?.undrafted ?? false,
+      };
+    }
+    for (const entry of Object.values(playerIds?.ids ?? {})) {
+      if (entry?.sleeperId && entry?.position) crosswalk[entry.sleeperId] = entry.position;
+    }
+
+    const years = [];
+    for (let y = HISTORY_FLOOR; y <= toYear + 1; y++) years.push(y);
+    const outcomeMaps = buildOutcomeMaps(years, { basis: 'half_ppr' }, DEFAULT_LOAD);
+    const totalsByYear = {};
+    const ppgByYear = {};
+    for (const y of years) {
+      totalsByYear[y] = DEFAULT_LOAD.loadSeasonTotals(y) ?? {};
+      ppgByYear[y] = outcomeMaps[y]?.outcomes ?? new Map();
+    }
+    // F7 — advstats MUST be loaded, exactly like runRookiePanels does, or this
+    // reproduction cannot pass (a different position resolution => different
+    // ROOKIE_BASELINE_PPG => different projectedPPG on a nontrivial slice).
+    const advstatsByYear = {};
+    const rosterByYear = {};
+    for (let y = fromYear; y <= toYear; y++) {
+      advstatsByYear[y] = DEFAULT_LOAD.loadAdvstats(y);
+      rosterByYear[y] = DEFAULT_LOAD.loadRoster(y);
+    }
+    const positionOf = (pid, y) => resolvePosition(pid, advstatsByYear[y], rosterByYear[y], crosswalk);
+
+    const { rows, coverage } = assembleRookiePanel({
+      totalsByYear, ppgByYear, positionOf,
+      birthdateOf: (pid) => birthdateBySleeper[pid] ?? null,
+      draftInfoOf: (pid) => draftInfoBySleeper[pid] ?? null,
+      fromYear, toYear,
+    });
+
+    const artifact = DEFAULT_LOAD.loadRookiePinArtifact();
+    const expectedRows = artifact.rookiePanel.rows;
+    const expectedCoverage = artifact.rookiePanel.coverage;
+
+    assert.equal(rows.length, expectedRows.length, 'row count matches the committed artifact');
+    for (let i = 0; i < expectedRows.length; i++) {
+      for (const key of ['sleeperId', 'predictorYear', 'projectedPPG', 'outcomePPG', 'nflDraftTier']) {
+        assert.equal(rows[i][key], expectedRows[i][key], `row ${i} field '${key}' matches at the same position (order preserved)`);
+      }
+    }
+    assert.equal(coverage.assembled, expectedCoverage.assembled);
+    assert.equal(coverage.assembled, 2563);
+    assert.equal(coverage.surviving, expectedCoverage.surviving);
+    assert.equal(coverage.surviving, 1056);
+    assert.equal(coverage.drops.noOutcome, expectedCoverage.drops.noOutcome);
+    assert.equal(coverage.drops.noOutcome, 1507);
+    assert.equal(coverage.hitCapCount, expectedCoverage.hitCapCount);
+    assert.equal(coverage.hitCapCount, 0);
+  });
+});
+
+describe('rookie-outcome-panels §6 tests 2-4 — the re-fit-trap guard (§1 Q4)', () => {
+  function minimalFixture() {
+    return {
+      totalsByYear: { 2020: { p1: { team: 'KC', gamesPlayed: 10, fantasyPoints: 70, stats: {} } } },
+      ppgByYear: {
+        2020: new Map([['p1', { actualPPG: 7, actualGames: 10, actualTotalPts: 70 }]]),
+        2021: new Map([['p1', { actualPPG: 10, actualGames: 12, actualTotalPts: 120 }]]),
+      },
+      positionOf: () => 'WR',
+      birthdateOf: () => '1998-01-01',
+      draftInfoOf: () => ({ draftYear: 2020, draftRound: 3, draftPick: 70, undrafted: false }),
+      fromYear: 2020, toYear: 2020,
+    };
+  }
+
+  test('the guard fires on a declared correction', () => {
+    const fixture = minimalFixture();
+    assert.throws(() => {
+      assembleRookiePanel({
+        ...fixture,
+        predictor: () => ({ projectedPPG: 5, hitCap: false, nflDraftTier: 'r4', appliedCorrections: ['rookieCalibration'] }),
+      });
+    }, /CR-15/);
+  });
+
+  test('the guard fires on a missing declaration', () => {
+    const fixture = minimalFixture();
+    assert.throws(() => {
+      assembleRookiePanel({
+        ...fixture,
+        predictor: () => ({ projectedPPG: 5, hitCap: false, nflDraftTier: 'r4' }),
+      });
+    }, /did not declare/);
+  });
+
+  test('the uncorrected predictor declares nothing', () => {
+    const proj = reconstructRookieProjection({ position: 'WR', ageAtDraft: 22, draftRound: 3, draftPick: 70 });
+    assert.equal(proj.appliedCorrections.length, 0);
+    assert.ok(Object.isFrozen(proj.appliedCorrections));
+    assert.equal(proj.appliedCorrections, EMPTY_CORRECTIONS);
+  });
+});
+
+describe('rookie-outcome-panels §6 test 5 — classifyRookieOutcome, all six states', () => {
+  const totalsByYear = {
+    2021: {
+      played8: { gamesPlayed: 8, dnpWeeks: 0, stats: {} },
+      played3: { gamesPlayed: 3, dnpWeeks: 2, stats: {} },
+      zero: { gamesPlayed: 0, dnpWeeks: 9, stats: {} },
+    },
+  };
+  const ppgByYear = {
+    2021: new Map([
+      ['played8', { actualPPG: 10, actualGames: 8, actualTotalPts: 80 }],
+      ['played3', { actualPPG: 5, actualGames: 3, actualTotalPts: 15 }],
+      ['zero', { actualPPG: null, actualGames: 0, actualTotalPts: 0 }],
+    ]),
+  };
+  const rosterWithHit = { 2021: { players: { onRoster: { position: 'WR' } } } };
+  const rosterWithoutHit = { 2021: { players: {} } };
+
+  test('played6plus: gamesPlayed 8', () => {
+    const o = classifyRookieOutcome({ pid: 'played8', outcomeYear: 2021, ppgByYear, totalsByYear, rosterByYear: rosterWithHit });
+    assert.equal(o.outcomeClass, 'played6plus');
+    assert.equal(o.outcomeGames, 8);
+    assert.equal(o.outcomeTotalPts, 80);
+    assert.equal(o.outcomePPG, 10);
+    assert.equal(o.dnpWeeks, 0);
+  });
+
+  test('played1to5: gamesPlayed 3', () => {
+    const o = classifyRookieOutcome({ pid: 'played3', outcomeYear: 2021, ppgByYear, totalsByYear, rosterByYear: rosterWithHit });
+    assert.equal(o.outcomeClass, 'played1to5');
+    assert.equal(o.outcomeTotalPts, 15);
+    assert.equal(o.outcomePPG, 5);
+    assert.equal(o.dnpWeeks, 2);
+  });
+
+  test('rosteredZero: present, gamesPlayed 0', () => {
+    const o = classifyRookieOutcome({ pid: 'zero', outcomeYear: 2021, ppgByYear, totalsByYear, rosterByYear: rosterWithHit });
+    assert.equal(o.outcomeClass, 'rosteredZero');
+    assert.equal(o.outcomeTotalPts, 0);
+    assert.equal(o.outcomePPG, null);
+    assert.equal(o.dnpWeeks, 9);
+  });
+
+  test('absentOnRoster: absent from season-totals, present on the outcome-year roster', () => {
+    const o = classifyRookieOutcome({ pid: 'onRoster', outcomeYear: 2021, ppgByYear, totalsByYear, rosterByYear: rosterWithHit });
+    assert.equal(o.outcomeClass, 'absentOnRoster');
+    assert.equal(o.outcomeTotalPts, 0);
+    assert.equal(o.outcomePPG, null);
+    assert.equal(o.dnpWeeks, null);
+  });
+
+  test('absentOffRoster: absent from season-totals, absent from the outcome-year roster too', () => {
+    const o = classifyRookieOutcome({ pid: 'nobody', outcomeYear: 2021, ppgByYear, totalsByYear, rosterByYear: rosterWithoutHit });
+    assert.equal(o.outcomeClass, 'absentOffRoster');
+    assert.equal(o.outcomeTotalPts, 0);
+    assert.equal(o.outcomePPG, null);
+    assert.equal(o.dnpWeeks, null);
+  });
+
+  test('absentNoRosterFile: absent from season-totals, no roster file at all for the outcome year', () => {
+    const o = classifyRookieOutcome({ pid: 'nobody', outcomeYear: 2021, ppgByYear, totalsByYear, rosterByYear: null });
+    assert.equal(o.outcomeClass, 'absentNoRosterFile');
+    assert.equal(o.outcomeTotalPts, 0);
+    assert.equal(o.outcomePPG, null);
+    assert.equal(o.dnpWeeks, null);
+  });
+});
+
+describe('rookie-outcome-panels §6 test 6 — the classification boundary is independent of the gate', () => {
+  function fixtureWith(games) {
+    return {
+      totalsByYear: { 2020: { p1: { team: 'KC', gamesPlayed: 10, fantasyPoints: 70, stats: {} } } },
+      ppgByYear: {
+        2020: new Map([['p1', { actualPPG: 7, actualGames: 10, actualTotalPts: 70 }]]),
+        2021: new Map([['p1', { actualPPG: games > 0 ? 42 / games : null, actualGames: games, actualTotalPts: 42 }]]),
+      },
+      positionOf: () => 'WR', birthdateOf: () => null, draftInfoOf: () => null,
+      fromYear: 2020, toYear: 2020,
+    };
+  }
+
+  test('minOutcomeGames: null — a 7-game row still classifies played6plus', () => {
+    const { rows } = assembleRookiePanel({ ...fixtureWith(7), minOutcomeGames: null });
+    assert.equal(rows[0].outcomeClass, 'played6plus');
+  });
+
+  test('minOutcomeGames: null — a 3-game row still classifies played1to5', () => {
+    const { rows } = assembleRookiePanel({ ...fixtureWith(3), minOutcomeGames: null });
+    assert.equal(rows[0].outcomeClass, 'played1to5');
+  });
+
+  test('minOutcomeGames: 8 throws', () => {
+    assert.throws(() => assembleRookiePanel({ ...fixtureWith(7), minOutcomeGames: 8 }), /must be 6 or null/);
+  });
+});
+
+describe('rookie-outcome-panels §6 test 7 — enumerateEntryCohortRows, four cases', () => {
+  function rec(gp) { return { gamesPlayed: gp, stats: {} }; }
+
+  test('(a) a gamesPlayed>=8 season at entryYear+1 emits rows for entryYear and entryYear+1, then stops', () => {
+    const entrantsBySleeper = { p1: { draftYear: 2020, position: 'WR' } };
+    const totalsByYear = {
+      2020: { p1: rec(2) }, 2021: { p1: rec(9) }, 2022: { p1: rec(10) },
+    };
+    const ppgByYear = {
+      2020: new Map([['p1', { actualPPG: 5, actualGames: 2, actualTotalPts: 10 }]]),
+      2021: new Map([['p1', { actualPPG: 8, actualGames: 9, actualTotalPts: 72 }]]),
+      2022: new Map([['p1', { actualPPG: 9, actualGames: 10, actualTotalPts: 90 }]]),
+    };
+    const rows = enumerateEntryCohortRows({
+      entrantsBySleeper, totalsByYear, ppgByYear,
+      fromEntryYear: 2020, toEntryYear: 2020, fromTarget: 2020, toTarget: 2023,
+    });
+    assert.deepEqual(rows.map(r => r.targetSeason), [2020, 2021]);
+  });
+
+  test('(b) zero games in two consecutive PRESENT seasons stops at the second and emits nothing after', () => {
+    const entrantsBySleeper = { p1: { draftYear: 2020, position: 'WR' } };
+    const totalsByYear = { 2020: { p1: rec(0) }, 2021: { p1: rec(0) }, 2022: { p1: rec(10) } };
+    const ppgByYear = {
+      2020: new Map([['p1', { actualPPG: null, actualGames: 0, actualTotalPts: 0 }]]),
+      2021: new Map([['p1', { actualPPG: null, actualGames: 0, actualTotalPts: 0 }]]),
+      2022: new Map([['p1', { actualPPG: 9, actualGames: 10, actualTotalPts: 90 }]]),
+    };
+    const rows = enumerateEntryCohortRows({
+      entrantsBySleeper, totalsByYear, ppgByYear,
+      fromEntryYear: 2020, toEntryYear: 2020, fromTarget: 2020, toTarget: 2023,
+    });
+    assert.deepEqual(rows.map(r => r.targetSeason), [2020, 2021]);
+  });
+
+  test('(c) ABSENT from two consecutive seasons stops identically (games-with-absence-as-zero)', () => {
+    const entrantsBySleeper = { p1: { draftYear: 2020, position: 'WR' } };
+    // p1 has no entry at all in totalsByYear[2020] or [2021] -- absent, not present-zero.
+    const totalsByYear = { 2022: { p1: rec(10) } };
+    const ppgByYear = {
+      2022: new Map([['p1', { actualPPG: 9, actualGames: 10, actualTotalPts: 90 }]]),
+    };
+    const rows = enumerateEntryCohortRows({
+      entrantsBySleeper, totalsByYear, ppgByYear,
+      fromEntryYear: 2020, toEntryYear: 2020, fromTarget: 2020, toTarget: 2023,
+    });
+    assert.deepEqual(rows.map(r => r.targetSeason), [2020, 2021]);
+  });
+
+  test('(d) debutOnly-equivalent slice: filtering to targetSeason===entryYear leaves exactly one row per entrant', () => {
+    const entrantsBySleeper = { p1: { draftYear: 2020, position: 'WR' }, p2: { draftYear: 2021, position: 'RB' } };
+    const totalsByYear = {};
+    const ppgByYear = {};
+    const rows = enumerateEntryCohortRows({
+      entrantsBySleeper, totalsByYear, ppgByYear,
+      fromEntryYear: 2020, toEntryYear: 2021, fromTarget: 2020, toTarget: 2021,
+    });
+    const debutRows = rows.filter(r => r.targetSeason === r.entryYear);
+    assert.equal(debutRows.length, 2);
+    assert.ok(debutRows.every(r => r.experienceYears === 0 && r.experienceBucket === '0'));
+  });
+});
+
+describe('rookie-outcome-panels §6 test 8 — debut rows grade the target season, not the one after', () => {
+  test('a synthetic entrant scoring in entryYear and nothing after has nonzero outcomeTotalPts on the debut row', () => {
+    const entrantsBySleeper = { p1: { draftYear: 2020, draftRound: 3, draftPick: 70, undrafted: false, position: 'WR' } };
+    const totalsByYear = { 2020: { p1: { gamesPlayed: 10, stats: {} } } };
+    const ppgByYear = {
+      2020: new Map([['p1', { actualPPG: 8, actualGames: 10, actualTotalPts: 80 }]]),
+      2021: new Map(), // nothing after
+    };
+    const { rows } = assembleRookiePanel({
+      totalsByYear, ppgByYear,
+      positionOf: () => 'WR', birthdateOf: () => '1998-01-01',
+      draftInfoOf: () => ({ draftYear: 2020, draftRound: 3, draftPick: 70, undrafted: false }),
+      fromYear: 2020, toYear: 2020, minOutcomeGames: null,
+      enumerator: 'entry-cohort', entrantsBySleeper, debutOnly: true,
+    });
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].targetSeason, 2020);
+    assert.equal(rows[0].outcomeTotalPts, 80);
+    assert.notEqual(rows[0].outcomeTotalPts, 0);
+  });
+});
+
+describe('rookie-outcome-panels §6 test 9 — no leakage', () => {
+  test('season-presence: predictor is called with exactly {position, ageAtDraft, draftRound, draftPick}', () => {
+    const calls = [];
+    const spy = (args) => { calls.push(args); return { projectedPPG: 5, hitCap: false, nflDraftTier: 'r4', appliedCorrections: [] }; };
+    const totalsByYear = { 2020: { p1: { team: 'KC', gamesPlayed: 10, fantasyPoints: 70, stats: {} } } };
+    const ppgByYear = { 2020: new Map([['p1', { actualPPG: 7, actualGames: 10, actualTotalPts: 70 }]]) };
+    assembleRookiePanel({
+      totalsByYear, ppgByYear, positionOf: () => 'WR',
+      birthdateOf: () => '1998-01-01', draftInfoOf: () => ({ draftYear: 2020, draftRound: 3, draftPick: 70, undrafted: false }),
+      fromYear: 2020, toYear: 2020, minOutcomeGames: null, predictor: spy,
+    });
+    assert.equal(calls.length, 1);
+    assert.deepEqual(Object.keys(calls[0]).sort(), ['ageAtDraft', 'draftPick', 'draftRound', 'position']);
+  });
+
+  test('entry-cohort: predictor is called with exactly {position, ageAtDraft, draftRound, draftPick}', () => {
+    const calls = [];
+    const spy = (args) => { calls.push(args); return { projectedPPG: 5, hitCap: false, nflDraftTier: 'r4', appliedCorrections: [] }; };
+    const entrantsBySleeper = { p1: { draftYear: 2020, draftRound: 3, draftPick: 70, undrafted: false, position: 'WR' } };
+    const totalsByYear = { 2020: { p1: { gamesPlayed: 10, stats: {} } } };
+    const ppgByYear = { 2020: new Map([['p1', { actualPPG: 7, actualGames: 10, actualTotalPts: 70 }]]) };
+    assembleRookiePanel({
+      totalsByYear, ppgByYear, positionOf: () => 'WR',
+      birthdateOf: () => '1998-01-01', draftInfoOf: () => ({ draftYear: 2020, draftRound: 3, draftPick: 70, undrafted: false }),
+      fromYear: 2020, toYear: 2020, minOutcomeGames: null,
+      enumerator: 'entry-cohort', entrantsBySleeper, debutOnly: true, predictor: spy,
+    });
+    assert.equal(calls.length, 1);
+    assert.deepEqual(Object.keys(calls[0]).sort(), ['ageAtDraft', 'draftPick', 'draftRound', 'position']);
+  });
+});
+
+describe('rookie-outcome-panels §6 test 10 — the predicate has one meaning', () => {
+  test('rookiePathStateAt agrees with attachFactorMultipliers\' rookiePathNoQualifying/rookiePathYearsExpProxy exclusion, aggregate count, on a real (committed-data) population', () => {
+    const fromYear = 2013, toYear = 2014;
+    const withoutFit = assemblePanel({
+      fromYear, toYear, attribution: 'per-season-team', basis: 'half_ppr', load: DEFAULT_LOAD,
+      withFactorMultipliers: false, historyFloor: HISTORY_FLOOR,
+    });
+    const withFit = assemblePanel({
+      fromYear, toYear, attribution: 'per-season-team', basis: 'half_ppr', load: DEFAULT_LOAD,
+      withFactorMultipliers: true, historyFloor: HISTORY_FLOOR,
+    });
+
+    const years = [];
+    for (let y = HISTORY_FLOOR; y <= toYear + 1; y++) years.push(y);
+    const outcomeMaps = buildOutcomeMaps(years, { basis: 'half_ppr' }, DEFAULT_LOAD);
+    const totalsByYear = {};
+    const ppgByYear = {};
+    for (const y of years) {
+      totalsByYear[y] = DEFAULT_LOAD.loadSeasonTotals(y) ?? {};
+      ppgByYear[y] = outcomeMaps[y]?.outcomes ?? new Map();
+    }
+
+    let myRookiePathCount = 0;
+    for (const row of withoutFit.rows) {
+      const { isRookiePath } = rookiePathStateAt(row.sleeperId, row.predictorYear, { totalsByYear, ppgByYear });
+      if (isRookiePath) myRookiePathCount++;
+    }
+
+    const fc = withFit.coverage.fitCoverage;
+    const attachedRookiePathCount = (fc.droppedByReason.rookiePathNoQualifying ?? 0) + (fc.droppedByReason.rookiePathYearsExpProxy ?? 0);
+
+    assert.ok(myRookiePathCount > 0, 'sanity: the real population actually contains rookie-path rows');
+    assert.equal(myRookiePathCount, attachedRookiePathCount,
+      'rookiePathStateAt\'s isRookiePath count agrees with attachFactorMultipliers\' own rookie-path exclusion count');
+  });
+});
+
+describe('rookie-outcome-panels §6 test 11 — ungated coverage is self-consistent', () => {
+  test('minOutcomeGames: null yields surviving===assembled, empty drops, and every breakdown sums to its own n', () => {
+    const totalsByYear = {
+      2020: {
+        p1: { team: 'KC', gamesPlayed: 10, fantasyPoints: 70, stats: {} },
+        p2: { team: 'SF', gamesPlayed: 0, fantasyPoints: 0, stats: {} },
+      },
+    };
+    const ppgByYear = {
+      2020: new Map([
+        ['p1', { actualPPG: 7, actualGames: 10, actualTotalPts: 70 }],
+        ['p2', { actualPPG: null, actualGames: 0, actualTotalPts: 0 }],
+      ]),
+      2021: new Map([
+        ['p1', { actualPPG: 8, actualGames: 12, actualTotalPts: 96 }],
+      ]),
+    };
+    const { coverage } = assembleRookiePanel({
+      totalsByYear, ppgByYear, positionOf: () => 'WR',
+      birthdateOf: () => null, draftInfoOf: () => null,
+      fromYear: 2020, toYear: 2020, minOutcomeGames: null,
+    });
+    assert.equal(coverage.surviving, coverage.assembled);
+    assert.deepEqual(coverage.drops, {});
+    const classTotal = Object.values(coverage.byOutcomeClass).reduce((a, b) => a + b, 0);
+    assert.equal(classTotal, coverage.assembled);
+    for (const cell of Object.values(coverage.byCellOutcomeClass)) {
+      const cellTotal = Object.values(cell).reduce((a, b) => a + b, 0);
+      assert.ok(cellTotal > 0);
+    }
+  });
+});
+
+describe('rookie-outcome-panels §6 test 12 — invalidEntryYear is counted, not silent', () => {
+  test('an entrant with draftYear: 0 is excluded from the cohort and increments the counter', () => {
+    const entrantsBySleeper = {
+      sentinel: { draftYear: 0, position: 'WR' },
+      valid: { draftYear: 2020, position: 'WR' },
+    };
+    const rows = enumerateEntryCohortRows({
+      entrantsBySleeper, totalsByYear: {}, ppgByYear: {},
+      fromEntryYear: 2013, toEntryYear: 2025, fromTarget: 2013, toTarget: 2025,
+    });
+    assert.equal(rows.invalidEntryYear, 1);
+    assert.ok(rows.every(r => r.sleeperId !== 'sentinel'));
+  });
+
+  test('surfaces through assembleRookiePanel\'s coverage.invalidEntryYear', () => {
+    const entrantsBySleeper = { sentinel: { draftYear: 0, position: 'WR' } };
+    const { coverage } = assembleRookiePanel({
+      totalsByYear: {}, ppgByYear: {}, positionOf: () => 'WR',
+      birthdateOf: () => null, draftInfoOf: () => null,
+      fromYear: 2013, toYear: 2025, minOutcomeGames: null,
+      enumerator: 'entry-cohort', entrantsBySleeper,
+    });
+    assert.equal(coverage.invalidEntryYear, 1);
+  });
+});
+
+describe('rookie-outcome-panels §6 test 14 — computeSeasonPoints\' widening is additive', () => {
+  test('totalPts is 0 for a missing record and equals actualTotalPts otherwise; ppg/gamesPlayed unchanged', () => {
+    const outcomesForYear = new Map([['p1', { actualPPG: 8, actualGames: 10, actualTotalPts: 80 }]]);
+    const present = computeSeasonPoints('p1', outcomesForYear);
+    assert.equal(present.ppg, 8);
+    assert.equal(present.gamesPlayed, 10);
+    assert.equal(present.totalPts, 80);
+
+    const missingRecord = computeSeasonPoints('nobody', outcomesForYear);
+    assert.equal(missingRecord.ppg, null);
+    assert.equal(missingRecord.gamesPlayed, 0);
+    assert.equal(missingRecord.totalPts, 0);
+
+    const missingYear = computeSeasonPoints('p1', undefined);
+    assert.equal(missingYear.ppg, null);
+    assert.equal(missingYear.gamesPlayed, 0);
+    assert.equal(missingYear.totalPts, 0);
   });
 });

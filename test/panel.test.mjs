@@ -34,8 +34,10 @@ import {
   classifyAttributionCohort,
   summarizeFeatureDelta,
   decideFlipVerdict,
+  classifyRookieOutcome,
 } from '../lib/panel.mjs';
 import { buildFlipReport } from '../scripts/panel-run.mjs';
+import { buildHalfPprOutcomes, buildInBasisOutcomes } from '../scripts/grade-snapshot.mjs';
 
 // ─── Fixture helpers (production envelope shapes) ─────────────────────────────
 
@@ -883,5 +885,34 @@ describe('T-F6: decideFlipVerdict ordered rules', () => {
       { position: 'TE', overallRelDMae: 0, dSpearman: 0.02 },
     ];
     assert.equal(decideFlipVerdict({ sensitivePooledN: 100, perPosition, cohortPooledRelDMae: 0 }), 'FLIP-CLEARS');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// D-8/D-9/D-12/D-13 §6 test 13 — basis-free zeros
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('rookie-outcome-panels §6 test 13: basis-free zero rows', () => {
+  test('a gamesPlayed:0 row yields outcomeTotalPts===0 and outcomePPG===null under BOTH outcome builders', () => {
+    const seasonTotals = {
+      p1: { gamesPlayed: 0, stats: {}, fantasyPoints: 0 },
+    };
+    const scoringSettings = { rec: 0.5, rec_yd: 0.1 };
+
+    const halfPpr = buildHalfPprOutcomes(seasonTotals);
+    const inBasis = buildInBasisOutcomes(seasonTotals, scoringSettings).outcomes;
+
+    const totalsByYear = { 2020: seasonTotals };
+
+    for (const [label, outcomesForYear] of [['half_ppr', halfPpr], ['in-basis', inBasis]]) {
+      const outcome = classifyRookieOutcome({
+        pid: 'p1', outcomeYear: 2020,
+        ppgByYear: { 2020: outcomesForYear },
+        totalsByYear, rosterByYear: null,
+      });
+      assert.equal(outcome.outcomeTotalPts, 0, `${label}: outcomeTotalPts`);
+      assert.equal(outcome.outcomePPG, null, `${label}: outcomePPG`);
+      assert.equal(outcome.outcomeClass, 'rosteredZero', `${label}: outcomeClass`);
+    }
   });
 });

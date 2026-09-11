@@ -87,6 +87,9 @@ export const DEFAULT_LOAD = {
   // source) and D5 historical depth charts (Step 8).
   loadPlayerIds:    () => readJson('nflverse/playerids.json'),
   loadDepth:        (year) => readJson(`nflverse/depth/${year}.json`),
+  // D-8/D-9/D-12/D-13 (rookie-outcome-panels.md §6 test 1) — the reproduction
+  // pin's reference artifact, injectable like every other loader here.
+  loadRookiePinArtifact: () => readJson('backtests/2026-09-06-fullpipeline-panel.json'),
 };
 
 // ─── Scoring-basis resolution ──────────────────────────────────────────────────
@@ -1653,6 +1656,444 @@ export function writeFullPipelineArtifacts({ result, verdictMd }) {
   const slimResult = { ...result, panel: panelWithoutRows };
 
   writeJsonStable(panelPath, slimResult);
+
+  const verdictAbs = repoPath(verdictPath);
+  fs.mkdirSync(path.dirname(verdictAbs), { recursive: true });
+  fs.writeFileSync(verdictAbs, verdictMd, 'utf8');
+
+  return { panelPath, verdictPath };
+}
+
+// ─── D-8/D-9/D-12/D-13 — rookie outcome panels (rookie-outcome-panels.md) ──────
+//
+// runRookiePanels — §2.3a. A NEW top-level mode, entirely separate from the
+// veteran stack (no assemblePanel, no attachFactorMultipliers, no sensitivity
+// check — D6b's stop is a veteran-path stop and does not apply here). Three
+// assemblies share one set of loaded inputs:
+//   legacy         — season-presence, gate 6, predictor 2013-2024 (the
+//                    reproduction pin, plus D-9's ungated strata)
+//   debut          — entry-cohort, debutOnly, no gate, entry/target 2013-2025 (D-8)
+//   rookiePathAll  — entry-cohort, no gate, entry/target 2013-2025 (D-12/D-13)
+const ROOKIE_LEGACY_YEARS = { fromYear: 2013, toYear: 2024 };
+const ROOKIE_ENTRY_YEARS = { fromYear: 2013, toYear: 2025 };
+
+// §5 risk 1 / §0 item 2 — the app's own rung-4 (group-pooled) values and the
+// availability panel's row-count reconciliation, quoted verbatim from the
+// task file so the verdict can report the delta without re-deriving numbers
+// this repo cannot independently confirm belong to the app.
+const APP_RUNG4_POOLED = { r1: 12.2, day2: 10.7, day3: 6.2, undrafted: 3.2 };
+const APP_AVAILABILITY_RECONCILE = {
+  r1:        { total: 152, byBucket: { 0: 127, 1: 17, '2+': 8 } },
+  day2:      { total: 360, byBucket: { 0: 276, 1: 44, '2+': 40 } },
+  day3:      { total: 1119, byBucket: { 0: 632, 1: 274, '2+': 213 } },
+  undrafted: { total: 2217, byBucket: { 0: 1036, 1: 785, '2+': 396 } },
+};
+
+export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
+  const { fromYear: legacyFromYear, toYear: legacyToYear } = ROOKIE_LEGACY_YEARS;
+  const { fromYear: entryFromYear, toYear: entryToYear } = ROOKIE_ENTRY_YEARS;
+
+  const maxYear = Math.max(legacyToYear + 1, entryToYear);
+  const years = [];
+  for (let y = HISTORY_FLOOR; y <= maxYear; y++) years.push(y);
+
+  const outcomeMaps = buildOutcomeMaps(years, { basis: 'half_ppr' }, load);
+  const totalsByYear = {};
+  const ppgByYear = {};
+  for (const y of years) {
+    totalsByYear[y] = load.loadSeasonTotals(y) ?? {};
+    ppgByYear[y] = outcomeMaps[y]?.outcomes ?? new Map();
+  }
+
+  // F7 — advstats must be loaded, or the reproduction pin cannot pass.
+  // Loaded over every predictor AND target year in range (roster doubles as
+  // the outcome-year absent-row split source, F6/F11).
+  const advstatsByYear = {};
+  const rosterByYear = {};
+  for (let y = HISTORY_FLOOR; y <= maxYear; y++) {
+    advstatsByYear[y] = load.loadAdvstats(y);
+    rosterByYear[y] = load.loadRoster(y);
+  }
+
+  const playerIds = typeof load.loadPlayerIds === 'function' ? load.loadPlayerIds() : null;
+  const crosswalk = {};
+  const birthdateBySleeper = {};
+  const draftInfoBySleeper = {};
+  const entrantsBySleeper = {};
+  for (const [sleeperId, entry] of Object.entries(playerIds?.bySleeper ?? {})) {
+    if (entry?.birthdate) birthdateBySleeper[sleeperId] = entry.birthdate;
+    draftInfoBySleeper[sleeperId] = {
+      draftYear: entry?.draftYear ?? null, draftRound: entry?.draftRound ?? null, draftPick: entry?.draftPick ?? null,
+      undrafted: entry?.undrafted ?? false,
+    };
+  }
+  for (const entry of Object.values(playerIds?.ids ?? {})) {
+    if (entry?.sleeperId && entry?.position) crosswalk[entry.sleeperId] = entry.position;
+  }
+  // entrantsBySleeper — §2.2g: draft fields plus the season-independent
+  // crosswalk position, pre-merged (§2.3a: a player carries one position
+  // across a whole cohort).
+  for (const [sleeperId, entry] of Object.entries(playerIds?.bySleeper ?? {})) {
+    entrantsBySleeper[sleeperId] = {
+      draftYear: entry?.draftYear ?? null, draftRound: entry?.draftRound ?? null, draftPick: entry?.draftPick ?? null,
+      undrafted: entry?.undrafted ?? false,
+      position: crosswalk[sleeperId] ?? null,
+    };
+  }
+
+  // §2.3a — season-keyed advstats-first resolution for season-presence;
+  // crosswalk-only (season-independent) for entry-cohort.
+  const positionOfSeason = (pid, y) => resolvePosition(pid, advstatsByYear[y], rosterByYear[y], crosswalk);
+  const positionOfCrosswalk = (pid) => crosswalk[pid] ?? null;
+  const birthdateOf = (pid) => birthdateBySleeper[pid] ?? null;
+  const draftInfoOf = (pid) => draftInfoBySleeper[pid] ?? null;
+
+  const legacyGated = assembleRookiePanel({
+    totalsByYear, ppgByYear, positionOf: positionOfSeason, birthdateOf, draftInfoOf,
+    fromYear: legacyFromYear, toYear: legacyToYear, minOutcomeGames: 6, rosterByYear,
+  });
+  const legacyUngated = assembleRookiePanel({
+    totalsByYear, ppgByYear, positionOf: positionOfSeason, birthdateOf, draftInfoOf,
+    fromYear: legacyFromYear, toYear: legacyToYear, minOutcomeGames: null, rosterByYear,
+  });
+
+  const debut = assembleRookiePanel({
+    totalsByYear, ppgByYear, positionOf: positionOfCrosswalk, birthdateOf, draftInfoOf,
+    fromYear: entryFromYear, toYear: entryToYear, minOutcomeGames: null,
+    enumerator: 'entry-cohort', entrantsBySleeper, debutOnly: true, rosterByYear,
+  });
+
+  const rookiePathAll = assembleRookiePanel({
+    totalsByYear, ppgByYear, positionOf: positionOfCrosswalk, birthdateOf, draftInfoOf,
+    fromYear: entryFromYear, toYear: entryToYear, minOutcomeGames: null,
+    enumerator: 'entry-cohort', entrantsBySleeper, rosterByYear,
+  });
+
+  // §A — the reproduction pin, checked here so both --json and the markdown
+  // verdict read the same computed pass/fail.
+  const pinArtifact = typeof load.loadRookiePinArtifact === 'function' ? load.loadRookiePinArtifact() : null;
+  const pin = checkReproductionPin(legacyGated, pinArtifact);
+
+  // §2.3a / §9 — position-resolution asymmetry: how many legacy (ungated)
+  // rows would resolve to a DIFFERENT position under crosswalk-only
+  // resolution than under season-keyed advstats-first resolution.
+  let positionAsymmetryCount = 0;
+  for (const row of legacyUngated.rows) {
+    const crosswalkPos = positionOfCrosswalk(row.sleeperId);
+    if (crosswalkPos !== row.position) positionAsymmetryCount++;
+  }
+
+  // §1 Q2(d) — the total-points residual, group and cell level, on the
+  // shipped (legacy, ungated) population.
+  const residual = computeTotalPointsResidual(legacyUngated.rows);
+
+  // §D — availability reconciliation against the app's own 3,848-row count.
+  const availability = computeAvailabilityReconciliation(rookiePathAll.rows);
+
+  const meta = {
+    generatedAt: new Date().toISOString(),
+    legacyYears: ROOKIE_LEGACY_YEARS,
+    entryYears: ROOKIE_ENTRY_YEARS,
+    historyFloor: HISTORY_FLOOR,
+    basis: 'half_ppr',
+    goalLine: 'Turn the rookie panel from one survivor-gated second-season PPG panel into one harness ' +
+      'that can also grade a debut season, an ungated outcome, and realised total points, with the re-fit ' +
+      'trap enforced as a thrown error rather than a convention.',
+  };
+
+  return {
+    meta,
+    pin,
+    legacy: { gated: legacyGated, ungated: legacyUngated },
+    debut,
+    rookiePathAll,
+    positionAsymmetryCount,
+    legacyRowCount: legacyUngated.rows.length,
+    residual,
+    availability,
+  };
+}
+
+function checkReproductionPin(legacyGated, pinArtifact) {
+  const artifactRows = pinArtifact?.rookiePanel?.rows ?? null;
+  const artifactCoverage = pinArtifact?.rookiePanel?.coverage ?? null;
+  if (!artifactRows || !artifactCoverage) {
+    return { checked: false, pass: false, reason: 'reference artifact not available to this load' };
+  }
+  const fields = ['sleeperId', 'predictorYear', 'projectedPPG', 'outcomePPG', 'nflDraftTier'];
+  let rowsMatch = legacyGated.rows.length === artifactRows.length;
+  if (rowsMatch) {
+    for (let i = 0; i < artifactRows.length; i++) {
+      for (const key of fields) {
+        if (legacyGated.rows[i][key] !== artifactRows[i][key]) { rowsMatch = false; break; }
+      }
+      if (!rowsMatch) break;
+    }
+  }
+  const coverageMatch = legacyGated.coverage.assembled === artifactCoverage.assembled &&
+    legacyGated.coverage.surviving === artifactCoverage.surviving &&
+    (legacyGated.coverage.drops.noOutcome ?? 0) === (artifactCoverage.drops.noOutcome ?? 0) &&
+    legacyGated.coverage.hitCapCount === artifactCoverage.hitCapCount;
+  return {
+    checked: true, pass: rowsMatch && coverageMatch, rowsMatch, coverageMatch,
+    observed: {
+      assembled: legacyGated.coverage.assembled, surviving: legacyGated.coverage.surviving,
+      noOutcome: legacyGated.coverage.drops.noOutcome ?? 0, hitCapCount: legacyGated.coverage.hitCapCount,
+    },
+    expected: {
+      assembled: artifactCoverage.assembled, surviving: artifactCoverage.surviving,
+      noOutcome: artifactCoverage.drops.noOutcome ?? 0, hitCapCount: artifactCoverage.hitCapCount,
+    },
+  };
+}
+
+// §1 Q2(d) — mean total points vs the product E[PPG|>=6] x E[games], group
+// and cell level, on rows carrying outcomeGames/outcomeTotalPts/outcomePPG
+// (i.e. any ungated assembleRookiePanel result).
+function computeTotalPointsResidual(rows) {
+  function statsFor(subset) {
+    const n = subset.length;
+    if (n === 0) return null;
+    const meanGames = subset.reduce((s, r) => s + r.outcomeGames, 0) / n;
+    const meanPts = subset.reduce((s, r) => s + r.outcomeTotalPts, 0) / n;
+    const ge6 = subset.filter(r => r.outcomeGames >= OUTCOME_PLAYED_THRESHOLD_LOCAL);
+    const ePpg = ge6.length > 0 ? ge6.reduce((s, r) => s + r.outcomePPG, 0) / ge6.length : null;
+    const product = ePpg != null ? ePpg * meanGames : null;
+    const error = product != null && meanPts !== 0 ? (product - meanPts) / meanPts : null;
+    return { n, meanGames, meanPts, ePpg, n6: ge6.length, product, error };
+  }
+  const OUTCOME_PLAYED_THRESHOLD_LOCAL = 6;
+
+  const byGroup = {};
+  const byCell = {};
+  for (const group of ['r1', 'day2', 'day3', 'undrafted']) {
+    byGroup[group] = statsFor(rows.filter(r => r.draftGroup === group));
+    for (const position of PANEL_POSITIONS) {
+      const s = statsFor(rows.filter(r => r.draftGroup === group && r.position === position));
+      if (s) byCell[`${group}|${position}`] = s;
+    }
+  }
+  return { byGroup, byCell };
+}
+
+// §D / §5 risk 1 — reconcile the entry-cohort availability panel's row count
+// against the app's 3,848, per group x experienceBucket, and report which
+// rung-4 (group-pooled) rounded value, if any, would differ from the app's.
+function computeAvailabilityReconciliation(rookiePathAllRows) {
+  const observed = {};
+  for (const group of ['r1', 'day2', 'day3', 'undrafted']) {
+    observed[group] = { total: 0, byBucket: { 0: 0, 1: 0, '2+': 0 } };
+  }
+  for (const row of rookiePathAllRows) {
+    if (!observed[row.draftGroup]) continue; // 'unknown' group has no app-side counterpart to reconcile against
+    observed[row.draftGroup].total++;
+    observed[row.draftGroup].byBucket[row.experienceBucket]++;
+  }
+
+  const perBucketDelta = {};
+  let totalObserved = 0, totalExpected = 0;
+  for (const group of ['r1', 'day2', 'day3', 'undrafted']) {
+    perBucketDelta[group] = {};
+    totalObserved += observed[group].total;
+    totalExpected += APP_AVAILABILITY_RECONCILE[group].total;
+    for (const bucket of ['0', '1', '2+']) {
+      perBucketDelta[group][bucket] = observed[group].byBucket[bucket] - APP_AVAILABILITY_RECONCILE[group].byBucket[bucket];
+    }
+  }
+
+  // rung-4 group-pooled mean outcomeGames, rounded — compared to the app's
+  // own pooled value (also rounded), per §5 risk 1's "rounded value moves" test.
+  const rung4Moved = {};
+  for (const group of ['r1', 'day2', 'day3', 'undrafted']) {
+    const groupRows = rookiePathAllRows.filter(r => r.draftGroup === group);
+    const mean = groupRows.length > 0 ? groupRows.reduce((s, r) => s + r.outcomeGames, 0) / groupRows.length : null;
+    const roundedObserved = mean == null ? null : Math.round(mean);
+    const roundedApp = Math.round(APP_RUNG4_POOLED[group]);
+    rung4Moved[group] = { observed: mean, roundedObserved, appValue: APP_RUNG4_POOLED[group], roundedApp, moved: roundedObserved !== roundedApp };
+  }
+
+  return {
+    observed, expected: APP_AVAILABILITY_RECONCILE,
+    totalObserved, totalExpected, perBucketDelta, rung4Moved,
+  };
+}
+
+function rfFmt(v, digits = 3) {
+  return v == null || !Number.isFinite(v) ? 'n/a' : v.toFixed(digits);
+}
+function rfPct(v, digits = 1) {
+  return v == null || !Number.isFinite(v) ? 'n/a' : `${(v * 100).toFixed(digits)}%`;
+}
+
+export function buildRookieVerdictMarkdown(result) {
+  const { meta, pin, legacy, debut, rookiePathAll, positionAsymmetryCount, legacyRowCount, residual, availability } = result;
+  const date = meta.generatedAt.slice(0, 10);
+  const lines = [
+    `# Rookie Outcome Panels Verdict — ${date}`,
+    '',
+    `**${meta.goalLine}**`,
+    '',
+    `**Config:** legacy predictor years ${meta.legacyYears.fromYear}-${meta.legacyYears.toYear}, ` +
+      `entry/target years ${meta.entryYears.fromYear}-${meta.entryYears.toYear}, history floor ${meta.historyFloor}, basis=\`${meta.basis}\``,
+    '',
+    '**Reproduce:** `node bin/panel.mjs --rookie --write`',
+    '',
+    '## §A — Reproduction pin',
+    '',
+  ];
+  if (!pin.checked) {
+    lines.push(`**NOT CHECKED** — ${pin.reason}.`, '');
+  } else {
+    lines.push(
+      `**${pin.pass ? 'PASS' : 'FAIL'}** against \`backtests/2026-09-06-fullpipeline-panel.json\`'s rookiePanel.`,
+      '',
+      '| | assembled | surviving | drops.noOutcome | hitCapCount |',
+      '|---|---|---|---|---|',
+      `| observed | ${pin.observed.assembled} | ${pin.observed.surviving} | ${pin.observed.noOutcome} | ${pin.observed.hitCapCount} |`,
+      `| expected | ${pin.expected.assembled} | ${pin.expected.surviving} | ${pin.expected.noOutcome} | ${pin.expected.hitCapCount} |`,
+      '',
+    );
+  }
+
+  lines.push(
+    '## §B — D-9: outcome classification (season-presence, ungated)',
+    '',
+    '**Population label (F12, mandatory):** rookie-path, season-presence enumerator, predictor years ' +
+      `${meta.legacyYears.fromYear}-${meta.legacyYears.toYear}; one row in seven is three-plus seasons past draft year.`,
+    '',
+    `Assembled: ${legacy.ungated.coverage.assembled}. Six-state totals: ${JSON.stringify(legacy.ungated.coverage.byOutcomeClass)}.`,
+    '',
+    'By draft group x position:',
+    '',
+    '| cell | absent(noRoster) | absent(onRoster) | absent(offRoster) | 0 games | 1-5 | >=6 | n |',
+    '|---|---|---|---|---|---|---|---|',
+  );
+  for (const [cellKey, c] of Object.entries(legacy.ungated.coverage.byCellOutcomeClass).sort()) {
+    const n = Object.values(c).reduce((a, b) => a + b, 0);
+    lines.push(`| ${cellKey} | ${c.absentNoRosterFile ?? 0} | ${c.absentOnRoster ?? 0} | ${c.absentOffRoster ?? 0} | ${c.rosteredZero ?? 0} | ${c.played1to5 ?? 0} | ${c.played6plus ?? 0} | ${n} |`);
+  }
+  lines.push(
+    '',
+    `Experience composition (predictorYear - draftYear bucket): ${JSON.stringify(legacy.ungated.coverage.byExperience)}.`,
+    '',
+  );
+
+  lines.push(
+    '## §C — D-8: debut panel',
+    '',
+    `Assembled: ${debut.coverage.assembled} (invalidEntryYear excluded: ${debut.coverage.invalidEntryYear}).`,
+    '',
+    '| draft group | position | n |',
+    '|---|---|---|',
+  );
+  const debutByGroupPos = {};
+  for (const row of debut.rows) {
+    const key = `${row.draftGroup}|${row.position}`;
+    debutByGroupPos[key] = (debutByGroupPos[key] ?? 0) + 1;
+  }
+  for (const [key, n] of Object.entries(debutByGroupPos).sort()) {
+    const [group, position] = key.split('|');
+    lines.push(`| ${group} | ${position} | ${n} |`);
+  }
+
+  lines.push(
+    '',
+    '## §D — D-12: availability panel (entry-cohort, ungated)',
+    '',
+    `Assembled: ${rookiePathAll.coverage.assembled} (invalidEntryYear excluded: ${rookiePathAll.coverage.invalidEntryYear}) ` +
+      `against the app's ${availability.totalExpected} (self-derived predicate, not tuned to match — §5 risk 1).`,
+    '',
+    '| group | observed 0/1/2+ (total) | app 0/1/2+ (total) | delta 0/1/2+ |',
+    '|---|---|---|---|',
+  );
+  for (const group of ['r1', 'day2', 'day3', 'undrafted']) {
+    const o = availability.observed[group], e = availability.expected[group], d = availability.perBucketDelta[group];
+    lines.push(`| ${group} | ${o.byBucket[0]}/${o.byBucket[1]}/${o.byBucket['2+']} (${o.total}) | ` +
+      `${e.byBucket[0]}/${e.byBucket[1]}/${e.byBucket['2+']} (${e.total}) | ${d[0]}/${d[1]}/${d['2+']} |`);
+  }
+  lines.push(
+    '',
+    '**Rung-4 (group-pooled) rounded-value check** — the consequential quantity per §5 risk 1:',
+    '',
+    '| group | observed mean games | rounded | app value | rounded | moved? |',
+    '|---|---|---|---|---|---|',
+  );
+  for (const [group, r] of Object.entries(availability.rung4Moved)) {
+    lines.push(`| ${group} | ${rfFmt(r.observed, 3)} | ${r.roundedObserved} | ${r.appValue} | ${r.roundedApp} | ${r.moved ? '**YES**' : 'no'} |`);
+  }
+  lines.push('', 'Full `byRungCell` (all six keyed levels, n / mean / rounded) is in the committed JSON artifact, not reproduced here.', '');
+
+  lines.push(
+    '## §E — D-13: total-points residual (Q2(d), on the legacy/shipped population)',
+    '',
+    '**Population label (F12, mandatory):** rookie-path, season-presence enumerator, predictor years ' +
+      `${meta.legacyYears.fromYear}-${meta.legacyYears.toYear} (absence counted as zero games and zero points), n=${legacyRowCount}.`,
+    '',
+    '| group | n | mean games | mean pts | E[PPG\\|>=6] | n>=6 | product | error |',
+    '|---|---|---|---|---|---|---|---|',
+  );
+  for (const [group, s] of Object.entries(residual.byGroup)) {
+    lines.push(`| ${group} | ${s.n} | ${rfFmt(s.meanGames, 3)} | ${rfFmt(s.meanPts, 2)} | ${rfFmt(s.ePpg, 3)} | ${s.n6} | ${rfFmt(s.product, 2)} | ${rfPct(s.error, 2)} |`);
+  }
+  lines.push('', '| cell | n | mean games | mean pts | E[PPG\\|>=6] | n>=6 | product | error |', '|---|---|---|---|---|---|---|---|');
+  for (const [cell, s] of Object.entries(residual.byCell)) {
+    lines.push(`| ${cell} | ${s.n} | ${rfFmt(s.meanGames, 2)} | ${rfFmt(s.meanPts, 2)} | ${rfFmt(s.ePpg, 3)} | ${s.n6} | ${rfFmt(s.product, 2)} | ${rfPct(s.error, 1)} |`);
+  }
+  lines.push(
+    '',
+    '**Finding (per Q2(d), do not re-fit):** at group level the product is right to within a few percent; every cell ' +
+      'outside +/-5% is a QB cell, and each rides on a thin conditional sample. Restricting to debut-equivalent rows ' +
+      '(predictorYear === draftYear) does not rescue it. There is no measurable conditional PPG to multiply at QB, not ' +
+      'a uniform correction waiting to be applied. The app\'s docs/projection.md 18% bound reproduces on this population ' +
+      'as its own statistic but assumes the sub-six-game population scores nothing per game, which it does not.',
+    '',
+  );
+
+  lines.push(
+    '## §F — Stated limits',
+    '',
+    `- **Position-resolution asymmetry (§2.3a/risk 3):** ${positionAsymmetryCount} of ${legacyRowCount} legacy rows ` +
+      'would resolve to a different position under crosswalk-only resolution than under season-keyed advstats-first resolution.',
+    '- **Entry-cohort population floor (Q3(c)/risk 4):** entrants are those nflverse has keyed to a sleeper id; the floor ' +
+      'sits above the outcome, not correlated with it, but later work must not read these rows as "every entrant".',
+    '- **Re-fit trap (Q4(d)):** a re-fit over predictor years 2013-2024 is a re-derivation of the shipped constants, not ' +
+      'independent validation — the rows overlap. Genuine out-of-sample evidence needs target seasons the constants ' +
+      'never saw: 2025 now, 2026 once it completes.',
+    '- **Basis scope (F5):** a zero outcome is read from no `stats` object and is identical under any scoring basis; ' +
+      '`half_ppr` is a claim about the rows with `outcomeGames > 0` only.',
+    `- **F10 sentinel rows:** ${legacy.ungated.coverage.byExperience?.noYear ?? 0} legacy rows carry a draftYear:0 ` +
+      'sentinel (shipped behaviour, not changed here); entry-cohort excludes them via invalidEntryYear.',
+    '- **F12 contamination:** the legacy (season-presence) population is a rookie-PATH population, not a rookie ' +
+      'population — see the experience composition in §B.',
+    '- **KTC and college stay neutral** — same structural gap as today; no ceiling, no cap, no fitted constant in this slice.',
+    '',
+  );
+
+  lines.push(
+    '## Not in this slice',
+    '',
+    '- CR-15\'s rookie mirror is not discharged; `reconstructShippedRookieProjection` is a reserved name with no body.',
+    '- No fitted constant, no ceiling, no cap, no shrinkage.',
+    '- College reconstruction, veteran panel, `assemblePanelRows`\' rookie-path exclusion, sensitivity check, Step 4, ' +
+      '`predictFullPipeline` — all untouched.',
+    '- The draftYear:0 sentinel\'s effect on `ageAtDraft` is shipped behaviour and is not fixed.',
+    '- `grading/anchor-policy.md` is not written.',
+    '',
+  );
+
+  return lines.join('\n');
+}
+
+// Rows are kept in both entry-cohort artifacts (they are the deliverable) and
+// in the legacy panel (small enough — 2,563 rows — to keep, unlike the
+// veteran panel's much larger per-row detail dropped by
+// writeFullPipelineArtifacts).
+export function writeRookieArtifacts({ result, verdictMd }) {
+  const date = result.meta.generatedAt.slice(0, 10);
+  const panelPath = `backtests/${date}-rookie-panel.json`;
+  const verdictPath = `grading/${date}-rookie-verdict.md`;
+
+  writeJsonStable(panelPath, result);
 
   const verdictAbs = repoPath(verdictPath);
   fs.mkdirSync(path.dirname(verdictAbs), { recursive: true });
