@@ -46,7 +46,7 @@ Experience composition (predictorYear - draftYear bucket): {"0":1492,"1":451,"2"
 
 ## §C — D-8: debut panel
 
-Assembled: 2071 (invalidEntryYear excluded: 45).
+Assembled: 2071 (invalidEntryYear excluded: 13).
 
 | draft group | position | n |
 |---|---|---|
@@ -69,7 +69,7 @@ Assembled: 2071 (invalidEntryYear excluded: 45).
 
 ## §D — D-12: availability panel (entry-cohort, ungated)
 
-Assembled: 3941 (invalidEntryYear excluded: 45) against the app's 3848 (self-derived predicate, not tuned to match — §5 risk 1).
+Assembled: 3941 (invalidEntryYear excluded: 13) against the app's 3848 (self-derived predicate, not tuned to match — §5 risk 1).
 
 | group | observed 0/1/2+ (total) | app 0/1/2+ (total) | delta 0/1/2+ |
 |---|---|---|---|
@@ -88,6 +88,8 @@ Assembled: 3941 (invalidEntryYear excluded: 45) against the app's 3848 (self-der
 | undrafted | 2.796 | 3 | 3.2 | 3 | no |
 
 Full `byRungCell` (all six keyed levels, n / mean / rounded) is in the committed JSON artifact, not reproduced here.
+
+This comparison is computable for rung 4 (group-pooled) alone: the app's rung 1, 2, 3 and U cell values are not in this repo — §0 restates the ladder's shape, floors and rung-4 pooled values only, not its 74 cells. This panel's own values for every rung are in `coverage.byRungCell` in the committed JSON artifact, awaiting a later slice that restates the app's tables; silence on rungs 1-3 and U is not evidence that no rung moved.
 
 ## §E — D-13: total-points residual (Q2(d), on the legacy/shipped population)
 
@@ -130,6 +132,7 @@ Full `byRungCell` (all six keyed levels, n / mean / rounded) is in the committed
 - **F10 sentinel rows:** 12 legacy rows carry a draftYear:0 sentinel (shipped behaviour, not changed here); entry-cohort excludes them via invalidEntryYear.
 - **F12 contamination:** the legacy (season-presence) population is a rookie-PATH population, not a rookie population — see the experience composition in §B.
 - **KTC and college stay neutral** — same structural gap as today; no ceiling, no cap, no fitted constant in this slice.
+- **Late draftYear (§2.2g):** a player whose `bySleeper.draftYear` is later than a season he already appears in (`sleeperId 8799`, `draftYear 2025`, present in the 2024 predictor panel) gets a one-year cohort here, and his earlier appearance is invisible to the entry-cohort panels while the legacy panel graded it. Not guarded, by design.
 
 ## Not in this slice
 

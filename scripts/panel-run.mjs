@@ -1790,12 +1790,27 @@ export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
   // §D — availability reconciliation against the app's own 3,848-row count.
   const availability = computeAvailabilityReconciliation(rookiePathAll.rows);
 
+  // Fix pass 1 item 1 / §1 Q2(c) — meta.basis alone claims comparability a
+  // zero row does not have (F5). basisFreeZeroRows is computed from the
+  // ungated legacy assembly's byOutcomeClass, not hard-coded.
+  const legacyUngatedClasses = legacyUngated.coverage.byOutcomeClass;
+  const basisFreeZeroRows = (legacyUngatedClasses.rosteredZero ?? 0) +
+    (legacyUngatedClasses.absentOnRoster ?? 0) +
+    (legacyUngatedClasses.absentOffRoster ?? 0) +
+    (legacyUngatedClasses.absentNoRosterFile ?? 0);
+
   const meta = {
     generatedAt: new Date().toISOString(),
     legacyYears: ROOKIE_LEGACY_YEARS,
     entryYears: ROOKIE_ENTRY_YEARS,
     historyFloor: HISTORY_FLOOR,
     basis: 'half_ppr',
+    basisScope: {
+      basis: 'half_ppr',
+      appliesTo: 'rows with outcomeGames > 0',
+      basisFreeZeroRows,
+      note: 'A zero outcome is read from no stats object and is identical under any scoring basis.',
+    },
     goalLine: 'Turn the rookie panel from one survivor-gated second-season PPG panel into one harness ' +
       'that can also grade a debut season, an ungated outcome, and realised total points, with the re-fit ' +
       'trap enforced as a thrown error rather than a convention.',
@@ -2022,6 +2037,14 @@ export function buildRookieVerdictMarkdown(result) {
     lines.push(`| ${group} | ${rfFmt(r.observed, 3)} | ${r.roundedObserved} | ${r.appValue} | ${r.roundedApp} | ${r.moved ? '**YES**' : 'no'} |`);
   }
   lines.push('', 'Full `byRungCell` (all six keyed levels, n / mean / rounded) is in the committed JSON artifact, not reproduced here.', '');
+  lines.push(
+    'This comparison is computable for rung 4 (group-pooled) alone: the app\'s rung 1, 2, 3 and U cell values ' +
+      'are not in this repo — §0 restates the ladder\'s shape, floors and rung-4 pooled values only, not its 74 ' +
+      'cells. This panel\'s own values for every rung are in `coverage.byRungCell` in the committed JSON artifact, ' +
+      'awaiting a later slice that restates the app\'s tables; silence on rungs 1-3 and U is not evidence that no ' +
+      'rung moved.',
+    '',
+  );
 
   lines.push(
     '## §E — D-13: total-points residual (Q2(d), on the legacy/shipped population)',
@@ -2066,6 +2089,9 @@ export function buildRookieVerdictMarkdown(result) {
     '- **F12 contamination:** the legacy (season-presence) population is a rookie-PATH population, not a rookie ' +
       'population — see the experience composition in §B.',
     '- **KTC and college stay neutral** — same structural gap as today; no ceiling, no cap, no fitted constant in this slice.',
+    '- **Late draftYear (§2.2g):** a player whose `bySleeper.draftYear` is later than a season he already appears in ' +
+      '(`sleeperId 8799`, `draftYear 2025`, present in the 2024 predictor panel) gets a one-year cohort here, and his ' +
+      'earlier appearance is invisible to the entry-cohort panels while the legacy panel graded it. Not guarded, by design.',
     '',
   );
 

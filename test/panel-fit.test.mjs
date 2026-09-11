@@ -2603,17 +2603,51 @@ describe('rookie-outcome-panels §6 test 7 — enumerateEntryCohortRows, four ca
     assert.deepEqual(rows.map(r => r.targetSeason), [2020, 2021]);
   });
 
-  test('(d) debutOnly-equivalent slice: filtering to targetSeason===entryYear leaves exactly one row per entrant', () => {
-    const entrantsBySleeper = { p1: { draftYear: 2020, position: 'WR' }, p2: { draftYear: 2021, position: 'RB' } };
-    const totalsByYear = {};
-    const ppgByYear = {};
-    const rows = enumerateEntryCohortRows({
-      entrantsBySleeper, totalsByYear, ppgByYear,
-      fromEntryYear: 2020, toEntryYear: 2021, fromTarget: 2020, toTarget: 2021,
+  test('(d) debutOnly: assembleRookiePanel with enumerator entry-cohort, debutOnly true, over three entrants with different entry years and different multi-season histories, emits exactly one row per entrant', () => {
+    const entrantsBySleeper = {
+      p1: { draftYear: 2019, draftRound: 1, draftPick: 5, undrafted: false, position: 'WR' },
+      p2: { draftYear: 2020, draftRound: 4, draftPick: 110, undrafted: false, position: 'RB' },
+      p3: { draftYear: 2021, undrafted: true, position: 'TE' },
+    };
+    const totalsByYear = {
+      2019: { p1: rec(10) },
+      2020: { p1: rec(12), p2: rec(0) },
+      2021: { p1: rec(14), p2: rec(0), p3: rec(6) },
+      2022: { p2: rec(9), p3: rec(10) },
+    };
+    const ppgByYear = {
+      2019: new Map([['p1', { actualPPG: 8, actualGames: 10, actualTotalPts: 80 }]]),
+      2020: new Map([
+        ['p1', { actualPPG: 9, actualGames: 12, actualTotalPts: 108 }],
+        ['p2', { actualPPG: null, actualGames: 0, actualTotalPts: 0 }],
+      ]),
+      2021: new Map([
+        ['p1', { actualPPG: 10, actualGames: 14, actualTotalPts: 140 }],
+        ['p2', { actualPPG: null, actualGames: 0, actualTotalPts: 0 }],
+        ['p3', { actualPPG: 4, actualGames: 6, actualTotalPts: 24 }],
+      ]),
+      2022: new Map([
+        ['p2', { actualPPG: 8, actualGames: 9, actualTotalPts: 72 }],
+        ['p3', { actualPPG: 9, actualGames: 10, actualTotalPts: 90 }],
+      ]),
+    };
+    const positionByPid = { p1: 'WR', p2: 'RB', p3: 'TE' };
+
+    const { rows } = assembleRookiePanel({
+      totalsByYear, ppgByYear,
+      positionOf: (pid) => positionByPid[pid] ?? null,
+      birthdateOf: () => '1998-01-01',
+      draftInfoOf: (pid) => entrantsBySleeper[pid],
+      fromYear: 2019, toYear: 2022, minOutcomeGames: null,
+      enumerator: 'entry-cohort', entrantsBySleeper, debutOnly: true,
     });
-    const debutRows = rows.filter(r => r.targetSeason === r.entryYear);
-    assert.equal(debutRows.length, 2);
-    assert.ok(debutRows.every(r => r.experienceYears === 0 && r.experienceBucket === '0'));
+
+    assert.equal(rows.length, 3, 'exactly one row per entrant');
+    assert.equal(new Set(rows.map(r => r.sleeperId)).size, 3, 'row count equals entrant count, no duplicates');
+    for (const row of rows) {
+      assert.equal(row.targetSeason, row.entryYear, `${row.sleeperId}: targetSeason === entryYear`);
+      assert.equal(row.experienceBucket, '0', `${row.sleeperId}: experienceBucket is '0' on a debut row`);
+    }
   });
 });
 
@@ -2672,39 +2706,76 @@ describe('rookie-outcome-panels §6 test 9 — no leakage', () => {
 });
 
 describe('rookie-outcome-panels §6 test 10 — the predicate has one meaning', () => {
-  test('rookiePathStateAt agrees with attachFactorMultipliers\' rookiePathNoQualifying/rookiePathYearsExpProxy exclusion, aggregate count, on a real (committed-data) population', () => {
+  test('rookiePathStateAt agrees ROW-FOR-ROW with attachFactorMultipliers\' rookiePathNoQualifying/rookiePathYearsExpProxy exclusion, on a real (committed-data) population', () => {
     const fromYear = 2013, toYear = 2014;
     const withoutFit = assemblePanel({
       fromYear, toYear, attribution: 'per-season-team', basis: 'half_ppr', load: DEFAULT_LOAD,
       withFactorMultipliers: false, historyFloor: HISTORY_FLOOR,
     });
-    const withFit = assemblePanel({
-      fromYear, toYear, attribution: 'per-season-team', basis: 'half_ppr', load: DEFAULT_LOAD,
-      withFactorMultipliers: true, historyFloor: HISTORY_FLOOR,
-    });
+    const rows = withoutFit.rows;
 
     const years = [];
     for (let y = HISTORY_FLOOR; y <= toYear + 1; y++) years.push(y);
     const outcomeMaps = buildOutcomeMaps(years, { basis: 'half_ppr' }, DEFAULT_LOAD);
     const totalsByYear = {};
     const ppgByYear = {};
+    const advstatsByYear = {};
+    const rosterByYear = {};
     for (const y of years) {
       totalsByYear[y] = DEFAULT_LOAD.loadSeasonTotals(y) ?? {};
       ppgByYear[y] = outcomeMaps[y]?.outcomes ?? new Map();
+      advstatsByYear[y] = (y >= fromYear && y <= toYear) ? DEFAULT_LOAD.loadAdvstats(y) : null;
+      rosterByYear[y] = (y >= fromYear && y <= toYear) ? DEFAULT_LOAD.loadRoster(y) : null;
     }
+    const playerIds = DEFAULT_LOAD.loadPlayerIds();
+    const crosswalk = {};
+    const birthdateBySleeper = {};
+    for (const [sid, e] of Object.entries(playerIds?.bySleeper ?? {})) if (e?.birthdate) birthdateBySleeper[sid] = e.birthdate;
+    for (const e of Object.values(playerIds?.ids ?? {})) if (e?.sleeperId && e?.position) crosswalk[e.sleeperId] = e.position;
+    const snapsByYear = {};
+    for (const y of years) snapsByYear[y] = typeof DEFAULT_LOAD.loadSnapShare === 'function' ? (DEFAULT_LOAD.loadSnapShare(y) ?? null) : null;
+    const teamOf = teamKeyResolver('per-season-team', totalsByYear, toYear);
+    const teamTotalsByYear = {};
+    for (const y of years) teamTotalsByYear[y] = buildTeamTotalsForSeason(totalsByYear[y], y, teamOf);
+    const depthByYear = {};
+    for (const y of years) depthByYear[y] = typeof DEFAULT_LOAD.loadDepth === 'function' ? (DEFAULT_LOAD.loadDepth(y) ?? null) : null;
+    const birthdateOf = (pid) => birthdateBySleeper[pid] ?? null;
+    const ctx = { totalsByYear, teamTotalsByYear, ppgByYear, advstatsByYear, rosterByYear, fromYear, toYear, crosswalk, snapsByYear, birthdateOf, depthByYear };
 
-    let myRookiePathCount = 0;
-    for (const row of withoutFit.rows) {
+    // Set A — rookiePathStateAt's own verdict, over the exact rows fed to
+    // attachFactorMultipliers.
+    const setA = new Set();
+    for (const row of rows) {
       const { isRookiePath } = rookiePathStateAt(row.sleeperId, row.predictorYear, { totalsByYear, ppgByYear });
-      if (isRookiePath) myRookiePathCount++;
+      if (isRookiePath) setA.add(`${row.sleeperId}@${row.predictorYear}`);
+    }
+    assert.ok(setA.size > 0, 'sanity: the real population actually contains rookie-path rows');
+
+    // Set B — attachFactorMultipliers' OWN verdict, read from the real
+    // unmodified source rather than re-derived. A row that SURVIVES the full
+    // call can never have hit either rookie-path drop (both `continue`
+    // immediately), so survivors are excluded from Set B for free. For every
+    // non-survivor, an isolated single-row call reveals exactly which reason
+    // (if any) fired for THAT row, without touching assemblePanelRows or
+    // attachFactorMultipliers themselves.
+    const full = attachFactorMultipliers(rows, ctx);
+    const survived = new Set(full.rows.map(r => `${r.sleeperId}@${r.predictorYear}`));
+    const setB = new Set();
+    for (const row of rows) {
+      const key = `${row.sleeperId}@${row.predictorYear}`;
+      if (survived.has(key)) continue;
+      const isolated = attachFactorMultipliers([row], ctx);
+      const reasons = isolated.fitCoverage.droppedByReason;
+      if ((reasons.rookiePathNoQualifying ?? 0) > 0 || (reasons.rookiePathYearsExpProxy ?? 0) > 0) {
+        setB.add(key);
+      }
     }
 
-    const fc = withFit.coverage.fitCoverage;
-    const attachedRookiePathCount = (fc.droppedByReason.rookiePathNoQualifying ?? 0) + (fc.droppedByReason.rookiePathYearsExpProxy ?? 0);
-
-    assert.ok(myRookiePathCount > 0, 'sanity: the real population actually contains rookie-path rows');
-    assert.equal(myRookiePathCount, attachedRookiePathCount,
-      'rookiePathStateAt\'s isRookiePath count agrees with attachFactorMultipliers\' own rookie-path exclusion count');
+    const onlyInA = [...setA].filter(k => !setB.has(k));
+    const onlyInB = [...setB].filter(k => !setA.has(k));
+    assert.deepEqual(onlyInA, [], `rows rookiePathStateAt marks isRookiePath but attachFactorMultipliers does not exclude via rookie-path reasons: ${JSON.stringify(onlyInA)}`);
+    assert.deepEqual(onlyInB, [], `rows attachFactorMultipliers excludes via rookie-path reasons but rookiePathStateAt does not mark isRookiePath: ${JSON.stringify(onlyInB)}`);
+    assert.equal(setA.size, setB.size);
   });
 });
 
@@ -2725,7 +2796,7 @@ describe('rookie-outcome-panels §6 test 11 — ungated coverage is self-consist
         ['p1', { actualPPG: 8, actualGames: 12, actualTotalPts: 96 }],
       ]),
     };
-    const { coverage } = assembleRookiePanel({
+    const { rows, coverage } = assembleRookiePanel({
       totalsByYear, ppgByYear, positionOf: () => 'WR',
       birthdateOf: () => null, draftInfoOf: () => null,
       fromYear: 2020, toYear: 2020, minOutcomeGames: null,
@@ -2734,9 +2805,24 @@ describe('rookie-outcome-panels §6 test 11 — ungated coverage is self-consist
     assert.deepEqual(coverage.drops, {});
     const classTotal = Object.values(coverage.byOutcomeClass).reduce((a, b) => a + b, 0);
     assert.equal(classTotal, coverage.assembled);
-    for (const cell of Object.values(coverage.byCellOutcomeClass)) {
+
+    // Fix pass 1 item 2 — a real per-cell check: build the expected row count
+    // per cell from the returned rows themselves, and assert each
+    // byCellOutcomeClass cell's six-state sum equals that cell's row count,
+    // and that the two sets of cell keys are identical.
+    const expectedCellCounts = {};
+    for (const row of rows) {
+      const key = `${row.draftGroup}|${row.position}`;
+      expectedCellCounts[key] = (expectedCellCounts[key] ?? 0) + 1;
+    }
+    assert.deepEqual(
+      Object.keys(coverage.byCellOutcomeClass).sort(),
+      Object.keys(expectedCellCounts).sort(),
+      'byCellOutcomeClass has exactly the cell keys the assembled rows produce',
+    );
+    for (const [key, cell] of Object.entries(coverage.byCellOutcomeClass)) {
       const cellTotal = Object.values(cell).reduce((a, b) => a + b, 0);
-      assert.ok(cellTotal > 0);
+      assert.equal(cellTotal, expectedCellCounts[key], `cell ${key}'s six-state sum equals its own row count`);
     }
   });
 });
@@ -2755,6 +2841,21 @@ describe('rookie-outcome-panels §6 test 12 — invalidEntryYear is counted, not
     assert.ok(rows.every(r => r.sleeperId !== 'sentinel'));
   });
 
+  // Fix pass 1 item 6 — the counter is position-first: a draftYear:0 entrant
+  // at a non-panel position never reaches the sentinel check and must not
+  // increment invalidEntryYear (the crosswalk-wide 45 vs the panel-position 13).
+  test('a draftYear: 0 entrant at a NON-panel position does not increment the counter', () => {
+    const entrantsBySleeper = {
+      offPosition: { draftYear: 0, position: 'K' },
+      sentinel: { draftYear: 0, position: 'WR' },
+    };
+    const rows = enumerateEntryCohortRows({
+      entrantsBySleeper, totalsByYear: {}, ppgByYear: {},
+      fromEntryYear: 2013, toEntryYear: 2025, fromTarget: 2013, toTarget: 2025,
+    });
+    assert.equal(rows.invalidEntryYear, 1, 'only the panel-position sentinel increments the counter');
+  });
+
   test('surfaces through assembleRookiePanel\'s coverage.invalidEntryYear', () => {
     const entrantsBySleeper = { sentinel: { draftYear: 0, position: 'WR' } };
     const { coverage } = assembleRookiePanel({
@@ -2764,6 +2865,110 @@ describe('rookie-outcome-panels §6 test 12 — invalidEntryYear is counted, not
       enumerator: 'entry-cohort', entrantsBySleeper,
     });
     assert.equal(coverage.invalidEntryYear, 1);
+  });
+});
+
+// Fix pass 1 item 4 — coverage.byRungCell has no test anywhere (§2.2f calls
+// it D-12's actual deliverable). Synthetic population small enough to
+// compute by hand for both the drafted-group and the 'unknown'-group ladder.
+describe('rookie-outcome-panels §6 test 15 — byRungCell and byExperience', () => {
+  function rec(gp) { return { gamesPlayed: gp, stats: {} }; }
+  function outcome(gp) { return { actualPPG: gp > 0 ? 10 : null, actualGames: gp, actualTotalPts: gp * 10 }; }
+
+  test('byRungCell: all six keyed levels populate, with n/mean/rounded matching a hand computation', () => {
+    // p1, p2 — round-1 (top-3) QBs, group r1. p1 leaves the rookie path after
+    // its second (qualifying, gp>=8) season; p2 never qualifies in-window.
+    // p3 — round/pick null, undrafted:false => draftGroup 'unknown' (RB).
+    const entrantsBySleeper = {
+      p1: { draftYear: 2020, draftRound: 1, draftPick: 1, undrafted: false, position: 'QB' },
+      p2: { draftYear: 2020, draftRound: 1, draftPick: 2, undrafted: false, position: 'QB' },
+      p3: { draftYear: 2021, draftRound: null, draftPick: null, undrafted: false, position: 'RB' },
+    };
+    const totalsByYear = {
+      2020: { p1: rec(5), p2: rec(3) },
+      2021: { p1: rec(12), p2: rec(3), p3: rec(4) },
+      2022: { p2: rec(3), p3: rec(4) },
+    };
+    const ppgByYear = {
+      2020: new Map([['p1', outcome(5)], ['p2', outcome(3)]]),
+      2021: new Map([['p1', outcome(12)], ['p2', outcome(3)], ['p3', outcome(4)]]),
+      2022: new Map([['p2', outcome(3)], ['p3', outcome(4)]]),
+    };
+    const positionByPid = { p1: 'QB', p2: 'QB', p3: 'RB' };
+
+    const { coverage } = assembleRookiePanel({
+      totalsByYear, ppgByYear,
+      positionOf: (pid) => positionByPid[pid] ?? null,
+      birthdateOf: () => '1998-01-01',
+      draftInfoOf: (pid) => entrantsBySleeper[pid],
+      fromYear: 2020, toYear: 2022, minOutcomeGames: null,
+      enumerator: 'entry-cohort', entrantsBySleeper,
+    });
+
+    // Hand computation: p1 emits rows at experience 0 (games 5) and 1 (games
+    // 12), then leaves the rookie path (gp>=8 at experience 1). p2 never
+    // qualifies and emits experience 0/1/2+ (games 3 each). p3 (unknown
+    // group) emits experience 0/1 (games 4 each).
+    const rc = coverage.byRungCell;
+    for (const key of ['r1|QB|0', 'r1|0', 'r1|QB', 'r1']) {
+      assert.ok(rc[key], `byRungCell missing drafted-group level '${key}'`);
+    }
+    for (const key of ['U|RB|0', 'U|RB']) {
+      assert.ok(rc[key], `byRungCell missing unknown-group level '${key}'`);
+    }
+
+    assert.equal(rc['r1|QB|0'].n, 2);
+    assert.equal(rc['r1|QB|0'].meanOutcomeGames, 4.0);
+    assert.equal(rc['r1|QB|0'].meanOutcomeGamesRounded, 4);
+
+    assert.equal(rc['r1|QB'].n, 5);
+    assert.equal(rc['r1|QB'].meanOutcomeGames, 5.2);
+    assert.equal(rc['r1|QB'].meanOutcomeGamesRounded, 5);
+
+    assert.equal(rc['U|RB|0'].n, 1);
+    assert.equal(rc['U|RB|0'].meanOutcomeGames, 4);
+    assert.equal(rc['U|RB|0'].meanOutcomeGamesRounded, 4);
+
+    assert.equal(rc['U|RB'].n, 2);
+    assert.equal(rc['U|RB'].meanOutcomeGames, 4);
+    assert.equal(rc['U|RB'].meanOutcomeGamesRounded, 4);
+  });
+
+  test('byExperience: a season-presence assembly buckets correctly, including negative and noYear, summing to assembled', () => {
+    // Six candidates, all present ONLY in 2020 (so all are rookie-path per
+    // rookiePathStateAt — no appearance before Y), one per bucket.
+    const totalsByYear = { 2020: { a: rec(10), b: rec(10), c: rec(10), d: rec(10), e: rec(10), f: rec(10) } };
+    const ppgByYear = { 2020: new Map([
+      ['a', outcome(10)], ['b', outcome(10)], ['c', outcome(10)],
+      ['d', outcome(10)], ['e', outcome(10)], ['f', outcome(10)],
+    ]) };
+    const draftYearByPid = {
+      a: 2020,  // diff 0
+      b: 2019,  // diff 1
+      c: 2018,  // diff 2
+      d: 2015,  // diff 5 -> '3+'
+      e: null,  // -> noYear
+      f: 2021,  // diff -1 -> negative
+    };
+
+    const { coverage } = assembleRookiePanel({
+      totalsByYear, ppgByYear,
+      positionOf: () => 'WR',
+      birthdateOf: () => null,
+      draftInfoOf: (pid) => ({ draftYear: draftYearByPid[pid] ?? null }),
+      fromYear: 2020, toYear: 2020, minOutcomeGames: null,
+    });
+
+    assert.equal(coverage.assembled, 6);
+    assert.equal(coverage.byExperience['0'], 1);
+    assert.equal(coverage.byExperience['1'], 1);
+    assert.equal(coverage.byExperience['2'], 1);
+    assert.equal(coverage.byExperience['3+'], 1);
+    assert.equal(coverage.byExperience.noYear, 1);
+    assert.equal(coverage.byExperience.negative, 1);
+
+    const total = Object.values(coverage.byExperience).reduce((s, v) => s + v, 0);
+    assert.equal(total, coverage.assembled);
   });
 });
 

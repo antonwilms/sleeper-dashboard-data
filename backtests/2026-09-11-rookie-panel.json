@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-11T12:48:02.785Z",
+    "generatedAt": "2026-09-11T13:11:40.780Z",
     "legacyYears": {
       "fromYear": 2013,
       "toYear": 2024
@@ -11,6 +11,12 @@
     },
     "historyFloor": 2012,
     "basis": "half_ppr",
+    "basisScope": {
+      "basis": "half_ppr",
+      "appliesTo": "rows with outcomeGames > 0",
+      "basisFreeZeroRows": 1040,
+      "note": "A zero outcome is read from no stats object and is identical under any scoring basis."
+    },
     "goalLine": "Turn the rookie panel from one survivor-gated second-season PPG panel into one harness that can also grade a debut season, an ungated outcome, and realised total points, with the re-fit trap enforced as a thrown error rather than a convention."
   },
   "pin": {
@@ -105662,7 +105668,7 @@
       "byExperience": {
         "0": 2071
       },
-      "invalidEntryYear": 45
+      "invalidEntryYear": 13
     }
   },
   "rookiePathAll": {
@@ -188952,7 +188958,7 @@
         "1": 1120,
         "2+": 750
       },
-      "invalidEntryYear": 45
+      "invalidEntryYear": 13
     }
   },
   "positionAsymmetryCount": 31,

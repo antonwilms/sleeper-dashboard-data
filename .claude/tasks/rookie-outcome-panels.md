@@ -324,13 +324,13 @@ Every row gains `outcomeClass`, `outcomeGames`, `outcomeTotalPts`, `dnpWeeks`, `
 - `byCellOutcomeClass` — six-state counts keyed `<group>|<position>`;
 - `byRungCell` — for each of the ladder's four group-keyed levels (`<group>|<position>|<bucket>`, `<group>|<bucket>`, `<group>|<position>`, `<group>`) and the unknown ladder's two (`U|<position>|<bucket>`, `U|<position>`): `n`, mean `outcomeGames` unrounded, and the same rounded to whole games. **This is D-12's actual deliverable** — without it §4 risk 1's "which rungs move" cannot be computed;
 - `byExperience` — rows by `predictorYear − draftYear` bucket under `season-presence` (F12's contamination, made visible in the artifact rather than only in this file), and by `experienceBucket` under `entry-cohort`;
-- `invalidEntryYear` — entrants excluded by the `draftYear > 0` filter (F10), counted, not silent.
+- `invalidEntryYear` — entrants excluded by the `draftYear > 0` filter (F10), counted, not silent. **Counted at panel positions only** (13, not the crosswalk-wide 45 — see §2.2g's filter order), because the number a verdict reader needs is "rows that would otherwise be in this cohort", and the other 32 are removed by the position filter regardless.
 
 When `minOutcomeGames` is null, `drops` is `{}` and `surviving === assembled`; assert that relationship in code, do not leave it implicit.
 
 **g. `enumerateEntryCohortRows({ entrantsBySleeper, totalsByYear, ppgByYear, fromEntryYear, toEntryYear, fromTarget, toTarget })` → `[{ sleeperId, entryYear, targetSeason, experienceYears, experienceBucket }]`.** Pure. Four explicit year bounds, no shared pair. `experienceBucket` is `'0'` / `'1'` / `'2+'` from `experienceYears = targetSeason − entryYear`, matching the app's ladder key.
 
-Entrant filter: `draftYear != null && draftYear > 0 && draftYear ∈ [fromEntryYear, toEntryYear]` and position in `PANEL_POSITIONS`; excluded entrants increment `invalidEntryYear`.
+Entrant filter, **in this order**: position in `PANEL_POSITIONS` first, then `draftYear != null && draftYear > 0` (increments `invalidEntryYear`), then `draftYear ∈ [fromEntryYear, toEntryYear]`. Position first is what makes the counter mean "entrants this cohort lost to the sentinel" (13) rather than "sentinel entries in the crosswalk" (45).
 
 Walk `T` from `max(entryYear, fromTarget)` to `toTarget`:
 - **stop** when `rookiePathStateAt(pid, T − 1, …).hasQualifying` — the player left the rookie path;
@@ -419,7 +419,9 @@ No exponent activation follows from this slice, so the entry's re-fit clause is 
 
 ## 5. Risks
 
-1. **The availability population does not reconcile exactly, and D-12's whole point is provenance.** Re-deriving the app's predicate from this repo's stores under §2.2g's rules gives **3,941** rows (r1 153, day2 361, day3 1,137, undrafted 2,290) against the app's **3,848** (r1 152, day2 360, day3 1,119, undrafted 2,217). Debut and second-year buckets match to the row — r1 127/17, day2 276/44, day3 632/274, undrafted 1,036/785 on both sides — and **the entire 93-row delta sits in the `2+` bucket** (mine 9/46/278/469 against the app's 8/40/213/396). The predicate as written in the app's task file therefore does not uniquely determine the population past experience 2. **Resolution: the panel publishes its own predicate as the definition and reports the delta in verdict §D, with the per-bucket difference and the `byRungCell` rung table.** Do not tune the predicate to hit 3,848 — a predicate reverse-engineered to match a number is worth less than a stated one that differs by 2.4%. The consequential quantity is not the row count but whether any shipped rung's **rounded** value moves; §2.2f's `byRungCell` is what answers that, and verdict §D must name the rungs that move or state that none do.
+1. **The availability population does not reconcile exactly, and D-12's whole point is provenance.** Re-deriving the app's predicate from this repo's stores under §2.2g's rules gives **3,941** rows (r1 153, day2 361, day3 1,137, undrafted 2,290) against the app's **3,848** (r1 152, day2 360, day3 1,119, undrafted 2,217). Debut and second-year buckets match to the row — r1 127/17, day2 276/44, day3 632/274, undrafted 1,036/785 on both sides — and **the entire 93-row delta sits in the `2+` bucket** (mine 9/41/231/469 against the app's 8/40/213/396; those four sum to the group totals above, which is the arithmetic check on this row — an earlier draft printed 9/46/278/469, which are the figures for the rejected skip-and-continue reading of the double-zero rule and do not sum, corrected in fix pass 1). The predicate as written in the app's task file therefore does not uniquely determine the population past experience 2. **Resolution: the panel publishes its own predicate as the definition and reports the delta in verdict §D, with the per-bucket difference and the `byRungCell` rung table.** Do not tune the predicate to hit 3,848 — a predicate reverse-engineered to match a number is worth less than a stated one that differs by 2.4%.
+
+**What "which rungs move" can and cannot mean here — a defect in this plan, corrected in fix pass 1.** The consequential quantity is whether a shipped rung's **rounded** value moves, and §2.2f's `byRungCell` computes this panel's own rung values. But the app's rung 1, 2, 3 and U cell values are **not in this repo** — §0 restates the ladder's shape, floors and rung-4 pooled values only, not its 74 cells — so a moved-or-not comparison is computable for **rung 4 alone**. Verdict §D checks rung 4 against the four quoted values and must **state explicitly that rungs 1–3 and U are not checkable in this repo and why**, so silence is not read as "no rung moved". Restating the app's cell tables here is a prerequisite for the later fitting slice, not work for this one.
 2. **Roster coverage starts 2016** (F11), so `absentOnRoster` vs `absentOffRoster` is unavailable for outcome years 2014–2015 — 78 of the legacy panel's 674 absences. `'absentNoRosterFile'` is a real third state; never fold it into `absentOffRoster`.
 3. **Position resolution differs between the two enumerators** by construction (§2.3a): season-keyed advstats-first for `season-presence`, crosswalk-only for `entry-cohort`. The verdict must report how many `legacy` rows would change position under crosswalk-only resolution, so a later slice comparing the two panels knows the size of the seam rather than assuming it is zero.
 4. **The entry-cohort population is floored at "nflverse assigned a sleeper id"** (Q3(c)). Above the outcome rather than correlated with it, but a later slice must not read these rows as "every entrant".
@@ -503,3 +505,76 @@ Run 2026-09-11 on the first draft. Fourteen flags; **three were fatal**. Every f
 **Verified clean by the reviewer and not flagged:** `npm test` green at 867 tests; F5 reproduces exactly; Q3(b)'s entry cohort reproduces exactly at 2,071 = 127/276/632/1,036; every stratum table sums to 2,563 and its group totals match Q2(d)'s 126/335/862/1,240; F13 holds; F14 holds; adding `appliedCorrections` breaks no existing assertion.
 
 ---
+
+## Fix pass 1
+
+Implementation review of `5d340d3..4534898`, run 2026-09-11. Eight flags, all confirmed against the diff by Session 1. Six are fixed below; two are accepted with a recorded statement. **Implement exactly this section and nothing else.** The eight items are independent — none changes a signature, a row shape, or any number in a committed artifact except `meta` and the verdict prose named here.
+
+Two corrections to the task file itself were made by Session 1, not by this pass, and are already in the file above: §5 risk 1's per-bucket `2+` figures (the implementation's 9/41/231/469 are right and the plan's 9/46/278/469 were a paste of the rejected skip-and-continue reading), and §5 risk 1's new paragraph bounding what "which rungs move" can mean. Do not re-edit those.
+
+### 1 · `meta.basisScope` is missing from the artifact — must fix
+
+§1 Q2(c) specifies it exactly and the committed artifact carries a bare `meta.basis: 'half_ppr'`, which is the state that section forbids. In `runRookiePanels`' `meta` object (`scripts/panel-run.mjs`), add:
+
+```js
+basisScope: {
+  basis: 'half_ppr',
+  appliesTo: 'rows with outcomeGames > 0',
+  basisFreeZeroRows: <count>,
+  note: 'A zero outcome is read from no stats object and is identical under any scoring basis.',
+},
+```
+
+`basisFreeZeroRows` is computed, not hard-coded: the sum of `rosteredZero`, `absentOnRoster`, `absentOffRoster` and `absentNoRosterFile` in the **ungated legacy** assembly's `byOutcomeClass` (1,040 on current data). Leave `meta.basis` in place beside it; it is referenced by `test/panel-integration.test.mjs`. Add one assertion to that integration test that `meta.basisScope.appliesTo` is present and `meta.basisScope.basisFreeZeroRows` is a positive integer — shape only, no value, per §6's convention for that file.
+
+### 2 · §6 test 11's cell-sum arm asserts nothing — must fix
+
+`assert.ok(cellTotal > 0)` passes under any miscount. §6 test 11 specifies "every `byCellOutcomeClass` cell sums to its own n". Replace that assertion with a real one: build the expected per-cell row count from the returned `rows` (group by `` `${draftGroup}|${position}` ``) and assert each `byCellOutcomeClass` cell's six-state sum equals that cell's row count, and that the set of cell keys is identical on both sides. Keep the existing `surviving === assembled`, `drops` empty and `byOutcomeClass` sum assertions unchanged.
+
+### 3 · §6 test 10 compares aggregate counts, not rows — must fix
+
+`assert.equal(myRookiePathCount, attachedRookiePathCount)` passes on offsetting per-row disagreements, which is exactly the drift this test exists to catch. §6 test 10 specifies row-for-row agreement. Change it to collect two **sets of pids** — those `rookiePathStateAt` marks `isRookiePath` at Y, and those `assemblePanelRows` excludes via `rookiePathNoQualifying` or `rookiePathYearsExpProxy` at the same Y — and assert the sets are equal, reporting the symmetric difference in the assertion message. Keep the existing non-empty sanity assertion. Do not modify `assemblePanelRows`.
+
+### 4 · `coverage.byRungCell` has no assertion — must fix
+
+§2.2f calls it D-12's actual deliverable and nothing tests it. Add one new test after §6 test 12, named `§6 test 15 — byRungCell and byExperience`, on a **synthetic** population small enough to compute by hand:
+
+- Assert all six keyed levels are present for a drafted entrant: `<group>|<position>|<bucket>`, `<group>|<bucket>`, `<group>|<position>`, `<group>`.
+- Assert `n` and `meanOutcomeGames` on at least two cells against hand-computed values, and that `meanOutcomeGamesRounded` is the whole-game rounding of `meanOutcomeGames` for those cells.
+- Assert the `U|<position>|<bucket>` and `U|<position>` levels populate for an entrant whose `draftGroup` resolves `unknown`. That branch is dead on live data (zero `unknown` rows) and is reachable only synthetically, which is the reason to test it at all.
+- Assert `byExperience` buckets a `season-presence` assembly into `0` / `1` / `2` / `3plus` / `noDraftYear` / `negative` correctly, with at least one row in the `negative` and `noDraftYear` buckets, and that the buckets sum to `assembled`.
+
+### 5 · §6 test 7(d) never exercises `debutOnly` — must fix
+
+It filters the enumerator's output by hand, so the real option is touched only by test 8 with a single entrant and "one row per entrant" is asserted nowhere. Rewrite 7(d) to call `assembleRookiePanel` with `enumerator: 'entry-cohort'`, `debutOnly: true` and **at least three entrants with different entry years and different multi-season histories**, then assert: exactly one row per entrant, every row's `targetSeason === entryYear`, every row's `experienceBucket === '0'`, and the row count equals the entrant count. Keep 7(a), (b) and (c) as they are.
+
+### 6 · `invalidEntryYear` counts 45 where the verdict reads as 13 — must fix
+
+`enumerateEntryCohortRows` increments the counter before the `PANEL_POSITIONS` filter, so it reports every `draftYear <= 0` entry in the crosswalk, while the verdict prints it as rows excluded from a cohort — overstating the sentinel's effect on the panel by roughly 3.5×. Reorder the entrant filter to position-first, per §2.2g as amended:
+
+```js
+const position = entrant?.position ?? null;
+if (!PANEL_POSITIONS.includes(position)) continue;
+const draftYear = entrant?.draftYear ?? null;
+if (draftYear == null || draftYear <= 0) { invalidEntryYear++; continue; }
+if (draftYear < fromEntryYear || draftYear > toEntryYear) continue;
+```
+
+Update the function's header comment, which currently says the count is taken "independently of the year-range/position filter" — it is now position-dependent and year-range-independent, and the comment should say why (the number a verdict reader needs is rows this cohort lost, not crosswalk health). §6 test 12 must still pass; extend it to assert that a `draftYear: 0` entrant at a **non-panel** position does **not** increment the counter. Expect the verdict's two `invalidEntryYear excluded:` lines to read 13 after the re-run.
+
+### 7 · The late-`draftYear` case is not noted in the verdict — must fix
+
+§2.2g says "Note it in the verdict; do not guard it" and verdict §F has no mention. Add one line to §F: a player whose `bySleeper.draftYear` is later than a season he already appears in (`sleeperId 8799`, `draftYear 2025`, present in the 2024 predictor panel) gets a one-year cohort, and his earlier appearance is invisible to the entry-cohort panels while the legacy panel graded it. Not guarded, by design.
+
+### 8 · Verdict §D's rung check is silent about what it did not check — must fix
+
+Only rung 4 is compared, and §5 risk 1 requires §D to name the rungs that move **or state that none do**. Silence reads as the latter. Add two sentences to §D, after the rung-4 table: the comparison is computable for rung 4 only, because the app's rung 1, 2, 3 and U cell values are not in this repo — §0 restates the ladder's shape, floors and rung-4 pooled values, not its 74 cells — and this panel's own values for every rung are in `coverage.byRungCell` in the JSON artifact, awaiting a slice that restates the app's tables. Do **not** attempt the comparison.
+
+### Accepted, with no change
+
+- **`DEFAULT_LOAD.loadRookiePinArtifact`** is an addition beyond §2.3's literal text. It is the right shape — a fixed path to the pre-existing pin artifact, routed through the same injectable-loader seam as every other load, failing closed to `pass: false` when the artifact is missing — and it does not weaken §6 test 1, which rebuilds its inputs from live stores on one side. Kept; recorded here as the slice's one deviation.
+- **The 13-vs-12 sentinel note in the hand-back.** 13 is the crosswalk count at panel positions; 12 is the subset landing in the legacy 2013–2024 assembled population. Both are correct at their own denominator and the verdict already distinguishes them. No change.
+
+### Done-definition for this fix pass
+
+`npm test` green — every assertion changed here must be *stronger* than what it replaced, so a green run that required loosening one is a failure, not a pass. Re-run `node bin/panel.mjs --rookie --write` and commit both regenerated artifacts: expect `meta.basisScope` present, both `invalidEntryYear excluded:` lines reading 13, §D carrying the two new sentences and §F the late-`draftYear` line. `CLAUDE.md` under 25,000 bytes (unchanged by this pass). `node scripts/registry-audit.mjs` drift empty. Report the diff range, which assertions changed and what each now asserts, and the two `invalidEntryYear` figures observed.

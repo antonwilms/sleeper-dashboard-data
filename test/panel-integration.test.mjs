@@ -680,6 +680,9 @@ describe('rookie-outcome-panels: committed rookie artifact well-formedness', () 
       const result = JSON.parse(fs.readFileSync(f, 'utf8'));
       assert.ok(result.meta, `${f}: meta present`);
       assert.equal(result.meta.basis, 'half_ppr', `${f}: meta.basis`);
+      assert.ok(result.meta.basisScope?.appliesTo, `${f}: meta.basisScope.appliesTo present`);
+      assert.ok(Number.isInteger(result.meta.basisScope?.basisFreeZeroRows) && result.meta.basisScope.basisFreeZeroRows > 0,
+        `${f}: meta.basisScope.basisFreeZeroRows is a positive integer`);
       assert.ok(result.pin, `${f}: pin present`);
       assert.ok(result.legacy?.gated?.coverage && result.legacy?.ungated?.coverage, `${f}: legacy gated/ungated coverage present`);
       assert.ok(result.debut?.coverage, `${f}: debut coverage present`);
