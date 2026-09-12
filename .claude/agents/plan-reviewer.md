@@ -33,7 +33,7 @@ workflows, tests, docs, or refactors with no served-output change. In `scoped` m
 - Trust a fire list the invocation supplies **if** it says it was derived with `lib/registry.mjs`
   over every data-side field. Verify it with one command rather than reading all 21 entries:
   ```sh
-  node --input-type=module -e "import fs from 'fs'; import {extractRegistryRegion,parseEntries,dataSideText} from './lib/registry.mjs'; const es=parseEntries(extractRegistryRegion(fs.readFileSync('README.md','utf8'))); for(const e of es){const t=dataSideText(e); if(['<touched file>','<touched symbol>'].some(n=>t.includes(n))) console.log(e.id);}"
+  node --input-type=module -e "import fs from 'fs'; import {extractRegistryRegion,parseEntries,dataSideText} from './lib/registry.mjs'; const es=parseEntries(extractRegistryRegion(fs.readFileSync('cross-repo-registry.md','utf8'))); for(const e of es){const t=dataSideText(e); if(['<touched file>','<touched symbol>'].some(n=>t.includes(n))) console.log(e.id);}"
   ```
 - Verify quoted `Mirror` texts by string containment against `lib/registry.mjs` output, not by eye.
 - Spend the saved effort on the mechanical and ordering risks specific to the change.
@@ -41,7 +41,7 @@ workflows, tests, docs, or refactors with no served-output change. In `scoped` m
 **Depth never licenses passing something you believe is wrong.** If a `scoped` review turns up
 something that needs full-strength verification, do that part at full strength and say so.
 
-Your mandate has three parts. Run all three on every task file.
+Your mandate has four parts. Run all four on every task file.
 
 ## 1. Factual / mechanical
 
@@ -64,7 +64,7 @@ Flag by the specific invariant's number and name. No stylistic preferences; do n
 
 ## 3. Cross-repo intent
 
-Read the registry in `README.md` → *Cross-repo contract registry*, the enumerated `CR-NN` list. It is the sole authority for what touches the sibling app repo. You cannot read the sibling repo — do not try, and do not infer its contents. For the app side it is the only authority, so treat app-side triggers as complete and never infer beyond them.
+Read `cross-repo-registry.md`, the enumerated `CR-NN` list. It is the sole authority for what touches the sibling app repo. You cannot read the sibling repo — do not try, and do not infer its contents. For the app side it is the only authority, so treat app-side triggers as complete and never infer beyond them.
 
 Check the plan's touched artifacts against each entry's `Triggers` field, data side only — the part to the right of `‖`. For every entry the plan touches: if the task file has no `## Cross-repo impact` section quoting that entry's id and `Mirror` text, flag it and include the `Mirror` text in the `MIRROR` block so the planning session has it. If the section exists but the mirror text is incomplete or contradicts the entry, flag the difference.
 
@@ -84,6 +84,10 @@ The registry's data-side trigger list is a maintained cache, not the authority �
 
 Do not apply fixes; report and let the human decide. If the plan appears to create a cross-repo coupling no registry entry covers, flag `[registry-gap]` — that is the one case routing out of the in-repo loop. Do not attempt to draft the entry.
 
+## 4. Slice size
+
+If the task file itself is over 40KB, flag it — that size is a signal the slice is too large and should be split rather than planned whole. Advisory, like every other flag: report it and let the human decide.
+
 ## Output
 
 Stay silent on solid decisions. Do not restate or summarize the plan. Do not rewrite it. Do not propose stylistic changes. Do not edit any file.
@@ -100,4 +104,4 @@ CR-NN · <contract name> — <the entry's Mirror text>
 …
 ```
 
-Categories: `mechanical`, `shape`, `ordering`, `edge-case`, `invariant`, `strategy`, `cross-repo`, `registry-gap`, `registry-stale`. Omit `FLAGS` if there are none; omit `MIRROR` if the plan touches no registry entry; if both are empty, output exactly "No blocking issues found." and nothing else.
+Categories: `mechanical`, `shape`, `ordering`, `edge-case`, `invariant`, `strategy`, `cross-repo`, `registry-gap`, `registry-stale`, `slice-size`. Omit `FLAGS` if there are none; omit `MIRROR` if the plan touches no registry entry; if both are empty, output exactly "No blocking issues found." and nothing else.

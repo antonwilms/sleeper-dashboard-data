@@ -2,7 +2,7 @@
 /**
  * scripts/registry-audit.mjs — CLI wrapper over lib/registry.mjs's field-block parser.
  * Reports cache-field anchor counts (data-side / app-side) for the mirrored registry
- * region in README.md. Read-only; no writes.
+ * region in cross-repo-registry.md. Read-only; no writes.
  */
 import fs from 'fs';
 import path from 'path';
@@ -17,8 +17,8 @@ import {
 } from '../lib/registry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const readmePath = path.join(__dirname, '..', 'README.md');
-const text = fs.readFileSync(readmePath, 'utf8');
+const registryPath = path.join(__dirname, '..', 'cross-repo-registry.md');
+const text = fs.readFileSync(registryPath, 'utf8');
 const region = extractRegistryRegion(text);
 const entries = parseEntries(region);
 

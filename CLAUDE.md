@@ -113,7 +113,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 reaches the other side. A session started in the *parent folder* holding both repos can write both,
 and that is the one sanctioned way to land a two-sided change: registry-listed contracts and
 genuinely new couplings only, both sides in the same change, the registry entry updated or drafted
-in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 23 `CR-NN` entries — lives in [README.md → Cross-repo contract registry](README.md#cross-repo-contract-registry-with-sleeper-dashboard). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that section and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
+in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 23 `CR-NN` entries — lives in [cross-repo-registry.md](cross-repo-registry.md). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that file and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
 
 **Rule.** Any change touching a listed contract **must emit that entry's `Mirror` text as Session 1 output**, in a `## Cross-repo impact` section of the task file, quoting the `CR-NN` id. Naming the contract in prose is not enough; the mirror instruction itself is the deliverable.
 
@@ -153,14 +153,16 @@ the task file did not anticipate stops and reports — it never improvises archi
 
 - **Session 1** — read relevant code, decide signatures and data shapes, write
   `.claude/tasks/<feature>.md`. **Edit no source files.** Invoke plan-reviewer, report its flags
-  verbatim, end the session.
+  verbatim, end the session. A task file projected over 40KB is a signal the slice is too large —
+  split it rather than planning it whole.
 - **Session 2** — read the task file first, implement exactly what it specifies, run the
   done-definition. If something is ambiguous or contradicts existing code, stop and ask. Hand back:
   **the commit SHA or diff range**, every file touched, every deviation from the task file, and
   what each new or changed test asserts.
 - **Verification** — paste that hand-back into the still-open Session 1, which invokes
   implementation-reviewer on the diff. **Verification reads the diff, never the hand-back alone** —
-  a self-report cannot show what it left out.
+  a self-report cannot show what it left out. Compact the session before verifying — the source
+  reads that produced the task file are no longer needed, and every later turn pays for them.
 - **Fix pass** — if the review flags something, Session 1 triages it and appends `## Fix pass N` to
   the same task file: what to change, where, and what to leave alone. The fix-applier subagent
   implements that section; implementation-reviewer then re-runs **once** on the fix diff. Flags
