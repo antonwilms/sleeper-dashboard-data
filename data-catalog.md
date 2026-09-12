@@ -81,6 +81,10 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Null semantics:** `projection` field is verbatim app output; no null-handling policy at this layer
 - **Consumption:** capture-only (grading input; never re-fed to projection)
 - **Keep-rationale:** the graded record of what the app predicted
+- **Mechanism-version segmentation (D-15):** a rookie-path row's projection can come from one of three
+  successive app mechanisms (calibration, games ladder, ceiling) depending on capture date — see
+  [grading/anchor-policy.md](grading/anchor-policy.md) for the row-level detection rule and the date
+  cross-check before pooling rookie-path rows across capture dates in any grading run.
 
 ## Grading reports
 - **Served path / subcommand / refresh:** `grading/<date>.json`; `bin/grade.mjs --write`; on demand
@@ -162,6 +166,13 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
   already present unparsed in the source file — `birthdate` is the precondition for age-curve grading. (Fix pass 1
   item 1: `espn_id`/`college`/`team` were dropped from the first D2 implementation and are restored in `bySleeper`;
   Audit B6's espn map is unaffected — this is the crosswalk's own `espnId`, not a separate map.)
+- **D-10 (rookie-mirror.md §1.1, §9.1b):** `bySleeper.undrafted` (derived `draftRound === null`, `lib/nflverse.mjs:548`,
+  ceiling-gated by `MAX_UNDRAFTED_RATE = 0.75` in `lib/validate.mjs`) is the population the app's shipped rookie
+  realisation-calibration constants (undrafted: QB 0.67 · RB 0.33 · WR 0.36 · TE 0.28) were **fitted** on. No code
+  on the live path reads the flag — `lib/rookieMirror.mjs`'s mirror takes `draftCapitalStatus` as a parameter and
+  does not depend on it — but a change to the derivation invalidates the fitted constants even though nothing
+  fails. Record only; the never-join warning (`bySleeper.draftPick` is within-round, `draft_picks.json`'s `pick`
+  is overall) lives in `lib/rookieMirror.mjs`'s own docstring instead, since that one is genuinely about joins.
 
 ## nflverse advanced receiving
 - **Served path / subcommand / refresh:** `nflverse/advstats/<year>.json`; `bin/update.mjs advstats --year`; Saturday Action (`nflverse-playerstats.yml`) — as of playerstats-single-fetch.md (2026-08-31), this family and gamelogs are derived from a **single fetch** of `stats_player_week_<year>.csv` by the `playerstats` orchestrator (`bin/update.mjs playerstats`), so the two families can no longer diverge across a day boundary within the same week; the standalone `advstats` subcommand above still exists (manual runs/backfill/smoke test) and fetches independently when invoked directly

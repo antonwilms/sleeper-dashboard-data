@@ -50,6 +50,7 @@ import {
   reconstructRookieProjection, reconstructNflDraftFactor, reconstructRookieAgeFactor, ROOKIE_MULTIPLIER_CLAMP,
   EMPTY_CORRECTIONS,
 } from '../lib/projectionFactors.mjs';
+import { reconstructShippedRookieProjection } from '../lib/rookieMirror.mjs';
 import { runFit, buildFitVerdictReport, buildFitVerdictMarkdown, assemblePanel, DEFAULT_LOAD, buildOutcomeMaps } from '../scripts/panel-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -2455,6 +2456,37 @@ describe('rookie-outcome-panels §6 tests 2-4 — the re-fit-trap guard (§1 Q4)
     assert.equal(proj.appliedCorrections.length, 0);
     assert.ok(Object.isFrozen(proj.appliedCorrections));
     assert.equal(proj.appliedCorrections, EMPTY_CORRECTIONS);
+  });
+
+  // T-RM2 (rookie-mirror.md §3.4) — refuse the REAL corrected predictor, not
+  // just a stub. This is the single assertion whose deletion springs the
+  // re-fit trap, which is what makes its deletion visible in a diff.
+  //
+  // assembleRookiePanel calls predictor({ position, ageAtDraft, draftRound,
+  // draftPick }) only — it never passes draftCapitalStatus/yearsExp — so
+  // through THIS call site the calibration and games-ladder mechanisms are
+  // always inert (both require draftCapitalStatus) and only the ceiling can
+  // fire. A top-3, youngest-bucket QB clears the QB knee (cappedProduct near
+  // its 1.85 max), which is enough on its own to make appliedCorrections
+  // non-empty and trip the guard.
+  test('T-RM2: the guard refuses the real corrected predictor, reconstructShippedRookieProjection', () => {
+    const fixture = {
+      totalsByYear: { 2020: { p1: { team: 'KC', gamesPlayed: 10, fantasyPoints: 70, stats: {} } } },
+      ppgByYear: {
+        2020: new Map([['p1', { actualPPG: 7, actualGames: 10, actualTotalPts: 70 }]]),
+        2021: new Map([['p1', { actualPPG: 10, actualGames: 12, actualTotalPts: 120 }]]),
+      },
+      positionOf: () => 'QB',
+      birthdateOf: () => '1999-01-01', // ageAtDraft 21 -> ageMult 1.15
+      draftInfoOf: () => ({ draftYear: 2020, draftRound: 1, draftPick: 1, undrafted: false }), // top-3 tier, mult 1.30
+      fromYear: 2020, toYear: 2020,
+    };
+    assert.throws(() => {
+      assembleRookiePanel({ ...fixture, predictor: reconstructShippedRookieProjection });
+    }, /rookieCalibration|rookieGames|rookieCeiling/);
+    assert.throws(() => {
+      assembleRookiePanel({ ...fixture, predictor: reconstructShippedRookieProjection });
+    }, /CR-15/);
   });
 });
 

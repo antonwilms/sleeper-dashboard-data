@@ -67,7 +67,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `lib/panel.mjs` | Pure panel/fit logic — feature builders, forward-chain CV, ridge, spearman; no I/O. `buildTeamTotalsForSeason` **must** exclude `TEAM_<abbr>` pseudo-rows (mirror of app `isTeamAggregateId`), now also accumulates `fantasyPts` (team-offense rank input). `resolvePosition` gains a season-independent crosswalk fallback (D6a finding 2); `resolveSnapCounts` is the R1-SNAPS fallback (finding 3). `D6_NEW_FACTORS`/`FULL_FACTORS_D6`/`ENVELOPE_FACTORS_D6_ADDITIONS` are `attachFactorMultipliers`' OWN dispatch list for six D6a-added factors (age/depth/teamOffense/qbQuality/efficiency/compBlend) — deliberately NOT folded into `FULL_FACTORS`/`ENVELOPE_FACTORS` (those stay the R3-FIT calibration engine's 7-factor set). `predictFullPipeline` (D6b) is the real composed 13-factor product. `assembleRookiePanel` takes two enumerators (`season-presence`, `entry-cohort`) sharing one predicate, `rookiePathStateAt`; the uncorrected-fit-predictor guard (CR-15 re-fit trap) throws on any declared `appliedCorrections` |
 | `lib/projectionFactors.mjs` | Pure app-factor-multiplier reconstruction for R3-FIT — mirrors the app's leaf factor transforms and their input pipelines. **Cross-repo mirror contract (CR-15)**, now thirteen factors (D6a adds age/depth/teamOffense/qbQuality/efficiency/compBlend; `compBlend` is a stated architecture deviation — a synthetic ratio factor, since the app's comp blend is a post-hoc convex combination, not a multiplier) |
 | `scripts/check-crons.mjs` | Dead-man detector for the scheduled workflows; monitoring only, no data-file I/O |
-| `.github/workflows/` | Ten uniform ingest jobs (weekly, except `nflverse-snaps.yml`, which is yearly) delegate to the reusable `_ingest.yml` (`workflow_call`) template. Five are deliberately **not** callers: `nflverse-playerstats.yml`, `weekly-ktc.yml`, `cron-deadman.yml`, `smoke-test.yml`, `daily-snapshot.yml` (D1b — runs a browser against the app repo's own build, a shape `_ingest.yml` cannot express; `workflow_dispatch` only in phase 1, no `cron:` line yet, see CR-22). Triggers, per-job detail and why each standalone cannot delegate: README → [GitHub Actions](README.md#github-actions). Purge URLs: Invariant 8 |
+| `.github/workflows/` | Ten uniform ingest jobs (weekly, except `nflverse-snaps.yml`, which is yearly) delegate to the reusable `_ingest.yml` (`workflow_call`) template. Five are deliberately **not** callers: `nflverse-playerstats.yml`, `weekly-ktc.yml`, `cron-deadman.yml`, `smoke-test.yml`, `daily-snapshot.yml` (D1b — runs a browser against the app repo's own build, a shape `_ingest.yml` cannot express; **phase 2** — `cron: "29 16 * * *"` is live since CR-22 landed in both registries, in addition to the `workflow_dispatch` trigger). Triggers, per-job detail and why each standalone cannot delegate: README → [GitHub Actions](README.md#github-actions). Purge URLs: Invariant 8 |
 | `nfl/`, `college/`, `ktc/`, `nflverse/`, `snapshots/` | Served data families — a section each in [data-catalog.md](data-catalog.md), schemas in README → [File schemas](README.md#file-schemas) |
 | `ktc/quarantine/` | Scrapes rejected by the Spearman ordering guard — script-produced, **not** manifest-registered, **not** app-read; review and promote manually |
 | `nflverse/playerids.json` | gsis_id→sleeper_id crosswalk — **internal-only**: read server-side by `update-advstats.mjs`/`update-gamelogs.mjs`, never by the app |
@@ -113,7 +113,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 reaches the other side. A session started in the *parent folder* holding both repos can write both,
 and that is the one sanctioned way to land a two-sided change: registry-listed contracts and
 genuinely new couplings only, both sides in the same change, the registry entry updated or drafted
-in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 23 `CR-NN` entries — lives in [README.md → Cross-repo contract registry](README.md#cross-repo-contract-registry-with-sleeper-dashboard). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that section and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
+in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 23 `CR-NN` entries — lives in [cross-repo-registry.md](cross-repo-registry.md). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that file and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
 
 **Rule.** Any change touching a listed contract **must emit that entry's `Mirror` text as Session 1 output**, in a `## Cross-repo impact` section of the task file, quoting the `CR-NN` id. Naming the contract in prose is not enough; the mirror instruction itself is the deliverable.
 
@@ -153,14 +153,16 @@ the task file did not anticipate stops and reports — it never improvises archi
 
 - **Session 1** — read relevant code, decide signatures and data shapes, write
   `.claude/tasks/<feature>.md`. **Edit no source files.** Invoke plan-reviewer, report its flags
-  verbatim, end the session.
+  verbatim, end the session. A task file projected over 40KB is a signal the slice is too large —
+  split it rather than planning it whole.
 - **Session 2** — read the task file first, implement exactly what it specifies, run the
   done-definition. If something is ambiguous or contradicts existing code, stop and ask. Hand back:
   **the commit SHA or diff range**, every file touched, every deviation from the task file, and
   what each new or changed test asserts.
 - **Verification** — paste that hand-back into the still-open Session 1, which invokes
   implementation-reviewer on the diff. **Verification reads the diff, never the hand-back alone** —
-  a self-report cannot show what it left out.
+  a self-report cannot show what it left out. Compact the session before verifying — the source
+  reads that produced the task file are no longer needed, and every later turn pays for them.
 - **Fix pass** — if the review flags something, Session 1 triages it and appends `## Fix pass N` to
   the same task file: what to change, where, and what to leave alone. The fix-applier subagent
   implements that section; implementation-reviewer then re-runs **once** on the fix diff. Flags

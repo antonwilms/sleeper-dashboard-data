@@ -30,10 +30,10 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, '..');
-const readmePath = path.join(repoRoot, 'README.md');
+const registryPath = path.join(repoRoot, 'cross-repo-registry.md');
 
 function loadEntries() {
-  const text = fs.readFileSync(readmePath, 'utf8');
+  const text = fs.readFileSync(registryPath, 'utf8');
   const region = extractRegistryRegion(text);
   return parseEntries(region);
 }

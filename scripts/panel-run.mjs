@@ -1689,6 +1689,65 @@ const APP_AVAILABILITY_RECONCILE = {
   undrafted: { total: 2217, byBucket: { 0: 1036, 1: 785, '2+': 396 } },
 };
 
+// §5 / D-14 — the app's shipped rookie-ceiling constants (41f277e), quoted
+// as a HARDCODED COPY rather than imported: this file is a fit-path entry
+// point per test/rookie-mirror.test.mjs's import-graph guard, which must
+// never resolve lib/rookieMirror.mjs in its closure. lib/rookieMirror.mjs's
+// own ROOKIE_CEILING is the authoritative copy; this is a provenance
+// record, not a dependency.
+const APP_ROOKIE_CEILING = {
+  QB: { knee: 17.80, asymptote: 21.90 },
+  RB: { knee: 12.11, asymptote: 16.87 },
+  WR: { knee:  9.87, asymptote: 14.38 },
+  TE: { knee:  6.21, asymptote: 11.60 },
+};
+const APP_ROOKIE_CEILING_COMMIT = '41f277e';
+
+// §5 — zero-based index p*(n-1), linear interpolation between adjacent
+// order statistics. `sortedValues` must already be sorted ascending.
+function quantile(sortedValues, p) {
+  const n = sortedValues.length;
+  if (n === 0) return null;
+  const idx = p * (n - 1);
+  const lo = Math.floor(idx);
+  const hi = Math.ceil(idx);
+  if (lo === hi) return sortedValues[lo];
+  return sortedValues[lo] + (sortedValues[hi] - sortedValues[lo]) * (idx - lo);
+}
+
+// §5 — D-14: independent re-derivation of the app's eight rookie-ceiling
+// quantiles (knee = p90, asymptote = p99) from this repo's own debut
+// assembly (population: outcomeGames >= 8, outcomePPG != null, grouped by
+// position). Tolerance is exact equality (verified against the committed
+// panel, C5) — see T-RM11/T-RM12. A mismatch is a finding, reported and
+// never retuned here (rookie-mirror.md §5 triage).
+function computeCeilingReconciliation(debutRows) {
+  const observed = {};
+  for (const position of PANEL_POSITIONS) {
+    const values = debutRows
+      .filter(r => r.position === position && r.outcomeGames >= 8 && r.outcomePPG != null)
+      .map(r => r.outcomePPG)
+      .sort((a, b) => a - b);
+    const n = values.length;
+    const knee = n > 0 ? Math.round(quantile(values, 0.90) * 100) / 100 : null;
+    const asymptote = n > 0 ? Math.round(quantile(values, 0.99) * 100) / 100 : null;
+    observed[position] = { n, knee, asymptote };
+  }
+
+  const delta = {};
+  const match = {};
+  for (const position of PANEL_POSITIONS) {
+    const o = observed[position], e = APP_ROOKIE_CEILING[position];
+    delta[position] = {
+      knee: o.knee == null ? null : Math.round((o.knee - e.knee) * 100) / 100,
+      asymptote: o.asymptote == null ? null : Math.round((o.asymptote - e.asymptote) * 100) / 100,
+    };
+    match[position] = o.knee === e.knee && o.asymptote === e.asymptote;
+  }
+
+  return { observed, expected: APP_ROOKIE_CEILING, expectedCommit: APP_ROOKIE_CEILING_COMMIT, delta, match };
+}
+
 export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
   const { fromYear: legacyFromYear, toYear: legacyToYear } = ROOKIE_LEGACY_YEARS;
   const { fromYear: entryFromYear, toYear: entryToYear } = ROOKIE_ENTRY_YEARS;
@@ -1790,6 +1849,10 @@ export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
   // §D — availability reconciliation against the app's own 3,848-row count.
   const availability = computeAvailabilityReconciliation(rookiePathAll.rows);
 
+  // §G / D-14 — ceiling-quantile re-derivation, from the debut assembly's
+  // own rows (rookie-mirror.md §5).
+  const ceiling = computeCeilingReconciliation(debut.rows);
+
   // Fix pass 1 item 1 / §1 Q2(c) — meta.basis alone claims comparability a
   // zero row does not have (F5). basisFreeZeroRows is computed from the
   // ungated legacy assembly's byOutcomeClass, not hard-coded.
@@ -1826,6 +1889,7 @@ export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
     legacyRowCount: legacyUngated.rows.length,
     residual,
     availability,
+    ceiling,
   };
 }
 
@@ -1941,7 +2005,7 @@ function rfPct(v, digits = 1) {
 }
 
 export function buildRookieVerdictMarkdown(result) {
-  const { meta, pin, legacy, debut, rookiePathAll, positionAsymmetryCount, legacyRowCount, residual, availability } = result;
+  const { meta, pin, legacy, debut, rookiePathAll, positionAsymmetryCount, legacyRowCount, residual, availability, ceiling } = result;
   const date = meta.generatedAt.slice(0, 10);
   const lines = [
     `# Rookie Outcome Panels Verdict — ${date}`,
@@ -2096,14 +2160,41 @@ export function buildRookieVerdictMarkdown(result) {
   );
 
   lines.push(
+    '## §G — D-14: rookie-ceiling quantile re-derivation',
+    '',
+    '**Independent re-derivation, not out-of-sample validation** (rookie-mirror.md §5): both sides ' +
+      'consume the same rows — the app\'s own fixture is a four-field redaction of these very rows. ' +
+      'A re-fit over predictor years the constants were fitted on is a re-derivation, not validation, ' +
+      'however clean the predictor is (rookie-outcome-panels.md §1 Q4(d)).',
+    '',
+    `Population: \`debut.rows\` with \`outcomeGames >= 8\` and \`outcomePPG != null\`, grouped by ` +
+      'position. knee = p90, asymptote = p99, zero-based index `p*(n-1)` linear interpolation, ' +
+      `rounded once to 2dp. Expected values are the app's shipped constants (\`${ceiling.expectedCommit}\`).`,
+    '',
+    '| position | n | observed knee | expected knee | Δ | observed asymptote | expected asymptote | Δ | match |',
+    '|---|---|---|---|---|---|---|---|---|',
+  );
+  for (const position of ['QB', 'RB', 'WR', 'TE']) {
+    const o = ceiling.observed[position], e = ceiling.expected[position], d = ceiling.delta[position];
+    lines.push(`| ${position} | ${o.n} | ${o.knee} | ${e.knee} | ${d.knee} | ${o.asymptote} | ${e.asymptote} | ${d.asymptote} | ${ceiling.match[position] ? 'yes' : '**no**'} |`);
+  }
+  lines.push(
+    '',
+    '**Triage (never retuned here):** n differs → the two repos disagree about the debut population — ' +
+      'find which side moved. n matches, a quantile differs by <= 0.01 → a rounding-path difference. n ' +
+      'matches, a quantile differs by more → the shipped constant is wrong for the current data; this ' +
+      'repo reports the number, changing `ROOKIE_CEILING` is an app-repo slice.',
+    '',
+  );
+
+  lines.push(
     '## Not in this slice',
     '',
-    '- CR-15\'s rookie mirror is not discharged; `reconstructShippedRookieProjection` is a reserved name with no body.',
-    '- No fitted constant, no ceiling, no cap, no shrinkage.',
+    '- No fitted constant, no cap, no shrinkage beyond the mirrored ceiling above.',
     '- College reconstruction, veteran panel, `assemblePanelRows`\' rookie-path exclusion, sensitivity check, Step 4, ' +
       '`predictFullPipeline` — all untouched.',
     '- The draftYear:0 sentinel\'s effect on `ageAtDraft` is shipped behaviour and is not fixed.',
-    '- `grading/anchor-policy.md` is not written.',
+    '- Genuine out-of-sample evidence for the ceiling constants (D-16) — deferred to season end.',
     '',
   );
 
