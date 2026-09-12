@@ -1,0 +1,26 @@
+{
+  "p1": {
+    "gamesPlayed": 16,
+    "gamesStarted": 16,
+    "fantasyPoints": 480,
+    "stats": { "rush_yd": 700, "rush_td": 7, "rec": 0, "rec_yd": 0, "rec_td": 0 }
+  },
+  "p2": {
+    "gamesPlayed": 15,
+    "gamesStarted": 15,
+    "fantasyPoints": 300,
+    "stats": { "rush_yd": 1200, "rush_td": 10, "rec_ypr": 99 }
+  },
+  "p3": {
+    "gamesPlayed": 12,
+    "gamesStarted": 12,
+    "fantasyPoints": 200,
+    "stats": { "rush_yd": 600, "rush_td": 8 }
+  },
+  "p4": {
+    "gamesPlayed": 0,
+    "gamesStarted": 0,
+    "fantasyPoints": 0,
+    "stats": {}
+  }
+}

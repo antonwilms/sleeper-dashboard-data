@@ -514,6 +514,38 @@ export function runSelfTest() {
     'v2 rate-excluded caveat mentions rec_ypr'
   );
 
+  // ── D-6 residue: v3 section (rookie-mirror.md §1.1, §6.12, T-RM13a) ────────
+  // Proves the grader is schema-version-agnostic IN FACT (a v3 envelope
+  // — inputStatus added, everything else unchanged — produces the same
+  // hardcoded expected grades as the v2 fixture it is shaped like), not by
+  // reading the source and noting v3 fields are never dereferenced.
+  const v3Snapshot = readJson('test/fixtures/grade-snapshot-v3.json');
+  if (!v3Snapshot) throw new Error('[self-test] test/fixtures/grade-snapshot-v3.json not found');
+
+  const v3SeasonTotals = readJson('test/fixtures/grade-season-totals-v3.json');
+  if (!v3SeasonTotals) throw new Error('[self-test] test/fixtures/grade-season-totals-v3.json not found');
+
+  const v3BuilderResult = buildInBasisOutcomes(v3SeasonTotals, v3Snapshot.scoringSettings);
+  const v3GradeInput = buildGradeInputFromSnapshot(v3Snapshot, v3BuilderResult.outcomes, {
+    targetSeason:     v3Snapshot.targetSeason,
+    snapshotDate:     'fixture-v3',
+    source:           'self-test',
+    inBasis:          true,
+    droppedTerms:     v3BuilderResult.droppedTerms,
+    excludedRateKeys: v3BuilderResult.excludedRateKeys,
+    scoredKeyCount:   v3BuilderResult.scoredKeyCount,
+  });
+  const v3Report = scoreProjections(v3GradeInput);
+
+  assert(v3Report.counts.projected === 5, 'v3 counts.projected === 5');
+  assert(v3Report.counts.graded    === 3, 'v3 counts.graded === 3');
+  assert(v3Report.byPosition.QB.n === 1, 'v3 QB n === 1');
+  close(v3Report.byPosition.QB.maePPG, 2.0, 'v3 QB maePPG');
+  assert(v3Report.byPosition.RB.n === 2, 'v3 RB n === 2');
+  close(v3Report.byPosition.RB.maePPG, 2.0, 'v3 RB maePPG');
+  assert(v3Report.games.n === 4, 'v3 games.n === 4');
+  close(v3Report.games.mae, 0.5, 'v3 games.mae');
+
   console.log('[grade] Self-test passed ✓');
 }
 
