@@ -1,18 +1,20 @@
 /**
  * test/rookie-mirror.test.mjs — CR-15 rookie-half mirror (rookie-mirror.md §7).
  *
- * T-RM1/T-RM3/T-RM4/T-RM5/T-RM6/T-RM7/T-RM8/T-RM11/T-RM12/T-RM13 live here.
- * T-RM2 lives in test/panel-fit.test.mjs beside the existing re-fit-trap guard
- * tests (rookie-mirror.md §6.9).
+ * T-RM1/T-RM3/T-RM4/T-RM5/T-RM6/T-RM7/T-RM8/T-RM9/T-RM10/T-RM11/T-RM12/T-RM13
+ * live here. T-RM2 lives in test/panel-fit.test.mjs beside the existing
+ * re-fit-trap guard tests (rookie-mirror.md §6.9).
  *
- * T-RM9/T-RM10 (parity against a real 2026-09-12+ snapshot, §4/§7.3) are NOT
- * written here. Per rookie-mirror.md §4.4: "If no qualifying snapshot exists
- * when Session 2 runs, it lands §§2, 3, 5 and 6 and stops on §4, reporting
- * that explicitly rather than weakening it." As of this session,
- * `snapshots/2026-09-12.json` does not exist on origin/main (verified via
- * `git pull` immediately before implementation) — the first automated
- * capture carrying all three rookie mechanisms has not landed yet. §4 is
- * therefore blocked, not weakened into a skip or a hand-made fixture.
+ * T-RM9/T-RM10 (parity against a real 2026-09-12+ snapshot, §4/§7.3) were
+ * blocked at first implementation — `snapshots/2026-09-12.json` did not yet
+ * exist on origin/main (rookie-mirror.md §4.4's sequencing constraint). It
+ * has since landed on origin/main at 8970229 (capturedAt
+ * 2026-09-12T18:34:49.006Z, schemaVersion 3, 712 players, 291 rookie-path
+ * rows, all carrying rookieCalibrationBasis/rookieGamesBasis/rookieCeilingBasis,
+ * the ceiling firing on 19 of them) — verified directly against the snapshot,
+ * not assumed — so §4 is unblocked and this section now lands as specified.
+ * The parity fixture is
+ * test/fixtures/rookie-mirror-parity/snapshot-2026-09-12.slim.json.
  *
  * `test/**` is deliberately NOT an entry point for T-RM1's import-graph walk
  * (below) — this file and test/panel-fit.test.mjs both import the mirror
@@ -37,6 +39,7 @@ import {
   reconstructShippedRookieProjection,
 } from '../lib/rookieMirror.mjs';
 import { assembleRookiePanel, PANEL_POSITIONS } from '../lib/panel.mjs';
+import { ROOKIE_BASELINE_PPG } from '../lib/projectionFactors.mjs';
 import { runRookiePanels, buildRookieVerdictMarkdown } from '../scripts/panel-run.mjs';
 import { runSelfTest } from '../scripts/grade-snapshot.mjs';
 import { shouldSkipSnapshot } from '../scripts/register-snapshots.mjs';
@@ -416,6 +419,243 @@ describe('T-RM8: ordering is load-bearing (calibration inside, ceiling on the fi
     assert.equal(correctOrder.rookieCeilingBasis, 'none');
     // The wrong order's intermediate step DID fire the ceiling — that's the bug this seam catches.
     assert.equal(ceiledFirst.rookieCeilingBasis, 'ceiling:QB');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// §7.3 — T-RM9, T-RM10: parity against the real 2026-09-12 snapshot (§4)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Fixture generator (reproduce with `node <this>` from the repo root;
+// regenerate only if a newer qualifying capture supersedes 2026-09-12 per
+// §4.4 — change the fixture name in this one place if it does):
+//
+//   import fs from 'fs';
+//   import path from 'path';
+//   const REPO = process.cwd();
+//   const OUT_DIR = path.join(REPO, 'test/fixtures/rookie-mirror-parity');
+//   fs.mkdirSync(OUT_DIR, { recursive: true });
+//   const readJson = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
+//   const snapshot = readJson(path.join(REPO, 'snapshots/2026-09-12.json'));
+//   // The rookie keys this parity test needs: the two recovery inputs
+//   // (basePPG, rookieCeilingKnee), the two mirror-input fields captured
+//   // verbatim (draftCapitalStatus, nflDraftTier), and every rookie* output.
+//   const ROOKIE_FACTOR_KEYS = [
+//     'basePPG', 'draftCapitalStatus', 'nflDraftTier',
+//     'rookieCalibrationMult', 'rookieCalibrationBasis', 'rookieGamesBasis',
+//     'rookieCeilingBasis', 'rookieCeilingKnee', 'rookieCeilingAsymptote',
+//     'rookieCeilingPPGPre',
+//   ];
+//   function slimFactors(factors) {
+//     const s = {};
+//     for (const k of ROOKIE_FACTOR_KEYS) if (factors[k] !== undefined) s[k] = factors[k];
+//     return s;
+//   }
+//   const slim = {
+//     schemaVersion: snapshot.schemaVersion, capturedAt: snapshot.capturedAt,
+//     targetSeason: snapshot.targetSeason, currentSeason: snapshot.currentSeason,
+//     players: {},
+//   };
+//   for (const [pid, p] of Object.entries(snapshot.players)) {
+//     const proj = p.projection;
+//     if (proj && proj.confidence === 'rookie') {
+//       slim.players[pid] = { projection: {
+//         projectedPPG: proj.projectedPPG, projectedGames: proj.projectedGames,
+//         projectedTotalPts: proj.projectedTotalPts, factors: slimFactors(proj.factors || {}),
+//       } };
+//     }
+//   }
+//   fs.writeFileSync(path.join(OUT_DIR, 'snapshot-2026-09-12.slim.json'), JSON.stringify(slim, null, 2) + '\n');
+//
+// What this proves and what it does not (§4.2, stated here rather than
+// implied): this asserts MECHANISM PARITY on captured inputs, exact for
+// calibration and games, and exact-to-capture-rounding for the ceiling and
+// total points — never end-to-end level parity. ktc/college are never
+// reconstructed here; they enter only rookieMultiplierProduct, upstream of
+// all three mechanisms, and rookieCeilingPPGPre is captured *after* they have
+// done their work, so each mechanism is a pure function of fields the
+// snapshot already carries. Historical rookie projectedPPG parity remains out
+// of reach (KTC history starts 2026-05-18; computeCollegeMetrics is unported).
+// The ordering seam (calibration -> ceiling -> games) is verified elsewhere:
+// exactly at direct-call precision by T-RM8's synthetic levels, and only to
+// within capture rounding here, on the 19 rows where the ceiling fires — see
+// the per-row total-points assertion below.
+const PARITY_FIXTURE_PATH = path.join(REPO_ROOT, 'test/fixtures/rookie-mirror-parity/snapshot-2026-09-12.slim.json');
+
+describe('T-RM9: fixture presence (§4.4 — presence is asserted, never skipped)', () => {
+  test('the 2026-09-12 slim parity fixture exists', () => {
+    assert.ok(fs.existsSync(PARITY_FIXTURE_PATH),
+      'required parity fixture missing: test/fixtures/rookie-mirror-parity/snapshot-2026-09-12.slim.json');
+  });
+});
+
+describe('T-RM10: rookie mechanism parity, exact on captured inputs', () => {
+  const fixture = JSON.parse(fs.readFileSync(PARITY_FIXTURE_PATH, 'utf8'));
+
+  const BASEPPG_TO_POSITION = Object.fromEntries(Object.entries(ROOKIE_BASELINE_PPG).map(([pos, v]) => [v, pos]));
+  const KNEE_TO_POSITION = Object.fromEntries(Object.entries(ROOKIE_CEILING).map(([pos, c]) => [c.knee, pos]));
+
+  // §4.3 — position recovery: basePPG is the primary signal (13/9/7/5 ->
+  // QB/RB/WR/TE). Its one collision — an unrecognised position also defaults
+  // to the WR baseline of 7 (ROOKIE_BASELINE_PPG[position] ?? 7) — is broken
+  // by rookieCeilingKnee, which applyRookieCeiling returns as null for
+  // exactly those rows (no ROOKIE_CEILING entry). A row whose knee is null is
+  // counted and skipped, never silently dropped.
+  function recoverPosition(factors) {
+    const pos = BASEPPG_TO_POSITION[factors.basePPG];
+    if (pos == null) return null;
+    if (pos === 'WR') return factors.rookieCeilingKnee === ROOKIE_CEILING.WR.knee ? 'WR' : null;
+    return pos;
+  }
+
+  // §4.3 — experience-bucket recovery: resolveRookieGames consumes yearsExp
+  // only through expBucket, so replaying a REPRESENTATIVE value that maps to
+  // the same bucket ('0'->0, '1'->1, '2+'->2) is exact, not a fudge — this is
+  // only possible because the captured basis string itself names the bucket
+  // it used. A basis with no bucket segment (gp:<group>|<position>,
+  // g:<group>, u:<position> or 'default') means rungs 1-2 never fired for
+  // this row regardless of its true yearsExp — passing yearsExp: null
+  // reproduces the identical rung-3/rung-4/rung-U-pooled/default path exactly
+  // (those rungs read group and position only, never expBucket). Per §4.2's
+  // "what it cannot prove" item 2, the true yearsExp is not captured and the
+  // *selection* (why rungs 1-2 missed) cannot be replayed for these rows —
+  // only value agreement, which is what this achieves.
+  function bucketFromBasis(basis) {
+    if (basis === 'default') return null;
+    const parts = basis.split(':')[1]?.split('|') ?? [];
+    const last = parts[parts.length - 1];
+    return (last === '0' || last === '1' || last === '2+') ? last : null;
+  }
+  const BUCKET_TO_REPRESENTATIVE_YEARS_EXP = { '0': 0, '1': 1, '2+': 2 };
+
+  const rows = Object.entries(fixture.players);
+  let checked = 0;
+  let positionOutsideFour = 0;
+  let bucketless = 0;
+  let ceilingLevelExactCount = 0;
+  let ceilingNearKneeSkipCount = 0;
+  let totalPtsExactCount = 0;
+  const calibrationFailures = [];
+  const calibrationNoneMultFailures = [];
+  const gamesFailures = [];
+  const ceilingLevelFailures = [];
+  const ceilingBasisFailures = [];
+  const kneeAsymptoteFailures = [];
+  const totalPtsFailures = [];
+
+  for (const [pid, p] of rows) {
+    const { factors, projectedPPG, projectedGames, projectedTotalPts } = p.projection;
+    const position = recoverPosition(factors);
+    if (position == null) { positionOutsideFour++; continue; }
+    checked++;
+
+    // Calibration — captured to 3dp; exact.
+    const calib = resolveRookieCalibration({
+      position, draftCapitalStatus: factors.draftCapitalStatus, nflDraftTier: factors.nflDraftTier,
+    });
+    const capturedMult3dp = Math.round(factors.rookieCalibrationMult * 1000) / 1000;
+    const mirrorMult3dp = Math.round(calib.rookieCalibrationMult * 1000) / 1000;
+    if (mirrorMult3dp !== capturedMult3dp || calib.rookieCalibrationBasis !== factors.rookieCalibrationBasis) {
+      calibrationFailures.push({ pid, position, mirror: calib, captured: { mult: factors.rookieCalibrationMult, basis: factors.rookieCalibrationBasis } });
+    }
+    // Edge case: rookieCalibrationBasis 'none' still carries mult exactly 1.00.
+    if (factors.rookieCalibrationBasis === 'none' && factors.rookieCalibrationMult !== 1.00) {
+      calibrationNoneMultFailures.push({ pid, mult: factors.rookieCalibrationMult });
+    }
+
+    // Games — bucketed rows replayed exactly; bucket-less rows value-checked
+    // with yearsExp: null (§4.3's reasoning above).
+    const bucket = bucketFromBasis(factors.rookieGamesBasis);
+    if (bucket == null) bucketless++;
+    const yearsExp = bucket == null ? null : BUCKET_TO_REPRESENTATIVE_YEARS_EXP[bucket];
+    const games = resolveRookieGames({
+      position, draftCapitalStatus: factors.draftCapitalStatus, nflDraftTier: factors.nflDraftTier, yearsExp,
+    });
+    if (games.projectedGames !== projectedGames || games.rookieGamesBasis !== factors.rookieGamesBasis) {
+      gamesFailures.push({ pid, position, bucket, mirror: games, captured: { projectedGames, rookieGamesBasis: factors.rookieGamesBasis } });
+    }
+
+    // Ceiling — level to within capture-precision rounding (Fix pass 1 item
+    // 11); basis exact outside the 5e-4 near-knee band; knee/asymptote exact
+    // always (the app-constant drift guard, §5).
+    const ceiling = applyRookieCeiling({ position, projectedPPG: factors.rookieCeilingPPGPre });
+    const roundedLevel = Math.round(ceiling.ceiledPPG * 10) / 10;
+    const levelDiff = Math.abs(roundedLevel - projectedPPG);
+    if (levelDiff === 0) ceilingLevelExactCount++;
+    if (levelDiff > 0.1 + 1e-9) {
+      ceilingLevelFailures.push({ pid, position, roundedLevel, projectedPPG, levelDiff });
+    }
+
+    const knee = factors.rookieCeilingKnee;
+    const nearKnee = knee != null && Math.abs(factors.rookieCeilingPPGPre - knee) <= 5e-4;
+    if (nearKnee) {
+      ceilingNearKneeSkipCount++;
+    } else if (ceiling.rookieCeilingBasis !== factors.rookieCeilingBasis) {
+      ceilingBasisFailures.push({ pid, position, mirror: ceiling.rookieCeilingBasis, captured: factors.rookieCeilingBasis });
+    }
+    if (ceiling.rookieCeilingKnee !== factors.rookieCeilingKnee || ceiling.rookieCeilingAsymptote !== factors.rookieCeilingAsymptote) {
+      kneeAsymptoteFailures.push({ pid, position, mirror: ceiling, captured: factors });
+    }
+
+    // Total points — item 1's two-seam finding: exact only to within capture
+    // rounding, and only meaningfully live on the rows where the ceiling
+    // fires (the wrong order diverges by (pre-ceiled)*games there, far above
+    // rounding noise; on inert rows both orders agree so this seam is silent
+    // there by construction, not by this test's design).
+    const roundedTotal = Math.round(ceiling.ceiledPPG * projectedGames * 10) / 10;
+    const totalDiff = Math.abs(roundedTotal - projectedTotalPts);
+    if (totalDiff === 0) totalPtsExactCount++;
+    if (totalDiff > 0.1 + 1e-9) {
+      totalPtsFailures.push({ pid, position, roundedTotal, projectedTotalPts, totalDiff });
+    }
+  }
+
+  test('position-recovery maps (basePPG, ceiling knee) are each injective', () => {
+    const baseValues = Object.values(BASEPPG_TO_POSITION);
+    assert.equal(new Set(baseValues).size, baseValues.length,
+      'ROOKIE_BASELINE_PPG values must be injective for basePPG-based recovery to be unambiguous');
+    const kneeValues = Object.values(KNEE_TO_POSITION);
+    assert.equal(new Set(kneeValues).size, kneeValues.length,
+      'ROOKIE_CEILING knees must be injective for knee-based disambiguation to be unambiguous');
+  });
+
+  test('a non-zero row count was checked, and the fixture size is pinned (no vacuous pass)', () => {
+    assert.equal(rows.length, 291, 'pinned: observed row count of the 2026-09-12 slim fixture');
+    assert.ok(checked > 0, 'at least one row must be recoverable and checked');
+    assert.equal(positionOutsideFour, 0,
+      'pinned: no rookie-path row in this capture falls outside the four panel positions — a row with rookieCeilingKnee: null would count here rather than being silently dropped');
+  });
+
+  test('resolveRookieCalibration matches every row exactly (captured to 3dp)', () => {
+    assert.deepEqual(calibrationFailures, []);
+    assert.deepEqual(calibrationNoneMultFailures, [],
+      'a row with rookieCalibrationBasis "none" must still carry multiplier exactly 1.00');
+  });
+
+  test('resolveRookieGames matches every row exactly; bucket-less-row count is pinned (§4.2 item 2 — selection cannot be replayed for these, only value agreement)', () => {
+    assert.deepEqual(gamesFailures, []);
+    assert.equal(bucketless, 10,
+      'pinned: rows whose rookieGamesBasis carries no experience bucket (gp:/g:/u:<pos>/default) — a change in the rung mix must move this number');
+  });
+
+  test('applyRookieCeiling: level matches to within capture-precision rounding; exact-match count pinned (Fix pass 1 item 11 — a documented residual, not a tolerance chosen to pass)', () => {
+    assert.deepEqual(ceilingLevelFailures, []);
+    assert.equal(ceilingLevelExactCount, 290, 'pinned exact-match count — a real divergence moves this number');
+  });
+
+  test('applyRookieCeiling: basis matches exactly outside the 5e-4 near-knee band; band count pinned', () => {
+    assert.deepEqual(ceilingBasisFailures, []);
+    assert.equal(ceilingNearKneeSkipCount, 0,
+      'pinned: observed count of rows within 5e-4 of their knee, where the <=5e-4 input error could flip which side of the knee the row falls on');
+  });
+
+  test('applyRookieCeiling: knee/asymptote are exact and unaffected by input precision (the app-constant drift guard, §5)', () => {
+    assert.deepEqual(kneeAsymptoteFailures, []);
+  });
+
+  test('total points match to within capture-precision rounding; exact-match count pinned (item 1\'s two-seam finding — this seam is only meaningfully live on the ceiling-firing rows)', () => {
+    assert.deepEqual(totalPtsFailures, []);
+    assert.equal(totalPtsExactCount, 290, 'pinned exact-match count — a real divergence moves this number');
   });
 });
 

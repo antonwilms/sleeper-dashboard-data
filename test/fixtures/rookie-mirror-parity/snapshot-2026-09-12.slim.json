@@ -1,0 +1,5537 @@
+{
+  "schemaVersion": 3,
+  "capturedAt": "2026-09-12T18:34:49.006Z",
+  "targetSeason": 2026,
+  "currentSeason": 2025,
+  "players": {
+    "260": {
+      "projection": {
+        "projectedPPG": 10.7,
+        "projectedGames": 3,
+        "projectedTotalPts": 32,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "unknown",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "u:QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 10.66
+        }
+      }
+    },
+    "6045": {
+      "projection": {
+        "projectedPPG": 3.9,
+        "projectedGames": 4,
+        "projectedTotalPts": 15.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.893
+        }
+      }
+    },
+    "6136": {
+      "projection": {
+        "projectedPPG": 9.5,
+        "projectedGames": 2,
+        "projectedTotalPts": 18.9,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 9.466
+        }
+      }
+    },
+    "6185": {
+      "projection": {
+        "projectedPPG": 7.2,
+        "projectedGames": 2,
+        "projectedTotalPts": 14.5,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 7.249
+        }
+      }
+    },
+    "6453": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 8.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "7083": {
+      "projection": {
+        "projectedPPG": 6.8,
+        "projectedGames": 3,
+        "projectedTotalPts": 20.5,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 6.839
+        }
+      }
+    },
+    "7521": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 8.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "7583": {
+      "projection": {
+        "projectedPPG": 7.9,
+        "projectedGames": 2,
+        "projectedTotalPts": 15.9,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 7.931
+        }
+      }
+    },
+    "7610": {
+      "projection": {
+        "projectedPPG": 10.1,
+        "projectedGames": 11,
+        "projectedTotalPts": 111.3,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "top-3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|QB",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 10.116
+        }
+      }
+    },
+    "7865": {
+      "projection": {
+        "projectedPPG": 2.3,
+        "projectedGames": 4,
+        "projectedTotalPts": 9.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.335
+        }
+      }
+    },
+    "8002": {
+      "projection": {
+        "projectedPPG": 8.9,
+        "projectedGames": 3,
+        "projectedTotalPts": 26.8,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.928
+        }
+      }
+    },
+    "8107": {
+      "projection": {
+        "projectedPPG": 1.1,
+        "projectedGames": 5,
+        "projectedTotalPts": 5.7,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.148
+        }
+      }
+    },
+    "8206": {
+      "projection": {
+        "projectedPPG": 6.2,
+        "projectedGames": 2,
+        "projectedTotalPts": 12.4,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 6.183
+        }
+      }
+    },
+    "8220": {
+      "projection": {
+        "projectedPPG": 3,
+        "projectedGames": 5,
+        "projectedTotalPts": 15,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.996
+        }
+      }
+    },
+    "8250": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 8.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "8423": {
+      "projection": {
+        "projectedPPG": 4.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 16.4,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 4.109
+        }
+      }
+    },
+    "8755": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 8.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "8924": {
+      "projection": {
+        "projectedPPG": 1.1,
+        "projectedGames": 5,
+        "projectedTotalPts": 5.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.114
+        }
+      }
+    },
+    "9220": {
+      "projection": {
+        "projectedPPG": 5,
+        "projectedGames": 4,
+        "projectedTotalPts": 20.1,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 5.018
+        }
+      }
+    },
+    "9227": {
+      "projection": {
+        "projectedPPG": 4.2,
+        "projectedGames": 4,
+        "projectedTotalPts": 16.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 4.209
+        }
+      }
+    },
+    "9230": {
+      "projection": {
+        "projectedPPG": 6.1,
+        "projectedGames": 2,
+        "projectedTotalPts": 12.2,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 6.081
+        }
+      }
+    },
+    "9510": {
+      "projection": {
+        "projectedPPG": 3.7,
+        "projectedGames": 4,
+        "projectedTotalPts": 14.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.698
+        }
+      }
+    },
+    "9998": {
+      "projection": {
+        "projectedPPG": 10.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 43,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 10.752
+        }
+      }
+    },
+    "10857": {
+      "projection": {
+        "projectedPPG": 9.9,
+        "projectedGames": 2,
+        "projectedTotalPts": 19.7,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 9.861
+        }
+      }
+    },
+    "10983": {
+      "projection": {
+        "projectedPPG": 8.9,
+        "projectedGames": 2,
+        "projectedTotalPts": 17.8,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.916
+        }
+      }
+    },
+    "11056": {
+      "projection": {
+        "projectedPPG": 2.6,
+        "projectedGames": 4,
+        "projectedTotalPts": 10.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.583
+        }
+      }
+    },
+    "11186": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 5,
+        "projectedTotalPts": 14,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.801
+        }
+      }
+    },
+    "11256": {
+      "projection": {
+        "projectedPPG": 5.7,
+        "projectedGames": 3,
+        "projectedTotalPts": 17.1,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 5.685
+        }
+      }
+    },
+    "11381": {
+      "projection": {
+        "projectedPPG": 1.2,
+        "projectedGames": 5,
+        "projectedTotalPts": 6.2,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.24
+        }
+      }
+    },
+    "11506": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 8.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "11520": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 8.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "11557": {
+      "projection": {
+        "projectedPPG": 6.9,
+        "projectedGames": 2,
+        "projectedTotalPts": 13.7,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 6.874
+        }
+      }
+    },
+    "11569": {
+      "projection": {
+        "projectedPPG": 5.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 23.1,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 5.776
+        }
+      }
+    },
+    "11573": {
+      "projection": {
+        "projectedPPG": 3,
+        "projectedGames": 5,
+        "projectedTotalPts": 15,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.996
+        }
+      }
+    },
+    "11581": {
+      "projection": {
+        "projectedPPG": 8.5,
+        "projectedGames": 4,
+        "projectedTotalPts": 34.1,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 8.518
+        }
+      }
+    },
+    "11583": {
+      "projection": {
+        "projectedPPG": 11.5,
+        "projectedGames": 4,
+        "projectedTotalPts": 45.9,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 11.484
+        }
+      }
+    },
+    "11588": {
+      "projection": {
+        "projectedPPG": 4.6,
+        "projectedGames": 4,
+        "projectedTotalPts": 18.3,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 4.576
+        }
+      }
+    },
+    "11595": {
+      "projection": {
+        "projectedPPG": 1.6,
+        "projectedGames": 3,
+        "projectedTotalPts": 4.8,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "ge:day3|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.598
+        }
+      }
+    },
+    "11644": {
+      "projection": {
+        "projectedPPG": 3,
+        "projectedGames": 5,
+        "projectedTotalPts": 15.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.044
+        }
+      }
+    },
+    "11648": {
+      "projection": {
+        "projectedPPG": 7.7,
+        "projectedGames": 3,
+        "projectedTotalPts": 23.1,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 7.714
+        }
+      }
+    },
+    "11649": {
+      "projection": {
+        "projectedPPG": 3,
+        "projectedGames": 5,
+        "projectedTotalPts": 15.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.044
+        }
+      }
+    },
+    "11748": {
+      "projection": {
+        "projectedPPG": 3.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 12.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.084
+        }
+      }
+    },
+    "11911": {
+      "projection": {
+        "projectedPPG": 2.3,
+        "projectedGames": 4,
+        "projectedTotalPts": 9.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.335
+        }
+      }
+    },
+    "12079": {
+      "projection": {
+        "projectedPPG": 1.2,
+        "projectedGames": 5,
+        "projectedTotalPts": 5.9,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.182
+        }
+      }
+    },
+    "12356": {
+      "projection": {
+        "projectedPPG": 2.3,
+        "projectedGames": 5,
+        "projectedTotalPts": 11.7,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.338
+        }
+      }
+    },
+    "12389": {
+      "projection": {
+        "projectedPPG": 1.1,
+        "projectedGames": 5,
+        "projectedTotalPts": 5.3,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|2+",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.056
+        }
+      }
+    },
+    "12455": {
+      "projection": {
+        "projectedPPG": 4.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 19.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 4.79
+        }
+      }
+    },
+    "12457": {
+      "projection": {
+        "projectedPPG": 5.2,
+        "projectedGames": 4,
+        "projectedTotalPts": 20.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 5.199
+        }
+      }
+    },
+    "12460": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 2,
+        "projectedTotalPts": 4.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.128
+        }
+      }
+    },
+    "12467": {
+      "projection": {
+        "projectedPPG": 6.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 27.3,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 6.827
+        }
+      }
+    },
+    "12469": {
+      "projection": {
+        "projectedPPG": 7.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 31,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 7.751
+        }
+      }
+    },
+    "12470": {
+      "projection": {
+        "projectedPPG": 8.6,
+        "projectedGames": 2,
+        "projectedTotalPts": 17.2,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.611
+        }
+      }
+    },
+    "12471": {
+      "projection": {
+        "projectedPPG": 5.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 23.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 5.809
+        }
+      }
+    },
+    "12472": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 3,
+        "projectedTotalPts": 8.3,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.765
+        }
+      }
+    },
+    "12473": {
+      "projection": {
+        "projectedPPG": 1.9,
+        "projectedGames": 6,
+        "projectedTotalPts": 11.3,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.881
+        }
+      }
+    },
+    "12474": {
+      "projection": {
+        "projectedPPG": 4.7,
+        "projectedGames": 4,
+        "projectedTotalPts": 18.9,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 4.736
+        }
+      }
+    },
+    "12475": {
+      "projection": {
+        "projectedPPG": 3.8,
+        "projectedGames": 5,
+        "projectedTotalPts": 19,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.809
+        }
+      }
+    },
+    "12477": {
+      "projection": {
+        "projectedPPG": 7.7,
+        "projectedGames": 2,
+        "projectedTotalPts": 15.5,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 7.728
+        }
+      }
+    },
+    "12480": {
+      "projection": {
+        "projectedPPG": 2.2,
+        "projectedGames": 6,
+        "projectedTotalPts": 13,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 2.162
+        }
+      }
+    },
+    "12481": {
+      "projection": {
+        "projectedPPG": 6,
+        "projectedGames": 4,
+        "projectedTotalPts": 24.1,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 6.033
+        }
+      }
+    },
+    "12482": {
+      "projection": {
+        "projectedPPG": 4.7,
+        "projectedGames": 7,
+        "projectedTotalPts": 32.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.7
+        }
+      }
+    },
+    "12483": {
+      "projection": {
+        "projectedPPG": 7.6,
+        "projectedGames": 7,
+        "projectedTotalPts": 53.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 7.609
+        }
+      }
+    },
+    "12484": {
+      "projection": {
+        "projectedPPG": 9.4,
+        "projectedGames": 7,
+        "projectedTotalPts": 65.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 9.365
+        }
+      }
+    },
+    "12485": {
+      "projection": {
+        "projectedPPG": 3.3,
+        "projectedGames": 5,
+        "projectedTotalPts": 16.5,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.301
+        }
+      }
+    },
+    "12486": {
+      "projection": {
+        "projectedPPG": 8.2,
+        "projectedGames": 7,
+        "projectedTotalPts": 57.7,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.239
+        }
+      }
+    },
+    "12487": {
+      "projection": {
+        "projectedPPG": 5.7,
+        "projectedGames": 7,
+        "projectedTotalPts": 40.1,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 5.728
+        }
+      }
+    },
+    "12489": {
+      "projection": {
+        "projectedPPG": 9.7,
+        "projectedGames": 7,
+        "projectedTotalPts": 67.6,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 9.658
+        }
+      }
+    },
+    "12490": {
+      "projection": {
+        "projectedPPG": 8.3,
+        "projectedGames": 4,
+        "projectedTotalPts": 33.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 8.294
+        }
+      }
+    },
+    "12491": {
+      "projection": {
+        "projectedPPG": 3.5,
+        "projectedGames": 3,
+        "projectedTotalPts": 10.6,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.527
+        }
+      }
+    },
+    "12492": {
+      "projection": {
+        "projectedPPG": 6.3,
+        "projectedGames": 7,
+        "projectedTotalPts": 44,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 6.28
+        }
+      }
+    },
+    "12493": {
+      "projection": {
+        "projectedPPG": 3.7,
+        "projectedGames": 6,
+        "projectedTotalPts": 22.2,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 3.701
+        }
+      }
+    },
+    "12494": {
+      "projection": {
+        "projectedPPG": 10.6,
+        "projectedGames": 2,
+        "projectedTotalPts": 21.2,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 10.579
+        }
+      }
+    },
+    "12495": {
+      "projection": {
+        "projectedPPG": 6.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 24.6,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 6.147
+        }
+      }
+    },
+    "12496": {
+      "projection": {
+        "projectedPPG": 6.2,
+        "projectedGames": 7,
+        "projectedTotalPts": 43.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 6.178
+        }
+      }
+    },
+    "12497": {
+      "projection": {
+        "projectedPPG": 4.3,
+        "projectedGames": 5,
+        "projectedTotalPts": 21.4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.29
+        }
+      }
+    },
+    "12498": {
+      "projection": {
+        "projectedPPG": 5.5,
+        "projectedGames": 7,
+        "projectedTotalPts": 38.8,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 5.544
+        }
+      }
+    },
+    "12499": {
+      "projection": {
+        "projectedPPG": 5,
+        "projectedGames": 5,
+        "projectedTotalPts": 25,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 5.001
+        }
+      }
+    },
+    "12500": {
+      "projection": {
+        "projectedPPG": 8.2,
+        "projectedGames": 2,
+        "projectedTotalPts": 16.3,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.16
+        }
+      }
+    },
+    "12501": {
+      "projection": {
+        "projectedPPG": 10.1,
+        "projectedGames": 13,
+        "projectedTotalPts": 131.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-late",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|WR",
+          "rookieCeilingBasis": "ceiling:WR",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 10.158
+        }
+      }
+    },
+    "12502": {
+      "projection": {
+        "projectedPPG": 2.7,
+        "projectedGames": 6,
+        "projectedTotalPts": 16.2,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 2.705
+        }
+      }
+    },
+    "12503": {
+      "projection": {
+        "projectedPPG": 2.9,
+        "projectedGames": 2,
+        "projectedTotalPts": 5.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.886
+        }
+      }
+    },
+    "12504": {
+      "projection": {
+        "projectedPPG": 9.7,
+        "projectedGames": 7,
+        "projectedTotalPts": 68.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 9.744
+        }
+      }
+    },
+    "12505": {
+      "projection": {
+        "projectedPPG": 3.9,
+        "projectedGames": 5,
+        "projectedTotalPts": 19.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.923
+        }
+      }
+    },
+    "12506": {
+      "projection": {
+        "projectedPPG": 7.2,
+        "projectedGames": 7,
+        "projectedTotalPts": 50.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "ceiling:TE",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 7.344
+        }
+      }
+    },
+    "12507": {
+      "projection": {
+        "projectedPPG": 14.5,
+        "projectedGames": 14,
+        "projectedTotalPts": 202.6,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-late",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|RB",
+          "rookieCeilingBasis": "ceiling:RB",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 15.374
+        }
+      }
+    },
+    "12508": {
+      "projection": {
+        "projectedPPG": 19.8,
+        "projectedGames": 11,
+        "projectedTotalPts": 218.3,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-late",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|QB",
+          "rookieCeilingBasis": "ceiling:QB",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 20.641
+        }
+      }
+    },
+    "12509": {
+      "projection": {
+        "projectedPPG": 7.1,
+        "projectedGames": 7,
+        "projectedTotalPts": 49.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 7.079
+        }
+      }
+    },
+    "12510": {
+      "projection": {
+        "projectedPPG": 13.5,
+        "projectedGames": 7,
+        "projectedTotalPts": 94.4,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 13.488
+        }
+      }
+    },
+    "12511": {
+      "projection": {
+        "projectedPPG": 8.4,
+        "projectedGames": 2,
+        "projectedTotalPts": 16.8,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.423
+        }
+      }
+    },
+    "12512": {
+      "projection": {
+        "projectedPPG": 13.6,
+        "projectedGames": 7,
+        "projectedTotalPts": 95.5,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "ceiling:RB",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 13.963
+        }
+      }
+    },
+    "12514": {
+      "projection": {
+        "projectedPPG": 10.8,
+        "projectedGames": 13,
+        "projectedTotalPts": 140.7,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-late",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|WR",
+          "rookieCeilingBasis": "ceiling:WR",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 10.94
+        }
+      }
+    },
+    "12516": {
+      "projection": {
+        "projectedPPG": 4.4,
+        "projectedGames": 4,
+        "projectedTotalPts": 17.7,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 4.418
+        }
+      }
+    },
+    "12517": {
+      "projection": {
+        "projectedPPG": 8.5,
+        "projectedGames": 15,
+        "projectedTotalPts": 128,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-mid",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|TE",
+          "rookieCeilingBasis": "ceiling:TE",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 9.25
+        }
+      }
+    },
+    "12518": {
+      "projection": {
+        "projectedPPG": 7.9,
+        "projectedGames": 15,
+        "projectedTotalPts": 118.7,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-mid",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|TE",
+          "rookieCeilingBasis": "ceiling:TE",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 8.255
+        }
+      }
+    },
+    "12519": {
+      "projection": {
+        "projectedPPG": 10.9,
+        "projectedGames": 7,
+        "projectedTotalPts": 76.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "ceiling:WR",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 11.02
+        }
+      }
+    },
+    "12520": {
+      "projection": {
+        "projectedPPG": 2,
+        "projectedGames": 2,
+        "projectedTotalPts": 4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 1.991
+        }
+      }
+    },
+    "12521": {
+      "projection": {
+        "projectedPPG": 5.1,
+        "projectedGames": 7,
+        "projectedTotalPts": 35.8,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 5.12
+        }
+      }
+    },
+    "12522": {
+      "projection": {
+        "projectedPPG": 17.9,
+        "projectedGames": 11,
+        "projectedTotalPts": 196.7,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "top-3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|QB",
+          "rookieCeilingBasis": "ceiling:QB",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 17.885
+        }
+      }
+    },
+    "12523": {
+      "projection": {
+        "projectedPPG": 2.5,
+        "projectedGames": 5,
+        "projectedTotalPts": 12.4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.489
+        }
+      }
+    },
+    "12524": {
+      "projection": {
+        "projectedPPG": 10.4,
+        "projectedGames": 2,
+        "projectedTotalPts": 20.7,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 10.372
+        }
+      }
+    },
+    "12526": {
+      "projection": {
+        "projectedPPG": 12.1,
+        "projectedGames": 13,
+        "projectedTotalPts": 157.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "top-8",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|WR",
+          "rookieCeilingBasis": "ceiling:WR",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 12.95
+        }
+      }
+    },
+    "12527": {
+      "projection": {
+        "projectedPPG": 15,
+        "projectedGames": 14,
+        "projectedTotalPts": 210.5,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "top-8",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gp:r1|RB",
+          "rookieCeilingBasis": "ceiling:RB",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 16.65
+        }
+      }
+    },
+    "12529": {
+      "projection": {
+        "projectedPPG": 11.8,
+        "projectedGames": 7,
+        "projectedTotalPts": 82.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 11.828
+        }
+      }
+    },
+    "12531": {
+      "projection": {
+        "projectedPPG": 6.9,
+        "projectedGames": 4,
+        "projectedTotalPts": 27.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 6.949
+        }
+      }
+    },
+    "12533": {
+      "projection": {
+        "projectedPPG": 3.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 15.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.794
+        }
+      }
+    },
+    "12534": {
+      "projection": {
+        "projectedPPG": 5.6,
+        "projectedGames": 4,
+        "projectedTotalPts": 22.6,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 5.643
+        }
+      }
+    },
+    "12535": {
+      "projection": {
+        "projectedPPG": 5.2,
+        "projectedGames": 7,
+        "projectedTotalPts": 36.7,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 5.243
+        }
+      }
+    },
+    "12536": {
+      "projection": {
+        "projectedPPG": 6.9,
+        "projectedGames": 7,
+        "projectedTotalPts": 48.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 6.939
+        }
+      }
+    },
+    "12538": {
+      "projection": {
+        "projectedPPG": 9.9,
+        "projectedGames": 1,
+        "projectedTotalPts": 9.9,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 9.929
+        }
+      }
+    },
+    "12539": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 5,
+        "projectedTotalPts": 14,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.791
+        }
+      }
+    },
+    "12540": {
+      "projection": {
+        "projectedPPG": 4.2,
+        "projectedGames": 5,
+        "projectedTotalPts": 20.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.182
+        }
+      }
+    },
+    "12541": {
+      "projection": {
+        "projectedPPG": 4.6,
+        "projectedGames": 5,
+        "projectedTotalPts": 22.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.566
+        }
+      }
+    },
+    "12542": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 2,
+        "projectedTotalPts": 4.1,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.061
+        }
+      }
+    },
+    "12543": {
+      "projection": {
+        "projectedPPG": 4.4,
+        "projectedGames": 4,
+        "projectedTotalPts": 17.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 4.442
+        }
+      }
+    },
+    "12544": {
+      "projection": {
+        "projectedPPG": 5.7,
+        "projectedGames": 4,
+        "projectedTotalPts": 22.7,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 5.679
+        }
+      }
+    },
+    "12545": {
+      "projection": {
+        "projectedPPG": 14,
+        "projectedGames": 7,
+        "projectedTotalPts": 97.7,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 13.951
+        }
+      }
+    },
+    "12547": {
+      "projection": {
+        "projectedPPG": 7.5,
+        "projectedGames": 7,
+        "projectedTotalPts": 52.7,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 7.534
+        }
+      }
+    },
+    "12634": {
+      "projection": {
+        "projectedPPG": 3.5,
+        "projectedGames": 5,
+        "projectedTotalPts": 17.5,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.508
+        }
+      }
+    },
+    "12641": {
+      "projection": {
+        "projectedPPG": 4.1,
+        "projectedGames": 5,
+        "projectedTotalPts": 20.4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.077
+        }
+      }
+    },
+    "12656": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 3,
+        "projectedTotalPts": 8.3,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.765
+        }
+      }
+    },
+    "12658": {
+      "projection": {
+        "projectedPPG": 1.7,
+        "projectedGames": 6,
+        "projectedTotalPts": 10.3,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.722
+        }
+      }
+    },
+    "12670": {
+      "projection": {
+        "projectedPPG": 3,
+        "projectedGames": 5,
+        "projectedTotalPts": 14.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.972
+        }
+      }
+    },
+    "12699": {
+      "projection": {
+        "projectedPPG": 4.1,
+        "projectedGames": 5,
+        "projectedTotalPts": 20.4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.071
+        }
+      }
+    },
+    "12700": {
+      "projection": {
+        "projectedPPG": 2.2,
+        "projectedGames": 6,
+        "projectedTotalPts": 13.2,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 2.195
+        }
+      }
+    },
+    "12705": {
+      "projection": {
+        "projectedPPG": 7.9,
+        "projectedGames": 2,
+        "projectedTotalPts": 15.9,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 7.931
+        }
+      }
+    },
+    "12715": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 6,
+        "projectedTotalPts": 12.5,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 2.075
+        }
+      }
+    },
+    "12718": {
+      "projection": {
+        "projectedPPG": 2.9,
+        "projectedGames": 5,
+        "projectedTotalPts": 14.4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.886
+        }
+      }
+    },
+    "12732": {
+      "projection": {
+        "projectedPPG": 3.6,
+        "projectedGames": 5,
+        "projectedTotalPts": 18.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.637
+        }
+      }
+    },
+    "12735": {
+      "projection": {
+        "projectedPPG": 1.8,
+        "projectedGames": 6,
+        "projectedTotalPts": 10.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.76
+        }
+      }
+    },
+    "12746": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 2,
+        "projectedTotalPts": 4.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.394
+        }
+      }
+    },
+    "12761": {
+      "projection": {
+        "projectedPPG": 2.9,
+        "projectedGames": 2,
+        "projectedTotalPts": 5.7,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.873
+        }
+      }
+    },
+    "12765": {
+      "projection": {
+        "projectedPPG": 1.3,
+        "projectedGames": 4,
+        "projectedTotalPts": 5.3,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.33
+        }
+      }
+    },
+    "12773": {
+      "projection": {
+        "projectedPPG": 7.7,
+        "projectedGames": 1,
+        "projectedTotalPts": 7.7,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 7.714
+        }
+      }
+    },
+    "12775": {
+      "projection": {
+        "projectedPPG": 8.9,
+        "projectedGames": 1,
+        "projectedTotalPts": 8.9,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.928
+        }
+      }
+    },
+    "12787": {
+      "projection": {
+        "projectedPPG": 1.9,
+        "projectedGames": 3,
+        "projectedTotalPts": 5.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 1.948
+        }
+      }
+    },
+    "12797": {
+      "projection": {
+        "projectedPPG": 3.5,
+        "projectedGames": 3,
+        "projectedTotalPts": 10.6,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.527
+        }
+      }
+    },
+    "12817": {
+      "projection": {
+        "projectedPPG": 1.4,
+        "projectedGames": 4,
+        "projectedTotalPts": 5.7,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.426
+        }
+      }
+    },
+    "12860": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 2,
+        "projectedTotalPts": 4.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.397
+        }
+      }
+    },
+    "12863": {
+      "projection": {
+        "projectedPPG": 2.5,
+        "projectedGames": 2,
+        "projectedTotalPts": 5,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.48
+        }
+      }
+    },
+    "12888": {
+      "projection": {
+        "projectedPPG": 2,
+        "projectedGames": 2,
+        "projectedTotalPts": 4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.004
+        }
+      }
+    },
+    "12889": {
+      "projection": {
+        "projectedPPG": 2.2,
+        "projectedGames": 2,
+        "projectedTotalPts": 4.5,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.249
+        }
+      }
+    },
+    "12897": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 3,
+        "projectedTotalPts": 8.5,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.822
+        }
+      }
+    },
+    "12925": {
+      "projection": {
+        "projectedPPG": 3.1,
+        "projectedGames": 2,
+        "projectedTotalPts": 6.1,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.069
+        }
+      }
+    },
+    "12928": {
+      "projection": {
+        "projectedPPG": 3.1,
+        "projectedGames": 3,
+        "projectedTotalPts": 9.4,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.119
+        }
+      }
+    },
+    "12938": {
+      "projection": {
+        "projectedPPG": 1.7,
+        "projectedGames": 4,
+        "projectedTotalPts": 6.8,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.705
+        }
+      }
+    },
+    "12969": {
+      "projection": {
+        "projectedPPG": 3.5,
+        "projectedGames": 3,
+        "projectedTotalPts": 10.6,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.527
+        }
+      }
+    },
+    "12971": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 2,
+        "projectedTotalPts": 4.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.394
+        }
+      }
+    },
+    "12984": {
+      "projection": {
+        "projectedPPG": 1.2,
+        "projectedGames": 4,
+        "projectedTotalPts": 4.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.157
+        }
+      }
+    },
+    "13011": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 2,
+        "projectedTotalPts": 5.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.777
+        }
+      }
+    },
+    "13047": {
+      "projection": {
+        "projectedPPG": 3,
+        "projectedGames": 3,
+        "projectedTotalPts": 9,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.996
+        }
+      }
+    },
+    "13074": {
+      "projection": {
+        "projectedPPG": 2.6,
+        "projectedGames": 2,
+        "projectedTotalPts": 5.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.583
+        }
+      }
+    },
+    "13075": {
+      "projection": {
+        "projectedPPG": 2.2,
+        "projectedGames": 2,
+        "projectedTotalPts": 4.4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.202
+        }
+      }
+    },
+    "13079": {
+      "projection": {
+        "projectedPPG": 1.9,
+        "projectedGames": 2,
+        "projectedTotalPts": 3.7,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 1.851
+        }
+      }
+    },
+    "13121": {
+      "projection": {
+        "projectedPPG": 1.3,
+        "projectedGames": 4,
+        "projectedTotalPts": 5.1,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.277
+        }
+      }
+    },
+    "13122": {
+      "projection": {
+        "projectedPPG": 1.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 4.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.148
+        }
+      }
+    },
+    "13150": {
+      "projection": {
+        "projectedPPG": 2.5,
+        "projectedGames": 2,
+        "projectedTotalPts": 5.1,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.538
+        }
+      }
+    },
+    "13151": {
+      "projection": {
+        "projectedPPG": 1.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 4.5,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.114
+        }
+      }
+    },
+    "13173": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 2,
+        "projectedTotalPts": 4.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.394
+        }
+      }
+    },
+    "13179": {
+      "projection": {
+        "projectedPPG": 3.1,
+        "projectedGames": 2,
+        "projectedTotalPts": 6.1,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.069
+        }
+      }
+    },
+    "13199": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 2,
+        "projectedTotalPts": 4.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.397
+        }
+      }
+    },
+    "13210": {
+      "projection": {
+        "projectedPPG": 1.3,
+        "projectedGames": 4,
+        "projectedTotalPts": 5.1,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|1",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.277
+        }
+      }
+    },
+    "13264": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 3,
+        "projectedTotalPts": 6.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "13268": {
+      "projection": {
+        "projectedPPG": 4.4,
+        "projectedGames": 8,
+        "projectedTotalPts": 35.1,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.393
+        }
+      }
+    },
+    "13269": {
+      "projection": {
+        "projectedPPG": 21,
+        "projectedGames": 12,
+        "projectedTotalPts": 252.1,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "top-3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:r1|QB|0",
+          "rookieCeilingBasis": "ceiling:QB",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 24.05
+        }
+      }
+    },
+    "13270": {
+      "projection": {
+        "projectedPPG": 2.6,
+        "projectedGames": 8,
+        "projectedTotalPts": 20.7,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.586
+        }
+      }
+    },
+    "13272": {
+      "projection": {
+        "projectedPPG": 12.7,
+        "projectedGames": 12,
+        "projectedTotalPts": 152.2,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 12.68
+        }
+      }
+    },
+    "13273": {
+      "projection": {
+        "projectedPPG": 2.5,
+        "projectedGames": 9,
+        "projectedTotalPts": 22.8,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 2.535
+        }
+      }
+    },
+    "13274": {
+      "projection": {
+        "projectedPPG": 8.5,
+        "projectedGames": 14,
+        "projectedTotalPts": 119.7,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 8.55
+        }
+      }
+    },
+    "13275": {
+      "projection": {
+        "projectedPPG": 17.6,
+        "projectedGames": 12,
+        "projectedTotalPts": 211.1,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-mid",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:r1|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 17.593
+        }
+      }
+    },
+    "13276": {
+      "projection": {
+        "projectedPPG": 9.8,
+        "projectedGames": 13,
+        "projectedTotalPts": 127.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-late",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:r1|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 9.792
+        }
+      }
+    },
+    "13277": {
+      "projection": {
+        "projectedPPG": 3.7,
+        "projectedGames": 4,
+        "projectedTotalPts": 15,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.742
+        }
+      }
+    },
+    "13278": {
+      "projection": {
+        "projectedPPG": 4.8,
+        "projectedGames": 13,
+        "projectedTotalPts": 62.8,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 4.833
+        }
+      }
+    },
+    "13279": {
+      "projection": {
+        "projectedPPG": 12.1,
+        "projectedGames": 13,
+        "projectedTotalPts": 157.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "top-8",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:r1|WR|0",
+          "rookieCeilingBasis": "ceiling:WR",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 12.95
+        }
+      }
+    },
+    "13281": {
+      "projection": {
+        "projectedPPG": 11.9,
+        "projectedGames": 13,
+        "projectedTotalPts": 154.4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "top-8",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:r1|WR|0",
+          "rookieCeilingBasis": "ceiling:WR",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 12.531
+        }
+      }
+    },
+    "13282": {
+      "projection": {
+        "projectedPPG": 1.6,
+        "projectedGames": 9,
+        "projectedTotalPts": 14.4,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.598
+        }
+      }
+    },
+    "13285": {
+      "projection": {
+        "projectedPPG": 6.4,
+        "projectedGames": 14,
+        "projectedTotalPts": 89.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 6.419
+        }
+      }
+    },
+    "13286": {
+      "projection": {
+        "projectedPPG": 13.5,
+        "projectedGames": 13,
+        "projectedTotalPts": 175.3,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-late",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:r1|0",
+          "rookieCeilingBasis": "ceiling:RB",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 13.731
+        }
+      }
+    },
+    "13287": {
+      "projection": {
+        "projectedPPG": 15,
+        "projectedGames": 13,
+        "projectedTotalPts": 195.5,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "top-3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:r1|0",
+          "rookieCeilingBasis": "ceiling:RB",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 16.65
+        }
+      }
+    },
+    "13288": {
+      "projection": {
+        "projectedPPG": 6.5,
+        "projectedGames": 10,
+        "projectedTotalPts": 65,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 6.502
+        }
+      }
+    },
+    "13289": {
+      "projection": {
+        "projectedPPG": 12.2,
+        "projectedGames": 12,
+        "projectedTotalPts": 146.8,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:day2|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 12.234
+        }
+      }
+    },
+    "13293": {
+      "projection": {
+        "projectedPPG": 7.8,
+        "projectedGames": 14,
+        "projectedTotalPts": 108.5,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 7.75
+        }
+      }
+    },
+    "13294": {
+      "projection": {
+        "projectedPPG": 11,
+        "projectedGames": 13,
+        "projectedTotalPts": 143,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-late",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:r1|WR|0",
+          "rookieCeilingBasis": "ceiling:WR",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 11.171
+        }
+      }
+    },
+    "13295": {
+      "projection": {
+        "projectedPPG": 7.7,
+        "projectedGames": 2,
+        "projectedTotalPts": 15.5,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 7.728
+        }
+      }
+    },
+    "13296": {
+      "projection": {
+        "projectedPPG": 6.8,
+        "projectedGames": 14,
+        "projectedTotalPts": 95.5,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 6.819
+        }
+      }
+    },
+    "13297": {
+      "projection": {
+        "projectedPPG": 3.9,
+        "projectedGames": 8,
+        "projectedTotalPts": 31.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.948
+        }
+      }
+    },
+    "13298": {
+      "projection": {
+        "projectedPPG": 9.8,
+        "projectedGames": 13,
+        "projectedTotalPts": 127.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-late",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:r1|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 9.788
+        }
+      }
+    },
+    "13299": {
+      "projection": {
+        "projectedPPG": 3.8,
+        "projectedGames": 13,
+        "projectedTotalPts": 49,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 3.772
+        }
+      }
+    },
+    "13301": {
+      "projection": {
+        "projectedPPG": 7.1,
+        "projectedGames": 14,
+        "projectedTotalPts": 98.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 7.056
+        }
+      }
+    },
+    "13302": {
+      "projection": {
+        "projectedPPG": 6.2,
+        "projectedGames": 10,
+        "projectedTotalPts": 61.6,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 6.156
+        }
+      }
+    },
+    "13303": {
+      "projection": {
+        "projectedPPG": 11.5,
+        "projectedGames": 2,
+        "projectedTotalPts": 23.1,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 11.539
+        }
+      }
+    },
+    "13305": {
+      "projection": {
+        "projectedPPG": 5.7,
+        "projectedGames": 10,
+        "projectedTotalPts": 56.7,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 5.669
+        }
+      }
+    },
+    "13306": {
+      "projection": {
+        "projectedPPG": 8.3,
+        "projectedGames": 2,
+        "projectedTotalPts": 16.5,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.25
+        }
+      }
+    },
+    "13307": {
+      "projection": {
+        "projectedPPG": 3.7,
+        "projectedGames": 13,
+        "projectedTotalPts": 47.9,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 3.688
+        }
+      }
+    },
+    "13308": {
+      "projection": {
+        "projectedPPG": 1.9,
+        "projectedGames": 9,
+        "projectedTotalPts": 17.3,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.924
+        }
+      }
+    },
+    "13310": {
+      "projection": {
+        "projectedPPG": 8.8,
+        "projectedGames": 1,
+        "projectedTotalPts": 8.8,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.785
+        }
+      }
+    },
+    "13311": {
+      "projection": {
+        "projectedPPG": 8.3,
+        "projectedGames": 14,
+        "projectedTotalPts": 116.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 8.347
+        }
+      }
+    },
+    "13313": {
+      "projection": {
+        "projectedPPG": 3.8,
+        "projectedGames": 8,
+        "projectedTotalPts": 30.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.778
+        }
+      }
+    },
+    "13314": {
+      "projection": {
+        "projectedPPG": 10.3,
+        "projectedGames": 1,
+        "projectedTotalPts": 10.3,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 10.343
+        }
+      }
+    },
+    "13315": {
+      "projection": {
+        "projectedPPG": 3.5,
+        "projectedGames": 4,
+        "projectedTotalPts": 14.1,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.527
+        }
+      }
+    },
+    "13316": {
+      "projection": {
+        "projectedPPG": 2.6,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.586
+        }
+      }
+    },
+    "13317": {
+      "projection": {
+        "projectedPPG": 6.9,
+        "projectedGames": 14,
+        "projectedTotalPts": 97,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 6.931
+        }
+      }
+    },
+    "13318": {
+      "projection": {
+        "projectedPPG": 2.5,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.54
+        }
+      }
+    },
+    "13319": {
+      "projection": {
+        "projectedPPG": 3.5,
+        "projectedGames": 13,
+        "projectedTotalPts": 45.5,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 3.497
+        }
+      }
+    },
+    "13320": {
+      "projection": {
+        "projectedPPG": 7.4,
+        "projectedGames": 14,
+        "projectedTotalPts": 103.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 7.411
+        }
+      }
+    },
+    "13321": {
+      "projection": {
+        "projectedPPG": 1.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 4.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.148
+        }
+      }
+    },
+    "13322": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 13,
+        "projectedTotalPts": 36.4,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 2.797
+        }
+      }
+    },
+    "13324": {
+      "projection": {
+        "projectedPPG": 1.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 4.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.148
+        }
+      }
+    },
+    "13325": {
+      "projection": {
+        "projectedPPG": 3.1,
+        "projectedGames": 3,
+        "projectedTotalPts": 9.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.069
+        }
+      }
+    },
+    "13329": {
+      "projection": {
+        "projectedPPG": 2.9,
+        "projectedGames": 8,
+        "projectedTotalPts": 23.1,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.886
+        }
+      }
+    },
+    "13330": {
+      "projection": {
+        "projectedPPG": 7.1,
+        "projectedGames": 13,
+        "projectedTotalPts": 92.1,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r1-late",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "ge:r1|0",
+          "rookieCeilingBasis": "ceiling:TE",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 7.167
+        }
+      }
+    },
+    "13333": {
+      "projection": {
+        "projectedPPG": 3.2,
+        "projectedGames": 8,
+        "projectedTotalPts": 25.4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.169
+        }
+      }
+    },
+    "13335": {
+      "projection": {
+        "projectedPPG": 10.5,
+        "projectedGames": 2,
+        "projectedTotalPts": 21,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 10.498
+        }
+      }
+    },
+    "13336": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.418
+        }
+      }
+    },
+    "13337": {
+      "projection": {
+        "projectedPPG": 6.8,
+        "projectedGames": 10,
+        "projectedTotalPts": 68.1,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 6.812
+        }
+      }
+    },
+    "13338": {
+      "projection": {
+        "projectedPPG": 3.8,
+        "projectedGames": 8,
+        "projectedTotalPts": 30.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.819
+        }
+      }
+    },
+    "13339": {
+      "projection": {
+        "projectedPPG": 2.9,
+        "projectedGames": 4,
+        "projectedTotalPts": 11.7,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.922
+        }
+      }
+    },
+    "13342": {
+      "projection": {
+        "projectedPPG": 1.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 4.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.148
+        }
+      }
+    },
+    "13343": {
+      "projection": {
+        "projectedPPG": 2.7,
+        "projectedGames": 3,
+        "projectedTotalPts": 8.1,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.705
+        }
+      }
+    },
+    "13345": {
+      "projection": {
+        "projectedPPG": 6.9,
+        "projectedGames": 10,
+        "projectedTotalPts": 68.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 6.876
+        }
+      }
+    },
+    "13346": {
+      "projection": {
+        "projectedPPG": 9.8,
+        "projectedGames": 14,
+        "projectedTotalPts": 136.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 9.771
+        }
+      }
+    },
+    "13347": {
+      "projection": {
+        "projectedPPG": 5.8,
+        "projectedGames": 10,
+        "projectedTotalPts": 58.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 5.824
+        }
+      }
+    },
+    "13348": {
+      "projection": {
+        "projectedPPG": 2.3,
+        "projectedGames": 4,
+        "projectedTotalPts": 9.3,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.332
+        }
+      }
+    },
+    "13349": {
+      "projection": {
+        "projectedPPG": 5.4,
+        "projectedGames": 13,
+        "projectedTotalPts": 70.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 5.428
+        }
+      }
+    },
+    "13350": {
+      "projection": {
+        "projectedPPG": 8.9,
+        "projectedGames": 1,
+        "projectedTotalPts": 8.9,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.928
+        }
+      }
+    },
+    "13353": {
+      "projection": {
+        "projectedPPG": 6.8,
+        "projectedGames": 14,
+        "projectedTotalPts": 95.5,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 6.824
+        }
+      }
+    },
+    "13356": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.397
+        }
+      }
+    },
+    "13380": {
+      "projection": {
+        "projectedPPG": 4.4,
+        "projectedGames": 8,
+        "projectedTotalPts": 34.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.364
+        }
+      }
+    },
+    "13392": {
+      "projection": {
+        "projectedPPG": 2.6,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.586
+        }
+      }
+    },
+    "13394": {
+      "projection": {
+        "projectedPPG": 3.8,
+        "projectedGames": 8,
+        "projectedTotalPts": 30.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.778
+        }
+      }
+    },
+    "13400": {
+      "projection": {
+        "projectedPPG": 2.2,
+        "projectedGames": 9,
+        "projectedTotalPts": 19.9,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 2.206
+        }
+      }
+    },
+    "13401": {
+      "projection": {
+        "projectedPPG": 0.9,
+        "projectedGames": 4,
+        "projectedTotalPts": 3.5,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 0.872
+        }
+      }
+    },
+    "13402": {
+      "projection": {
+        "projectedPPG": 4.1,
+        "projectedGames": 8,
+        "projectedTotalPts": 33.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.144
+        }
+      }
+    },
+    "13404": {
+      "projection": {
+        "projectedPPG": 5.9,
+        "projectedGames": 2,
+        "projectedTotalPts": 11.7,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 5.85
+        }
+      }
+    },
+    "13405": {
+      "projection": {
+        "projectedPPG": 5.3,
+        "projectedGames": 10,
+        "projectedTotalPts": 53,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 5.301
+        }
+      }
+    },
+    "13408": {
+      "projection": {
+        "projectedPPG": 2.2,
+        "projectedGames": 9,
+        "projectedTotalPts": 20,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 2.217
+        }
+      }
+    },
+    "13411": {
+      "projection": {
+        "projectedPPG": 5.8,
+        "projectedGames": 14,
+        "projectedTotalPts": 81.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 5.81
+        }
+      }
+    },
+    "13413": {
+      "projection": {
+        "projectedPPG": 4.4,
+        "projectedGames": 8,
+        "projectedTotalPts": 35.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.417
+        }
+      }
+    },
+    "13414": {
+      "projection": {
+        "projectedPPG": 7.1,
+        "projectedGames": 12,
+        "projectedTotalPts": 85.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 7.146
+        }
+      }
+    },
+    "13415": {
+      "projection": {
+        "projectedPPG": 8.9,
+        "projectedGames": 1,
+        "projectedTotalPts": 8.9,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.928
+        }
+      }
+    },
+    "13416": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 11,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.752
+        }
+      }
+    },
+    "13417": {
+      "projection": {
+        "projectedPPG": 7.8,
+        "projectedGames": 14,
+        "projectedTotalPts": 109.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r2",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 7.797
+        }
+      }
+    },
+    "13418": {
+      "projection": {
+        "projectedPPG": 3,
+        "projectedGames": 4,
+        "projectedTotalPts": 12.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.044
+        }
+      }
+    },
+    "13419": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 11.3,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.822
+        }
+      }
+    },
+    "13420": {
+      "projection": {
+        "projectedPPG": 3.6,
+        "projectedGames": 8,
+        "projectedTotalPts": 28.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.612
+        }
+      }
+    },
+    "13421": {
+      "projection": {
+        "projectedPPG": 4.6,
+        "projectedGames": 13,
+        "projectedTotalPts": 59.7,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 4.589
+        }
+      }
+    },
+    "13422": {
+      "projection": {
+        "projectedPPG": 1.9,
+        "projectedGames": 9,
+        "projectedTotalPts": 17.5,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.946
+        }
+      }
+    },
+    "13423": {
+      "projection": {
+        "projectedPPG": 3.2,
+        "projectedGames": 10,
+        "projectedTotalPts": 32.5,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.249
+        }
+      }
+    },
+    "13424": {
+      "projection": {
+        "projectedPPG": 3.9,
+        "projectedGames": 10,
+        "projectedTotalPts": 39,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.8,
+          "rookieCalibrationBasis": "day3:RB",
+          "rookieGamesBasis": "gpe:day3|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.895
+        }
+      }
+    },
+    "13425": {
+      "projection": {
+        "projectedPPG": 9.5,
+        "projectedGames": 1,
+        "projectedTotalPts": 9.5,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 9.474
+        }
+      }
+    },
+    "13428": {
+      "projection": {
+        "projectedPPG": 8.9,
+        "projectedGames": 1,
+        "projectedTotalPts": 8.9,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.928
+        }
+      }
+    },
+    "13429": {
+      "projection": {
+        "projectedPPG": 2,
+        "projectedGames": 9,
+        "projectedTotalPts": 17.8,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.979
+        }
+      }
+    },
+    "13432": {
+      "projection": {
+        "projectedPPG": 1.1,
+        "projectedGames": 4,
+        "projectedTotalPts": 4.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.148
+        }
+      }
+    },
+    "13433": {
+      "projection": {
+        "projectedPPG": 2,
+        "projectedGames": 9,
+        "projectedTotalPts": 17.8,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.979
+        }
+      }
+    },
+    "13434": {
+      "projection": {
+        "projectedPPG": 3.8,
+        "projectedGames": 13,
+        "projectedTotalPts": 49.1,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r3",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "none",
+          "rookieGamesBasis": "gpe:day2|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 3.778
+        }
+      }
+    },
+    "13435": {
+      "projection": {
+        "projectedPPG": 1.9,
+        "projectedGames": 9,
+        "projectedTotalPts": 17.3,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r5",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.92
+        }
+      }
+    },
+    "13436": {
+      "projection": {
+        "projectedPPG": 3,
+        "projectedGames": 4,
+        "projectedTotalPts": 12.2,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.044
+        }
+      }
+    },
+    "13437": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 11.3,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.825
+        }
+      }
+    },
+    "13477": {
+      "projection": {
+        "projectedPPG": 2.5,
+        "projectedGames": 8,
+        "projectedTotalPts": 19.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.489
+        }
+      }
+    },
+    "13491": {
+      "projection": {
+        "projectedPPG": 3.4,
+        "projectedGames": 8,
+        "projectedTotalPts": 26.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r4",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.356
+        }
+      }
+    },
+    "13516": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 4,
+        "projectedTotalPts": 11.1,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 2.765
+        }
+      }
+    },
+    "13533": {
+      "projection": {
+        "projectedPPG": 3.3,
+        "projectedGames": 8,
+        "projectedTotalPts": 26.5,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.309
+        }
+      }
+    },
+    "13541": {
+      "projection": {
+        "projectedPPG": 4.1,
+        "projectedGames": 8,
+        "projectedTotalPts": 32.6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.071
+        }
+      }
+    },
+    "13554": {
+      "projection": {
+        "projectedPPG": 4.5,
+        "projectedGames": 8,
+        "projectedTotalPts": 36,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r6",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 4.5
+        }
+      }
+    },
+    "13557": {
+      "projection": {
+        "projectedPPG": 9,
+        "projectedGames": 2,
+        "projectedTotalPts": 17.9,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 1,
+          "rookieCalibrationBasis": "day3:QB",
+          "rookieGamesBasis": "gpe:day3|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.954
+        }
+      }
+    },
+    "13577": {
+      "projection": {
+        "projectedPPG": 2,
+        "projectedGames": 9,
+        "projectedTotalPts": 17.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.959
+        }
+      }
+    },
+    "13580": {
+      "projection": {
+        "projectedPPG": 2,
+        "projectedGames": 9,
+        "projectedTotalPts": 17.6,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.71,
+          "rookieCalibrationBasis": "day3:TE",
+          "rookieGamesBasis": "gpe:day3|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.956
+        }
+      }
+    },
+    "13582": {
+      "projection": {
+        "projectedPPG": 3.1,
+        "projectedGames": 8,
+        "projectedTotalPts": 24.4,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "matched",
+          "nflDraftTier": "r7",
+          "rookieCalibrationMult": 0.79,
+          "rookieCalibrationBasis": "day3:WR",
+          "rookieGamesBasis": "gpe:day3|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.051
+        }
+      }
+    },
+    "13595": {
+      "projection": {
+        "projectedPPG": 1.9,
+        "projectedGames": 4,
+        "projectedTotalPts": 7.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 1.948
+        }
+      }
+    },
+    "13600": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 3,
+        "projectedTotalPts": 6.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "13602": {
+      "projection": {
+        "projectedPPG": 7.8,
+        "projectedGames": 1,
+        "projectedTotalPts": 7.8,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 7.774
+        }
+      }
+    },
+    "13621": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.434
+        }
+      }
+    },
+    "13630": {
+      "projection": {
+        "projectedPPG": 1.2,
+        "projectedGames": 4,
+        "projectedTotalPts": 4.8,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.197
+        }
+      }
+    },
+    "13662": {
+      "projection": {
+        "projectedPPG": 2.8,
+        "projectedGames": 3,
+        "projectedTotalPts": 8.3,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.753
+        }
+      }
+    },
+    "13663": {
+      "projection": {
+        "projectedPPG": 2.6,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.7,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.567
+        }
+      }
+    },
+    "13670": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.394
+        }
+      }
+    },
+    "13674": {
+      "projection": {
+        "projectedPPG": 1.9,
+        "projectedGames": 3,
+        "projectedTotalPts": 5.7,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 1.915
+        }
+      }
+    },
+    "13696": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 3,
+        "projectedTotalPts": 6.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "13705": {
+      "projection": {
+        "projectedPPG": 1.3,
+        "projectedGames": 4,
+        "projectedTotalPts": 5.3,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.33
+        }
+      }
+    },
+    "13726": {
+      "projection": {
+        "projectedPPG": 3.1,
+        "projectedGames": 3,
+        "projectedTotalPts": 9.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 3.069
+        }
+      }
+    },
+    "13749": {
+      "projection": {
+        "projectedPPG": 2.6,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.646
+        }
+      }
+    },
+    "13770": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 3,
+        "projectedTotalPts": 6.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "13816": {
+      "projection": {
+        "projectedPPG": 8.8,
+        "projectedGames": 1,
+        "projectedTotalPts": 8.8,
+        "factors": {
+          "basePPG": 13,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.67,
+          "rookieCalibrationBasis": "undrafted:QB",
+          "rookieGamesBasis": "gpe:undrafted|QB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 17.8,
+          "rookieCeilingAsymptote": 21.9,
+          "rookieCeilingPPGPre": 8.785
+        }
+      }
+    },
+    "13827": {
+      "projection": {
+        "projectedPPG": 1.3,
+        "projectedGames": 4,
+        "projectedTotalPts": 5.2,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.29
+        }
+      }
+    },
+    "13830": {
+      "projection": {
+        "projectedPPG": 2.1,
+        "projectedGames": 3,
+        "projectedTotalPts": 6.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.066
+        }
+      }
+    },
+    "13846": {
+      "projection": {
+        "projectedPPG": 1.4,
+        "projectedGames": 4,
+        "projectedTotalPts": 5.4,
+        "factors": {
+          "basePPG": 5,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.28,
+          "rookieCalibrationBasis": "undrafted:TE",
+          "rookieGamesBasis": "gpe:undrafted|TE|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 6.21,
+          "rookieCeilingAsymptote": 11.6,
+          "rookieCeilingPPGPre": 1.352
+        }
+      }
+    },
+    "13861": {
+      "projection": {
+        "projectedPPG": 2.6,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.8,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.586
+        }
+      }
+    },
+    "13905": {
+      "projection": {
+        "projectedPPG": 2.3,
+        "projectedGames": 3,
+        "projectedTotalPts": 6.9,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.302
+        }
+      }
+    },
+    "13949": {
+      "projection": {
+        "projectedPPG": 3.2,
+        "projectedGames": 4,
+        "projectedTotalPts": 12.8,
+        "factors": {
+          "basePPG": 9,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.33,
+          "rookieCalibrationBasis": "undrafted:RB",
+          "rookieGamesBasis": "gpe:undrafted|RB|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 12.11,
+          "rookieCeilingAsymptote": 16.87,
+          "rookieCeilingPPGPre": 3.188
+        }
+      }
+    },
+    "13962": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.1,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.381
+        }
+      }
+    },
+    "13981": {
+      "projection": {
+        "projectedPPG": 2.4,
+        "projectedGames": 3,
+        "projectedTotalPts": 7.2,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 2.397
+        }
+      }
+    },
+    "14038": {
+      "projection": {
+        "projectedPPG": 2,
+        "projectedGames": 3,
+        "projectedTotalPts": 6,
+        "factors": {
+          "basePPG": 7,
+          "draftCapitalStatus": "undrafted",
+          "nflDraftTier": null,
+          "rookieCalibrationMult": 0.36,
+          "rookieCalibrationBasis": "undrafted:WR",
+          "rookieGamesBasis": "gpe:undrafted|WR|0",
+          "rookieCeilingBasis": "none",
+          "rookieCeilingKnee": 9.87,
+          "rookieCeilingAsymptote": 14.38,
+          "rookieCeilingPPGPre": 1.984
+        }
+      }
+    }
+  }
+}
