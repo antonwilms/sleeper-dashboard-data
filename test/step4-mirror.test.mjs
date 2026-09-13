@@ -177,16 +177,18 @@ describe('T-S4-U6: basis type', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 // D-18 (step4-boundary-parity.md) — T-S4-1..6: boundary 4 parity against the
 // real captures either side of app commit 7b5b055 (committed 2026-09-12T22:27Z).
-// PRE = snapshots/2026-09-12.json (captured 2026-09-12T18:34:49.006Z, before
-// the boundary). POST = snapshots/2026-09-13.json (captured
-// 2026-09-13T18:52:36.415Z, the first committed capture carrying
-// regressionUpsideBasis on veteran rows — precondition 2). POSITIONS =
-// nfl/players-state/2026-09-12.json (weekly; newest dated <= POST).
+// PRE is the last committed capture before 7b5b055. POST is the first
+// committed capture after it whose veteran rows carry regressionUpsideBasis
+// (precondition 2). POSITIONS is the newest nfl/players-state/<date>.json
+// dated <= POST. Dates live in exactly two places: the executable PRE/POST
+// constants below, and this comment's own PRE/POST/POSITIONS_DATE constants
+// (a standalone script defines its own) — nowhere else in this file names a
+// date, and the fixture file name is derived from the constants.
 //
-// Fixture generator (reproduce with `node <this>` from the repo root;
-// regenerate only if a newer qualifying capture supersedes 2026-09-13 per
-// §2 of the task file — change PRE/POST/POSITIONS_DATE and the fixture name
-// together if it does):
+// Fixture generator (strip the leading `// ` from the block below and run it
+// from the repo root with `node --input-type=module`; regenerate only if a
+// newer qualifying capture supersedes POST per §2 of the task file — change
+// PRE/POST/POSITIONS_DATE and the fixture name together if it does):
 //
 //   import fs from 'fs';
 //   import path from 'path';
@@ -204,7 +206,7 @@ describe('T-S4-U6: basis type', () => {
 //     'regressionFactorRaw', 'regressionFactor', 'consistencyScale', 'consistencyScore',
 //     'consistencyBand', 'basePPG', 'outlierRatio', 'regressionUpsideBasis',
 //   ];
-//   function slimSide(snap) {
+//   function slimSide(snap, sideDate) {
 //     const rows = {};
 //     for (const [pid, p] of Object.entries(snap.players)) {
 //       const proj = p.projection;
@@ -214,10 +216,10 @@ describe('T-S4-U6: basis type', () => {
 //       for (const k of F_KEYS) if (factors[k] !== undefined) f[k] = factors[k];
 //       rows[pid] = { confidence: proj.confidence, f };
 //     }
-//     return { date: snap.date, schemaVersion: snap.schemaVersion, capturedAt: snap.capturedAt, rows };
+//     return { date: sideDate, schemaVersion: snap.schemaVersion, capturedAt: snap.capturedAt, rows };
 //   }
-//   const pre = slimSide(preSnap);
-//   const post = slimSide(postSnap);
+//   const pre = slimSide(preSnap, PRE);
+//   const post = slimSide(postSnap, POST);
 //   const allPids = new Set([...Object.keys(pre.rows), ...Object.keys(post.rows)]);
 //   const byPid = {};
 //   for (const pid of allPids) {
@@ -231,7 +233,10 @@ describe('T-S4-U6: basis type', () => {
 //   };
 //   fs.writeFileSync(path.join(OUT_DIR, `boundary-${PRE}-${POST}.slim.json`), JSON.stringify(out) + '\n');
 //
-const BOUNDARY_FIXTURE_PATH = path.join(REPO_ROOT, 'test/fixtures/step4-boundary/boundary-2026-09-12-2026-09-13.slim.json');
+const PRE = '2026-09-12';
+const POST = '2026-09-13';
+const BOUNDARY_FIXTURE_REL = `test/fixtures/step4-boundary/boundary-${PRE}-${POST}.slim.json`;
+const BOUNDARY_FIXTURE_PATH = path.join(REPO_ROOT, BOUNDARY_FIXTURE_REL);
 
 const NEAR = 5e-4;
 const THRESHOLDS = [0.65, 0.85, 1.15, 1.35];
@@ -243,7 +248,7 @@ const nearThreshold = (ratio) => THRESHOLDS.some((t) => Math.abs(ratio - t) < NE
 describe('T-S4-1: fixture presence (asserted, never skipped)', () => {
   test('the boundary-4 parity fixture exists', () => {
     assert.ok(fs.existsSync(BOUNDARY_FIXTURE_PATH),
-      'required fixture missing: test/fixtures/step4-boundary/boundary-2026-09-12-2026-09-13.slim.json');
+      `required fixture missing: ${BOUNDARY_FIXTURE_REL}`);
   });
 });
 
@@ -259,6 +264,8 @@ describe('T-S4-2..6: boundary parity', () => {
     assert.ok(boundaryAt < postAt, 'the boundary commit must precede post.capturedAt');
     assert.equal(pre.schemaVersion, 3);
     assert.equal(post.schemaVersion, 3);
+    assert.equal(pre.date, PRE);
+    assert.equal(post.date, POST);
   });
 
   describe('T-S4-3: D-18 detection rule on real rows', () => {
@@ -269,8 +276,8 @@ describe('T-S4-2..6: boundary parity', () => {
     test('pre side', () => {
       assert.equal(preVet.length, 421);
       assert.equal(preRookie.length, 291);
-      assert.equal(preVet.filter((r) => 'regressionUpsideBasis' in r.f).length, 0);
-      assert.equal(preVet.filter((r) => 'outlierRatio' in r.f).length, 0);
+      assert.equal(preRows.filter((r) => 'regressionUpsideBasis' in r.f).length, 0);
+      assert.equal(preRows.filter((r) => 'outlierRatio' in r.f).length, 0);
     });
 
     const postRows = Object.values(post.rows);
@@ -293,21 +300,6 @@ describe('T-S4-2..6: boundary parity', () => {
 
       // §3.2 scope check: a presence-only rule would file every post rookie row as legacy.
       assert.ok(postRookie.filter((r) => !('regressionUpsideBasis' in r.f) && !('outlierRatio' in r.f)).length > 0);
-    });
-
-    test('cross-check against §0/§9.6 up-side population estimate (±5 per position)', () => {
-      const dist = { removed: { RB: 0, WR: 0, TE: 0 }, 'retained:QB': 0 };
-      for (const row of postVet) {
-        const b = row.f.regressionUpsideBasis;
-        if (b === 'removed:RB') dist.removed.RB++;
-        else if (b === 'removed:WR') dist.removed.WR++;
-        else if (b === 'removed:TE') dist.removed.TE++;
-        else if (b === 'retained:QB') dist['retained:QB']++;
-      }
-      assert.ok(Math.abs(dist.removed.RB - 33) <= 5);
-      assert.ok(Math.abs(dist.removed.WR - 73) <= 5);
-      assert.ok(Math.abs(dist.removed.TE - 53) <= 5);
-      assert.ok(Math.abs(dist['retained:QB'] - 11) <= 5);
     });
   });
 
@@ -377,6 +369,7 @@ describe('T-S4-2..6: boundary parity', () => {
     let checked = 0;
     let nearSkips = 0;
     let discrimination = 0;
+    let setMismatch = 0;
     let assertionFailures = 0;
     const failureDetails = [];
     const GUARD_KEYS = ['basePPG', 'consistencyScore', 'consistencyBand', 'consistencyScale'];
@@ -409,11 +402,15 @@ describe('T-S4-2..6: boundary parity', () => {
       }
 
       const upside = resolveRegressionBucket(outlierRatio, { position, model: 'step4-upside' });
-      if (upside.regressionFactorRaw !== preRow.f.regressionFactorRaw) discrimination++;
+      const upsideDiffers = upside.regressionFactorRaw !== preRow.f.regressionFactorRaw;
+      const isRemoved = typeof postRow.f.regressionUpsideBasis === 'string' && postRow.f.regressionUpsideBasis.startsWith('removed:');
+      if (upsideDiffers !== isRemoved) setMismatch++;
+      if (upsideDiffers) discrimination++;
     }
 
     test('assertions hold on every checkable joined row', () => {
       assert.equal(assertionFailures, 0, `T-S4-5 failures: ${JSON.stringify(failureDetails)}`);
+      assert.equal(setMismatch, 0);
     });
 
     test('pinned counts', () => {

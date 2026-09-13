@@ -358,3 +358,86 @@ The review ran at full depth. All four flags were verified before disposition, a
 | 4 | mechanical — `data-catalog.md` anchor `:85-87` | Correct: the bullet starts at `:84` | **Fixed** (§4.2). |
 
 The reviewer's MIRROR block matches §5.1 verbatim.
+
+---
+
+## Fix pass 1 — implementation-reviewer on `origin/main...0161e2d` (PR #11), 2026-09-13
+
+**Scope.** This pass touches branch `step4-boundary-parity` only, in exactly these files: `test/step4-mirror.test.mjs`, the boundary fixture, and `grading/anchor-policy.md`. **Nothing** in `lib/`, `scripts/`, `bin/`, `snapshots/`, `manifest.json`, `data-catalog.md`, `README.md` or the registry changes. Session 1 verified every flag against `0161e2d` before writing this.
+
+When done, the applier:
+- runs `npm test` (expected **1019** passing: 1020 minus the test item 5 removes) and `npm run smoke`;
+- commits as `fix: step4 boundary parity review flags (fix pass 1)`, including this section;
+- pushes to `origin step4-boundary-parity`, never `main`, never `--force`;
+- hands back the diff, the new SHA, and both command results.
+
+This PR runs no CI, so the local results are the evidence.
+
+### Dispositions
+
+| # | Flag | Verified | Disposition |
+|---|---|---|---|
+| 1 | fidelity — the fixture's `pre`/`post` sides have no `date` key | Correct: keys are `schemaVersion,capturedAt,rows`. The generator writes `date: snap.date` (`:217`), and snapshot files have no `date` field. | **Fix** — item 1 |
+| 2 | undisclosed — the hand-back said "no deviations" | Correct (flag 1) | **No code change beyond item 1.** Recorded here. |
+| 3 | test-honesty — T-S4-5 pins a discrimination count, with no row-by-row set check | Correct: `:412` counts, `:424` pins 159; T-S4-4/6 use `setMismatch` | **Fix** — item 2 |
+| 4 | fidelity — T-S4-3 pre zero-checks cover veteran rows only; §3.2 says either path | Correct: `:272-273` filter `preVet` | **Fix** — item 3 |
+| 5 | scope-creep — an unplanned "±5 cross-check" test | Correct: `:298`. Redundant with the exact `deepEqual` distribution. | **Fix** — item 4 (remove) |
+| 6 | fidelity — dates repeated beyond the one-constant rule; the "`node <this>`" reproduction note doesn't work | Correct: header prose `:179-187` repeats both dates and both `capturedAt` values; the T-S4-1 message `:246` repeats the file name | **Fix** — item 5 |
+| 7 | fidelity — anchor-policy "these 1 captures" / "e.g." / a range covering one file | Correct (`grading/anchor-policy.md:85`). A = 1: `2026-05-19` is the only capture before 2026-06-06. The wording is the plan's, not the implementation's. | **Fix** — item 6 |
+
+### Item 1 · Fixture `date` keys (flag 1)
+
+1. In the generator comment, set `date: PRE` for the pre side and `date: POST` for the post side, using the generator's own constants. Remove `date: snap.date`.
+2. Regenerate the fixture by running the generator block from the repo root (item 5 says how). The new fixture must differ from `0161e2d`'s **only** by the two added `date` keys.
+3. Byte-compare the rest by loading both, deleting `pre.date`/`post.date` from the new one, and asserting deep-equality with the old. Report the result.
+
+### Item 2 · T-S4-5 row-level set equality (flag 3)
+
+Inside the existing T-S4-5 loop, add `setMismatch` in the same form as T-S4-4:
+- For each checkable joined row, compute `upsideDiffers = resolveRegressionBucket(post.outlierRatio, { position, model: 'step4-upside' }).regressionFactorRaw !== pre.f.regressionFactorRaw`.
+- Compute `isRemoved` = the **post** row's basis starts `removed:`.
+- `if (upsideDiffers !== isRemoved) setMismatch++`.
+
+After the loop, `assert.equal(setMismatch, 0)`. Keep the existing `discrimination === 159` and `> 0` pins.
+
+### Item 3 · T-S4-3 pre side, both paths (flag 4)
+
+Change the two pre zero-checks from `preVet.filter(...)` to all pre rows: `preRows.filter(r => 'regressionUpsideBasis' in r.f).length === 0`, and likewise for `outlierRatio`. Keep `preVet.length === 421` and the rookie count `=== 291`.
+
+### Item 4 · Remove the unplanned test (flag 5)
+
+Delete the `cross-check against §0/§9.6 up-side population estimate (±5 per position)` test. The exact post distribution `deepEqual` already pins these counts.
+
+### Item 5 · One source for the dates (flag 6)
+
+**a. Executable constants.** At module level, above T-S4-1, define `const PRE = '2026-09-12'` and `const POST = '2026-09-13'`, and build the path from them: `const BOUNDARY_FIXTURE_REL = \`test/fixtures/step4-boundary/boundary-${PRE}-${POST}.slim.json\``, then `BOUNDARY_FIXTURE_PATH = path.join(REPO_ROOT, BOUNDARY_FIXTURE_REL)`.
+
+**b. T-S4-1's failure message** uses `BOUNDARY_FIXTURE_REL`, not a literal.
+
+**c. T-S4-2** also asserts `fixture.pre.date === PRE` and `fixture.post.date === POST`.
+
+**d. Header prose (`:179-187`).**
+- Remove the literal dates and both `capturedAt` values.
+- Describe the sides by role: PRE is the last capture before app `7b5b055`, POST the first after it, and the positions file is the newest players-state ≤ POST. Name the constants `PRE`/`POST`.
+- Keep `7b5b055` and its commit time; that is the boundary, not a capture date.
+
+**e. Reproduction note.** Replace "`node <this>`" with: *Strip the leading `// ` from the generator block below and run it from the repo root with `node --input-type=module`.*
+
+**f. The accepted exception.** Dates now live in exactly two places: the executable `PRE`/`POST` constants, and the generator comment's own `PRE`/`POST`/`POSITIONS_DATE` constants (a standalone script must define its own). They appear nowhere else, and the fixture file name is derived from the constants.
+
+### Item 6 · `grading/anchor-policy.md` veteran row 1 (flag 7)
+
+Replace the whole table row that begins ``| `2026-05-19` – `2026-06-05` |`` with:
+
+`| \`2026-05-19\` (the only capture before 2026-06-06) | unclassified on this axis — confirmed: the 428 veteran rows in \`snapshots/2026-05-19.json\` carry \`regressionFactor\` but no \`regressionFactorRaw\` or \`consistency*\`, so the Step 4 table they were produced under cannot be read from the row |`
+
+Leave the `2026-06-06` – `2026-09-12` row ("these 59 captures") and every other line unchanged.
+
+§4.1's text above is left as written; this section is the record of the correction.
+
+### Not in scope
+
+- Any `lib/`, `scripts/`, `bin/`, `snapshots/`, `manifest.json`, `data-catalog.md`, `README.md` or registry change.
+- Any change to T-S4-4/6, the T-S4-U tests, or the §8 pinned values.
+
+If an item cannot be done within this scope, stop and report.

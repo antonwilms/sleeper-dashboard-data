@@ -82,7 +82,7 @@ the 2026-09-12 capture, so the first capture reflecting it is a later one.
 
 | capture date | expected Step 4 model |
 |---|---|
-| `2026-05-19` – `2026-06-05` | unclassified on this axis — confirmed: veteran rows in these 1 captures carry `regressionFactor` but no `regressionFactorRaw` or `consistency*` (e.g. `snapshots/2026-05-19.json`, 428 veteran rows), so the Step 4 table they were produced under cannot be read from the row |
+| `2026-05-19` (the only capture before 2026-06-06) | unclassified on this axis — confirmed: the 428 veteran rows in `snapshots/2026-05-19.json` carry `regressionFactor` but no `regressionFactorRaw` or `consistency*`, so the Step 4 table they were produced under cannot be read from the row |
 | `2026-06-06` – `2026-09-12` | legacy — confirmed: every veteran row in these 59 captures carries `regressionFactorRaw` and none carries `regressionUpsideBasis`; `snapshots/2026-09-12.json` (captured 18:34:49 UTC, before `7b5b055`) has 421 veteran rows, 170 of them at an up-side `regressionFactorRaw` (107 × 1.12, 63 × 1.05). The poisoned 2026-07-16 → 2026-07-18 window sits inside this segment and is excluded on its own axis (`CLAUDE.md`) |
 | `>= 2026-09-13` | step4-upside — confirmed: all 422 veteran rows in `snapshots/2026-09-13.json` (captured 18:52:36 UTC) carry `regressionUpsideBasis` (none 252 · removed:RB 34 · removed:WR 73 · removed:TE 52 · retained:QB 11), no rookie-path row carries it, and between the 2026-09-12 and 2026-09-13 captures the veteran rows whose `regressionFactorRaw` moved are exactly the 159 `removed:` rows |
 
