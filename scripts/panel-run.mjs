@@ -22,6 +22,7 @@ import fs from 'fs';
 import path from 'path';
 import { readJson, writeJsonStable, repoPath } from '../lib/io.mjs';
 import { buildInBasisOutcomes, buildHalfPprOutcomes } from './grade-snapshot.mjs';
+import { REGRESSION_MODELS, CURRENT_REGRESSION_MODEL } from '../lib/projectionFactors.mjs';
 import {
   PANEL_DEFAULTS,
   PANEL_POSITIONS,
@@ -136,6 +137,7 @@ export function assemblePanel({
   load = DEFAULT_LOAD,
   withFactorMultipliers = false,
   historyFloor = null,
+  regressionModel = CURRENT_REGRESSION_MODEL,
 }) {
   if (!ATTRIBUTION_MODES.includes(attribution)) {
     throw new Error(`[panel] unknown --attribution '${attribution}' — use current-team|per-season-team`);
@@ -229,7 +231,7 @@ export function assemblePanel({
 
     const { rows: fitRows, fitCoverage } = attachFactorMultipliers(rows, {
       totalsByYear, teamTotalsByYear, ppgByYear, advstatsByYear, rosterByYear, fromYear, toYear,
-      crosswalk, snapsByYear, birthdateOf, depthByYear,
+      crosswalk, snapsByYear, birthdateOf, depthByYear, regressionModel,
     });
     finalRows = fitRows;
     finalCoverage = { ...coverage, fitCoverage };
@@ -249,6 +251,7 @@ export function assemblePanel({
     gates: PANEL_GATES,
     minOutcomeGames,
     minTrainSeasons: PANEL_DEFAULTS.minTrainSeasons,
+    ...(withFactorMultipliers ? { regressionModel } : {}),
   };
 
   return { rows: finalRows, coverage: finalCoverage, meta };
@@ -949,13 +952,14 @@ export function runFit({
   alpha = FIT_ALPHA_DEFAULT,
   alphaSweep = FIT_ALPHA_SWEEP,
   load = DEFAULT_LOAD,
+  regressionModel = CURRENT_REGRESSION_MODEL,
 } = {}) {
   // per-season-team is hardcoded — the app's live DEFAULT_ATTRIBUTION, not
   // user-overridable (§6.3); the CLI-level guard against --fit --attribution
   // lives in bin/panel.mjs (§6.4).
   const panel = assemblePanel({
     fromYear, toYear, attribution: 'per-season-team', basis, scoringFrom, minOutcomeGames, load,
-    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR,
+    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, regressionModel,
   });
 
   const folds = panelFolds(panel);
@@ -1010,6 +1014,7 @@ export function buildFitVerdictReport({ panel, perPosition, pool, folds, alpha, 
       combinedClamp: FIT_COMBINED_CLAMP,
       envelopeFactors: ENVELOPE_FACTORS,
       baselineOfRecord: BASELINE_OF_RECORD,
+      regressionModel: panel.meta.regressionModel,
     },
     coverage: panel.coverage,
     perPosition,
@@ -1291,10 +1296,11 @@ export function runFullPipeline({
   fromYear = PANEL_DEFAULTS.fromYear,
   toYear = PANEL_DEFAULTS.toYear,
   load = DEFAULT_LOAD,
+  regressionModel = CURRENT_REGRESSION_MODEL,
 } = {}) {
   const panel = assemblePanel({
     fromYear, toYear, attribution: 'per-season-team', basis: 'half_ppr', load,
-    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR,
+    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, regressionModel,
   });
 
   const rowsByPosition = {};
@@ -1319,6 +1325,7 @@ export function runFullPipeline({
     notGradableFactors: NOT_GRADABLE_FACTORS,
     sensitivityStep: SENSITIVITY_STEP,
     sensitivityHoldFactors: SENSITIVITY_HOLD_FACTORS,
+    regressionModel: panel.meta.regressionModel,
   };
 
   // §E Step 4 — "unaffected... reconstructs from PPG history alone" (the

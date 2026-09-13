@@ -1274,7 +1274,9 @@ accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--contr
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
-`--flip-gate`, `--fit`, `--alpha X`, `--json`, `--write`. `--fit` defaults `--basis` to
+`--flip-gate`, `--fit`, `--alpha X`, `--json`, `--write`, `--fullpipeline`, `--rookie`,
+`--regression-model legacy|step4-upside` (with `--fit`/`--fullpipeline` only; default
+`step4-upside`). `--fit` defaults `--basis` to
 `half_ppr` (the app's own basis for store-served `careerStats`) while every other mode keeps
 `in-basis`, and it **rejects an explicit `--attribution`** because it pins `per-season-team` —
 the app's live default, load-bearing for the reconstruction.
@@ -1838,6 +1840,8 @@ npm run panel:fit
 ```
 
 Reproduce: `node bin/panel.mjs --fit --write`.
+
+**Step 4 regression model.** The mirror reproduces two versions of the app's Step 4 regression bucket: `legacy` (up-side ×1.12/×1.05 at every position — what the app shipped until `7b5b055`) and `step4-upside` (up-side QB-only, RB/WR/TE ×1.00). `--fit` and `--fullpipeline` default to the app's current model and stamp `meta.regressionModel`; an artifact without that stamp predates the versioning and was computed under `legacy`, which `--regression-model legacy` reproduces. `runStep4Verdict` grades the up-side of whichever model assembled the panel, so under `step4-upside` its RB/WR/TE ΔMAE is 0 by construction. T-F10 pins `legacy` against the 2026-07-05 capture; `test/step4-mirror.test.mjs` pins both models' bucket tables.
 
 This unit **builds and commits the fit only** — it activates nothing. Shipping a CLEARS position's exponents into `seasonProjection.js` is a separate, app-repo unit (`r3fit-activation.md`), gated on the committed verdict here.
 
