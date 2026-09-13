@@ -2403,9 +2403,50 @@ describe('D6b — Step 4 verdict (regression up-side removal + injury-gated prox
       assert.equal(b.seed, 12345);
       assert.ok(b.ci95[0] <= run1.overall.dMae && run1.overall.dMae <= b.ci95[1],
         `overall.dMae (${run1.overall.dMae}) should lie within ci95 (${b.ci95})`);
-      // Pinned to the deterministic RNG's observed output.
-      assert.deepEqual(b.ci95, run1.overall.bootstrap.ci95);
-      assert.equal(b.pNegative, run1.overall.bootstrap.pNegative);
+      // Pinned to the deterministic RNG's observed output (fix pass 1, item 2a).
+      assert.deepEqual(b.ci95, [-0.6333333333333341, 0.6833333333333339]);
+      assert.equal(b.pNegative, 0.4);
+
+      // Fix pass 1, item 2b — an independent reference that follows Appendix A's
+      // spec literally, rather than calling into lib/panel.mjs's bootstrap
+      // internals, so the pinned literals above are checked against the spec
+      // and not merely against the implementation's own output.
+      const refDiffs = rows.map(row => {
+        const shipped = predictFullPipeline(row).predicted;
+        const qs = row.qualifyingSeasons;
+        const meanPPG = qs.reduce((a, s) => a + s.ppg, 0) / qs.length;
+        const lastPPG = qs[qs.length - 1].ppg;
+        const outlierRatio = lastPPG / meanPPG;
+        const noUp = outlierRatio < 0.85
+          ? predictFullPipeline({ ...row, multipliers: { ...row.multipliers, regression: 1.0 } }).predicted
+          : shipped;
+        return { sleeperId: row.sleeperId, diff: Math.abs(noUp - row.outcomePPG) - Math.abs(shipped - row.outcomePPG) };
+      });
+      const refClusterOrder = [];
+      const refClusterMap = new Map();
+      for (const { sleeperId, diff } of refDiffs) {
+        if (!refClusterMap.has(sleeperId)) { refClusterMap.set(sleeperId, { sum: 0, n: 0 }); refClusterOrder.push(sleeperId); }
+        const c = refClusterMap.get(sleeperId);
+        c.sum += diff; c.n += 1;
+      }
+      const refClusters = refClusterOrder.map(id => refClusterMap.get(id));
+      let refSeed = 12345;
+      const refRnd = () => (refSeed = (refSeed * 1103515245 + 12345) % 2147483648) / 2147483648;
+      const refStats = [];
+      for (let r = 0; r < 400; r++) {
+        let sum = 0, n = 0;
+        for (let c = 0; c < refClusters.length; c++) {
+          const cluster = refClusters[Math.floor(refRnd() * refClusters.length)];
+          sum += cluster.sum; n += cluster.n;
+        }
+        refStats.push(sum / n);
+      }
+      refStats.sort((a, c) => a - c);
+      const refLo = refStats[Math.floor(0.025 * 400)];
+      const refHi = refStats[Math.ceil(0.975 * 400) - 1];
+      const refPNegative = refStats.filter(x => x < 0).length / 400;
+      assert.deepEqual(b.ci95, [refLo, refHi], 'implementation ci95 matches the spec-literal reference');
+      assert.equal(b.pNegative, refPNegative, 'implementation pNegative matches the spec-literal reference');
     });
 
     test('T-B3: two rows sharing one sleeperId plus one distinct row -> clusters===2', () => {

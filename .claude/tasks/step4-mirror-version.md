@@ -446,3 +446,94 @@ All 11 flags were verified against live source before disposition. All 11 were a
 | 11 | registry-stale — `FULL_FACTORS`/`ENVELOPE_FACTORS` unlisted (`lib/panel.mjs:875,904`) | Correct; both gate which positions get regression | **Fixed** by §4.2 R2. |
 
 The reviewer's MIRROR block matches §4.1 verbatim; no change was needed.
+
+---
+
+## Fix pass 1 — implementation-reviewer on `origin/main...37de7e7` (PR #10), 2026-09-13
+
+**Scope.** Tests only, on branch `step4-mirror-version`. **No change to `lib/`, `scripts/`, `bin/`, README or any task file other than this section.** Session 1 verified every flag against the diff before writing this.
+
+When done, the applier runs `npm test` and `npm run smoke`, commits as `fix: step4 mirror test strength (fix pass 1)`, and pushes to `origin step4-mirror-version`. Never push to `main`, and never `--force`. Hand back the diff, the new SHA, and the observed values pinned in item 2.
+
+### Dispositions
+
+| # | Flag | Verified | Disposition |
+|---|---|---|---|
+| 1 | scope-creep — commit `cabdac6` adds the Part B task file | Session 1's Session 2 prompt said to include **both** task files, so this follows the instruction | **No change.** Part B was written after the plan review of the single-file draft, so **it gets its own plan-reviewer pass before its Session 2.** |
+| 2 | test-honesty — T-B2 compares the result with itself | Correct: `test/panel-fit.test.mjs:2407-2408` compare `b` to `run1.overall.bootstrap`, which is the same object | **Fix** — item 2 |
+| 3 | test-honesty — T-S4-U4 "CV band is steady" never computes a CV | Correct: `test/step4-mirror.test.mjs:82-106` check mean and ratio only | **Fix** — item 3 |
+| 4 | fidelity — T-S4-U6 legacy checked without a position only | Correct: `:140` | **Fix** — item 4 |
+| 5 | coverage-gap — model stamps and Step 4 markdown lines untested | Correct; §6 never specified them (a planning gap, not a Session 2 deviation) | **Partial fix** — item 5. Not added: the `runFullPipeline` `meta.regressionModel` and `step4Section` lines. Their stamp is the same `panel.meta.regressionModel` passthrough as `runFit`'s (`scripts/panel-run.mjs:1017` vs `:1328`), which item 5 pins. R2 verified the rendered path. No full-pipeline fixture exists, and building one is not proportional. |
+| 6 | coverage-gap — the three `--regression-model` CLI guards have no test | Correct; `test/` has no `child_process`/`spawnSync` precedent at all | **Declined.** The guards are three thin exits (`bin/panel.mjs` after the `--fullpipeline --attribution` guard), R3 exercised all three, and introducing the repo's first process-spawning test pattern is disproportionate. |
+
+### Item 2 · T-B2 — pin real values, plus an Appendix A reference check (`test/panel-fit.test.mjs`, T-B2)
+
+Delete the two self-comparing assertions (`:2406-2408`) and add both of the following checks.
+
+**a. Literal pin.**
+1. Run the existing T-B2 fixture once and read `run1.overall.bootstrap.ci95` and `.pNegative`.
+2. Replace the assertions with literals: `assert.deepEqual(b.ci95, [<lo>, <hi>])` and `assert.equal(b.pNegative, <p>)`.
+3. Use the full-precision numbers exactly as printed by `JSON.stringify`.
+4. Report the literals in the hand-back.
+
+**b. Independent reference.** A test-local function, written inline in the test, that follows the spec literally rather than calling the implementation:
+- **Per-row diffs.** For each fixture row:
+  - `shipped = predictFullPipeline(row).predicted`;
+  - `noUp` is `predictFullPipeline` on a copy whose `multipliers.regression` is `1.0` when the row's `outlierRatio` (from `qualifyingSeasons`, as `runStep4Verdict` computes it) is `< 0.85`; otherwise `noUp = shipped`;
+  - `diff = |noUp − outcomePPG| − |shipped − outcomePPG|`.
+- **Clusters.** Group by `sleeperId` in first-seen order, as `{ sum, n }`.
+- **RNG.** `let seed = 12345; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;`
+- **Resampling.** 400 resamples. Each draws `clusters.length` clusters with `Math.floor(rnd() * clusters.length)` and records `Σsum / Σn`.
+- **Summary.** Sort ascending. `lo = bs[Math.floor(0.025 * 400)]`, `hi = bs[Math.ceil(0.975 * 400) - 1]`, `pNegative = bs.filter(x => x < 0).length / 400`.
+
+Then assert `assert.deepEqual(b.ci95, [lo, hi])` and `assert.equal(b.pNegative, pNegative)`.
+
+**If the reference disagrees with the implementation, stop and report. Do not touch `lib/`.**
+
+### Item 3 · T-S4-U4 — compute the band (`test/step4-mirror.test.mjs`)
+
+In both "CV band is steady" tests, keep the existing mean and ratio assertions, then add:
+- `sd` = the **sample** standard deviation (n − 1 denominator, as `sampleStdDev` in `lib/projectionFactors.mjs`);
+- `cv = sd / meanPPG`;
+- `score = Math.max(0, Math.min(100, 100 − cv × 100))`.
+
+Assert:
+
+| Series | Score | Band |
+|---|---|---|
+| `[22, 22, 22, 22, 16]` | `round1(score) === 87.1` | `'steady'` (score ≥ 80) |
+| `[18, 18, 18, 18, 24]` | `round1(score) === 86.0` | `'steady'` |
+
+`round1 = x => Math.round(x * 10) / 10`.
+
+Session 1's arithmetic: both series have Σ(x − mean)² = 28.8, so sd = √7.2 = 2.683. That gives cv 0.1290 and 0.1398 respectively.
+
+If either observed value differs, stop and report.
+
+### Item 4 · T-S4-U6 — legacy across every position (`test/step4-mirror.test.mjs`)
+
+Replace the single `{ model: 'legacy' }` call with a loop over `['QB', 'RB', 'WR', 'TE', undefined]`. Each `resolveRegressionBucket(0.9, { position, model: 'legacy' }).regressionUpsideBasis` must `=== null`.
+
+### Item 5 · Model stamps
+
+**a. `test/panel-integration.test.mjs`, the `runFit` describe (`:522` fixture), inside the existing well-formedness test:**
+- `assert.equal(fitReport.meta.regressionModel, 'step4-upside')`
+- `assert.equal(panel.meta.regressionModel, 'step4-upside')`
+- `assert.equal(panel.coverage.fitCoverage.regressionModel, 'step4-upside')`
+
+**b. Same describe, a new test.** Call `assemblePanel({ fromYear: 2020, toYear: 2024, attribution: 'per-season-team', basis: 'half_ppr', load, withFactorMultipliers: true, historyFloor: 2012, regressionModel: 'legacy' })`. Assert:
+- `meta.regressionModel === 'legacy'`
+- `coverage.fitCoverage.regressionModel === 'legacy'`
+
+Import `assemblePanel` if the file does not already.
+
+**c. `test/panel-integration.test.mjs`, the `withFactorMultipliers unset` describe (`:711`).** In the first test, for both `withoutFlag` and `withFlagFalse`, add `assert.ok(!('regressionModel' in p.meta))`. The stamp must be absent when no multipliers are attached.
+
+### Not in scope for this pass
+
+- Any `lib/`, `scripts/` or `bin/` change.
+- The README.
+- Part B.
+- `cross-repo-registry.md`.
+
+If a test above cannot be written without touching source, stop and report.

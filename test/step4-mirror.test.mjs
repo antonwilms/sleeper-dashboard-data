@@ -78,6 +78,24 @@ describe('T-S4-U3: threshold table', () => {
 
 describe('T-S4-U4: composition', () => {
   function round3(x) { return Math.round(x * 1000) / 1000; }
+  function round1(x) { return Math.round(x * 10) / 10; }
+
+  // Fix pass 1, item 3 — a test-local replica of lib/projectionFactors.mjs's
+  // (unexported) sampleStdDev + consistency-score arithmetic, so "the band is
+  // steady" is actually computed here rather than asserted by name.
+  function sampleStdDev(values) {
+    if (values.length < 2) return 0;
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / (values.length - 1);
+    return Math.sqrt(variance);
+  }
+  function bandOf(ppgs, meanPPG) {
+    const sd = sampleStdDev(ppgs);
+    const cv = sd / meanPPG;
+    const score = Math.max(0, Math.min(100, 100 - cv * 100));
+    const band = score >= 80 ? 'steady' : score >= 60 ? 'moderate' : 'erratic';
+    return { score, band };
+  }
 
   test('CV band is steady for [22,22,22,22,16] — ratio 0.769', () => {
     const ppgs = [22, 22, 22, 22, 16];
@@ -86,6 +104,9 @@ describe('T-S4-U4: composition', () => {
     const lastPPG = 16;
     const outlierRatio = lastPPG / meanPPG;
     assert.ok(Math.abs(outlierRatio - 0.769) < 1e-3);
+    const { score, band } = bandOf(ppgs, meanPPG);
+    assert.equal(round1(score), 87.1);
+    assert.equal(band, 'steady');
   });
 
   test('[22,22,22,22,16]: legacy·WR = 1.025, step4-upside·WR = 1, step4-upside·QB = 1.025', () => {
@@ -103,6 +124,9 @@ describe('T-S4-U4: composition', () => {
     const lastPPG = 24;
     const outlierRatio = lastPPG / meanPPG;
     assert.equal(outlierRatio, 1.25);
+    const { score, band } = bandOf(ppgs, meanPPG);
+    assert.equal(round1(score), 86.0);
+    assert.equal(band, 'steady');
   });
 
   test('[18,18,18,18,24]: 0.975 under all four model x position combinations', () => {
@@ -137,7 +161,9 @@ describe('T-S4-U6: basis type', () => {
       const upside = resolveRegressionBucket(0.9, { position, model: 'step4-upside' });
       assert.equal(typeof upside.regressionUpsideBasis, 'string');
     }
-    const legacy = resolveRegressionBucket(0.9, { model: 'legacy' });
-    assert.equal(legacy.regressionUpsideBasis, null);
+    for (const position of ['QB', 'RB', 'WR', 'TE', undefined]) {
+      const legacy = resolveRegressionBucket(0.9, { position, model: 'legacy' });
+      assert.equal(legacy.regressionUpsideBasis, null);
+    }
   });
 });
