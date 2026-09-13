@@ -5,7 +5,7 @@
 **Split (review flag 1).**
 - **Part A** (this file): the versioned mirror, harness threading, CLI, the Step 4 bootstrap, T-F5/T-F10 and docs. Shippable now.
 - **Part B** (`.claude/tasks/step4-boundary-parity.md`): the parity test across the boundary and the D-18 `grading/anchor-policy.md` rewrite. **Blocked** on A merging and on the first post-boundary capture.
-- **CR-15 registry text** (§4.2): applied by one parent-folder session after A merges.
+- **CR-15 registry text** (§4.2): two-session route after A merges — an app-repo session applies it, then a data-repo session syncs.
 
 **Session 1:** 2026-09-12 22:40 UTC, planning only. Planned against data `origin/main` `3337a01` and app `origin/main` `87305bc` (boundary commit `7b5b055`). The local checkout sits on the merged `rookie-mirror` branch, 0 ahead; Session 2 starts from `main`.
 
@@ -224,14 +224,15 @@ Both copies' CR-15 are byte-identical today (the line-anchored sentinel diff is 
 - old: ``which `test/rookie-mirror.test.mjs`'s import-graph assertion enforces.``
 - new: ``which `test/rookie-mirror.test.mjs`'s import-graph assertion enforces. **A gate change that captured snapshots already carry is added as a new model, never an overwrite (`7b5b055`, Step 4 up-side):** the retired behaviour stays reproducible for parity against pre-boundary captures and for re-running committed verdicts, the new model becomes the harness default, and the boundary gets a row in `grading/anchor-policy.md`.``
 
-**Route (review flag 2).** CLAUDE.md sanctions exactly one way to land a two-sided registry change: a parent-folder session editing both copies in the same change. That replaces the brief's sequential app-then-data route, which would leave the mirrored regions disagreeing in between. The emitted text above is unchanged by this. **After this PR merges** (R2/R3/R5 name symbols and a test file that must exist first), one parent-folder session:
-1. applies R1–R7 to `sleeper-dashboard/docs/cross-repo-registry.md` **and** `sleeper-dashboard-data/cross-repo-registry.md`;
-2. confirms the line-anchored diff is empty:
+**Route — two-session (Anton, 2026-09-13; overrides review flag 2).** The parent folder has no `CLAUDE.md` and no review gate, so the 2026-09-05 precondition for parent-folder sessions is unmet. The transient difference between the two copies is accepted. **After this PR merges** (merged as `e802e73`; R2/R3/R5 name symbols and a test file that had to exist first):
+1. **App-repo session** applies R1–R7 to `docs/cross-repo-registry.md` exactly as emitted above; each `old` must match exactly once.
+2. **Data-repo sync session**, once step 1 is on the app's `origin/main`, applies the identical R1–R7 to `cross-repo-registry.md`. From the data repo root it runs the anchored diff, which must be empty:
    ```sh
-   diff <(sed -n '/^<!-- CR-REGISTRY-BEGIN -->$/,/^<!-- CR-REGISTRY-END -->$/p' sleeper-dashboard/docs/cross-repo-registry.md) <(sed -n '/^<!-- CR-REGISTRY-BEGIN -->$/,/^<!-- CR-REGISTRY-END -->$/p' sleeper-dashboard-data/cross-repo-registry.md)
+   diff <(sed -n '/^<!-- CR-REGISTRY-BEGIN -->$/,/^<!-- CR-REGISTRY-END -->$/p' cross-repo-registry.md) <(sed -n '/^<!-- CR-REGISTRY-BEGIN -->$/,/^<!-- CR-REGISTRY-END -->$/p' ../sleeper-dashboard/docs/cross-repo-registry.md)
    ```
-3. runs `npm test` in the data repo;
-4. commits each repo and pushes both together.
+   `npm test` (`registry.test.mjs`) must also be green. It commits `docs: sync CR-15 (step4 mirror versioning)` and pushes to `main`.
+
+Between steps 1 and 2 the two copies differ by exactly R1–R7, and nothing reds in either repo in the meantime.
 
 **Session 2 pre-check (no registry edit):**
 1. Apply R1–R7 to a scratchpad copy of `cross-repo-registry.md`.
@@ -252,7 +253,7 @@ The `lib/registry.mjs` scan over the touched files and symbols also matched thes
 
 ### 4.4 Deferred from D-17 — not this slice
 
-These are app-side-only facts that this repo's reviewer cannot verify, and they are independent of the mirror. They go to their own parent-folder item, and may be batched into §4.2's session if planned there:
+These are app-side-only facts that this repo's reviewer cannot verify, and they are independent of the mirror. They go to their own two-session item, and may be batched into §4.2's route if planned there:
 - CR-01's unlisted consumers.
 - The stale CR-02/CR-13/CR-17 `seasonProjection.js` anchors.
 - **New:** the app copy's drift command (`docs/cross-repo-registry.md:269-270`) diffs against `../sleeper-dashboard-data/README.md`. That file has had no sentinels since `b44304e`, so the command diffs the full region against an empty span and can never pass.
@@ -290,7 +291,7 @@ The baseline isolates the mirror change from the weekly inputs `--fullpipeline` 
   - `node bin/panel.mjs --fit --regression-model`
   - `node bin/panel.mjs --fit --regression-model foo`
 
-**PR:** title `feat: versioned Step 4 regression mirror (D-17)`. The body lists §4.2's parent-folder session and Part B as follow-ups. Do not merge before verification and human sign-off.
+**PR:** title `feat: versioned Step 4 regression mirror (D-17)`. The body lists §4.2's registry route and Part B as follow-ups. Do not merge before verification and human sign-off.
 
 ---
 
@@ -434,7 +435,7 @@ All 11 flags were verified against live source before disposition. All 11 were a
 | # | Flag | Verified | Disposition |
 |---|---|---|---|
 | 1 | slice-size — 45,852 B > 40 KB | Correct | **Split.** A = this file (shippable now); B = `step4-boundary-parity.md`, blocked on the post-boundary capture. The calendar block was already a natural seam. |
-| 2 | strategy — the sequential app→data registry route leaves the copies disagreeing; CLAUDE.md sanctions a parent-folder session | Correct (CLAUDE.md, Cross-repo contract registry) | **Fixed** in §4.2. The emitted text is unchanged; application moves to one parent-folder session after A merges. **Deviates from the brief's "two-session route" wording.** Anton can override. |
+| 2 | strategy — the sequential app→data registry route leaves the copies disagreeing; CLAUDE.md sanctions a parent-folder session | Correct as a reading of CLAUDE.md | **Overridden by Anton (2026-09-13):** keep the two-session route. The parent folder has no `CLAUDE.md` and no review gate, so the 2026-09-05 precondition is unmet. §4.2 restored; the emitted text is unchanged. |
 | 3 | ordering — no pre-change `--fullpipeline` baseline; weekly inputs can drift | Correct (`nflverse-playerids.yml` weekly Wed, `nflverse-depth.yml` weekly Sat) | **Fixed.** Step 0 baseline; R1 now deep-equals the baseline (must hold). The 2026-09-06 figures are reported, and drift is not a stop. |
 | 4 | edge-case — T-B4 `===` between the bootstrap mean and `dMae` | Correct (`maeOf` `:1736` = difference of means) | **Fixed.** T-B4 uses exactly one row; §3.2b states the float semantics. |
 | 5 | edge-case — `option()` returns `null` for a trailing flag, silently defaulting | Correct (`bin/panel.mjs:57-60`) | **Fixed** in §3.4 and R3. |
