@@ -530,6 +530,12 @@ describe('T-F12: R3-FIT full pipeline (synthetic multi-year, multi-position data
     assert.equal(fitReport.meta.historyFloor, 2012);
     assert.ok(fitReport.pool && fitReport.pool.WRTE, 'pool.WRTE present');
 
+    // Fix pass 1, item 5a — the D-17 model stamp threads through runFit's
+    // report, the assembled panel, and fitCoverage.
+    assert.equal(fitReport.meta.regressionModel, 'step4-upside');
+    assert.equal(panel.meta.regressionModel, 'step4-upside');
+    assert.equal(panel.coverage.fitCoverage.regressionModel, 'step4-upside');
+
     for (const position of PANEL_POSITIONS) {
       const r = fitReport.perPosition[position];
       assert.ok(FIT_VERDICT_LABELS.includes(r.baseVerdict));
@@ -589,6 +595,16 @@ describe('T-F12: R3-FIT full pipeline (synthetic multi-year, multi-position data
     assert.ok(panel.coverage.fitCoverage);
     assert.ok(panel.coverage.aggregateRowsExcludedByYear, 'the landed entity-filter witness is still surfaced');
     assert.ok(Array.isArray(panel.coverage.perPositionYear));
+  });
+
+  // Fix pass 1, item 5b — assemblePanel threads an explicit regressionModel.
+  test('assemblePanel stamps an explicit regressionModel (legacy) into meta and fitCoverage', () => {
+    const legacyPanel = assemblePanel({
+      fromYear: 2020, toYear: 2024, attribution: 'per-season-team', basis: 'half_ppr', load,
+      withFactorMultipliers: true, historyFloor: 2012, regressionModel: 'legacy',
+    });
+    assert.equal(legacyPanel.meta.regressionModel, 'legacy');
+    assert.equal(legacyPanel.coverage.fitCoverage.regressionModel, 'legacy');
   });
 });
 
@@ -735,8 +751,11 @@ describe('R3-FIT non-regression: assemblePanel with withFactorMultipliers unset'
     assert.deepEqual(withoutFlag.coverage, withFlagFalse.coverage);
     const stripStamp = ({ generatedAt, ...rest }) => rest;
     assert.deepEqual(stripStamp(withoutFlag.meta), stripStamp(withFlagFalse.meta));
-    for (const p of [withoutFlag, withFlagFalse])
+    for (const p of [withoutFlag, withFlagFalse]) {
       assert.match(p.meta.generatedAt, /^\d{4}-\d{2}-\d{2}T/, 'meta.generatedAt present and ISO-shaped');
+      // Fix pass 1, item 5c — no regressionModel stamp when no multipliers are attached.
+      assert.ok(!('regressionModel' in p.meta), 'meta.regressionModel is absent without withFactorMultipliers');
+    }
   });
 
   test('rows carry only the pre-existing E-0a shape (features/candidates), no multipliers/anchorBasePPG leak in', () => {

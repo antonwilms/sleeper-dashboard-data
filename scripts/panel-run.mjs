@@ -22,6 +22,7 @@ import fs from 'fs';
 import path from 'path';
 import { readJson, writeJsonStable, repoPath } from '../lib/io.mjs';
 import { buildInBasisOutcomes, buildHalfPprOutcomes } from './grade-snapshot.mjs';
+import { REGRESSION_MODELS, CURRENT_REGRESSION_MODEL } from '../lib/projectionFactors.mjs';
 import {
   PANEL_DEFAULTS,
   PANEL_POSITIONS,
@@ -136,6 +137,7 @@ export function assemblePanel({
   load = DEFAULT_LOAD,
   withFactorMultipliers = false,
   historyFloor = null,
+  regressionModel = CURRENT_REGRESSION_MODEL,
 }) {
   if (!ATTRIBUTION_MODES.includes(attribution)) {
     throw new Error(`[panel] unknown --attribution '${attribution}' — use current-team|per-season-team`);
@@ -229,7 +231,7 @@ export function assemblePanel({
 
     const { rows: fitRows, fitCoverage } = attachFactorMultipliers(rows, {
       totalsByYear, teamTotalsByYear, ppgByYear, advstatsByYear, rosterByYear, fromYear, toYear,
-      crosswalk, snapsByYear, birthdateOf, depthByYear,
+      crosswalk, snapsByYear, birthdateOf, depthByYear, regressionModel,
     });
     finalRows = fitRows;
     finalCoverage = { ...coverage, fitCoverage };
@@ -249,6 +251,7 @@ export function assemblePanel({
     gates: PANEL_GATES,
     minOutcomeGames,
     minTrainSeasons: PANEL_DEFAULTS.minTrainSeasons,
+    ...(withFactorMultipliers ? { regressionModel } : {}),
   };
 
   return { rows: finalRows, coverage: finalCoverage, meta };
@@ -949,13 +952,14 @@ export function runFit({
   alpha = FIT_ALPHA_DEFAULT,
   alphaSweep = FIT_ALPHA_SWEEP,
   load = DEFAULT_LOAD,
+  regressionModel = CURRENT_REGRESSION_MODEL,
 } = {}) {
   // per-season-team is hardcoded — the app's live DEFAULT_ATTRIBUTION, not
   // user-overridable (§6.3); the CLI-level guard against --fit --attribution
   // lives in bin/panel.mjs (§6.4).
   const panel = assemblePanel({
     fromYear, toYear, attribution: 'per-season-team', basis, scoringFrom, minOutcomeGames, load,
-    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR,
+    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, regressionModel,
   });
 
   const folds = panelFolds(panel);
@@ -1010,6 +1014,7 @@ export function buildFitVerdictReport({ panel, perPosition, pool, folds, alpha, 
       combinedClamp: FIT_COMBINED_CLAMP,
       envelopeFactors: ENVELOPE_FACTORS,
       baselineOfRecord: BASELINE_OF_RECORD,
+      regressionModel: panel.meta.regressionModel,
     },
     coverage: panel.coverage,
     perPosition,
@@ -1291,10 +1296,11 @@ export function runFullPipeline({
   fromYear = PANEL_DEFAULTS.fromYear,
   toYear = PANEL_DEFAULTS.toYear,
   load = DEFAULT_LOAD,
+  regressionModel = CURRENT_REGRESSION_MODEL,
 } = {}) {
   const panel = assemblePanel({
     fromYear, toYear, attribution: 'per-season-team', basis: 'half_ppr', load,
-    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR,
+    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, regressionModel,
   });
 
   const rowsByPosition = {};
@@ -1319,6 +1325,7 @@ export function runFullPipeline({
     notGradableFactors: NOT_GRADABLE_FACTORS,
     sensitivityStep: SENSITIVITY_STEP,
     sensitivityHoldFactors: SENSITIVITY_HOLD_FACTORS,
+    regressionModel: panel.meta.regressionModel,
   };
 
   // §E Step 4 — "unaffected... reconstructs from PPG history alone" (the
@@ -1333,6 +1340,7 @@ export function runFullPipeline({
   for (const position of PANEL_POSITIONS) {
     step4[position] = runStep4Verdict(rowsByPosition[position], {
       injuryPredicate: (row) => (row.dnpWeeksLastQ ?? 0) >= 3,
+      bootstrap: { resamples: 4000, seed: 12345 },
     });
   }
 
@@ -1489,12 +1497,26 @@ function ablationSection(position, ablationReport, fitCoverage) {
   return lines.join('\n');
 }
 
-function step4Section(position, s4) {
+function bootstrapSentence(bootstrap) {
+  if (!bootstrap) return null;
+  const { clusters, resamples, ci95, pNegative } = bootstrap;
+  return `Clustered bootstrap (${clusters} players, ${resamples} resamples): ΔMAE 95% CI [${fpFmt(ci95[0])}, ${fpFmt(ci95[1])}], P(Δ<0)=${fpFmt(pNegative, 2)}`;
+}
+
+function step4Section(position, s4, model) {
   const o = s4.overall;
-  const lines = [`### ${position}`, '', `Overall (n=${o.n}): shipped MAE=${fpFmt(o.shippedMae)}, no-upside MAE=${fpFmt(o.noUpsideMae)}, ΔMAE=${fpFmt(o.dMae)}, ΔSpearman=${fpFmt(o.dSpearman)}`];
+  const lines = [`### ${position}`, '', `Up-side graded against the \`${model}\` Step 4 table.`];
+  if (model === 'step4-upside' && position !== 'QB') {
+    lines.push('RB/WR/TE ΔMAE is 0 by construction — no up-side remains to remove.');
+  }
+  lines.push(`Overall (n=${o.n}): shipped MAE=${fpFmt(o.shippedMae)}, no-upside MAE=${fpFmt(o.noUpsideMae)}, ΔMAE=${fpFmt(o.dMae)}, ΔSpearman=${fpFmt(o.dSpearman)}`);
+  const overallBootstrap = bootstrapSentence(o.bootstrap);
+  if (overallBootstrap) lines.push(overallBootstrap);
   if (s4.injuryGated) {
     const g = s4.injuryGated;
     lines.push(`Injury-gated proxy (dnpWeeks≥3, n=${g.n}): shipped MAE=${fpFmt(g.shippedMae)}, no-upside MAE=${fpFmt(g.noUpsideMae)}, ΔMAE=${fpFmt(g.dMae)}, ΔSpearman=${fpFmt(g.dSpearman)}`);
+    const injuryBootstrap = bootstrapSentence(g.bootstrap);
+    if (injuryBootstrap) lines.push(injuryBootstrap);
   }
   return lines.join('\n');
 }
@@ -1557,7 +1579,7 @@ export function buildFullPipelineVerdictMarkdown(result) {
       '## §E — Step 4 verdict (unaffected by the stop — reconstructs from PPG history alone)',
       '',
     );
-    for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position]));
+    for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position], meta.regressionModel));
     lines.push('', '## Rookie panel (unaffected by the stop — an entirely separate reconstruction)', '', rookieSection(result.rookiePanel), '');
     return lines.join('\n');
   }
@@ -1575,7 +1597,7 @@ export function buildFullPipelineVerdictMarkdown(result) {
     '## §E — Step 4 verdict (regression up-side branches, outlierRatio<0.85 forced to neutral)',
     '',
   );
-  for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position]));
+  for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position], meta.regressionModel));
 
   lines.push(
     '',

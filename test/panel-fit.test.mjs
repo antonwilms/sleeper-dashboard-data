@@ -49,6 +49,7 @@ import {
   buildCareerArcVector, findReconstructedCareerComps, compsProjectedPPG, reconstructCompBlendFactor,
   reconstructRookieProjection, reconstructNflDraftFactor, reconstructRookieAgeFactor, ROOKIE_MULTIPLIER_CLAMP,
   EMPTY_CORRECTIONS,
+  resolveRegressionBucket, REGRESSION_MODELS, CURRENT_REGRESSION_MODEL, REGRESSION_UPSIDE_POSITIONS,
 } from '../lib/projectionFactors.mjs';
 import { reconstructShippedRookieProjection } from '../lib/rookieMirror.mjs';
 import { runFit, buildFitVerdictReport, buildFitVerdictMarkdown, assemblePanel, DEFAULT_LOAD, buildOutcomeMaps } from '../scripts/panel-run.mjs';
@@ -635,19 +636,23 @@ describe('T-F5: golden-fixture reconstruction parity', () => {
     assert.equal(reconstructMomentumFactor(ppgs, 15), 1.08);
   });
 
-  test('regression: non-sentinel inversion trap — <3 qualifying applies the FULL undampened correction, not 1.0', () => {
+  test('regression: non-sentinel inversion trap — <3 qualifying applies the FULL undampened correction, not 1.0 (identical under both Step 4 models — outside the up-side)', () => {
     // outlierRatio = 20/15 = 1.333 -> raw 0.95; length<3 -> consistencyScale=1.00 (undampened)
-    assert.equal(reconstructRegressionFactor([10, 20], 15, 20), 0.95);
+    for (const model of REGRESSION_MODELS) {
+      assert.equal(reconstructRegressionFactor([10, 20], 15, 20, { position: 'WR', model }), 0.95);
+    }
   });
 
-  test('regression: flat-1.0 interval true edges — 1.15 and 0.85 both give 1.00; 1.16 gives 0.95; 1.36 gives 0.88', () => {
+  test('regression: flat-1.0 interval true edges — 1.15 and 0.85 both give 1.00; 1.16 gives 0.95; 1.36 gives 0.88 (identical under both Step 4 models — outside the up-side)', () => {
     const meanPPG = 100;
-    assert.equal(reconstructRegressionFactor([meanPPG, meanPPG, meanPPG], meanPPG, 115), 1.00, 'outlierRatio exactly 1.15');
-    assert.equal(reconstructRegressionFactor([meanPPG, meanPPG, meanPPG], meanPPG, 85), 1.00, 'outlierRatio exactly 0.85');
-    const r116 = reconstructRegressionFactor([meanPPG, meanPPG, meanPPG], meanPPG, 116);
-    assert.ok(r116 < 1.00 && r116 > 0.9, `1.16 should land on the 0.95 bucket (dampened somewhat), got ${r116}`);
-    const r136 = reconstructRegressionFactor([meanPPG, meanPPG, meanPPG], meanPPG, 136);
-    assert.ok(r136 < r116, '1.36 (the 0.88 bucket) should correct harder than 1.16 (the 0.95 bucket)');
+    for (const model of REGRESSION_MODELS) {
+      assert.equal(reconstructRegressionFactor([meanPPG, meanPPG, meanPPG], meanPPG, 115, { position: 'WR', model }), 1.00, 'outlierRatio exactly 1.15');
+      assert.equal(reconstructRegressionFactor([meanPPG, meanPPG, meanPPG], meanPPG, 85, { position: 'WR', model }), 1.00, 'outlierRatio exactly 0.85');
+      const r116 = reconstructRegressionFactor([meanPPG, meanPPG, meanPPG], meanPPG, 116, { position: 'WR', model });
+      assert.ok(r116 < 1.00 && r116 > 0.9, `1.16 should land on the 0.95 bucket (dampened somewhat), got ${r116}`);
+      const r136 = reconstructRegressionFactor([meanPPG, meanPPG, meanPPG], meanPPG, 136, { position: 'WR', model });
+      assert.ok(r136 < r116, '1.36 (the 0.88 bucket) should correct harder than 1.16 (the 0.95 bucket)');
+    }
   });
 
   test('trajectory: <2 -> 1.0; increasing trend clamps positively', () => {
@@ -852,6 +857,71 @@ describe('T-F7: sentinels are NOT drops', () => {
     assert.equal(fitCoverage.flatOneCounts.WR?.regression, 1);
     assert.equal(fitCoverage.sentinelCounts.WR?.shareTrend ?? 0, 0, 'stable-label flat is not a sentinel');
     assert.equal(fitCoverage.sentinelCounts.WR?.regression ?? 0, 0, 'regression never has a sentinel (row 2)');
+  });
+
+  // D-17 T-A1 — attachFactorMultipliers threads regressionModel through to
+  // reconstructRegressionFactor. Builder reused: the manual per-year
+  // totalsByYear shape from the ":826"/":847" tests above (a single tracked
+  // player + one filler pool player per year), built directly rather than via
+  // buildWrFixture (which pins fantasyPoints constant across years) so the
+  // tracked player's per-year PPG can vary. 3 qualifying seasons, last PPG
+  // (12) is 0.6x the mean of the earlier two (20, 20).
+  function threeSeasonRegressionFixture(position, pid) {
+    const totalsByYear = {};
+    const fantasyPointsBySeason = { 2019: 320, 2020: 320, 2021: 192 }; // ppg 20, 20, 12
+    const baseStats = position === 'QB'
+      ? { pass_att: 500, pass_yd: 4000, pass_td: 30, pass_rz_att: 40 }
+      : { rec_tgt: 90, rec: 60, rec_yd: 800, rec_td: 5, rec_rz_tgt: 15, off_snp: 650, tm_off_snp: 1000 };
+    for (const y of [2019, 2020, 2021]) {
+      totalsByYear[y] = {
+        [pid]: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { ...baseStats }, fantasyPoints: fantasyPointsBySeason[y] }),
+        f0: totalsRec({ team: 'KC', gamesPlayed: 16, stats: { ...baseStats }, fantasyPoints: 90 }),
+      };
+    }
+    return totalsByYear;
+  }
+
+  describe('T-A1: attachFactorMultipliers threads the model (D-17)', () => {
+    test('default ctx uses step4-upside; WR up-side is removed (=== 1)', () => {
+      const totalsByYear = threeSeasonRegressionFixture('WR', 'w1');
+      const advstatsByYear = positionsFor(totalsByYear, 'WR');
+      const ctx = buildAttachCtx(totalsByYear, { advstatsByYear });
+      const baseRows = [{ sleeperId: 'w1', position: 'WR', predictorYear: 2021, team: 'KC', mover: false, features: {}, candidates: {}, outcomePPG: 15 }];
+
+      const { rows, fitCoverage } = attachFactorMultipliers(baseRows, ctx);
+      assert.equal(fitCoverage.regressionModel, 'step4-upside');
+      const ppgs = [20, 20, 12], meanPPG = (20 + 20 + 12) / 3, lastPPG = 12;
+      const expected = reconstructRegressionFactor(ppgs, meanPPG, lastPPG, { position: 'WR', model: 'step4-upside' });
+      assert.equal(rows[0].multipliers.regression, expected);
+      assert.equal(rows[0].multipliers.regression, 1);
+    });
+
+    test("regressionModel: 'legacy' reproduces the ungated table; QB is identical across ctxs", () => {
+      const wrTotals = threeSeasonRegressionFixture('WR', 'w1');
+      const wrAdvstats = positionsFor(wrTotals, 'WR');
+      const wrCtxDefault = buildAttachCtx(wrTotals, { advstatsByYear: wrAdvstats });
+      const wrCtxLegacy = buildAttachCtx(wrTotals, { advstatsByYear: wrAdvstats });
+      const wrBaseRows = [{ sleeperId: 'w1', position: 'WR', predictorYear: 2021, team: 'KC', mover: false, features: {}, candidates: {}, outcomePPG: 15 }];
+
+      const { rows: wrLegacyRows, fitCoverage: wrLegacyCoverage } = attachFactorMultipliers(wrBaseRows, { ...wrCtxLegacy, regressionModel: 'legacy' });
+      assert.equal(wrLegacyCoverage.regressionModel, 'legacy');
+      const ppgs = [20, 20, 12], meanPPG = (20 + 20 + 12) / 3, lastPPG = 12;
+      const expectedLegacy = reconstructRegressionFactor(ppgs, meanPPG, lastPPG, { position: 'WR', model: 'legacy' });
+      assert.equal(wrLegacyRows[0].multipliers.regression, expectedLegacy);
+      assert.ok(wrLegacyRows[0].multipliers.regression > 1);
+
+      const qbTotals = threeSeasonRegressionFixture('QB', 'q1');
+      const qbAdvstats = positionsFor(qbTotals, 'QB');
+      const qbBaseRows = [{ sleeperId: 'q1', position: 'QB', predictorYear: 2021, team: 'KC', mover: false, features: {}, candidates: {}, outcomePPG: 15 }];
+
+      const { rows: qbDefaultRows } = attachFactorMultipliers(qbBaseRows, buildAttachCtx(qbTotals, { advstatsByYear: qbAdvstats }));
+      const { rows: qbLegacyRows } = attachFactorMultipliers(qbBaseRows, { ...buildAttachCtx(qbTotals, { advstatsByYear: qbAdvstats }), regressionModel: 'legacy' });
+      assert.equal(qbDefaultRows[0].multipliers.regression, qbLegacyRows[0].multipliers.regression, 'QB regression is identical under both models — QB is retained in step4-upside');
+    });
+
+    test('an unknown regressionModel throws, even with [] rows', () => {
+      assert.throws(() => attachFactorMultipliers([], { totalsByYear: {}, teamTotalsByYear: {}, ppgByYear: {}, regressionModel: 'x' }), /unknown regression model/);
+    });
   });
 
   test('per-position keying: two positions with different flat profiles keep separate counts', () => {
@@ -1475,6 +1545,8 @@ describe('T-F19: non-positive-ppg guard', () => {
 //   for (const pid of sample) slimSnapshot.players[pid] = { projection: { factors: snapshot.players[pid].projection.factors } };
 //   fs.writeFileSync(path.join(OUT_DIR, 'snapshot-2026-07-05.slim.json'), JSON.stringify(slimSnapshot, null, 2) + '\n');
 //
+// This gate pins the 'legacy' regression model permanently — its capture
+// (2026-07-05) predates boundary app commit 7b5b055 (D-17).
 describe('T-F10: real-player snapshot parity (the fidelity gate)', () => {
   const FIXTURE_DIR = path.join(REPO_ROOT, 'test/fixtures/r3fit-parity-2025');
   // Fix pass 1 item 5 — finding 6's reasoning ("a missing set leaves the gate
@@ -1534,19 +1606,18 @@ describe('T-F10: real-player snapshot parity (the fidelity gate)', () => {
       const band = consistencyScore >= 80 ? 'steady' : consistencyScore >= 60 ? 'moderate' : 'erratic';
       return { consistencyScore, consistencyBand: band, consistencyScale: { steady: 0.50, moderate: 0.80, erratic: 1.00 }[band] };
     }
-    function localRegressionFactorRaw(outlierRatio) {
-      if (outlierRatio > 1.35) return 0.88;
-      if (outlierRatio > 1.15) return 0.95;
-      if (outlierRatio < 0.65) return 1.12;
-      if (outlierRatio < 0.85) return 1.05;
-      return 1.00;
-    }
+    // D-17 C6 — the fixture predates the up-side gate boundary: no row carries
+    // regressionUpsideBasis.
+    const rowsWithUpsideBasis = Object.values(snapshot.players)
+      .filter(p => p.projection.factors.regressionUpsideBasis != null);
+    assert.equal(rowsWithUpsideBasis.length, 0, 'T-F10 fixture predates boundary 7b5b055 — no row should carry regressionUpsideBasis');
 
     const samplePids = Object.keys(snapshot.players);
     assert.ok(samplePids.length > 0, 'fixture sanity: the sample is non-empty');
 
     let checkedLastQNot2025 = false;
     let checkedCount = 0;
+    const step4UpsideDiscriminatingRows = [];
 
     for (const pid of samplePids) {
       const factors = snapshot.players[pid].projection.factors;
@@ -1583,12 +1654,19 @@ describe('T-F10: real-player snapshot parity (the fidelity gate)', () => {
       assert.equal(consistencyBand, factors.consistencyBand, `${pid}: consistencyBand`);
       assert.equal(Math.round(consistencyScale * 1000) / 1000, factors.consistencyScale, `${pid}: consistencyScale`);
       const outlierRatio = lastQ.ppg / Math.max(meanPPG, 1);
-      assert.equal(localRegressionFactorRaw(outlierRatio), factors.regressionFactorRaw, `${pid}: regressionFactorRaw`);
+      assert.equal(resolveRegressionBucket(outlierRatio, { position, model: 'legacy' }).regressionFactorRaw, factors.regressionFactorRaw, `${pid}: regressionFactorRaw`);
+
+      // D-17 C6 — count rows where step4-upside's bucket diverges from the
+      // legacy-pinned fixture (i.e. the up-side gate would have fired).
+      const step4UpsideRaw = resolveRegressionBucket(outlierRatio, { position, model: 'step4-upside' }).regressionFactorRaw;
+      if (step4UpsideRaw !== factors.regressionFactorRaw) {
+        step4UpsideDiscriminatingRows.push({ pid, position, regressionFactorRaw: factors.regressionFactorRaw });
+      }
 
       // ── Assertion 3: factors, exact (momentum/regression/trajectory) or POOL_TOLERANCE (snap/rz) ──
       const momentumFactor = Math.round(reconstructMomentumFactor(ppgs, meanPPG) * 1000) / 1000;
       assert.equal(momentumFactor, factors.momentumFactor, `${pid}: momentumFactor`);
-      const regressionFactor = Math.round(reconstructRegressionFactor(ppgs, meanPPG, lastQ.ppg) * 1000) / 1000;
+      const regressionFactor = Math.round(reconstructRegressionFactor(ppgs, meanPPG, lastQ.ppg, { position, model: 'legacy' }) * 1000) / 1000;
       assert.equal(regressionFactor, factors.regressionFactor, `${pid}: regressionFactor`);
       const trajectoryFactor = Math.round(reconstructTrajectoryFactor(ppgs) * 1000) / 1000;
       assert.equal(trajectoryFactor, factors.trajectoryFactor, `${pid}: trajectoryFactor`);
@@ -1617,6 +1695,17 @@ describe('T-F10: real-player snapshot parity (the fidelity gate)', () => {
     }
 
     assert.ok(checkedCount > 0, 'fixture sanity: at least one sample player was actually checked');
+
+    // D-17 C6 — exactly 20 positioned RB/WR/TE rows discriminate legacy vs
+    // step4-upside in this fixture; every discriminating row's captured raw
+    // must be an up-side bucket value (1.05 or 1.12).
+    assert.equal(step4UpsideDiscriminatingRows.length, 20,
+      `expected exactly 20 rows where step4-upside diverges from the legacy-pinned fixture, got ${step4UpsideDiscriminatingRows.length}: ${JSON.stringify(step4UpsideDiscriminatingRows)}`);
+    for (const row of step4UpsideDiscriminatingRows) {
+      assert.ok(['RB', 'WR', 'TE'].includes(row.position), `${row.pid}: discriminating row must be RB/WR/TE, got ${row.position}`);
+      assert.ok([1.05, 1.12].includes(row.regressionFactorRaw), `${row.pid}: discriminating row's captured raw must be an up-side value, got ${row.regressionFactorRaw}`);
+    }
+
     if (!checkedLastQNot2025) {
       t.diagnostic('No sampled player with lastQSeason !== 2025 was found in this fixture — that assertion is skipped; ' +
         'the lastQ !== refSeason path is covered instead by T-F14 (synthetic). Stated honestly, not silently (§9 T-F10 sample requirement).');
@@ -2241,6 +2330,154 @@ describe('D6b — Step 4 verdict (regression up-side removal + injury-gated prox
   test('no injuryPredicate -> injuryGated is null', () => {
     const result = runStep4Verdict([d6bFitRow('WR')]);
     assert.equal(result.injuryGated, null);
+  });
+
+  // D-17 T-A2 — runStep4Verdict grades the up-side of whichever model
+  // assembled the panel; its own algorithm is unchanged.
+  test('T-A2: model-relative — WR ΔMAE is 0 under step4-upside (nothing left to remove); QB is identical under both', () => {
+    const ppgs = [10, 10, 5], meanPPG = (10 + 10 + 5) / 3, lastPPG = 5; // outlierRatio = 0.6 -> up-side bucket
+    const qualifyingSeasons = [
+      { season: 2019, ppg: 10, gamesPlayed: 12 },
+      { season: 2020, ppg: 10, gamesPlayed: 12 },
+      { season: 2021, ppg: 5, gamesPlayed: 12 },
+    ];
+    const rowFor = (position, model) => {
+      const row = d6bFitRow(position, {
+        anchorBasePPG: 10, outcomePPG: 10,
+        overrides: { regression: reconstructRegressionFactor(ppgs, meanPPG, lastPPG, { position, model }) },
+      });
+      row.qualifyingSeasons = qualifyingSeasons;
+      return row;
+    };
+
+    const wrUpside = runStep4Verdict([rowFor('WR', 'step4-upside')]);
+    const wrLegacy = runStep4Verdict([rowFor('WR', 'legacy')]);
+    assert.equal(wrUpside.overall.dMae, 0, 'WR up-side is removed under step4-upside — no-upside variant changes nothing');
+    assert.notEqual(wrLegacy.overall.dMae, 0, 'WR under legacy retains the up-side — the no-upside variant changes the prediction');
+
+    const qbUpside = runStep4Verdict([rowFor('QB', 'step4-upside')]);
+    const qbLegacy = runStep4Verdict([rowFor('QB', 'legacy')]);
+    assert.notEqual(qbUpside.overall.dMae, 0, 'QB up-side is retained under step4-upside');
+    assert.equal(qbUpside.overall.dMae, qbLegacy.overall.dMae, 'QB regression is identical under both models');
+  });
+
+  // D-17 §6.3 — the clustered bootstrap.
+  describe('T-B: clustered bootstrap', () => {
+    // ratio 5/8.33 = 0.6 < 0.85 -> the no-upside patch always fires.
+    const UPSIDE_QUALIFYING = [
+      { season: 2019, ppg: 10, gamesPlayed: 12 },
+      { season: 2020, ppg: 10, gamesPlayed: 12 },
+      { season: 2021, ppg: 5, gamesPlayed: 12 },
+    ];
+
+    function upsideRow(sleeperId, regression, outcomePPG) {
+      const row = d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG, overrides: { regression } });
+      row.sleeperId = sleeperId;
+      row.qualifyingSeasons = UPSIDE_QUALIFYING;
+      return row;
+    }
+
+    test('T-B1: no bootstrap option -> overall.bootstrap is null', () => {
+      const row = upsideRow('b1', 1.12, 10);
+      const result = runStep4Verdict([row]);
+      assert.equal(result.overall.bootstrap, null);
+    });
+
+    test('T-B2: 6 distinct-sleeperId WR rows, mixed regression/outcomes — deterministic, clusters===6, ci95 contains dMae', () => {
+      const rows = [
+        upsideRow('b2-1', 1.05, 8),
+        upsideRow('b2-2', 1.12, 14),
+        upsideRow('b2-3', 1.05, 10),
+        upsideRow('b2-4', 1.12, 9),
+        upsideRow('b2-5', 1.05, 12),
+        upsideRow('b2-6', 1.12, 11),
+      ];
+      const bootstrap = { resamples: 400, seed: 12345 };
+      const run1 = runStep4Verdict(rows, { bootstrap });
+      const run2 = runStep4Verdict(rows, { bootstrap });
+      assert.deepEqual(run1.overall.bootstrap, run2.overall.bootstrap, 'two runs with the same seed are deep-equal');
+
+      const b = run1.overall.bootstrap;
+      assert.equal(b.clusters, 6);
+      assert.equal(b.resamples, 400);
+      assert.equal(b.seed, 12345);
+      assert.ok(b.ci95[0] <= run1.overall.dMae && run1.overall.dMae <= b.ci95[1],
+        `overall.dMae (${run1.overall.dMae}) should lie within ci95 (${b.ci95})`);
+      // Pinned to the deterministic RNG's observed output (fix pass 1, item 2a).
+      assert.deepEqual(b.ci95, [-0.6333333333333341, 0.6833333333333339]);
+      assert.equal(b.pNegative, 0.4);
+
+      // Fix pass 1, item 2b — an independent reference that follows Appendix A's
+      // spec literally, rather than calling into lib/panel.mjs's bootstrap
+      // internals, so the pinned literals above are checked against the spec
+      // and not merely against the implementation's own output.
+      const refDiffs = rows.map(row => {
+        const shipped = predictFullPipeline(row).predicted;
+        const qs = row.qualifyingSeasons;
+        const meanPPG = qs.reduce((a, s) => a + s.ppg, 0) / qs.length;
+        const lastPPG = qs[qs.length - 1].ppg;
+        const outlierRatio = lastPPG / meanPPG;
+        const noUp = outlierRatio < 0.85
+          ? predictFullPipeline({ ...row, multipliers: { ...row.multipliers, regression: 1.0 } }).predicted
+          : shipped;
+        return { sleeperId: row.sleeperId, diff: Math.abs(noUp - row.outcomePPG) - Math.abs(shipped - row.outcomePPG) };
+      });
+      const refClusterOrder = [];
+      const refClusterMap = new Map();
+      for (const { sleeperId, diff } of refDiffs) {
+        if (!refClusterMap.has(sleeperId)) { refClusterMap.set(sleeperId, { sum: 0, n: 0 }); refClusterOrder.push(sleeperId); }
+        const c = refClusterMap.get(sleeperId);
+        c.sum += diff; c.n += 1;
+      }
+      const refClusters = refClusterOrder.map(id => refClusterMap.get(id));
+      let refSeed = 12345;
+      const refRnd = () => (refSeed = (refSeed * 1103515245 + 12345) % 2147483648) / 2147483648;
+      const refStats = [];
+      for (let r = 0; r < 400; r++) {
+        let sum = 0, n = 0;
+        for (let c = 0; c < refClusters.length; c++) {
+          const cluster = refClusters[Math.floor(refRnd() * refClusters.length)];
+          sum += cluster.sum; n += cluster.n;
+        }
+        refStats.push(sum / n);
+      }
+      refStats.sort((a, c) => a - c);
+      const refLo = refStats[Math.floor(0.025 * 400)];
+      const refHi = refStats[Math.ceil(0.975 * 400) - 1];
+      const refPNegative = refStats.filter(x => x < 0).length / 400;
+      assert.deepEqual(b.ci95, [refLo, refHi], 'implementation ci95 matches the spec-literal reference');
+      assert.equal(b.pNegative, refPNegative, 'implementation pNegative matches the spec-literal reference');
+    });
+
+    test('T-B3: two rows sharing one sleeperId plus one distinct row -> clusters===2', () => {
+      const shared1 = upsideRow('shared', 1.12, 14);
+      const shared2 = upsideRow('shared', 1.05, 8);
+      const distinct = upsideRow('solo', 1.05, 10);
+      const result = runStep4Verdict([shared1, shared2, distinct], { bootstrap: { resamples: 100, seed: 1 } });
+      assert.equal(result.overall.bootstrap.clusters, 2);
+    });
+
+    test('T-B4: exactly one row -> ci95[0] === ci95[1] === overall.dMae, pNegative in {0,1}', () => {
+      const row = upsideRow('b4', 1.12, 14);
+      const result = runStep4Verdict([row], { bootstrap: { resamples: 50, seed: 7 } });
+      const b = result.overall.bootstrap;
+      assert.equal(b.ci95[0], result.overall.dMae);
+      assert.equal(b.ci95[1], result.overall.dMae);
+      assert.ok(b.pNegative === 0 || b.pNegative === 1);
+    });
+
+    test('T-B5: a paired row without sleeperId throws', () => {
+      const row = upsideRow('irrelevant', 1.12, 14);
+      delete row.sleeperId;
+      assert.throws(() => runStep4Verdict([row], { bootstrap: { resamples: 50, seed: 1 } }), /lacks sleeperId/);
+    });
+
+    test('T-B6: an empty paired set -> bootstrap === null', () => {
+      const row = d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: NaN, overrides: { regression: 1.12 } });
+      row.qualifyingSeasons = UPSIDE_QUALIFYING;
+      const result = runStep4Verdict([row], { bootstrap: { resamples: 50, seed: 1 } });
+      assert.equal(result.overall.bootstrap, null);
+    });
   });
 });
 
