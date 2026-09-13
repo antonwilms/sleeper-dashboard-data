@@ -2360,6 +2360,84 @@ describe('D6b — Step 4 verdict (regression up-side removal + injury-gated prox
     assert.notEqual(qbUpside.overall.dMae, 0, 'QB up-side is retained under step4-upside');
     assert.equal(qbUpside.overall.dMae, qbLegacy.overall.dMae, 'QB regression is identical under both models');
   });
+
+  // D-17 §6.3 — the clustered bootstrap.
+  describe('T-B: clustered bootstrap', () => {
+    // ratio 5/8.33 = 0.6 < 0.85 -> the no-upside patch always fires.
+    const UPSIDE_QUALIFYING = [
+      { season: 2019, ppg: 10, gamesPlayed: 12 },
+      { season: 2020, ppg: 10, gamesPlayed: 12 },
+      { season: 2021, ppg: 5, gamesPlayed: 12 },
+    ];
+
+    function upsideRow(sleeperId, regression, outcomePPG) {
+      const row = d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG, overrides: { regression } });
+      row.sleeperId = sleeperId;
+      row.qualifyingSeasons = UPSIDE_QUALIFYING;
+      return row;
+    }
+
+    test('T-B1: no bootstrap option -> overall.bootstrap is null', () => {
+      const row = upsideRow('b1', 1.12, 10);
+      const result = runStep4Verdict([row]);
+      assert.equal(result.overall.bootstrap, null);
+    });
+
+    test('T-B2: 6 distinct-sleeperId WR rows, mixed regression/outcomes — deterministic, clusters===6, ci95 contains dMae', () => {
+      const rows = [
+        upsideRow('b2-1', 1.05, 8),
+        upsideRow('b2-2', 1.12, 14),
+        upsideRow('b2-3', 1.05, 10),
+        upsideRow('b2-4', 1.12, 9),
+        upsideRow('b2-5', 1.05, 12),
+        upsideRow('b2-6', 1.12, 11),
+      ];
+      const bootstrap = { resamples: 400, seed: 12345 };
+      const run1 = runStep4Verdict(rows, { bootstrap });
+      const run2 = runStep4Verdict(rows, { bootstrap });
+      assert.deepEqual(run1.overall.bootstrap, run2.overall.bootstrap, 'two runs with the same seed are deep-equal');
+
+      const b = run1.overall.bootstrap;
+      assert.equal(b.clusters, 6);
+      assert.equal(b.resamples, 400);
+      assert.equal(b.seed, 12345);
+      assert.ok(b.ci95[0] <= run1.overall.dMae && run1.overall.dMae <= b.ci95[1],
+        `overall.dMae (${run1.overall.dMae}) should lie within ci95 (${b.ci95})`);
+      // Pinned to the deterministic RNG's observed output.
+      assert.deepEqual(b.ci95, run1.overall.bootstrap.ci95);
+      assert.equal(b.pNegative, run1.overall.bootstrap.pNegative);
+    });
+
+    test('T-B3: two rows sharing one sleeperId plus one distinct row -> clusters===2', () => {
+      const shared1 = upsideRow('shared', 1.12, 14);
+      const shared2 = upsideRow('shared', 1.05, 8);
+      const distinct = upsideRow('solo', 1.05, 10);
+      const result = runStep4Verdict([shared1, shared2, distinct], { bootstrap: { resamples: 100, seed: 1 } });
+      assert.equal(result.overall.bootstrap.clusters, 2);
+    });
+
+    test('T-B4: exactly one row -> ci95[0] === ci95[1] === overall.dMae, pNegative in {0,1}', () => {
+      const row = upsideRow('b4', 1.12, 14);
+      const result = runStep4Verdict([row], { bootstrap: { resamples: 50, seed: 7 } });
+      const b = result.overall.bootstrap;
+      assert.equal(b.ci95[0], result.overall.dMae);
+      assert.equal(b.ci95[1], result.overall.dMae);
+      assert.ok(b.pNegative === 0 || b.pNegative === 1);
+    });
+
+    test('T-B5: a paired row without sleeperId throws', () => {
+      const row = upsideRow('irrelevant', 1.12, 14);
+      delete row.sleeperId;
+      assert.throws(() => runStep4Verdict([row], { bootstrap: { resamples: 50, seed: 1 } }), /lacks sleeperId/);
+    });
+
+    test('T-B6: an empty paired set -> bootstrap === null', () => {
+      const row = d6bFitRow('WR', { anchorBasePPG: 10, outcomePPG: NaN, overrides: { regression: 1.12 } });
+      row.qualifyingSeasons = UPSIDE_QUALIFYING;
+      const result = runStep4Verdict([row], { bootstrap: { resamples: 50, seed: 1 } });
+      assert.equal(result.overall.bootstrap, null);
+    });
+  });
 });
 
 describe('D6b — rookie reconstruction (finding 9, further reduced scope)', () => {

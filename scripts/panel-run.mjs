@@ -1340,6 +1340,7 @@ export function runFullPipeline({
   for (const position of PANEL_POSITIONS) {
     step4[position] = runStep4Verdict(rowsByPosition[position], {
       injuryPredicate: (row) => (row.dnpWeeksLastQ ?? 0) >= 3,
+      bootstrap: { resamples: 4000, seed: 12345 },
     });
   }
 
@@ -1496,12 +1497,26 @@ function ablationSection(position, ablationReport, fitCoverage) {
   return lines.join('\n');
 }
 
-function step4Section(position, s4) {
+function bootstrapSentence(bootstrap) {
+  if (!bootstrap) return null;
+  const { clusters, resamples, ci95, pNegative } = bootstrap;
+  return `Clustered bootstrap (${clusters} players, ${resamples} resamples): ΔMAE 95% CI [${fpFmt(ci95[0])}, ${fpFmt(ci95[1])}], P(Δ<0)=${fpFmt(pNegative, 2)}`;
+}
+
+function step4Section(position, s4, model) {
   const o = s4.overall;
-  const lines = [`### ${position}`, '', `Overall (n=${o.n}): shipped MAE=${fpFmt(o.shippedMae)}, no-upside MAE=${fpFmt(o.noUpsideMae)}, ΔMAE=${fpFmt(o.dMae)}, ΔSpearman=${fpFmt(o.dSpearman)}`];
+  const lines = [`### ${position}`, '', `Up-side graded against the \`${model}\` Step 4 table.`];
+  if (model === 'step4-upside' && position !== 'QB') {
+    lines.push('RB/WR/TE ΔMAE is 0 by construction — no up-side remains to remove.');
+  }
+  lines.push(`Overall (n=${o.n}): shipped MAE=${fpFmt(o.shippedMae)}, no-upside MAE=${fpFmt(o.noUpsideMae)}, ΔMAE=${fpFmt(o.dMae)}, ΔSpearman=${fpFmt(o.dSpearman)}`);
+  const overallBootstrap = bootstrapSentence(o.bootstrap);
+  if (overallBootstrap) lines.push(overallBootstrap);
   if (s4.injuryGated) {
     const g = s4.injuryGated;
     lines.push(`Injury-gated proxy (dnpWeeks≥3, n=${g.n}): shipped MAE=${fpFmt(g.shippedMae)}, no-upside MAE=${fpFmt(g.noUpsideMae)}, ΔMAE=${fpFmt(g.dMae)}, ΔSpearman=${fpFmt(g.dSpearman)}`);
+    const injuryBootstrap = bootstrapSentence(g.bootstrap);
+    if (injuryBootstrap) lines.push(injuryBootstrap);
   }
   return lines.join('\n');
 }
@@ -1564,7 +1579,7 @@ export function buildFullPipelineVerdictMarkdown(result) {
       '## §E — Step 4 verdict (unaffected by the stop — reconstructs from PPG history alone)',
       '',
     );
-    for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position]));
+    for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position], meta.regressionModel));
     lines.push('', '## Rookie panel (unaffected by the stop — an entirely separate reconstruction)', '', rookieSection(result.rookiePanel), '');
     return lines.join('\n');
   }
@@ -1582,7 +1597,7 @@ export function buildFullPipelineVerdictMarkdown(result) {
     '## §E — Step 4 verdict (regression up-side branches, outlierRatio<0.85 forced to neutral)',
     '',
   );
-  for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position]));
+  for (const position of PANEL_POSITIONS) lines.push(step4Section(position, result.step4[position], meta.regressionModel));
 
   lines.push(
     '',
