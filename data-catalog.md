@@ -81,10 +81,7 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Null semantics:** `projection` field is verbatim app output; no null-handling policy at this layer
 - **Consumption:** capture-only (grading input; never re-fed to projection)
 - **Keep-rationale:** the graded record of what the app predicted
-- **Mechanism-version segmentation (D-15):** a rookie-path row's projection can come from one of three
-  successive app mechanisms (calibration, games ladder, ceiling) depending on capture date — see
-  [grading/anchor-policy.md](grading/anchor-policy.md) for the row-level detection rule and the date
-  cross-check before pooling rookie-path rows across capture dates in any grading run.
+- **Mechanism-version segmentation (D-15, D-18):** a projection row can come from one of four successive app mechanisms depending on capture date — three on the rookie path (calibration, games ladder, ceiling) and one on the veteran path (the Step 4 up-side gate, app `7b5b055`) — see [grading/anchor-policy.md](grading/anchor-policy.md) for the per-path row-level detection rule and the `capturedAt` cross-check before pooling rows across capture dates in any grading run.
 
 ## Grading reports
 - **Served path / subcommand / refresh:** `grading/<date>.json`; `bin/grade.mjs --write`; on demand
