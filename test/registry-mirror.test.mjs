@@ -167,10 +167,10 @@ test('RM-U7: firstDifference(x, x) is null', () => {
 });
 
 test('RM-U8: a trailing-space difference is located at its line, under the nearest CR- entry', () => {
-  const a = '#### CR-01 · X\n- **Triggers:** foo';
-  const b = '#### CR-01 · X\n- **Triggers:** foo ';
+  const a = 'format-block line\n#### CR-01 · X\n- **Triggers:** foo';
+  const b = 'format-block line\n#### CR-01 · X\n- **Triggers:** foo ';
   const diff = firstDifference(a, b);
-  assert.equal(diff.line, 2);
+  assert.equal(diff.line, 3);
   assert.equal(diff.entry, 'CR-01');
 });
 
@@ -341,11 +341,21 @@ test('RM-X3: the mirrored span is byte-identical between data and app copies', t
 
 test('RM-X4: the app documented drift command resolves to exactly these two files', testOpts, () => {
   if (decision.kind === 'fail') return assert.fail(decision.reason);
-  const appText = fs.readFileSync(path.join(appDir, APP_REGISTRY_REL), 'utf8');
+
+  const appRegistryPath = path.join(appDir, APP_REGISTRY_REL);
+  if (!fs.existsSync(appRegistryPath)) {
+    assert.fail(`expected app registry ${appRegistryPath} does not exist — registry moved or renamed? (CR-24)`);
+  }
+  const dataRegistryPath = path.join(repoRoot, DATA_REGISTRY_REL);
+  if (!fs.existsSync(dataRegistryPath)) {
+    assert.fail(`expected data registry ${dataRegistryPath} does not exist — registry moved or renamed? (CR-24)`);
+  }
+
+  const appText = fs.readFileSync(appRegistryPath, 'utf8');
   const [p1, p2] = parseDocumentedDiffPaths(appText);
 
-  const expectedApp = fs.realpathSync(path.join(appDir, APP_REGISTRY_REL));
-  const expectedData = fs.realpathSync(path.join(repoRoot, DATA_REGISTRY_REL));
+  const expectedApp = fs.realpathSync(appRegistryPath);
+  const expectedData = fs.realpathSync(dataRegistryPath);
 
   const abs1 = path.resolve(appDir, p1);
   if (!fs.existsSync(abs1)) {

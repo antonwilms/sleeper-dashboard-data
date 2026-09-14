@@ -456,3 +456,48 @@ All 5 flags were verified against live source. All 5 applied (Anton, 2026-09-14:
 | 3 | strategy — A5 silently reverses the app doc's "not a CI gate" decision | Correct (F13) | **Surfaced and decided.** Anton approved the reversal; §1 records it and A5's new text states the reason |
 | 4 | edge-case — the package name is read at module load, so plain `npm test` reads the sibling | Correct | **Fixed.** `readPackageName` is a thunk called only when `mode === '1'`; RM-U14 asserts 0 calls otherwise |
 | 5 | mechanical — "§4 lines plus F2's line" should be 4, and `--stat` wording | Correct | **Fixed.** §5 says 4 (+ CR-24's 8); Step 2 uses `--numstat` = `12	4` |
+
+---
+
+## Fix pass 1 — implementation-reviewer on `origin/main...c729b60` (PR #12), 2026-09-14
+
+**Scope.** `test/registry-mirror.test.mjs` only, on branch `registry-driftcheck-repair`. Nothing else changes: no helper bodies, no other test, no workflow, doc, registry text, `lib/`, or any task-file section other than this one.
+
+Session 1 verified all three flags against the branch. The CI evidence and the independent span check (branch span byte-identical to app `05882d7`) stand.
+
+When done, the applier:
+- runs `npm test` and `npm run smoke`;
+- if `../sleeper-dashboard` is clean `main...origin/main`, runs `REGISTRY_MIRROR=1 node --test test/registry-mirror.test.mjs` (read-only for the sibling; never switch, pull or reset it);
+- commits as `fix: registry-mirror test fidelity (fix pass 1)`, including this task file;
+- pushes to `origin registry-driftcheck-repair` (never `main`, never `--force`).
+
+Hand back the diff, the new SHA, and the `Registry mirror drift check` run id for the new head: green, with `# skipped 0` in its log.
+
+### Dispositions
+
+| # | Flag | Verified | Disposition |
+|---|---|---|---|
+| 1 | fidelity — RM-U8 drops §6.2's leading format-block line (2-line input, asserts `line: 2`) | Correct (`test/registry-mirror.test.mjs:169-175`) | **Fix** — item 1 |
+| 2 | fidelity — RM-X4 calls `realpathSync` on the two expected paths before any existence check | Correct (`:347-348`). RM-X1/RM-S1 cover the missing-file case in practice, but the spec says existence first | **Fix** — item 2 |
+| 3 | undisclosed — the hand-back said "no deviations" despite 1 and 2 | Correct | **No code change.** Recorded here |
+
+### Item 1 · RM-U8 to spec
+
+Replace the two fixtures with exactly:
+```js
+const a = 'format-block line\n#### CR-01 · X\n- **Triggers:** foo';
+const b = 'format-block line\n#### CR-01 · X\n- **Triggers:** foo ';
+```
+Assert `diff.line === 3` and `diff.entry === 'CR-01'`. Keep the title.
+
+### Item 2 · RM-X4 existence before realpath
+
+Before the two `const expected… = fs.realpathSync(...)` lines, add an existence check for each expected path:
+- If `path.join(appDir, APP_REGISTRY_REL)` does not exist: `assert.fail(\`expected app registry ${that path} does not exist — registry moved or renamed? (CR-24)\`)`.
+- Same for `path.join(repoRoot, DATA_REGISTRY_REL)`, with "expected data registry".
+
+**Move the `parseDocumentedDiffPaths(appText)` read after the app existence check.** The `readFileSync` of the app file sits on the line above the parse, so the existence check must come before that read too. Leave the `p1`/`p2` checks unchanged.
+
+### Not in scope
+
+Any other file; any other test; helper bodies. If either item cannot be done as written, stop and report.
