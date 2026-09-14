@@ -1402,13 +1402,14 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `cron-deadman.yml` | Daily 05:19 UTC + push to `main` + `workflow_dispatch` | Runs `node bin/deadman.mjs`; monitoring only — no writes, no manifest touch |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
 | `daily-snapshot.yml` (D1b, phase 1) | `workflow_dispatch` only — **no `cron:` line yet**, see CR-22 below | Checks out this repo plus a pinned ref of `antonwilms/sleeper-dashboard` into `app/`, builds and `vite preview`s the app headlessly, drives it with Playwright (localStorage-seeded, no UI interaction), reads the projection snapshot it wrote to IndexedDB, runs it through the commit gate (`lib/snapshot-capture.mjs`) and writes+registers+commits `snapshots/<date>.json` only on acceptance; purges the jsDelivr manifest cache. Rejects loudly (non-zero exit, no commit) rather than writing a neutral snapshot — see Cross-repo impact CR-01 below and `.claude/tasks/daily-snapshot-capture.md` |
+| `registry-mirror.yml` | Daily 06:41 UTC + PR/push to `main` touching `cross-repo-registry.md`, `lib/registry.mjs`, `test/registry-mirror.test.mjs` or itself + `workflow_dispatch` | Checks out this repo and `antonwilms/sleeper-dashboard` side by side and runs `test/registry-mirror.test.mjs` with `REGISTRY_MIRROR=1` (CR-24) — the mirrored registry span must be byte-identical and the app's documented drift command must point at both files; read-only, no writes |
 | `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the ten uniform ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `nflverse-snaps.yml`, `nflverse-depth.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
 *Season-keyed purges (roster, advstats, schedule, gamelogs, teamcontext) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
 
-**Why five workflows are standalone rather than `_ingest.yml` callers.**
+**Why six workflows are standalone rather than `_ingest.yml` callers.**
 
 - `nflverse-playerstats.yml` — per-family conditional staging. One CSV fetch drives two families,
   and each is staged only if its own step output says it succeeded; the reusable template has no
@@ -1418,6 +1419,7 @@ The weekly KTC workflow commits only when content changes (SHA256 hash dedup). I
   the alarm.
 - `cron-deadman.yml` — monitoring, not ingest. It writes no data file.
 - `smoke-test.yml` — CI, not ingest. It writes no data file.
+- `registry-mirror.yml` — a read-only cross-repo check, not ingest. It writes no data file.
 - `daily-snapshot.yml` (D1b) — it runs a headless browser against a second repo's own build
   (`npm ci && npm run build && npm run preview` in a cross-repo checkout, then Playwright), a
   shape `_ingest.yml`'s single-subcommand `node bin/update.mjs <subcommand>` body cannot express
@@ -1496,7 +1498,7 @@ jsDelivr caches aggressively. After pushing an update, use `https://purge.jsdeli
 
 ## Cross-repo contract registry (with sleeper-dashboard)
 
-The complete enumerated registry — the entry-format definition and all 23 `CR-NN` entries — has moved to [cross-repo-registry.md](cross-repo-registry.md).
+The complete enumerated registry — the entry-format definition and all 24 `CR-NN` entries — has moved to [cross-repo-registry.md](cross-repo-registry.md). Drift between this copy and the app's is checked by `test/registry-mirror.test.mjs` (CI: `registry-mirror.yml`).
 
 ---
 

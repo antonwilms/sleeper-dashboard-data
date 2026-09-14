@@ -20,7 +20,7 @@ If no diff range is supplied, say so and stop. Do not review a hand-back narrati
 
 The invocation may set a depth. **Default to `full` whenever it is unset or you are unsure.**
 
-**`full`** — run everything below at full strength. **Required, and not overridable, whenever the diff does any of:** add, rewrite or delete a file under `nfl/`, `college/`, `ktc/`, `nflverse/` or `snapshots/`; change an emitted shape, field, stat key or null semantics; move a `schemaVersion`; touch `manifest.json`; change a validator threshold or coverage floor; or edit the mirrored registry region of `README.md`.
+**`full`** — run everything below at full strength. **Required, and not overridable, whenever the diff does any of:** add, rewrite or delete a file under `nfl/`, `college/`, `ktc/`, `nflverse/` or `snapshots/`; change an emitted shape, field, stat key or null semantics; move a `schemaVersion`; touch `manifest.json`; change a validator threshold or coverage floor; or edit the mirrored registry region of `cross-repo-registry.md`.
 
 **`scoped`** — permitted only when the diff touches **none** of the above: orchestration, CI, workflows, tests, docs, or refactors with no served-output change. In `scoped` mode, spend the saved effort on fidelity and on the mechanical risks specific to the change.
 
