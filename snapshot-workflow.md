@@ -6,7 +6,7 @@ wrote to IndexedDB, and — only if the snapshot passes the commit gate (`lib/sn
 — registers, commits and pushes `snapshots/<date>.json`.
 
 **Phase 2 status: scheduled, `cron: "29 16 * * *"`.** CR-22 (see the [Cross-repo contract
-registry](README.md#cross-repo-contract-registry-with-sleeper-dashboard)) landed in both repos'
+registry](cross-repo-registry.md)) landed in both repos'
 registries, clearing the gate on the cron switch-on. The job also still takes
 `workflow_dispatch` for a manual re-run (Actions tab → "Daily projection snapshot capture" → Run
 workflow). The manual capture below is now the fallback for when the Action itself is broken.

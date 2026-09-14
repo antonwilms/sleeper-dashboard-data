@@ -1,0 +1,60 @@
+name: Registry mirror drift check
+
+# CR-24. The cross-repo registry's mirrored span (between the CR-REGISTRY sentinel lines) must be
+# byte-identical in cross-repo-registry.md here and docs/cross-repo-registry.md in
+# antonwilms/sleeper-dashboard. Both repos are checked out SIDE BY SIDE under the workspace, so the
+# test's default sibling path (../sleeper-dashboard) and the app doc's documented diff paths resolve
+# exactly as they do locally. REGISTRY_MIRROR=1 turns "sibling absent" from a skip into a failure —
+# without it this job would pass with nothing compared, the hole this workflow exists to close.
+# The app repo is public; daily-snapshot.yml already checks it out with the default token.
+# No npm ci: the test imports only node builtins and lib/registry.mjs, which has no dependencies.
+
+on:
+  schedule:
+    # Daily 06:41 UTC — the only trigger that sees a one-sided app-repo edit (this repo cannot
+    # observe app pushes). Commits nothing, so it cannot race the capture jobs' pushes to main.
+    # Having a cron line enrolls this workflow in scripts/check-crons.mjs (cron-deadman.yml).
+    - cron: "41 6 * * *"
+  pull_request:
+    paths:
+      - "cross-repo-registry.md"
+      - "lib/registry.mjs"
+      - "test/registry-mirror.test.mjs"
+      - ".github/workflows/registry-mirror.yml"
+  push:
+    branches: [main]
+    paths:
+      - "cross-repo-registry.md"
+      - "lib/registry.mjs"
+      - "test/registry-mirror.test.mjs"
+      - ".github/workflows/registry-mirror.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout data repo
+        uses: actions/checkout@v4
+        with:
+          path: sleeper-dashboard-data
+
+      - name: Checkout app repo (main)
+        uses: actions/checkout@v4
+        with:
+          repository: antonwilms/sleeper-dashboard
+          ref: main
+          path: sleeper-dashboard
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Compare mirrored spans
+        working-directory: sleeper-dashboard-data
+        env:
+          REGISTRY_MIRROR: "1"
+        run: node --test test/registry-mirror.test.mjs
