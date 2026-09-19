@@ -1564,10 +1564,16 @@
       "recordCount": 733,
       "inProgress": false,
       "lastModified": "2026-09-17T19:51:00.980Z"
+    },
+    "nflverse/advstats/2026.json": {
+      "schemaVersion": 1,
+      "recordCount": 317,
+      "inProgress": false,
+      "lastModified": "2026-09-19T16:48:38.396Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-09-18T17:10:36.722Z"
+  "generatedAt": "2026-09-19T16:48:38.396Z"
 }
