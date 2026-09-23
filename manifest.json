@@ -427,9 +427,9 @@
     },
     "nflverse/playerids.json": {
       "schemaVersion": 2,
-      "recordCount": 6187,
+      "recordCount": 6192,
       "inProgress": false,
-      "lastModified": "2026-09-16T17:39:10.975Z"
+      "lastModified": "2026-09-23T17:52:55.052Z"
     },
     "nflverse/advstats/2012.json": {
       "schemaVersion": 1,
@@ -1611,5 +1611,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-09-22T19:52:04.699Z"
+  "generatedAt": "2026-09-23T17:52:55.052Z"
 }
