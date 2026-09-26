@@ -320,6 +320,12 @@ year's draft class exists. v3 is additive — every v2 field keeps its name, typ
 register at all (see [GitHub Actions](#github-actions) and `lib/snapshot-capture.mjs`); the
 manual import path does not run that gate.
 
+**`players[id].inSeason` (in-season-evidence-2b-1, still v3 — additive, no bump).** The in-season posterior at capture:
+`{ season, n, population, frozen, priorSource, notFrozenReason, ros: { prior, k, weight, value }, next: { priorKind, prior, k, weight, value } }`.
+Absent when there is no usable live season or the player is ineligible. `projection` stays the unmodified prior (never a
+posterior), so grading continuity holds; graders that ignore unknown per-player keys need no change. Snapshots are read back by
+the app through `tryDataStore` (CR-26), so any future `schemaVersion` bump needs the app's `MAX_SUPPORTED_SCHEMA` raised first (CR-01).
+
 **`ktc`** is `null` if the player isn't in the KTC map; otherwise `{ value, positionPercentile }`.
 
 **`projection`** is the verbatim output of `computeNextSeasonProjection` — no field whitelist.

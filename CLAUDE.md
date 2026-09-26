@@ -89,7 +89,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 
 3. **manifest.json is the index.** Every script-written file must be registered with `recordCount`, `schemaVersion`, `lastModified`, and `inProgress` maintained. Treat manifest field names as a public API (see Cross-repo contract registry).
 
-4. **schemaVersion discipline.** Current versions: NFL season-totals **v4**, CFBD college stats **v2**, projection snapshots **v3** (D1a — adds `inputStatus`; the D1b commit gate rejects anything below v3), KTC snapshots **v1**. Bump `schemaVersion` only on an incompatible layout change, and raise the app's `MAX_SUPPORTED_SCHEMA` ahead of the bump, never after. That ceiling applies to every family the app reads through `tryDataStore`, not only season-totals; snapshots have no `tryDataStore` reader, so their schemaVersion is independent of it.
+4. **schemaVersion discipline.** Current versions: NFL season-totals **v4**, CFBD college stats **v2**, projection snapshots **v3** (D1a — adds `inputStatus`; the D1b commit gate rejects anything below v3), KTC snapshots **v1**. Bump `schemaVersion` only on an incompatible layout change, and raise the app's `MAX_SUPPORTED_SCHEMA` ahead of the bump, never after. That ceiling applies to every family the app reads through `tryDataStore`, not only season-totals; snapshots are read back through `tryDataStore` (CR-26), so the ceiling applies to them too.
 
 5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup — no commit when content is unchanged. A scrape that fails the Spearman ordering or sentinel-QB guard is written to `ktc/quarantine/` (script-produced, unregistered, app-ignored) rather than `ktc/`, so a false trip never permanently loses data; it is not "primary data" under Invariant 2.
 
@@ -113,7 +113,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 reaches the other side. A session started in the *parent folder* holding both repos can write both,
 and that is the one sanctioned way to land a two-sided change: registry-listed contracts and
 genuinely new couplings only, both sides in the same change, the registry entry updated or drafted
-in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 24 `CR-NN` entries — lives in [cross-repo-registry.md](cross-repo-registry.md). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that file and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
+in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 26 `CR-NN` entries — lives in [cross-repo-registry.md](cross-repo-registry.md). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that file and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
 
 **Rule.** Any change touching a listed contract **must emit that entry's `Mirror` text as Session 1 output**, in a `## Cross-repo impact` section of the task file, quoting the `CR-NN` id. Naming the contract in prose is not enough; the mirror instruction itself is the deliverable.
 
