@@ -734,3 +734,25 @@ Report:
 - The fit grid, rounding, and the arms.
 - `lib/panel.mjs` and `scripts/panel-run.mjs`.
 - The registry files.
+
+## Fix pass 1 — verification (2026-09-26)
+
+`a071bdb` was applied by fix-applier. implementation-reviewer's single re-run re-verified every
+item:
+- 18 constants cells changed. 14 moved to pooled under the NO-GAIN rule; none of those 14 BEAT
+  its pooled k. 4 are INSUFFICIENT fallbacks that only lost the retired note.
+- No Q1/Q2/Q3/Q5–Q8 constant changed.
+- All 528 `foldK` values match the panel.
+- Scope is clean, and a deterministic re-run reproduces the committed output.
+
+Two flags survive; the workflow allows no third round. Session 1's calls, since Anton delegated
+them:
+
+| Flag | Decision |
+|---|---|
+| The Q4 NO-GAIN rule has no test. Its own-BEATS-pooled branch has never executed (0 of 14 cells took it). | **Accepted for now.** All 14 produced values were verified by the reviewer against the panel's `vsPooled` labels. **Owed:** a two-branch unit test of the rule, at the next change to `buildConstants` (at the latest, when Phase 2b re-pins). |
+| `buildConstants` returns an unused `q4NoGainPooled` | **Accepted.** It is harmless and was disclosed. Remove it at the next touch. |
+
+**Slice state: COMPLETE.**
+- Artifacts: `backtests/2026-09-26-inseason-{panel,constants}.json` and `grading/2026-09-26-inseason-verdict.md` @ `a071bdb`.
+- Owed next: the companion's registry route (the app applies §A–§C, then the data syncs the same day); Phase 2b; and the Step 4 PRNG fix, a separate task.
