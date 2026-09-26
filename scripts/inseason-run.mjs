@@ -31,7 +31,7 @@ import {
 import { CURRENT_REGRESSION_MODEL } from '../lib/projectionFactors.mjs';
 import { reconstructShippedRookieProjection } from '../lib/rookieMirror.mjs';
 import {
-  IN_SEASON_DEFAULTS, STUDY_K, PHASE1_K, opportunities, reconcileOpportunities, buildCheckpoints,
+  IN_SEASON_DEFAULTS, STUDY_K, PHASE1_K, opportunities, reconcileOpportunities, buildCheckpoints, regGames,
   depthOrderIndex, confidenceTier, median, blend, suffStats, fitK, pinK, analyzeKCell, loso, bySeason,
   losoGroupedK, pairedDelta, compareLabel, errorSummary, fitCK, bootstrapKDiff, bootstrapPairedMean,
   fitVE, predictVE, fitG, predictG, classifyArm, sd, topMixGap, spearman, cellVerdict, mulberry32,
@@ -55,7 +55,8 @@ export class ReconciliationStop extends Error {
 const GUARDED = { loadSeasonTotals: (y) => `nfl/season-totals/${y}.json`, loadGameLogs: (y) => `nflverse/gamelogs/${y}.json` };
 
 export function guardLoad(load, { maxLoadSeason = IN_SEASON_DEFAULTS.maxLoadSeason } = {}) {
-  const manifest = typeof load.loadManifest === 'function' ? load.loadManifest() : undefined;
+  if (typeof load.loadManifest !== 'function') throw new Error('[inseason] load.loadManifest is not a function — cannot verify inProgress flags');
+  const manifest = load.loadManifest();
   if (manifest === null) throw new Error('[inseason] manifest.json not found — cannot verify inProgress flags');
   const cache = new Map();
   const wrapped = { ...load };
@@ -307,11 +308,17 @@ export function assembleSeason(S, env) {
   const liveOrder = (pid, position, W) => depthIndex(Math.min(W + 1, lastWeek)).get(`${position}|${pid}`) ?? null;
   const posOf = new Map(vets.map(c => [c.pid, c.position]));
   const need = new Map();   // order (or 'null') → Set<pid>
+  const changedByW = {};    // §4.1 step 5: per-W count of arm-P rows whose live depth order differs from week 1
+  for (const W of defaults.checkpoints) changedByW[W] = { rows: 0, changed: 0 };
   for (const pid of armPPids) {
     const w1 = week1.get(`${posOf.get(pid)}|${pid}`) ?? null;
     for (const W of defaults.checkpoints) {
       const live = liveOrder(pid, posOf.get(pid), W);
-      if (live !== w1) { const k = live == null ? 'null' : String(live); if (!need.has(k)) need.set(k, new Set()); need.get(k).add(pid); }
+      changedByW[W].rows++;
+      if (live !== w1) {
+        changedByW[W].changed++;
+        const k = live == null ? 'null' : String(live); if (!need.has(k)) need.set(k, new Set()); need.get(k).add(pid);
+      }
     }
   }
   const livePriorBy = new Map();   // `${pid}|${orderKey}` → predicted
@@ -354,10 +361,10 @@ export function assembleSeason(S, env) {
 
     // Evidence for season S.
     const glp = gIdx?.players?.[pid];
-    const regGames = (glp?.games ?? []).filter(g => g.seasonType === 'REG');
+    const glpRegGames = regGames(glp);
     const oppByWeek = {}, targetsByWeek = {}, teamTargetsByWeek = {};
     const teamsSeen = new Set();
-    for (const g of regGames) {
+    for (const g of glpRegGames) {
       oppByWeek[g.week] = opportunities(g, position);
       targetsByWeek[g.week] = g.targets ?? 0;
       teamTargetsByWeek[g.week] = gIdx.teamTargets.get(`${g.team}|${g.week}`) ?? 0;
@@ -430,7 +437,7 @@ export function assembleSeason(S, env) {
       });
     }
   }
-  return { rows, playerSeasons, noPrior, movers, dropsByReason: frozen.fitCoverage.droppedByReason, bandMedian, candidates: candidates.length };
+  return { rows, playerSeasons, noPrior, movers, dropsByReason: frozen.fitCoverage.droppedByReason, bandMedian, candidates: candidates.length, changedByW };
 }
 
 export { makeGamelogsIndex, makeScheduleIndex };
@@ -503,7 +510,7 @@ export function fixtureFrom(a) {
 
 // ─── The analyses ─────────────────────────────────────────────────────────────
 
-function analyze(rows, playerSeasons, defaults, armSRowsList) {
+function analyze(rows, playerSeasons, defaults, armSRowsList, changedByW) {
   const D = defaults;
   const store = new Map();
   const isFin = Number.isFinite;
@@ -583,7 +590,7 @@ function analyze(rows, playerSeasons, defaults, armSRowsList) {
   q1.diagnostics = { functionalForm: diagA, priorOptimism: diagB, exclusionBias: diagC };
 
   // ── Q7 (before pins that depend on it) ──
-  const q7 = runQ7(store, popP);
+  const q7 = runQ7(store, popP, changedByW);
 
   // ── Q2 ──
   const q2 = runQ2(popP, D);
@@ -610,7 +617,7 @@ function analyze(rows, playerSeasons, defaults, armSRowsList) {
 }
 
 // Q7 — live vs frozen depth prior, points ROS, arm P.
-function runQ7(store, popP) {
+function runQ7(store, popP, changedByW) {
   const rows = popP.filter(r => Number.isFinite(r.pointsPrior) && Number.isFinite(r.pointsPriorLive) && Number.isFinite(r.obsPPG) && Number.isFinite(r.rosPPG));
   const out = { pooled: null, byPosition: {}, decision: null };
   const promoted = (r) => (r.orderWeek1 == null ? r.orderLive != null : r.orderLive != null && r.orderLive < r.orderWeek1);
@@ -640,6 +647,7 @@ function runQ7(store, popP) {
     };
   };
   out.pooled = measure(rows, null, 'ALL', (r) => STUDY_K.ros.points[r.position]);
+  out.pooled.changedByW = changedByW;
   for (const pos of POSITIONS) out.byPosition[pos] = measure(rows.filter(r => r.position === pos), null, pos, STUDY_K.ros.points[pos]);
   const pl = out.pooled;
   const accept = pl.verdict === 'OK' && pl.delta?.label === 'BEATS' && pl.residuals.L.promoted.includesZero === true;
@@ -1002,24 +1010,78 @@ function buildConstants({ store, q3, q4, q5, q7, popP }) {
   }
 
   // Q4 — rookie / short-history subgroups vs Phase 1's rule.
+  // NO-GAIN pin rule (Fix pass 1 §1, replacing the retired "fitted k pinned anyway" note): a cell that is
+  // NO-GAIN vs Phase 1 pins the pooled-positions value of the same group × horizon, UNLESS the cell's own k
+  // BEATS that pooled k out of sample (paired held-out ΔMAE, bootstrap CI) — then own k is pinned instead.
   const groupName = { 'X-rookie0': 'ROOKIE0', 'X-rookie1p': 'ROOKIE1P', 'X-short': 'SHORT' };
+  const q4NoGainPooled = [];
   for (const group of Object.keys(groupName)) {
     for (const horizon of ['ros', 'next']) {
       const H = horizon === 'ros' ? 'ROS' : 'DYN';
+      const spec = horizon === 'ros' ? SPEC.pointsRos : SPEC.pointsNext;
       for (const pos of POSITIONS) {
         const own = store.get(`q4|${group}|${horizon}|${pos}`);
         const pooled = store.get(`q4|${group}|${horizon}|ALL`);
         const p1 = PHASE1_SUBGROUP_VALUE[horizon](pos);
         const name = `K_${H}_POINTS_${groupName[group]}`;
+        const cell = q4?.groups?.[group]?.[horizon]?.[pos];
+
+        if (own && own.verdict !== 'INSUFFICIENT' && own.delta?.label === 'NO-GAIN' && pooled && pooled.verdict !== 'INSUFFICIENT') {
+          const foldKOf = new Map(pooled.folds.map(fld => [fld.S, fld.k]));
+          const pooledPreds = own.orderedRows.map(r => ({
+            pred: blend(r[spec.prior], r[spec.obs], r.n, foldKOf.get(r.S)),
+            actual: r[spec.outcome],
+          }));
+          const vsPooled = pairedDelta(own.orderedRows, pooledPreds, own.heldOut);
+          if (cell) cell.vsPooled = vsPooled ? { mean: r4(vsPooled.mean), ci95: vsPooled.ci95.map(r4), label: vsPooled.label } : null;
+
+          if (vsPooled?.label === 'BEATS') {
+            put(name, pos, pinDecision(own, p1), own, `q4|${group}|${horizon}|${pos}`,
+              'NO-GAIN vs Phase 1; own k BEATS the pooled k out of sample → own k pinned');
+          } else {
+            const p = pinDecision(pooled, p1);
+            const e = { ...p, basis: p.basis === 'fitted' ? 'pooled' : p.basis };
+            P.constants[name] ??= {};
+            P.constants[name][pos] = {
+              ...entryOf(e), fixtureKey: `${name}|ALL`,
+              note: 'NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned',
+            };
+            const fx = fixtureFrom(pooled);
+            if (fx) P.fixture[`${name}|ALL`] = fx;
+            P.pinnedFrom[`${name}|${pos}`] = `q4|${group}|${horizon}|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)`;
+            if (cell) cell.pinnedToPooledUnderNoGainRule = true;
+            q4NoGainPooled.push(`${group} ${horizon} ${pos}`);
+          }
+          continue;
+        }
+
         putWithPooled(name, pos, own, pooled, p1, `q4|${group}|${horizon}|${pos}`, `q4|${group}|${horizon}|ALL`);
         const e = P.constants[name][pos];
-        const ref = own && own.verdict !== 'INSUFFICIENT' ? own : pooled;
-        if (ref?.delta?.label === 'NO-GAIN' && e.basis !== 'insufficient') e.note = 'NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1\'s was not)';
         if (e.basis === 'study') e.note = 'WORSE vs Phase 1: Phase 1 value pinned';
       }
     }
   }
-  return { constants: P.constants, fixture: P.fixture, pinnedFrom: P.pinnedFrom };
+  addFoldK({ constants: P.constants, fixture: P.fixture });
+  return { constants: P.constants, fixture: P.fixture, pinnedFrom: P.pinnedFrom, q4NoGainPooled };
+}
+
+/** Adds foldK: { [S]: k } (drop-one-season fitK re-derived from the entry's own fixture) to every
+ *  non-null constants entry — §7 test 11's "tampered foldK is caught" case exercises this. */
+export function addFoldK(file) {
+  for (const [name, cells] of Object.entries(file.constants)) {
+    for (const [cellKey, e] of Object.entries(cells)) {
+      if (e.kFit == null) continue;
+      const fx = file.fixture[e.fixtureKey ?? `${name}|${cellKey}`];
+      if (!fx) continue;
+      const foldK = {};
+      for (const S of Object.keys(fx)) {
+        const fold = fitK(statsMapFrom(fx, Number(S)));
+        foldK[S] = fold ? fold.k : null;
+      }
+      e.foldK = foldK;
+    }
+  }
+  return file;
 }
 
 // ─── Constants verification (§7 test 11) ──────────────────────────────────────
@@ -1049,7 +1111,10 @@ export function verifyConstants(file) {
       if (!pooled || pooled.k !== e.kFit) bad.push({ name, cellKey, problem: `kFit ${e.kFit} != re-derived ${pooled?.k}` });
       for (const S of Object.keys(fx)) {
         const fold = fitK(statsMapFrom(fx, Number(S)));
-        if (!fold || !Number.isFinite(fold.k)) bad.push({ name, cellKey, problem: `fold ${S} does not fit` });
+        const got = fold ? fold.k : null;
+        const expected = e.foldK ? e.foldK[S] : undefined;
+        if (expected === undefined) { bad.push({ name, cellKey, problem: `no foldK for season ${S}` }); continue; }
+        if (got !== expected) bad.push({ name, cellKey, problem: `fold ${S} k ${got} != stored foldK ${expected}` });
       }
     }
   }
@@ -1169,9 +1234,12 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
 
   const env = { load: g, defaults, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds: g.loadPlayerIds() };
   const rows = [], playerSeasons = [], noPrior = [], perSeason = [];
+  const changedByW = {};
+  for (const W of defaults.checkpoints) changedByW[W] = { rows: 0, changed: 0 };
   for (let S = defaults.seasons.from; S <= defaults.seasons.to; S++) {
     const a = assembleSeason(S, env);
     rows.push(...a.rows); playerSeasons.push(...a.playerSeasons); noPrior.push(...a.noPrior);
+    for (const W of defaults.checkpoints) { changedByW[W].rows += a.changedByW[W].rows; changedByW[W].changed += a.changedByW[W].changed; }
     const byArm = a.playerSeasons.reduce((m, p) => { m[p.arm] = (m[p.arm] ?? 0) + 1; return m; }, {});
     const armP = a.playerSeasons.filter(p => p.arm === 'P');
     perSeason.push({
@@ -1183,12 +1251,20 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
   }
 
   const armSList = armSRows({ load: g });
-  const an = analyze(rows, playerSeasons, defaults, armSList);
+  const an = analyze(rows, playerSeasons, defaults, armSList, changedByW);
   const generatedAt = new Date().toISOString();
   const date = generatedAt.slice(0, 10);
   const combination = buildCombination(an.q2);
   for (const h of Object.values(an.q2.horizons)) for (const c of Object.values(h)) { delete c._eligible; delete c.fit; }
   const q5arm = an.q5.decision.arm;
+
+  // Prior-optimism record (Fix pass 1 §2, Anton item 1 — reported, never pinned).
+  const optimismCs = POSITIONS.map(p => an.q1.diagnostics.priorOptimism[p]?.pooled?.c).filter(Number.isFinite);
+  const cLo = optimismCs.length ? Math.min(...optimismCs).toFixed(2) : null;
+  const cHi = optimismCs.length ? Math.max(...optimismCs).toFixed(2) : null;
+  const priorOptimismText = cLo != null
+    ? `The reconstructed projection prior runs optimistic: the joint diagnostic puts the prior scale c at ${cLo}–${cHi} across positions, consistent with \`grading/2026-09-06-fullpipeline-verdict.md\`, which STOPPED on live-state reconstruction limits — the same limit applies here, so c is reported, not pinned. The pinned k partly correct that optimism (evidence gets extra weight because the prior sits high). (a) These k MUST be re-fitted if the projection's optimism is ever corrected. (b) Phase 2b's in-season "what changed" display will skew below-prior early in the season for this reason and must say so.`
+    : null;
 
   const constantsFile = {
     source: `sleeper-dashboard-data backtests/${date}-inseason-constants.json (node bin/backtest.mjs --inseason --write)`,
@@ -1197,6 +1273,7 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
       kTenths: [0, 400], loss: 'sum of squared error, rows equal weight', tie: 'smaller k', pin: 'Math.round(k*2)/2',
       checkpoints: 'calendar weeks 1-12, n = games played', minRosGames: defaults.minRosGames, nextMinGames: defaults.nextMinGames,
       prior: an.q7.decision.result === 'ACCEPT' ? 'live' : 'frozen', opportunityBaseline: q5arm,
+      priorOptimism: priorOptimismText,
     },
     constants: an.pinned.constants,
     combination,
@@ -1276,6 +1353,7 @@ export function buildInSeasonVerdictMarkdown(result) {
   for (const [g, hs] of Object.entries(q4.groups)) for (const [h, cs] of Object.entries(hs)) for (const p of POSITIONS) { const c = cs[p]; if (c?.verdict === 'OK' && c.delta) q4Cells.push({ g, h, p, label: c.delta.label }); }
   const q4Labels = labelCounts(q4Cells.map(x => x.label));
   const q4Insufficient = Object.entries(q4.groups).flatMap(([g, hs]) => Object.entries(hs).flatMap(([h, cs]) => POSITIONS.filter(p => cs[p]?.verdict === 'INSUFFICIENT').map(p => `${g} ${h} ${p}`)));
+  const q4NoGainPooled = Object.entries(q4.groups).flatMap(([g, hs]) => Object.entries(hs).flatMap(([h, cs]) => POSITIONS.filter(p => cs[p]?.pinnedToPooledUnderNoGainRule).map(p => `${g} ${h} ${p}`)));
   const q6m = q6.measures;
   const q7p = q7.pooled;
   const oneSetPos = POSITIONS.filter(p => q8.byPosition[p].oneSetWouldDo);
@@ -1303,7 +1381,8 @@ export function buildInSeasonVerdictMarkdown(result) {
     `- **Q3 — weak/strong split and projection confidence.** ${q3Adopt.length ? `Adopted: ${q3Adopt.join(', ')}.` : 'No band or tier split BEATS the per-position k in any position × horizon cell — none adopted.'} ` +
       `See §Q3 for each label.`,
     `- **Q4 — rookies and players without a ≥ 8-game prior season.** Fitted k vs Phase 1's rule over the position cells: ${Object.entries(q4Labels).map(([k, v]) => `${v} ${k}`).join(', ')}` +
-      `${q4Insufficient.length ? `; INSUFFICIENT position cells (pooled fallback): ${q4Insufficient.join(', ')}` : ''}. Opportunity for these players: not measurable (no projected-volume prior).`,
+      `${q4Insufficient.length ? `; INSUFFICIENT position cells (pooled fallback): ${q4Insufficient.join(', ')}` : ''}. Opportunity for these players: not measurable (no projected-volume prior). ` +
+      `${q4NoGainPooled.length} cells pinned to the pooled value under the NO-GAIN rule: ${q4NoGainPooled.join(', ') || 'none'}.`,
     `- **Q5 — baseline lookback.** Arm ${q5.decision.arm} (${q5.decision.arm === 'B' ? 'last season with ≥ 4 games' : 'last season only'}): pooled ROS-opportunity ΔMAE (B − A) ${f(q5.pooled.delta?.mean, 3)} ${ci(q5.pooled.delta?.ci95, 3)} → ${q5.pooled.delta?.label}, ` +
       `on ${q5.rows} rows / ${q5.playerSeasons} player-seasons that Phase 1 would flag "new role" and arm B removes. ` +
       `K_ROS_OPP_STALE: ${C.K_ROS_OPP_STALE ? 'adopted' : 'not adopted (a separate k does not BEAT the pooled k on those rows)'}.`,
@@ -1332,6 +1411,17 @@ export function buildInSeasonVerdictMarkdown(result) {
   lines.push(
     `Also in the constants file: \`combination\` = ${constants.combination ? 'filled (see file)' : 'null (Q2 adopted nothing)'}; \`sortMeasure\` = \`${constants.sortMeasure.name}\` with the pinned K_ROS_OPP by position as its shrink parameters; ` +
       `\`fit.prior\` = ${constants.fit.prior}; \`fit.opportunityBaseline\` = ${constants.fit.opportunityBaseline}.`,
+    '',
+  );
+
+  // ── Prior optimism (Fix pass 1 §2, Anton item 1 — read before using these k) ──
+  lines.push('## Prior optimism — read before using these k', '');
+  if (constants.fit.priorOptimism) lines.push(constants.fit.priorOptimism, '');
+  lines.push(
+    ...tbl(['pos', 'c', 'k (with c)', 'k (without)'], POSITIONS.map(p => {
+      const d = q1.diagnostics.priorOptimism[p];
+      return [p, f(d?.pooled?.c, 2), f(d?.pooled?.k, 1), f(d?.kOnly, 1)];
+    })),
     '',
   );
 
@@ -1389,12 +1479,14 @@ export function buildInSeasonVerdictMarkdown(result) {
 
   // ── Q4 ──
   lines.push('## Q4 — rookies and players without a ≥ 8-game prior season', '',
-    'Prior: rookie-path players use the SHIPPED rookie projection (calibration + games ladder + ceiling; no KTC multiplier historically); veteran-path X-short players use the frozen projection. Comparator: Phase 1\'s per-row k rule (`PHASE1_K`). ΔMAE = fitted − Phase 1 (negative = better).', '',
-    ...tbl(['group', 'horizon', 'pos', 'k (0.1)', '95% CI', 'rows / players', 'MAE fitted / Phase 1', 'ΔMAE [CI]', 'label'],
+    'Prior: rookie-path players use the SHIPPED rookie projection (calibration + games ladder + ceiling; no KTC multiplier historically); veteran-path X-short players use the frozen projection. Comparator: Phase 1\'s per-row k rule (`PHASE1_K`). ΔMAE = fitted − Phase 1 (negative = better). ' +
+      'NO-GAIN pin rule: a cell that is NO-GAIN vs Phase 1 pins the pooled-positions (ALL) value of the same group × horizon, unless the cell\'s own k BEATS that pooled k out of sample (paired held-out ΔMAE, bootstrap CI — the "vs pooled" column) — then own k is pinned instead.', '',
+    ...tbl(['group', 'horizon', 'pos', 'k (0.1)', '95% CI', 'rows / players', 'MAE fitted / Phase 1', 'ΔMAE [CI]', 'label', 'vs pooled [CI] label'],
       Object.entries(q4.groups).flatMap(([g, hs]) => Object.entries(hs).flatMap(([h, cs]) => GRID_POSITIONS.map(p => {
         const c = cs[p];
-        if (c.verdict === 'INSUFFICIENT') return [g, h, p, 'INSUFFICIENT', '', `${c.rows} / ${c.players}`, '', '', ''];
-        return [g, h, p, f(c.kFit, 1), ci(c.ci95), `${c.rows} / ${c.players}`, `${f(c.error.fitted.mae, 3)} / ${f(c.error.study.mae, 3)}`, `${f(c.delta.mean, 4)} ${ci(c.delta.ci95, 4)}`, c.delta.label];
+        if (c.verdict === 'INSUFFICIENT') return [g, h, p, 'INSUFFICIENT', '', `${c.rows} / ${c.players}`, '', '', '', ''];
+        const vp = c.vsPooled ? `${f(c.vsPooled.mean, 4)} ${ci(c.vsPooled.ci95, 4)} ${c.vsPooled.label}${c.pinnedToPooledUnderNoGainRule ? ' (pooled pinned)' : ''}` : '—';
+        return [g, h, p, f(c.kFit, 1), ci(c.ci95), `${c.rows} / ${c.players}`, `${f(c.error.fitted.mae, 3)} / ${f(c.error.study.mae, 3)}`, `${f(c.delta.mean, 4)} ${ci(c.delta.ci95, 4)}`, c.delta.label, vp];
       })))), '',
     'Opportunity for these players: **not measurable** — the app holds no projected-volume prior for them (D5).', '');
 
@@ -1428,7 +1520,10 @@ export function buildInSeasonVerdictMarkdown(result) {
         : [name, `${c.rows} / ${c.changedRows}`, `${f(c.kP, 1)} / ${f(c.kL, 1)}`, `${f(c.maeP, 4)} / ${f(c.maeL, 4)}`, `${f(c.delta?.mean, 4)} ${ci(c.delta?.ci95, 4)}`, c.delta?.label ?? '—',
           `${f(c.residuals.L.promoted.mean, 3)} ${ci(c.residuals.L.promoted.ci95, 3)}`, `${f(c.residuals.L.demoted.mean, 3)} ${ci(c.residuals.L.demoted.ci95, 3)}`,
           `${f(c.residuals.P.promoted.mean, 3)} ${ci(c.residuals.P.promoted.ci95, 3)}`, `${f(c.residuals.P.demoted.mean, 3)} ${ci(c.residuals.P.demoted.ci95, 3)}`])), '',
-    `Rule (pre-registered): ${q7.decision.rule}. Decision on the pooled population: **${q7.decision.result}**.`, '');
+    `Rule (pre-registered): ${q7.decision.rule}. Decision on the pooled population: **${q7.decision.result}**.`, '',
+    'FREEZE needs a frozen-prior source in the app — see .claude/tasks/in-season-evidence-2a-registry.md §D.4 (Phase 2b).', '',
+    'Depth-order changes per checkpoint week (§4.1 step 5: arm-P candidates whose live depth order differs from the frozen week-1 order):', '',
+    ...tbl(['W', 'rows', 'changed', 'changed share'], Object.entries(q7.pooled.changedByW ?? {}).sort((a, b) => Number(a[0]) - Number(b[0])).map(([W, v]) => [W, String(v.rows), String(v.changed), f(v.rows ? v.changed / v.rows : null, 3)])), '');
 
   // ── Q8 ──
   lines.push('## Q8 — which k set drives the dynasty score, which the season projection', '',
@@ -1530,4 +1625,33 @@ export function writeInSeasonArtifacts({ result, verdictMd }) {
   fs.writeFileSync(repoPath(constantsPath), constantsJson, 'utf8');
   fs.writeFileSync(repoPath(verdictPath), verdictMd.endsWith('\n') ? verdictMd : verdictMd + '\n', 'utf8');
   return { panelPath, constantsPath, verdictPath, panelBytes: Buffer.byteLength(panelJson), constantsBytes: Buffer.byteLength(constantsJson) };
+}
+
+// ─── CLI entry point (§6, Fix pass 1 §7) ──────────────────────────────────────
+
+/**
+ * The `--inseason` branch body of `bin/backtest.mjs`. Returns the process exit code: 1 on
+ * `ReconciliationStop` (no artifacts written), else 0. The bin's flag rejection stays in the bin;
+ * this only runs once that has already passed.
+ */
+export function inSeasonMain({
+  load = INSEASON_LOAD, write = false, asJson = false, writeArtifacts = writeInSeasonArtifacts,
+  log = console.log, logErr = console.error,
+} = {}) {
+  try {
+    const result = runInSeason({ load, log: (m) => logErr(`[backtest] ${m}`) });
+    const verdictMd = buildInSeasonVerdictMarkdown(result);
+    if (write) {
+      const w = writeArtifacts({ result, verdictMd });
+      logErr(`[backtest] Wrote ${w.panelPath} (${w.panelBytes} B), ${w.constantsPath} (${w.constantsBytes} B), ${w.verdictPath}`);
+    }
+    log(asJson ? JSON.stringify(result, null, 2) : verdictMd);
+    return 0;
+  } catch (err) {
+    if (err instanceof ReconciliationStop) {
+      logErr(`[backtest] ${err.message}`);
+      return 1;
+    }
+    throw err;
+  }
 }

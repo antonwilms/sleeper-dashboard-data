@@ -1,13 +1,13 @@
 # In-season evidence — Phase 2a graded backtest
 
-Generated 2026-09-26T09:31:09.621Z. Basis **half_ppr** (pinned; a league-basis refit belongs to the custom-basis backlog item). Outcome seasons 2014–2025, calendar checkpoints W = 1–12, n = games played, leave-one-season-out, player-clustered bootstrap (4000 resamples, seed 12345, mulberry32), k grid 0–40 in tenths.
+Generated 2026-09-26T10:10:30.744Z. Basis **half_ppr** (pinned; a league-basis refit belongs to the custom-basis backlog item). Outcome seasons 2014–2025, calendar checkpoints W = 1–12, n = games played, leave-one-season-out, player-clustered bootstrap (4000 resamples, seed 12345, mulberry32), k grid 0–40 in tenths.
 
 ## Answers
 
 - **Q1 — k with the real reconstructed projection as prior.** ROS points (arm P): QB 2.8 · RB 2.7 · WR 3.2 · TE 3.7 (study 6 · 3 · 4.5 · 5.5; arm S reproduces the study's own QB 5.0 · RB 3.0 · WR 4.2 · TE 4.5). Next-season points (arm P): QB 4.4 · RB 4.2 · WR 4.0 · TE 4.6 (study 7.5 · 4.5 · 6.5 · 6.5). Fitted k vs study k over the single-position cells: 18 NO-GAIN, 4 BEATS, 4 WORSE; BEATS: pointsP_ros WR, pointsP_ros TE, pointsR_ros WR, pointsR_ros TE; WORSE: pointsP_next RB, pointsR_ros RB, pointsR_next QB, opp_next TE. Grid-boundary fits: none.
 - **Q2 — opportunity + points vs points-only (out of sample).** Neither VE nor G BEATS points-only on the primary population in any of the 8 position × horizon cells — opportunity stays display-only. Secondary (role-change rows) BEATS: WR next VE, WR next G.
 - **Q3 — weak/strong split and projection confidence.** No band or tier split BEATS the per-position k in any position × horizon cell — none adopted. See §Q3 for each label.
-- **Q4 — rookies and players without a ≥ 8-game prior season.** Fitted k vs Phase 1's rule over the position cells: 14 NO-GAIN, 3 BEATS, 1 WORSE; INSUFFICIENT position cells (pooled fallback): X-rookie0 next QB, X-rookie1p next QB, X-short ros QB, X-short next QB, X-short next RB, X-short next TE. Opportunity for these players: not measurable (no projected-volume prior).
+- **Q4 — rookies and players without a ≥ 8-game prior season.** Fitted k vs Phase 1's rule over the position cells: 14 NO-GAIN, 3 BEATS, 1 WORSE; INSUFFICIENT position cells (pooled fallback): X-rookie0 next QB, X-rookie1p next QB, X-short ros QB, X-short next QB, X-short next RB, X-short next TE. Opportunity for these players: not measurable (no projected-volume prior). 14 cells pinned to the pooled value under the NO-GAIN rule: X-rookie0 ros QB, X-rookie0 ros RB, X-rookie0 ros TE, X-rookie0 next RB, X-rookie0 next WR, X-rookie0 next TE, X-rookie1p ros QB, X-rookie1p ros RB, X-rookie1p ros TE, X-rookie1p next RB, X-rookie1p next WR, X-rookie1p next TE, X-short ros RB, X-short next WR.
 - **Q5 — baseline lookback.** Arm B (last season with ≥ 4 games): pooled ROS-opportunity ΔMAE (B − A) -3.331 [-4.364, -2.411] → BEATS, on 933 rows / 102 player-seasons that Phase 1 would flag "new role" and arm B removes. K_ROS_OPP_STALE: not adopted (a separate k does not BEAT the pooled k on those rows).
 - **Q6 — cross-position usage-shift sort measure.** Winner: **relative** (within 0.01 of the best Spearman → smaller mix gap). Spearman vs realised ROS − prior: raw 0.302 · relative 0.319 · z 0.323 · pointsEquivalent 0.326; mean top-50 position-mix gap: raw 0.087 · relative 0.060 · z 0.072 · pointsEquivalent 0.065.
 - **Q7 — depth-chart double count.** **FREEZE**: live-depth prior vs frozen ΔMAE -0.0037 [-0.0075, 0.0001] → NO-GAIN; arm L's promoted-row mean residual 0.179 [0.024, 0.338] (excludes 0). Fitted k: P 3.0, L 3.1; 37% of arm-P rows have a different depth order at their checkpoint.
@@ -41,32 +41,43 @@ What Phase 2b pins. `k` is the pinned value (fitted k rounded to 0.5, or the §4
 | `K_DYN_OPP` | TE | 4.0 | 3.9 | [2.7, 5.7] | 3609 / 127 | study | 4.0 |
 | `K_ROS_SHARE` | WR | 3.0 | 2.8 | [2.3, 3.5] | 9437 / 296 | fitted | 2.3 |
 | `K_ROS_SHARE` | TE | 2.5 | 2.5 | [1.8, 3.4] | 3099 / 105 | fitted | 2.0 |
-| `K_ROS_POINTS_ROOKIE0` | QB | 6.0 | 5.8 | [2.4, 17.9] | 552 / 66 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 6.0 |
-| `K_ROS_POINTS_ROOKIE0` | RB | 2.5 | 2.6 | [1.7, 3.8] | 3065 / 331 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 3.0 |
+| `K_ROS_POINTS_ROOKIE0` | QB | 3.0 | 2.9 | [2.3, 3.6] | 9815 / 1063 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 6.0 |
+| `K_ROS_POINTS_ROOKIE0` | RB | 3.0 | 2.9 | [2.3, 3.6] | 9815 / 1063 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 3.0 |
 | `K_ROS_POINTS_ROOKIE0` | WR | 2.5 | 2.4 | [1.8, 3.3] | 4169 / 441 | fitted | 3.5 |
-| `K_ROS_POINTS_ROOKIE0` | TE | 3.0 | 3.2 | [1.9, 5.6] | 2029 / 225 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 4.0 |
-| `K_DYN_POINTS_ROOKIE0` | QB | 6.5 | 6.3 | [4.3, 10.0] | 8072 / 764 | pooled — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 7.5 |
-| `K_DYN_POINTS_ROOKIE0` | RB | 6.5 | 6.6 | [3.9, 12.5] | 2422 / 229 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 4.5 |
-| `K_DYN_POINTS_ROOKIE0` | WR | 4.5 | 4.3 | [2.9, 6.5] | 3415 / 316 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 6.5 |
-| `K_DYN_POINTS_ROOKIE0` | TE | 5.5 | 5.4 | [2.5, 14.2] | 1736 / 170 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 6.5 |
-| `K_ROS_POINTS_ROOKIE1P` | QB | 3.0 | 2.8 | [1.7, 5.1] | 952 / 101 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 6.0 |
-| `K_ROS_POINTS_ROOKIE1P` | RB | 2.0 | 2.2 | [1.4, 3.1] | 2969 / 298 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 3.0 |
+| `K_ROS_POINTS_ROOKIE0` | TE | 3.0 | 2.9 | [2.3, 3.6] | 9815 / 1063 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 4.0 |
+| `K_DYN_POINTS_ROOKIE0` | QB | 6.5 | 6.3 | [4.3, 10.0] | 8072 / 764 | pooled | 7.5 |
+| `K_DYN_POINTS_ROOKIE0` | RB | 6.5 | 6.3 | [4.3, 10.0] | 8072 / 764 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 4.5 |
+| `K_DYN_POINTS_ROOKIE0` | WR | 6.5 | 6.3 | [4.3, 10.0] | 8072 / 764 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 6.5 |
+| `K_DYN_POINTS_ROOKIE0` | TE | 6.5 | 6.3 | [4.3, 10.0] | 8072 / 764 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 6.5 |
+| `K_ROS_POINTS_ROOKIE1P` | QB | 2.5 | 2.6 | [2.1, 3.2] | 10857 / 1089 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 6.0 |
+| `K_ROS_POINTS_ROOKIE1P` | RB | 2.5 | 2.6 | [2.1, 3.2] | 10857 / 1089 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 3.0 |
 | `K_ROS_POINTS_ROOKIE1P` | WR | 3.0 | 3.0 | [2.2, 4.0] | 4384 / 439 | fitted | 3.5 |
-| `K_ROS_POINTS_ROOKIE1P` | TE | 2.5 | 2.7 | [1.7, 4.3] | 2552 / 252 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 4.0 |
+| `K_ROS_POINTS_ROOKIE1P` | TE | 2.5 | 2.6 | [2.1, 3.2] | 10857 / 1089 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 4.0 |
 | `K_DYN_POINTS_ROOKIE1P` | QB | 3.5 | 3.7 | [2.9, 4.8] | 8690 / 752 | pooled | 7.5 |
-| `K_DYN_POINTS_ROOKIE1P` | RB | 4.0 | 4.0 | [2.6, 6.0] | 2609 / 226 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 4.5 |
-| `K_DYN_POINTS_ROOKIE1P` | WR | 3.0 | 3.1 | [2.0, 5.0] | 3417 / 295 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 6.5 |
-| `K_DYN_POINTS_ROOKIE1P` | TE | 5.0 | 5.2 | [2.7, 9.9] | 2011 / 178 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 6.5 |
+| `K_DYN_POINTS_ROOKIE1P` | RB | 3.5 | 3.7 | [2.9, 4.8] | 8690 / 752 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 4.5 |
+| `K_DYN_POINTS_ROOKIE1P` | WR | 3.5 | 3.7 | [2.9, 4.8] | 8690 / 752 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 6.5 |
+| `K_DYN_POINTS_ROOKIE1P` | TE | 3.5 | 3.7 | [2.9, 4.8] | 8690 / 752 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 6.5 |
 | `K_ROS_POINTS_SHORT` | QB | 1.5 | 1.5 | [1.2, 2.0] | 4376 / 415 | pooled | 6.0 |
-| `K_ROS_POINTS_SHORT` | RB | 1.5 | 1.3 | [0.8, 2.4] | 1228 / 110 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 3.0 |
+| `K_ROS_POINTS_SHORT` | RB | 1.5 | 1.5 | [1.2, 2.0] | 4376 / 415 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 3.0 |
 | `K_ROS_POINTS_SHORT` | WR | 1.0 | 1.1 | [0.7, 1.8] | 1641 / 159 | fitted | 3.5 |
 | `K_ROS_POINTS_SHORT` | TE | 4.0 | 3.6 | [2.2, 6.8] | 898 / 89 | study — WORSE vs Phase 1: Phase 1 value pinned | 4.0 |
-| `K_DYN_POINTS_SHORT` | QB | 2.5 | 2.7 | [1.5, 4.9] | 2707 / 220 | pooled — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 7.5 |
-| `K_DYN_POINTS_SHORT` | RB | 2.5 | 2.7 | [1.5, 4.9] | 2707 / 220 | pooled — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 4.5 |
-| `K_DYN_POINTS_SHORT` | WR | 0.5 | 0.7 | [0.2, 2.0] | 907 / 75 | fitted — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 6.5 |
-| `K_DYN_POINTS_SHORT` | TE | 2.5 | 2.7 | [1.5, 4.9] | 2707 / 220 | pooled — NO-GAIN vs Phase 1: fitted k pinned anyway (measured, where Phase 1's was not) | 6.5 |
+| `K_DYN_POINTS_SHORT` | QB | 2.5 | 2.7 | [1.5, 4.9] | 2707 / 220 | pooled | 7.5 |
+| `K_DYN_POINTS_SHORT` | RB | 2.5 | 2.7 | [1.5, 4.9] | 2707 / 220 | pooled | 4.5 |
+| `K_DYN_POINTS_SHORT` | WR | 2.5 | 2.7 | [1.5, 4.9] | 2707 / 220 | pooled — NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned | 6.5 |
+| `K_DYN_POINTS_SHORT` | TE | 2.5 | 2.7 | [1.5, 4.9] | 2707 / 220 | pooled | 6.5 |
 
 Also in the constants file: `combination` = null (Q2 adopted nothing); `sortMeasure` = `relative` with the pinned K_ROS_OPP by position as its shrink parameters; `fit.prior` = frozen; `fit.opportunityBaseline` = B.
+
+## Prior optimism — read before using these k
+
+The reconstructed projection prior runs optimistic: the joint diagnostic puts the prior scale c at 0.80–0.86 across positions, consistent with `grading/2026-09-06-fullpipeline-verdict.md`, which STOPPED on live-state reconstruction limits — the same limit applies here, so c is reported, not pinned. The pinned k partly correct that optimism (evidence gets extra weight because the prior sits high). (a) These k MUST be re-fitted if the projection's optimism is ever corrected. (b) Phase 2b's in-season "what changed" display will skew below-prior early in the season for this reason and must say so.
+
+| pos | c | k (with c) | k (without) |
+|---|---|---|---|
+| QB | 0.84 | 5.5 | 2.8 |
+| RB | 0.82 | 3.2 | 2.7 |
+| WR | 0.80 | 4.5 | 3.2 |
+| TE | 0.86 | 4.4 | 3.7 |
 
 ## Q1 — k per signal × position × horizon
 
@@ -181,40 +192,40 @@ Arm P, points. M0 = k per position; M1 = k per position × band (S-1 opp/g below
 
 ## Q4 — rookies and players without a ≥ 8-game prior season
 
-Prior: rookie-path players use the SHIPPED rookie projection (calibration + games ladder + ceiling; no KTC multiplier historically); veteran-path X-short players use the frozen projection. Comparator: Phase 1's per-row k rule (`PHASE1_K`). ΔMAE = fitted − Phase 1 (negative = better).
+Prior: rookie-path players use the SHIPPED rookie projection (calibration + games ladder + ceiling; no KTC multiplier historically); veteran-path X-short players use the frozen projection. Comparator: Phase 1's per-row k rule (`PHASE1_K`). ΔMAE = fitted − Phase 1 (negative = better). NO-GAIN pin rule: a cell that is NO-GAIN vs Phase 1 pins the pooled-positions (ALL) value of the same group × horizon, unless the cell's own k BEATS that pooled k out of sample (paired held-out ΔMAE, bootstrap CI — the "vs pooled" column) — then own k is pinned instead.
 
-| group | horizon | pos | k (0.1) | 95% CI | rows / players | MAE fitted / Phase 1 | ΔMAE [CI] | label |
-|---|---|---|---|---|---|---|---|---|
-| X-rookie0 | ros | QB | 5.8 | [2.4, 17.9] | 552 / 66 | 3.722 / 3.677 | 0.0449 [-0.0007, 0.0935] | NO-GAIN |
-| X-rookie0 | ros | RB | 2.6 | [1.7, 3.8] | 3065 / 331 | 2.470 / 2.479 | -0.0093 [-0.0242, 0.0064] | NO-GAIN |
-| X-rookie0 | ros | WR | 2.4 | [1.8, 3.3] | 4169 / 441 | 2.128 / 2.158 | -0.0302 [-0.0508, -0.0095] | BEATS |
-| X-rookie0 | ros | TE | 3.2 | [1.9, 5.6] | 2029 / 225 | 1.418 / 1.423 | -0.0057 [-0.0175, 0.0061] | NO-GAIN |
-| X-rookie0 | ros | ALL | 2.9 | [2.3, 3.6] | 9815 / 1063 | 2.181 / 2.192 | -0.0108 [-0.0231, 0.0017] | NO-GAIN |
-| X-rookie0 | next | QB | INSUFFICIENT |  | 499 / 49 |  |  |  |
-| X-rookie0 | next | RB | 6.6 | [3.9, 12.5] | 2422 / 229 | 2.982 / 2.946 | 0.0366 [-0.0065, 0.0812] | NO-GAIN |
-| X-rookie0 | next | WR | 4.3 | [2.9, 6.5] | 3415 / 316 | 2.358 / 2.383 | -0.0253 [-0.0570, 0.0065] | NO-GAIN |
-| X-rookie0 | next | TE | 5.4 | [2.5, 14.2] | 1736 / 170 | 1.645 / 1.646 | -0.0014 [-0.0186, 0.0157] | NO-GAIN |
-| X-rookie0 | next | ALL | 6.3 | [4.3, 10.0] | 8072 / 764 | 2.505 / 2.497 | 0.0084 [-0.0038, 0.0205] | NO-GAIN |
-| X-rookie1p | ros | QB | 2.8 | [1.7, 5.1] | 952 / 101 | 3.620 / 3.752 | -0.1315 [-0.2888, 0.0260] | NO-GAIN |
-| X-rookie1p | ros | RB | 2.2 | [1.4, 3.1] | 2969 / 298 | 2.651 / 2.655 | -0.0041 [-0.0307, 0.0229] | NO-GAIN |
-| X-rookie1p | ros | WR | 3.0 | [2.2, 4.0] | 4384 / 439 | 2.109 / 2.138 | -0.0295 [-0.0535, -0.0062] | BEATS |
-| X-rookie1p | ros | TE | 2.7 | [1.7, 4.3] | 2552 / 252 | 1.342 / 1.359 | -0.0169 [-0.0530, 0.0171] | NO-GAIN |
-| X-rookie1p | ros | ALL | 2.6 | [2.1, 3.2] | 10857 / 1089 | 2.203 / 2.238 | -0.0356 [-0.0574, -0.0135] | BEATS |
-| X-rookie1p | next | QB | INSUFFICIENT |  | 653 / 54 |  |  |  |
-| X-rookie1p | next | RB | 4.0 | [2.6, 6.0] | 2609 / 226 | 2.669 / 2.668 | 0.0015 [-0.0138, 0.0160] | NO-GAIN |
-| X-rookie1p | next | WR | 3.1 | [2.0, 5.0] | 3417 / 295 | 2.583 / 2.640 | -0.0563 [-0.1166, 0.0062] | NO-GAIN |
-| X-rookie1p | next | TE | 5.2 | [2.7, 9.9] | 2011 / 178 | 1.863 / 1.859 | 0.0045 [-0.0219, 0.0323] | NO-GAIN |
-| X-rookie1p | next | ALL | 3.7 | [2.9, 4.8] | 8690 / 752 | 2.523 / 2.558 | -0.0358 [-0.0636, -0.0080] | BEATS |
-| X-short | ros | QB | INSUFFICIENT |  | 609 / 57 |  |  |  |
-| X-short | ros | RB | 1.3 | [0.8, 2.4] | 1228 / 110 | 2.331 / 2.393 | -0.0614 [-0.1677, 0.0399] | NO-GAIN |
-| X-short | ros | WR | 1.1 | [0.7, 1.8] | 1641 / 159 | 1.900 / 2.015 | -0.1149 [-0.2179, -0.0187] | BEATS |
-| X-short | ros | TE | 3.6 | [2.2, 6.8] | 898 / 89 | 1.453 / 1.440 | 0.0132 [0.0007, 0.0276] | WORSE |
-| X-short | ros | ALL | 1.5 | [1.2, 2.0] | 4376 / 415 | 2.163 / 2.262 | -0.0997 [-0.1748, -0.0306] | BEATS |
-| X-short | next | QB | INSUFFICIENT |  | 462 / 36 |  |  |  |
-| X-short | next | RB | INSUFFICIENT |  | 732 / 59 |  |  |  |
-| X-short | next | WR | 0.7 | [0.2, 2.0] | 907 / 75 | 2.535 / 2.740 | -0.2045 [-0.4579, 0.0394] | NO-GAIN |
-| X-short | next | TE | INSUFFICIENT |  | 606 / 50 |  |  |  |
-| X-short | next | ALL | 2.7 | [1.5, 4.9] | 2707 / 220 | 2.948 / 2.988 | -0.0403 [-0.1298, 0.0547] | NO-GAIN |
+| group | horizon | pos | k (0.1) | 95% CI | rows / players | MAE fitted / Phase 1 | ΔMAE [CI] | label | vs pooled [CI] label |
+|---|---|---|---|---|---|---|---|---|---|
+| X-rookie0 | ros | QB | 5.8 | [2.4, 17.9] | 552 / 66 | 3.722 / 3.677 | 0.0449 [-0.0007, 0.0935] | NO-GAIN | 0.0229 [-0.1462, 0.1993] NO-GAIN (pooled pinned) |
+| X-rookie0 | ros | RB | 2.6 | [1.7, 3.8] | 3065 / 331 | 2.470 / 2.479 | -0.0093 [-0.0242, 0.0064] | NO-GAIN | -0.0052 [-0.0177, 0.0080] NO-GAIN (pooled pinned) |
+| X-rookie0 | ros | WR | 2.4 | [1.8, 3.3] | 4169 / 441 | 2.128 / 2.158 | -0.0302 [-0.0508, -0.0095] | BEATS | — |
+| X-rookie0 | ros | TE | 3.2 | [1.9, 5.6] | 2029 / 225 | 1.418 / 1.423 | -0.0057 [-0.0175, 0.0061] | NO-GAIN | 0.0103 [0.0034, 0.0176] WORSE (pooled pinned) |
+| X-rookie0 | ros | ALL | 2.9 | [2.3, 3.6] | 9815 / 1063 | 2.181 / 2.192 | -0.0108 [-0.0231, 0.0017] | NO-GAIN | — |
+| X-rookie0 | next | QB | INSUFFICIENT |  | 499 / 49 |  |  |  |  |
+| X-rookie0 | next | RB | 6.6 | [3.9, 12.5] | 2422 / 229 | 2.982 / 2.946 | 0.0366 [-0.0065, 0.0812] | NO-GAIN | 0.0081 [-0.0033, 0.0196] NO-GAIN (pooled pinned) |
+| X-rookie0 | next | WR | 4.3 | [2.9, 6.5] | 3415 / 316 | 2.358 / 2.383 | -0.0253 [-0.0570, 0.0065] | NO-GAIN | -0.0255 [-0.0558, 0.0049] NO-GAIN (pooled pinned) |
+| X-rookie0 | next | TE | 5.4 | [2.5, 14.2] | 1736 / 170 | 1.645 / 1.646 | -0.0014 [-0.0186, 0.0157] | NO-GAIN | -0.0001 [-0.0174, 0.0173] NO-GAIN (pooled pinned) |
+| X-rookie0 | next | ALL | 6.3 | [4.3, 10.0] | 8072 / 764 | 2.505 / 2.497 | 0.0084 [-0.0038, 0.0205] | NO-GAIN | — |
+| X-rookie1p | ros | QB | 2.8 | [1.7, 5.1] | 952 / 101 | 3.620 / 3.752 | -0.1315 [-0.2888, 0.0260] | NO-GAIN | 0.0167 [-0.0063, 0.0421] NO-GAIN (pooled pinned) |
+| X-rookie1p | ros | RB | 2.2 | [1.4, 3.1] | 2969 / 298 | 2.651 / 2.655 | -0.0041 [-0.0307, 0.0229] | NO-GAIN | 0.0041 [-0.0123, 0.0210] NO-GAIN (pooled pinned) |
+| X-rookie1p | ros | WR | 3.0 | [2.2, 4.0] | 4384 / 439 | 2.109 / 2.138 | -0.0295 [-0.0535, -0.0062] | BEATS | — |
+| X-rookie1p | ros | TE | 2.7 | [1.7, 4.3] | 2552 / 252 | 1.342 / 1.359 | -0.0169 [-0.0530, 0.0171] | NO-GAIN | 0.0025 [-0.0002, 0.0055] NO-GAIN (pooled pinned) |
+| X-rookie1p | ros | ALL | 2.6 | [2.1, 3.2] | 10857 / 1089 | 2.203 / 2.238 | -0.0356 [-0.0574, -0.0135] | BEATS | — |
+| X-rookie1p | next | QB | INSUFFICIENT |  | 653 / 54 |  |  |  |  |
+| X-rookie1p | next | RB | 4.0 | [2.6, 6.0] | 2609 / 226 | 2.669 / 2.668 | 0.0015 [-0.0138, 0.0160] | NO-GAIN | 0.0067 [-0.0020, 0.0156] NO-GAIN (pooled pinned) |
+| X-rookie1p | next | WR | 3.1 | [2.0, 5.0] | 3417 / 295 | 2.583 / 2.640 | -0.0563 [-0.1166, 0.0062] | NO-GAIN | -0.0020 [-0.0169, 0.0138] NO-GAIN (pooled pinned) |
+| X-rookie1p | next | TE | 5.2 | [2.7, 9.9] | 2011 / 178 | 1.863 / 1.859 | 0.0045 [-0.0219, 0.0323] | NO-GAIN | 0.0162 [-0.0113, 0.0446] NO-GAIN (pooled pinned) |
+| X-rookie1p | next | ALL | 3.7 | [2.9, 4.8] | 8690 / 752 | 2.523 / 2.558 | -0.0358 [-0.0636, -0.0080] | BEATS | — |
+| X-short | ros | QB | INSUFFICIENT |  | 609 / 57 |  |  |  |  |
+| X-short | ros | RB | 1.3 | [0.8, 2.4] | 1228 / 110 | 2.331 / 2.393 | -0.0614 [-0.1677, 0.0399] | NO-GAIN | 0.0131 [-0.0053, 0.0330] NO-GAIN (pooled pinned) |
+| X-short | ros | WR | 1.1 | [0.7, 1.8] | 1641 / 159 | 1.900 / 2.015 | -0.1149 [-0.2179, -0.0187] | BEATS | — |
+| X-short | ros | TE | 3.6 | [2.2, 6.8] | 898 / 89 | 1.453 / 1.440 | 0.0132 [0.0007, 0.0276] | WORSE | — |
+| X-short | ros | ALL | 1.5 | [1.2, 2.0] | 4376 / 415 | 2.163 / 2.262 | -0.0997 [-0.1748, -0.0306] | BEATS | — |
+| X-short | next | QB | INSUFFICIENT |  | 462 / 36 |  |  |  |  |
+| X-short | next | RB | INSUFFICIENT |  | 732 / 59 |  |  |  |  |
+| X-short | next | WR | 0.7 | [0.2, 2.0] | 907 / 75 | 2.535 / 2.740 | -0.2045 [-0.4579, 0.0394] | NO-GAIN | -0.0232 [-0.1762, 0.1264] NO-GAIN (pooled pinned) |
+| X-short | next | TE | INSUFFICIENT |  | 606 / 50 |  |  |  |  |
+| X-short | next | ALL | 2.7 | [1.5, 4.9] | 2707 / 220 | 2.948 / 2.988 | -0.0403 [-0.1298, 0.0547] | NO-GAIN | — |
 
 Opportunity for these players: **not measurable** — the app holds no projected-volume prior for them (D5).
 
@@ -266,6 +277,25 @@ Arm P frozen at the S week-1 depth chart vs arm L re-derived with the depth char
 | TE | 8483 / 2537 | 3.7 / 3.8 | 1.6037 / 1.5989 | -0.0048 [-0.0109, 0.0008] | NO-GAIN | 0.128 [-0.125, 0.372] | 0.013 [-0.295, 0.314] | 0.085 [-0.178, 0.332] | 0.088 [-0.217, 0.395] |
 
 Rule (pre-registered): ACCEPT only if L BEATS P on held-out MAE AND L's promoted-row mean residual CI includes 0; else FREEZE. Decision on the pooled population: **FREEZE**.
+
+FREEZE needs a frozen-prior source in the app — see .claude/tasks/in-season-evidence-2a-registry.md §D.4 (Phase 2b).
+
+Depth-order changes per checkpoint week (§4.1 step 5: arm-P candidates whose live depth order differs from the frozen week-1 order):
+
+| W | rows | changed | changed share |
+|---|---|---|---|
+| 1 | 3580 | 574 | 0.160 |
+| 2 | 3580 | 931 | 0.260 |
+| 3 | 3580 | 1112 | 0.311 |
+| 4 | 3580 | 1225 | 0.342 |
+| 5 | 3580 | 1340 | 0.374 |
+| 6 | 3580 | 1427 | 0.399 |
+| 7 | 3580 | 1450 | 0.405 |
+| 8 | 3580 | 1531 | 0.428 |
+| 9 | 3580 | 1643 | 0.459 |
+| 10 | 3580 | 1669 | 0.466 |
+| 11 | 3580 | 1702 | 0.475 |
+| 12 | 3580 | 1708 | 0.477 |
 
 ## Q8 — which k set drives the dynasty score, which the season projection
 

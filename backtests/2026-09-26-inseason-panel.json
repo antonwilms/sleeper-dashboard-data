@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-09-26T09:31:09.621Z",
+    "generatedAt": "2026-09-26T10:10:30.744Z",
     "basis": "half_ppr",
     "seasons": {
       "from": 2014,
@@ -37,7 +37,7 @@
       "rows": 300
     },
     "regressionModel": "step4-upside",
-    "runtimeMs": 43031
+    "runtimeMs": 44182
   },
   "reconciliation": {
     "population": 7033,
@@ -8826,7 +8826,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": 0.0229,
+              "ci95": [
+                -0.1462,
+                0.1993
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "RB": {
             "rows": 3065,
@@ -8961,7 +8970,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": -0.0052,
+              "ci95": [
+                -0.0177,
+                0.008
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "WR": {
             "rows": 4169,
@@ -9231,7 +9249,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": 0.0103,
+              "ci95": [
+                0.0034,
+                0.0176
+              ],
+              "label": "WORSE"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "ALL": {
             "rows": 9815,
@@ -9503,7 +9530,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": 0.0081,
+              "ci95": [
+                -0.0033,
+                0.0196
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "WR": {
             "rows": 3415,
@@ -9631,7 +9667,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": -0.0255,
+              "ci95": [
+                -0.0558,
+                0.0049
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "TE": {
             "rows": 1736,
@@ -9759,7 +9804,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": -0.0001,
+              "ci95": [
+                -0.0174,
+                0.0173
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "ALL": {
             "rows": 8072,
@@ -10027,7 +10081,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": 0.0167,
+              "ci95": [
+                -0.0063,
+                0.0421
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "RB": {
             "rows": 2969,
@@ -10162,7 +10225,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": 0.0041,
+              "ci95": [
+                -0.0123,
+                0.021
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "WR": {
             "rows": 4384,
@@ -10432,7 +10504,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": 0.0025,
+              "ci95": [
+                -0.0002,
+                0.0055
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "ALL": {
             "rows": 10857,
@@ -10704,7 +10785,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": 0.0067,
+              "ci95": [
+                -0.002,
+                0.0156
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "WR": {
             "rows": 3417,
@@ -10832,7 +10922,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": -0.002,
+              "ci95": [
+                -0.0169,
+                0.0138
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "TE": {
             "rows": 2011,
@@ -10960,7 +11059,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": 0.0162,
+              "ci95": [
+                -0.0113,
+                0.0446
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "ALL": {
             "rows": 8690,
@@ -11234,7 +11342,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": 0.0131,
+              "ci95": [
+                -0.0053,
+                0.033
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "WR": {
             "rows": 1641,
@@ -11782,7 +11899,16 @@
               ],
               "label": "NO-GAIN"
             },
-            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)"
+            "phase1Note": "studyK = Phase 1 per-row rule (PHASE1_K)",
+            "vsPooled": {
+              "mean": -0.0232,
+              "ci95": [
+                -0.1762,
+                0.1264
+              ],
+              "label": "NO-GAIN"
+            },
+            "pinnedToPooledUnderNoGainRule": true
           },
           "TE": {
             "rows": 606,
@@ -12269,6 +12395,56 @@
             "includesZero": false
           }
         }
+      },
+      "changedByW": {
+        "1": {
+          "rows": 3580,
+          "changed": 574
+        },
+        "2": {
+          "rows": 3580,
+          "changed": 931
+        },
+        "3": {
+          "rows": 3580,
+          "changed": 1112
+        },
+        "4": {
+          "rows": 3580,
+          "changed": 1225
+        },
+        "5": {
+          "rows": 3580,
+          "changed": 1340
+        },
+        "6": {
+          "rows": 3580,
+          "changed": 1427
+        },
+        "7": {
+          "rows": 3580,
+          "changed": 1450
+        },
+        "8": {
+          "rows": 3580,
+          "changed": 1531
+        },
+        "9": {
+          "rows": 3580,
+          "changed": 1643
+        },
+        "10": {
+          "rows": 3580,
+          "changed": 1669
+        },
+        "11": {
+          "rows": 3580,
+          "changed": 1702
+        },
+        "12": {
+          "rows": 3580,
+          "changed": 1708
+        }
       }
     },
     "byPosition": {
@@ -12655,29 +12831,29 @@
     "K_DYN_OPP|TE": "opp_next|TE",
     "K_ROS_SHARE|WR": "share_ros|WR",
     "K_ROS_SHARE|TE": "share_ros|TE",
-    "K_ROS_POINTS_ROOKIE0|QB": "q4|X-rookie0|ros|QB",
-    "K_ROS_POINTS_ROOKIE0|RB": "q4|X-rookie0|ros|RB",
+    "K_ROS_POINTS_ROOKIE0|QB": "q4|X-rookie0|ros|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
+    "K_ROS_POINTS_ROOKIE0|RB": "q4|X-rookie0|ros|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
     "K_ROS_POINTS_ROOKIE0|WR": "q4|X-rookie0|ros|WR",
-    "K_ROS_POINTS_ROOKIE0|TE": "q4|X-rookie0|ros|TE",
+    "K_ROS_POINTS_ROOKIE0|TE": "q4|X-rookie0|ros|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
     "K_DYN_POINTS_ROOKIE0|QB": "q4|X-rookie0|next|ALL (pooled positions; own cell INSUFFICIENT)",
-    "K_DYN_POINTS_ROOKIE0|RB": "q4|X-rookie0|next|RB",
-    "K_DYN_POINTS_ROOKIE0|WR": "q4|X-rookie0|next|WR",
-    "K_DYN_POINTS_ROOKIE0|TE": "q4|X-rookie0|next|TE",
-    "K_ROS_POINTS_ROOKIE1P|QB": "q4|X-rookie1p|ros|QB",
-    "K_ROS_POINTS_ROOKIE1P|RB": "q4|X-rookie1p|ros|RB",
+    "K_DYN_POINTS_ROOKIE0|RB": "q4|X-rookie0|next|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
+    "K_DYN_POINTS_ROOKIE0|WR": "q4|X-rookie0|next|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
+    "K_DYN_POINTS_ROOKIE0|TE": "q4|X-rookie0|next|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
+    "K_ROS_POINTS_ROOKIE1P|QB": "q4|X-rookie1p|ros|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
+    "K_ROS_POINTS_ROOKIE1P|RB": "q4|X-rookie1p|ros|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
     "K_ROS_POINTS_ROOKIE1P|WR": "q4|X-rookie1p|ros|WR",
-    "K_ROS_POINTS_ROOKIE1P|TE": "q4|X-rookie1p|ros|TE",
+    "K_ROS_POINTS_ROOKIE1P|TE": "q4|X-rookie1p|ros|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
     "K_DYN_POINTS_ROOKIE1P|QB": "q4|X-rookie1p|next|ALL (pooled positions; own cell INSUFFICIENT)",
-    "K_DYN_POINTS_ROOKIE1P|RB": "q4|X-rookie1p|next|RB",
-    "K_DYN_POINTS_ROOKIE1P|WR": "q4|X-rookie1p|next|WR",
-    "K_DYN_POINTS_ROOKIE1P|TE": "q4|X-rookie1p|next|TE",
+    "K_DYN_POINTS_ROOKIE1P|RB": "q4|X-rookie1p|next|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
+    "K_DYN_POINTS_ROOKIE1P|WR": "q4|X-rookie1p|next|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
+    "K_DYN_POINTS_ROOKIE1P|TE": "q4|X-rookie1p|next|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
     "K_ROS_POINTS_SHORT|QB": "q4|X-short|ros|ALL (pooled positions; own cell INSUFFICIENT)",
-    "K_ROS_POINTS_SHORT|RB": "q4|X-short|ros|RB",
+    "K_ROS_POINTS_SHORT|RB": "q4|X-short|ros|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
     "K_ROS_POINTS_SHORT|WR": "q4|X-short|ros|WR",
     "K_ROS_POINTS_SHORT|TE": "q4|X-short|ros|TE",
     "K_DYN_POINTS_SHORT|QB": "q4|X-short|next|ALL (pooled positions; own cell INSUFFICIENT)",
     "K_DYN_POINTS_SHORT|RB": "q4|X-short|next|ALL (pooled positions; own cell INSUFFICIENT)",
-    "K_DYN_POINTS_SHORT|WR": "q4|X-short|next|WR",
+    "K_DYN_POINTS_SHORT|WR": "q4|X-short|next|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)",
     "K_DYN_POINTS_SHORT|TE": "q4|X-short|next|ALL (pooled positions; own cell INSUFFICIENT)"
   }
 }

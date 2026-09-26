@@ -45,7 +45,7 @@ import {
   runMetric,
   runValidate,
 } from '../scripts/backtest-run.mjs';
-import { runInSeason, buildInSeasonVerdictMarkdown, writeInSeasonArtifacts } from '../scripts/inseason-run.mjs';
+import { inSeasonMain } from '../scripts/inseason-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -174,14 +174,7 @@ if (isMain) {
           );
           process.exit(1);
         }
-        const result = runInSeason({ log: (m) => console.error(`[backtest] ${m}`) });
-        const verdictMd = buildInSeasonVerdictMarkdown(result);
-        if (write) {
-          const w = writeInSeasonArtifacts({ result, verdictMd });
-          console.error(`[backtest] Wrote ${w.panelPath} (${w.panelBytes} B), ${w.constantsPath} (${w.constantsBytes} B), ${w.verdictPath}`);
-        }
-        console.log(asJson ? JSON.stringify(result, null, 2) : verdictMd);
-        process.exit(0);
+        process.exit(inSeasonMain({ write, asJson }));
       }
 
       const fromYear        = parseInt(option('--from')      ?? '2012', 10);

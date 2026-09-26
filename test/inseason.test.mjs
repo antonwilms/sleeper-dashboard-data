@@ -18,13 +18,13 @@ import {
   attachFactorMultipliers, teamKeyResolver, buildTeamTotalsForSeason,
 } from '../lib/panel.mjs';
 import {
-  IN_SEASON_DEFAULTS, STUDY_K, PHASE1_K, opportunities, reconcileOpportunities, buildCheckpoints, depthOrderIndex,
+  IN_SEASON_DEFAULTS, STUDY_K, PHASE1_K, opportunities, reconcileOpportunities, buildCheckpoints, depthOrderIndex, regGames,
   suffStats, suffStatsByCluster, fitK, lossAtK, pinK, mulberry32, clusteredBootstrap, bootstrapPairedMean, cellVerdict,
   compareLabel, loso, analyzeKCell, classifyArm, blend, confidenceTier,
 } from '../lib/inSeasonEvidence.mjs';
 import {
   guardLoad, runReconciliation, ReconciliationStop, runArmS, enumerateCandidates, makeScheduleIndex, verifyConstants,
-  formatConstantsJson, pinDecision, makePut, runInSeason,
+  formatConstantsJson, pinDecision, makePut, runInSeason, addFoldK, inSeasonMain,
 } from '../scripts/inseason-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -267,9 +267,14 @@ describe('5: buildCheckpoints', () => {
     assert.equal(m.missedInWindow, null);
   });
 
-  test('weeklyStatus never enters: the function has no such input and reads only weeklyPoints keys', () => {
-    const withStatus = buildCheckpoints({ weeklyPoints, teamGameWeeks, weeklyStatus: ['X', 'X', 'X'], checkpoints: [4] })[0];
-    assert.equal(withStatus.missedInWindow, true);
+  test('regGames keeps REG games and drops POST/WILD/DIV', () => {
+    const games = [
+      { seasonType: 'REG', week: 1 }, { seasonType: 'REG', week: 2 },
+      { seasonType: 'POST', week: 19 }, { seasonType: 'WILD', week: 19 }, { seasonType: 'DIV', week: 20 },
+    ];
+    assert.deepEqual(regGames({ games }).map(g => g.week), [1, 2]);
+    assert.deepEqual(regGames(null), []);
+    assert.deepEqual(regGames(undefined), []);
   });
 });
 
@@ -436,6 +441,11 @@ describe('13: in-progress guard', () => {
   test('a missing manifest is refused, not skipped', () => {
     assert.throws(() => guardLoad({ ...skillFixture(), loadManifest: () => null }), /manifest\.json not found/);
   });
+
+  test('a load with no loadManifest function throws (rather than silently skipping the guard)', () => {
+    const { loadManifest, ...rest } = skillFixture();
+    assert.throws(() => guardLoad(rest), /loadManifest is not a function/);
+  });
 });
 
 describe('12: reconciliation stop', () => {
@@ -465,6 +475,14 @@ describe('12: reconciliation stop', () => {
     const r = spawnSync('node', ['bin/backtest.mjs', '--inseason', '--from', '2015'], { cwd: REPO_ROOT, encoding: 'utf8' });
     assert.equal(r.status, 1);
     assert.match(r.stderr, /--inseason rejects --from/);
+  });
+
+  test('inSeasonMain returns 1 on the reconciliation stop and never calls writeArtifacts, even with write: true', () => {
+    const load = skillFixture({ mismatched: 2 });
+    let calls = 0;
+    const code = inSeasonMain({ load, write: true, writeArtifacts: () => { calls++; return {}; }, log: () => {}, logErr: () => {} });
+    assert.equal(code, 1);
+    assert.equal(calls, 0);
   });
 });
 
@@ -577,6 +595,7 @@ describe('11: constants file', () => {
   P.put('K_ROS_POINTS', 'RB', pinDecision(rb, 3), rb, 'synthetic|RB');
   P.putWithPooled('K_DYN_POINTS', 'TE', { verdict: 'INSUFFICIENT', rows: 10, players: 4 }, rb, null, 'own', 'pooled');
   const file = { source: 'test', generatedAt: '2026-01-01T00:00:00.000Z', basis: 'half_ppr', fit: {}, constants: P.constants, combination: null, sortMeasure: { name: 'x', params: {} }, fixture: P.fixture };
+  addFoldK(file);
 
   test('every kFit re-derives from the fixture by the fit rule', () => {
     assert.equal(qb.verdict, 'OK');
@@ -588,6 +607,14 @@ describe('11: constants file', () => {
   test('a tampered kFit is caught', () => {
     const bad = JSON.parse(JSON.stringify(file));
     bad.constants.K_ROS_POINTS.QB.kFit += 0.5;
+    assert.equal(verifyConstants(bad).length, 1);
+  });
+
+  test('a tampered foldK value is caught', () => {
+    const bad = JSON.parse(JSON.stringify(file));
+    const seasons = Object.keys(bad.constants.K_ROS_POINTS.QB.foldK);
+    assert.ok(seasons.length > 0, 'anti-vacuity: the entry must carry at least one fold');
+    bad.constants.K_ROS_POINTS.QB.foldK[seasons[0]] += 0.5;
     assert.equal(verifyConstants(bad).length, 1);
   });
 
