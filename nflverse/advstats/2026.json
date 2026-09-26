@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "season": 2026,
-  "generatedAt": "2026-09-19T16:48:38.392Z",
-  "rowCount": 317,
+  "generatedAt": "2026-09-26T17:23:20.050Z",
+  "rowCount": 368,
   "unmapped": 3,
   "players": {
     "1466": {
@@ -10,16 +10,16 @@
       "name": "Travis Kelce",
       "position": "TE",
       "team": "KC",
-      "targetShare": 0.2,
-      "airYardsShare": 0.248,
-      "wopr": 0.474,
-      "racr": 2.448,
+      "targetShare": 0.235,
+      "airYardsShare": 0.234,
+      "wopr": 0.516,
+      "racr": 2.024,
       "components": {
-        "targets": 5,
-        "airYards": 29,
-        "recYards": 71,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 16,
+        "airYards": 85,
+        "recYards": 172,
+        "receptions": 12,
+        "weeks": 2
       }
     },
     "1479": {
@@ -27,16 +27,16 @@
       "name": "Keenan Allen",
       "position": "WR",
       "team": "IND",
-      "targetShare": 0.207,
-      "airYardsShare": 0.116,
-      "wopr": 0.392,
-      "racr": 1.455,
+      "targetShare": 0.186,
+      "airYardsShare": 0.153,
+      "wopr": 0.386,
+      "racr": 0.698,
       "components": {
-        "targets": 6,
-        "airYards": 22,
-        "recYards": 32,
-        "receptions": 6,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 53,
+        "recYards": 37,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "2133": {
@@ -44,16 +44,16 @@
       "name": "Davante Adams",
       "position": "WR",
       "team": "LA",
-      "targetShare": 0.222,
-      "airYardsShare": 0.282,
-      "wopr": 0.53,
-      "racr": 0.356,
+      "targetShare": 0.281,
+      "airYardsShare": 0.459,
+      "wopr": 0.743,
+      "racr": 0.815,
       "components": {
-        "targets": 6,
-        "airYards": 73,
-        "recYards": 26,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 16,
+        "airYards": 271,
+        "recYards": 221,
+        "receptions": 11,
+        "weeks": 2
       }
     },
     "2216": {
@@ -61,16 +61,16 @@
       "name": "Mike Evans",
       "position": "WR",
       "team": "SF",
-      "targetShare": 0.206,
-      "airYardsShare": 0.369,
-      "wopr": 0.567,
-      "racr": 0.891,
+      "targetShare": 0.182,
+      "airYardsShare": 0.288,
+      "wopr": 0.475,
+      "racr": 1.084,
       "components": {
-        "targets": 7,
-        "airYards": 55,
-        "recYards": 49,
-        "receptions": 6,
-        "weeks": 1
+        "targets": 10,
+        "airYards": 95,
+        "recYards": 103,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "2359": {
@@ -78,16 +78,16 @@
       "name": "Ameer Abdullah",
       "position": "RB",
       "team": "JAX",
-      "targetShare": 0.048,
-      "airYardsShare": -0.014,
-      "wopr": 0.062,
+      "targetShare": 0.041,
+      "airYardsShare": -0.018,
+      "wopr": 0.049,
       "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": -3,
-        "recYards": 0,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 2,
+        "airYards": -9,
+        "recYards": 2,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "2449": {
@@ -95,16 +95,16 @@
       "name": "Stefon Diggs",
       "position": "WR",
       "team": "WAS",
-      "targetShare": 0.31,
-      "airYardsShare": 0.324,
-      "wopr": 0.692,
-      "racr": 0.663,
+      "targetShare": 0.238,
+      "airYardsShare": 0.251,
+      "wopr": 0.533,
+      "racr": 0.658,
       "components": {
-        "targets": 9,
-        "airYards": 83,
-        "recYards": 55,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 15,
+        "airYards": 155,
+        "recYards": 102,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "2505": {
@@ -112,16 +112,16 @@
       "name": "Darren Waller",
       "position": "TE",
       "team": "CAR",
-      "targetShare": 0.059,
-      "airYardsShare": 0.024,
-      "wopr": 0.105,
-      "racr": 3.5,
+      "targetShare": 0.076,
+      "airYardsShare": 0.054,
+      "wopr": 0.152,
+      "racr": 1.794,
       "components": {
-        "targets": 2,
-        "airYards": 8,
-        "recYards": 28,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 34,
+        "recYards": 61,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "3155": {
@@ -129,16 +129,16 @@
       "name": "Laquon Treadwell",
       "position": "WR",
       "team": "IND",
-      "targetShare": 0.034,
-      "airYardsShare": 0.021,
-      "wopr": 0.066,
-      "racr": 0,
+      "targetShare": 0.068,
+      "airYardsShare": 0.167,
+      "wopr": 0.219,
+      "racr": 1.052,
       "components": {
-        "targets": 1,
-        "airYards": 4,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 4,
+        "airYards": 58,
+        "recYards": 61,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "3198": {
@@ -146,16 +146,33 @@
       "name": "Derrick Henry",
       "position": "RB",
       "team": "BAL",
-      "targetShare": 0.042,
-      "airYardsShare": -0.004,
-      "wopr": 0.06,
+      "targetShare": 0.075,
+      "airYardsShare": -0.024,
+      "wopr": 0.096,
       "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": -1,
-        "recYards": 19,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 4,
+        "airYards": -14,
+        "recYards": 38,
+        "receptions": 4,
+        "weeks": 2
+      }
+    },
+    "3202": {
+      "gsisId": "00-0032392",
+      "name": "Austin Hooper",
+      "position": "TE",
+      "team": "ATL",
+      "targetShare": 0.111,
+      "airYardsShare": 0.074,
+      "wopr": 0.218,
+      "racr": 1.348,
+      "components": {
+        "targets": 6,
+        "airYards": 23,
+        "recYards": 31,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "3214": {
@@ -163,16 +180,16 @@
       "name": "Hunter Henry",
       "position": "TE",
       "team": "NE",
-      "targetShare": 0.097,
-      "airYardsShare": 0.059,
-      "wopr": 0.187,
-      "racr": 2.167,
+      "targetShare": 0.154,
+      "airYardsShare": 0.173,
+      "wopr": 0.352,
+      "racr": 0.957,
       "components": {
-        "targets": 3,
-        "airYards": 12,
-        "recYards": 26,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 8,
+        "airYards": 69,
+        "recYards": 66,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "3269": {
@@ -180,16 +197,16 @@
       "name": "Chris Moore",
       "position": "WR",
       "team": "BAL",
-      "targetShare": 0.083,
-      "airYardsShare": 0.252,
-      "wopr": 0.301,
-      "racr": 0.779,
+      "targetShare": 0.094,
+      "airYardsShare": 0.278,
+      "wopr": 0.336,
+      "racr": 0.366,
       "components": {
-        "targets": 2,
-        "airYards": 68,
-        "recYards": 53,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 161,
+        "recYards": 59,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "3271": {
@@ -214,16 +231,16 @@
       "name": "Demarcus Robinson",
       "position": "WR",
       "team": "SF",
-      "targetShare": 0.088,
-      "airYardsShare": 0.302,
-      "wopr": 0.343,
-      "racr": 1.111,
+      "targetShare": 0.109,
+      "airYardsShare": 0.218,
+      "wopr": 0.316,
+      "racr": 1.167,
       "components": {
-        "targets": 3,
-        "airYards": 45,
-        "recYards": 50,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 6,
+        "airYards": 72,
+        "recYards": 84,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "3634": {
@@ -231,16 +248,16 @@
       "name": "Kalif Raymond",
       "position": "WR",
       "team": "CHI",
-      "targetShare": 0.346,
-      "airYardsShare": 0.23,
-      "wopr": 0.68,
-      "racr": 1.292,
+      "targetShare": 0.25,
+      "airYardsShare": 0.161,
+      "wopr": 0.488,
+      "racr": 1.722,
       "components": {
-        "targets": 9,
-        "airYards": 65,
-        "recYards": 84,
-        "receptions": 8,
-        "weeks": 1
+        "targets": 14,
+        "airYards": 72,
+        "recYards": 124,
+        "receptions": 13,
+        "weeks": 2
       }
     },
     "4033": {
@@ -248,16 +265,16 @@
       "name": "David Njoku",
       "position": "TE",
       "team": "LAC",
-      "targetShare": 0.185,
-      "airYardsShare": 0.103,
-      "wopr": 0.35,
-      "racr": 2.071,
+      "targetShare": 0.151,
+      "airYardsShare": 0.099,
+      "wopr": 0.296,
+      "racr": 1.264,
       "components": {
-        "targets": 5,
-        "airYards": 28,
-        "recYards": 58,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 8,
+        "airYards": 53,
+        "recYards": 67,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "4034": {
@@ -265,14 +282,31 @@
       "name": "Christian McCaffrey",
       "position": "RB",
       "team": "SF",
-      "targetShare": 0.235,
-      "airYardsShare": -0.02,
-      "wopr": 0.338,
+      "targetShare": 0.218,
+      "airYardsShare": 0.024,
+      "wopr": 0.344,
+      "racr": 7.875,
+      "components": {
+        "targets": 12,
+        "airYards": 8,
+        "recYards": 63,
+        "receptions": 9,
+        "weeks": 2
+      }
+    },
+    "4035": {
+      "gsisId": "00-0033906",
+      "name": "Alvin Kamara",
+      "position": "RB",
+      "team": "NO",
+      "targetShare": 0.188,
+      "airYardsShare": -0.031,
+      "wopr": 0.26,
       "racr": null,
       "components": {
-        "targets": 8,
-        "airYards": -3,
-        "recYards": 20,
+        "targets": 6,
+        "airYards": -6,
+        "recYards": 7,
         "receptions": 5,
         "weeks": 1
       }
@@ -282,16 +316,16 @@
       "name": "Chris Godwin Jr.",
       "position": "WR",
       "team": "TB",
-      "targetShare": 0.148,
-      "airYardsShare": 0.023,
-      "wopr": 0.238,
-      "racr": 13.333,
+      "targetShare": 0.117,
+      "airYardsShare": 0.066,
+      "wopr": 0.222,
+      "racr": 2.389,
       "components": {
-        "targets": 4,
-        "airYards": 3,
-        "recYards": 40,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 36,
+        "recYards": 86,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "4039": {
@@ -299,16 +333,16 @@
       "name": "Cooper Kupp",
       "position": "WR",
       "team": "SEA",
-      "targetShare": 0.125,
-      "airYardsShare": 0.318,
-      "wopr": 0.41,
-      "racr": 0.714,
+      "targetShare": 0.1,
+      "airYardsShare": 0.165,
+      "wopr": 0.266,
+      "racr": 0.873,
       "components": {
-        "targets": 3,
-        "airYards": 49,
-        "recYards": 35,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 63,
+        "recYards": 55,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "4066": {
@@ -316,16 +350,16 @@
       "name": "Evan Engram",
       "position": "TE",
       "team": "DEN",
-      "targetShare": 0.185,
-      "airYardsShare": 0.173,
-      "wopr": 0.399,
-      "racr": 2.389,
+      "targetShare": 0.107,
+      "airYardsShare": 0.094,
+      "wopr": 0.226,
+      "racr": 1.714,
       "components": {
-        "targets": 5,
-        "airYards": 18,
-        "recYards": 43,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 6,
+        "airYards": 35,
+        "recYards": 60,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "4144": {
@@ -333,16 +367,16 @@
       "name": "Jonnu Smith",
       "position": "TE",
       "team": "GB",
-      "targetShare": 0.075,
-      "airYardsShare": 0.053,
-      "wopr": 0.15,
-      "racr": 2.083,
+      "targetShare": 0.066,
+      "airYardsShare": 0.05,
+      "wopr": 0.134,
+      "racr": 1.535,
       "components": {
-        "targets": 3,
-        "airYards": 24,
-        "recYards": 50,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 6,
+        "airYards": 43,
+        "recYards": 66,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "4147": {
@@ -350,16 +384,16 @@
       "name": "Samaje Perine",
       "position": "RB",
       "team": "CIN",
-      "targetShare": 0.088,
-      "airYardsShare": 0.013,
-      "wopr": 0.141,
-      "racr": 10,
+      "targetShare": 0.062,
+      "airYardsShare": 0.025,
+      "wopr": 0.111,
+      "racr": 4.6,
       "components": {
-        "targets": 3,
-        "airYards": 3,
-        "recYards": 30,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 4,
+        "airYards": 10,
+        "recYards": 46,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "4177": {
@@ -367,16 +401,16 @@
       "name": "Mack Hollins",
       "position": "WR",
       "team": "NE",
-      "targetShare": 0.161,
-      "airYardsShare": 0.302,
-      "wopr": 0.453,
-      "racr": 0.823,
+      "targetShare": 0.135,
+      "airYardsShare": 0.186,
+      "wopr": 0.333,
+      "racr": 0.932,
       "components": {
-        "targets": 5,
-        "airYards": 62,
-        "recYards": 51,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 74,
+        "recYards": 69,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "4189": {
@@ -384,16 +418,16 @@
       "name": "Eric Saubert",
       "position": "TE",
       "team": "SEA",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
+      "targetShare": 0.02,
+      "airYardsShare": -0.026,
+      "wopr": 0.012,
       "racr": null,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 1,
+        "airYards": -10,
+        "recYards": -10,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "4199": {
@@ -401,16 +435,16 @@
       "name": "Aaron Jones",
       "position": "RB",
       "team": "MIN",
-      "targetShare": 0.043,
-      "airYardsShare": 0.023,
-      "wopr": 0.081,
+      "targetShare": 0.024,
+      "airYardsShare": 0.012,
+      "wopr": 0.044,
       "racr": 0,
       "components": {
         "targets": 1,
         "airYards": 4,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "4217": {
@@ -418,14 +452,31 @@
       "name": "George Kittle",
       "position": "TE",
       "team": "SF",
-      "targetShare": 0.147,
-      "airYardsShare": 0.255,
-      "wopr": 0.399,
-      "racr": 0.316,
+      "targetShare": 0.164,
+      "airYardsShare": 0.267,
+      "wopr": 0.433,
+      "racr": 1.045,
       "components": {
-        "targets": 5,
-        "airYards": 38,
-        "recYards": 12,
+        "targets": 9,
+        "airYards": 88,
+        "recYards": 92,
+        "receptions": 6,
+        "weeks": 2
+      }
+    },
+    "4314": {
+      "gsisId": "00-0033246",
+      "name": "Johnny Mundt",
+      "position": "TE",
+      "team": "PHI",
+      "targetShare": 0.088,
+      "airYardsShare": 0.026,
+      "wopr": 0.15,
+      "racr": 1,
+      "components": {
+        "targets": 3,
+        "airYards": 8,
+        "recYards": 8,
         "receptions": 2,
         "weeks": 1
       }
@@ -452,16 +503,16 @@
       "name": "Kendrick Bourne",
       "position": "WR",
       "team": "ARI",
-      "targetShare": 0.216,
-      "airYardsShare": 0.141,
-      "wopr": 0.423,
-      "racr": 1.875,
+      "targetShare": 0.175,
+      "airYardsShare": 0.132,
+      "wopr": 0.355,
+      "racr": 1.72,
       "components": {
-        "targets": 8,
-        "airYards": 40,
-        "recYards": 75,
-        "receptions": 8,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 50,
+        "recYards": 86,
+        "receptions": 10,
+        "weeks": 2
       }
     },
     "4866": {
@@ -469,15 +520,32 @@
       "name": "Saquon Barkley",
       "position": "RB",
       "team": "PHI",
-      "targetShare": 0.091,
-      "airYardsShare": -0.005,
-      "wopr": 0.133,
-      "racr": null,
+      "targetShare": 0.071,
+      "airYardsShare": 0.006,
+      "wopr": 0.111,
+      "racr": 2.667,
+      "components": {
+        "targets": 4,
+        "airYards": 3,
+        "recYards": 8,
+        "receptions": 2,
+        "weeks": 2
+      }
+    },
+    "4981": {
+      "gsisId": "00-0034837",
+      "name": "Calvin Ridley",
+      "position": "WR",
+      "team": "TEN",
+      "targetShare": 0.118,
+      "airYardsShare": 0.239,
+      "wopr": 0.344,
+      "racr": 1.296,
       "components": {
         "targets": 2,
-        "airYards": -1,
-        "recYards": -3,
-        "receptions": 1,
+        "airYards": 27,
+        "recYards": 35,
+        "receptions": 2,
         "weeks": 1
       }
     },
@@ -515,21 +583,38 @@
         "weeks": 1
       }
     },
+    "4995": {
+      "gsisId": "00-0034365",
+      "name": "Ian Thomas",
+      "position": "TE",
+      "team": "LV",
+      "targetShare": 0.034,
+      "airYardsShare": 0.004,
+      "wopr": 0.054,
+      "racr": 11,
+      "components": {
+        "targets": 1,
+        "airYards": 1,
+        "recYards": 11,
+        "receptions": 1,
+        "weeks": 1
+      }
+    },
     "5001": {
       "gsisId": "00-0034383",
       "name": "Dalton Schultz",
       "position": "TE",
       "team": "HOU",
-      "targetShare": 0.216,
-      "airYardsShare": 0.088,
-      "wopr": 0.386,
+      "targetShare": 0.253,
+      "airYardsShare": 0.172,
+      "wopr": 0.5,
       "racr": 1.346,
       "components": {
-        "targets": 8,
-        "airYards": 26,
-        "recYards": 35,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 22,
+        "airYards": 130,
+        "recYards": 175,
+        "receptions": 16,
+        "weeks": 2
       }
     },
     "5008": {
@@ -537,16 +622,16 @@
       "name": "Durham Smythe",
       "position": "TE",
       "team": "BAL",
-      "targetShare": 0.042,
-      "airYardsShare": 0.015,
-      "wopr": 0.074,
-      "racr": 1,
+      "targetShare": 0.038,
+      "airYardsShare": 0.002,
+      "wopr": 0.058,
+      "racr": 4,
       "components": {
-        "targets": 1,
-        "airYards": 4,
+        "targets": 2,
+        "airYards": 1,
         "recYards": 4,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "5012": {
@@ -554,16 +639,16 @@
       "name": "Mark Andrews",
       "position": "TE",
       "team": "BAL",
-      "targetShare": 0.25,
-      "airYardsShare": 0.163,
-      "wopr": 0.489,
-      "racr": 1.114,
+      "targetShare": 0.245,
+      "airYardsShare": 0.157,
+      "wopr": 0.477,
+      "racr": 1.077,
       "components": {
-        "targets": 6,
-        "airYards": 44,
-        "recYards": 49,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 13,
+        "airYards": 91,
+        "recYards": 98,
+        "receptions": 10,
+        "weeks": 2
       }
     },
     "5022": {
@@ -571,16 +656,16 @@
       "name": "Dallas Goedert",
       "position": "TE",
       "team": "PHI",
-      "targetShare": 0.227,
-      "airYardsShare": 0.242,
-      "wopr": 0.51,
-      "racr": 1.481,
+      "targetShare": 0.125,
+      "airYardsShare": 0.108,
+      "wopr": 0.263,
+      "racr": 1.446,
       "components": {
-        "targets": 5,
-        "airYards": 52,
-        "recYards": 77,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 56,
+        "recYards": 81,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "5045": {
@@ -588,16 +673,16 @@
       "name": "Courtland Sutton",
       "position": "WR",
       "team": "DEN",
-      "targetShare": 0.185,
-      "airYardsShare": 0.385,
-      "wopr": 0.547,
-      "racr": 0.275,
+      "targetShare": 0.161,
+      "airYardsShare": 0.19,
+      "wopr": 0.374,
+      "racr": 0.507,
       "components": {
-        "targets": 5,
-        "airYards": 40,
-        "recYards": 11,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 9,
+        "airYards": 71,
+        "recYards": 36,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "5121": {
@@ -614,7 +699,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "5409": {
@@ -639,6 +724,57 @@
       "name": "KhaDarel Hodge",
       "position": "WR",
       "team": "SF",
+      "targetShare": 0.018,
+      "airYardsShare": 0.045,
+      "wopr": 0.059,
+      "racr": 1.2,
+      "components": {
+        "targets": 1,
+        "airYards": 15,
+        "recYards": 18,
+        "receptions": 1,
+        "weeks": 2
+      }
+    },
+    "5844": {
+      "gsisId": "00-0035229",
+      "name": "T.J. Hockenson",
+      "position": "TE",
+      "team": "MIN",
+      "targetShare": 0.214,
+      "airYardsShare": 0.147,
+      "wopr": 0.424,
+      "racr": 1.327,
+      "components": {
+        "targets": 9,
+        "airYards": 49,
+        "recYards": 65,
+        "receptions": 7,
+        "weeks": 2
+      }
+    },
+    "5846": {
+      "gsisId": "00-0035640",
+      "name": "DK Metcalf",
+      "position": "WR",
+      "team": "PIT",
+      "targetShare": 0.257,
+      "airYardsShare": 0.455,
+      "wopr": 0.704,
+      "racr": 0.252,
+      "components": {
+        "targets": 19,
+        "airYards": 266,
+        "recYards": 67,
+        "receptions": 8,
+        "weeks": 2
+      }
+    },
+    "5848": {
+      "gsisId": "00-0035662",
+      "name": "Marquise Brown",
+      "position": "WR",
+      "team": "PHI",
       "targetShare": null,
       "airYardsShare": null,
       "wopr": null,
@@ -651,55 +787,21 @@
         "weeks": 1
       }
     },
-    "5844": {
-      "gsisId": "00-0035229",
-      "name": "T.J. Hockenson",
-      "position": "TE",
-      "team": "MIN",
-      "targetShare": 0.217,
-      "airYardsShare": 0.099,
-      "wopr": 0.395,
-      "racr": 2.118,
-      "components": {
-        "targets": 5,
-        "airYards": 17,
-        "recYards": 36,
-        "receptions": 4,
-        "weeks": 1
-      }
-    },
-    "5846": {
-      "gsisId": "00-0035640",
-      "name": "DK Metcalf",
-      "position": "WR",
-      "team": "PIT",
-      "targetShare": 0.27,
-      "airYardsShare": 0.526,
-      "wopr": 0.773,
-      "racr": 0.196,
-      "components": {
-        "targets": 10,
-        "airYards": 204,
-        "recYards": 40,
-        "receptions": 4,
-        "weeks": 1
-      }
-    },
     "5857": {
       "gsisId": "00-0035644",
       "name": "Noah Fant",
       "position": "TE",
       "team": "NO",
-      "targetShare": 0.154,
-      "airYardsShare": 0.103,
-      "wopr": 0.303,
+      "targetShare": 0.095,
+      "airYardsShare": 0.073,
+      "wopr": 0.194,
       "racr": 0.688,
       "components": {
         "targets": 8,
         "airYards": 48,
         "recYards": 33,
         "receptions": 4,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "5859": {
@@ -724,16 +826,16 @@
       "name": "Deebo Samuel Sr.",
       "position": "WR",
       "team": "SF",
-      "targetShare": 0.206,
-      "airYardsShare": 0.114,
-      "wopr": 0.389,
-      "racr": 2.824,
+      "targetShare": 0.2,
+      "airYardsShare": 0.109,
+      "wopr": 0.376,
+      "racr": 2.194,
       "components": {
-        "targets": 7,
-        "airYards": 17,
-        "recYards": 48,
-        "receptions": 6,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 36,
+        "recYards": 79,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "5892": {
@@ -741,16 +843,16 @@
       "name": "David Montgomery",
       "position": "RB",
       "team": "HOU",
-      "targetShare": 0.081,
-      "airYardsShare": 0.017,
-      "wopr": 0.133,
-      "racr": 3.8,
+      "targetShare": 0.057,
+      "airYardsShare": 0.019,
+      "wopr": 0.099,
+      "racr": 2.357,
       "components": {
-        "targets": 3,
-        "airYards": 5,
-        "recYards": 19,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 14,
+        "recYards": 33,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "5906": {
@@ -775,15 +877,32 @@
       "name": "Terry McLaurin",
       "position": "WR",
       "team": "WAS",
-      "targetShare": 0.138,
-      "airYardsShare": 0.086,
-      "wopr": 0.267,
-      "racr": 0.636,
+      "targetShare": 0.206,
+      "airYardsShare": 0.285,
+      "wopr": 0.508,
+      "racr": 0.364,
       "components": {
-        "targets": 4,
-        "airYards": 22,
-        "recYards": 14,
-        "receptions": 2,
+        "targets": 13,
+        "airYards": 176,
+        "recYards": 64,
+        "receptions": 4,
+        "weeks": 2
+      }
+    },
+    "5938": {
+      "gsisId": "00-0035406",
+      "name": "Lil'Jordan Humphrey",
+      "position": "WR",
+      "team": "DEN",
+      "targetShare": 0.034,
+      "airYardsShare": 0.052,
+      "wopr": 0.087,
+      "racr": 0,
+      "components": {
+        "targets": 1,
+        "airYards": 14,
+        "recYards": 0,
+        "receptions": 0,
         "weeks": 1
       }
     },
@@ -792,16 +911,16 @@
       "name": "Jakobi Meyers",
       "position": "WR",
       "team": "JAX",
-      "targetShare": 0.095,
-      "airYardsShare": 0.132,
-      "wopr": 0.235,
-      "racr": 1.379,
+      "targetShare": 0.061,
+      "airYardsShare": 0.098,
+      "wopr": 0.16,
+      "racr": 1.36,
       "components": {
-        "targets": 2,
-        "airYards": 29,
-        "recYards": 40,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 50,
+        "recYards": 68,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "5967": {
@@ -809,16 +928,16 @@
       "name": "Tony Pollard",
       "position": "RB",
       "team": "TEN",
-      "targetShare": 0.071,
-      "airYardsShare": 0.146,
-      "wopr": 0.209,
-      "racr": -0.042,
+      "targetShare": 0.067,
+      "airYardsShare": 0.061,
+      "wopr": 0.143,
+      "racr": 0,
       "components": {
-        "targets": 2,
-        "airYards": 24,
-        "recYards": -1,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 17,
+        "recYards": 0,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "5970": {
@@ -843,16 +962,16 @@
       "name": "Josh Oliver",
       "position": "TE",
       "team": "MIN",
-      "targetShare": 0.174,
-      "airYardsShare": 0.076,
-      "wopr": 0.314,
-      "racr": 1.692,
+      "targetShare": 0.119,
+      "airYardsShare": 0.054,
+      "wopr": 0.216,
+      "racr": 2.556,
       "components": {
-        "targets": 4,
-        "airYards": 13,
-        "recYards": 22,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 18,
+        "recYards": 46,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "5985": {
@@ -860,16 +979,16 @@
       "name": "Foster Moreau",
       "position": "TE",
       "team": "HOU",
-      "targetShare": 0.054,
-      "airYardsShare": 0.024,
-      "wopr": 0.098,
-      "racr": 2.143,
+      "targetShare": 0.046,
+      "airYardsShare": 0.028,
+      "wopr": 0.089,
+      "racr": 2.333,
       "components": {
-        "targets": 2,
-        "airYards": 7,
-        "recYards": 15,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 4,
+        "airYards": 21,
+        "recYards": 49,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "5995": {
@@ -877,16 +996,16 @@
       "name": "Justice Hill",
       "position": "RB",
       "team": "BAL",
-      "targetShare": 0.042,
-      "airYardsShare": -0.004,
-      "wopr": 0.06,
+      "targetShare": 0.057,
+      "airYardsShare": -0.017,
+      "wopr": 0.074,
       "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": -1,
-        "recYards": 10,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 3,
+        "airYards": -10,
+        "recYards": 22,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "6001": {
@@ -906,21 +1025,38 @@
         "weeks": 1
       }
     },
+    "6012": {
+      "gsisId": "00-0035594",
+      "name": "Travis Homer",
+      "position": "RB",
+      "team": "PIT",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 1
+      }
+    },
     "6130": {
       "gsisId": "00-0035250",
       "name": "Devin Singletary",
       "position": "RB",
       "team": "NYG",
-      "targetShare": 0.138,
-      "airYardsShare": -0.065,
-      "wopr": 0.162,
+      "targetShare": 0.082,
+      "airYardsShare": -0.029,
+      "wopr": 0.103,
       "racr": null,
       "components": {
-        "targets": 4,
-        "airYards": -16,
+        "targets": 5,
+        "airYards": -17,
         "recYards": 22,
         "receptions": 4,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "6271": {
@@ -928,16 +1064,16 @@
       "name": "Olamide Zaccheaus",
       "position": "WR",
       "team": "ATL",
-      "targetShare": 0.053,
-      "airYardsShare": 0.067,
-      "wopr": 0.126,
-      "racr": 1,
+      "targetShare": 0.082,
+      "airYardsShare": 0.031,
+      "wopr": 0.145,
+      "racr": 1.417,
       "components": {
-        "targets": 1,
-        "airYards": 5,
-        "recYards": 5,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 6,
+        "airYards": 12,
+        "recYards": 17,
+        "receptions": 4,
+        "weeks": 3
       }
     },
     "6427": {
@@ -979,16 +1115,16 @@
       "name": "Jerry Jeudy",
       "position": "WR",
       "team": "CLE",
-      "targetShare": 0.182,
-      "airYardsShare": 0.175,
-      "wopr": 0.396,
-      "racr": 0.65,
+      "targetShare": 0.096,
+      "airYardsShare": 0.149,
+      "wopr": 0.248,
+      "racr": 0.52,
       "components": {
-        "targets": 4,
-        "airYards": 40,
+        "targets": 5,
+        "airYards": 50,
         "recYards": 26,
         "receptions": 2,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "6786": {
@@ -996,16 +1132,16 @@
       "name": "CeeDee Lamb",
       "position": "WR",
       "team": "DAL",
-      "targetShare": 0.267,
-      "airYardsShare": 0.372,
-      "wopr": 0.661,
-      "racr": 0.489,
+      "targetShare": 0.279,
+      "airYardsShare": 0.465,
+      "wopr": 0.744,
+      "racr": 0.872,
       "components": {
-        "targets": 8,
-        "airYards": 90,
-        "recYards": 44,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 17,
+        "airYards": 226,
+        "recYards": 197,
+        "receptions": 13,
+        "weeks": 2
       }
     },
     "6790": {
@@ -1013,16 +1149,16 @@
       "name": "D'Andre Swift",
       "position": "RB",
       "team": "CHI",
-      "targetShare": 0.038,
-      "airYardsShare": 0.014,
-      "wopr": 0.067,
-      "racr": 2.5,
+      "targetShare": 0.107,
+      "airYardsShare": -0.025,
+      "wopr": 0.143,
+      "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": 4,
-        "recYards": 10,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 6,
+        "airYards": -11,
+        "recYards": 64,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "6794": {
@@ -1030,16 +1166,16 @@
       "name": "Justin Jefferson",
       "position": "WR",
       "team": "MIN",
-      "targetShare": 0.391,
-      "airYardsShare": 0.465,
-      "wopr": 0.912,
-      "racr": 1.15,
+      "targetShare": 0.357,
+      "airYardsShare": 0.512,
+      "wopr": 0.894,
+      "racr": 0.86,
       "components": {
-        "targets": 9,
-        "airYards": 80,
-        "recYards": 92,
-        "receptions": 8,
-        "weeks": 1
+        "targets": 15,
+        "airYards": 171,
+        "recYards": 147,
+        "receptions": 11,
+        "weeks": 2
       }
     },
     "6801": {
@@ -1047,16 +1183,16 @@
       "name": "Tee Higgins",
       "position": "WR",
       "team": "CIN",
-      "targetShare": 0.176,
-      "airYardsShare": 0.518,
-      "wopr": 0.627,
-      "racr": 0.504,
+      "targetShare": 0.246,
+      "airYardsShare": 0.526,
+      "wopr": 0.737,
+      "racr": 0.733,
       "components": {
-        "targets": 6,
-        "airYards": 117,
-        "recYards": 59,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 16,
+        "airYards": 210,
+        "recYards": 154,
+        "receptions": 8,
+        "weeks": 2
       }
     },
     "6806": {
@@ -1073,7 +1209,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "6813": {
@@ -1081,16 +1217,16 @@
       "name": "Jonathan Taylor",
       "position": "RB",
       "team": "IND",
-      "targetShare": 0.138,
-      "airYardsShare": null,
-      "wopr": null,
+      "targetShare": 0.136,
+      "airYardsShare": -0.003,
+      "wopr": 0.202,
       "racr": null,
       "components": {
-        "targets": 4,
-        "airYards": 0,
-        "recYards": 23,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 8,
+        "airYards": -1,
+        "recYards": 63,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "6819": {
@@ -1115,16 +1251,16 @@
       "name": "Cole Kmet",
       "position": "TE",
       "team": "CHI",
-      "targetShare": 0.115,
-      "airYardsShare": 0.167,
-      "wopr": 0.289,
-      "racr": 0.745,
+      "targetShare": 0.071,
+      "airYardsShare": 0.125,
+      "wopr": 0.194,
+      "racr": 0.625,
       "components": {
-        "targets": 3,
-        "airYards": 47,
+        "targets": 4,
+        "airYards": 56,
         "recYards": 35,
         "receptions": 2,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "6828": {
@@ -1141,7 +1277,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "6847": {
@@ -1158,7 +1294,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "6865": {
@@ -1166,16 +1302,16 @@
       "name": "Colby Parkinson",
       "position": "TE",
       "team": "LA",
-      "targetShare": 0.074,
-      "airYardsShare": 0.035,
-      "wopr": 0.135,
-      "racr": 0.667,
+      "targetShare": 0.07,
+      "airYardsShare": 0.01,
+      "wopr": 0.112,
+      "racr": 3.5,
       "components": {
-        "targets": 2,
-        "airYards": 9,
-        "recYards": 6,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 4,
+        "airYards": 6,
+        "recYards": 21,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "6869": {
@@ -1200,16 +1336,16 @@
       "name": "DeeJay Dallas",
       "position": "RB",
       "team": "MIN",
-      "targetShare": 0.043,
-      "airYardsShare": 0.006,
-      "wopr": 0.069,
-      "racr": 1,
+      "targetShare": 0.048,
+      "airYardsShare": -0.009,
+      "wopr": 0.066,
+      "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": 1,
-        "recYards": 1,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 2,
+        "airYards": -3,
+        "recYards": 13,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "7002": {
@@ -1217,16 +1353,16 @@
       "name": "Juwan Johnson",
       "position": "TE",
       "team": "NO",
-      "targetShare": 0.135,
-      "airYardsShare": 0.166,
-      "wopr": 0.319,
-      "racr": 0.701,
+      "targetShare": 0.131,
+      "airYardsShare": 0.134,
+      "wopr": 0.29,
+      "racr": 1.364,
       "components": {
-        "targets": 7,
-        "airYards": 77,
-        "recYards": 54,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 88,
+        "recYards": 120,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "7021": {
@@ -1234,16 +1370,16 @@
       "name": "Rico Dowdle",
       "position": "RB",
       "team": "PIT",
-      "targetShare": 0.135,
+      "targetShare": 0.095,
       "airYardsShare": 0.01,
-      "wopr": 0.21,
-      "racr": 1.5,
+      "wopr": 0.15,
+      "racr": 4.667,
       "components": {
-        "targets": 5,
-        "airYards": 4,
-        "recYards": 6,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 6,
+        "recYards": 28,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "7039": {
@@ -1251,16 +1387,16 @@
       "name": "Cody White",
       "position": "WR",
       "team": "LV",
-      "targetShare": 0.034,
-      "airYardsShare": 0.013,
-      "wopr": 0.06,
-      "racr": 0,
+      "targetShare": 0.052,
+      "airYardsShare": 0.053,
+      "wopr": 0.115,
+      "racr": 0.889,
       "components": {
-        "targets": 1,
-        "airYards": 3,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 27,
+        "recYards": 24,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "7049": {
@@ -1280,20 +1416,54 @@
         "weeks": 1
       }
     },
+    "7075": {
+      "gsisId": "00-0036429",
+      "name": "Charlie Woerner",
+      "position": "TE",
+      "team": "ATL",
+      "targetShare": 0.032,
+      "airYardsShare": 0.007,
+      "wopr": 0.053,
+      "racr": 0,
+      "components": {
+        "targets": 1,
+        "airYards": 1,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 1
+      }
+    },
     "7090": {
       "gsisId": "00-0036309",
       "name": "Darnell Mooney",
       "position": "WR",
       "team": "NYG",
-      "targetShare": 0.069,
+      "targetShare": 0.082,
       "airYardsShare": 0.102,
-      "wopr": 0.175,
-      "racr": 1.08,
+      "wopr": 0.194,
+      "racr": 1.25,
+      "components": {
+        "targets": 5,
+        "airYards": 60,
+        "recYards": 75,
+        "receptions": 4,
+        "weeks": 2
+      }
+    },
+    "7204": {
+      "gsisId": "00-0036187",
+      "name": "Reggie Gilliam",
+      "position": "RB",
+      "team": "NE",
+      "targetShare": 0.095,
+      "airYardsShare": -0.005,
+      "wopr": 0.139,
+      "racr": null,
       "components": {
         "targets": 2,
-        "airYards": 25,
-        "recYards": 27,
-        "receptions": 2,
+        "airYards": -1,
+        "recYards": 4,
+        "receptions": 1,
         "weeks": 1
       }
     },
@@ -1302,6 +1472,57 @@
       "name": "Chris Blair",
       "position": "WR",
       "team": "ATL",
+      "targetShare": 0.041,
+      "airYardsShare": 0.063,
+      "wopr": 0.106,
+      "racr": 0.25,
+      "components": {
+        "targets": 3,
+        "airYards": 24,
+        "recYards": 6,
+        "receptions": 1,
+        "weeks": 3
+      }
+    },
+    "7525": {
+      "gsisId": "00-0036912",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "team": "PHI",
+      "targetShare": 0.339,
+      "airYardsShare": 0.515,
+      "wopr": 0.869,
+      "racr": 0.637,
+      "components": {
+        "targets": 19,
+        "airYards": 267,
+        "recYards": 170,
+        "receptions": 13,
+        "weeks": 2
+      }
+    },
+    "7526": {
+      "gsisId": "00-0036613",
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "team": "DEN",
+      "targetShare": 0.232,
+      "airYardsShare": 0.444,
+      "wopr": 0.659,
+      "racr": 0.843,
+      "components": {
+        "targets": 13,
+        "airYards": 166,
+        "recYards": 140,
+        "receptions": 9,
+        "weeks": 2
+      }
+    },
+    "7528": {
+      "gsisId": "00-0036893",
+      "name": "Najee Harris",
+      "position": "RB",
+      "team": "NYG",
       "targetShare": null,
       "airYardsShare": null,
       "wopr": null,
@@ -1311,40 +1532,6 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
-      }
-    },
-    "7525": {
-      "gsisId": "00-0036912",
-      "name": "DeVonta Smith",
-      "position": "WR",
-      "team": "PHI",
-      "targetShare": 0.273,
-      "airYardsShare": 0.367,
-      "wopr": 0.666,
-      "racr": 0.671,
-      "components": {
-        "targets": 6,
-        "airYards": 79,
-        "recYards": 53,
-        "receptions": 3,
-        "weeks": 1
-      }
-    },
-    "7526": {
-      "gsisId": "00-0036613",
-      "name": "Jaylen Waddle",
-      "position": "WR",
-      "team": "DEN",
-      "targetShare": 0.111,
-      "airYardsShare": 0.125,
-      "wopr": 0.254,
-      "racr": 0.154,
-      "components": {
-        "targets": 3,
-        "airYards": 13,
-        "recYards": 2,
-        "receptions": 1,
         "weeks": 1
       }
     },
@@ -1362,7 +1549,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "7535": {
@@ -1379,7 +1566,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "7536": {
@@ -1387,16 +1574,16 @@
       "name": "Quintin Morris",
       "position": "TE",
       "team": "JAX",
-      "targetShare": 0.048,
-      "airYardsShare": 0.009,
-      "wopr": 0.078,
-      "racr": 0,
+      "targetShare": 0.041,
+      "airYardsShare": 0.01,
+      "wopr": 0.069,
+      "racr": 1.4,
       "components": {
-        "targets": 1,
-        "airYards": 2,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 2,
+        "airYards": 5,
+        "recYards": 7,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "7543": {
@@ -1404,16 +1591,16 @@
       "name": "Travis Etienne",
       "position": "RB",
       "team": "NO",
-      "targetShare": 0.173,
-      "airYardsShare": -0.004,
-      "wopr": 0.257,
+      "targetShare": 0.131,
+      "airYardsShare": -0.014,
+      "wopr": 0.187,
       "racr": null,
       "components": {
-        "targets": 9,
-        "airYards": -2,
-        "recYards": 32,
-        "receptions": 7,
-        "weeks": 1
+        "targets": 11,
+        "airYards": -9,
+        "recYards": 38,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "7547": {
@@ -1438,15 +1625,32 @@
       "name": "Kyle Pitts",
       "position": "TE",
       "team": "ATL",
-      "targetShare": 0.053,
-      "airYardsShare": 0.347,
-      "wopr": 0.322,
-      "racr": 0,
+      "targetShare": 0.082,
+      "airYardsShare": 0.156,
+      "wopr": 0.232,
+      "racr": 0.333,
       "components": {
-        "targets": 1,
-        "airYards": 26,
-        "recYards": 0,
-        "receptions": 0,
+        "targets": 6,
+        "airYards": 60,
+        "recYards": 20,
+        "receptions": 2,
+        "weeks": 3
+      }
+    },
+    "7562": {
+      "gsisId": "00-0036849",
+      "name": "Tutu Atwell",
+      "position": "WR",
+      "team": "LA",
+      "targetShare": 0.067,
+      "airYardsShare": 0.175,
+      "wopr": 0.223,
+      "racr": 0.328,
+      "components": {
+        "targets": 2,
+        "airYards": 58,
+        "recYards": 19,
+        "receptions": 1,
         "weeks": 1
       }
     },
@@ -1455,16 +1659,16 @@
       "name": "Ja'Marr Chase",
       "position": "WR",
       "team": "CIN",
-      "targetShare": 0.118,
-      "airYardsShare": 0.15,
-      "wopr": 0.282,
-      "racr": 0.353,
+      "targetShare": 0.2,
+      "airYardsShare": 0.288,
+      "wopr": 0.502,
+      "racr": 0.757,
       "components": {
-        "targets": 4,
-        "airYards": 34,
-        "recYards": 12,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 13,
+        "airYards": 115,
+        "recYards": 87,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "7567": {
@@ -1472,16 +1676,16 @@
       "name": "Kenny Gainwell",
       "position": "RB",
       "team": "TB",
-      "targetShare": 0.037,
-      "airYardsShare": -0.038,
-      "wopr": 0.029,
+      "targetShare": 0.083,
+      "airYardsShare": -0.037,
+      "wopr": 0.099,
       "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": -5,
-        "recYards": 3,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 5,
+        "airYards": -20,
+        "recYards": 8,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "7569": {
@@ -1506,16 +1710,16 @@
       "name": "Rashod Bateman",
       "position": "WR",
       "team": "BAL",
-      "targetShare": 0.042,
-      "airYardsShare": 0.085,
-      "wopr": 0.123,
-      "racr": 0,
+      "targetShare": 0.189,
+      "airYardsShare": 0.255,
+      "wopr": 0.462,
+      "racr": 0.595,
       "components": {
-        "targets": 1,
-        "airYards": 23,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 10,
+        "airYards": 148,
+        "recYards": 88,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "7587": {
@@ -1523,16 +1727,16 @@
       "name": "Dyami Brown",
       "position": "WR",
       "team": "WAS",
-      "targetShare": 0.069,
-      "airYardsShare": 0.25,
-      "wopr": 0.278,
-      "racr": 0,
+      "targetShare": 0.127,
+      "airYardsShare": 0.182,
+      "wopr": 0.318,
+      "racr": 0.188,
       "components": {
-        "targets": 2,
-        "airYards": 64,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 8,
+        "airYards": 112,
+        "recYards": 21,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "7588": {
@@ -1540,16 +1744,16 @@
       "name": "Javonte Williams",
       "position": "RB",
       "team": "DAL",
-      "targetShare": 0.167,
-      "airYardsShare": -0.045,
-      "wopr": 0.219,
+      "targetShare": 0.148,
+      "airYardsShare": -0.047,
+      "wopr": 0.189,
       "racr": null,
       "components": {
-        "targets": 5,
-        "airYards": -11,
-        "recYards": 31,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 9,
+        "airYards": -23,
+        "recYards": 51,
+        "receptions": 8,
+        "weeks": 2
       }
     },
     "7594": {
@@ -1557,16 +1761,16 @@
       "name": "Chuba Hubbard",
       "position": "RB",
       "team": "CAR",
-      "targetShare": 0.088,
-      "airYardsShare": null,
-      "wopr": null,
+      "targetShare": 0.076,
+      "airYardsShare": -0.006,
+      "wopr": 0.11,
       "racr": null,
       "components": {
-        "targets": 3,
-        "airYards": 0,
-        "recYards": 38,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 5,
+        "airYards": -4,
+        "recYards": 49,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "7600": {
@@ -1575,15 +1779,15 @@
       "position": "TE",
       "team": "PIT",
       "targetShare": 0.135,
-      "airYardsShare": 0.054,
-      "wopr": 0.24,
-      "racr": 2.19,
+      "airYardsShare": 0.116,
+      "wopr": 0.284,
+      "racr": 1.147,
       "components": {
-        "targets": 5,
-        "airYards": 21,
-        "recYards": 46,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 10,
+        "airYards": 68,
+        "recYards": 78,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "7611": {
@@ -1591,16 +1795,16 @@
       "name": "Rhamondre Stevenson",
       "position": "RB",
       "team": "NE",
-      "targetShare": 0.194,
-      "airYardsShare": -0.029,
-      "wopr": 0.271,
+      "targetShare": 0.154,
+      "airYardsShare": -0.008,
+      "wopr": 0.225,
       "racr": null,
       "components": {
-        "targets": 6,
-        "airYards": -6,
-        "recYards": 44,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 8,
+        "airYards": -3,
+        "recYards": 47,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "7670": {
@@ -1625,16 +1829,16 @@
       "name": "Tommy Tremble",
       "position": "TE",
       "team": "CAR",
-      "targetShare": 0.147,
-      "airYardsShare": 0.068,
-      "wopr": 0.268,
-      "racr": 1.087,
+      "targetShare": 0.106,
+      "airYardsShare": 0.067,
+      "wopr": 0.206,
+      "racr": 0.69,
       "components": {
-        "targets": 5,
-        "airYards": 23,
-        "recYards": 25,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 42,
+        "recYards": 29,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "7716": {
@@ -1651,6 +1855,23 @@
         "airYards": 6,
         "recYards": 13,
         "receptions": 2,
+        "weeks": 1
+      }
+    },
+    "7757": {
+      "gsisId": "00-0036862",
+      "name": "Ben Skowronek",
+      "position": "WR",
+      "team": "PIT",
+      "targetShare": 0.027,
+      "airYardsShare": 0.005,
+      "wopr": 0.044,
+      "racr": 2,
+      "components": {
+        "targets": 1,
+        "airYards": 1,
+        "recYards": 2,
+        "receptions": 1,
         "weeks": 1
       }
     },
@@ -1676,16 +1897,16 @@
       "name": "Noah Gray",
       "position": "TE",
       "team": "KC",
-      "targetShare": 0.04,
-      "airYardsShare": 0.043,
-      "wopr": 0.09,
-      "racr": 1,
+      "targetShare": 0.029,
+      "airYardsShare": 0.044,
+      "wopr": 0.074,
+      "racr": 0.313,
       "components": {
-        "targets": 1,
-        "airYards": 5,
+        "targets": 2,
+        "airYards": 16,
         "recYards": 5,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "7842": {
@@ -1693,16 +1914,16 @@
       "name": "Luke Farrell",
       "position": "TE",
       "team": "SF",
-      "targetShare": 0.059,
-      "airYardsShare": 0.02,
-      "wopr": 0.103,
+      "targetShare": 0.036,
+      "airYardsShare": 0.009,
+      "wopr": 0.06,
       "racr": 6.333,
       "components": {
         "targets": 2,
         "airYards": 3,
         "recYards": 19,
         "receptions": 2,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "7891": {
@@ -1727,16 +1948,16 @@
       "name": "Jake Ferguson",
       "position": "TE",
       "team": "DAL",
-      "targetShare": 0.067,
-      "airYardsShare": 0.025,
-      "wopr": 0.118,
-      "racr": 1,
+      "targetShare": 0.098,
+      "airYardsShare": 0.072,
+      "wopr": 0.197,
+      "racr": 1.4,
       "components": {
-        "targets": 2,
-        "airYards": 6,
-        "recYards": 6,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 6,
+        "airYards": 35,
+        "recYards": 49,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "8111": {
@@ -1744,16 +1965,16 @@
       "name": "Cade Otton",
       "position": "TE",
       "team": "TB",
-      "targetShare": 0.185,
-      "airYardsShare": 0.242,
-      "wopr": 0.447,
-      "racr": 0.813,
+      "targetShare": 0.183,
+      "airYardsShare": 0.141,
+      "wopr": 0.373,
+      "racr": 0.831,
       "components": {
-        "targets": 5,
-        "airYards": 32,
-        "recYards": 26,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 77,
+        "recYards": 64,
+        "receptions": 8,
+        "weeks": 2
       }
     },
     "8112": {
@@ -1761,16 +1982,16 @@
       "name": "Drake London",
       "position": "WR",
       "team": "ATL",
-      "targetShare": 0.211,
-      "airYardsShare": 0.293,
-      "wopr": 0.522,
-      "racr": 1.318,
+      "targetShare": 0.26,
+      "airYardsShare": 0.37,
+      "wopr": 0.649,
+      "racr": 1.93,
       "components": {
-        "targets": 4,
-        "airYards": 22,
-        "recYards": 29,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 19,
+        "airYards": 142,
+        "recYards": 274,
+        "receptions": 15,
+        "weeks": 3
       }
     },
     "8119": {
@@ -1778,16 +1999,16 @@
       "name": "Jahan Dotson",
       "position": "WR",
       "team": "ATL",
-      "targetShare": 0.158,
-      "airYardsShare": 0.693,
-      "wopr": 0.722,
-      "racr": 0.365,
+      "targetShare": 0.137,
+      "airYardsShare": 0.375,
+      "wopr": 0.468,
+      "racr": 0.285,
       "components": {
-        "targets": 3,
-        "airYards": 52,
-        "recYards": 19,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 10,
+        "airYards": 144,
+        "recYards": 41,
+        "receptions": 4,
+        "weeks": 3
       }
     },
     "8121": {
@@ -1795,40 +2016,23 @@
       "name": "Romeo Doubs",
       "position": "WR",
       "team": "NE",
-      "targetShare": 0.097,
-      "airYardsShare": 0.366,
-      "wopr": 0.402,
-      "racr": 0,
+      "targetShare": 0.135,
+      "airYardsShare": 0.379,
+      "wopr": 0.468,
+      "racr": 0.636,
       "components": {
-        "targets": 3,
-        "airYards": 75,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 151,
+        "recYards": 96,
+        "receptions": 3,
+        "weeks": 2
       }
     },
-    "8126": {
-      "gsisId": "00-0038117",
-      "name": "Wan'Dale Robinson",
-      "position": "WR",
-      "team": "TEN",
-      "targetShare": 0.214,
-      "airYardsShare": 0.14,
-      "wopr": 0.419,
-      "racr": 1.652,
-      "components": {
-        "targets": 6,
-        "airYards": 23,
-        "recYards": 38,
-        "receptions": 5,
-        "weeks": 1
-      }
-    },
-    "8127": {
-      "gsisId": "00-0038046",
-      "name": "Charlie Kolar",
-      "position": "TE",
-      "team": "LAC",
+    "8122": {
+      "gsisId": "00-0037157",
+      "name": "Bam Knight",
+      "position": "RB",
+      "team": "ARI",
       "targetShare": null,
       "airYardsShare": null,
       "wopr": null,
@@ -1841,21 +2045,55 @@
         "weeks": 1
       }
     },
+    "8126": {
+      "gsisId": "00-0038117",
+      "name": "Wan'Dale Robinson",
+      "position": "WR",
+      "team": "TEN",
+      "targetShare": 0.156,
+      "airYardsShare": 0.105,
+      "wopr": 0.308,
+      "racr": 1.621,
+      "components": {
+        "targets": 7,
+        "airYards": 29,
+        "recYards": 47,
+        "receptions": 6,
+        "weeks": 2
+      }
+    },
+    "8127": {
+      "gsisId": "00-0038046",
+      "name": "Charlie Kolar",
+      "position": "TE",
+      "team": "LAC",
+      "targetShare": 0.057,
+      "airYardsShare": 0.021,
+      "wopr": 0.1,
+      "racr": 1.909,
+      "components": {
+        "targets": 3,
+        "airYards": 11,
+        "recYards": 21,
+        "receptions": 3,
+        "weeks": 2
+      }
+    },
     "8130": {
       "gsisId": "00-0037744",
       "name": "Trey McBride",
       "position": "TE",
       "team": "ARI",
-      "targetShare": 0.351,
-      "airYardsShare": 0.314,
-      "wopr": 0.746,
-      "racr": 1.067,
+      "targetShare": 0.365,
+      "airYardsShare": 0.33,
+      "wopr": 0.779,
+      "racr": 1.088,
       "components": {
-        "targets": 13,
-        "airYards": 89,
-        "recYards": 95,
-        "receptions": 9,
-        "weeks": 1
+        "targets": 23,
+        "airYards": 125,
+        "recYards": 136,
+        "receptions": 17,
+        "weeks": 2
       }
     },
     "8131": {
@@ -1863,16 +2101,16 @@
       "name": "Isaiah Likely",
       "position": "TE",
       "team": "NYG",
-      "targetShare": 0.276,
-      "airYardsShare": 0.261,
-      "wopr": 0.597,
-      "racr": 1.219,
+      "targetShare": 0.295,
+      "airYardsShare": 0.191,
+      "wopr": 0.576,
+      "racr": 0.991,
       "components": {
-        "targets": 8,
-        "airYards": 64,
-        "recYards": 78,
-        "receptions": 8,
-        "weeks": 1
+        "targets": 18,
+        "airYards": 112,
+        "recYards": 111,
+        "receptions": 13,
+        "weeks": 2
       }
     },
     "8132": {
@@ -1880,16 +2118,16 @@
       "name": "Tyler Allgeier",
       "position": "RB",
       "team": "ARI",
-      "targetShare": 0.054,
-      "airYardsShare": -0.018,
-      "wopr": 0.068,
+      "targetShare": 0.063,
+      "airYardsShare": -0.021,
+      "wopr": 0.08,
       "racr": null,
       "components": {
-        "targets": 2,
-        "airYards": -5,
-        "recYards": 9,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 4,
+        "airYards": -8,
+        "recYards": 18,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "8134": {
@@ -1909,21 +2147,38 @@
         "weeks": 2
       }
     },
+    "8135": {
+      "gsisId": "00-0037742",
+      "name": "Treylon Burks",
+      "position": "WR",
+      "team": "WAS",
+      "targetShare": 0.029,
+      "airYardsShare": 0.155,
+      "wopr": 0.152,
+      "racr": 0,
+      "components": {
+        "targets": 1,
+        "airYards": 56,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 1
+      }
+    },
     "8136": {
       "gsisId": "00-0037256",
       "name": "Rachaad White",
       "position": "RB",
       "team": "WAS",
-      "targetShare": 0.069,
-      "airYardsShare": -0.039,
-      "wopr": 0.076,
+      "targetShare": 0.127,
+      "airYardsShare": -0.003,
+      "wopr": 0.188,
       "racr": null,
       "components": {
-        "targets": 2,
-        "airYards": -10,
-        "recYards": 5,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 8,
+        "airYards": -2,
+        "recYards": 45,
+        "receptions": 8,
+        "weeks": 2
       }
     },
     "8137": {
@@ -1931,16 +2186,16 @@
       "name": "George Pickens",
       "position": "WR",
       "team": "DAL",
-      "targetShare": 0.2,
-      "airYardsShare": 0.43,
-      "wopr": 0.601,
-      "racr": 0.269,
+      "targetShare": 0.23,
+      "airYardsShare": 0.385,
+      "wopr": 0.615,
+      "racr": 0.364,
       "components": {
-        "targets": 6,
-        "airYards": 104,
-        "recYards": 28,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 14,
+        "airYards": 187,
+        "recYards": 68,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "8138": {
@@ -1965,16 +2220,16 @@
       "name": "Alec Pierce",
       "position": "WR",
       "team": "IND",
-      "targetShare": 0.207,
-      "airYardsShare": 0.545,
-      "wopr": 0.692,
-      "racr": 0.592,
+      "targetShare": 0.119,
+      "airYardsShare": 0.326,
+      "wopr": 0.407,
+      "racr": 0.637,
       "components": {
-        "targets": 6,
-        "airYards": 103,
-        "recYards": 61,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 113,
+        "recYards": 72,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "8144": {
@@ -1982,16 +2237,16 @@
       "name": "Chris Olave",
       "position": "WR",
       "team": "NO",
-      "targetShare": 0.25,
-      "airYardsShare": 0.503,
-      "wopr": 0.727,
-      "racr": 0.778,
+      "targetShare": 0.274,
+      "airYardsShare": 0.514,
+      "wopr": 0.771,
+      "racr": 0.793,
       "components": {
-        "targets": 13,
-        "airYards": 234,
-        "recYards": 182,
-        "receptions": 10,
-        "weeks": 1
+        "targets": 23,
+        "airYards": 338,
+        "recYards": 268,
+        "receptions": 18,
+        "weeks": 2
       }
     },
     "8145": {
@@ -1999,16 +2254,16 @@
       "name": "Jeremy Ruckert",
       "position": "TE",
       "team": "NYJ",
-      "targetShare": 0.043,
-      "airYardsShare": 0.006,
-      "wopr": 0.069,
-      "racr": 4,
+      "targetShare": 0.051,
+      "airYardsShare": -0.022,
+      "wopr": 0.061,
+      "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": 1,
-        "recYards": 4,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 3,
+        "airYards": -9,
+        "recYards": 9,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "8146": {
@@ -2016,15 +2271,32 @@
       "name": "Garrett Wilson",
       "position": "WR",
       "team": "NYJ",
-      "targetShare": 0.304,
-      "airYardsShare": 0.494,
-      "wopr": 0.802,
-      "racr": 1.026,
+      "targetShare": 0.237,
+      "airYardsShare": 0.37,
+      "wopr": 0.615,
+      "racr": 0.895,
       "components": {
-        "targets": 7,
-        "airYards": 77,
-        "recYards": 79,
-        "receptions": 6,
+        "targets": 14,
+        "airYards": 152,
+        "recYards": 136,
+        "receptions": 11,
+        "weeks": 2
+      }
+    },
+    "8147": {
+      "gsisId": "00-0037614",
+      "name": "John Metchie III",
+      "position": "WR",
+      "team": "CAR",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
         "weeks": 1
       }
     },
@@ -2050,16 +2322,16 @@
       "name": "Kyren Williams",
       "position": "RB",
       "team": "LA",
-      "targetShare": 0.111,
-      "airYardsShare": 0.027,
-      "wopr": 0.185,
-      "racr": 3.429,
+      "targetShare": 0.088,
+      "airYardsShare": 0.02,
+      "wopr": 0.146,
+      "racr": 3,
       "components": {
-        "targets": 3,
-        "airYards": 7,
-        "recYards": 24,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 12,
+        "recYards": 36,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "8151": {
@@ -2067,16 +2339,16 @@
       "name": "Kenneth Walker III",
       "position": "RB",
       "team": "KC",
-      "targetShare": 0.24,
-      "airYardsShare": -0.017,
-      "wopr": 0.348,
-      "racr": null,
+      "targetShare": 0.235,
+      "airYardsShare": 0.03,
+      "wopr": 0.374,
+      "racr": 7.182,
       "components": {
-        "targets": 6,
-        "airYards": -2,
-        "recYards": 18,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 16,
+        "airYards": 11,
+        "recYards": 79,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "8154": {
@@ -2084,16 +2356,16 @@
       "name": "Brian Robinson",
       "position": "RB",
       "team": "ATL",
-      "targetShare": null,
+      "targetShare": 0.027,
       "airYardsShare": null,
       "wopr": null,
       "racr": null,
       "components": {
-        "targets": 0,
+        "targets": 2,
         "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "recYards": 16,
+        "receptions": 2,
+        "weeks": 3
       }
     },
     "8155": {
@@ -2101,16 +2373,16 @@
       "name": "Breece Hall",
       "position": "RB",
       "team": "NYJ",
-      "targetShare": 0.087,
-      "airYardsShare": 0.019,
-      "wopr": 0.144,
-      "racr": 5.333,
+      "targetShare": 0.119,
+      "airYardsShare": 0.005,
+      "wopr": 0.182,
+      "racr": 39.5,
       "components": {
-        "targets": 2,
-        "airYards": 3,
-        "recYards": 16,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 2,
+        "recYards": 79,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "8167": {
@@ -2118,16 +2390,16 @@
       "name": "Christian Watson",
       "position": "WR",
       "team": "GB",
-      "targetShare": 0.2,
-      "airYardsShare": 0.28,
-      "wopr": 0.496,
-      "racr": 1.157,
+      "targetShare": 0.242,
+      "airYardsShare": 0.283,
+      "wopr": 0.561,
+      "racr": 0.934,
       "components": {
-        "targets": 8,
-        "airYards": 127,
-        "recYards": 147,
-        "receptions": 6,
-        "weeks": 1
+        "targets": 29,
+        "airYards": 304,
+        "recYards": 284,
+        "receptions": 17,
+        "weeks": 3
       }
     },
     "8168": {
@@ -2135,16 +2407,16 @@
       "name": "Skyy Moore",
       "position": "WR",
       "team": "GB",
-      "targetShare": 0.025,
-      "airYardsShare": 0.026,
-      "wopr": 0.056,
-      "racr": 0,
+      "targetShare": 0.092,
+      "airYardsShare": 0.072,
+      "wopr": 0.188,
+      "racr": 0.474,
       "components": {
-        "targets": 1,
-        "airYards": 12,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 78,
+        "recYards": 37,
+        "receptions": 5,
+        "weeks": 3
       }
     },
     "8172": {
@@ -2152,16 +2424,16 @@
       "name": "Greg Dulcich",
       "position": "TE",
       "team": "MIA",
-      "targetShare": 0.074,
-      "airYardsShare": 0.003,
-      "wopr": 0.113,
-      "racr": 18,
+      "targetShare": 0.1,
+      "airYardsShare": 0.023,
+      "wopr": 0.166,
+      "racr": 3.182,
       "components": {
-        "targets": 2,
-        "airYards": 1,
-        "recYards": 18,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 11,
+        "recYards": 35,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "8180": {
@@ -2169,16 +2441,16 @@
       "name": "Jalen Nailor",
       "position": "WR",
       "team": "LV",
-      "targetShare": 0.172,
-      "airYardsShare": 0.283,
-      "wopr": 0.456,
-      "racr": 0.422,
+      "targetShare": 0.138,
+      "airYardsShare": 0.179,
+      "wopr": 0.332,
+      "racr": 0.396,
       "components": {
-        "targets": 5,
-        "airYards": 64,
-        "recYards": 27,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 8,
+        "airYards": 91,
+        "recYards": 36,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "8188": {
@@ -2186,16 +2458,16 @@
       "name": "Tyquan Thornton",
       "position": "WR",
       "team": "KC",
-      "targetShare": 0.04,
-      "airYardsShare": 0.308,
-      "wopr": 0.276,
-      "racr": 0,
+      "targetShare": 0.074,
+      "airYardsShare": 0.332,
+      "wopr": 0.343,
+      "racr": 0.711,
       "components": {
-        "targets": 1,
-        "airYards": 36,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 121,
+        "recYards": 86,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "8195": {
@@ -2215,20 +2487,54 @@
         "weeks": 1
       }
     },
+    "8200": {
+      "gsisId": "00-0037231",
+      "name": "Kevin Austin Jr.",
+      "position": "WR",
+      "team": "NO",
+      "targetShare": 0.031,
+      "airYardsShare": 0.031,
+      "wopr": 0.068,
+      "racr": 1.167,
+      "components": {
+        "targets": 1,
+        "airYards": 6,
+        "recYards": 7,
+        "receptions": 1,
+        "weeks": 1
+      }
+    },
     "8204": {
       "gsisId": "00-0037091",
       "name": "Bo Melton",
       "position": "WR",
       "team": "GB",
       "targetShare": 0.025,
-      "airYardsShare": 0.022,
-      "wopr": 0.053,
-      "racr": 1,
+      "airYardsShare": 0.045,
+      "wopr": 0.069,
+      "racr": 0.208,
       "components": {
-        "targets": 1,
-        "airYards": 10,
+        "targets": 3,
+        "airYards": 48,
         "recYards": 10,
         "receptions": 1,
+        "weeks": 3
+      }
+    },
+    "8208": {
+      "gsisId": "00-0037085",
+      "name": "Tyler Badie",
+      "position": "RB",
+      "team": "DEN",
+      "targetShare": 0.103,
+      "airYardsShare": -0.033,
+      "wopr": 0.131,
+      "racr": null,
+      "components": {
+        "targets": 3,
+        "airYards": -9,
+        "recYards": 28,
+        "receptions": 2,
         "weeks": 1
       }
     },
@@ -2254,16 +2560,16 @@
       "name": "Daniel Bellinger",
       "position": "TE",
       "team": "TEN",
-      "targetShare": 0.036,
-      "airYardsShare": 0.006,
-      "wopr": 0.058,
-      "racr": 7,
+      "targetShare": 0.044,
+      "airYardsShare": 0.018,
+      "wopr": 0.079,
+      "racr": 1.4,
       "components": {
-        "targets": 1,
-        "airYards": 1,
+        "targets": 2,
+        "airYards": 5,
         "recYards": 7,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "8228": {
@@ -2271,16 +2577,16 @@
       "name": "Jaylen Warren",
       "position": "RB",
       "team": "PIT",
-      "targetShare": 0.162,
-      "airYardsShare": -0.015,
-      "wopr": 0.232,
+      "targetShare": 0.135,
+      "airYardsShare": -0.029,
+      "wopr": 0.182,
       "racr": null,
       "components": {
-        "targets": 6,
-        "airYards": -6,
-        "recYards": 27,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 10,
+        "airYards": -17,
+        "recYards": 61,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "8250": {
@@ -2298,6 +2604,23 @@
         "recYards": 0,
         "receptions": 0,
         "weeks": 2
+      }
+    },
+    "8254": {
+      "gsisId": "00-0037594",
+      "name": "Julius Chestnut",
+      "position": "RB",
+      "team": "TEN",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 1
       }
     },
     "8408": {
@@ -2331,7 +2654,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "8489": {
@@ -2340,15 +2663,15 @@
       "position": "TE",
       "team": "IND",
       "targetShare": 0.034,
-      "airYardsShare": 0.016,
-      "wopr": 0.062,
+      "airYardsShare": 0.02,
+      "wopr": 0.065,
       "racr": 0,
       "components": {
-        "targets": 1,
-        "airYards": 3,
+        "targets": 2,
+        "airYards": 7,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "8523": {
@@ -2365,7 +2688,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "8527": {
@@ -2373,16 +2696,16 @@
       "name": "Dareke Young",
       "position": "WR",
       "team": "LV",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.017,
+      "airYardsShare": 0.026,
+      "wopr": 0.044,
+      "racr": 2.077,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 1,
+        "airYards": 13,
+        "recYards": 27,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "8676": {
@@ -2390,16 +2713,16 @@
       "name": "Rashid Shaheed",
       "position": "WR",
       "team": "SEA",
-      "targetShare": 0.125,
-      "airYardsShare": 0.123,
-      "wopr": 0.274,
-      "racr": 0.211,
+      "targetShare": 0.18,
+      "airYardsShare": 0.226,
+      "wopr": 0.428,
+      "racr": 0.453,
       "components": {
-        "targets": 3,
-        "airYards": 19,
-        "recYards": 4,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 9,
+        "airYards": 86,
+        "recYards": 39,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "8755": {
@@ -2424,16 +2747,16 @@
       "name": "KaVontae Turpin",
       "position": "WR",
       "team": "DAL",
-      "targetShare": 0.033,
-      "airYardsShare": 0.004,
-      "wopr": 0.052,
+      "targetShare": 0.016,
+      "airYardsShare": 0.002,
+      "wopr": 0.025,
       "racr": 8,
       "components": {
         "targets": 1,
         "airYards": 1,
         "recYards": 8,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "9221": {
@@ -2458,16 +2781,16 @@
       "name": "Chase Brown",
       "position": "RB",
       "team": "CIN",
-      "targetShare": 0.176,
-      "airYardsShare": -0.053,
-      "wopr": 0.227,
+      "targetShare": 0.169,
+      "airYardsShare": -0.068,
+      "wopr": 0.206,
       "racr": null,
       "components": {
-        "targets": 6,
-        "airYards": -12,
-        "recYards": 22,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 11,
+        "airYards": -27,
+        "recYards": 24,
+        "receptions": 8,
+        "weeks": 2
       }
     },
     "9225": {
@@ -2475,16 +2798,16 @@
       "name": "Tank Bigsby",
       "position": "RB",
       "team": "PHI",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
+      "targetShare": 0.036,
+      "airYardsShare": -0.015,
+      "wopr": 0.044,
       "racr": null,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 2,
+        "airYards": -8,
+        "recYards": 5,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "9226": {
@@ -2492,16 +2815,16 @@
       "name": "De'Von Achane",
       "position": "RB",
       "team": "MIA",
-      "targetShare": 0.185,
-      "airYardsShare": 0.013,
-      "wopr": 0.287,
-      "racr": 7.5,
+      "targetShare": 0.22,
+      "airYardsShare": 0.059,
+      "wopr": 0.371,
+      "racr": 1.75,
       "components": {
-        "targets": 5,
-        "airYards": 4,
-        "recYards": 30,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 28,
+        "recYards": 49,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "9479": {
@@ -2510,15 +2833,15 @@
       "position": "TE",
       "team": "PIT",
       "targetShare": 0.054,
-      "airYardsShare": 0.015,
-      "wopr": 0.092,
-      "racr": 3,
+      "airYardsShare": 0.017,
+      "wopr": 0.093,
+      "racr": 2.5,
       "components": {
-        "targets": 2,
-        "airYards": 6,
-        "recYards": 18,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 4,
+        "airYards": 10,
+        "recYards": 25,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "9480": {
@@ -2526,16 +2849,16 @@
       "name": "Brenton Strange",
       "position": "TE",
       "team": "JAX",
-      "targetShare": 0.143,
-      "airYardsShare": 0.155,
-      "wopr": 0.323,
-      "racr": 0.676,
+      "targetShare": 0.102,
+      "airYardsShare": 0.1,
+      "wopr": 0.223,
+      "racr": 0.784,
       "components": {
-        "targets": 3,
-        "airYards": 34,
-        "recYards": 23,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 51,
+        "recYards": 40,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "9482": {
@@ -2543,16 +2866,16 @@
       "name": "Michael Mayer",
       "position": "TE",
       "team": "LV",
-      "targetShare": 0.241,
-      "airYardsShare": 0.124,
-      "wopr": 0.448,
-      "racr": 1.143,
+      "targetShare": 0.19,
+      "airYardsShare": 0.09,
+      "wopr": 0.348,
+      "racr": 1.196,
       "components": {
-        "targets": 7,
-        "airYards": 28,
-        "recYards": 32,
-        "receptions": 6,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 46,
+        "recYards": 55,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "9484": {
@@ -2560,16 +2883,16 @@
       "name": "Tucker Kraft",
       "position": "TE",
       "team": "GB",
-      "targetShare": 0.15,
-      "airYardsShare": 0.181,
-      "wopr": 0.352,
-      "racr": 0.793,
+      "targetShare": 0.142,
+      "airYardsShare": 0.119,
+      "wopr": 0.296,
+      "racr": 0.828,
       "components": {
-        "targets": 6,
-        "airYards": 82,
-        "recYards": 65,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 17,
+        "airYards": 128,
+        "recYards": 106,
+        "receptions": 9,
+        "weeks": 3
       }
     },
     "9486": {
@@ -2577,16 +2900,16 @@
       "name": "Dontayvion Wicks",
       "position": "WR",
       "team": "PHI",
-      "targetShare": 0.182,
-      "airYardsShare": 0.367,
-      "wopr": 0.53,
-      "racr": 0.924,
+      "targetShare": 0.179,
+      "airYardsShare": 0.286,
+      "wopr": 0.469,
+      "racr": 0.993,
       "components": {
-        "targets": 4,
-        "airYards": 79,
-        "recYards": 73,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 10,
+        "airYards": 148,
+        "recYards": 147,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "9487": {
@@ -2594,16 +2917,16 @@
       "name": "Parker Washington",
       "position": "WR",
       "team": "JAX",
-      "targetShare": 0.286,
-      "airYardsShare": 0.464,
-      "wopr": 0.754,
-      "racr": 0.814,
+      "targetShare": 0.367,
+      "airYardsShare": 0.547,
+      "wopr": 0.933,
+      "racr": 0.649,
       "components": {
-        "targets": 6,
-        "airYards": 102,
-        "recYards": 83,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 18,
+        "airYards": 279,
+        "recYards": 181,
+        "receptions": 12,
+        "weeks": 2
       }
     },
     "9488": {
@@ -2611,16 +2934,16 @@
       "name": "Jaxon Smith-Njigba",
       "position": "WR",
       "team": "SEA",
-      "targetShare": 0.458,
-      "airYardsShare": 0.494,
-      "wopr": 1.033,
-      "racr": 1.605,
+      "targetShare": 0.44,
+      "airYardsShare": 0.517,
+      "wopr": 1.022,
+      "racr": 1.406,
       "components": {
-        "targets": 11,
-        "airYards": 76,
-        "recYards": 122,
-        "receptions": 8,
-        "weeks": 1
+        "targets": 22,
+        "airYards": 197,
+        "recYards": 277,
+        "receptions": 17,
+        "weeks": 2
       }
     },
     "9493": {
@@ -2662,16 +2985,16 @@
       "name": "Josh Downs",
       "position": "WR",
       "team": "IND",
-      "targetShare": 0.138,
-      "airYardsShare": 0.19,
-      "wopr": 0.34,
-      "racr": 1.028,
+      "targetShare": 0.22,
+      "airYardsShare": 0.314,
+      "wopr": 0.55,
+      "racr": 1,
       "components": {
-        "targets": 4,
-        "airYards": 36,
-        "recYards": 37,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 13,
+        "airYards": 109,
+        "recYards": 109,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "9501": {
@@ -2679,16 +3002,16 @@
       "name": "DeMario Douglas",
       "position": "WR",
       "team": "NE",
-      "targetShare": 0.226,
-      "airYardsShare": 0.215,
-      "wopr": 0.49,
-      "racr": 0.455,
+      "targetShare": 0.173,
+      "airYardsShare": 0.111,
+      "wopr": 0.337,
+      "racr": 0.659,
       "components": {
-        "targets": 7,
+        "targets": 9,
         "airYards": 44,
-        "recYards": 20,
-        "receptions": 5,
-        "weeks": 1
+        "recYards": 29,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "9504": {
@@ -2696,16 +3019,16 @@
       "name": "Kayshon Boutte",
       "position": "WR",
       "team": "HOU",
-      "targetShare": 0.054,
-      "airYardsShare": 0.108,
-      "wopr": 0.157,
-      "racr": 0.656,
+      "targetShare": 0.08,
+      "airYardsShare": 0.13,
+      "wopr": 0.211,
+      "racr": 0.592,
       "components": {
-        "targets": 2,
-        "airYards": 32,
-        "recYards": 21,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 98,
+        "recYards": 58,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "9508": {
@@ -2713,16 +3036,16 @@
       "name": "Tyjae Spears",
       "position": "RB",
       "team": "TEN",
-      "targetShare": 0.143,
-      "airYardsShare": -0.073,
-      "wopr": 0.163,
+      "targetShare": 0.133,
+      "airYardsShare": -0.04,
+      "wopr": 0.172,
       "racr": null,
       "components": {
-        "targets": 4,
-        "airYards": -12,
-        "recYards": 12,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 6,
+        "airYards": -11,
+        "recYards": 41,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "9509": {
@@ -2730,16 +3053,16 @@
       "name": "Bijan Robinson",
       "position": "RB",
       "team": "ATL",
-      "targetShare": 0.526,
-      "airYardsShare": -0.4,
-      "wopr": 0.509,
+      "targetShare": 0.219,
+      "airYardsShare": -0.073,
+      "wopr": 0.277,
       "racr": null,
       "components": {
-        "targets": 10,
-        "airYards": -30,
-        "recYards": 90,
-        "receptions": 8,
-        "weeks": 1
+        "targets": 16,
+        "airYards": -28,
+        "recYards": 118,
+        "receptions": 13,
+        "weeks": 3
       }
     },
     "9511": {
@@ -2747,16 +3070,16 @@
       "name": "Keaton Mitchell",
       "position": "RB",
       "team": "LAC",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.019,
+      "airYardsShare": 0.006,
+      "wopr": 0.033,
+      "racr": 5,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 1,
+        "airYards": 3,
+        "recYards": 15,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "9754": {
@@ -2764,16 +3087,16 @@
       "name": "Quentin Johnston",
       "position": "WR",
       "team": "LAC",
-      "targetShare": 0.222,
-      "airYardsShare": 0.143,
-      "wopr": 0.433,
-      "racr": 0.436,
+      "targetShare": 0.208,
+      "airYardsShare": 0.193,
+      "wopr": 0.447,
+      "racr": 0.233,
       "components": {
-        "targets": 6,
-        "airYards": 39,
-        "recYards": 17,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 103,
+        "recYards": 24,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "9756": {
@@ -2781,16 +3104,16 @@
       "name": "Jordan Addison",
       "position": "WR",
       "team": "MIN",
-      "targetShare": 0.087,
-      "airYardsShare": 0.157,
-      "wopr": 0.24,
-      "racr": 0,
+      "targetShare": 0.167,
+      "airYardsShare": 0.21,
+      "wopr": 0.397,
+      "racr": 0.3,
       "components": {
-        "targets": 2,
-        "airYards": 27,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 70,
+        "recYards": 21,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "9757": {
@@ -2827,21 +3150,38 @@
         "weeks": 1
       }
     },
+    "10210": {
+      "gsisId": "00-0038564",
+      "name": "Cameron Latu",
+      "position": "TE",
+      "team": "NE",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 1
+      }
+    },
     "10213": {
       "gsisId": "00-0038563",
       "name": "Tre Tucker",
       "position": "WR",
       "team": "LV",
-      "targetShare": 0.138,
-      "airYardsShare": 0.221,
-      "wopr": 0.362,
-      "racr": 0.54,
+      "targetShare": 0.19,
+      "airYardsShare": 0.379,
+      "wopr": 0.55,
+      "racr": 0.756,
       "components": {
-        "targets": 4,
-        "airYards": 50,
-        "recYards": 27,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 193,
+        "recYards": 146,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "10214": {
@@ -2849,16 +3189,16 @@
       "name": "Davis Allen",
       "position": "TE",
       "team": "LA",
-      "targetShare": 0.037,
-      "airYardsShare": -0.004,
-      "wopr": 0.053,
-      "racr": null,
+      "targetShare": 0.035,
+      "airYardsShare": 0.002,
+      "wopr": 0.054,
+      "racr": 20,
       "components": {
-        "targets": 1,
-        "airYards": -1,
-        "recYards": 13,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 2,
+        "airYards": 1,
+        "recYards": 20,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "10218": {
@@ -2866,16 +3206,16 @@
       "name": "Xavier Hutchinson",
       "position": "WR",
       "team": "HOU",
-      "targetShare": 0.162,
-      "airYardsShare": 0.193,
-      "wopr": 0.378,
-      "racr": 0.561,
+      "targetShare": 0.172,
+      "airYardsShare": 0.224,
+      "wopr": 0.415,
+      "racr": 0.408,
       "components": {
-        "targets": 6,
-        "airYards": 57,
-        "recYards": 32,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 15,
+        "airYards": 169,
+        "recYards": 69,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "10219": {
@@ -2892,7 +3232,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "10222": {
@@ -2900,15 +3240,32 @@
       "name": "Jayden Reed",
       "position": "WR",
       "team": "GB",
-      "targetShare": 0.175,
-      "airYardsShare": 0.11,
-      "wopr": 0.339,
-      "racr": 0.4,
+      "targetShare": 0.116,
+      "airYardsShare": 0.067,
+      "wopr": 0.221,
+      "racr": 0.533,
       "components": {
-        "targets": 7,
-        "airYards": 50,
-        "recYards": 20,
-        "receptions": 3,
+        "targets": 8,
+        "airYards": 45,
+        "recYards": 24,
+        "receptions": 4,
+        "weeks": 2
+      }
+    },
+    "10224": {
+      "gsisId": "00-0038643",
+      "name": "Brayden Willis",
+      "position": "TE",
+      "team": "SF",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
         "weeks": 1
       }
     },
@@ -2934,16 +3291,16 @@
       "name": "Andrei Iosivas",
       "position": "WR",
       "team": "CIN",
-      "targetShare": 0.088,
-      "airYardsShare": 0.066,
-      "wopr": 0.178,
-      "racr": 0.8,
+      "targetShare": 0.062,
+      "airYardsShare": 0.053,
+      "wopr": 0.13,
+      "racr": 0.905,
       "components": {
-        "targets": 3,
-        "airYards": 15,
-        "recYards": 12,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 4,
+        "airYards": 21,
+        "recYards": 19,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "10229": {
@@ -2951,15 +3308,32 @@
       "name": "Rashee Rice",
       "position": "WR",
       "team": "KC",
-      "targetShare": 0.08,
-      "airYardsShare": 0.051,
-      "wopr": 0.156,
-      "racr": 3.167,
+      "targetShare": 0.118,
+      "airYardsShare": 0.14,
+      "wopr": 0.275,
+      "racr": 2,
       "components": {
-        "targets": 2,
-        "airYards": 6,
-        "recYards": 19,
-        "receptions": 2,
+        "targets": 8,
+        "airYards": 51,
+        "recYards": 102,
+        "receptions": 6,
+        "weeks": 2
+      }
+    },
+    "10231": {
+      "gsisId": "00-0039041",
+      "name": "Elijah Higgins",
+      "position": "TE",
+      "team": "ARI",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
         "weeks": 1
       }
     },
@@ -2968,16 +3342,16 @@
       "name": "Michael Wilson",
       "position": "WR",
       "team": "ARI",
-      "targetShare": 0.189,
-      "airYardsShare": 0.293,
-      "wopr": 0.489,
-      "racr": 0.675,
+      "targetShare": 0.222,
+      "airYardsShare": 0.351,
+      "wopr": 0.579,
+      "racr": 0.556,
       "components": {
-        "targets": 7,
-        "airYards": 83,
-        "recYards": 56,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 14,
+        "airYards": 133,
+        "recYards": 74,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "10234": {
@@ -2985,16 +3359,16 @@
       "name": "Derius Davis",
       "position": "WR",
       "team": "LAC",
-      "targetShare": 0.037,
-      "airYardsShare": 0.201,
-      "wopr": 0.196,
+      "targetShare": 0.038,
+      "airYardsShare": 0.129,
+      "wopr": 0.147,
       "racr": 0,
       "components": {
-        "targets": 1,
-        "airYards": 55,
+        "targets": 2,
+        "airYards": 69,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "10235": {
@@ -3065,21 +3439,38 @@
         "weeks": 1
       }
     },
+    "11034": {
+      "gsisId": "00-0038640",
+      "name": "Jalen Brooks",
+      "position": "WR",
+      "team": "ARI",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 1
+      }
+    },
     "11056": {
       "gsisId": "00-0038728",
       "name": "Jared Wayne",
       "position": "WR",
       "team": "HOU",
-      "targetShare": 0.027,
-      "airYardsShare": 0.041,
-      "wopr": 0.069,
-      "racr": 1,
+      "targetShare": 0.092,
+      "airYardsShare": 0.154,
+      "wopr": 0.246,
+      "racr": 0.388,
       "components": {
-        "targets": 1,
-        "airYards": 12,
-        "recYards": 12,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 8,
+        "airYards": 116,
+        "recYards": 45,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "11157": {
@@ -3096,7 +3487,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11168": {
@@ -3104,16 +3495,16 @@
       "name": "Xavier Smith",
       "position": "WR",
       "team": "LA",
-      "targetShare": null,
+      "targetShare": 0.018,
       "airYardsShare": null,
       "wopr": null,
       "racr": null,
       "components": {
-        "targets": 0,
+        "targets": 1,
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11199": {
@@ -3130,7 +3521,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11201": {
@@ -3138,16 +3529,16 @@
       "name": "Blake Whiteheart",
       "position": "TE",
       "team": "CLE",
-      "targetShare": 0.045,
-      "airYardsShare": 0.026,
-      "wopr": 0.086,
-      "racr": 2.333,
+      "targetShare": 0.058,
+      "airYardsShare": 0.036,
+      "wopr": 0.112,
+      "racr": 2.583,
       "components": {
-        "targets": 1,
-        "airYards": 6,
-        "recYards": 14,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 12,
+        "recYards": 31,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "11237": {
@@ -3215,7 +3606,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11370": {
@@ -3223,15 +3614,32 @@
       "name": "Chris Brooks",
       "position": "RB",
       "team": "GB",
-      "targetShare": 0.025,
-      "airYardsShare": -0.013,
-      "wopr": 0.028,
+      "targetShare": 0.033,
+      "airYardsShare": -0.008,
+      "wopr": 0.044,
       "racr": null,
       "components": {
+        "targets": 4,
+        "airYards": -9,
+        "recYards": 19,
+        "receptions": 2,
+        "weeks": 3
+      }
+    },
+    "11421": {
+      "gsisId": "00-0038824",
+      "name": "Ryan Miller",
+      "position": "WR",
+      "team": "MIA",
+      "targetShare": 0.043,
+      "airYardsShare": 0.243,
+      "wopr": 0.235,
+      "racr": 1.878,
+      "components": {
         "targets": 1,
-        "airYards": -6,
-        "recYards": 0,
-        "receptions": 0,
+        "airYards": 41,
+        "recYards": 77,
+        "receptions": 1,
         "weeks": 1
       }
     },
@@ -3240,16 +3648,16 @@
       "name": "Nate Adkins",
       "position": "TE",
       "team": "DEN",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.054,
+      "airYardsShare": 0.064,
+      "wopr": 0.126,
+      "racr": 1.333,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 24,
+        "recYards": 32,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "11435": {
@@ -3257,13 +3665,30 @@
       "name": "Emanuel Wilson",
       "position": "RB",
       "team": "SEA",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.02,
+      "airYardsShare": 0.003,
+      "wopr": 0.032,
+      "racr": 0,
       "components": {
-        "targets": 0,
-        "airYards": 0,
+        "targets": 1,
+        "airYards": 1,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 2
+      }
+    },
+    "11439": {
+      "gsisId": "00-0038794",
+      "name": "Jaleel McLaughlin",
+      "position": "RB",
+      "team": "CLE",
+      "targetShare": 0.033,
+      "airYardsShare": 0.009,
+      "wopr": 0.056,
+      "racr": 0,
+      "components": {
+        "targets": 1,
+        "airYards": 1,
         "recYards": 0,
         "receptions": 0,
         "weeks": 1
@@ -3283,7 +3708,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11570": {
@@ -3291,6 +3716,23 @@
       "name": "Rasheen Ali",
       "position": "RB",
       "team": "BAL",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 2
+      }
+    },
+    "11571": {
+      "gsisId": "00-0039798",
+      "name": "Isaiah Davis",
+      "position": "RB",
+      "team": "NYJ",
       "targetShare": null,
       "airYardsShare": null,
       "wopr": null,
@@ -3334,7 +3776,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11575": {
@@ -3359,16 +3801,16 @@
       "name": "Braelon Allen",
       "position": "RB",
       "team": "NYJ",
-      "targetShare": 0.043,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.034,
+      "airYardsShare": 0.007,
+      "wopr": 0.056,
+      "racr": 2.667,
       "components": {
-        "targets": 1,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 2,
+        "airYards": 3,
+        "recYards": 8,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "11577": {
@@ -3376,16 +3818,16 @@
       "name": "Will Shipley",
       "position": "RB",
       "team": "PHI",
-      "targetShare": 0.045,
-      "airYardsShare": 0.028,
-      "wopr": 0.087,
-      "racr": 1.333,
+      "targetShare": 0.054,
+      "airYardsShare": 0.012,
+      "wopr": 0.089,
+      "racr": 2.167,
       "components": {
-        "targets": 1,
+        "targets": 3,
         "airYards": 6,
-        "recYards": 8,
-        "receptions": 1,
-        "weeks": 1
+        "recYards": 13,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "11581": {
@@ -3393,16 +3835,16 @@
       "name": "MarShawn Lloyd",
       "position": "RB",
       "team": "GB",
-      "targetShare": 0.025,
-      "airYardsShare": 0.04,
-      "wopr": 0.066,
-      "racr": 0,
+      "targetShare": 0.05,
+      "airYardsShare": 0.002,
+      "wopr": 0.076,
+      "racr": 6.5,
       "components": {
-        "targets": 1,
-        "airYards": 18,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 6,
+        "airYards": 2,
+        "recYards": 13,
+        "receptions": 4,
+        "weeks": 3
       }
     },
     "11583": {
@@ -3410,16 +3852,16 @@
       "name": "Jonathon Brooks",
       "position": "RB",
       "team": "CAR",
-      "targetShare": 0.059,
-      "airYardsShare": 0.089,
-      "wopr": 0.151,
-      "racr": 1.6,
+      "targetShare": 0.045,
+      "airYardsShare": 0.038,
+      "wopr": 0.094,
+      "racr": 1.792,
       "components": {
-        "targets": 2,
-        "airYards": 30,
-        "recYards": 48,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 24,
+        "recYards": 43,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "11584": {
@@ -3427,16 +3869,16 @@
       "name": "Bucky Irving",
       "position": "RB",
       "team": "TB",
-      "targetShare": 0.259,
-      "airYardsShare": -0.189,
-      "wopr": 0.256,
+      "targetShare": 0.183,
+      "airYardsShare": -0.086,
+      "wopr": 0.214,
       "racr": null,
       "components": {
-        "targets": 7,
-        "airYards": -25,
-        "recYards": 48,
-        "receptions": 7,
-        "weeks": 1
+        "targets": 11,
+        "airYards": -47,
+        "recYards": 49,
+        "receptions": 11,
+        "weeks": 2
       }
     },
     "11586": {
@@ -3444,15 +3886,32 @@
       "name": "Blake Corum",
       "position": "RB",
       "team": "LA",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
+      "targetShare": 0.018,
+      "airYardsShare": -0.01,
+      "wopr": 0.02,
       "racr": null,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
+        "targets": 1,
+        "airYards": -6,
+        "recYards": 13,
+        "receptions": 1,
+        "weeks": 2
+      }
+    },
+    "11592": {
+      "gsisId": "00-0039814",
+      "name": "Erick All",
+      "position": "TE",
+      "team": "CIN",
+      "targetShare": 0.097,
+      "airYardsShare": -0.006,
+      "wopr": 0.141,
+      "racr": null,
+      "components": {
+        "targets": 3,
+        "airYards": -1,
+        "recYards": 5,
+        "receptions": 2,
         "weeks": 1
       }
     },
@@ -3461,15 +3920,32 @@
       "name": "Brevyn Spann-Ford",
       "position": "TE",
       "team": "DAL",
-      "targetShare": 0.067,
-      "airYardsShare": 0.025,
-      "wopr": 0.118,
+      "targetShare": 0.033,
+      "airYardsShare": 0.012,
+      "wopr": 0.058,
       "racr": 2.333,
       "components": {
         "targets": 2,
         "airYards": 6,
         "recYards": 14,
         "receptions": 2,
+        "weeks": 2
+      }
+    },
+    "11596": {
+      "gsisId": "00-0039912",
+      "name": "Ben Sinnott",
+      "position": "TE",
+      "team": "WAS",
+      "targetShare": 0.029,
+      "airYardsShare": 0.011,
+      "wopr": 0.051,
+      "racr": 1.5,
+      "components": {
+        "targets": 1,
+        "airYards": 4,
+        "recYards": 6,
+        "receptions": 1,
         "weeks": 1
       }
     },
@@ -3478,16 +3954,16 @@
       "name": "Theo Johnson",
       "position": "TE",
       "team": "NYG",
-      "targetShare": 0.034,
-      "airYardsShare": 0.008,
-      "wopr": 0.057,
-      "racr": 4.5,
+      "targetShare": 0.082,
+      "airYardsShare": 0.097,
+      "wopr": 0.191,
+      "racr": 0.158,
       "components": {
-        "targets": 1,
-        "airYards": 2,
+        "targets": 5,
+        "airYards": 57,
         "recYards": 9,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11599": {
@@ -3512,16 +3988,16 @@
       "name": "AJ Barner",
       "position": "TE",
       "team": "SEA",
-      "targetShare": 0.083,
-      "airYardsShare": -0.006,
-      "wopr": 0.12,
-      "racr": null,
+      "targetShare": 0.06,
+      "airYardsShare": 0.018,
+      "wopr": 0.103,
+      "racr": 3,
       "components": {
-        "targets": 2,
-        "airYards": -1,
-        "recYards": 13,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 7,
+        "recYards": 21,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "11608": {
@@ -3529,16 +4005,16 @@
       "name": "Isaiah Williams",
       "position": "WR",
       "team": "NYJ",
-      "targetShare": 0.043,
-      "airYardsShare": 0.045,
-      "wopr": 0.096,
-      "racr": 1,
+      "targetShare": 0.119,
+      "airYardsShare": 0.022,
+      "wopr": 0.194,
+      "racr": 4.556,
       "components": {
-        "targets": 1,
-        "airYards": 7,
-        "recYards": 7,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 9,
+        "recYards": 41,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "11610": {
@@ -3546,16 +4022,16 @@
       "name": "Malik Washington",
       "position": "WR",
       "team": "MIA",
-      "targetShare": 0.296,
-      "airYardsShare": 0.437,
-      "wopr": 0.75,
-      "racr": 0.393,
+      "targetShare": 0.26,
+      "airYardsShare": 0.339,
+      "wopr": 0.627,
+      "racr": 0.593,
       "components": {
-        "targets": 8,
-        "airYards": 135,
-        "recYards": 53,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 13,
+        "airYards": 162,
+        "recYards": 96,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "11616": {
@@ -3572,7 +4048,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11617": {
@@ -3589,7 +4065,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11620": {
@@ -3597,16 +4073,16 @@
       "name": "Rome Odunze",
       "position": "WR",
       "team": "CHI",
-      "targetShare": 0.115,
-      "airYardsShare": 0.319,
-      "wopr": 0.396,
-      "racr": 0.578,
+      "targetShare": 0.125,
+      "airYardsShare": 0.306,
+      "wopr": 0.402,
+      "racr": 0.693,
       "components": {
-        "targets": 3,
-        "airYards": 90,
-        "recYards": 52,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 137,
+        "recYards": 95,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "11623": {
@@ -3631,16 +4107,16 @@
       "name": "Xavier Worthy",
       "position": "WR",
       "team": "KC",
-      "targetShare": 0.24,
-      "airYardsShare": 0.359,
-      "wopr": 0.611,
-      "racr": 0.429,
+      "targetShare": 0.191,
+      "airYardsShare": 0.225,
+      "wopr": 0.444,
+      "racr": 0.524,
       "components": {
-        "targets": 6,
-        "airYards": 42,
-        "recYards": 18,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 13,
+        "airYards": 82,
+        "recYards": 43,
+        "receptions": 8,
+        "weeks": 2
       }
     },
     "11625": {
@@ -3648,16 +4124,16 @@
       "name": "Adonai Mitchell",
       "position": "WR",
       "team": "NYJ",
-      "targetShare": 0.13,
-      "airYardsShare": 0.378,
-      "wopr": 0.46,
-      "racr": 1.017,
+      "targetShare": 0.254,
+      "airYardsShare": 0.577,
+      "wopr": 0.785,
+      "racr": 0.519,
       "components": {
-        "targets": 3,
-        "airYards": 59,
-        "recYards": 60,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 15,
+        "airYards": 237,
+        "recYards": 123,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "11626": {
@@ -3665,16 +4141,16 @@
       "name": "Xavier Legette",
       "position": "WR",
       "team": "CAR",
-      "targetShare": 0.059,
-      "airYardsShare": 0.06,
-      "wopr": 0.131,
-      "racr": 0,
+      "targetShare": 0.091,
+      "airYardsShare": 0.155,
+      "wopr": 0.245,
+      "racr": 0.66,
       "components": {
-        "targets": 2,
-        "airYards": 20,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 6,
+        "airYards": 97,
+        "recYards": 64,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "11627": {
@@ -3682,16 +4158,16 @@
       "name": "Troy Franklin",
       "position": "WR",
       "team": "DEN",
-      "targetShare": 0.037,
-      "airYardsShare": 0.298,
-      "wopr": 0.264,
-      "racr": 0,
+      "targetShare": 0.054,
+      "airYardsShare": 0.171,
+      "wopr": 0.201,
+      "racr": 0.422,
       "components": {
-        "targets": 1,
-        "airYards": 31,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 64,
+        "recYards": 27,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "11628": {
@@ -3699,14 +4175,31 @@
       "name": "Marvin Harrison Jr.",
       "position": "WR",
       "team": "ARI",
-      "targetShare": 0.081,
-      "airYardsShare": 0.251,
-      "wopr": 0.297,
-      "racr": 0.465,
+      "targetShare": 0.063,
+      "airYardsShare": 0.195,
+      "wopr": 0.231,
+      "racr": 0.446,
       "components": {
-        "targets": 3,
-        "airYards": 71,
+        "targets": 4,
+        "airYards": 74,
         "recYards": 33,
+        "receptions": 1,
+        "weeks": 2
+      }
+    },
+    "11629": {
+      "gsisId": "00-0039792",
+      "name": "Devontez Walker",
+      "position": "WR",
+      "team": "BAL",
+      "targetShare": 0.069,
+      "airYardsShare": 0.194,
+      "wopr": 0.239,
+      "racr": 0.783,
+      "components": {
+        "targets": 2,
+        "airYards": 60,
+        "recYards": 47,
         "receptions": 1,
         "weeks": 1
       }
@@ -3717,15 +4210,15 @@
       "position": "WR",
       "team": "PIT",
       "targetShare": 0.162,
-      "airYardsShare": 0.325,
-      "wopr": 0.471,
-      "racr": 0.206,
+      "airYardsShare": 0.252,
+      "wopr": 0.419,
+      "racr": 0.367,
       "components": {
-        "targets": 6,
-        "airYards": 126,
-        "recYards": 26,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 12,
+        "airYards": 147,
+        "recYards": 54,
+        "receptions": 8,
+        "weeks": 2
       }
     },
     "11631": {
@@ -3733,16 +4226,16 @@
       "name": "Brian Thomas Jr.",
       "position": "WR",
       "team": "JAX",
-      "targetShare": 0.143,
-      "airYardsShare": 0.2,
-      "wopr": 0.354,
-      "racr": 0.909,
+      "targetShare": 0.224,
+      "airYardsShare": 0.247,
+      "wopr": 0.509,
+      "racr": 0.635,
       "components": {
-        "targets": 3,
-        "airYards": 44,
-        "recYards": 40,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 126,
+        "recYards": 80,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "11632": {
@@ -3750,16 +4243,16 @@
       "name": "Malik Nabers",
       "position": "WR",
       "team": "NYG",
-      "targetShare": 0.31,
-      "airYardsShare": 0.42,
-      "wopr": 0.759,
-      "racr": 0.67,
+      "targetShare": 0.213,
+      "airYardsShare": 0.307,
+      "wopr": 0.534,
+      "racr": 0.389,
       "components": {
-        "targets": 9,
-        "airYards": 103,
-        "recYards": 69,
-        "receptions": 6,
-        "weeks": 1
+        "targets": 13,
+        "airYards": 180,
+        "recYards": 70,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "11635": {
@@ -3767,16 +4260,16 @@
       "name": "Ladd McConkey",
       "position": "WR",
       "team": "LAC",
-      "targetShare": 0.259,
-      "airYardsShare": 0.355,
-      "wopr": 0.637,
-      "racr": 0.845,
+      "targetShare": 0.189,
+      "airYardsShare": 0.245,
+      "wopr": 0.455,
+      "racr": 0.893,
       "components": {
-        "targets": 7,
-        "airYards": 97,
-        "recYards": 82,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 10,
+        "airYards": 131,
+        "recYards": 117,
+        "receptions": 8,
+        "weeks": 2
       }
     },
     "11637": {
@@ -3810,7 +4303,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11646": {
@@ -3818,15 +4311,32 @@
       "name": "Jalen Coker",
       "position": "WR",
       "team": "CAR",
-      "targetShare": 0.265,
-      "airYardsShare": 0.369,
-      "wopr": 0.656,
-      "racr": 1.113,
+      "targetShare": 0.273,
+      "airYardsShare": 0.274,
+      "wopr": 0.601,
+      "racr": 1.186,
       "components": {
-        "targets": 9,
-        "airYards": 124,
-        "recYards": 138,
-        "receptions": 8,
+        "targets": 18,
+        "airYards": 172,
+        "recYards": 204,
+        "receptions": 16,
+        "weeks": 2
+      }
+    },
+    "11647": {
+      "gsisId": "00-0039391",
+      "name": "Kimani Vidal",
+      "position": "RB",
+      "team": "LAC",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
         "weeks": 1
       }
     },
@@ -3844,7 +4354,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "11729": {
@@ -3864,45 +4374,11 @@
         "weeks": 2
       }
     },
-    "11783": {
-      "gsisId": "00-0039410",
-      "name": "Ryan Flournoy",
+    "11762": {
+      "gsisId": "00-0039816",
+      "name": "Anthony Gould",
       "position": "WR",
-      "team": "DAL",
-      "targetShare": 0.133,
-      "airYardsShare": 0.095,
-      "wopr": 0.266,
-      "racr": 0.957,
-      "components": {
-        "targets": 4,
-        "airYards": 23,
-        "recYards": 22,
-        "receptions": 2,
-        "weeks": 1
-      }
-    },
-    "11834": {
-      "gsisId": "00-0039424",
-      "name": "Devaughn Vele",
-      "position": "WR",
-      "team": "NO",
-      "targetShare": 0.173,
-      "airYardsShare": 0.135,
-      "wopr": 0.354,
-      "racr": 1.095,
-      "components": {
-        "targets": 9,
-        "airYards": 63,
-        "recYards": 69,
-        "receptions": 7,
-        "weeks": 1
-      }
-    },
-    "11942": {
-      "gsisId": "00-0039686",
-      "name": "Colson Yankoff",
-      "position": "TE",
-      "team": "WAS",
+      "team": "IND",
       "targetShare": null,
       "airYardsShare": null,
       "wopr": null,
@@ -3913,6 +4389,57 @@
         "recYards": 0,
         "receptions": 0,
         "weeks": 1
+      }
+    },
+    "11783": {
+      "gsisId": "00-0039410",
+      "name": "Ryan Flournoy",
+      "position": "WR",
+      "team": "DAL",
+      "targetShare": 0.164,
+      "airYardsShare": 0.064,
+      "wopr": 0.291,
+      "racr": 1.452,
+      "components": {
+        "targets": 10,
+        "airYards": 31,
+        "recYards": 45,
+        "receptions": 7,
+        "weeks": 2
+      }
+    },
+    "11834": {
+      "gsisId": "00-0039424",
+      "name": "Devaughn Vele",
+      "position": "WR",
+      "team": "NO",
+      "targetShare": 0.19,
+      "airYardsShare": 0.201,
+      "wopr": 0.426,
+      "racr": 1.008,
+      "components": {
+        "targets": 16,
+        "airYards": 132,
+        "recYards": 133,
+        "receptions": 12,
+        "weeks": 2
+      }
+    },
+    "11942": {
+      "gsisId": "00-0039686",
+      "name": "Colson Yankoff",
+      "position": "TE",
+      "team": "WAS",
+      "targetShare": 0.016,
+      "airYardsShare": 0.006,
+      "wopr": 0.028,
+      "racr": 3.5,
+      "components": {
+        "targets": 1,
+        "airYards": 4,
+        "recYards": 14,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "11994": {
@@ -3929,7 +4456,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "12048": {
@@ -3937,13 +4464,64 @@
       "name": "George Holani",
       "position": "RB",
       "team": "SEA",
-      "targetShare": 0.042,
-      "airYardsShare": 0.039,
-      "wopr": 0.09,
-      "racr": 0,
+      "targetShare": 0.04,
+      "airYardsShare": 0.005,
+      "wopr": 0.064,
+      "racr": 1,
       "components": {
-        "targets": 1,
-        "airYards": 6,
+        "targets": 2,
+        "airYards": 2,
+        "recYards": 2,
+        "receptions": 1,
+        "weeks": 2
+      }
+    },
+    "12171": {
+      "gsisId": "00-0039603",
+      "name": "British Brooks",
+      "position": "RB",
+      "team": "HOU",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 1
+      }
+    },
+    "12455": {
+      "gsisId": "00-0040078",
+      "name": "Brashard Smith",
+      "position": "RB",
+      "team": "KC",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 1
+      }
+    },
+    "12467": {
+      "gsisId": "00-0040177",
+      "name": "Jordan James",
+      "position": "RB",
+      "team": "SF",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
         "recYards": 0,
         "receptions": 0,
         "weeks": 1
@@ -3971,16 +4549,16 @@
       "name": "Raheim Sanders",
       "position": "RB",
       "team": "CLE",
-      "targetShare": 0.136,
-      "airYardsShare": -0.026,
-      "wopr": 0.186,
+      "targetShare": 0.077,
+      "airYardsShare": -0.03,
+      "wopr": 0.095,
       "racr": null,
       "components": {
-        "targets": 3,
-        "airYards": -6,
-        "recYards": 25,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 4,
+        "airYards": -10,
+        "recYards": 32,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "12473": {
@@ -3988,16 +4566,16 @@
       "name": "Mitchell Evans",
       "position": "TE",
       "team": "CAR",
-      "targetShare": 0.059,
-      "airYardsShare": 0.027,
-      "wopr": 0.107,
-      "racr": 1,
+      "targetShare": 0.045,
+      "airYardsShare": 0.013,
+      "wopr": 0.077,
+      "racr": 2.75,
       "components": {
-        "targets": 2,
-        "airYards": 9,
-        "recYards": 9,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 8,
+        "recYards": 22,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "12474": {
@@ -4005,16 +4583,16 @@
       "name": "Woody Marks",
       "position": "RB",
       "team": "HOU",
-      "targetShare": 0.027,
-      "airYardsShare": -0.007,
-      "wopr": 0.036,
-      "racr": null,
+      "targetShare": 0.08,
+      "airYardsShare": 0.012,
+      "wopr": 0.128,
+      "racr": 2.778,
       "components": {
-        "targets": 1,
-        "airYards": -2,
-        "recYards": -2,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 9,
+        "recYards": 25,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "12481": {
@@ -4022,16 +4600,16 @@
       "name": "Cam Skattebo",
       "position": "RB",
       "team": "NYG",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
+      "targetShare": 0.066,
+      "airYardsShare": -0.007,
+      "wopr": 0.094,
       "racr": null,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 4,
+        "airYards": -4,
+        "recYards": 19,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "12483": {
@@ -4039,16 +4617,16 @@
       "name": "Jack Bech",
       "position": "WR",
       "team": "LV",
-      "targetShare": 0.138,
-      "airYardsShare": 0.142,
-      "wopr": 0.306,
-      "racr": 0.719,
+      "targetShare": 0.103,
+      "airYardsShare": 0.098,
+      "wopr": 0.223,
+      "racr": 0.96,
       "components": {
-        "targets": 4,
-        "airYards": 32,
-        "recYards": 23,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 6,
+        "airYards": 50,
+        "recYards": 48,
+        "receptions": 5,
+        "weeks": 2
       }
     },
     "12485": {
@@ -4056,16 +4634,16 @@
       "name": "Tez Johnson",
       "position": "WR",
       "team": "TB",
-      "targetShare": 0.037,
-      "airYardsShare": 0.068,
-      "wopr": 0.103,
-      "racr": 0,
+      "targetShare": 0.083,
+      "airYardsShare": 0.295,
+      "wopr": 0.331,
+      "racr": 0.304,
       "components": {
-        "targets": 1,
-        "airYards": 9,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 161,
+        "recYards": 49,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "12487": {
@@ -4073,16 +4651,16 @@
       "name": "Terrance Ferguson",
       "position": "TE",
       "team": "LA",
-      "targetShare": 0.037,
-      "airYardsShare": 0.093,
-      "wopr": 0.121,
-      "racr": 0,
+      "targetShare": 0.175,
+      "airYardsShare": 0.132,
+      "wopr": 0.355,
+      "racr": 0.692,
       "components": {
-        "targets": 1,
-        "airYards": 24,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 10,
+        "airYards": 78,
+        "recYards": 54,
+        "receptions": 6,
+        "weeks": 2
       }
     },
     "12489": {
@@ -4107,16 +4685,16 @@
       "name": "Bhayshul Tuten",
       "position": "RB",
       "team": "JAX",
-      "targetShare": 0.048,
-      "airYardsShare": -0.023,
-      "wopr": 0.056,
+      "targetShare": 0.061,
+      "airYardsShare": -0.025,
+      "wopr": 0.074,
       "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": -5,
-        "recYards": 22,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 3,
+        "airYards": -13,
+        "recYards": 19,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "12491": {
@@ -4133,7 +4711,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "12492": {
@@ -4141,16 +4719,16 @@
       "name": "Pat Bryant",
       "position": "WR",
       "team": "DEN",
-      "targetShare": 0.222,
-      "airYardsShare": 0.24,
-      "wopr": 0.501,
-      "racr": 1.68,
+      "targetShare": 0.125,
+      "airYardsShare": 0.08,
+      "wopr": 0.244,
+      "racr": 1.4,
       "components": {
-        "targets": 6,
-        "airYards": 25,
+        "targets": 7,
+        "airYards": 30,
         "recYards": 42,
         "receptions": 4,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "12493": {
@@ -4158,15 +4736,32 @@
       "name": "Oronde Gadsden II",
       "position": "TE",
       "team": "LAC",
-      "targetShare": 0.074,
-      "airYardsShare": 0.026,
-      "wopr": 0.129,
-      "racr": 4.571,
+      "targetShare": 0.075,
+      "airYardsShare": 0.047,
+      "wopr": 0.145,
+      "racr": 2,
       "components": {
-        "targets": 2,
-        "airYards": 7,
-        "recYards": 32,
-        "receptions": 2,
+        "targets": 4,
+        "airYards": 25,
+        "recYards": 50,
+        "receptions": 4,
+        "weeks": 2
+      }
+    },
+    "12495": {
+      "gsisId": "00-0040198",
+      "name": "Ollie Gordon II",
+      "position": "RB",
+      "team": "MIA",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
         "weeks": 1
       }
     },
@@ -4192,16 +4787,16 @@
       "name": "Elic Ayomanor",
       "position": "WR",
       "team": "TEN",
-      "targetShare": 0.107,
-      "airYardsShare": 0.25,
-      "wopr": 0.336,
-      "racr": 0.268,
+      "targetShare": 0.133,
+      "airYardsShare": 0.267,
+      "wopr": 0.386,
+      "racr": 1.081,
       "components": {
-        "targets": 3,
-        "airYards": 41,
-        "recYards": 11,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 6,
+        "airYards": 74,
+        "recYards": 80,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "12501": {
@@ -4209,16 +4804,16 @@
       "name": "Matthew Golden",
       "position": "WR",
       "team": "GB",
-      "targetShare": 0.3,
-      "airYardsShare": 0.302,
-      "wopr": 0.661,
-      "racr": 0.693,
+      "targetShare": 0.25,
+      "airYardsShare": 0.387,
+      "wopr": 0.646,
+      "racr": 0.608,
       "components": {
-        "targets": 12,
-        "airYards": 137,
-        "recYards": 95,
-        "receptions": 6,
-        "weeks": 1
+        "targets": 30,
+        "airYards": 416,
+        "recYards": 253,
+        "receptions": 15,
+        "weeks": 3
       }
     },
     "12502": {
@@ -4226,15 +4821,32 @@
       "name": "Gunnar Helm",
       "position": "TE",
       "team": "TEN",
-      "targetShare": 0.179,
-      "airYardsShare": 0.104,
-      "wopr": 0.341,
-      "racr": 1.647,
+      "targetShare": 0.156,
+      "airYardsShare": 0.058,
+      "wopr": 0.275,
+      "racr": 2.563,
       "components": {
-        "targets": 5,
-        "airYards": 17,
-        "recYards": 28,
-        "receptions": 4,
+        "targets": 7,
+        "airYards": 16,
+        "recYards": 41,
+        "receptions": 6,
+        "weeks": 2
+      }
+    },
+    "12503": {
+      "gsisId": "00-0040782",
+      "name": "Isaiah Bond",
+      "position": "WR",
+      "team": "CLE",
+      "targetShare": 0.033,
+      "airYardsShare": 0.065,
+      "wopr": 0.095,
+      "racr": 1.429,
+      "components": {
+        "targets": 1,
+        "airYards": 7,
+        "recYards": 10,
+        "receptions": 1,
         "weeks": 1
       }
     },
@@ -4243,16 +4855,16 @@
       "name": "Kaleb Johnson",
       "position": "RB",
       "team": "GB",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
+      "targetShare": 0.025,
+      "airYardsShare": -0.001,
+      "wopr": 0.037,
       "racr": null,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 3,
+        "airYards": -1,
+        "recYards": 10,
+        "receptions": 1,
+        "weeks": 3
       }
     },
     "12505": {
@@ -4260,16 +4872,16 @@
       "name": "Jalen Royals",
       "position": "WR",
       "team": "KC",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.029,
+      "airYardsShare": 0.003,
+      "wopr": 0.046,
+      "racr": 6,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 2,
+        "airYards": 1,
+        "recYards": 6,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "12506": {
@@ -4277,16 +4889,16 @@
       "name": "Harold Fannin Jr.",
       "position": "TE",
       "team": "CLE",
-      "targetShare": 0.136,
-      "airYardsShare": 0.044,
-      "wopr": 0.235,
-      "racr": 2.1,
+      "targetShare": 0.173,
+      "airYardsShare": 0.101,
+      "wopr": 0.33,
+      "racr": 2.206,
       "components": {
-        "targets": 3,
-        "airYards": 10,
-        "recYards": 21,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 9,
+        "airYards": 34,
+        "recYards": 75,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "12507": {
@@ -4294,16 +4906,16 @@
       "name": "Omarion Hampton",
       "position": "RB",
       "team": "LAC",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
+      "targetShare": 0.038,
+      "airYardsShare": -0.015,
+      "wopr": 0.047,
       "racr": null,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 2,
+        "airYards": -8,
+        "recYards": 21,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "12509": {
@@ -4311,16 +4923,16 @@
       "name": "Tre Harris",
       "position": "WR",
       "team": "LAC",
-      "targetShare": 0.222,
-      "airYardsShare": 0.172,
-      "wopr": 0.453,
-      "racr": 0.426,
+      "targetShare": 0.17,
+      "airYardsShare": 0.193,
+      "wopr": 0.39,
+      "racr": 0.709,
       "components": {
-        "targets": 6,
-        "airYards": 47,
-        "recYards": 20,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 9,
+        "airYards": 103,
+        "recYards": 73,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "12512": {
@@ -4328,16 +4940,16 @@
       "name": "Quinshon Judkins",
       "position": "RB",
       "team": "CLE",
-      "targetShare": 0.091,
-      "airYardsShare": 0.004,
-      "wopr": 0.139,
-      "racr": 17,
+      "targetShare": 0.135,
+      "airYardsShare": -0.021,
+      "wopr": 0.188,
+      "racr": null,
       "components": {
-        "targets": 2,
-        "airYards": 1,
-        "recYards": 17,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 7,
+        "airYards": -7,
+        "recYards": 44,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "12514": {
@@ -4345,16 +4957,16 @@
       "name": "Emeka Egbuka",
       "position": "WR",
       "team": "TB",
-      "targetShare": 0.222,
-      "airYardsShare": 0.636,
-      "wopr": 0.778,
-      "racr": 0.75,
+      "targetShare": 0.183,
+      "airYardsShare": 0.292,
+      "wopr": 0.479,
+      "racr": 0.497,
       "components": {
-        "targets": 6,
-        "airYards": 84,
-        "recYards": 63,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 159,
+        "recYards": 79,
+        "receptions": 8,
+        "weeks": 2
       }
     },
     "12517": {
@@ -4362,16 +4974,16 @@
       "name": "Colston Loveland",
       "position": "TE",
       "team": "CHI",
-      "targetShare": 0.077,
-      "airYardsShare": 0.106,
-      "wopr": 0.19,
-      "racr": 0,
+      "targetShare": 0.089,
+      "airYardsShare": 0.096,
+      "wopr": 0.201,
+      "racr": 0.07,
       "components": {
-        "targets": 2,
-        "airYards": 30,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 43,
+        "recYards": 3,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "12518": {
@@ -4379,16 +4991,16 @@
       "name": "Tyler Warren",
       "position": "TE",
       "team": "IND",
-      "targetShare": 0.172,
-      "airYardsShare": 0.122,
-      "wopr": 0.343,
-      "racr": 0.565,
+      "targetShare": 0.203,
+      "airYardsShare": 0.029,
+      "wopr": 0.325,
+      "racr": 3.4,
       "components": {
-        "targets": 5,
-        "airYards": 23,
-        "recYards": 13,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 12,
+        "airYards": 10,
+        "recYards": 34,
+        "receptions": 9,
+        "weeks": 2
       }
     },
     "12519": {
@@ -4396,15 +5008,32 @@
       "name": "Luther Burden III",
       "position": "WR",
       "team": "CHI",
-      "targetShare": 0.192,
-      "airYardsShare": 0.128,
-      "wopr": 0.378,
-      "racr": 1.75,
+      "targetShare": 0.214,
+      "airYardsShare": 0.275,
+      "wopr": 0.514,
+      "racr": 0.772,
       "components": {
-        "targets": 5,
-        "airYards": 36,
-        "recYards": 63,
-        "receptions": 5,
+        "targets": 12,
+        "airYards": 123,
+        "recYards": 95,
+        "receptions": 8,
+        "weeks": 2
+      }
+    },
+    "12521": {
+      "gsisId": "00-0040739",
+      "name": "Elijah Arroyo",
+      "position": "TE",
+      "team": "SEA",
+      "targetShare": 0.038,
+      "airYardsShare": 0.062,
+      "wopr": 0.1,
+      "racr": 1.214,
+      "components": {
+        "targets": 1,
+        "airYards": 14,
+        "recYards": 17,
+        "receptions": 1,
         "weeks": 1
       }
     },
@@ -4430,16 +5059,16 @@
       "name": "Tetairoa McMillan",
       "position": "WR",
       "team": "CAR",
-      "targetShare": 0.235,
-      "airYardsShare": 0.354,
-      "wopr": 0.6,
-      "racr": 0.63,
+      "targetShare": 0.273,
+      "airYardsShare": 0.4,
+      "wopr": 0.69,
+      "racr": 0.701,
       "components": {
-        "targets": 8,
-        "airYards": 119,
-        "recYards": 75,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 18,
+        "airYards": 251,
+        "recYards": 176,
+        "receptions": 10,
+        "weeks": 2
       }
     },
     "12527": {
@@ -4447,15 +5076,32 @@
       "name": "Ashton Jeanty",
       "position": "RB",
       "team": "LV",
-      "targetShare": 0.207,
-      "airYardsShare": 0.08,
-      "wopr": 0.367,
-      "racr": 2.5,
+      "targetShare": 0.224,
+      "airYardsShare": 0.039,
+      "wopr": 0.363,
+      "racr": 3,
       "components": {
-        "targets": 6,
-        "airYards": 18,
-        "recYards": 45,
-        "receptions": 6,
+        "targets": 13,
+        "airYards": 20,
+        "recYards": 60,
+        "receptions": 10,
+        "weeks": 2
+      }
+    },
+    "12529": {
+      "gsisId": "00-0040734",
+      "name": "TreVeyon Henderson",
+      "position": "RB",
+      "team": "NE",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
         "weeks": 1
       }
     },
@@ -4464,16 +5110,16 @@
       "name": "Jacory Croskey-Merritt",
       "position": "RB",
       "team": "WAS",
-      "targetShare": 0.034,
-      "airYardsShare": -0.027,
-      "wopr": 0.032,
+      "targetShare": 0.032,
+      "airYardsShare": -0.013,
+      "wopr": 0.039,
       "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": -7,
-        "recYards": -7,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 2,
+        "airYards": -8,
+        "recYards": -2,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "12534": {
@@ -4481,16 +5127,16 @@
       "name": "Kyle Monangai",
       "position": "RB",
       "team": "CHI",
-      "targetShare": 0.077,
-      "airYardsShare": 0.032,
-      "wopr": 0.138,
-      "racr": 2.667,
+      "targetShare": 0.071,
+      "airYardsShare": 0.022,
+      "wopr": 0.122,
+      "racr": 3.5,
       "components": {
-        "targets": 2,
-        "airYards": 9,
-        "recYards": 24,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 4,
+        "airYards": 10,
+        "recYards": 35,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "12535": {
@@ -4515,16 +5161,16 @@
       "name": "Jaylin Noel",
       "position": "WR",
       "team": "HOU",
-      "targetShare": 0.054,
-      "airYardsShare": 0.088,
-      "wopr": 0.143,
-      "racr": 2.038,
+      "targetShare": 0.08,
+      "airYardsShare": 0.086,
+      "wopr": 0.18,
+      "racr": 1.292,
       "components": {
-        "targets": 2,
-        "airYards": 26,
-        "recYards": 53,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 65,
+        "recYards": 84,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "12539": {
@@ -4532,16 +5178,16 @@
       "name": "Arian Smith",
       "position": "WR",
       "team": "NYJ",
-      "targetShare": 0.043,
-      "airYardsShare": 0.026,
-      "wopr": 0.083,
+      "targetShare": 0.017,
+      "airYardsShare": 0.01,
+      "wopr": 0.033,
       "racr": 0,
       "components": {
         "targets": 1,
         "airYards": 4,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "12540": {
@@ -4549,14 +5195,31 @@
       "name": "Chimere Dike",
       "position": "WR",
       "team": "TEN",
-      "targetShare": 0.036,
-      "airYardsShare": 0.018,
-      "wopr": 0.067,
+      "targetShare": 0.022,
+      "airYardsShare": 0.011,
+      "wopr": 0.041,
       "racr": 2.333,
       "components": {
         "targets": 1,
         "airYards": 3,
         "recYards": 7,
+        "receptions": 1,
+        "weeks": 2
+      }
+    },
+    "12542": {
+      "gsisId": "00-0040563",
+      "name": "Efton Chism III",
+      "position": "WR",
+      "team": "NE",
+      "targetShare": 0.048,
+      "airYardsShare": -0.01,
+      "wopr": 0.065,
+      "racr": null,
+      "components": {
+        "targets": 1,
+        "airYards": -2,
+        "recYards": -2,
         "receptions": 1,
         "weeks": 1
       }
@@ -4578,21 +5241,38 @@
         "weeks": 1
       }
     },
+    "12544": {
+      "gsisId": "00-0040238",
+      "name": "LeQuint Allen Jr.",
+      "position": "RB",
+      "team": "JAX",
+      "targetShare": 0.036,
+      "airYardsShare": 0.014,
+      "wopr": 0.064,
+      "racr": 0,
+      "components": {
+        "targets": 1,
+        "airYards": 4,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 1
+      }
+    },
     "12547": {
       "gsisId": "00-0040131",
       "name": "Kyle Williams",
       "position": "WR",
       "team": "NE",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.038,
+      "airYardsShare": 0.058,
+      "wopr": 0.098,
+      "racr": 0.435,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 2,
+        "airYards": 23,
+        "recYards": 10,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "12641": {
@@ -4600,16 +5280,16 @@
       "name": "Jaylin Lane",
       "position": "WR",
       "team": "WAS",
-      "targetShare": 0.034,
-      "airYardsShare": 0.016,
-      "wopr": 0.062,
+      "targetShare": 0.016,
+      "airYardsShare": 0.006,
+      "wopr": 0.028,
       "racr": 1,
       "components": {
         "targets": 1,
         "airYards": 4,
         "recYards": 4,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "12699": {
@@ -4617,16 +5297,16 @@
       "name": "LaJohntay Wester",
       "position": "WR",
       "team": "BAL",
-      "targetShare": 0.083,
-      "airYardsShare": 0.041,
-      "wopr": 0.153,
-      "racr": 1.364,
+      "targetShare": 0.075,
+      "airYardsShare": 0.036,
+      "wopr": 0.138,
+      "racr": 1.381,
       "components": {
-        "targets": 2,
-        "airYards": 11,
-        "recYards": 15,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 4,
+        "airYards": 21,
+        "recYards": 29,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "12718": {
@@ -4634,16 +5314,16 @@
       "name": "Konata Mumpfield",
       "position": "WR",
       "team": "LA",
-      "targetShare": 0.037,
-      "airYardsShare": 0.05,
-      "wopr": 0.091,
-      "racr": 0,
+      "targetShare": 0.053,
+      "airYardsShare": 0.061,
+      "wopr": 0.122,
+      "racr": 0.333,
       "components": {
-        "targets": 1,
-        "airYards": 13,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 36,
+        "recYards": 12,
+        "receptions": 1,
+        "weeks": 2
       }
     },
     "12765": {
@@ -4719,16 +5399,16 @@
       "name": "Myles Price",
       "position": "WR",
       "team": "MIN",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.024,
+      "airYardsShare": 0.006,
+      "wopr": 0.04,
+      "racr": 0,
       "components": {
-        "targets": 0,
-        "airYards": 0,
+        "targets": 1,
+        "airYards": 2,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "13079": {
@@ -4753,16 +5433,16 @@
       "name": "Darius Cooper",
       "position": "WR",
       "team": "PHI",
-      "targetShare": null,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.054,
+      "airYardsShare": 0.048,
+      "wopr": 0.115,
+      "racr": 1.04,
       "components": {
-        "targets": 0,
-        "airYards": 0,
-        "recYards": 0,
-        "receptions": 0,
-        "weeks": 1
+        "targets": 3,
+        "airYards": 25,
+        "recYards": 26,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "13199": {
@@ -4787,15 +5467,32 @@
       "name": "Dohnte Meyers",
       "position": "WR",
       "team": "CIN",
-      "targetShare": 0.029,
-      "airYardsShare": 0.009,
-      "wopr": 0.05,
-      "racr": 9,
+      "targetShare": 0.031,
+      "airYardsShare": -0.005,
+      "wopr": 0.043,
+      "racr": null,
       "components": {
-        "targets": 1,
-        "airYards": 2,
+        "targets": 2,
+        "airYards": -2,
         "recYards": 18,
         "receptions": 1,
+        "weeks": 2
+      }
+    },
+    "13274": {
+      "gsisId": "00-0041489",
+      "name": "Germie Bernard",
+      "position": "WR",
+      "team": "PIT",
+      "targetShare": 0.216,
+      "airYardsShare": 0.357,
+      "wopr": 0.574,
+      "racr": 0.5,
+      "components": {
+        "targets": 8,
+        "airYards": 70,
+        "recYards": 35,
+        "receptions": 4,
         "weeks": 1
       }
     },
@@ -4821,16 +5518,16 @@
       "name": "CJ Donaldson",
       "position": "RB",
       "team": "NO",
-      "targetShare": 0.038,
-      "airYardsShare": 0.011,
-      "wopr": 0.065,
+      "targetShare": 0.024,
+      "airYardsShare": 0.008,
+      "wopr": 0.042,
       "racr": -0.4,
       "components": {
         "targets": 2,
         "airYards": 5,
         "recYards": -2,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "13279": {
@@ -4838,16 +5535,16 @@
       "name": "Carnell Tate",
       "position": "WR",
       "team": "TEN",
-      "targetShare": 0.214,
-      "airYardsShare": 0.409,
-      "wopr": 0.607,
-      "racr": 0.567,
+      "targetShare": 0.244,
+      "airYardsShare": 0.422,
+      "wopr": 0.661,
+      "racr": 0.556,
       "components": {
-        "targets": 6,
-        "airYards": 67,
-        "recYards": 38,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 117,
+        "recYards": 65,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "13285": {
@@ -4855,16 +5552,16 @@
       "name": "Malachi Fields",
       "position": "WR",
       "team": "NYG",
-      "targetShare": 0.138,
-      "airYardsShare": 0.29,
-      "wopr": 0.41,
-      "racr": 0.352,
+      "targetShare": 0.164,
+      "airYardsShare": 0.345,
+      "wopr": 0.487,
+      "racr": 0.272,
       "components": {
-        "targets": 4,
-        "airYards": 71,
-        "recYards": 25,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 10,
+        "airYards": 202,
+        "recYards": 55,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "13286": {
@@ -4872,16 +5569,16 @@
       "name": "Jadarian Price",
       "position": "RB",
       "team": "SEA",
-      "targetShare": 0.083,
-      "airYardsShare": -0.006,
-      "wopr": 0.12,
-      "racr": null,
+      "targetShare": 0.08,
+      "airYardsShare": 0.039,
+      "wopr": 0.147,
+      "racr": 0.933,
       "components": {
-        "targets": 2,
-        "airYards": -1,
-        "recYards": 6,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 4,
+        "airYards": 15,
+        "recYards": 14,
+        "receptions": 3,
+        "weeks": 2
       }
     },
     "13287": {
@@ -4889,15 +5586,32 @@
       "name": "Jeremiyah Love",
       "position": "RB",
       "team": "ARI",
-      "targetShare": 0.108,
-      "airYardsShare": 0.018,
-      "wopr": 0.175,
-      "racr": 1.8,
+      "targetShare": 0.111,
+      "airYardsShare": 0.013,
+      "wopr": 0.176,
+      "racr": 5,
       "components": {
-        "targets": 4,
+        "targets": 7,
         "airYards": 5,
-        "recYards": 9,
-        "receptions": 2,
+        "recYards": 25,
+        "receptions": 5,
+        "weeks": 2
+      }
+    },
+    "13288": {
+      "gsisId": "00-0040886",
+      "name": "Nicholas Singleton",
+      "position": "RB",
+      "team": "TEN",
+      "targetShare": null,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 0,
+        "airYards": 0,
+        "recYards": 0,
+        "receptions": 0,
         "weeks": 1
       }
     },
@@ -4923,16 +5637,16 @@
       "name": "Makai Lemon",
       "position": "WR",
       "team": "PHI",
-      "targetShare": 0.182,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
+      "targetShare": 0.089,
+      "airYardsShare": 0.025,
+      "wopr": 0.151,
+      "racr": 0.692,
       "components": {
-        "targets": 4,
-        "airYards": 0,
-        "recYards": -5,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 13,
+        "recYards": 9,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "13296": {
@@ -4940,16 +5654,16 @@
       "name": "Caleb Douglas",
       "position": "WR",
       "team": "MIA",
-      "targetShare": 0.259,
-      "airYardsShare": 0.314,
-      "wopr": 0.608,
-      "racr": 0.969,
+      "targetShare": 0.2,
+      "airYardsShare": 0.238,
+      "wopr": 0.467,
+      "racr": 0.991,
       "components": {
-        "targets": 7,
-        "airYards": 97,
-        "recYards": 94,
-        "receptions": 5,
-        "weeks": 1
+        "targets": 10,
+        "airYards": 114,
+        "recYards": 113,
+        "receptions": 7,
+        "weeks": 2
       }
     },
     "13298": {
@@ -4957,16 +5671,16 @@
       "name": "KC Concepcion",
       "position": "WR",
       "team": "CLE",
-      "targetShare": 0.227,
-      "airYardsShare": 0.276,
-      "wopr": 0.534,
-      "racr": 0.683,
+      "targetShare": 0.212,
+      "airYardsShare": 0.223,
+      "wopr": 0.474,
+      "racr": 0.947,
       "components": {
-        "targets": 5,
-        "airYards": 63,
-        "recYards": 43,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 11,
+        "airYards": 75,
+        "recYards": 71,
+        "receptions": 10,
+        "weeks": 2
       }
     },
     "13299": {
@@ -4991,16 +5705,33 @@
       "name": "Antonio Williams",
       "position": "WR",
       "team": "WAS",
-      "targetShare": 0.138,
-      "airYardsShare": 0.215,
-      "wopr": 0.358,
-      "racr": 1.164,
+      "targetShare": 0.111,
+      "airYardsShare": 0.115,
+      "wopr": 0.247,
+      "racr": 1.239,
       "components": {
-        "targets": 4,
-        "airYards": 55,
-        "recYards": 64,
-        "receptions": 4,
-        "weeks": 1
+        "targets": 7,
+        "airYards": 71,
+        "recYards": 88,
+        "receptions": 7,
+        "weeks": 2
+      }
+    },
+    "13305": {
+      "gsisId": "00-0040878",
+      "name": "Mike Washington Jr.",
+      "position": "RB",
+      "team": "LV",
+      "targetShare": 0.017,
+      "airYardsShare": 0.02,
+      "wopr": 0.04,
+      "racr": 0,
+      "components": {
+        "targets": 1,
+        "airYards": 10,
+        "recYards": 0,
+        "receptions": 0,
+        "weeks": 2
       }
     },
     "13307": {
@@ -5042,16 +5773,16 @@
       "name": "Chris Bell",
       "position": "WR",
       "team": "MIA",
-      "targetShare": 0.074,
-      "airYardsShare": 0.136,
-      "wopr": 0.206,
-      "racr": 0.595,
+      "targetShare": 0.06,
+      "airYardsShare": 0.113,
+      "wopr": 0.169,
+      "racr": 0.463,
       "components": {
-        "targets": 2,
-        "airYards": 42,
+        "targets": 3,
+        "airYards": 54,
         "recYards": 25,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "13317": {
@@ -5059,15 +5790,32 @@
       "name": "Ted Hurst III",
       "position": "WR",
       "team": "TB",
-      "targetShare": 0.111,
-      "airYardsShare": 0.258,
-      "wopr": 0.347,
-      "racr": 1.059,
+      "targetShare": 0.167,
+      "airYardsShare": 0.328,
+      "wopr": 0.48,
+      "racr": 0.352,
       "components": {
-        "targets": 3,
-        "airYards": 34,
-        "recYards": 36,
-        "receptions": 3,
+        "targets": 10,
+        "airYards": 179,
+        "recYards": 63,
+        "receptions": 5,
+        "weeks": 2
+      }
+    },
+    "13319": {
+      "gsisId": "00-0041041",
+      "name": "Oscar Delp",
+      "position": "TE",
+      "team": "NO",
+      "targetShare": 0.031,
+      "airYardsShare": 0.036,
+      "wopr": 0.072,
+      "racr": 1.143,
+      "components": {
+        "targets": 1,
+        "airYards": 7,
+        "recYards": 8,
+        "receptions": 1,
         "weeks": 1
       }
     },
@@ -5076,6 +5824,74 @@
       "name": "Zachariah Branch",
       "position": "WR",
       "team": "ATL",
+      "targetShare": 0.055,
+      "airYardsShare": 0.016,
+      "wopr": 0.094,
+      "racr": 3.5,
+      "components": {
+        "targets": 4,
+        "airYards": 6,
+        "recYards": 21,
+        "receptions": 3,
+        "weeks": 3
+      }
+    },
+    "13322": {
+      "gsisId": "00-0041558",
+      "name": "Sam Roush",
+      "position": "TE",
+      "team": "CHI",
+      "targetShare": 0.1,
+      "airYardsShare": 0.097,
+      "wopr": 0.218,
+      "racr": 0.563,
+      "components": {
+        "targets": 3,
+        "airYards": 16,
+        "recYards": 9,
+        "receptions": 1,
+        "weeks": 1
+      }
+    },
+    "13329": {
+      "gsisId": "00-0040894",
+      "name": "Malik Benson",
+      "position": "WR",
+      "team": "LV",
+      "targetShare": 0.052,
+      "airYardsShare": 0.114,
+      "wopr": 0.158,
+      "racr": 0.103,
+      "components": {
+        "targets": 3,
+        "airYards": 58,
+        "recYards": 6,
+        "receptions": 1,
+        "weeks": 2
+      }
+    },
+    "13330": {
+      "gsisId": "00-0041032",
+      "name": "Kenyon Sadiq",
+      "position": "TE",
+      "team": "NYJ",
+      "targetShare": 0.102,
+      "airYardsShare": 0.019,
+      "wopr": 0.166,
+      "racr": 4.75,
+      "components": {
+        "targets": 6,
+        "airYards": 8,
+        "recYards": 38,
+        "receptions": 5,
+        "weeks": 2
+      }
+    },
+    "13333": {
+      "gsisId": "00-0041132",
+      "name": "Deion Burks",
+      "position": "WR",
+      "team": "IND",
       "targetShare": null,
       "airYardsShare": null,
       "wopr": null,
@@ -5088,55 +5904,21 @@
         "weeks": 1
       }
     },
-    "13329": {
-      "gsisId": "00-0040894",
-      "name": "Malik Benson",
-      "position": "WR",
-      "team": "LV",
-      "targetShare": 0.069,
-      "airYardsShare": 0.137,
-      "wopr": 0.199,
-      "racr": 0.194,
-      "components": {
-        "targets": 2,
-        "airYards": 31,
-        "recYards": 6,
-        "receptions": 1,
-        "weeks": 1
-      }
-    },
-    "13330": {
-      "gsisId": "00-0041032",
-      "name": "Kenyon Sadiq",
-      "position": "TE",
-      "team": "NYJ",
-      "targetShare": 0.13,
-      "airYardsShare": null,
-      "wopr": null,
-      "racr": null,
-      "components": {
-        "targets": 3,
-        "airYards": 0,
-        "recYards": 21,
-        "receptions": 3,
-        "weeks": 1
-      }
-    },
     "13337": {
       "gsisId": "00-0041013",
       "name": "Emmett Johnson",
       "position": "RB",
       "team": "KC",
-      "targetShare": 0.08,
-      "airYardsShare": -0.068,
-      "wopr": 0.072,
+      "targetShare": 0.059,
+      "airYardsShare": -0.033,
+      "wopr": 0.065,
       "racr": null,
       "components": {
-        "targets": 2,
-        "airYards": -8,
-        "recYards": 44,
-        "receptions": 2,
-        "weeks": 1
+        "targets": 4,
+        "airYards": -12,
+        "recYards": 64,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "13338": {
@@ -5161,6 +5943,91 @@
       "name": "Jonah Coleman",
       "position": "RB",
       "team": "DEN",
+      "targetShare": 0.054,
+      "airYardsShare": null,
+      "wopr": null,
+      "racr": null,
+      "components": {
+        "targets": 3,
+        "airYards": 0,
+        "recYards": 19,
+        "receptions": 3,
+        "weeks": 2
+      }
+    },
+    "13346": {
+      "gsisId": "00-0041037",
+      "name": "Denzel Boston",
+      "position": "WR",
+      "team": "CLE",
+      "targetShare": 0.212,
+      "airYardsShare": 0.518,
+      "wopr": 0.681,
+      "racr": 0.885,
+      "components": {
+        "targets": 11,
+        "airYards": 174,
+        "recYards": 154,
+        "receptions": 7,
+        "weeks": 2
+      }
+    },
+    "13347": {
+      "gsisId": "00-0041104",
+      "name": "Demond Claiborne",
+      "position": "RB",
+      "team": "MIN",
+      "targetShare": 0.053,
+      "airYardsShare": -0.043,
+      "wopr": 0.049,
+      "racr": null,
+      "components": {
+        "targets": 1,
+        "airYards": -7,
+        "recYards": 2,
+        "receptions": 1,
+        "weeks": 1
+      }
+    },
+    "13380": {
+      "gsisId": "00-0041550",
+      "name": "Brenen Thompson",
+      "position": "WR",
+      "team": "LAC",
+      "targetShare": 0.115,
+      "airYardsShare": 0.169,
+      "wopr": 0.291,
+      "racr": 0.295,
+      "components": {
+        "targets": 3,
+        "airYards": 44,
+        "recYards": 13,
+        "receptions": 1,
+        "weeks": 1
+      }
+    },
+    "13394": {
+      "gsisId": "00-0041100",
+      "name": "Josh Cameron",
+      "position": "WR",
+      "team": "JAX",
+      "targetShare": 0.041,
+      "airYardsShare": 0.035,
+      "wopr": 0.086,
+      "racr": 1.111,
+      "components": {
+        "targets": 2,
+        "airYards": 18,
+        "recYards": 20,
+        "receptions": 2,
+        "weeks": 2
+      }
+    },
+    "13405": {
+      "gsisId": "00-0041096",
+      "name": "Kaytron Allen",
+      "position": "RB",
+      "team": "WAS",
       "targetShare": null,
       "airYardsShare": null,
       "wopr": null,
@@ -5170,48 +6037,14 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
-    "13346": {
-      "gsisId": "00-0041037",
-      "name": "Denzel Boston",
+    "13411": {
+      "gsisId": "00-0041051",
+      "name": "Zavion Thomas",
       "position": "WR",
-      "team": "CLE",
-      "targetShare": 0.182,
-      "airYardsShare": 0.5,
-      "wopr": 0.623,
-      "racr": 0.518,
-      "components": {
-        "targets": 4,
-        "airYards": 114,
-        "recYards": 59,
-        "receptions": 2,
-        "weeks": 1
-      }
-    },
-    "13394": {
-      "gsisId": "00-0041100",
-      "name": "Josh Cameron",
-      "position": "WR",
-      "team": "JAX",
-      "targetShare": 0.095,
-      "airYardsShare": 0.082,
-      "wopr": 0.2,
-      "racr": 1.111,
-      "components": {
-        "targets": 2,
-        "airYards": 18,
-        "recYards": 20,
-        "receptions": 2,
-        "weeks": 1
-      }
-    },
-    "13405": {
-      "gsisId": "00-0041096",
-      "name": "Kaytron Allen",
-      "position": "RB",
-      "team": "WAS",
+      "team": "CHI",
       "targetShare": null,
       "airYardsShare": null,
       "wopr": null,
@@ -5246,16 +6079,16 @@
       "name": "Kaelon Black",
       "position": "RB",
       "team": "SF",
-      "targetShare": 0.029,
-      "airYardsShare": -0.034,
-      "wopr": 0.02,
+      "targetShare": 0.018,
+      "airYardsShare": -0.015,
+      "wopr": 0.016,
       "racr": null,
       "components": {
         "targets": 1,
         "airYards": -5,
         "recYards": 5,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "13420": {
@@ -5263,16 +6096,16 @@
       "name": "Bryce Lance",
       "position": "WR",
       "team": "NO",
-      "targetShare": 0.077,
-      "airYardsShare": 0.086,
-      "wopr": 0.176,
-      "racr": 1.05,
+      "targetShare": 0.06,
+      "airYardsShare": 0.073,
+      "wopr": 0.141,
+      "racr": 1.042,
       "components": {
-        "targets": 4,
-        "airYards": 40,
-        "recYards": 42,
-        "receptions": 3,
-        "weeks": 1
+        "targets": 5,
+        "airYards": 48,
+        "recYards": 50,
+        "receptions": 4,
+        "weeks": 2
       }
     },
     "13421": {
@@ -5280,16 +6113,16 @@
       "name": "Eli Raridon",
       "position": "TE",
       "team": "NE",
-      "targetShare": 0.032,
-      "airYardsShare": 0.01,
-      "wopr": 0.055,
-      "racr": 1,
+      "targetShare": 0.038,
+      "airYardsShare": 0.068,
+      "wopr": 0.105,
+      "racr": 1.185,
       "components": {
-        "targets": 1,
-        "airYards": 2,
-        "recYards": 2,
-        "receptions": 1,
-        "weeks": 1
+        "targets": 2,
+        "airYards": 27,
+        "recYards": 32,
+        "receptions": 2,
+        "weeks": 2
       }
     },
     "13423": {
@@ -5306,7 +6139,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "13424": {
@@ -5314,16 +6147,16 @@
       "name": "Seth McGowan",
       "position": "RB",
       "team": "IND",
-      "targetShare": 0.034,
-      "airYardsShare": -0.011,
-      "wopr": 0.043,
+      "targetShare": 0.017,
+      "airYardsShare": -0.006,
+      "wopr": 0.021,
       "racr": null,
       "components": {
         "targets": 1,
         "airYards": -2,
         "recYards": 0,
         "receptions": 1,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "13434": {
@@ -5331,15 +6164,32 @@
       "name": "Will Kacmarek",
       "position": "TE",
       "team": "MIA",
-      "targetShare": 0.037,
-      "airYardsShare": 0.019,
-      "wopr": 0.069,
-      "racr": 0,
+      "targetShare": 0.04,
+      "airYardsShare": 0.017,
+      "wopr": 0.072,
+      "racr": 0.5,
+      "components": {
+        "targets": 2,
+        "airYards": 8,
+        "recYards": 4,
+        "receptions": 1,
+        "weeks": 2
+      }
+    },
+    "13477": {
+      "gsisId": "00-0041069",
+      "name": "Colbie Young",
+      "position": "WR",
+      "team": "CIN",
+      "targetShare": 0.032,
+      "airYardsShare": 0.035,
+      "wopr": 0.073,
+      "racr": 1.167,
       "components": {
         "targets": 1,
         "airYards": 6,
-        "recYards": 0,
-        "receptions": 0,
+        "recYards": 7,
+        "receptions": 1,
         "weeks": 1
       }
     },
@@ -5357,7 +6207,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "13533": {
@@ -5374,7 +6224,7 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
-        "weeks": 1
+        "weeks": 2
       }
     },
     "13580": {
@@ -5392,6 +6242,23 @@
         "recYards": 0,
         "receptions": 0,
         "weeks": 1
+      }
+    },
+    "13770": {
+      "gsisId": "00-0040948",
+      "name": "J. Michael Sturdivant",
+      "position": "WR",
+      "team": "GB",
+      "targetShare": 0.038,
+      "airYardsShare": 0.035,
+      "wopr": 0.081,
+      "racr": 1,
+      "components": {
+        "targets": 3,
+        "airYards": 22,
+        "recYards": 22,
+        "receptions": 3,
+        "weeks": 2
       }
     }
   }
