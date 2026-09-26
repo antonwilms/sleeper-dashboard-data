@@ -11,10 +11,11 @@ import assert   from 'node:assert/strict';
 import {
   spearmanRho,
   ktcOrderingGuard,
+  updateKtc,
   KTC_ORDERING_THRESHOLD,
   KTC_MIN_OVERLAP,
 } from '../scripts/update-ktc.mjs';
-import { validateKtc } from '../lib/validate.mjs';
+import { validateKtc, checkKtcLandscape } from '../lib/validate.mjs';
 import { readJson, listDir } from '../lib/io.mjs';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -251,4 +252,141 @@ test('#22 validateKtc: a hypothetical 4th draft class (48 pick rows) still passe
     ...mkPickRows(['2026', '2027', '2028', '2029']),
   ];
   assert.doesNotThrow(() => validateKtc(players));
+});
+
+// ─── checkKtcLandscape (sentinel heuristic — quarantines, never throws) ──────
+
+const SENTINELS = ['Josh Allen', 'Caleb Williams', 'Drake Maye', 'Lamar Jackson', 'Joe Burrow', 'Jayden Daniels'];
+
+/** validBase() with the top QB slots renamed: `topQbs` occupy the top values, the rest are filler. */
+function baseWithTopQbs(topQbs) {
+  const players = validBase().filter(p => p.position !== 'QB');
+  topQbs.forEach((name, i) => players.push(mk(name, 9999 - i, 'QB')));
+  for (let i = topQbs.length; i < 5; i++) players.push(mk(`Filler QB${i}`, 100 - i, 'QB'));
+  return players;
+}
+
+test('#23 checkKtcLandscape: 3 sentinels in the top 15 passes (boundary)', () => {
+  const r = checkKtcLandscape(baseWithTopQbs(SENTINELS.slice(0, 3)));
+  assert.equal(r.ok, true);
+  assert.equal(r.matches.length, 3);
+});
+
+test('#24 checkKtcLandscape: 2 sentinels in the top 15 fails with a reason, does not throw', () => {
+  const r = checkKtcLandscape(baseWithTopQbs(SENTINELS.slice(0, 2)));
+  assert.equal(r.ok, false);
+  assert.equal(r.matches.length, 2);
+  assert.match(r.reason, /only 2 sentinel QBs in top 15/);
+});
+
+test('#24b checkKtcLandscape: window is top 15 — sentinel at rank 15 counts, at rank 16 does not', () => {
+  // 3 sentinels at ranks 13-15 behind 12 non-QB rows vs. ranks 14-16.
+  const rows = (offset) => [
+    ...Array.from({ length: 12 + offset }, (_, i) => mk(`Skill${i}`, 9999 - i, 'WR')),
+    ...SENTINELS.slice(0, 3).map((n, i) => mk(n, 5000 - i, 'QB')),
+    ...Array.from({ length: 300 }, (_, i) => mk(`Rest${i}`, 1000 - i, 'WR')),
+  ];
+  assert.equal(checkKtcLandscape(rows(0)).ok, true);
+  assert.equal(checkKtcLandscape(rows(1)).ok, false);   // last sentinel slides to rank 16
+});
+
+test('#25 validateKtc: a sentinel miss no longer throws (per-row validity only)', () => {
+  assert.doesNotThrow(() => validateKtc(baseWithTopQbs([])));
+  assert.equal(checkKtcLandscape(baseWithTopQbs([])).ok, false);
+});
+
+test('#26 real snapshots: every committed ktc/ snapshot passes the landscape check', () => {
+  const files = listDir('ktc').filter(f => f.startsWith('snapshot-') && f.endsWith('.json')).sort();
+  assert.ok(files.length > 0);
+  for (const f of files) {
+    const r = checkKtcLandscape(readJson(`ktc/${f}`));
+    assert.equal(r.ok, true, `${f}: ${r.reason}`);
+  }
+});
+
+test('#27 real snapshots: latest has headroom over the ≥3 floor (not exactly 3)', () => {
+  const files = listDir('ktc').filter(f => f.startsWith('snapshot-') && f.endsWith('.json')).sort();
+  const r = checkKtcLandscape(readJson(`ktc/${files[files.length - 1]}`));
+  assert.ok(r.matches.length >= 4, `only ${r.matches.length} sentinels present: ${r.matches.join(', ')}`);
+});
+
+// ─── updateKtc: landscape miss routes to quarantine ──────────────────────────
+
+/** In-memory I/O for updateKtc. `prev` is the last good snapshot (array). */
+function fakeDeps({ fresh, prev = validBase(), hasRunBefore = true }) {
+  const writes = {}, outputs = {}, manifest = [];
+  return {
+    writes, outputs, manifest,
+    deps: {
+      fetchSnapshot: async () => fresh,
+      listDir: () => ['snapshot-2026-01-01.json', 'last-checked.json'],
+      readJson: (p) => (p === 'ktc/snapshot-2026-01-01.json' ? prev
+                      : p === 'ktc/last-checked.json' ? (hasRunBefore ? { identical: false } : null) : null),
+      writeJsonStable: (p, v) => { writes[p] = v; },
+      setStepOutput: (k, v) => { outputs[k] = v; },
+      updateManifestEntry: (e) => { manifest.push(e); },
+    },
+  };
+}
+
+const quarantineKeys = w => Object.keys(w).filter(k => k.startsWith('ktc/quarantine/'));
+
+test('#28 updateKtc: sentinel miss → quarantined, CI outputs set, NOT written to ktc/ or manifest', async () => {
+  const fresh = baseWithTopQbs([]);          // row-valid, ordering identical to prev, but no sentinels in top 15
+  const { deps, writes, outputs, manifest } = fakeDeps({ fresh, prev: fresh });
+  await updateKtc({ dryRun: false, deps });
+  assert.equal(outputs.quarantined, 'true');
+  assert.match(outputs.quarantine_reason, /landscape: only 0 sentinel QBs/);
+  const q = quarantineKeys(writes);
+  assert.equal(q.length, 2);
+  assert.ok(q.some(k => /snapshot-\d{4}-\d\d-\d\d\.json$/.test(k)));
+  const reasonFile = writes[q.find(k => k.endsWith('.reason.json'))];
+  assert.equal(reasonFile.landscape.ok, false);
+  assert.equal(reasonFile.recordCount, fresh.length);
+  assert.equal(Object.keys(writes).filter(k => /^ktc\/snapshot-/.test(k)).length, 0, 'must not write to ktc/');
+  assert.equal(manifest.length, 0, 'must not register in manifest');
+  assert.equal(writes['ktc/last-checked.json'].quarantined, true);
+});
+
+test('#29 updateKtc: sentinel miss quarantines even on a first run (no ordering baseline)', async () => {
+  const fresh = baseWithTopQbs([]);
+  const { deps, outputs } = fakeDeps({ fresh, hasRunBefore: false });
+  await updateKtc({ dryRun: false, deps });
+  assert.equal(outputs.quarantined, 'true');
+});
+
+test('#30 updateKtc: dry-run sentinel miss warns, writes nothing, does not throw', async () => {
+  const fresh = baseWithTopQbs([]);
+  const { deps, writes, outputs } = fakeDeps({ fresh, prev: fresh });
+  await updateKtc({ dryRun: true, deps });
+  assert.deepEqual(writes, {});
+  assert.deepEqual(outputs, {});
+});
+
+test('#31 updateKtc: healthy scrape with a changed value still writes ktc/ snapshot (no false quarantine)', async () => {
+  const prev = validBase();
+  const fresh = prev.map((p, i) => (i === 0 ? { ...p, value: p.value - 1 } : p));
+  const { deps, writes, outputs, manifest } = fakeDeps({ fresh, prev });
+  await updateKtc({ dryRun: false, deps });
+  assert.equal(outputs.quarantined, undefined);
+  assert.equal(quarantineKeys(writes).length, 0);
+  assert.equal(Object.keys(writes).filter(k => /^ktc\/snapshot-/.test(k)).length, 1);
+  assert.equal(manifest.length, 1);
+});
+
+test('#32 updateKtc: per-row validity failure still throws (not routed to quarantine)', async () => {
+  const fresh = validBase();
+  fresh[fresh.length - 1].name = '';
+  const { deps, writes } = fakeDeps({ fresh });
+  await assert.rejects(() => updateKtc({ dryRun: false, deps }), /empty.*name/i);
+  assert.deepEqual(writes, {});
+});
+
+test('#33 updateKtc: ordering-guard trip and sentinel miss share ONE quarantine with both reasons', async () => {
+  const prev = validBase();
+  const fresh = blockShift(baseWithTopQbs([]), Math.floor(prev.length / 2));
+  const { deps, outputs, writes } = fakeDeps({ fresh, prev });
+  await updateKtc({ dryRun: false, deps });
+  assert.match(outputs.quarantine_reason, /landscape:.*\| ordering:/);
+  assert.equal(quarantineKeys(writes).length, 2);
 });

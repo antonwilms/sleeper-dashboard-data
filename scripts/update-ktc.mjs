@@ -12,7 +12,7 @@
  *     or touch the manifest. CI will see no changed data files → no commit.
  *   - If changed: writes the snapshot file and updates the manifest.
  *
- * Integrity guards (two layers):
+ * Integrity guards (three checks):
  *   - Layer 1 (validateKtc, lib/validate.mjs): per-row + count validity. Hard-throws.
  *   - Layer 2 (ktcOrderingGuard, this file): Spearman rank correlation vs the last
  *     good snapshot, keyed on name. Recalibration preserves ordering (ρ≥0.998);
@@ -20,15 +20,20 @@
  *     QUARANTINED to ktc/quarantine/ (not committed to ktc/, not registered in the
  *     manifest) and the run signals CI via setStepOutput — data is never lost to a
  *     false trip. See .claude/tasks/ktc-integrity-guard.md.
+ *   - Landscape heuristic (checkKtcLandscape, lib/validate.mjs): ≥3 sentinel QBs in
+ *     the top 15. A miss is as likely a stale sentinel list as a bad scrape, so it
+ *     takes the same quarantine path as Layer 2 rather than throwing.
  *
  * @param {object} opts
  * @param {boolean} opts.dryRun  Fetch + validate but don't write files
+ * @param {object} [opts.deps]   Test seam: override any of fetchSnapshot, readJson,
+ *   writeJsonStable, listDir, setStepOutput, updateManifestEntry (defaults are the real ones)
  */
 
 import { fetchKtcSnapshot } from '../lib/ktc.mjs';
 import { readJson, writeJsonStable, listDir, setStepOutput, stableHash } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
-import { validateKtc } from '../lib/validate.mjs';
+import { validateKtc, checkKtcLandscape } from '../lib/validate.mjs';
 import { pearson } from '../lib/grade.mjs';   // Spearman = Pearson on ranks; reused per CLAUDE.md nav map
 
 function todayDateString() {
@@ -39,8 +44,8 @@ function todayDateString() {
 const byName = players => players.slice().sort((a, b) => a.name.localeCompare(b.name));
 export const snapshotHash = players => stableHash(players, byName);
 
-function findLastSnapshot() {
-  const files = listDir('ktc')
+function findLastSnapshot(list = listDir) {
+  const files = list('ktc')
     .filter(f => f.startsWith('snapshot-') && f.endsWith('.json'))
     .sort(); // lexicographic = chronological for YYYY-MM-DD names
   if (!files.length) return null;
@@ -123,53 +128,73 @@ export function ktcOrderingGuard(prevPlayers, newPlayers, { threshold = KTC_ORDE
   return { ok: true, rho, n };
 }
 
-export async function updateKtc({ dryRun }) {
+export async function updateKtc({ dryRun, deps = {} }) {
+  const {
+    fetchSnapshot = fetchKtcSnapshot, readJson: read = readJson,
+    writeJsonStable: write = writeJsonStable, listDir: list = listDir,
+    setStepOutput: setOutput = setStepOutput, updateManifestEntry: updateManifest = updateManifestEntry,
+  } = deps;
   const today = todayDateString();
   const snapshotPath = `ktc/snapshot-${today}.json`;
   const lastCheckedPath = 'ktc/last-checked.json';
 
   // 1. Fetch
   console.log('[ktc] Starting KTC snapshot fetch…');
-  const players = await fetchKtcSnapshot({ dryRun });
+  const players = await fetchSnapshot({ dryRun });
   console.log(`[ktc] Fetched ${players.length} players`);
 
   // 2. Validate
   validateKtc(players);
   console.log('[ktc] Validation passed');
 
-  // 3. Aggregate ordering guard vs last good snapshot.
-  //    Skipped in dry-run (production write safety net) and on the first ever run
-  //    (no last-checked.json → the only existing snapshots came from IndexedDB export,
-  //    not this script, so they are not a trustworthy baseline).
-  const lastFile     = findLastSnapshot();
-  const lastPlayers  = lastFile ? readJson(`ktc/${lastFile}`) : null;
-  const hasRunBefore = readJson(lastCheckedPath) !== null;
+  // 3. Snapshot-level checks: landscape heuristic + aggregate ordering guard. Either
+  //    tripping quarantines the scrape (one file, all reasons) instead of throwing.
+  //    The ordering guard is skipped in dry-run (production write safety net) and on
+  //    the first ever run (no last-checked.json → the only existing snapshots came from
+  //    IndexedDB export, not this script, so they are not a trustworthy baseline). The
+  //    landscape check needs no baseline, so it always runs.
+  const lastFile     = findLastSnapshot(list);
+  const lastPlayers  = lastFile ? read(`ktc/${lastFile}`) : null;
+  const hasRunBefore = read(lastCheckedPath) !== null;
 
-  if (!dryRun && hasRunBefore) {
-    const guard = ktcOrderingGuard(lastPlayers, players);
-    if (!guard.ok) {
+  const landscape = checkKtcLandscape(players);
+  const guard = !dryRun && hasRunBefore ? ktcOrderingGuard(lastPlayers, players) : null;
+
+  const reasons = [];
+  if (!landscape.ok) reasons.push(`landscape: ${landscape.reason}`);
+  if (guard && !guard.ok) reasons.push(`ordering: ${guard.reason}`);
+
+  if (reasons.length) {
+    const reason = reasons.join(' | ');
+    if (dryRun) {
+      console.warn(`[ktc] [dry-run] would QUARANTINE — ${reason}`);
+    } else {
       // Quarantine instead of hard-abort: preserve the rejected snapshot for manual
       // review so a false trip never permanently loses a day. Exit 0 so the workflow's
       // commit step persists the quarantine file; a trailing workflow step turns CI red.
       const quarantinePath = `ktc/quarantine/snapshot-${today}.json`;
-      writeJsonStable(quarantinePath, players);
-      writeJsonStable(`ktc/quarantine/snapshot-${today}.reason.json`, {
+      write(quarantinePath, players);
+      write(`ktc/quarantine/snapshot-${today}.reason.json`, {
         quarantinedAt: new Date().toISOString(),
-        reason: guard.reason,
-        rho: guard.rho, n: guard.n, threshold: KTC_ORDERING_THRESHOLD,
+        reason,
+        landscape: { ok: landscape.ok, matches: landscape.matches, top: landscape.top },
+        rho: guard ? guard.rho : null, n: guard ? guard.n : null, threshold: KTC_ORDERING_THRESHOLD,
         lastGood: lastFile, recordCount: players.length,
       });
-      writeJsonStable(lastCheckedPath, {
+      write(lastCheckedPath, {
         checkedAt: new Date().toISOString(), quarantined: true,
-        file: quarantinePath, rho: guard.rho, reason: guard.reason,
+        file: quarantinePath, rho: guard ? guard.rho : null, reason,
       });
-      setStepOutput('quarantined', 'true');
-      setStepOutput('quarantine_reason', guard.reason);
-      console.error(`[ktc] ORDERING GUARD TRIPPED — ${guard.reason}. Quarantined to ${quarantinePath}; NOT committed to ktc/. Review and promote manually if legitimate.`);
+      setOutput('quarantined', 'true');
+      setOutput('quarantine_reason', reason);
+      console.error(`[ktc] INTEGRITY CHECK TRIPPED — ${reason}. Quarantined to ${quarantinePath}; NOT committed to ktc/. Review and promote manually if legitimate.`);
       return;
     }
-    if (guard.skipped)        console.warn(`[ktc] Ordering guard skipped: ${guard.reason}`);
-    else                      console.log(`[ktc] Ordering guard passed (ρ=${guard.rho.toFixed(4)}, n=${guard.n})`);
+  }
+  if (landscape.ok) console.log(`[ktc] Landscape check passed (${landscape.matches.length} sentinel QBs in top 15)`);
+  if (guard) {
+    if (guard.skipped) console.warn(`[ktc] Ordering guard skipped: ${guard.reason}`);
+    else               console.log(`[ktc] Ordering guard passed (ρ=${guard.rho.toFixed(4)}, n=${guard.n})`);
   }
 
   // 4. Dedup check
@@ -179,7 +204,7 @@ export async function updateKtc({ dryRun }) {
   if (newHash === lastHash) {
     console.log(`[ktc] Content identical to ${lastFile} — no new snapshot needed.`);
     if (!dryRun) {
-      writeJsonStable(lastCheckedPath, { checkedAt: new Date().toISOString(), identical: true });
+      write(lastCheckedPath, { checkedAt: new Date().toISOString(), identical: true });
       console.log('[ktc] Wrote last-checked.json (no change)');
     } else {
       console.log('[ktc] [dry-run] would write last-checked.json (no change)');
@@ -194,14 +219,14 @@ export async function updateKtc({ dryRun }) {
   }
 
   // 6. Write snapshot
-  writeJsonStable(snapshotPath, players);
+  write(snapshotPath, players);
   console.log(`[ktc] Wrote ${snapshotPath} (${players.length} players)`);
 
   // 7. Write last-checked marker
-  writeJsonStable(lastCheckedPath, { checkedAt: new Date().toISOString(), identical: false, file: snapshotPath });
+  write(lastCheckedPath, { checkedAt: new Date().toISOString(), identical: false, file: snapshotPath });
 
   // 8. Update manifest
-  updateManifestEntry({
+  updateManifest({
     path: snapshotPath,
     recordCount: players.length,
     inProgress: true, // KTC snapshot is always "current value" data
