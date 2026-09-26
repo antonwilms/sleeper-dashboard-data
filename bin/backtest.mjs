@@ -24,6 +24,11 @@
  *   --json       machine-readable output
  *   --write      persist backtests/<date>-<metric>-<pos>.json
  *   --by-season  per-season breakout in addition to pooled
+ *   --inseason   in-season evidence k-fit (Phase 2a graded backtest): re-fits the shrinkage k against the real
+ *                reconstructed pre-season projection, answers Q1-Q8, emits the constants table. Takes only
+ *                --json / --write; the windows and basis are pinned. --write persists
+ *                backtests/<date>-inseason-{panel,constants}.json + grading/<date>-inseason-verdict.md.
+ *                Exit 1 if the gamelogs reconciliation stop fires (no artifacts written).
  */
 
 import path from 'path';
@@ -40,6 +45,7 @@ import {
   runMetric,
   runValidate,
 } from '../scripts/backtest-run.mjs';
+import { runInSeason, buildInSeasonVerdictMarkdown, writeInSeasonArtifacts } from '../scripts/inseason-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -158,6 +164,25 @@ if (isMain) {
       const asJson    = flag('--json');
       const write     = flag('--write');
       const bySeason  = flag('--by-season');
+
+      if (flag('--inseason')) {
+        const rejected = args.filter(a => a.startsWith('--') && !['--inseason', '--json', '--write'].includes(a));
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --inseason rejects ${rejected.join(', ')} — the seasons, checkpoints and basis (half_ppr) are pinned ` +
+            'by the task file, not knobs; it takes only --json and --write'
+          );
+          process.exit(1);
+        }
+        const result = runInSeason({ log: (m) => console.error(`[backtest] ${m}`) });
+        const verdictMd = buildInSeasonVerdictMarkdown(result);
+        if (write) {
+          const w = writeInSeasonArtifacts({ result, verdictMd });
+          console.error(`[backtest] Wrote ${w.panelPath} (${w.panelBytes} B), ${w.constantsPath} (${w.constantsBytes} B), ${w.verdictPath}`);
+        }
+        console.log(asJson ? JSON.stringify(result, null, 2) : verdictMd);
+        process.exit(0);
+      }
 
       const fromYear        = parseInt(option('--from')      ?? '2012', 10);
       const toYear          = parseInt(option('--to')        ?? '2025', 10);

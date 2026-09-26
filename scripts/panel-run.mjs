@@ -10,6 +10,8 @@
  *   DEFAULT_SCORING_SNAPSHOT, DEFAULT_LOAD
  *   resolveScoring({ basis, scoringFrom, load })              → { scoringSettings|null, basisMeta }
  *   buildOutcomeMaps(years, scoring, load)                    → { [year]: { outcomes, droppedTerms, excludedRateKeys, scoredKeyCount } | null }
+ *   loadFactorInputs({ fromYear, toYear, basis, scoringFrom, load, withFactorMultipliers, historyFloor }) → { years, scoring, basisMeta, outcomeMapsByYear, inputsByYear, crosswalk, birthdateBySleeper, snapsByYear }
+ *   buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel, load }) → attachFactorMultipliers ctx
  *   assemblePanel({ fromYear, toYear, attribution, basis, scoringFrom, minOutcomeGames, load }) → { rows, coverage, meta }
  *   runBaseline(panel, opts)                                  → { [position]: EvaluateModelResult }
  *   runCandidates(panel, opts)                                → CandidateReport[]
@@ -127,22 +129,18 @@ export function buildOutcomeMaps(years, scoring, load = DEFAULT_LOAD) {
 
 // ─── Panel assembly ─────────────────────────────────────────────────────────────
 
-export function assemblePanel({
-  fromYear = PANEL_DEFAULTS.fromYear,
-  toYear = PANEL_DEFAULTS.toYear,
-  attribution = 'current-team',
+// Extracted from assemblePanel (in-season evidence 2a, §2.1) so scripts/inseason-run.mjs
+// loads exactly the inputs the committed fit harness loads instead of forking the block.
+// assemblePanel's behaviour is unchanged (byte-identity is the acceptance test).
+export function loadFactorInputs({
+  fromYear,
+  toYear,
   basis = 'in-basis',
   scoringFrom = DEFAULT_SCORING_SNAPSHOT,
-  minOutcomeGames = PANEL_DEFAULTS.minOutcomeGames,
   load = DEFAULT_LOAD,
   withFactorMultipliers = false,
   historyFloor = null,
-  regressionModel = CURRENT_REGRESSION_MODEL,
 }) {
-  if (!ATTRIBUTION_MODES.includes(attribution)) {
-    throw new Error(`[panel] unknown --attribution '${attribution}' — use current-team|per-season-team`);
-  }
-
   const { scoringSettings, basisMeta } = resolveScoring({ basis, scoringFrom, load });
   const scoring = basis === 'half_ppr' ? { basis: 'half_ppr' } : { basis: 'in-basis', scoringSettings };
 
@@ -196,6 +194,63 @@ export function assemblePanel({
     for (const y of years) snapsByYear[y] = load.loadSnapShare(y) ?? null;
   }
 
+  return { years, scoring, basisMeta, outcomeMapsByYear, inputsByYear, crosswalk, birthdateBySleeper, snapsByYear };
+}
+
+// Extracted from assemblePanel (§2.1): the attachFactorMultipliers ctx. Returns
+// exactly the object assemblePanel passes today.
+export function buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel = CURRENT_REGRESSION_MODEL, load = DEFAULT_LOAD }) {
+  const { years, inputsByYear, crosswalk, birthdateBySleeper, snapsByYear } = inputs;
+
+  // Per-loaded-year totals/outcomes/position-source maps (widens the E-0a
+  // Y/Y−1-pair team-totals build to every loaded year, ≤14 seasons — §3.4).
+  const totalsByYear = {};
+  const ppgByYear = {};
+  const advstatsByYear = {};
+  const rosterByYear = {};
+  for (const y of years) {
+    totalsByYear[y] = inputsByYear[y].seasonTotals;
+    ppgByYear[y] = inputsByYear[y].outcomes;
+    advstatsByYear[y] = inputsByYear[y].advstats;
+    rosterByYear[y] = inputsByYear[y].roster;
+  }
+  const teamOf = teamKeyResolver(attribution, totalsByYear, toYear);
+  const teamTotalsByYear = {};
+  for (const y of years) teamTotalsByYear[y] = buildTeamTotalsForSeason(totalsByYear[y], y, teamOf);
+
+  // D6a — D5 historical depth charts (Step 8), only needed under the fit
+  // path (D4/D5's own capture-only families are otherwise unread here).
+  const depthByYear = {};
+  if (typeof load.loadDepth === 'function') {
+    for (const y of years) depthByYear[y] = load.loadDepth(y) ?? null;
+  }
+  const birthdateOf = (pid) => birthdateBySleeper[pid] ?? null;
+
+  return {
+    totalsByYear, teamTotalsByYear, ppgByYear, advstatsByYear, rosterByYear, fromYear, toYear,
+    crosswalk, snapsByYear, birthdateOf, depthByYear, regressionModel,
+  };
+}
+
+export function assemblePanel({
+  fromYear = PANEL_DEFAULTS.fromYear,
+  toYear = PANEL_DEFAULTS.toYear,
+  attribution = 'current-team',
+  basis = 'in-basis',
+  scoringFrom = DEFAULT_SCORING_SNAPSHOT,
+  minOutcomeGames = PANEL_DEFAULTS.minOutcomeGames,
+  load = DEFAULT_LOAD,
+  withFactorMultipliers = false,
+  historyFloor = null,
+  regressionModel = CURRENT_REGRESSION_MODEL,
+}) {
+  if (!ATTRIBUTION_MODES.includes(attribution)) {
+    throw new Error(`[panel] unknown --attribution '${attribution}' — use current-team|per-season-team`);
+  }
+
+  const inputs = loadFactorInputs({ fromYear, toYear, basis, scoringFrom, load, withFactorMultipliers, historyFloor });
+  const { years, basisMeta, outcomeMapsByYear, inputsByYear, crosswalk, snapsByYear } = inputs;
+
   const { rows, coverage } = assemblePanelRows(inputsByYear, {
     fromYear, toYear, attribution, minOutcomeGames, minPredictorGames: PANEL_DEFAULTS.minPredictorGames,
     crosswalk, snapsByYear,
@@ -205,34 +260,8 @@ export function assemblePanel({
   let finalCoverage = coverage;
 
   if (withFactorMultipliers) {
-    // Per-loaded-year totals/outcomes/position-source maps (widens the E-0a
-    // Y/Y−1-pair team-totals build to every loaded year, ≤14 seasons — §3.4).
-    const totalsByYear = {};
-    const ppgByYear = {};
-    const advstatsByYear = {};
-    const rosterByYear = {};
-    for (const y of years) {
-      totalsByYear[y] = inputsByYear[y].seasonTotals;
-      ppgByYear[y] = inputsByYear[y].outcomes;
-      advstatsByYear[y] = inputsByYear[y].advstats;
-      rosterByYear[y] = inputsByYear[y].roster;
-    }
-    const teamOf = teamKeyResolver(attribution, totalsByYear, toYear);
-    const teamTotalsByYear = {};
-    for (const y of years) teamTotalsByYear[y] = buildTeamTotalsForSeason(totalsByYear[y], y, teamOf);
-
-    // D6a — D5 historical depth charts (Step 8), only needed under the fit
-    // path (D4/D5's own capture-only families are otherwise unread here).
-    const depthByYear = {};
-    if (typeof load.loadDepth === 'function') {
-      for (const y of years) depthByYear[y] = load.loadDepth(y) ?? null;
-    }
-    const birthdateOf = (pid) => birthdateBySleeper[pid] ?? null;
-
-    const { rows: fitRows, fitCoverage } = attachFactorMultipliers(rows, {
-      totalsByYear, teamTotalsByYear, ppgByYear, advstatsByYear, rosterByYear, fromYear, toYear,
-      crosswalk, snapsByYear, birthdateOf, depthByYear, regressionModel,
-    });
+    const ctx = buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel, load });
+    const { rows: fitRows, fitCoverage } = attachFactorMultipliers(rows, ctx);
     finalRows = fitRows;
     finalCoverage = { ...coverage, fitCoverage };
   }

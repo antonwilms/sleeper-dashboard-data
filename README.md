@@ -1270,7 +1270,8 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 
 `bin/backtest.mjs` — `--metric target_share|air_yards_share|wopr|racr|all` (camelCase also
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
-`--by-season`, `--json`, `--write`, `--validate`.
+`--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`; rejects
+every other flag — the windows and basis are pinned).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1282,8 +1283,15 @@ accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--contr
 the app's live default, load-bearing for the reconstruction.
 
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
-`<date>-r2flip-*`, `<date>-r3fit-*`) and `grading/` (`<date>-*-verdict.md`). Methodology:
+`<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`) and `grading/`
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`). Methodology:
 [Analysis / Backtesting](#analysis--backtesting).
+
+#### `lib/panel.mjs` — dispatch lists and the in-season seams
+
+`D6_NEW_FACTORS`/`FULL_FACTORS_D6`/`ENVELOPE_FACTORS_D6_ADDITIONS` are `attachFactorMultipliers`' OWN dispatch list for six D6a-added factors (age/depth/teamOffense/qbQuality/efficiency/compBlend) — deliberately NOT folded into `FULL_FACTORS`/`ENVELOPE_FACTORS` (those stay the R3-FIT calibration engine's 7-factor set).
+
+`attachFactorMultipliers`' ctx carries two optional in-season backtest seams (`bin/backtest.mjs --inseason`): `requirePositiveOutcome` (default `true`; `false` skips only the `nonPositiveOutcome` drop) and `depthOrderOf(pid, position, lastQSeason, lastQTeam)` (default `null`; replaces the Step 8 depth-order lookup, with the sentinel/coverage bookkeeping unchanged). Defaults reproduce every committed artifact byte-for-byte. `scripts/panel-run.mjs`'s `loadFactorInputs` / `buildFactorContext` are the loading and ctx blocks of `assemblePanel`, extracted so `scripts/inseason-run.mjs` reuses them rather than forking.
 
 #### The poisoned-snapshot window (2026-07-16 → 2026-07-18)
 
@@ -1867,6 +1875,32 @@ node bin/panel.mjs --rookie --write        # persist both artifacts above
 `--rookie` also renders **§G**, an independent re-derivation of the app's eight shipped rookie-ceiling quantiles (knee = p90, asymptote = p99 of realised debut PPG) from this repo's own `debut` assembly — a reproduction pin against the app's constants (`41f277e`), not out-of-sample validation, since both sides consume the same rows.
 
 Reproduce: `node bin/panel.mjs --rookie --write`.
+
+### In-season evidence k-fit (`bin/backtest.mjs --inseason`)
+
+Phase 2a of the in-season evidence work (`.claude/tasks/in-season-evidence-2a-backtest.md`). Offline analysis only: it re-fits the shrinkage constant `k` (`w = n/(n+k)`, blending a pre-season prior with `n` games of in-season evidence) against the **real reconstructed pre-season projection**, out of sample, and answers eight questions (k per signal × position × horizon; whether opportunity adds to points; weak/strong and confidence splits; rookies and short-history players; baseline lookback; a cross-position usage-shift sort measure; the depth-chart double count; which k drives the dynasty score versus the season projection). Basis is pinned `half_ppr`.
+
+| Arm | Population | Points prior | Checkpoint |
+|---|---|---|---|
+| **P** (primary) | veteran path at Y = S-1 and S-1 gp ≥ 8 | frozen projection (S week-1 depth chart) | calendar week W = 1–12 |
+| **L** | as P | live projection (depth chart of S week W+1) | calendar W |
+| **R** | S-1 gp ≥ 8, any path | raw S-1 PPG | calendar W |
+| **S** | S-1 gp ≥ 8, crosswalk position | raw S-1 PPG | first n played games, n = 1–8 (study reproduction) |
+| **X** | everything not in P: rookie0 / rookie1p / short | shipped rookie projection, or frozen projection | calendar W |
+
+`n` is games played (`weeklyPoints` keys). Weekly opportunities and target share come from `nflverse/gamelogs` (REG only) as a weekly decomposition behind a **reconciliation stop**: gamelogs opportunity sums must agree with season-totals `stats` on ≥ 99% of skill player-seasons (tolerance `max(2, 3%)`), or the run exits 1 and writes nothing. No gamelogs value reaches the app — only dimensionless constants do. Validation is leave-one-season-out; CIs are player-clustered bootstrap (4000 resamples, seed 12345, `mulberry32` — deliberately not `runStep4Verdict`'s LCG, which multiplies past 2^53). `k` is fitted over integer tenths 0.0–40.0 from sufficient statistics, so every fitted value re-derives exactly from the constants file's fixture. The pure logic is `lib/inSeasonEvidence.mjs`; the adapter is `scripts/inseason-run.mjs`.
+
+**Why not a `bin/panel.mjs` mode:** the rookie prior must be the *shipped* (corrected) projection, which lives in `lib/rookieMirror.mjs`, and `test/rookie-mirror.test.mjs` T-RM1 forbids that file anywhere in `bin/panel.mjs`'s import closure. `bin/backtest.mjs` is outside that closure. `--inseason` fits no rookie constant and never calls `assembleRookiePanel`, so the CR-15 re-fit trap does not apply.
+
+**Artifacts** (`--write`, unregistered — the Invariant 3 analysis-output exception): `backtests/<date>-inseason-panel.json` (aggregate tables and per-fold results, no per-row data), `backtests/<date>-inseason-constants.json` (the table the app pins, plus the sufficient-statistics fixture Phase 2b copies into `src/__fixtures__/`), `grading/<date>-inseason-verdict.md`.
+
+```sh
+node bin/backtest.mjs --inseason           # verdict markdown to stdout
+node bin/backtest.mjs --inseason --json    # the result object
+node bin/backtest.mjs --inseason --write   # persist the three artifacts above
+```
+
+Reproduce: `node bin/backtest.mjs --inseason --write`.
 
 ---
 
