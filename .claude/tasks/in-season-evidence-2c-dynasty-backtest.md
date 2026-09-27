@@ -776,3 +776,33 @@ The verdict prints every Δ mean and Δ CI at 4 dp, as 2a does. k CIs stay at 1 
    - the §5.4 player-season counts;
    - the test count;
    - every deviation.
+
+## Fix pass 1 — verification (2026-09-27)
+
+fix-applier committed the fix as `5c4b6c7`. implementation-reviewer's single re-run on `58ada8b..5c4b6c7`
+found no blocking issue:
+- `K_DYN_POINTS_SHORT_HISTORY` reuse is now QB 7.5 / RB 4 / WR 6 / TE 5.5.
+- The Q1 and Q2 labels and CIs are unchanged.
+- Q3 `xn` comes from the chosen (fixed) rung, and all 14,994 rows are kept.
+- The scope is clean.
+
+All five declared judgment calls were accepted. Eight low or medium flags survive. The workflow allows
+no third round, so these are Session 1's calls (Anton delegates):
+
+| Flag | Decision |
+|---|---|
+| 1. Test 2(b) passes through the WORSE path and never reaches NO-GAIN → pooled: `decideOwnVsPooled` rebuilds pooled's preds and ignores the stub. | **Owed, and it stays owed from 2a.** The NO-GAIN → pooled branch still has no test that could fail. The reviewer's recipe for it: own preds = `blend(prior, obs, n, 3)` + noise balanced per cluster, then assert `label === 'NO-GAIN'`. Fix at the next touch of `lib/inSeasonEvidence.mjs`. No output depends on it: every live 2c ladder decision was verified from the panel steps. |
+| 2. Arm A has no `delta`. | **Accepted as intended.** Arm A has no pinned comparator: the app has no live-season prospect k today. |
+| 3. `K_DYN_PROSPECT_B_YE1|QB` changed to ROOKIE1P 3.5 only. | **Accepted; the new value is correct.** It follows item 1's per-position rule. The line "Q1 entries stay as they are" was Session 1's wrong prediction. |
+| 4. `nextGp` is read from raw season-totals, and the stated reason is wrong. | **Accepted.** It goes through the guarded loader and the result is the same. The applier's claim that 2025 is in progress is wrong: 2025 is complete, and `loadFactorInputs` loads `toYear + 1`. |
+| 5, 6. The cap-35 excess means and the per-position deltas appear only in the JSON. | **Accepted.** They are in the panel JSON, and the verdict carries the headline figures. |
+| 7, 8. The reuse test doesn't assert that the ladder ended `fixed`, and the exclusion half of the YE test is missing. | **Owed**, as test hardening at the next touch. |
+
+**Slice state: COMPLETE.** Artifacts are `backtests/2026-09-27-inseason-dyn-{panel,constants}.json` and
+`grading/2026-09-27-inseason-dyn-verdict.md` @ `5c4b6c7`.
+
+Owed:
+- The companion's registry route: the app applies §A and §B first, then data syncs the same day. The
+  mirror run is red until that happens.
+- The two test items above.
+- The app wiring task (companion §E).
