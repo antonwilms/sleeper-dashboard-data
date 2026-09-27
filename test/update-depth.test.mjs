@@ -335,6 +335,46 @@ test('updateDepth: qb1Changed — a missing prior season file for a non-floor se
 });
 
 // ═══════════════════════════════════════════════════════════════════
+// in-season row floor (current season) — f/g/h
+// ═══════════════════════════════════════════════════════════════════
+
+function inSeasonFixture(existingWeeks, currentSeason, t) {
+  const season = 2016;
+  const csv = makeLegacyCsv(season, 3); // 3 wks × 32 × 4 × 3 = 1,152 rows: < 3500, > 400
+  const ids = makeCrosswalkIds(csv);
+  const existing = {};
+  for (let w = 1; w <= existingWeeks; w++) existing[w] = { X: { QB: [`old${w}`] } };
+  return spyDeps({
+    fetchCurrentNflSeason: async () => currentSeason,
+    fetchDepthChartsCsv: async () => csv,
+    crosswalk: { ids },
+    dataPathResult: { weeks: existing },
+    __priorSeasonPath: `nflverse/depth/${season - 1}.json`,
+    priorSeasonFile: { week1Qb1: {} },
+  }, t);
+}
+
+test('updateDepth: the current season writes a thin in-progress file without --force', async (t) => {
+  const { deps, calls } = inSeasonFixture(2, 2016, t);
+  await updateDepth({ year: 2016, deps });
+  assert.equal(calls.writeJsonStable.length, 1);
+  assert.equal(calls.writeJsonStable[0][0], 'nflverse/depth/2016.json');
+  assert.equal(calls.updateManifestEntry.length, 1);
+  assert.equal(calls.updateManifestEntry[0][0].inProgress, false);
+});
+
+test('updateDepth: the same thin file for a COMPLETED season rejects at the 3500 floor', async (t) => {
+  const { deps } = inSeasonFixture(2, 2017, t);
+  await assert.rejects(() => updateDepth({ year: 2016, deps }), /expected ≥ 3500/);
+});
+
+test('updateDepth: shrink guard end-to-end — served file has more weeks than the derive → refuses, no write', async (t) => {
+  const { deps, calls } = inSeasonFixture(4, 2016, t);
+  await assert.rejects(() => updateDepth({ year: 2016, deps }), /refusing to overwrite/);
+  assert.equal(calls.writeJsonStable.length, 0);
+});
+
+// ═══════════════════════════════════════════════════════════════════
 // --all fetches per season, via deps; setStepOutput single-season only
 // ═══════════════════════════════════════════════════════════════════
 

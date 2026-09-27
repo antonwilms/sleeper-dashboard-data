@@ -30,18 +30,21 @@
  *     actually carries real pre-2013 rows (the release goes back to 2001), so without this
  *     explicit rejection a below-floor year would not hit the spine's "not published" branch at
  *     all and would silently widen this family's coverage.
- *   - Sparsity: the spine's own `minRows` is 1, DELIBERATELY not MIN_DEPTH_ROWS — every season
- *     this family backfills is already complete/published, so a genuine shortfall is a
- *     truncated fetch, not an unpublished season. `lib/validate.mjs` `validateDepth` is the real
- *     MIN_DEPTH_ROWS gate and throws (§C, mirrors scripts/update-snaps.mjs exactly).
+ *   - Sparsity: the spine's own `minRows` is 1, DELIBERATELY not MIN_DEPTH_ROWS — a genuine
+ *     shortfall is a truncated fetch, not an unpublished season. `lib/validate.mjs`
+ *     `validateDepth` is the real gate and throws (§C): completed seasons get MIN_DEPTH_ROWS;
+ *     the current season gets the per-week floor (MIN_DEPTH_ROWS_PER_WEEK) plus a week-set
+ *     shrink guard against its own served file.
  *   - `week1Qb1`: the depth-1 QB per team at week 1 REG (index 0 of the joined QB array).
  *   - `qb1Changed`: compares this season's `week1Qb1` against the PRIOR SEASON'S SERVED FILE.
  *     `null` at MIN_DEPTH_SEASON (no prior season exists). A missing prior file for any other
  *     season THROWS — indistinguishable from the floor season's legitimate `null` otherwise.
  *   - Content-hash dedup: identical `weeks` → no write, no manifest touch.
- *   - --force: required to overwrite completed past seasons.
+ *   - --force: required to overwrite completed past seasons. The current season is overwritten
+ *     weekly WITHOUT --force (the spine's isPast = season < currentSeason).
  *   - inProgress: ALWAYS false (no app live fallback — CLAUDE.md invariant 5).
- *   - Capture-only: this script wires no factor and is read by no other script.
+ *   - Wires no factor. Read offline by scripts/panel-run.mjs and scripts/inseason-run.mjs
+ *     (`loadDepth`); neither reads the current season.
  *
  * @param {object}      opts
  * @param {number|null} opts.year          Season year; null = current season (from Sleeper API)
@@ -231,15 +234,19 @@ export async function updateDepth({
         }
       }
 
+      // Separate read: the spine reads `existing` only after validate. Current season only.
+      const existingSelf = season === currentSeason ? d.readJson(`nflverse/depth/${season}.json`) : null;
+      const existingWeekCount = existingSelf?.weeks ? Object.keys(existingSelf.weeks).length : null;
+
       return {
         weeks, parsedRowCount, rowCount, playerCount: playerSet.size, unmapped, joinRate,
-        outOfWindow, week1Qb1, qb1Changed,
+        outOfWindow, week1Qb1, qb1Changed, existingWeekCount,
       };
     },
     gateRowCount: o => o.parsedRowCount,
     minRows: SPINE_MIN_ROWS,
     validate: (o, { year }) => {
-      validateDepth(o.weeks, { year, joinRate: o.joinRate });
+      validateDepth(o.weeks, { year, joinRate: o.joinRate, currentSeason, existingWeekCount: o.existingWeekCount ?? undefined });
       console.log('[depth] Validation passed');
     },
     hash: o => weeksHash(o.weeks),

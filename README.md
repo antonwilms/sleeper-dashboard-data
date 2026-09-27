@@ -1100,8 +1100,9 @@ crosswalk's `bySleeper` is absent or empty — regenerate to schemaVersion 2 fir
 
 **Gates, all enforced as a hard throw in `lib/validate.mjs` `validateDepth`** (mirrors
 `nflverse/snaps`'s pattern — the spine's own sparsity skip is deliberately near-inert for this
-family, since every season it backfills is already complete/published):
+family; completed seasons get `MIN_DEPTH_ROWS`, the in-progress season a per-week floor):
 - `MIN_DEPTH_ROWS = 3500` over joined (non-null) skill rows.
+  - In-progress season only: `MIN_DEPTH_ROWS_PER_WEEK = 200` × `max(1, weeks − 1)` (latest week may be partial; lowest full week measured 423), plus a shrink guard — fewer weeks than the served current-season file throws.
 - 30–32 teams present at week 1 (exactly 32 in every season measured except 2017, which has 30 —
   the MIA@TB week-1 game was postponed to week 11 that season for Hurricane Irma).
 - A depth-1 QB present for ≥ `MIN_DEPTH_QB1_TEAMS = 30` teams at week 1.

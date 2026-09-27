@@ -380,6 +380,57 @@ test('validateDepth: rowCount below MIN_DEPTH_ROWS throws — the real gate (spi
   assert.throws(() => validateDepth({ 1: week1 }, { year: 2024, joinRate: 1 }), /joined skill-position rows/);
 });
 
+/** `n` weeks (1..n) × `teams`, each team with the given position shape (default 13 ids/team). */
+function nWeeks(n, teams = TEAM32, pos = { QB: ['1', '2'], RB: ['1', '2', '3', '4'], WR: ['1', '2', '3', '4'], TE: ['1', '2', '3'] }) {
+  const out = {};
+  for (let w = 1; w <= n; w++) {
+    out[w] = {};
+    for (const t of teams) out[w][t] = pos;
+  }
+  return out;
+}
+const IN_SEASON = { year: 2026, joinRate: 1, currentSeason: 2026 };
+
+test('validateDepth: in-season partial season (3 weeks) passes the per-week floor', () => {
+  assert.doesNotThrow(() => validateDepth(nWeeks(3), IN_SEASON));
+});
+
+test('validateDepth: a thin COMPLETED season still throws the 3500 floor even when currentSeason is passed', () => {
+  assert.throws(() => validateDepth(nWeeks(3), { year: 2025, joinRate: 1, currentSeason: 2026 }), /expected ≥ 3500/);
+});
+
+test('validateDepth: omitting currentSeason keeps the completed-season floor', () => {
+  assert.throws(() => validateDepth(nWeeks(3), { year: 2026, joinRate: 1 }), /expected ≥ 3500/);
+});
+
+test('validateDepth: too-thin in-season file throws the in-season floor (384 rows < 400)', () => {
+  const thin = nWeeks(3, TEAM32, { QB: ['1'], RB: ['2'], WR: ['3'], TE: ['4'] });
+  assert.throws(() => validateDepth(thin, IN_SEASON), /in-season floor is 400/);
+});
+
+test('validateDepth: in-season floor tolerates a partial latest week and scales with weeks', () => {
+  const withPartial = nWeeks(3);
+  withPartial[4] = nWeeks(1, TEAM32.slice(0, 2))[1]; // 2 teams only: 1,274 rows vs floor 600
+  assert.doesNotThrow(() => validateDepth(withPartial, IN_SEASON));
+
+  // The "− 1" pin: 480 rows passes floor 400, would fail 600 without the − 1.
+  const five = nWeeks(3, TEAM32, { QB: ['1'], RB: ['2', '3'], WR: ['4'], TE: ['5'] });
+  assert.doesNotThrow(() => validateDepth(five, IN_SEASON));
+
+  // Scaling: 6 weeks × 32 × 4 ids = 768 rows < 200 × 5.
+  const six = nWeeks(6, TEAM32, { QB: ['1'], RB: ['2'], WR: ['3'], TE: ['4'] });
+  assert.throws(() => validateDepth(six, IN_SEASON), /in-season floor is 1000/);
+});
+
+test('validateDepth: in-season shrink guard refuses fewer weeks than the served file; equal is fine; completed seasons ignore it', () => {
+  assert.throws(() => validateDepth(nWeeks(3), { ...IN_SEASON, existingWeekCount: 4 }), /refusing to overwrite/);
+  assert.doesNotThrow(() => validateDepth(nWeeks(3), { ...IN_SEASON, existingWeekCount: 3 }));
+  assert.throws(
+    () => validateDepth(nWeeks(3), { year: 2025, joinRate: 1, currentSeason: 2026, existingWeekCount: 4 }),
+    /expected ≥ 3500/
+  );
+});
+
 test('validateDepth: non-finite guard — Infinity in a component throws', () => {
   const weeks = fatWeeks(makeWeek1(TEAM32));
   weeks[1].KC.someNumber = Infinity;
