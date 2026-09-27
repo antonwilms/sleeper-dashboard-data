@@ -621,3 +621,158 @@ This round re-checked the round-1 fixes and raised 4 new flags. All 4 held and a
 The reviewer confirmed that the CR-09, CR-15 and CR-25 quotes in §9 match the registry verbatim, that
 the companion anchors are unique, that the §C count is 8, and that CLAUDE.md comes to 24,998 bytes.
 The only item still open is the size flag, which goes to Anton.
+
+---
+
+## Verification record (2026-09-27)
+
+Session 2 delivered two commits: `5e70512` (code, tests, docs, task files) and `58ada8b` (artifacts).
+implementation-reviewer read the diff `4f48233..58ada8b` and raised 14 flags. Session 1 then checked
+two points independently:
+- The §2 byte-identity holds. `--inseason --json` at `4f48233` and at HEAD are identical after
+  stripping `generatedAt`, `runtimeMs` and `source`.
+- The 2c constants are deterministic across two `--json` runs.
+
+The Q1 BEATS labels hold on the unrounded CIs: YE0 [−0.2389, −0.0393], YE1 [−0.2023, −0.0408]. Q2 is
+NO-GAIN at [−0.1933, 0.0221]. **No decision changes.** All 14 flags held. Flags 1–13 go to Fix pass 1.
+Flag 14 (the commit message omits CR ids) is handled in Session 1's hand-back: the registry route is
+owed, and a pushed commit is not amended.
+
+## Fix pass 1
+
+Implement exactly this, then run the done-definition below. Do not touch `scripts/inseason-run.mjs`,
+`lib/panel.mjs`, `scripts/panel-run.mjs`, `lib/projectionFactors.mjs`, the registry files, `README.md`
+or `CLAUDE.md`. Never change any §6 decision rule, the ladders' order, the fit grid, or the population
+definitions.
+
+### 1. Reuse k recorded wrongly (reviewer 1, HIGH) — `scripts/inseason-dyn-run.mjs` `writeThreeRungEntry`
+
+- Pass the ladder's `kFixedOf` into `writeThreeRungEntry` (Q1: `r => r.k2a`; Q2: `r => r.kStd`). Use it
+  for both the missing-constant check and the recorded `k`. Remove every `r.k2a ?? r.kStd`.
+- Record `reuses` and `k` over **that position's rows only** (`rows.filter(r => r.position === pos)`),
+  including when the ladder ran on ALL rows for an INSUFFICIENT position. The decision still comes from
+  the ALL-rows ladder; only the recorded entry is per position.
+- Expected after regeneration: `K_DYN_POINTS_SHORT_HISTORY` reuse `k` equals the 2a
+  `K_DYN_POINTS_HISTORY` values, QB [7.5], RB [4], WR [6], TE [5.5]. The Q1 entries stay as they are.
+- When `refitPooled` is INSUFFICIENT in a three-rung ladder, write the **reuse** entry over the
+  position's rows, not a `basis: 'insufficient'` constant (§6 "all" row).
+
+### 2. Excluded-population report (reviewer 3) — §5.4, done in full
+
+Every group reports both **player-seasons** (distinct `(sleeperId, S)`) and rows. It also reports
+players, mean n, the mean of each prior in play (Q1: `prospectPrior` and `projPrior`; Q2: `histPrior`
+and `projPrior`), and mean `obsPPG − prior` for each.
+
+To produce the Q1 no-outcome split and the YE2–3 group, keep the pre-`nextPPG`-filter rows in a local
+list (never in the artifacts). Carry `nextGp` (S+1 gp from the outcome map, 0 if absent) on it.
+
+The groups:
+- **Q1:**
+  - YE ≤ 1 with gp ≥ 1;
+  - no S+1 outcome, split `absent` (nextGp 0) vs `gp<6`;
+  - `draftYear` unusable, counted over all rookie-route candidate rows, not only outcome-bearing ones;
+  - `routeMismatch`;
+  - YE1 in X-rookie0;
+  - YE 2–3 rookie-route with no qualifying season.
+- **Q2:**
+  - SHORT recent / stale / noL (noL is reported as 0);
+  - no S+1 outcome, split absent vs gp<6 (absent includes retirements);
+  - X-short rows with no `projPrior`.
+
+Relabel the verdict lines to say "player-seasons" and "rows" correctly.
+
+### 3. Prior calibration values (reviewer 4)
+
+`fit.priorCalibration` becomes `{ note: <the §7 sentence>, c: { A_YE0, B_YE0, A_YE1, B_YE1, hist, proj } }`,
+each value being the `(c, k)` diagnostic's c, 2 dp. Add a `boundary` flag where c = 0.50 or 1.50. The
+verdict's §Prior calibration section prints a table with arm · c · k with c · k without, plus this line:
+
+> c > 1 means the prior runs **pessimistic** on these rows (outcomes exceed it). For the rookie arms
+> that is partly survivorship: busts have no S+1 outcome and are excluded.
+
+### 4. Q3 completed (reviewer 5) — §5.3
+
+- `xn` comes from the **chosen rung**. A `fixed` ladder outcome gives `blend(x0, obsPPG, n, r.k2a)`, a
+  pooled one the pooled held-out prediction, an own one `own.heldOut`. Every Q1 ladder today ends on
+  `fixed`, so `xn` uses 2a's pinned k.
+- Compute the full §5.3 metric set with one helper, `q3Metrics(rows)`, and apply it to four slices:
+  pooled (YE0 + YE1), each subgroup, each n band, and subgroup × band.
+- The metric set is:
+  - mean |Δr|, mean |Δu|, 0.4·mean |Δu|, and 0.6·mean |Δu| (also ÷ mean |Δr|);
+  - the captured share;
+  - Spearman;
+  - peak clamp: the share with xn ≥ p, the share with y ≥ p, and mean (100·y/p − 100)⁺;
+  - cap of 35: the row share, the share with modelScore(xn) > 35, and mean (modelScore(xn) − 35)⁺
+    and (modelScore(y) − 35)⁺.
+- Replace the verdict's Q3 answer line with a plain measured sentence: the pooled model-share update,
+  0.6·E|Δu| score points left under the anchor, the clamp share and the cap-35 share. Mark the
+  cap-35 figures "upper bound (KTC unknown historically)". Add the "Measured / Not measurable yet"
+  framing from §5.3 to the §Q3 section.
+
+### 5. Comparator deltas (reviewer 6)
+
+Add `delta: { mean, ci95, label }` (r4) to the A, B-refit, Hist and Proj summaries, pooled and per
+position (B-refit vs 2a pinned; Hist vs `K_DYN_POINTS_HISTORY`; Proj vs `K_DYN_POINTS_SHORT`). Show
+them in the verdict's §Q1/§Q2 tables.
+
+### 6. `assertAligned` (reviewer 7)
+
+Import it and call it on the two `orderedRows` arrays before every `pairedDelta` between two
+`analyzeKCell` results. That covers ΔAB overall and per position and per tier, ΔHP overall and per
+position, and the item 7 diagnostics.
+
+### 7. Diagnostic deltas (reviewer 9)
+
+For A-nullpick and A-YE1-withPick, report A's held-out MAE, the diagnostic's held-out MAE, and
+`pairedDelta(rows, A.heldOut, diag.heldOut)` (r4). Rename `maeVsA` to `mae`.
+
+### 8. Rounding (reviewer 8)
+
+The verdict prints every Δ mean and Δ CI at 4 dp, as 2a does. k CIs stay at 1 dp.
+
+### 9. Shapes and wording (reviewer 10)
+
+- Add top-level `diagnostics` and `ladders` keys to the panel JSON, holding the same objects now
+  nested in q1/q2. Keep the nested copies, which are harmless.
+- `fit.prospectPrior` quotes D4, D5 and D6 as full sentences:
+  - **D4:** league rookie-draft pick approximated by the class's skill-position NFL `draftOvr` rank:
+    rank ≤ 60 → `{ round: ceil(rank/12), pick: rank }`, else null; undrafted null.
+  - **D5:** YE1 players get `pick = null`, as the app reads only the most recent rookie draft.
+  - **D6:** age = whole years on 1 September of S; null → 23.
+
+### 10. Tests (reviewers 11–13) — `test/inseason-dyn.test.mjs`
+
+- **Test seam.** Add an optional `onRows` callback parameter to `runInSeasonDyn`, called once with the
+  final augmented analysis rows (it is a test seam and never serialised). In test 9, assert that none
+  of the six D10 keys (`obsOpp`, `obsShare`, `O`, `mover`, `missedInWindow`, `oppMissingWeeks`) is
+  present on **any** row. Remove the vacuous `JSON.stringify(result.q1)` check.
+- **Test 9 via `onRows`.** Add the missing routing assertions:
+  - YE is computed from `draftYear`;
+  - `draftYear` 0 or null → excluded and counted;
+  - a YE1 row has a `prospectPrior` computed with `pick: null`, and a `prospectPriorYE1Pick` computed
+    with its own proxy (assert both values against `prospectPriorPPG` directly).
+- **Test 2(b).** Build own's errors as pooled's errors plus zero-mean symmetric noise from one
+  deterministic stream (for example ±e alternating per cluster). Assert `choice === 'pooled'` and
+  `vsPooled.label !== 'BEATS'`.
+- **Test 3.** The "stays on rung 0" case asserts `steps[0].label === 'NO-GAIN'`.
+- **New reuse-entry test.** Build a fixture in which `K_DYN_POINTS_HISTORY` differs from
+  `K_DYN_POINTS_SHORT` for the same position. Drive the Q2 path so the ladder ends on the fixed rung,
+  and assert that the reuse `k` equals the HISTORY value and `reuses` is `['K_DYN_POINTS_HISTORY']`.
+- **Absent-key test.** Add a case where only `K_DYN_POINTS_HISTORY` is missing from the injected 2a
+  file. It must throw.
+
+### 11. Done-definition and commit
+
+1. `npm test` and `npm run smoke` green.
+2. `node bin/backtest.mjs --inseason --dynasty --write`. This overwrites the three `2026-09-27` artifacts
+   if run the same day. If run on a later date the old ones stay; state which happened.
+3. Determinism: two `--json` runs, `.constants` identical.
+4. One commit with code, tests, artifacts and this task file (stage explicitly). Then
+   `git pull --rebase origin main` and a plain `git push origin main`.
+5. Hand-back:
+   - the SHA and files;
+   - the regenerated reuse table verbatim;
+   - the new Q3 answer line and prior-calibration table verbatim;
+   - the §5.4 player-season counts;
+   - the test count;
+   - every deviation.

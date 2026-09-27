@@ -61,15 +61,15 @@ describe('2: decideOwnVsPooled', () => {
     assert.equal(vsPooled.label, 'BEATS');
   });
 
-  test('own errors equal pooled predictions plus symmetric noise → pooled, not BEATS', () => {
+  test('own errors equal pooled predictions plus deterministic zero-mean symmetric noise → pooled, not BEATS', () => {
     const rows = syntheticRows(80, 7);
-    let s = 99;
-    const rand = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
-    const own = cellFrom({ orderedRows: rows, heldOutErr: rows.map(() => (rand() - 0.5) * 2), folds });
-    const pooled = cellFrom({ orderedRows: rows, heldOutErr: rows.map(() => (rand() - 0.5) * 2), folds });
-    const { choice } = decideOwnVsPooled({ own, pooled, spec });
-    assert.notEqual(choice, null);
-    assert.ok(choice === 'pooled' || choice === 'own');
+    const pooledErr = (i) => (i % 2 === 0 ? 1 : -1);
+    const noise = (i) => (Math.floor(i / 5) % 2 === 0 ? 0.4 : -0.4); // deterministic, alternates per cluster of 5
+    const own = cellFrom({ orderedRows: rows, heldOutErr: rows.map((_, i) => pooledErr(i) + noise(i)), folds });
+    const pooled = cellFrom({ orderedRows: rows, heldOutErr: rows.map((_, i) => pooledErr(i)), folds });
+    const { choice, vsPooled } = decideOwnVsPooled({ own, pooled, spec });
+    assert.equal(choice, 'pooled');
+    assert.notEqual(vsPooled.label, 'BEATS');
   });
 
   test('pooled INSUFFICIENT → choice null', () => {
@@ -106,6 +106,7 @@ describe('3: ladderPick', () => {
     const out = ladderPick(rows, [rung0, rung1]);
     assert.equal(out.id, 'r0');
     assert.equal(out.steps.length, 1);
+    assert.equal(out.steps[0].label, 'NO-GAIN');
   });
 
   test('climbs to rung 1 on BEATS', () => {
@@ -345,19 +346,56 @@ describe('9: population routing (injectable assemble)', () => {
     const rowsBySeason = { 2020: [row({ sleeperId: 'p0', S: 2020, arm: 'X-short' })] };
     const result = runInSeasonDyn({ load, assemble: fakeAssemble(rowsBySeason) });
     assert.equal(result.coverage.q2PrimaryRows, 0, 'L=2017=S-3 is stale, not primary (primary requires L=S-2)');
-    assert.equal(result.excluded.q2.stale.count, 1);
+    assert.equal(result.excluded.q2.stale.rows, 1);
+    assert.equal(result.excluded.q2.stale.playerSeasons, 1);
   });
 
-  test('a fixture row carrying gamelogs-derived fields comes out without them (D10)', () => {
+  test('a fixture row carrying gamelogs-derived fields comes out without them (D10), via the onRows test seam', () => {
     const load = dynLoadFixture();
     const rowsBySeason = {
       2020: [row({ sleeperId: 'p0', S: 2020, arm: 'X-rookie0', extra: { obsOpp: 5, obsShare: 0.4, O: 20, mover: true, missedInWindow: false, oppMissingWeeks: 0 } })],
     };
-    const result = runInSeasonDyn({ load, assemble: fakeAssemble(rowsBySeason) });
-    const q1json = JSON.stringify(result.q1);
-    for (const key of ['obsOpp', 'obsShare', 'missedInWindow', 'oppMissingWeeks']) {
-      assert.ok(!q1json.includes(key), `${key} leaked into q1 output`);
+    let seenRows = null;
+    runInSeasonDyn({ load, assemble: fakeAssemble(rowsBySeason), onRows: (rows) => { seenRows = rows; } });
+    assert.ok(Array.isArray(seenRows) && seenRows.length > 0);
+    const D10_KEYS = ['obsOpp', 'obsShare', 'O', 'mover', 'missedInWindow', 'oppMissingWeeks'];
+    for (const r of seenRows) {
+      for (const key of D10_KEYS) assert.ok(!(key in r), `${key} leaked onto an analysis row`);
     }
+  });
+
+  test('YE is computed from draftYear; draftYear 0/null is excluded and counted; a YE1 row gets pick:null in prospectPrior but its own proxy in prospectPriorYE1Pick', () => {
+    const load = dynLoadFixture();
+    // p0: draftYear 2019, S=2020 -> YE1. p1: draftYear null -> excluded (ye null). p2: draftYear 0 -> excluded.
+    const baseIds = load.loadPlayerIds();
+    load.loadPlayerIds = () => ({
+      ids: baseIds.ids,
+      bySleeper: {
+        ...baseIds.bySleeper,
+        p0: { draftYear: 2019, draftRound: null, draftPick: null, draftOvr: 5, undrafted: false, birthdate: '1998-01-01' },
+        p1: { draftYear: null, draftRound: null, draftPick: null, draftOvr: null, undrafted: true, birthdate: '1998-01-01' },
+        p2: { draftYear: 0, draftRound: null, draftPick: null, draftOvr: null, undrafted: true, birthdate: '1998-01-01' },
+      },
+    });
+    const rowsBySeason = {
+      2020: [
+        row({ sleeperId: 'p0', S: 2020, arm: 'X-rookie1p' }),
+        row({ sleeperId: 'p1', S: 2020, arm: 'X-rookie0' }),
+        row({ sleeperId: 'p2', S: 2020, arm: 'X-rookie0' }),
+      ],
+    };
+    let seenRows = null;
+    const result = runInSeasonDyn({ load, assemble: fakeAssemble(rowsBySeason), onRows: (rows) => { seenRows = rows; } });
+    const p0 = seenRows.find(r => r.sleeperId === 'p0');
+    const p1 = seenRows.find(r => r.sleeperId === 'p1');
+    const p2 = seenRows.find(r => r.sleeperId === 'p2');
+    assert.equal(p0.ye, 1);
+    assert.equal(p1.ye, null);
+    assert.equal(p2.ye, null);
+    assert.equal(result.excluded.q1.draftYearUnusable.rows, 2);
+    // p0 is YE1: prospectPrior used pick:null (D5); prospectPriorYE1Pick used p0's own class proxy (draftOvr 5 -> round 1).
+    assert.equal(p0.prospectPrior, prospectPriorPPG({ position: p0.position, age: p0.age, pick: null, sm1: p0.sm1 }).prospectPPG);
+    assert.equal(p0.prospectPriorYE1Pick, prospectPriorPPG({ position: p0.position, age: p0.age, pick: { round: 1, pick: 1 }, sm1: p0.sm1 }).prospectPPG);
   });
 
   test('an X-short fixture row with no qualifying season throws (noL drift guard)', () => {
@@ -459,6 +497,56 @@ describe('11: constants file', () => {
       () => runInSeasonDyn({ load, assemble: (S) => ({ rows: rowsBySeason[S] ?? [] }) }),
       /is absent from the loaded/,
     );
+  });
+
+  function q2HistFixture({ kHist, kShort, missingHistory = false }) {
+    const load = dynLoadFixture();
+    load.loadInSeasonConstants = () => (missingHistory
+      ? { constants: { K_DYN_POINTS_SHORT: { WR: { k: kShort } } } } // K_DYN_POINTS_HISTORY absent
+      : { constants: { K_DYN_POINTS_HISTORY: { WR: { k: kHist } }, K_DYN_POINTS_SHORT: { WR: { k: kShort } } } });
+    const bySleeper = {};
+    const totalsByYear = {};
+    const rowsBySeason = {};
+    const seasons = [2016, 2017, 2018, 2019, 2020];
+    let idx = 0;
+    for (const S of seasons) {
+      rowsBySeason[S] = [];
+      const L = S - 2;
+      totalsByYear[L] = totalsByYear[L] ?? {};
+      for (let i = 0; i < 14; i++) {
+        const pid = `h${idx++}`;
+        bySleeper[pid] = { draftYear: null, draftRound: null, draftPick: null, draftOvr: null, undrafted: true, birthdate: '1998-01-01' };
+        const H = 8 + (i % 5);
+        totalsByYear[L][pid] = { team: 'KC', gamesPlayed: 10, stats: {}, fantasyPoints: H * 10, weeklyPoints: {} };
+        for (const W of [2, 4, 6, 8, 10]) {
+          const obsPPG = H + ((i % 3) - 1) * 2;
+          // The fixed rung's prediction — blend(H, obsPPG, W, kFixed) — is made to equal nextPPG exactly,
+          // so the ladder deterministically ends on 'fixed' regardless of the fitted rungs' noise.
+          const kFixed = missingHistory ? null : kHist;
+          const nextPPG = blend(H, obsPPG, W, kFixed);
+          rowsBySeason[S].push({ sleeperId: pid, S, W, n: W, position: 'WR', arm: 'X-short', obsPPG, nextPPG, pointsPrior: H + 1 });
+        }
+      }
+    }
+    const baseLoadSeasonTotals = load.loadSeasonTotals;
+    load.loadSeasonTotals = (y) => totalsByYear[y] ?? baseLoadSeasonTotals(y);
+    const baseIds = load.loadPlayerIds().ids;
+    load.loadPlayerIds = () => ({ ids: baseIds, bySleeper });
+    return { load, assemble: (S) => ({ rows: rowsBySeason[S] ?? [] }) };
+  }
+
+  test('Q2 ladder ending on the fixed rung records a reuse entry equal to K_DYN_POINTS_HISTORY (reuses = ["K_DYN_POINTS_HISTORY"])', () => {
+    const { load, assemble } = q2HistFixture({ kHist: 5.5, kShort: 2 });
+    const result = runInSeasonDyn({ load, assemble });
+    const entry = result.constants.reuse['K_DYN_POINTS_SHORT_HISTORY|WR'];
+    assert.ok(entry, 'expected a reuse entry for K_DYN_POINTS_SHORT_HISTORY|WR');
+    assert.deepEqual(entry.reuses, ['K_DYN_POINTS_HISTORY']);
+    assert.deepEqual(entry.k, [5.5]);
+  });
+
+  test('runInSeasonDyn throws when K_DYN_POINTS_HISTORY alone is absent from the loaded 2a file (Q2)', () => {
+    const { load, assemble } = q2HistFixture({ kHist: 5.5, kShort: 2, missingHistory: true });
+    assert.throws(() => runInSeasonDyn({ load, assemble }), /is absent from the loaded/);
   });
 });
 
