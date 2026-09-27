@@ -26,9 +26,13 @@
  *   --by-season  per-season breakout in addition to pooled
  *   --inseason   in-season evidence k-fit (Phase 2a graded backtest): re-fits the shrinkage k against the real
  *                reconstructed pre-season projection, answers Q1-Q8, emits the constants table. Takes only
- *                --json / --write; the windows and basis are pinned. --write persists
+ *                --json / --write / --dynasty; the windows and basis are pinned. --write persists
  *                backtests/<date>-inseason-{panel,constants}.json + grading/<date>-inseason-verdict.md.
  *                Exit 1 if the gamelogs reconciliation stop fires (no artifacts written).
+ *   --dynasty    (with --inseason) dynasty-side (rookies + SHORT veterans) k-fit (Phase 2c, offline
+ *                analysis only): the prospect prior (arm A vs arm B), the SHORT-veteran history prior,
+ *                and the KTC-anchor report. --write persists
+ *                backtests/<date>-inseason-dyn-{panel,constants}.json + grading/<date>-inseason-dyn-verdict.md.
  */
 
 import path from 'path';
@@ -46,6 +50,7 @@ import {
   runValidate,
 } from '../scripts/backtest-run.mjs';
 import { inSeasonMain } from '../scripts/inseason-run.mjs';
+import { inSeasonDynMain } from '../scripts/inseason-dyn-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -165,16 +170,21 @@ if (isMain) {
       const write     = flag('--write');
       const bySeason  = flag('--by-season');
 
+      const dynasty = flag('--dynasty');
       if (flag('--inseason')) {
-        const rejected = args.filter(a => a.startsWith('--') && !['--inseason', '--json', '--write'].includes(a));
+        const rejected = args.filter(a => a.startsWith('--') && !['--inseason', '--json', '--write', '--dynasty'].includes(a));
         if (rejected.length) {
           console.error(
             `[backtest] Error: --inseason rejects ${rejected.join(', ')} — the seasons, checkpoints and basis (half_ppr) are pinned ` +
-            'by the task file, not knobs; it takes only --json and --write'
+            'by the task file, not knobs; it takes only --json, --write and --dynasty'
           );
           process.exit(1);
         }
-        process.exit(inSeasonMain({ write, asJson }));
+        process.exit(dynasty ? inSeasonDynMain({ write, asJson }) : inSeasonMain({ write, asJson }));
+      }
+      if (dynasty) {
+        console.error('[backtest] Error: --dynasty requires --inseason');
+        process.exit(1);
       }
 
       const fromYear        = parseInt(option('--from')      ?? '2012', 10);

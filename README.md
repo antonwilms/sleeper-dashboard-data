@@ -1276,8 +1276,8 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 
 `bin/backtest.mjs` — `--metric target_share|air_yards_share|wopr|racr|all` (camelCase also
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
-`--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`; rejects
-every other flag — the windows and basis are pinned).
+`--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
+rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1289,9 +1289,10 @@ every other flag — the windows and basis are pinned).
 the app's live default, load-bearing for the reconstruction.
 
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
-`<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`). Methodology:
-[Analysis / Backtesting](#analysis--backtesting).
+`<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
+`<date>-inseason-dyn-{panel,constants}.json`) and `grading/`
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`).
+Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
 
@@ -1907,6 +1908,42 @@ node bin/backtest.mjs --inseason --write   # persist the three artifacts above
 ```
 
 Reproduce: `node bin/backtest.mjs --inseason --write`.
+
+### In-season dynasty-side k-fit (`bin/backtest.mjs --inseason --dynasty`)
+
+Phase 2c (`.claude/tasks/in-season-evidence-2c-dynasty-backtest.md`). Offline analysis only, reusing
+2a's row assembly unchanged. Answers three questions the dynasty score's prospect/SHORT-veteran paths
+never got a fitted weight for: **Q1** which prior the prospect side should use — arm A, the app's own
+`computeProspectScore` heuristic prior (position × age × draft-capital multipliers, blended 8:min(gp,12)
+with any partial S-1 season), or arm B, the reconstructed rookie/veteran projection; **Q2** the
+history-prior k for SHORT veterans (last season < 8 games); **Q3** how much of the KTC-anchored 60% of
+the prospect score the model share leaves on the table (report only — KTC itself may already react to
+in-season evidence, which is unmeasurable until KTC history has a full season behind it, ~Jan 2027).
+Basis is pinned `half_ppr`; horizon is next-season only (the dynasty horizon).
+
+Populations: **YE0/YE1** (years of experience since `draftYear`, from `nflverse/playerids.json`) on the
+app's prospect path; **SHORT-recent** (last qualifying season = S-2) and **SHORT-stale** (≤ S-3,
+reported only) on the veteran path. A **D4 pick proxy** (12-team, 5-round rookie draft, ranked by
+`draftOvr`) stands in for the league's own rookie draft, which is not reconstructable; **D5** notes a
+real app quirk — `selectRookieDraft` reads only the most recent rookie draft, so YE1 prospects always
+get `pick = null` in arm A. **D6** ages players at kickoff (`${S}-09-01`), not Sleeper's stored integer
+age. Every pinned k runs a **pre-registered ladder** (2a-pinned k → subgroup-pooled refit → own-position
+refit for arm B and SHORT-history; subgroup-pooled → own-position for arm A), so a cell that does not
+beat a simpler rung reuses it rather than pinning a noisier fit — `reuse` entries in the constants file
+name what was reused instead of writing a new constant. The pure logic (prospect-prior mirror,
+history-prior, the ladder) is additive in `lib/inSeasonEvidence.mjs`; the adapter is
+`scripts/inseason-dyn-run.mjs`.
+
+**Artifacts** (`--write`): `backtests/<date>-inseason-dyn-panel.json`, `backtests/<date>-inseason-dyn-constants.json`
+(the app's pinned-vs-reused table plus the sufficient-statistics fixture), `grading/<date>-inseason-dyn-verdict.md`.
+
+```sh
+node bin/backtest.mjs --inseason --dynasty           # verdict markdown to stdout
+node bin/backtest.mjs --inseason --dynasty --json    # the result object
+node bin/backtest.mjs --inseason --dynasty --write   # persist the three artifacts above
+```
+
+Reproduce: `node bin/backtest.mjs --inseason --dynasty --write`.
 
 ---
 

@@ -35,6 +35,7 @@ import {
   depthOrderIndex, confidenceTier, median, blend, suffStats, fitK, pinK, analyzeKCell, loso, bySeason,
   losoGroupedK, pairedDelta, compareLabel, errorSummary, fitCK, bootstrapKDiff, bootstrapPairedMean,
   fitVE, predictVE, fitG, predictG, classifyArm, sd, topMixGap, spearman, cellVerdict, mulberry32,
+  decideOwnVsPooled,
 } from '../lib/inSeasonEvidence.mjs';
 
 const POSITIONS = PANEL_POSITIONS;
@@ -444,7 +445,7 @@ export { makeGamelogsIndex, makeScheduleIndex };
 
 // ─── Analysis plumbing ────────────────────────────────────────────────────────
 
-const SPEC = {
+export const SPEC = {
   pointsRos:  { prior: 'pointsPrior', obs: 'obsPPG',   outcome: 'rosPPG' },
   pointsNext: { prior: 'pointsPrior', obs: 'obsPPG',   outcome: 'nextPPG' },
   rawRos:     { prior: 'rawPrior',    obs: 'obsPPG',   outcome: 'rosPPG' },
@@ -919,7 +920,7 @@ function runQ8(store, popP, popR) {
 
 // ─── Constants table (§5.2) ───────────────────────────────────────────────────
 
-function entryOf(pin) {
+export function entryOf(pin) {
   return { k: pin.k, kFit: pin.kFit, ci95: pin.ci95, rows: pin.rows, players: pin.players, basis: pin.basis };
 }
 
@@ -1014,7 +1015,6 @@ function buildConstants({ store, q3, q4, q5, q7, popP }) {
   // NO-GAIN vs Phase 1 pins the pooled-positions value of the same group × horizon, UNLESS the cell's own k
   // BEATS that pooled k out of sample (paired held-out ΔMAE, bootstrap CI) — then own k is pinned instead.
   const groupName = { 'X-rookie0': 'ROOKIE0', 'X-rookie1p': 'ROOKIE1P', 'X-short': 'SHORT' };
-  const q4NoGainPooled = [];
   for (const group of Object.keys(groupName)) {
     for (const horizon of ['ros', 'next']) {
       const H = horizon === 'ros' ? 'ROS' : 'DYN';
@@ -1027,15 +1027,10 @@ function buildConstants({ store, q3, q4, q5, q7, popP }) {
         const cell = q4?.groups?.[group]?.[horizon]?.[pos];
 
         if (own && own.verdict !== 'INSUFFICIENT' && own.delta?.label === 'NO-GAIN' && pooled && pooled.verdict !== 'INSUFFICIENT') {
-          const foldKOf = new Map(pooled.folds.map(fld => [fld.S, fld.k]));
-          const pooledPreds = own.orderedRows.map(r => ({
-            pred: blend(r[spec.prior], r[spec.obs], r.n, foldKOf.get(r.S)),
-            actual: r[spec.outcome],
-          }));
-          const vsPooled = pairedDelta(own.orderedRows, pooledPreds, own.heldOut);
+          const { choice, vsPooled } = decideOwnVsPooled({ own, pooled, spec });
           if (cell) cell.vsPooled = vsPooled ? { mean: r4(vsPooled.mean), ci95: vsPooled.ci95.map(r4), label: vsPooled.label } : null;
 
-          if (vsPooled?.label === 'BEATS') {
+          if (choice === 'own') {
             put(name, pos, pinDecision(own, p1), own, `q4|${group}|${horizon}|${pos}`,
               'NO-GAIN vs Phase 1; own k BEATS the pooled k out of sample → own k pinned');
           } else {
@@ -1050,7 +1045,6 @@ function buildConstants({ store, q3, q4, q5, q7, popP }) {
             if (fx) P.fixture[`${name}|ALL`] = fx;
             P.pinnedFrom[`${name}|${pos}`] = `q4|${group}|${horizon}|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)`;
             if (cell) cell.pinnedToPooledUnderNoGainRule = true;
-            q4NoGainPooled.push(`${group} ${horizon} ${pos}`);
           }
           continue;
         }
@@ -1062,7 +1056,7 @@ function buildConstants({ store, q3, q4, q5, q7, popP }) {
     }
   }
   addFoldK({ constants: P.constants, fixture: P.fixture });
-  return { constants: P.constants, fixture: P.fixture, pinnedFrom: P.pinnedFrom, q4NoGainPooled };
+  return { constants: P.constants, fixture: P.fixture, pinnedFrom: P.pinnedFrom };
 }
 
 /** Adds foldK: { [S]: k } (drop-one-season fitK re-derived from the entry's own fixture) to every
