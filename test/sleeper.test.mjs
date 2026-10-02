@@ -629,5 +629,5 @@ test('fetchSeasonWeeks: a week failing both attempts (non-OK, then thrown) → {
   const out = await fetchSeasonWeeks(2026, { ...FETCH_FAST, fetchImpl });
   assert.deepStrictEqual(out[2], { week: 3, entries: [], failed: true });
   assert.equal(out.filter(w => w.failed).length, 1);
-  assert.equal(out.filter(w => w.week !== 3 && 'failed' in w).length, 0);
+  assert.equal(out.filter(w => w.week !== 3 && 'failed' in w).length, 0);  assert.equal(week3Calls, 2);
 });
