@@ -5,8 +5,8 @@ on:
     # Saturday 13:47 UTC — gamelogs' former slot (playerstats-single-fetch.md §1.3). Must run
     # AFTER the Wednesday playerids Action (13:29) so the re-key joins the freshest crosswalk
     # committed to main. Base player_stats settle Tue/Wed post-games; Saturday is safe.
-    # Distinct slot from Mon(KTC)/Tue(roster)/Wed(playerids)/Fri(schedule). Off-hour :47,
-    # distinct day → no race with other committers.
+    # Distinct time slot from every other committer (Tuesday also runs season-totals at
+    # 06:13 and roster at 13:23). Off-hour :47 → no race.
     #
     # This job fetches stats_player_week_<year>.csv ONCE and drives both the advstats and
     # gamelogs families from it (playerstats-single-fetch.md) — advstats moved here from its
@@ -14,6 +14,12 @@ on:
     # two jobs reading the same upstream file on different days could derive the two families
     # from different upstream revisions within one week.
     - cron: "47 13 * * 6"
+    # Tuesday 10:47 UTC (season-totals-cadence.md) — nflverse rebuilds stats_player after Monday night
+    # (~05:30 UTC) and daily at ~09:00 UTC, so the completed week lands here Tuesday rather than
+    # Saturday. This run re-keys against the PREVIOUS Wednesday's crosswalk: a player first mapped by
+    # this week's playerids run is skipped (logged) until Saturday, exactly as he is absent today.
+    # Saturday stays the authoritative post-crosswalk run, and still picks up midweek stat corrections.
+    - cron: "47 10 * * 2"
   workflow_dispatch: {}   # allow manual trigger for backfill / corrections
 
 permissions:

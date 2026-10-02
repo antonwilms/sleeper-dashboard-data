@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   aggregateWeeks, computeAvailability, normalizeTeamForSchedule, SCHEDULE_TEAM_ALIAS,
-  computeTeamByeWeeks, prunePlayerStats,
+  computeTeamByeWeeks, prunePlayerStats, fetchSeasonWeeks,
 } from '../lib/sleeper.mjs';
 
 // weeks are 1-indexed; e.g. ws({ 1: 'P', 6: 'D' })
@@ -593,4 +593,41 @@ test('D1/F24-capstone — a fully migrated fixture (prune + forward byes) still 
   assert.equal(totals.p1.weeklyStatus[2], 'B');
   assert.equal(totals.p1.byeWeeks, 1);
   assert.doesNotThrow(() => validateNflSeason(totals, { year: 9999 }));
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// fetchSeasonWeeks — retry once, then mark the week failed (season-totals-cadence.md D-D)
+// ═══════════════════════════════════════════════════════════════════
+
+const FETCH_FAST = { dryRun: true, delayMs: 0, retryDelayMs: 0 };
+const okEmpty = { ok: true, json: async () => [] };
+const week3Row = { ok: true, json: async () => [{ player_id: 'p1', team: 'KC', stats: { gp: 1 } }] };
+const weekOf = url => Number(new URL(url).pathname.split('/').pop());
+
+test('fetchSeasonWeeks: a week that fails once then succeeds is kept, with no failed key (19 fetches)', async () => {
+  let week3Calls = 0;
+  let calls = 0;
+  const fetchImpl = async url => {
+    calls++;
+    if (weekOf(url) !== 3) return okEmpty;
+    return ++week3Calls === 1 ? { ok: false, status: 503 } : week3Row;
+  };
+  const out = await fetchSeasonWeeks(2026, { ...FETCH_FAST, fetchImpl });
+  assert.equal(out[2].week, 3);
+  assert.equal(out[2].entries.length, 1);
+  assert.equal('failed' in out[2], false);
+  assert.equal(calls, 19);
+});
+
+test('fetchSeasonWeeks: a week failing both attempts (non-OK, then thrown) → { entries: [], failed: true }; others untouched', async () => {
+  let week3Calls = 0;
+  const fetchImpl = async url => {
+    if (weekOf(url) !== 3) return okEmpty;
+    if (++week3Calls === 1) return { ok: false, status: 503 };
+    throw new Error('network down');
+  };
+  const out = await fetchSeasonWeeks(2026, { ...FETCH_FAST, fetchImpl });
+  assert.deepStrictEqual(out[2], { week: 3, entries: [], failed: true });
+  assert.equal(out.filter(w => w.failed).length, 1);
+  assert.equal(out.filter(w => w.week !== 3 && 'failed' in w).length, 0);
 });

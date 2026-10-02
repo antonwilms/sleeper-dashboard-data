@@ -71,7 +71,7 @@ test('parseAndValidateArgs: --dry-run alone → year: null, no throw', () => {
   assert.equal(opts.year, null);
 });
 
-test("parseAndValidateArgs: ['nfl'] → year: null — the Tuesday Action's exact invocation", () => {
+test("parseAndValidateArgs: ['nfl'] → year: null — the scheduled Action's exact invocation", () => {
   const opts = parseAndValidateArgs(['nfl']);
   assert.equal(opts.year, null);
   assert.equal(opts.subcommand, 'nfl');

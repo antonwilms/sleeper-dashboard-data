@@ -50,7 +50,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `lib/{enrichment,ktc,manifest,sleeper}.mjs` | Helpers — enrichment schema validation, KTC scraping, manifest read/write, Sleeper API fetch |
 | `lib/seasonIngest.mjs` | `runSeasonKeyedIngest` — shared manifest-registration adapter for the five season-keyed family ingests (`schedule`, `teamcontext`, `oline`, `gamelogs`, `advstats`); hard-codes `inProgress: false`, `schemaVersion: 1` (CR-04 data-side trigger) |
 | `lib/registry.mjs`, `scripts/registry-audit.mjs` | Field-block parser + read-only CLI for the mirrored registry region in `cross-repo-registry.md`; reports per-entry cache-field anchor counts, no writes |
-| `scripts/update-nfl.mjs` | NFL season-totals ingest. `--year` omitted resolves via `fetchCurrentNflSeason()` + `setStepOutput('season', …)`. Guards `hasNoData` / `shouldSkipCompletedSeason`; `DEFAULT_DEPS` is the injectable I/O+fetch seam |
+| `scripts/update-nfl.mjs` | NFL season-totals ingest. `--year` omitted resolves via `fetchCurrentNflSeason()` + `setStepOutput('season', …)`. Guards `hasNoData` / `isOpeningWeekPartial` / `shouldSkipCompletedSeason`; `DEFAULT_DEPS` is the injectable I/O+fetch seam |
 | `scripts/migrate-*.mjs` | One-shot historical rewrites, `--dry-run` capable — the Invariant 1 exceptions: `migrate-f24-prune.mjs`, `migrate-college-pivot.mjs` |
 | `scripts/update-cfbd.mjs` | CFBD ingest — fetch long-form, pivot, validate, write the pivoted envelope; dedup hashes the pivoted form on both sides |
 | `scripts/update-ktc.mjs` | KTC snapshot capture; the Spearman ordering guard lives here — `ktcOrderingGuard`, `KTC_ORDERING_THRESHOLD` |

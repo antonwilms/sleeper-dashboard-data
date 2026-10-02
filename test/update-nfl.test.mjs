@@ -9,7 +9,9 @@
 import { test } from 'node:test';
 import assert   from 'node:assert/strict';
 
-import { nflHash, hasNoData, shouldSkipCompletedSeason, updateNfl } from '../scripts/update-nfl.mjs';
+import { nflHash, hasNoData, isOpeningWeekPartial, shouldSkipCompletedSeason, updateNfl } from '../scripts/update-nfl.mjs';
+import { aggregateWeeks } from '../lib/sleeper.mjs';
+import { validateNflSeason } from '../lib/validate.mjs';
 
 test('nflHash: objects differing only in a points-neutral field (off_snp) hash differently', () => {
   const base = {
@@ -264,4 +266,89 @@ test('updateNfl §5.3: a completed season with --dry-run reaches neither call si
   });
   assert.equal(setManifestInProgressLive.calls.length, 1);
   assert.deepEqual(setManifestInProgressLive.calls[0], [{ path: 'nfl/season-totals/2026.json', inProgress: false }]);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// season-totals-cadence.md — opening-week guard (D-C) and fetch strictness (D-D)
+// ═══════════════════════════════════════════════════════════════════
+
+const TEAM_NAMES = Array.from({ length: 32 }, (_, i) => `T${String(i).padStart(2, '0')}`);
+
+// nTeams × perTeam players of { gp: 1 } rows in the given week; every other week empty.
+function weeksWithTeams(nTeams, perTeam, week = 1) {
+  const data = emptyWeekData();
+  const entries = [];
+  for (let t = 0; t < nTeams; t++) {
+    for (let p = 0; p < perTeam; p++) {
+      entries.push({ player_id: `${TEAM_NAMES[t]}_${p}`, team: TEAM_NAMES[t], stats: { gp: 1, pts_half_ppr: 5 } });
+    }
+  }
+  data[week - 1].entries = entries;
+  return data;
+}
+
+test('isOpeningWeekPartial: 2 teams in week 1, all other weeks empty → true', () => {
+  assert.equal(isOpeningWeekPartial(weeksWithTeams(2, 60)), true);
+});
+
+test('isOpeningWeekPartial: 16 teams in week 1 → false', () => {
+  assert.equal(isOpeningWeekPartial(weeksWithTeams(16, 10)), false);
+});
+
+test('isOpeningWeekPartial: 2 teams in week 1 plus a row in week 2 → false', () => {
+  const data = weeksWithTeams(2, 60);
+  data[1].entries = [{ player_id: 'x', team: 'T05', stats: { gp: 1 } }];
+  assert.equal(isOpeningWeekPartial(data), false);
+});
+
+test('isOpeningWeekPartial: all weeks empty → false (hasNoData territory)', () => {
+  assert.equal(isOpeningWeekPartial(emptyWeekData()), false);
+});
+
+test('isOpeningWeekPartial: undefined-gp rows on a 3rd team do not count toward the team set', () => {
+  const data = weeksWithTeams(2, 60);
+  data[0].entries.push({ player_id: 'ghost', team: 'T09', stats: { pts_half_ppr: 0 } });
+  assert.equal(isOpeningWeekPartial(data), true);
+});
+
+function liveDeps(overrides = {}) {
+  return {
+    fetchCurrentNflSeason: async () => 2026,
+    readJson: () => null,
+    writeJsonStable: countingFn(),
+    updateManifestEntry: countingFn(),
+    setManifestInProgress: () => false,
+    diffSummary: () => ({ identical: true, text: 'no change' }),
+    setStepOutput: () => {},
+    ...overrides,
+  };
+}
+
+test('updateNfl D-C: week 1 with 2 teams × 60 players → clean exit, no write; and validateNflSeason would have thrown', async () => {
+  const weekData = weeksWithTeams(2, 60);
+  const deps = liveDeps({ fetchSeasonWeeks: async () => weekData });
+  await updateNfl({ year: 2026, force: false, dryRun: false, deps });
+  assert.equal(deps.writeJsonStable.calls.length, 0);
+  assert.equal(deps.updateManifestEntry.calls.length, 0);
+  assert.throws(() => validateNflSeason(aggregateWeeks(weekData), { year: 2026 }), /expected ≥ 400/);
+});
+
+test('updateNfl D-D: a failed week among populated weeks → rejects, nothing written', async () => {
+  const weekData = weeksWithTeams(20, 25);               // week 1: 20 teams
+  weekData[1].entries = weekData[0].entries.slice();     // week 2 populated too
+  weekData[2] = { week: 3, entries: [], failed: true };
+  const deps = liveDeps({ fetchSeasonWeeks: async () => weekData });
+  await assert.rejects(
+    updateNfl({ year: 2026, force: false, dryRun: false, deps }),
+    /fetch failed for week\(s\) 3/,
+  );
+  assert.equal(deps.writeJsonStable.calls.length, 0);
+  assert.equal(deps.updateManifestEntry.calls.length, 0);
+});
+
+test('updateNfl D-D: all 18 weeks failed → rejects rather than the hasNoData clean exit', async () => {
+  const weekData = Array.from({ length: 18 }, (_, i) => ({ week: i + 1, entries: [], failed: true }));
+  const deps = liveDeps({ fetchSeasonWeeks: async () => weekData });
+  await assert.rejects(updateNfl({ year: 2026, force: false, dryRun: false, deps }), /fetch failed for week\(s\) 1, 2/);
+  assert.equal(deps.writeJsonStable.calls.length, 0);
 });

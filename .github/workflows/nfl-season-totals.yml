@@ -2,14 +2,15 @@ name: Weekly NFL season totals
 
 on:
   schedule:
-    # Tuesday 15:05 UTC — after Monday Night Football settles, and staggered from the Tuesday
-    # roster job (13:23 UTC) so the two weekly committers don't race the push to main. Depends,
-    # in ordering terms, on the Friday nflverse schedule job (13:35 UTC): D-1's bye inference
-    # (lib/sleeper.mjs, threaded in update-nfl.mjs while inProgress) reads
-    # nflverse/schedule/<year>.json, and this run is the next weekday after Friday's in the
-    # weekly cycle. In practice the season's schedule is written long before week 1, so this is
-    # a dependency to record, not a blocker.
-    - cron: "05 15 * * 2"
+    # Fri, Mon and Tue at 06:13 UTC (season-totals-cadence.md). Each run lands a game window a few
+    # hours after it ends: Fri = Thursday night (+ midweek stat corrections to the prior week),
+    # Mon = Sat/Sun, Tue = Monday night — after Tuesday's run the week is complete for every team.
+    # Between Fri and Tue the in-progress file holds a partly played current week (teams that have
+    # played it carry one more gamesPlayed) — CR-21. 06:13 is clear of every committer (KTC 13:17
+    # Mon, roster 13:23 Tue, schedule 13:35 Fri); cron-deadman (05:19) and registry-mirror (06:41)
+    # commit nothing. Reads nflverse/schedule/<year>.json for D-1 bye inference; the season's
+    # schedule is written long before week 1, so the Friday schedule job's timing does not matter.
+    - cron: "13 6 * * 1,2,5"
   workflow_dispatch: {}   # allow manual trigger for backfill / corrections
 
 permissions:

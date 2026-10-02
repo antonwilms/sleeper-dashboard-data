@@ -2,7 +2,7 @@ name: Daily projection snapshot capture
 
 # PHASE 2 (D1b): CR-22 now exists in both registries, so the cron is switched on. 16:29 UTC
 # clears all thirteen occupied weekly slots and sits after the latest weekly committer
-# (nfl-season-totals.yml, Tuesday 15:05) — see the task file's Step 0 correction 1. Adding this
+# (nflverse-depth.yml, Saturday 14:50) — see the task file's Step 0 correction 1. Adding this
 # line is also what makes scripts/check-crons.mjs / bin/deadman.mjs discover this workflow.
 on:
   schedule:

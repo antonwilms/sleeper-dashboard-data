@@ -571,8 +571,8 @@ survive re-keying; the app re-asserts the same gate on `rowCount`.
 **`inProgress: false`:** there is no live app fallback for these metrics (Sleeper does not expose
 them). Weekly mutability of the current season is handled by content-hash dedup + `lastModified`.
 
-**Weekly Saturday refresh:** `nflverse-playerstats.yml` runs Saturday 13:47 UTC — after the Wednesday
-playerids Action — so it re-keys against the freshest crosswalk committed to main. As of
+**Weekly refresh:** `nflverse-playerstats.yml` runs Tuesday 10:47 + Saturday 13:47 UTC. Saturday runs after the Wednesday
+playerids Action, so it re-keys against the freshest crosswalk committed to main; the Tuesday run re-keys against the PREVIOUS Wednesday's crosswalk, so a player first mapped by this week's playerids run is skipped (logged) until Saturday. As of
 playerstats-single-fetch.md (2026-08-31), this and the gamelogs family below are derived from a
 single fetch of `stats_player_week_<year>.csv` (`node bin/update.mjs playerstats`), so the two
 families can no longer diverge across a day boundary within the same week. This moved advstats from
@@ -652,7 +652,7 @@ ingest already fetches, now mined for per-game grain).
 - **`inProgress: false` always** — deliberate deviation (CLAUDE.md Invariant 5): the app has
   no live fallback; it must read from the store. Weekly mutation is handled by SHA-256 content-hash
   dedup + `lastModified` cache invalidation.
-- **Refresh:** Saturday 13:47 UTC (`nflverse-playerstats.yml`, same single-fetch orchestrator as
+- **Refresh:** Tuesday 10:47 + Saturday 13:47 UTC (`nflverse-playerstats.yml`, same single-fetch orchestrator as
   advstats — see above), after Wednesday playerids so the gsis re-key hits the freshest crosswalk.
   The standalone `gamelogs` subcommand below is unaffected and still fetches independently when
   invoked directly (`--all` backfill always fetches per season, regardless of the orchestrator).
@@ -1405,11 +1405,11 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 |---|---|---|
 | `weekly-ktc.yml` | Monday 13:17 UTC + `workflow_dispatch` | Runs `node bin/update.mjs ktc`; per-row + Spearman-ordering + sentinel-QB landscape integrity guards; commits the new snapshot (or a quarantined one under ktc/quarantine/ for review) if changed, purges jsDelivr CDN cache; fails the run if a snapshot was quarantined |
 | `weekly-nflverse-roster.yml` | Tuesday 13:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs roster`, commits if content hash changed, purges jsDelivr CDN cache for changed files |
-| `nfl-season-totals.yml` | Tuesday 15:05 UTC + `workflow_dispatch` | Runs `node bin/update.mjs nfl` (no `--year` — the live season is resolved inside the script via `fetchCurrentNflSeason()`), commits if content hash changed, purges jsDelivr CDN cache; delegates to `_ingest.yml`. Staggered behind the 13:23 roster job so the two Tuesday committers don't race the push to main; its sparse-checkout cone includes `nflverse/schedule` for D-1's in-season bye inference |
+| `nfl-season-totals.yml` | Fri, Mon, Tue 06:13 UTC + `workflow_dispatch` | Runs `node bin/update.mjs nfl` (no `--year` — the live season is resolved inside the script via `fetchCurrentNflSeason()`), commits if content hash changed, purges jsDelivr CDN cache; delegates to `_ingest.yml`. Each run lands a game window hours after it ends; between Friday and Tuesday the file holds a partly played current week (CR-21); its sparse-checkout cone includes `nflverse/schedule` for D-1's in-season bye inference |
 | `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
 | `nflverse-playerids.yml` | Wednesday 13:29 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerids`, commits if content hash changed, purges jsDelivr CDN cache |
 | `nflverse-schedule.yml` | Friday 13:35 UTC + `workflow_dispatch` | Runs `node bin/update.mjs schedule` (current season), commits if content hash changed, purges jsDelivr CDN cache |
-| `nflverse-playerstats.yml` | Saturday 13:47 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstats` (current season, after playerids) — fetches `stats_player_week_<year>.csv` ONCE and drives both advstats + gamelogs off it; per-family error isolation, path-scoped commit (only the families that completed), purges jsDelivr CDN cache for the committed families |
+| `nflverse-playerstats.yml` | Tuesday 10:47 + Saturday 13:47 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstats` (current season, after playerids) — fetches `stats_player_week_<year>.csv` ONCE and drives both advstats + gamelogs off it; per-family error isolation, path-scoped commit (only the families that completed), purges jsDelivr CDN cache for the committed families |
 | `nflverse-teamcontext.yml` | Sunday 13:53 UTC + `workflow_dispatch` | Runs `node bin/update.mjs teamcontext` (current season), commits if content hash changed, purges jsDelivr CDN cache |
 | `weekly-playerstate.yml` | Saturday 14:11 UTC + `workflow_dispatch` | Runs `node bin/update.mjs playerstate`; content-hash dedup (excluding churning `newsUpdated`/`searchRank` fields); commits the new dated snapshot if changed, purges jsDelivr CDN cache |
 | `nflverse-oline.yml` | Saturday 14:37 UTC + `workflow_dispatch` | Runs `node bin/update.mjs oline` (current season), commits if content hash changed, purges jsDelivr CDN cache |

@@ -7,7 +7,7 @@ on:
     # ESPN-era season without a populated bySleeper) and after the Friday schedule Action
     # (13:35), whose upstream games.csv this family also reads (finding 1) for the ESPN-era NFL
     # week derivation. Clear of the occupied weekly-cron set (13:17 Mon, 13:23 Tue, 13:29 Wed,
-    # 13:35 Fri, 13:47 Sat, 13:53 Sun, 14:11 Sat, 14:37 Sat, 15:05 Tue — daily-snapshot-capture.md
+    # 13:35 Fri, 13:47 Sat, 13:53 Sun, 14:11 Sat, 14:37 Sat, 06:13 Mon/Tue/Fri, 10:47 Tue — daily-snapshot-capture.md
     # §Step 0) and off-the-hour by the repo's politeness convention. In-season weekly refresh
     # (not yearly-only like snaps) because the current season's QB1-change capture is what
     # matters most, per the task's §D cadence decision.
