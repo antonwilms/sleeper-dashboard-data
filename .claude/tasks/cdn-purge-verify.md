@@ -417,3 +417,59 @@ Each flag was checked against live source before it was applied. Anton delegates
 | 9 | LOW | `bin/deadman.mjs` takes no argv | **Applied.** Step 2 names it as a shape model only |
 | 10 | LOW | Site counts inconsistent; `_ingest.yml` header never says curl | **Applied.** Counts are now four workflows and eight lines; the header/description edit is dropped |
 | 11 | LOW | Script would be a new direct manifest reader (CR-04) | **Applied.** The local `generatedAt` is read via `readManifest()` (D3), so CR-04 does not change |
+
+## Implementation record
+
+Session 2: `e218508` (range `5879103..e218508`). It touches the 10 touch-list files only. `npm test`: 1185
+pass / 0 fail / 4 skipped. The skips are conditional skips in `panel-integration`, `registry-mirror` and
+`fantasyPoints`, which this change does not touch. Smoke is green, and CLAUDE.md is 24 986 bytes. Deviations
+2 (exit 2 for every pre-fetch error) and 3 (an extra KTC comment, `::error::` lines carrying
+the reason) are accepted. Deviation 1 is corrected below.
+
+## Implementation-review record (round 1, 5 flags, all confirmed against source)
+
+| # | Sev | Flag | Decision |
+|---|---|---|---|
+| 1 | MED | When every purge in an attempt fails, `runPhase` skips the sleep, so a fast 503 or `throttled` burns all 5 attempts in seconds (`scripts/purge-cdn.mjs:194-197`) | **Fix.** This breaks the Goal's "re-purging on a back-off". Single-path phases (every manifest phase, and every `_ingest`/KTC Phase A) can fail no other way |
+| 2 | LOW | `short()` cuts the 24-char `generatedAt` to 16, so a seconds-stale manifest logs identical values (`:34`) | **Fix.** The verify lines are the fact-3 evidence |
+| 3 | LOW | Empty or missing `providers` passes `checkPurgeResponse` (`:50`) | **Fix.** Nothing shows a purge happened |
+| 4 | LOW | The bin header says exit 2 is for usage errors only (`bin/purge-cdn.mjs:9`) | **Fix** (doc only) |
+| 5 | LOW | Untested: a non-2xx verify, header logging, empty providers | **Fix** (tests) |
+
+## Fix pass 1
+
+Touch only `scripts/purge-cdn.mjs`, `bin/purge-cdn.mjs` and `test/purge-cdn.test.mjs`.
+
+1. **`runPhase` back-off** (`scripts/purge-cdn.mjs` ~l.185-200). The sleep must happen on every
+   attempt except a fully failed **last** attempt:
+   ```js
+   const last = i === PURGE_ATTEMPTS - 1;
+   if (purged.length || !last) await d.sleep(VERIFY_DELAYS_MS[i]);
+   for (const p of purged) await verifyOne(p, attempt);
+   ```
+   Keep the delay index attempt-based. Do not change anything else in `runPhase`.
+2. **`short()`** (`:34`): shorten only a 64-char lowercase hex string (a SHA-256), i.e. `typeof v
+   === 'string' && /^[0-9a-f]{64}$/.test(v) ? v.slice(0, 16) : v`. ISO timestamps and reason
+   strings pass through unchanged.
+3. **`checkPurgeResponse`** (`:50`): before the provider loop, if `entry.providers` is not a
+   non-null object or has zero keys, return `{ ok: false, reason: 'providers missing' }`.
+4. **`bin/purge-cdn.mjs` header** (`:9`): change "2 on usage error" to "2 on a usage error, an
+   invalid path, or a local read failure (all before any network call)".
+5. **Tests** (`test/purge-cdn.test.mjs`):
+   - Test "purge HTTP 503 then success": change the expected sleeps from `[30_000]` to
+     `[15_000, 30_000]` and its comment accordingly.
+   - Add a test where every purge returns 503 on all attempts (manifest only). Expected sleeps are
+     `VERIFY_DELAYS_MS.slice(0, 4)` (no sleep after the failed 5th attempt), 5 phase purges, and
+     `ok: false`.
+   - Add a test where `checkPurgeResponse` gets a body whose path entry has `providers: {}`, and one with
+     `providers` absent. Each must give `ok: false`, with a reason containing `providers missing`.
+   - Add a test where the CDN verify returns 404 on attempt 1 and fresh on attempt 2 for a family file. The
+     attempt-1 verify log line must contain `STALE` and `HTTP 404`, and the result is `ok`.
+   - Add a test where the CDN response carries headers `x-cache: HIT` and `age: 12`. The verify log
+     line must contain `x-cache=HIT age=12`. If the harness's fake response has no `headers.get`,
+     extend the harness minimally.
+   - Add a test where a stale manifest is off by seconds (local `…T20:55:13.585Z`, CDN
+     `…T20:55:01.000Z`). The verify log line must contain both full timestamps.
+
+Done-definition for the fix: `npm test` green, `npm run smoke` green, one commit, push. Hand back
+the SHA.
