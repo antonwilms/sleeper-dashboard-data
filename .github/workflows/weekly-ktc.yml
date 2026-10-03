@@ -51,15 +51,19 @@ jobs:
             git commit -m "ktc: snapshot ${SNAPSHOT_DATE}"
             # Retry with rebase on push rejection (multiple weekly committers on main)
             git push || (git pull --rebase && git push)
-            # Purge jsDelivr CDN cache so new snapshot is visible without waiting for TTL
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/ktc/snapshot-${SNAPSHOT_DATE}.json" || true
+            # Purge jsDelivr via bin/purge-cdn.mjs (verifies, manifest last). A quarantined
+            # capture writes ktc/quarantine/, not ktc/, so the snapshot path may not exist.
+            if [[ -f "ktc/snapshot-${SNAPSHOT_DATE}.json" ]]; then
+              node bin/purge-cdn.mjs "ktc/snapshot-${SNAPSHOT_DATE}.json"
+            else
+              node bin/purge-cdn.mjs
+            fi
           else
             echo "No changes to commit."
           fi
 
       - name: Fail if snapshot was quarantined
-        if: steps.capture.outputs.quarantined == 'true'
+        if: always() && steps.capture.outputs.quarantined == 'true'
         run: |
           echo "::error::KTC snapshot quarantined for review: ${{ steps.capture.outputs.quarantine_reason }}"
           exit 1

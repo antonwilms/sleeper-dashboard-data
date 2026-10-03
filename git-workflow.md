@@ -57,5 +57,7 @@ This file is the procedure.
 
 5. **Purge the CDN** if this session wrote served data files (anything under `nflverse/`,
    `ktc/`, `nfl/`, `college/`, `snapshots/`, plus `manifest.json`). Purge exactly the changed
-   files, **`manifest.json` first**, then the data files, so the app sees fresh data instead of
-   stale cache. Method: [README → How the data is consumed](README.md#how-the-data-is-consumed).
+   files — the data files, then `manifest.json` last (the CLI orders this for you), so the app sees
+   fresh data instead of stale cache and the manifest never advertises a new `lastModified` before
+   the family bytes are fresh. Method:
+   `GITHUB_REPOSITORY=antonwilms/sleeper-dashboard-data node bin/purge-cdn.mjs <paths>`.

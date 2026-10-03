@@ -86,16 +86,19 @@ jobs:
             git commit -m "nflverse: playerstats $(date -u +%Y-%m-%d)"
             # Retry with rebase on push rejection (multiple weekly committers on main)
             git push || (git pull --rebase && git push)
-            # Purge jsDelivr CDN cache — only for the families actually committed. SEASON is
-            # the NFL season resolved by the node step, NOT the calendar year (they diverge
-            # Jan–Feb). See scripts/update-playerstats.mjs (setStepOutput).
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
-            if [[ "$ADVSTATS_OK" == "true" && -n "$SEASON" ]]; then
-              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/advstats/${SEASON}.json" || true
+            # Purge jsDelivr via bin/purge-cdn.mjs, which verifies the CDN serves the pushed
+            # bytes (family paths first, manifest last) and fails the job if it never does.
+            # Only the families actually committed (same conditions as staging, incl. -f).
+            # SEASON is the NFL season resolved by the node step, NOT the calendar year (they
+            # diverge Jan–Feb). See scripts/update-playerstats.mjs (setStepOutput).
+            PURGE_PATHS=()
+            if [[ "$ADVSTATS_OK" == "true" && -n "$SEASON" && -f "nflverse/advstats/${SEASON}.json" ]]; then
+              PURGE_PATHS+=("nflverse/advstats/${SEASON}.json")
             fi
-            if [[ "$GAMELOGS_OK" == "true" && -n "$SEASON" ]]; then
-              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/nflverse/gamelogs/${SEASON}.json" || true
+            if [[ "$GAMELOGS_OK" == "true" && -n "$SEASON" && -f "nflverse/gamelogs/${SEASON}.json" ]]; then
+              PURGE_PATHS+=("nflverse/gamelogs/${SEASON}.json")
             fi
+            node bin/purge-cdn.mjs "${PURGE_PATHS[@]}"
           else
             echo "No changes to commit."
           fi

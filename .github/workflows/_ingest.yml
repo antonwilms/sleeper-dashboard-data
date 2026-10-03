@@ -94,9 +94,10 @@ jobs:
             # Retry with rebase on push rejection (multiple weekly committers on main)
             git push || (git pull --rebase && git push)
 
-            # Purge jsDelivr CDN cache — manifest first, then the family file. SEASON is the
-            # NFL season resolved by the node step (Invariant 8) — never the calendar year,
-            # which diverges Jan–Feb. <date> is a plain UTC-date token for date-keyed families
+            # Purge jsDelivr via bin/purge-cdn.mjs, which verifies the CDN serves the pushed
+            # bytes (family path first, manifest last) and fails the job if it never does.
+            # SEASON is the NFL season resolved by the node step (Invariant 8) — never the
+            # calendar year, which diverges Jan–Feb. <date> is a plain UTC-date token for date-keyed families
             # (e.g. playerstate); it is never empty so it never needs the season-keyed guard.
             SEASON="${{ steps.fetch.outputs.season }}"
             DATE=$(date -u +%Y-%m-%d)
@@ -104,11 +105,11 @@ jobs:
             PURGE_PATH="${PURGE_PATH//<season>/$SEASON}"
             PURGE_PATH="${PURGE_PATH//<date>/$DATE}"
 
-            curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
             if [[ "${{ inputs.season-keyed }}" == "true" && -z "$SEASON" ]]; then
               echo "WARN: season step-output empty; skipped season-keyed ${{ inputs.subcommand }} purge"
+              node bin/purge-cdn.mjs
             else
-              curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/${PURGE_PATH}" || true
+              node bin/purge-cdn.mjs "${PURGE_PATH}"
             fi
           else
             echo "No changes to commit."

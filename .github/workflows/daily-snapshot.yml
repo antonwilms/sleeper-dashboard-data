@@ -123,7 +123,8 @@ jobs:
           git commit -m "snapshot: ${SNAPSHOT_DATE} (daily-snapshot.yml)"
           git push || (git pull --rebase && git push)
 
-          # Purge jsDelivr's manifest cache so the new snapshot is visible without waiting for
-          # TTL. The snapshot file itself has no app-side reader and does not need purging —
-          # only ktcHistory.js enumerates manifest.files from the CDN (Design §A).
-          curl -sf "https://purge.jsdelivr.net/gh/${{ github.repository_owner }}/sleeper-dashboard-data@main/manifest.json" || true
+          # Purge jsDelivr's manifest cache (bin/purge-cdn.mjs verifies it) so the new snapshot
+          # is visible without waiting for TTL. A new dated snapshot path has no cached copy to
+          # purge, so the manifest is the only purge needed; snapshots are read back via
+          # tryDataStore (CR-26), and the app only requests manifest-listed paths.
+          node bin/purge-cdn.mjs

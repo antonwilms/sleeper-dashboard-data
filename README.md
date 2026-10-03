@@ -1383,6 +1383,17 @@ off the shared csv/`currentSeason` (each script's §3.1 injection seam), isolati
 throw so neither blocks the other, and surfacing `advstats_ok` / `gamelogs_ok` step outputs for
 the workflow's path-scoped commit. See `.claude/tasks/playerstats-single-fetch.md` §3.3.
 
+#### `scripts/purge-cdn.mjs` — verified jsDelivr purge
+
+`purgeAndVerify` purges `@main/<path>` then checks the CDN serves what was pushed. Freshness:
+`manifest.json` passes when CDN `generatedAt` ≥ the local one (read via `readManifest()`); any other
+path passes when the CDN body's SHA-256 equals the local file's. Schedule: Phase A (family paths)
+then Phase B (`manifest.json`, which runs even if A failed), up to 5 attempts each with sleeps of
+15/30/60/90/120 s before each verify; later attempts re-purge only still-failing paths. A final
+unconditional re-purge sweep covers any stale fill from the push→purge gap (failure there only
+warns). Missing local family files are skipped with a warning; anything unverified ends the run
+red. `bin/purge-cdn.mjs` is the CLI. See `.claude/tasks/cdn-purge-verify.md`.
+
 ### Environment variables
 
 | Variable | Required for | Description |
@@ -1422,6 +1433,8 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the ten uniform ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `nflverse-snaps.yml`, `nflverse-depth.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard or the sentinel-QB landscape check trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
+
+Every committing workflow purges through `bin/purge-cdn.mjs`, and a CDN that still serves old bytes after ~5 min of retries per phase fails the run (family files are verified before the manifest).
 
 *Season-keyed purges (roster, advstats, schedule, gamelogs, teamcontext) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
 
@@ -1498,7 +1511,7 @@ Example — fetch the 2023 NFL season totals:
 https://cdn.jsdelivr.net/gh/<github-username>/sleeper-dashboard-data@main/nfl/season-totals/2023.json
 ```
 
-jsDelivr caches aggressively. After pushing an update, use `https://purge.jsdelivr.net/gh/...` to bust the CDN cache for a specific file.
+jsDelivr caches `@main` for 12 h at the edge and tells browsers to cache for 7 days. Workflows purge and verify with `node bin/purge-cdn.mjs <paths>`. Manual sessions use `GITHUB_REPOSITORY=antonwilms/sleeper-dashboard-data node bin/purge-cdn.mjs <paths>`.
 
 ---
 
