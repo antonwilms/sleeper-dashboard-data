@@ -473,3 +473,12 @@ Touch only `scripts/purge-cdn.mjs`, `bin/purge-cdn.mjs` and `test/purge-cdn.test
 
 Done-definition for the fix: `npm test` green, `npm run smoke` green, one commit, push. Hand back
 the SHA.
+
+## Verification record
+
+- Fix pass 1: `2b4685a` (a26046b..2b4685a). The implementation-reviewer re-review came back **clean**. `npm test`
+  passes 1190, fails 0 and skips 4 (all 4 skips predate this change); `test/purge-cdn.test.mjs` passes 19/19; smoke is green.
+- **Still open:** Verification steps 2–4, the live run. The first committing run after `2b4685a` is the
+  daily snapshot on 2026-10-03, at roughly 19:00–22:00 UTC. The first `_ingest.yml` caller to run is the nfl season
+  totals on Mon 2026-10-05 at 06:13 UTC. Record here which attempt verified each path, and the independent CDN-vs-origin check.
+- **Still open:** step 5, Anton's browser-cache console check (§ App follow-up). This gates the app-side P0 task.
