@@ -729,3 +729,127 @@ applied:
 
 No third automatic round. Remaining judgment items go to Anton: the slice size (~47 KB), and the
 `dp`-first / `og` ordering.
+
+---
+
+## Verification record (2026-10-03)
+
+**What was reviewed:** Session 2's hand-back, range `fadbc2e..75c9a80` (`3913d81` code/tests/docs,
+`75c9a80` artifacts). implementation-reviewer read the diff.
+
+**Checks run:**
+- `npm test`: 1,248 passed, 0 failed, 4 skipped.
+- Smoke: green.
+- `--qb-takeover --json` re-run: panel identical apart from `generatedAt`; constants identical key by
+  key; fixture refit difference ≤ 3.3e-16.
+- Session 1 re-ran the fit independently: coefficients equal the committed file exactly.
+
+**Deviations:** all six disclosed deviations were accepted.
+- The row-count gap is the §3.3 exclusions themselves. The stickiness gap comes from
+  `noGame1Primary` (TEN 2013/2014: 21 rows, 19 stays), not from `noPrevPrimary` as Session 2 guessed.
+- All 8 primary-less team-games are TEN, in games where Jake Locker started (2013 g1–3/7–8, 2014
+  g1–3). Session 1 checked the Fitzpatrick rows: Locker is unmapped in gamelogs (crosswalk
+  attrition, `unmapped` 82 in 2013). 2013 coverage is 0.9902, so one more gap would trip the stop.
+
+**Reviewer flag triage:**
+- Flags 1, 2, 3, 5, 6, 7 and 9 → Fix pass 1 below.
+- Flag 4 is not changed: the stickiness rows lack in-memory raw fields that nothing reads.
+- Flag 8 is accepted: the README section sits beside the 2a section, which matches "mirroring the
+  2a paragraph".
+
+## Fix pass 1
+
+Applied by fix-applier. **The pinned coefficients and fixture must not change.** Every item below
+touches verdict text, `definitions` text, tests or CLAUDE.md only.
+
+### 1. Verdict quantifies the dependence on `dp` (reviewer flag 1)
+
+**Where:** `scripts/qb-takeover-run.mjs`, `buildQbTakeoverVerdictMarkdown`, the "For P6b" transport
+bullet (~l.467).
+
+**Change:** replace the "`dp` is / is NOT in the final hazard model" clause with a generated
+sentence that lists every adopted hazard feature with its ladder Δ log-loss and CI, taken from
+`result.ladders.hazard`. Example:
+
+> "Ladder Δ log-loss per adopted feature: dp −0.0196 [−0.0242, −0.0148], og …, rk …, iq …; `dp` alone carries N× the next-largest gain."
+
+N is computed as |Δ_dp| ÷ max |Δ| over the other adopted features, one decimal. If `dp` was not
+adopted, keep the existing "NOT" wording.
+
+### 2. Extrapolated g = 1 `pUp` beside the raw rate (reviewer flag 2)
+
+**Where:** `scripts/qb-takeover-run.mjs`, where `g1Rate` is assembled, and the verdict's "Game-1
+rows" subsection and §11.3 bullet (~l.468).
+
+**Change:**
+- For every g1 row, apply the **final** hazard model (all-season fit) to that row's own codes, which
+  are already built per §3.4's g = 1 rules (`og = no`, `wp = mid`, `iq` from the week-1 rule).
+- Report `meanPredicted` beside `events/rows`, pooled and by `dp`. Add it to the `g1Rate` object
+  and to the `g1ByDepth` table as a `mean pUp` column.
+- Rewrite the bullet's "the raw g = 1 rate above shows the gap" to quote both numbers.
+
+### 3. Constants `definitions` completeness (reviewer flag 3)
+
+**Where:** `scripts/qb-takeover-run.mjs`, `binsDefinition` (l.185–200) and `definitions.population`
+(~l.335).
+
+**Change:**
+- **`iq`:** append `; at g = 1: incumbent = chart index 0, incPPG = his S−1 prior, median over every team's week-1 chart-index-0 QB's S−1 prior (null priors omitted)`.
+- **`wp`:** insert `a tie counts 0.5;` before `g = 1 → mid`.
+- **`population`:** replace the paraphrase with this exact text:
+
+  > "Incumbent inc: g ≥ 2 → primary passer of game g−1 (game skipped if g−1 has none); g = 1 → chart index 0 of the checkpoint chart. Hazard: every non-null id x in the checkpoint chart at any order with x ≠ inc; y = 1 iff x is primary passer of game g; g = 1 rows are reported, never fitted. Stickiness (g ≥ 2): inc ≠ the team's game-1 primary passer (team-season excluded if game 1 has none); y = 1 iff inc is primary passer of game g; a primary-less game breaks the st streak. Excluded and counted: no crosswalk row, no primary in g, no primary in g−1, no checkpoint chart."
+
+### 4. Primary-less team-games listed (reviewer flag 9)
+
+**Where:** `scripts/qb-takeover-run.mjs` (coverage assembly) and the verdict's Coverage section.
+
+**Change:**
+- Add `coverage.missing: [{ S, team, g, week }]`, sorted by S, team, g, to the panel.
+- Print it in the verdict under the coverage table, followed by one line giving each season's
+  margin above the 0.99 floor.
+- Generated data only. No player names are hard-coded; the Locker attribution lives in this task
+  file.
+
+### 5. T11 timing claim (reviewer flag 5)
+
+**Where:** `test/qb-takeover.test.mjs:727–732`.
+
+**Change:** delete the `t0` / `< 20_000` assertion, and rename the test to drop "before any load".
+The exit-status and stderr assertions stay.
+
+### 6. T7 streak cap (reviewer flag 6)
+
+**Where:** `test/qb-takeover.test.mjs:527–529`.
+
+**Change:**
+- Replace the set check with an exact sequence: start in role S with `c: 0, s: 1`, `pStay ≡ 1`,
+  `remaining: 6`, and assert that `stSeen` deep-equals `[0, 1, 1, 2, 2, 2]`.
+- Without the cap of 4, the fifth call would read the next slot's s = 1 (`st` 0), so this sequence
+  catches a missing cap.
+- If the observed call order differs because of how the chain enumerates states, stop and report
+  rather than adjusting the expectation.
+
+### 7. CLAUDE.md backticks (reviewer flag 7)
+
+**Where:** `CLAUDE.md:16` and `:66`.
+
+**Change:**
+- Line 16: write `` `--qb-takeover` `` with backticks.
+- Line 66: write `` `lib/qbTakeover.mjs` is `--qb-takeover`'s pure fit ``.
+- `test/claudeMdSize.test.mjs` must stay green.
+
+### 8. Re-run and commit
+
+1. `npm test` and `npm run smoke` green.
+2. `node bin/backtest.mjs --qb-takeover --write`.
+   - **Assert before committing:** `hazard.coef`, `stickiness.coef`, `hazard.features`,
+     `stickiness.features` and `fixture` are byte-identical to `75c9a80`'s constants. If not, stop.
+   - If the UTC date is no longer 2026-10-03, the run writes a new dated trio. `git rm` the
+     2026-10-03 trio in the same commit, so exactly one qb-takeover constants file exists.
+3. Commit code/tests/CLAUDE.md, then the artifacts, as two commits.
+4. `git pull --rebase origin main`, then `git push origin main`.
+5. Hand back: the SHAs and the item-by-item diff summary. **The artifacts SHA becomes the P6b pin.**
+
+Leave alone: `lib/qbTakeover.mjs` (no model change), the `-registry.md` companion, manifest, and
+every do-not-edit file in §1.
