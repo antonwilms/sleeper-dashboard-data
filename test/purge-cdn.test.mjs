@@ -106,7 +106,7 @@ test('purge HTTP 503 then success: warning, re-purge on attempt 2, verified', as
   assert.equal(r.ok, true);
   assert.ok(calls.logs.some((l) => l.startsWith('::warning::') && l.includes('HTTP 503')));
   assert.equal(r.results[0].attempts, 2);
-  assert.deepEqual(calls.sleeps, [30_000]); // no verify (so no sleep) on the failed attempt 1
+  assert.deepEqual(calls.sleeps, [15_000, 30_000]); // back-off after the failed attempt 1, then the verify delay of attempt 2
 });
 
 test('throttled:true and providers.FY:false each fail with a reason naming the field', () => {
@@ -228,4 +228,54 @@ test('checkFreshness: manifest ISO compare, other paths SHA-256', () => {
   assert.equal(checkFreshness('manifest.json', Buffer.from('<html>'), LOCAL_GEN).fresh, false);
   assert.equal(checkFreshness('a.json', Buffer.from('x'), Buffer.from('x')).fresh, true);
   assert.equal(checkFreshness('a.json', Buffer.from('x'), Buffer.from('y')).fresh, false);
+});
+
+test('every purge 503 on all attempts: back-off sleeps except after the last, ok false', async () => {
+  const { deps, calls } = harness({ cdn: fresh({}), purge: (p, n) => (n <= 5 ? jsonResp(503, null) : undefined) });
+  const r = await purgeAndVerify({ repo: REPO, paths: [], deps });
+  assert.equal(r.ok, false);
+  assert.deepEqual(calls.sleeps, VERIFY_DELAYS_MS.slice(0, 4));
+  assert.equal(calls.purges.filter((p) => p === 'manifest.json').length, 5 + 1);
+  assert.equal(calls.verifies.length, 0);
+});
+
+test('checkPurgeResponse: empty or absent providers fail with "providers missing"', () => {
+  const p = 'manifest.json';
+  const empty = checkPurgeResponse(200, bodyWith(p, { providers: {} }), REPO, p);
+  assert.equal(empty.ok, false);
+  assert.match(empty.reason, /providers missing/);
+  const b = okBody(p);
+  delete b.paths['/gh/' + REPO + '@main/' + p].providers;
+  const absent = checkPurgeResponse(200, b, REPO, p);
+  assert.equal(absent.ok, false);
+  assert.match(absent.reason, /providers missing/);
+});
+
+test('non-2xx verify on attempt 1 logs STALE and HTTP 404; attempt 2 fresh, ok', async () => {
+  const locals = { 'a.json': 'A' };
+  const { deps, calls } = harness({
+    locals,
+    cdn: (p, n) =>
+      p === 'manifest.json' ? manifestResp(LOCAL_GEN) : n === 1 ? bytesResp(Buffer.from(''), 404) : bytesResp(Buffer.from('A')),
+  });
+  const r = await purgeAndVerify({ repo: REPO, paths: ['a.json'], deps });
+  assert.equal(r.ok, true);
+  const line = calls.logs.find((l) => l.startsWith('verify a.json attempt 1'));
+  assert.ok(line.includes('STALE') && line.includes('HTTP 404'));
+});
+
+test('verify log line carries x-cache and age headers', async () => {
+  const resp = manifestResp(LOCAL_GEN);
+  resp.headers = { get: (h) => (h === 'x-cache' ? 'HIT' : h === 'age' ? '12' : null) };
+  const { deps, calls } = harness({ cdn: () => resp });
+  await purgeAndVerify({ repo: REPO, paths: [], deps });
+  assert.ok(calls.logs.some((l) => l.startsWith('verify manifest.json') && l.includes('x-cache=HIT age=12')));
+});
+
+test('seconds-stale manifest logs both full timestamps', async () => {
+  const cdnGen = '2026-10-02T20:55:01.000Z';
+  const { deps, calls } = harness({ cdn: (p, n) => manifestResp(n === 1 ? cdnGen : LOCAL_GEN) });
+  await purgeAndVerify({ repo: REPO, paths: [], deps });
+  const line = calls.logs.find((l) => l.startsWith('verify manifest.json attempt 1'));
+  assert.ok(line.includes(cdnGen) && line.includes(LOCAL_GEN));
 });

@@ -6,7 +6,8 @@
  *
  * Purges each repo-relative path (family files first, manifest.json always last), verifies the
  * CDN serves the pushed bytes, re-purging on a back-off. No paths = manifest only. Repo comes
- * from --repo, else GITHUB_REPOSITORY. Exit 0 if every path verified, 1 if not, 2 on usage error.
+ * from --repo, else GITHUB_REPOSITORY. Exit 0 if every path verified, 1 if not, 2 on a usage error, an
+ * invalid path, or a local read failure (all before any network call).
  *
  * Local use:
  *   GITHUB_REPOSITORY=antonwilms/sleeper-dashboard-data node bin/purge-cdn.mjs <paths>

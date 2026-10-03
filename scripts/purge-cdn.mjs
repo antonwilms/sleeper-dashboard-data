@@ -31,7 +31,7 @@ export const DEFAULT_DEPS = {
 };
 
 const sha256 = (buf) => crypto.createHash('sha256').update(buf).digest('hex');
-const short = (v) => (typeof v === 'string' && v.length > 16 ? v.slice(0, 16) : v);
+const short = (v) => (typeof v === 'string' && /^[0-9a-f]{64}$/.test(v) ? v.slice(0, 16) : v);
 
 function failReason(err) {
   if (err && (err.name === 'TimeoutError' || err.name === 'AbortError')) return 'timeout';
@@ -47,7 +47,10 @@ export function checkPurgeResponse(httpStatus, body, repo, path) {
   const entry = body.paths?.[key];
   if (!entry) return { ok: false, reason: `paths[${key}] missing` };
   if (entry.throttled === true) return { ok: false, reason: 'throttled=true' };
-  for (const [provider, v] of Object.entries(entry.providers ?? {})) {
+  if (entry.providers === null || typeof entry.providers !== 'object' || Object.keys(entry.providers).length === 0) {
+    return { ok: false, reason: 'providers missing' };
+  }
+  for (const [provider, v] of Object.entries(entry.providers)) {
     if (v !== true) return { ok: false, reason: `providers.${provider}=${v}` };
   }
   return { ok: true };
@@ -191,10 +194,9 @@ export async function purgeAndVerify({ repo, paths, deps = {} }) {
         if (r.ok) purged.push(p);
         else res(p).lastReason = r.reason;
       }
-      if (purged.length) {
-        await d.sleep(VERIFY_DELAYS_MS[i]);
-        for (const p of purged) await verifyOne(p, attempt);
-      }
+      const last = i === PURGE_ATTEMPTS - 1;
+      if (purged.length || !last) await d.sleep(VERIFY_DELAYS_MS[i]);
+      for (const p of purged) await verifyOne(p, attempt);
       pending = pending.filter((p) => !res(p).verified);
     }
   }
