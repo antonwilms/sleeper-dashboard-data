@@ -29,6 +29,12 @@
  *                --json / --write / --dynasty; the windows and basis are pinned. --write persists
  *                backtests/<date>-inseason-{panel,constants}.json + grading/<date>-inseason-verdict.md.
  *                Exit 1 if the gamelogs reconciliation stop fires (no artifacts written).
+ *   --qb-takeover  QB backup→starter takeover fit (P6a, offline analysis only): a two-state weekly Markov chain
+ *                (hazard pUp + stickiness pStay, ridge-logistic over categorical features), forward-ladder
+ *                feature selection on leave-one-season-out log-loss, and the rest-of-season start-fraction
+ *                comparison. Takes only --json / --write. --write persists
+ *                backtests/<date>-qb-takeover-{panel,constants}.json + grading/<date>-qb-takeover-verdict.md.
+ *                Exit 1 if the primary-passer coverage stop fires (no artifacts written).
  *   --dynasty    (with --inseason) dynasty-side (rookies + SHORT veterans) k-fit (Phase 2c, offline
  *                analysis only): the prospect prior (arm A vs arm B), the SHORT-veteran history prior,
  *                and the KTC-anchor report. --write persists
@@ -51,6 +57,7 @@ import {
 } from '../scripts/backtest-run.mjs';
 import { inSeasonMain } from '../scripts/inseason-run.mjs';
 import { inSeasonDynMain } from '../scripts/inseason-dyn-run.mjs';
+import { qbTakeoverMain } from '../scripts/qb-takeover-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -169,6 +176,18 @@ if (isMain) {
       const asJson    = flag('--json');
       const write     = flag('--write');
       const bySeason  = flag('--by-season');
+
+      if (flag('--qb-takeover')) {
+        const rejected = args.filter(a => a.startsWith('--') && !['--qb-takeover', '--json', '--write'].includes(a));
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --qb-takeover rejects ${rejected.join(', ')} — the seasons, features, ladder order and basis (half_ppr) are pinned ` +
+            'by the task file, not knobs; it takes only --json and --write'
+          );
+          process.exit(1);
+        }
+        process.exit(qbTakeoverMain({ write, asJson }));
+      }
 
       const dynasty = flag('--dynasty');
       if (flag('--inseason')) {

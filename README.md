@@ -1278,7 +1278,8 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 `bin/backtest.mjs` — `--metric target_share|air_yards_share|wopr|racr|all` (camelCase also
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
 `--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
-rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`).
+rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`),
+`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1291,15 +1292,15 @@ the app's live default, load-bearing for the reconstruction.
 
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
 `<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
-`<date>-inseason-dyn-{panel,constants}.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`).
+`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`) and `grading/`
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`).
 Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
 
 `D6_NEW_FACTORS`/`FULL_FACTORS_D6`/`ENVELOPE_FACTORS_D6_ADDITIONS` are `attachFactorMultipliers`' OWN dispatch list for six D6a-added factors (age/depth/teamOffense/qbQuality/efficiency/compBlend) — deliberately NOT folded into `FULL_FACTORS`/`ENVELOPE_FACTORS` (those stay the R3-FIT calibration engine's 7-factor set).
 
-`attachFactorMultipliers`' ctx carries two optional in-season backtest seams (`bin/backtest.mjs --inseason`): `requirePositiveOutcome` (default `true`; `false` skips only the `nonPositiveOutcome` drop) and `depthOrderOf(pid, position, lastQSeason, lastQTeam)` (default `null`; replaces the Step 8 depth-order lookup, with the sentinel/coverage bookkeeping unchanged). Defaults reproduce every committed artifact byte-for-byte. `scripts/panel-run.mjs`'s `loadFactorInputs` / `buildFactorContext` are the loading and ctx blocks of `assemblePanel`, extracted so `scripts/inseason-run.mjs` reuses them rather than forking.
+`attachFactorMultipliers`' ctx carries two optional in-season backtest seams (`bin/backtest.mjs --inseason`): `requirePositiveOutcome` (default `true`; `false` skips only the `nonPositiveOutcome` drop) and `depthOrderOf(pid, position, lastQSeason, lastQTeam)` (default `null`; replaces the Step 8 depth-order lookup, with the sentinel/coverage bookkeeping unchanged). Defaults reproduce every committed artifact byte-for-byte. `scripts/panel-run.mjs`'s `loadFactorInputs` / `buildFactorContext` are the loading and ctx blocks of `assemblePanel`, extracted so `scripts/inseason-run.mjs` reuses them rather than forking. `resolvePosition` gains a season-independent crosswalk fallback (D6a finding 2); `resolveSnapCounts` is the R1-SNAPS fallback (finding 3). `compBlend` is a stated architecture deviation — a synthetic ratio factor, since the app's comp blend is a post-hoc convex combination, not a multiplier.
 
 #### The poisoned-snapshot window (2026-07-16 → 2026-07-18)
 
@@ -1958,6 +1959,20 @@ node bin/backtest.mjs --inseason --dynasty --write   # persist the three artifac
 ```
 
 Reproduce: `node bin/backtest.mjs --inseason --dynasty --write`.
+
+### QB takeover fit (`bin/backtest.mjs --qb-takeover`)
+
+P6a (`.claude/tasks/qb-takeover-research.md`). Offline analysis only: no ingest, no served family, no manifest entry. For a QB who is not his team's starter it fits the chance he is the starter in each remaining game, as a two-state weekly Markov chain over the team's game sequence — a **hazard** `pUp` (a non-starter is the primary passer in game g) and a **stickiness** `pStay` (a backup-origin starter stays) — then composes them into an expected remaining-start fraction (an exact recursion over 54 states). **Primary passer** = max `attempts + sacksSuffered` per team-game (REG; ties on attempts, then pid) from `nflverse/gamelogs`; gamelogs `team` is mapped to the schedule/depth era codes with `eraTeam` (STL/SD/OAK). **Checkpoint timing:** the chart known before game g — legacy seasons read chart(week of g), ESPN-era seasons (≥ `DEPTH_ESPN_FROM_SEASON`) read chart(week of g − 1), else the previous team game's chart. Both models are ridge-logistic (λ = 1) over **categorical** features, so the per-pattern (trials, events) table is the exact set of sufficient statistics and every pinned coefficient re-derives from the constants file's fixture. Features are chosen by a pre-registered forward ladder on leave-one-season-out log-loss; a candidate is adopted only when the paired team-season cluster bootstrap (4000 resamples, seed 12345, `mulberry32`) labels it BEATS. The run stops (exit 1, nothing written) if any season's primary-passer coverage is below 0.99 of REG team-games. No gamelogs points are read — weekly points come from season-totals `weeklyPoints`. The pure logic is `lib/qbTakeover.mjs`; the adapter is `scripts/qb-takeover-run.mjs`.
+
+**Artifacts** (`--write`, unregistered — the Invariant 3 analysis-output exception): `backtests/<date>-qb-takeover-panel.json` (aggregate tables only, no per-player rows), `backtests/<date>-qb-takeover-constants.json` (the pinned coefficients plus the pattern-table fixture P6b copies), `grading/<date>-qb-takeover-verdict.md`.
+
+```sh
+node bin/backtest.mjs --qb-takeover           # verdict markdown to stdout
+node bin/backtest.mjs --qb-takeover --json    # the result object
+node bin/backtest.mjs --qb-takeover --write   # persist the three artifacts above
+```
+
+Reproduce: `node bin/backtest.mjs --qb-takeover --write`.
 
 ---
 
