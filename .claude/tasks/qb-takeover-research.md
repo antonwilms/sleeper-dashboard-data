@@ -860,3 +860,30 @@ not 0.25. Keep the c-cap half of the test unchanged. If the asserted values diff
 
 Leave alone: `lib/qbTakeover.mjs` (no model change), the `-registry.md` companion, manifest, and
 every do-not-edit file in §1.
+
+## Fix pass 1 — verification (2026-10-03)
+
+**What was reviewed:**
+- fix-applier implemented items 1–8 as `b7f5608` (code/tests/CLAUDE.md) and `c3f16f8` (artifacts).
+- It stopped once on the first item-6 spec, which was wrong: `pStay` is precomputed per `st` code.
+  Item 6 was revised in `31591dd`.
+- implementation-reviewer re-ran once on `31591dd..c3f16f8`. **Clean.**
+
+**Checks:**
+- `npm test`: 1,248 pass, 0 fail, 4 skipped.
+- `--qb-takeover --json` matches the committed artifacts.
+- Coefficients, features and fixture are byte-identical to `75c9a80`.
+- The T7 perGame test is shown to fail without the s-cap.
+- The `coverageMissing` sibling key is accepted: `coverage` is an array, and a named property on an
+  array would be dropped by `JSON.stringify`.
+
+**Two minor flags, left to the human per the no-third-round rule, and queued as follow-ups:**
+1. The verdict margin line hard-codes `0.99` (`scripts/qb-takeover-run.mjs:444`) rather than
+   reading `defaults.coverageMin`.
+2. No test asserts `coverageMissing`, `meanPredicted` or the `dpDependence` string. These are
+   report-only outputs.
+
+Reviewer process note: it ran `npm run smoke`, whose dry-runs call `bin/update.mjs`. That conflicts
+with its own instructions. It wrote nothing.
+
+**P6b pins `backtests/2026-10-03-qb-takeover-constants.json` @ `c3f16f8`.**
