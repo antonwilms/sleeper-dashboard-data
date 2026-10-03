@@ -41,18 +41,19 @@ function need(v, what) {
 
 // ─── Q6 raw tables ────────────────────────────────────────────────────────────
 
-function tally(rows, keyFn) {
+function tally(rows, keyFn, predFn = null) {
   const m = new Map();
   for (const r of rows) {
     const k = keyFn(r);
     let e = m.get(k.id);
-    if (!e) { e = { ...k.cols, trials: 0, events: 0 }; m.set(k.id, e); }
+    if (!e) { e = { ...k.cols, trials: 0, events: 0, ...(predFn ? { predSum: 0 } : {}) }; m.set(k.id, e); }
     e.trials++; e.events += r.y;
+    if (predFn) e.predSum += predFn(r);
   }
-  return [...m.values()].map((e) => ({ ...e, rate: rate(e.events, e.trials) }));
+  return [...m.values()].map(({ predSum, ...e }) => ({ ...e, rate: rate(e.events, e.trials), ...(predFn ? { meanPredicted: predSum / e.trials } : {}) }));
 }
 
-function q6Tables(hazard, g1) {
+function q6Tables(hazard, g1, hazModel) {
   const L = (k, c) => LEVELS[k][c];
   return {
     byDraftRookiePrior: tally(hazard, (r) => ({
@@ -64,7 +65,7 @@ function q6Tables(hazard, g1) {
     d1ByOgEra: tally(hazard.filter((r) => r.f.dp === 1), (r) => ({
       id: `${r.f.og}|${eraOf(r.S)}`, cols: { og: L('og', r.f.og), era: eraOf(r.S) },
     })).sort((a, b) => a.og.localeCompare(b.og) || a.era.localeCompare(b.era)),
-    g1ByDepth: tally(g1, (r) => ({ id: `${r.f.dp}`, cols: { dp: L('dp', r.f.dp) } }))
+    g1ByDepth: tally(g1, (r) => ({ id: `${r.f.dp}`, cols: { dp: L('dp', r.f.dp) } }), (r) => predict(hazModel, r.f))
       .sort((a, b) => a.dp.localeCompare(b.dp)),
   };
 }
@@ -188,11 +189,11 @@ function binsDefinition(d) {
     dg: 'bySleeper: undrafted === true or draftOvr == null → udfa; draftOvr ≤ 12 top12; ≤ 32 r1; ≤ 100 day2; else day3; no crosswalk row → excluded',
     rk: 'rookie iff draftYear === S',
     ps: 're iff x was primary passer of any team-game of S (any team) whose calendar week < the week of game g',
-    iq: `incRel = incPPG / median incPPG over all teams' incumbents as of calendar week w; weak < ${d.weakCut} ≤ mid ≤ ${d.strongCut} < strong; unknown when incPPG or the median is null`,
+    iq: `incRel = incPPG / median incPPG over all teams' incumbents as of calendar week w; weak < ${d.weakCut} ≤ mid ≤ ${d.strongCut} < strong; unknown when incPPG or the median is null; at g = 1: incumbent = chart index 0, incPPG = his S−1 prior, median over every team's week-1 chart-index-0 QB's S−1 prior (null priors omitted)`,
     bn: 'b0 0–2, b1 3–7, b2 8+ non-incumbent chart games not primary',
     wk: 'early g ≤ 6, mid 7–12, late ≥ 13 (team-game index)',
     dp: 'd2 order 2, d1 order 1 (non-incumbent), d3 order ≥ 3, in the checkpoint chart',
-    wp: `mid ${d.winLow}–${d.winHigh}, losing < ${d.winLow}, winning > ${d.winHigh}; g = 1 → mid`,
+    wp: `mid ${d.winLow}–${d.winHigh}, losing < ${d.winLow}, winning > ${d.winHigh}; a tie counts 0.5; g = 1 → mid`,
     og: 'yes iff x is the team game-1 primary passer (g ≥ 2 only; no at g = 1)',
     st: 's1 = 1 consecutive start, s2 = 2–3, s3 = 4+',
     dg3: 'late = day3+udfa, day2, r1 = top12+r1',
@@ -217,6 +218,7 @@ export function runQbTakeover({ load = QB_TAKEOVER_LOAD, defaults = QB_TAKEOVER_
   // 1. load every season, primary passers, coverage — stop before any fitting if a season is thin
   const ctx = new Map();
   const coverage = [];
+  const missing = [];
   const totalsByYear = new Map();
   for (let S = from; S <= to; S++) {
     const gl = need(g.loadGameLogs(S), `nflverse/gamelogs/${S}.json`);
@@ -228,6 +230,15 @@ export function runQbTakeover({ load = QB_TAKEOVER_LOAD, defaults = QB_TAKEOVER_
     const primaries = primaryPassers(gl, S);
     const cov = coverageFor(sc, primaries);
     coverage.push({ S, teamGames: cov.teamGames, withPrimary: cov.withPrimary, rate: Number.isFinite(cov.rate) ? cov.rate : null });
+    const weeksOf = new Map();
+    for (const gm of sc?.games ?? []) {
+      if (gm.gameType !== 'REG') continue;
+      for (const T of [gm.homeTeam, gm.awayTeam]) { if (!weeksOf.has(T)) weeksOf.set(T, []); weeksOf.get(T).push(gm.week); }
+    }
+    for (const [T, ws] of weeksOf) {
+      ws.sort((a, b) => a - b);
+      ws.forEach((week, i) => { if (!primaries.has(`${T}|${week}`)) missing.push({ S, team: T, g: i + 1, week }); });
+    }
     ctx.set(S, { gl, sc, depth, st, stPrev, primaries });
   }
   const bad = coverage.filter((c) => c.teamGames === 0 || c.rate == null || c.rate < defaults.coverageMin);
@@ -313,7 +324,7 @@ export function runQbTakeover({ load = QB_TAKEOVER_LOAD, defaults = QB_TAKEOVER_
   const q5 = runQ5({
     hazard, g1, hazModel: hazFinal, stickModel: stickFinal, bySleeper, primCount, seasonGames, totalsByYear, defaults,
   });
-  const q6 = q6Tables(hazard, g1);
+  const q6 = q6Tables(hazard, g1, hazFinal);
 
   // 7. representative pUp cases (verdict) — base: day-3 vet, first start, mid incumbent, b0, wk mid, order 2, wp mid, og no
   const base = { dg: 1, rk: 0, ps: 0, iq: 0, bn: 0, wk: 1, dp: 0, wp: 0, og: 0 };
@@ -326,13 +337,16 @@ export function runQbTakeover({ load = QB_TAKEOVER_LOAD, defaults = QB_TAKEOVER_
   ].map(([label, o]) => ({ label, pUp: predict(hazFinal, { ...base, ...o }) }));
 
   const generatedAt = new Date().toISOString();
-  const g1Rate = { rows: counts.g1Rows, events: counts.g1Events, rate: rate(counts.g1Events, counts.g1Rows) };
+  const g1Rate = {
+    rows: counts.g1Rows, events: counts.g1Events, rate: rate(counts.g1Events, counts.g1Rows),
+    meanPredicted: g1.length ? g1.reduce((a, r) => a + predict(hazFinal, r.f), 0) / g1.length : null,
+  };
   const constants = {
     source: `sleeper-dashboard-data backtests/${generatedAt.slice(0, 10)}-qb-takeover-constants.json (node bin/backtest.mjs --qb-takeover --write)`,
     generatedAt, basis: 'half_ppr',
     definitions: {
       primaryPasser: 'max(attempts+sacksSuffered) per team-game, REG; ties: attempts, then pid',
-      population: 'Hazard: every non-null id x in the checkpoint chart at any order with x ≠ inc (inc = primary of game g−1; at g = 1 chart index 0, g = 1 rows are reported, never fitted). Outcome y = x is primary in game g. Stickiness (g ≥ 2): inc is a backup-origin starter (inc ≠ the team game-1 primary); y = inc is primary in game g. Rows with no crosswalk, no primary in g or g−1, or no checkpoint chart are excluded and counted.',
+      population: "Incumbent inc: g ≥ 2 → primary passer of game g−1 (game skipped if g−1 has none); g = 1 → chart index 0 of the checkpoint chart. Hazard: every non-null id x in the checkpoint chart at any order with x ≠ inc; y = 1 iff x is primary passer of game g; g = 1 rows are reported, never fitted. Stickiness (g ≥ 2): inc ≠ the team's game-1 primary passer (team-season excluded if game 1 has none); y = 1 iff inc is primary passer of game g; a primary-less game breaks the st streak. Excluded and counted: no crosswalk row, no primary in g, no primary in g−1, no checkpoint chart.",
       checkpoint: { legacy: 'chart(week of game g)', espn: 'chart(week of game g − 1) if present, else chart(week of previous team game); none at game 1', espnFrom: DEPTH_ESPN_FROM_SEASON },
       bnEraOffset: 'ESPN-era bn counts start at game 2 (no game-1 checkpoint chart)',
       teamDomain: 'gamelogs eraTeam()-mapped to schedule/depth era codes',
@@ -360,7 +374,7 @@ export function runQbTakeover({ load = QB_TAKEOVER_LOAD, defaults = QB_TAKEOVER_
       generatedAt, basis: 'half_ppr', seasons: { from, to }, model: 'two-state Markov chain, ridge-logistic hazard + stickiness',
       lambda: defaults.lambda, bootstrap: defaults.bootstrap, loss: 'LOSO log-loss, team-season cluster bootstrap',
     },
-    coverage, excluded, counts, g1Rate, q1, q6,
+    coverage, coverageMissing: missing.sort((a, b) => a.S - b.S || (a.team < b.team ? -1 : a.team > b.team ? 1 : 0) || a.g - b.g), excluded, counts, g1Rate, q1, q6,
     ladders: { hazard: hzL.steps, stickiness: skL.steps },
     final: { hazard: { features: hzL.final }, stickiness: { features: skL.final } },
     hazardLadderEmpty: hzL.final.length === 0,
@@ -399,6 +413,17 @@ function q4Row(label, s) {
   return [label, String(s.n), f3(s.maeChain), f3(s.maePooledChain), f3(s.maeDepthRate), f3(s.maeAppFlat), lab(s.vsPooled), lab(s.vsDepthRate), ''];
 }
 
+function dpDependence(steps, features) {
+  if (!features.includes('dp')) return '`dp` is NOT in the final hazard model';
+  const adopted = features.map((c) => ({ c, mean: steps.find((x) => x.c === c && x.adopted)?.mean })).filter((a) => Number.isFinite(a.mean));
+  const stepOf = (c) => steps.find((x) => x.c === c && x.adopted);
+  const list = adopted.map((a) => `${a.c} ${f4(a.mean)} ${ci(stepOf(a.c).ci95)}`).join(', ');
+  const others = adopted.filter((a) => a.c !== 'dp').map((a) => Math.abs(a.mean));
+  const dp = adopted.find((a) => a.c === 'dp');
+  const tail = dp && others.length && Math.max(...others) > 0 ? `; \`dp\` alone carries ${(Math.abs(dp.mean) / Math.max(...others)).toFixed(1)}× the next-largest gain` : '';
+  return `ladder Δ log-loss per adopted feature: ${list}${tail}`;
+}
+
 export function buildQbTakeoverVerdictMarkdown(result) {
   const { counts, coverage, q1, q4, q5, q6, constants: C } = result;
   const L = [];
@@ -413,6 +438,10 @@ export function buildQbTakeoverVerdictMarkdown(result) {
     `- Q4 pooled held-out ΔMAE of the chain vs the pooled chain: ${f4(q4.pooled.vsPooled.mean)} ${ci(q4.pooled.vsPooled.ci95)} **${q4.pooled.vsPooled.label ?? '—'}**; vs the per-depth-order rate: ${f4(q4.pooled.vsDepthRate.mean)} ${ci(q4.pooled.vsDepthRate.ci95)} **${q4.pooled.vsDepthRate.label ?? '—'}**.`, '');
 
   out('## Coverage', '', md(['season', 'REG team-games', 'with a primary passer', 'rate'], coverage.map((c) => [String(c.S), String(c.teamGames), String(c.withPrimary), f4(c.rate)])), '',
+    result.coverageMissing.length
+      ? md(['season', 'team', 'game', 'week'], result.coverageMissing.map((m) => [String(m.S), m.team, String(m.g), String(m.week)]))
+      : 'No primary-less team-games.', '',
+    `Margin above the 0.99 floor: ${coverage.map((c) => `${c.S} ${f4(c.rate - 0.99)}`).join(', ')}.`, '',
     `Excluded: ${Object.entries(result.excluded).map(([k, v]) => `${k} ${v}`).join(', ')}.`, '');
 
   out('## Q1 — Timing', '',
@@ -458,14 +487,14 @@ export function buildQbTakeoverVerdictMarkdown(result) {
     '### Order-1 non-incumbents (d1) by `og` and era', '',
     md(['og', 'era', 'trials', 'events', 'rate'], q6.d1ByOgEra.map((r) => [r.og, r.era, String(r.trials), String(r.events), pct(r.rate)])), '',
     '### Game-1 rows (never fitted) by depth order', '',
-    md(['dp', 'trials', 'events', 'rate'], q6.g1ByDepth.map((r) => [r.dp, String(r.trials), String(r.events), pct(r.rate)])), '',
-    `Game-1 overall: ${result.g1Rate.events}/${result.g1Rate.rows} = ${pct(result.g1Rate.rate)} (legacy seasons only — the ESPN-era game-1 chart does not exist).`, '');
+    md(['dp', 'trials', 'events', 'rate', 'mean pUp'], q6.g1ByDepth.map((r) => [r.dp, String(r.trials), String(r.events), pct(r.rate), pct(r.meanPredicted)])), '',
+    `Game-1 overall: ${result.g1Rate.events}/${result.g1Rate.rows} = ${pct(result.g1Rate.rate)} raw; mean predicted pUp from the final hazard model ${pct(result.g1Rate.meanPredicted)} (legacy seasons only — the ESPN-era game-1 chart does not exist).`, '');
 
   out('## For P6b', '',
     'Inputs P6b must compute live, from the §3.4 definitions: `dg` (draft capital), `rk`, `ps` (primary passer of an earlier calendar week of this season), `iq` (incumbent incPPG ÷ all-teams median as of the calendar week — half-PPR vs league basis cancels to first order), `bn` (non-incumbent chart games not primary), `wk`, `dp` (depth order), `wp`, `og`; stickiness `st`, `dg3`, `rk`, `dq`. Only the ladder-final features are used by the pinned models; the rest need not be computed.', '',
     '**Transport caveats.**', '',
-    `- The model leans on the depth chart: ${C.hazard.features.includes('dp') ? '`dp` is in the final hazard model' : '`dp` is NOT in the final hazard model'}. The app\'s only live source is Sleeper \`depth_chart_order\`, which differs from nflverse depth. The one measurement (data-catalog D5) is 68.8% QB depth-1 agreement (n = 32) between the app snapshot of 2026-09-05 and nflverse 2025 week 18 — a cross-season comparison that offseason moves inflate, so it is an upper bound on disagreement, not a same-week agreement rate.`,
-    '- g = 1 (pre-kickoff) has no fitted model here: the hazard is extrapolated at `bn=b0`, `wk=early`, `ps=first`, `wp=mid`, `og=no`, with `iq` from the g = 1 rule; the raw g = 1 rate above shows the gap.',
+    `- The model leans on the depth chart: ${dpDependence(result.ladders.hazard, C.hazard.features)}. The app\'s only live source is Sleeper \`depth_chart_order\`, which differs from nflverse depth. The one measurement (data-catalog D5) is 68.8% QB depth-1 agreement (n = 32) between the app snapshot of 2026-09-05 and nflverse 2025 week 18 — a cross-season comparison that offseason moves inflate, so it is an upper bound on disagreement, not a same-week agreement rate.`,
+    `- g = 1 (pre-kickoff) has no fitted model here: the hazard is extrapolated at \`bn=b0\`, \`wk=early\`, \`ps=first\`, \`wp=mid\`, \`og=no\`, with \`iq\` from the g = 1 rule; the raw g = 1 rate is ${pct(result.g1Rate.rate)} (${result.g1Rate.events}/${result.g1Rate.rows}) against a mean extrapolated pUp of ${pct(result.g1Rate.meanPredicted)}, which is the gap.`,
     '- ROS uses the starter PPG from the existing projection; the chain supplies only P(start).', '',
     '**What this does NOT model:** injury status, coach changes, trades after the checkpoint.', '',
     `Chain: ${C.chain.states}`, '', C.chain.transitions, '',

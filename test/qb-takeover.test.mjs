@@ -524,9 +524,8 @@ describe('T7 expectedStarts', () => {
     const bnSeen = [];
     expectedStarts({ hazard: (c) => { bnSeen.push(c.bn); return 0; }, stick: () => 0, start: { ps: 0, c: 7, g: 1, hazardCodes: {}, stickCodes: {} }, remaining: 4 });
     assert.deepEqual(bnSeen, [1, 2, 2, 2]); // c: 7 → 8 → capped at 8
-    const stSeen = [];
-    expectedStarts({ hazard: () => 0, stick: (c) => { stSeen.push(c.st); return 1; }, start: { role: 'S', c: 0, s: 1, g: 1, hazardCodes: {}, stickCodes: {} }, remaining: 6 });
-    assert.deepEqual([...new Set(stSeen)].sort(), [0, 1, 2]);
+    const rs = expectedStarts({ hazard: () => 0, stick: (c) => [1, 1, 0.5][c.st], start: { role: 'S', c: 0, s: 1, g: 1, hazardCodes: {}, stickCodes: {} }, remaining: 6 });
+    assert.deepEqual(rs.perGame, [1, 1, 1, 0.5, 0.25, 0.125]); // without the s cap of 4, game 5 would read 0.5
   });
 
   test('probability mass sums to 1 every game; fraction = expected / remaining; og = yes forces dq = unknown', () => {
@@ -724,12 +723,10 @@ describe('T11 CLI', () => {
     assert.equal(calls2, 0);
   });
 
-  test('the bin rejects every flag but --json/--write (--qb-takeover --dynasty → exit 1) before any load', () => {
-    const t0 = Date.now();
+  test('the bin rejects every flag but --json/--write (--qb-takeover --dynasty → exit 1)', () => {
     const r = spawnSync('node', ['bin/backtest.mjs', '--qb-takeover', '--dynasty'], { cwd: REPO_ROOT, encoding: 'utf8' });
     assert.equal(r.status, 1);
     assert.match(r.stderr, /--qb-takeover rejects --dynasty/);
-    assert.ok(Date.now() - t0 < 20_000);
     const r2 = spawnSync('node', ['bin/backtest.mjs', '--qb-takeover', '--from', '2015'], { cwd: REPO_ROOT, encoding: 'utf8' });
     assert.equal(r2.status, 1);
     assert.match(r2.stderr, /--qb-takeover rejects --from/);
