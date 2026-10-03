@@ -26,6 +26,19 @@ Seasons 2013–2025, half-PPR, offline analysis; every comparison is leave-one-s
 | 2024 | 544 | 544 | 1.0000 |
 | 2025 | 544 | 544 | 1.0000 |
 
+| season | team | game | week |
+|---|---|---|---|
+| 2013 | TEN | 1 | 1 |
+| 2013 | TEN | 2 | 2 |
+| 2013 | TEN | 3 | 3 |
+| 2013 | TEN | 7 | 7 |
+| 2013 | TEN | 8 | 9 |
+| 2014 | TEN | 1 | 1 |
+| 2014 | TEN | 2 | 2 |
+| 2014 | TEN | 3 | 3 |
+
+Margin above the 0.99 floor: 2013 0.0002, 2014 0.0041, 2015 0.0100, 2016 0.0100, 2017 0.0100, 2018 0.0100, 2019 0.0100, 2020 0.0100, 2021 0.0100, 2022 0.0100, 2023 0.0100, 2024 0.0100, 2025 0.0100.
+
 Excluded: noPrimary 8, noPrevPrimary 3, noGame1Primary 2, noChart 0, noChartG1 32, noCrosswalk 0, noCrosswalkStick 0.
 
 ## Q1 — Timing
@@ -207,12 +220,12 @@ Anton decides on the "mild discount" for sitting longer than draft capital predi
 
 ### Game-1 rows (never fitted) by depth order
 
-| dp | trials | events | rate |
-|---|---|---|---|
-| d2 | 376 | 12 | 3.2% |
-| d3 | 172 | 0 | 0.0% |
+| dp | trials | events | rate | mean pUp |
+|---|---|---|---|---|
+| d2 | 376 | 12 | 3.2% | 6.4% |
+| d3 | 172 | 0 | 0.0% | 2.3% |
 
-Game-1 overall: 12/548 = 2.2% (legacy seasons only — the ESPN-era game-1 chart does not exist).
+Game-1 overall: 12/548 = 2.2% raw; mean predicted pUp from the final hazard model 5.1% (legacy seasons only — the ESPN-era game-1 chart does not exist).
 
 ## For P6b
 
@@ -220,8 +233,8 @@ Inputs P6b must compute live, from the §3.4 definitions: `dg` (draft capital), 
 
 **Transport caveats.**
 
-- The model leans on the depth chart: `dp` is in the final hazard model. The app's only live source is Sleeper `depth_chart_order`, which differs from nflverse depth. The one measurement (data-catalog D5) is 68.8% QB depth-1 agreement (n = 32) between the app snapshot of 2026-09-05 and nflverse 2025 week 18 — a cross-season comparison that offseason moves inflate, so it is an upper bound on disagreement, not a same-week agreement rate.
-- g = 1 (pre-kickoff) has no fitted model here: the hazard is extrapolated at `bn=b0`, `wk=early`, `ps=first`, `wp=mid`, `og=no`, with `iq` from the g = 1 rule; the raw g = 1 rate above shows the gap.
+- The model leans on the depth chart: ladder Δ log-loss per adopted feature: dp -0.0196 [-0.0242, -0.0148], og -0.0013 [-0.0025, -0.0001], rk -0.0011 [-0.0020, -0.0002], iq -0.0037 [-0.0055, -0.0019]; `dp` alone carries 5.3× the next-largest gain. The app's only live source is Sleeper `depth_chart_order`, which differs from nflverse depth. The one measurement (data-catalog D5) is 68.8% QB depth-1 agreement (n = 32) between the app snapshot of 2026-09-05 and nflverse 2025 week 18 — a cross-season comparison that offseason moves inflate, so it is an upper bound on disagreement, not a same-week agreement rate.
+- g = 1 (pre-kickoff) has no fitted model here: the hazard is extrapolated at `bn=b0`, `wk=early`, `ps=first`, `wp=mid`, `og=no`, with `iq` from the g = 1 rule; the raw g = 1 rate is 2.2% (12/548) against a mean extrapolated pUp of 5.1%, which is the gap.
 - ROS uses the starter PPG from the existing projection; the chain supplies only P(start).
 
 **What this does NOT model:** injury status, coach changes, trades after the checkpoint.

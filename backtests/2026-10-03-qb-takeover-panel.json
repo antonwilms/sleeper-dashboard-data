@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-03T19:43:43.365Z",
+    "generatedAt": "2026-10-03T20:19:11.236Z",
     "basis": "half_ppr",
     "seasons": {
       "from": 2013,
@@ -94,6 +94,56 @@
       "rate": 1
     }
   ],
+  "coverageMissing": [
+    {
+      "S": 2013,
+      "team": "TEN",
+      "g": 1,
+      "week": 1
+    },
+    {
+      "S": 2013,
+      "team": "TEN",
+      "g": 2,
+      "week": 2
+    },
+    {
+      "S": 2013,
+      "team": "TEN",
+      "g": 3,
+      "week": 3
+    },
+    {
+      "S": 2013,
+      "team": "TEN",
+      "g": 7,
+      "week": 7
+    },
+    {
+      "S": 2013,
+      "team": "TEN",
+      "g": 8,
+      "week": 9
+    },
+    {
+      "S": 2014,
+      "team": "TEN",
+      "g": 1,
+      "week": 1
+    },
+    {
+      "S": 2014,
+      "team": "TEN",
+      "g": 2,
+      "week": 2
+    },
+    {
+      "S": 2014,
+      "team": "TEN",
+      "g": 3,
+      "week": 3
+    }
+  ],
   "excluded": {
     "noPrimary": 8,
     "noPrevPrimary": 3,
@@ -114,7 +164,8 @@
   "g1Rate": {
     "rows": 548,
     "events": 12,
-    "rate": 0.021897810218978103
+    "rate": 0.021897810218978103,
+    "meanPredicted": 0.05089605838759745
   },
   "q1": {
     "agreement": {
@@ -395,13 +446,15 @@
         "dp": "d2",
         "trials": 376,
         "events": 12,
-        "rate": 0.031914893617021274
+        "rate": 0.031914893617021274,
+        "meanPredicted": 0.06371322425399734
       },
       {
         "dp": "d3",
         "trials": 172,
         "events": 0,
-        "rate": 0
+        "rate": 0,
+        "meanPredicted": 0.022877137656397428
       }
     ]
   },
