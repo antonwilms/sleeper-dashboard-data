@@ -818,17 +818,24 @@ rows" subsection and §11.3 bullet (~l.468).
 **Change:** delete the `t0` / `< 20_000` assertion, and rename the test to drop "before any load".
 The exit-status and stderr assertions stay.
 
-### 6. T7 streak cap (reviewer flag 6)
+### 6. T7 streak cap (reviewer flag 6) — revised after fix-applier stop
 
-**Where:** `test/qb-takeover.test.mjs:527–529`.
+`test/qb-takeover.test.mjs:527–529`. The first spec (an exact `stSeen` call sequence) was wrong.
+`expectedStarts` (`lib/qbTakeover.mjs:646`) precomputes `pStay` once per `st` code, so `stick` is
+called exactly 3 times whatever `remaining` is.
 
-**Change:**
-- Replace the set check with an exact sequence: start in role S with `c: 0, s: 1`, `pStay ≡ 1`,
-  `remaining: 6`, and assert that `stSeen` deep-equals `[0, 1, 1, 2, 2, 2]`.
-- Without the cap of 4, the fifth call would read the next slot's s = 1 (`st` 0), so this sequence
-  catches a missing cap.
-- If the observed call order differs because of how the chain enumerates states, stop and report
-  rather than adjusting the expectation.
+**Detect the cap through `perGame` instead:**
+- `stick: (c) => [1, 1, 0.5][c.st]`, `hazard: () => 0`.
+- Start `{ role: 'S', c: 0, s: 1, g: 1, hazardCodes: {}, stickCodes: {} }`, `remaining: 6`.
+- Assert that `perGame` deep-equals `[1, 1, 1, 0.5, 0.25, 0.125]`, exact floats.
+
+Hand derivation:
+- s goes 1 → 2 → 3 → 4, with `st` codes 0, 1, 1 and pStay 1, so games 1–3 are 1.
+- From s = 4 (`st` 2, pStay 0.5) the starter mass halves each game. The capped s stays 4, and the
+  demoted mass sits in B with pUp 0.
+
+Without the cap, `sIdx(0, 5)` aliases `sIdx(1, 1)` (`st` 0, pStay 1), so game 5 would read 0.5,
+not 0.25. Keep the c-cap half of the test unchanged. If the asserted values differ, stop and report.
 
 ### 7. CLAUDE.md backticks (reviewer flag 7)
 
