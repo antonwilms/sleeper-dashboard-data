@@ -1,0 +1,19 @@
+{
+  "source": "sleeper-dashboard-data backtests/<date>-qb-rookie-level-constants.json (node bin/backtest.mjs --qb-rookie-level --write)",
+  "generatedAt": "2026-10-04T11:26:34.156Z",
+  "basis": "half_ppr",
+  "definitions": {"seasons":{"from":2013,"to":2025},"started":"primary passer of the REG team-game: max(attempts+sacksSuffered); ties attempts, then pid (P6a primaryPassers)","rookie":"bySleeper.draftYear === S","position":"playerids ids position QB","groups":{"top12":"round 1, pick <= 12","r1":"round 1, pick >= 13","day2":"rounds 2-3","day3+":"rounds 4-7 or undrafted"},"pickConvention":"within-round (bySleeper.draftPick)","outcome":"season-totals weeklyPoints[week] (half_ppr) in each primary game; never gamelogs fantasyPoints","estimator":"sum(points) / sum(primary games), game-weighted","thinPlayers":10,"leagueScaling":"multiply by the app's runtime positionBasisScale (as ROOKIE_CEILING)"},
+  "starterPPG": {"top12":{"value":15.801,"ci95":[14.255,17.415],"players":30,"games":349,"thin":false},"r1":{"value":14.355,"ci95":[12.061,16.532],"players":9,"games":81,"thin":true},"day2":{"value":13.303,"ci95":[12.311,14.399],"players":17,"games":124,"thin":false},"day3+":{"value":12.341,"ci95":[10.358,14.081],"players":34,"games":136,"thin":false},"pooled":{"value":14.5,"ci95":[13.556,15.471],"players":90,"games":690,"thin":false}},
+  "heldOut": {"units":68,"mae":{"shippedKtcNeutral":3.739384063840813,"pooled":3.548122131935262,"group":3.0982790384281236,"cap":3.7495077203834666},"groupVsShipped":{"mean":-0.6411050254126875,"ci95":[-1.2472946612565274,-0.02137385375228796],"label":"BEATS"},"groupVsPooled":{"mean":-0.4498430935071378,"ci95":[-0.7782410113354705,-0.12477938243035218],"label":"BEATS"},"capVsShipped":{"mean":0.010123656542654987,"ci95":[-0.18282371322156668,0.1904925831964328],"label":"NO-GAIN"}},
+  "live": {"snapshot":"2026-10-03","basisScale":[1.114],"byGroup":{"top12":{"n":1,"meanLevelHalf":20.826,"ABOVE":1,"WITHIN":0,"BELOW":0},"r1":{"n":1,"meanLevelHalf":18.492,"ABOVE":1,"WITHIN":0,"BELOW":0},"day2":{"n":2,"meanLevelHalf":12.567,"ABOVE":0,"WITHIN":1,"BELOW":1},"day3+":{"n":10,"meanLevelHalf":8.77,"ABOVE":0,"WITHIN":1,"BELOW":9}}},
+  "fixture": {
+    "keys": ["group","players","games","sumPts"],
+    "rows": [
+      ["top12",30,349,5514.6],
+      ["r1",9,81,1162.72],
+      ["day2",17,124,1649.62],
+      ["day3+",34,136,1678.32]
+    ]
+  },
+  "verification": {"rederiveFromFixture":"exact"}
+}

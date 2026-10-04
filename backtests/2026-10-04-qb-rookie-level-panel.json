@@ -1,0 +1,928 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-04T11:26:34.156Z",
+    "seasons": {
+      "from": 2013,
+      "to": 2025
+    },
+    "snapshot": "2026-10-03",
+    "basis": "half_ppr",
+    "bootstrap": {
+      "resamples": 4000,
+      "seed": 12345
+    },
+    "groupNote": "round-based groups (D2); not P6a draftOvr bins"
+  },
+  "coverage": [
+    {
+      "S": 2013,
+      "teamGames": 512,
+      "withPrimary": 507,
+      "rate": 0.990234375
+    },
+    {
+      "S": 2014,
+      "teamGames": 512,
+      "withPrimary": 509,
+      "rate": 0.994140625
+    },
+    {
+      "S": 2015,
+      "teamGames": 512,
+      "withPrimary": 512,
+      "rate": 1
+    },
+    {
+      "S": 2016,
+      "teamGames": 512,
+      "withPrimary": 512,
+      "rate": 1
+    },
+    {
+      "S": 2017,
+      "teamGames": 512,
+      "withPrimary": 512,
+      "rate": 1
+    },
+    {
+      "S": 2018,
+      "teamGames": 512,
+      "withPrimary": 512,
+      "rate": 1
+    },
+    {
+      "S": 2019,
+      "teamGames": 512,
+      "withPrimary": 512,
+      "rate": 1
+    },
+    {
+      "S": 2020,
+      "teamGames": 512,
+      "withPrimary": 512,
+      "rate": 1
+    },
+    {
+      "S": 2021,
+      "teamGames": 544,
+      "withPrimary": 544,
+      "rate": 1
+    },
+    {
+      "S": 2022,
+      "teamGames": 542,
+      "withPrimary": 542,
+      "rate": 1
+    },
+    {
+      "S": 2023,
+      "teamGames": 544,
+      "withPrimary": 544,
+      "rate": 1
+    },
+    {
+      "S": 2024,
+      "teamGames": 544,
+      "withPrimary": 544,
+      "rate": 1
+    },
+    {
+      "S": 2025,
+      "teamGames": 544,
+      "withPrimary": 544,
+      "rate": 1
+    }
+  ],
+  "excluded": {
+    "noCrosswalk": 0,
+    "noScheduleGame": 0,
+    "nonQB": 1,
+    "noDraftRound": 0,
+    "missingPoints": 1
+  },
+  "q1": {
+    "top12": {
+      "players": 30,
+      "games": 349,
+      "sumPts": 5514.6,
+      "value": 15.801,
+      "ci95": [
+        14.255052631578948,
+        17.414794520547943
+      ],
+      "clusters": 30,
+      "thin": false,
+      "playerDistribution": {
+        "n": 26,
+        "mean": 15.748252834772064,
+        "p25": 12.316617647058825,
+        "p50": 16.21377777777778,
+        "p75": 18.592875,
+        "p90": 20.828980392156865
+      },
+      "leagueScaled": 17.602,
+      "leagueByRatio": {
+        "value": 17.504,
+        "players": 30,
+        "games": 349,
+        "seasonsWithoutRatio": 0
+      }
+    },
+    "r1": {
+      "players": 9,
+      "games": 81,
+      "sumPts": 1162.72,
+      "value": 14.355,
+      "ci95": [
+        12.061176470588235,
+        16.531604938271606
+      ],
+      "clusters": 9,
+      "thin": true,
+      "playerDistribution": {
+        "n": 7,
+        "mean": 14.583910411717133,
+        "p25": 13.245080213903742,
+        "p50": 13.648000000000001,
+        "p75": 16.12472527472527,
+        "p90": 18.861619047619048
+      },
+      "leagueScaled": 15.991,
+      "leagueByRatio": {
+        "value": 15.774,
+        "players": 9,
+        "games": 81,
+        "seasonsWithoutRatio": 0
+      }
+    },
+    "day2": {
+      "players": 17,
+      "games": 124,
+      "sumPts": 1649.62,
+      "value": 13.303,
+      "ci95": [
+        12.31140186915888,
+        14.399327731092441
+      ],
+      "clusters": 17,
+      "thin": false,
+      "playerDistribution": {
+        "n": 13,
+        "mean": 13.91703846153846,
+        "p25": 12.336,
+        "p50": 13.6,
+        "p75": 14.132307692307693,
+        "p90": 16.1768
+      },
+      "leagueScaled": 14.82,
+      "leagueByRatio": {
+        "value": 14.814,
+        "players": 17,
+        "games": 124,
+        "seasonsWithoutRatio": 0
+      }
+    },
+    "day3+": {
+      "players": 34,
+      "games": 136,
+      "sumPts": 1678.32,
+      "value": 12.341,
+      "ci95": [
+        10.357600000000001,
+        14.080641711229948
+      ],
+      "clusters": 34,
+      "thin": false,
+      "playerDistribution": {
+        "n": 14,
+        "mean": 12.465261904761904,
+        "p25": 10.86425,
+        "p50": 11.984749999999998,
+        "p75": 13.058,
+        "p90": 17.399619047619048
+      },
+      "leagueScaled": 13.748,
+      "leagueByRatio": {
+        "value": 13.813,
+        "players": 33,
+        "games": 135,
+        "seasonsWithoutRatio": 1
+      }
+    },
+    "pooled": {
+      "players": 90,
+      "games": 690,
+      "sumPts": 10005.26,
+      "value": 14.5,
+      "ci95": [
+        13.556423658872076,
+        15.47081300813008
+      ],
+      "clusters": 90,
+      "thin": false,
+      "playerDistribution": {
+        "n": 60,
+        "mean": 14.449618554212671,
+        "p25": 11.991124999999998,
+        "p50": 13.59235294117647,
+        "p75": 17.5875,
+        "p90": 19.29862032085562
+      },
+      "leagueScaled": 16.153,
+      "leagueByRatio": {
+        "value": 16.093,
+        "players": 89,
+        "games": 689,
+        "seasonsWithoutRatio": 1
+      }
+    }
+  },
+  "q2": {
+    "era": {
+      "sides": {
+        "a": "2013-2018",
+        "b": "2019-2025"
+      },
+      "top12": {
+        "a": {
+          "players": 12,
+          "games": 135,
+          "value": 14.867
+        },
+        "b": {
+          "players": 18,
+          "games": 214,
+          "value": 16.39
+        }
+      },
+      "r1": {
+        "a": {
+          "players": 5,
+          "games": 34,
+          "value": 14.094
+        },
+        "b": {
+          "players": 4,
+          "games": 47,
+          "value": 14.543
+        }
+      },
+      "day2": {
+        "a": {
+          "players": 8,
+          "games": 71,
+          "value": 13.024
+        },
+        "b": {
+          "players": 9,
+          "games": 53,
+          "value": 13.677
+        }
+      },
+      "day3+": {
+        "a": {
+          "players": 10,
+          "games": 34,
+          "value": 14.686
+        },
+        "b": {
+          "players": 24,
+          "games": 102,
+          "value": 11.559
+        }
+      },
+      "pooled": {
+        "a": {
+          "players": 35,
+          "games": 274,
+          "value": 14.271
+        },
+        "b": {
+          "players": 55,
+          "games": 416,
+          "value": 14.651
+        }
+      }
+    },
+    "origin": {
+      "sides": {
+        "a": "g1",
+        "b": "takeover"
+      },
+      "top12": {
+        "a": {
+          "players": 16,
+          "games": 216,
+          "value": 16.27
+        },
+        "b": {
+          "players": 14,
+          "games": 133,
+          "value": 15.04
+        }
+      },
+      "r1": {
+        "a": {
+          "players": 2,
+          "games": 27,
+          "value": null
+        },
+        "b": {
+          "players": 7,
+          "games": 54,
+          "value": null
+        }
+      },
+      "day2": {
+        "a": {
+          "players": 3,
+          "games": 44,
+          "value": 13.286
+        },
+        "b": {
+          "players": 14,
+          "games": 80,
+          "value": 13.313
+        }
+      },
+      "day3+": {
+        "a": {
+          "players": 2,
+          "games": 29,
+          "value": null
+        },
+        "b": {
+          "players": 32,
+          "games": 107,
+          "value": null
+        }
+      },
+      "pooled": {
+        "a": {
+          "players": 23,
+          "games": 316,
+          "value": 15.722
+        },
+        "b": {
+          "players": 67,
+          "games": 374,
+          "value": 13.468
+        }
+      }
+    },
+    "half": {
+      "sides": {
+        "a": "gIndex<=8",
+        "b": "gIndex>=9"
+      },
+      "top12": {
+        "a": {
+          "players": 27,
+          "games": 165,
+          "value": 15.827
+        },
+        "b": {
+          "players": 28,
+          "games": 184,
+          "value": 15.778
+        }
+      },
+      "r1": {
+        "a": {
+          "players": 7,
+          "games": 30,
+          "value": 13.833
+        },
+        "b": {
+          "players": 9,
+          "games": 51,
+          "value": 14.661
+        }
+      },
+      "day2": {
+        "a": {
+          "players": 12,
+          "games": 50,
+          "value": 12.492
+        },
+        "b": {
+          "players": 16,
+          "games": 74,
+          "value": 13.852
+        }
+      },
+      "day3+": {
+        "a": {
+          "players": 15,
+          "games": 36,
+          "value": 13.408
+        },
+        "b": {
+          "players": 30,
+          "games": 100,
+          "value": 11.956
+        }
+      },
+      "pooled": {
+        "a": {
+          "players": 61,
+          "games": 281,
+          "value": 14.711
+        },
+        "b": {
+          "players": 83,
+          "games": 409,
+          "value": 14.356
+        }
+      }
+    }
+  },
+  "q3": {
+    "units": 68,
+    "unitsByGroup": {
+      "top12": 27,
+      "r1": 8,
+      "day2": 14,
+      "day3+": 19
+    },
+    "mae": {
+      "A": 3.739384063840813,
+      "B": 3.548122131935262,
+      "C": 3.0982790384281236,
+      "D": 3.7495077203834666
+    },
+    "comparisons": [
+      {
+        "new": "C",
+        "old": "A",
+        "mean": -0.6411050254126875,
+        "ci95": [
+          -1.2472946612565274,
+          -0.02137385375228796
+        ],
+        "label": "BEATS"
+      },
+      {
+        "new": "C",
+        "old": "B",
+        "mean": -0.4498430935071378,
+        "ci95": [
+          -0.7782410113354705,
+          -0.12477938243035218
+        ],
+        "label": "BEATS"
+      },
+      {
+        "new": "D",
+        "old": "A",
+        "mean": 0.010123656542654987,
+        "ci95": [
+          -0.18282371322156668,
+          0.1904925831964328
+        ],
+        "label": "NO-GAIN"
+      }
+    ],
+    "biasA": {
+      "top12": {
+        "n": 27,
+        "mean": 0.46118862824418344
+      },
+      "r1": {
+        "n": 8,
+        "mean": -0.2767549435858254
+      },
+      "day2": {
+        "n": 14,
+        "mean": -2.964869047619047
+      },
+      "day3+": {
+        "n": 19,
+        "mean": -3.8175614035087717
+      }
+    },
+    "cFallback": 0
+  },
+  "q4": {
+    "snapshot": "2026-10-03",
+    "targetSeason": 2026,
+    "scaleCaptured": [
+      1.114
+    ],
+    "rows": [
+      {
+        "pid": "13269",
+        "group": "top12",
+        "draftOvr": 1,
+        "team": "LV",
+        "depthChartOrder": 3,
+        "levelLeague": 23.2,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 20.826,
+        "reconHalf": 16.1,
+        "ktcMult": 1.156,
+        "collegeContribution": 1.25,
+        "fitHalf": 15.801,
+        "fitCI": [
+          14.255,
+          17.415
+        ],
+        "fitLeague": 17.602,
+        "gapHalf": 5.025,
+        "class": "ABOVE"
+      },
+      {
+        "pid": "13272",
+        "group": "day2",
+        "draftOvr": 65,
+        "team": "ARI",
+        "depthChartOrder": 3,
+        "levelLeague": 14.5,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 13.016,
+        "reconHalf": 8.7,
+        "ktcMult": 1.048,
+        "collegeContribution": 1.23,
+        "fitHalf": 13.303,
+        "fitCI": [
+          12.311,
+          14.399
+        ],
+        "fitLeague": 14.82,
+        "gapHalf": -0.287,
+        "class": "WITHIN"
+      },
+      {
+        "pid": "13275",
+        "group": "r1",
+        "draftOvr": 13,
+        "team": "LAR",
+        "depthChartOrder": 3,
+        "levelLeague": 20.6,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 18.492,
+        "reconHalf": 11.7,
+        "ktcMult": 1.0899999999999999,
+        "collegeContribution": 1.25,
+        "fitHalf": 14.355,
+        "fitCI": [
+          12.061,
+          16.532
+        ],
+        "fitLeague": 15.991,
+        "gapHalf": 4.137,
+        "class": "ABOVE"
+      },
+      {
+        "pid": "13289",
+        "group": "day2",
+        "draftOvr": 76,
+        "team": "PIT",
+        "depthChartOrder": 4,
+        "levelLeague": 13.5,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 12.118,
+        "reconHalf": 11.2,
+        "ktcMult": 1.006,
+        "collegeContribution": 1.08,
+        "fitHalf": 13.303,
+        "fitCI": [
+          12.311,
+          14.399
+        ],
+        "fitLeague": 14.82,
+        "gapHalf": -1.185,
+        "class": "BELOW"
+      },
+      {
+        "pid": "13295",
+        "group": "day3+",
+        "draftOvr": 234,
+        "team": "NE",
+        "depthChartOrder": 3,
+        "levelLeague": 8.6,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 7.72,
+        "reconHalf": 6.2,
+        "ktcMult": 1,
+        "collegeContribution": 1.25,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -4.621,
+        "class": "BELOW"
+      },
+      {
+        "pid": "13303",
+        "group": "day3+",
+        "draftOvr": 110,
+        "team": "NYJ",
+        "depthChartOrder": 3,
+        "levelLeague": 12.9,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 11.58,
+        "reconHalf": 9.1,
+        "ktcMult": 0.952,
+        "collegeContribution": 1.2,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -0.761,
+        "class": "WITHIN"
+      },
+      {
+        "pid": "13306",
+        "group": "day3+",
+        "draftOvr": 182,
+        "team": "CLE",
+        "depthChartOrder": 4,
+        "levelLeague": 9.3,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 8.348,
+        "reconHalf": 6.6,
+        "ktcMult": 0.868,
+        "collegeContribution": 1.25,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -3.993,
+        "class": "BELOW"
+      },
+      {
+        "pid": "13314",
+        "group": "day3+",
+        "draftOvr": null,
+        "team": "DET",
+        "depthChartOrder": null,
+        "levelLeague": 11.5,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 10.323,
+        "reconHalf": 7.1,
+        "ktcMult": 1,
+        "collegeContribution": 1.25,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -2.018,
+        "class": "BELOW"
+      },
+      {
+        "pid": "13335",
+        "group": "day3+",
+        "draftOvr": 178,
+        "team": "PHI",
+        "depthChartOrder": 4,
+        "levelLeague": 8.2,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 7.361,
+        "reconHalf": 7.2,
+        "ktcMult": 0.7,
+        "collegeContribution": 1.25,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -4.98,
+        "class": "BELOW"
+      },
+      {
+        "pid": "13350",
+        "group": "day3+",
+        "draftOvr": null,
+        "team": "BAL",
+        "depthChartOrder": 4,
+        "levelLeague": 9.9,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 8.887,
+        "reconHalf": 7.1,
+        "ktcMult": 1,
+        "collegeContribution": 1.25,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -3.454,
+        "class": "BELOW"
+      },
+      {
+        "pid": "13404",
+        "group": "day3+",
+        "draftOvr": 249,
+        "team": "KC",
+        "depthChartOrder": 3,
+        "levelLeague": 6.6,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 5.925,
+        "reconHalf": 6.2,
+        "ktcMult": 0.838,
+        "collegeContribution": 1.15,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -6.416,
+        "class": "BELOW"
+      },
+      {
+        "pid": "13415",
+        "group": "day3+",
+        "draftOvr": null,
+        "team": "CAR",
+        "depthChartOrder": 3,
+        "levelLeague": 9.9,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 8.887,
+        "reconHalf": 7.1,
+        "ktcMult": 1,
+        "collegeContribution": 1.25,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -3.454,
+        "class": "BELOW"
+      },
+      {
+        "pid": "13425",
+        "group": "day3+",
+        "draftOvr": null,
+        "team": "TB",
+        "depthChartOrder": 1,
+        "levelLeague": 10.8,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 9.695,
+        "reconHalf": 7.1,
+        "ktcMult": 0.9339999999999999,
+        "collegeContribution": 1.25,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -2.646,
+        "class": "BELOW"
+      },
+      {
+        "pid": "13557",
+        "group": "day3+",
+        "draftOvr": 223,
+        "team": "WAS",
+        "depthChartOrder": 4,
+        "levelLeague": 10,
+        "source": "projectedPPG",
+        "basisScale": 1.114,
+        "levelHalf": 8.977,
+        "reconHalf": 7.2,
+        "ktcMult": 1,
+        "collegeContribution": 1.25,
+        "fitHalf": 12.341,
+        "fitCI": [
+          10.358,
+          14.081
+        ],
+        "fitLeague": 13.748,
+        "gapHalf": -3.364,
+        "class": "BELOW"
+      }
+    ],
+    "byGroup": {
+      "top12": {
+        "n": 1,
+        "meanLevelHalf": 20.826,
+        "fitHalf": 15.801,
+        "ABOVE": 1,
+        "WITHIN": 0,
+        "BELOW": 0
+      },
+      "r1": {
+        "n": 1,
+        "meanLevelHalf": 18.492,
+        "fitHalf": 14.355,
+        "ABOVE": 1,
+        "WITHIN": 0,
+        "BELOW": 0
+      },
+      "day2": {
+        "n": 2,
+        "meanLevelHalf": 12.567,
+        "fitHalf": 13.303,
+        "ABOVE": 0,
+        "WITHIN": 1,
+        "BELOW": 1
+      },
+      "day3+": {
+        "n": 10,
+        "meanLevelHalf": 8.77,
+        "fitHalf": 12.341,
+        "ABOVE": 0,
+        "WITHIN": 1,
+        "BELOW": 9
+      }
+    },
+    "excluded": {
+      "notRookieRoute": 0,
+      "inconsistentCapture": 0,
+      "badBasisScale": 0
+    }
+  },
+  "verdictInput": {
+    "groupsPinned": [
+      {
+        "value": 15.801,
+        "ci95": [
+          14.255,
+          17.415
+        ],
+        "players": 30,
+        "games": 349,
+        "thin": false
+      },
+      {
+        "value": 14.355,
+        "ci95": [
+          12.061,
+          16.532
+        ],
+        "players": 9,
+        "games": 81,
+        "thin": true
+      },
+      {
+        "value": 13.303,
+        "ci95": [
+          12.311,
+          14.399
+        ],
+        "players": 17,
+        "games": 124,
+        "thin": false
+      },
+      {
+        "value": 12.341,
+        "ci95": [
+          10.358,
+          14.081
+        ],
+        "players": 34,
+        "games": 136,
+        "thin": false
+      }
+    ],
+    "mendoza": {
+      "pid": "13269",
+      "group": "top12",
+      "draftOvr": 1,
+      "team": "LV",
+      "depthChartOrder": 3,
+      "levelLeague": 23.2,
+      "source": "projectedPPG",
+      "basisScale": 1.114,
+      "levelHalf": 20.826,
+      "reconHalf": 16.1,
+      "ktcMult": 1.156,
+      "collegeContribution": 1.25,
+      "fitHalf": 15.801,
+      "fitCI": [
+        14.255,
+        17.415
+      ],
+      "fitLeague": 17.602,
+      "gapHalf": 5.025,
+      "class": "ABOVE"
+    }
+  }
+}
