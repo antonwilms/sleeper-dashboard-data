@@ -2,9 +2,10 @@
 
 **Not to be confused with `.claude/tasks/anchor-policy.md`**, which is the registry
 line-anchor policy. This file is about which captured snapshot rows are safe to compare
-against which grading run, given that the app's projection mechanism has changed five times on the axes this file
+against which grading run, given that the app's projection mechanism has changed six times on the axes this file
 tracks — three on the rookie path, one on the veteran path (the Step 4 up-side), one on QB rows of both paths (the
-start share). Earlier
+start share), one on rookie QB rows
+(the rookie starter level). Earlier
 snapshot-schema and factor-set changes (`schemaVersion` 1→2→3; the veteran factor set
 widening on 2026-06-06) are out of this file's scope.
 
@@ -55,7 +56,7 @@ captures either side of boundary 4.
 
 ## The date table is the cross-check, not the rule
 
-Five model changes on the three tracked axes, verified against the actually-committed app files:
+Six model changes on the four tracked axes, verified against the actually-committed app files:
 
 | # | commit | date (UTC) | path | mechanism |
 |---|---|---|---|---|
@@ -64,6 +65,7 @@ Five model changes on the three tracked axes, verified against the actually-comm
 | 3 | `41f277e` | 2026-09-12 09:23 | rookie | ceiling |
 | 4 | `7b5b055` | 2026-09-12 22:27 | veteran | step4-upside (RB/WR/TE up-side removed, QB retained) |
 | 5 | `c7a5d84` (Stage A; the model is live only once the Stage B commits ship with it) | 2026-10-04 01:04 (the **app push**, `00c0946..c53db19`); captures check out app `main`, and the push follows commits 2–3, so the Stage A commit time would be too early | both (QB rows) | qb-takeover start share |
+| 6 | pending — filled by the post-push commit (the model is live once the push lands; captures check out app `main`) | pending — filled by the post-push commit | rookie (QB rows, yearsExp 0) | rookie QB starter level |
 
 Scheduled captures (`daily-snapshot.yml`) trigger at 16:29 UTC against app `main` but can
 start hours late — `snapshots/2026-09-12.json` has `capturedAt` 18:34:49 UTC. Cross-check a
@@ -111,16 +113,43 @@ app push of boundary 5 reflects it, and every earlier capture is legacy on this 
 No such capture exists at the time of writing; the first sync after one lands fills this table with a
 confirmed row, as the other two tables carry.
 
+### Rookie QB rows — boundary 6
+
+`factors.qbStarterBasis` present → captured under the rookie-starter-level model; every row carries it from
+boundary 6 on (`null` on non-QBs). On a rookie-path QB row (`projection.confidence === 'rookie'`):
+
+- `'rookie:top12'`, `'rookie:r1'`, `'rookie:day2'`, `'rookie:day3+'` → `qbStarterPPG` = the pinned rookie starter
+  level (`backtests/2026-10-04-qb-rookie-level-constants.json` `starterPPG`, half-PPR) × `rookieBasisScale`. If
+  `qbTakeoverBasis` is `'chain'`, `projectedPPG` and `projectedTotalPts` move with it (boundary 5's identities on
+  the new `qbStarterPPG`); otherwise `projectedPPG` is unchanged from boundary 5. `inSeason.next.prior` and
+  `inSeason.start.starterPrior` read this level.
+- `'projection'` → unchanged from boundary 5.
+- Absent on a rookie-path QB row → pre-boundary: `qbStarterPPG` is the rookie-path level.
+
+Veteran-path rows carry `'projection'`/`null` only; nothing on that path moved.
+
+**Expected segments — rookie QB rows**, a rule and not a date: the first capture whose `capturedAt` is after the
+app push of boundary 6 reflects it; every earlier capture is pre-boundary on this axis.
+
+| capture date | expected rookie QB starter level |
+|---|---|
+| `< first capture after the app push` | rookie-path level — no row carries `qbStarterBasis` |
+| `>= first capture after the app push` | pinned group level on `'rookie:*'` rows — to be confirmed against the first such capture |
+
 ## Boundaries by path
 
 Rookie boundaries 1–3 are rookie-path only. Boundary 4 is veteran-path only, affects only
 rows whose basis starts `removed:`, and a pooled veteran grade spanning it measures the
 mechanism change. Boundary 5 is QB-only on both paths; it moves only QB rows whose `qbTakeoverBasis`
-is not `incumbent`/`stale`, and a pooled QB grade spanning it measures the mechanism change.
+is not `incumbent`/`stale`, and a pooled QB grade spanning it measures the mechanism change. Boundary 6 is rookie-QB-only (`yearsExp` 0 with known draft capital); it moves
+`qbStarterPPG` on those rows and `projectedPPG`/`projectedTotalPts` only on their `chain` rows, and a pooled rookie QB
+grade spanning it measures the mechanism change.
 
 ## Why this is written now, not at the first forward grade
 
 Writing this policy with a stale date list is worse than not writing it at all (D-15) — a
 reader would trust a table quietly missing a boundary. Boundary 4 exists as of `7b5b055`
-and boundary 5 as of the qb-takeover-wiring push, so the table above is complete, for the rookie mechanisms,
-the Step 4 up-side axis and the QB start-share axis, as of qb-takeover-wiring.
+boundary 5 as of
+the qb-takeover-wiring push and boundary 6 as of the rookie-qb-starter-level push, so the table above is complete,
+for the rookie mechanisms, the Step 4 up-side axis, the QB start-share axis and the rookie QB starter level, as of
+rookie-qb-starter-level.
