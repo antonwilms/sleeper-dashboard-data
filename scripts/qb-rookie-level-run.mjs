@@ -48,7 +48,7 @@ function positionOfFrom(playerIds) {
 
 // ─── Q2 splits (report-only, complementary suppression) ───────────────────────
 
-function runQ2(games, defaults) {
+export function runQ2(games, defaults) {
   const dims = {
     era: { a: `${defaults.seasons.from}-${defaults.eraSplitFrom - 1}`, b: `${defaults.eraSplitFrom}-${defaults.seasons.to}`, side: (g) => (g.S < defaults.eraSplitFrom ? 'a' : 'b') },
     origin: { a: 'g1', b: 'takeover', side: (g) => (g.origin === 'g1' ? 'a' : 'b') },
@@ -59,10 +59,21 @@ function runQ2(games, defaults) {
     const agg = aggregate(games, (g) => `${g.group}|${d.side(g)}`);
     const aggP = aggregate(games, (g) => d.side(g));
     out[dim] = { sides: { a: d.a, b: d.b } };
+    const suppressedRaw = [];   // raw (pre-suppression) sides of the groups whose pair was suppressed
     for (const cell of CELLS) {
       const [sa, sb] = cell === POOLED ? [aggP.get('a'), aggP.get('b')] : [agg.get(`${cell}|a`), agg.get(`${cell}|b`)];
-      const [a, b] = suppressPair(cellOf(sa), cellOf(sb), defaults.minCellPlayers);
+      const rawA = cellOf(sa), rawB = cellOf(sb);
+      const [a, b] = suppressPair(rawA, rawB, defaults.minCellPlayers);
+      if (cell !== POOLED && (a !== rawA)) suppressedRaw.push([rawA, rawB]);
       out[dim][cell] = { a, b };
+    }
+    // Cross-group complement: pooled minus the published groups would recover the suppressed groups' combined side.
+    if (suppressedRaw.length > 0) {
+      const sumA = suppressedRaw.reduce((t, [x]) => t + x.players, 0);
+      const sumB = suppressedRaw.reduce((t, [, y]) => t + y.players, 0);
+      if ((sumA < defaults.minCellPlayers || sumB < defaults.minCellPlayers) && out[dim][POOLED].a.value !== null) {
+        out[dim][POOLED] = { a: suppress(out[dim][POOLED].a, Infinity), b: suppress(out[dim][POOLED].b, Infinity) };
+      }
     }
   }
   return out;
@@ -324,12 +335,12 @@ export function buildQbRookieLevelVerdictMarkdown(result) {
     `Excluded primary games: ${Object.entries(excluded).map(([k, v]) => `${k} ${v}`).join(', ')}. Snapshot rows excluded: ${Object.entries(q4.excluded).map(([k, v]) => `${k} ${v}`).join(', ')}.`, '');
 
   out('## Q1 — Level', '',
-    md(['group', 'rookies', 'games', 'value', '95% CI', 'player-weighted mean (n ≥ 4 games)', 'p25', 'p50', 'p75', 'p90', 'league × scale', 'league by ratio'],
+    md(['group', 'rookies', 'games', 'value', '95% CI', 'rookies with ≥ 3 starts (n)', 'player-weighted mean', 'league × scale', 'league by ratio'],
       CELLS.map((c) => {
         const r = q1[c], d = r.playerDistribution;
-        return [c, String(r.players), String(r.games), f3(r.value), ciS(r.ci95), `${f3(d?.mean)} (n=${d?.n ?? 0})`, f3(d?.p25), f3(d?.p50), f3(d?.p75), f3(d?.p90), f3(r.leagueScaled), `${f3(r.leagueByRatio?.value)} (${r.leagueByRatio?.players ?? 0} rookies)`];
+        return [c, String(r.players), String(r.games), f3(r.value), ciS(r.ci95), String(d?.n ?? 0), f3(d?.mean), f3(r.leagueScaled), `${f3(r.leagueByRatio?.value)} (${r.leagueByRatio?.players ?? 0} rookies)`];
       })), '',
-    `Quantiles need ≥ 7 rookie-seasons with ≥ 4 starts; cells under 3 rookies show \`—\`. League × scale uses the snapshot's captured \`rookieBasisScale\` (${q4.scaleCaptured.join(', ') || '—'}).`, '');
+    `The player-weighted mean covers the rookie-seasons with ≥ 3 starts (the Q3 unit set); cells under 3 rookies show \`—\`. League × scale uses the snapshot's captured \`rookieBasisScale\` (${q4.scaleCaptured.join(', ') || '—'}).`, '');
 
   out('## Q2 — Splits (report-only)', '', 'Each split is a two-way partition; if either side has < 3 rookies, both are `—` (complementary suppression).', '');
   for (const dim of ['era', 'origin', 'half']) {

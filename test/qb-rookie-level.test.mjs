@@ -19,7 +19,7 @@ import {
   suppress, suppressPair, leagueRatio, liveLevel, unitsFrom, losoCompare, round2, round3,
 } from '../lib/qbRookieLevel.mjs';
 import {
-  runQbRookieLevel, SnapshotStop, qbRookieLevelMain, writeQbRookieLevelArtifacts, formatQbRookieLevelConstantsJson,
+  runQbRookieLevel, runQ2, SnapshotStop, qbRookieLevelMain, writeQbRookieLevelArtifacts, formatQbRookieLevelConstantsJson,
   buildQbRookieLevelVerdictMarkdown, QB_ROOKIE_LOAD, ARTIFACT_CAPS,
 } from '../scripts/qb-rookie-level-run.mjs';
 import { CoverageStop } from '../scripts/qb-takeover-run.mjs';
@@ -268,23 +268,18 @@ describe('T4 levelCI', () => {
 
 describe('T5 playerDistribution + suppress', () => {
   const season = (pid, ppg, n = 4) => Array.from({ length: n }, (_, i) => G(pid, 2020, 'top12', ppg, { week: i + 1 }));
-  test('quantiles interpolate linearly between order statistics at (n−1)·f', () => {
-    const games = [10, 12, 14, 16, 18, 20, 22, 24].flatMap((v, i) => season(`p${i}`, v));
+  test('{ n, mean } over rookie-seasons with >= 3 starts (the Q3 unit set), player-weighted', () => {
+    const games = [10, 12, 14, 16, 18, 20, 22, 24].flatMap((v, i) => season(`p${i}`, v, 3 + (i % 2)));
     const d = playerDistribution(games, 'top12');
+    assert.deepEqual(Object.keys(d).sort(), ['mean', 'n']);
     assert.equal(d.n, 8);
     assert.equal(d.mean, 17);
-    assert.equal(d.p50, 17);                          // (7 × 0.5 = 3.5) between 16 and 18
-    assert.ok(Math.abs(d.p25 - 13.5) < 1e-9);         // pos 1.75 between 12 and 14
-    assert.ok(Math.abs(d.p75 - 20.5) < 1e-9);         // pos 5.25 between 20 and 22
-    assert.ok(Math.abs(d.p90 - 22.6) < 1e-9);         // pos 6.3 between 22 and 24
   });
-  test('rookie-seasons under minQuantileGames are excluded; all-null (n kept) under 7 rookies', () => {
-    const games = [...[10, 12, 14, 16, 18, 20].flatMap((v, i) => season(`p${i}`, v)), ...season('short', 99, 3)];
-    const d = playerDistribution(games, 'top12');
-    assert.deepEqual(d, { n: 6, mean: null, p25: null, p50: null, p75: null, p90: null });
-    const seven = [...games, ...season('p7', 22)];
-    assert.equal(playerDistribution(seven, 'top12').n, 7);
-    assert.notEqual(playerDistribution(seven, 'top12').p50, null);
+  test('the floor is 3 games (a 3-start rookie counts, a 2-start one does not); mean null (n kept) under 3 rookies', () => {
+    const games = [...season('a', 10, 3), ...season('b', 20, 3), ...season('short', 99, 2)];
+    assert.deepEqual(playerDistribution(games, 'top12'), { n: 2, mean: null });
+    const three = [...games, ...season('c', 15, 3)];
+    assert.deepEqual(playerDistribution(three, 'top12'), { n: 3, mean: 15 });
   });
   test('suppress nulls numeric values below 3 rookies and keeps players/games; suppressPair takes both sides', () => {
     const cell = { players: 2, games: 14, value: 12.3, ci95: [1, 2], tag: 'x' };
@@ -295,6 +290,11 @@ describe('T5 playerDistribution + suppress', () => {
     assert.deepEqual(b, { players: 9, games: 50, value: null });
     const [c, d] = suppressPair({ players: 3, games: 5, value: 1 }, { players: 9, games: 50, value: 2 });
     assert.equal(c.value, 1); assert.equal(d.value, 2);
+  });
+  test('suppress nulls nested objects recursively, keeping players/games at every depth', () => {
+    const cell = { players: 2, games: 9, value: 1, leagueByRatio: { value: 2, ci95: [1, 3], players: 2 } };
+    assert.deepEqual(suppress(cell), { players: 2, games: 9, value: null, leagueByRatio: { value: null, ci95: null, players: 2 } });
+    assert.deepEqual(suppress({ ...cell, players: 3 }), { ...cell, players: 3 });
   });
 });
 
@@ -489,7 +489,7 @@ describe('T12 coverage stop', () => {
     gl.players.vD.games = gl.players.vD.games.filter((g) => g.week !== 6);
     assert.throws(() => runQbRookieLevel({ load }), (e) => e instanceof CoverageStop && e.coverage.find((c) => c.S === 2019).rate === 0.98);
   });
-  test('a NaN rate (no REG games at all, rate = 0/0) is a stop, not a pass', () => {
+  test('an empty REG schedule (rate = 0/0, NaN) is a stop', () => {
     const load = synthLoad();
     const sc = load.loadSchedule(2015);
     sc.games = sc.games.map((g) => ({ ...g, gameType: 'PRE' }));
@@ -551,5 +551,46 @@ describe('T14 disclosure', () => {
     for (const bad of ['"folds"', '"bySeason"', '"perSeason"', '"weeklyPoints"']) assert.ok(!text.includes(bad), bad);
     assert.ok(!('folds' in result.q3));
     assert.deepEqual(Object.keys(result.constants.fixture.rows[0]).length, 4);
+  });
+  test('Q1 distribution and Q3 bias cover the identical rookie set (n equal) on a synthetic run', () => {
+    const result = runQbRookieLevel({ load: synthLoad() });
+    for (const grp of GROUPS) assert.equal(result.q3.biasA[grp].n, result.q1[grp].playerDistribution.n, grp);
+  });
+  test('biasA minus playerDistribution isolates nobody: n·(meanA − biasA.mean) − pd.n·pd.mean = 0', () => {
+    const games = [];
+    ['top12', 'r1', 'day2', 'day3+'].forEach((grp, gi) => {
+      for (let i = 0; i < 4; i++) for (let w = 1; w <= 3 + (i % 2); w++) games.push(G(`${grp}${i}`, 2014 + i, grp, 10 + gi * 3 + i * 1.7 + w * 0.3, { gIndex: w }));
+      for (let w = 1; w <= 2; w++) games.push(G(`${grp}short`, 2020, grp, 50, { gIndex: w }));   // 2 starts: in neither
+    });
+    const priorOf = (u) => 12 + (u.group === 'r1' ? 1 : 0);
+    const r = JSON.parse(JSON.stringify(losoCompare({ games, units: unitsFrom(games, 3), priorOf })));
+    for (const grp of GROUPS) {
+      const pd = playerDistribution(games, grp);
+      const meanA = priorOf({ group: grp });
+      assert.equal(r.biasA[grp].n, pd.n);
+      assert.ok(Math.abs(r.biasA[grp].n * (meanA - r.biasA[grp].mean) - pd.n * pd.mean) < 1e-9, grp);
+    }
+  });
+  test('Q2: a suppressed group whose combined sides are thin nulls the pooled pair; combined >= 3 keeps it', () => {
+    const rooks = (grp, S, k, origin = 'takeover') => Array.from({ length: k }, (_, i) => G(`${grp}${S}${i}`, S, grp, 12 + i, { origin }));
+    // exactly one group thin on the b side (1 rookie from 2019+): pooled b would otherwise be recoverable
+    const one = runQ2([...rooks('top12', 2015, 3), ...rooks('top12', 2021, 1), ...rooks('r1', 2015, 3), ...rooks('r1', 2021, 3),
+      ...rooks('day2', 2015, 3), ...rooks('day2', 2021, 3), ...rooks('day3+', 2015, 3), ...rooks('day3+', 2021, 3)], QB_ROOKIE_DEFAULTS);
+    assert.equal(one.era.top12.b.value, null);
+    assert.equal(one.era.pooled.a.value, null);
+    assert.equal(one.era.pooled.b.value, null);
+    assert.equal(one.era.pooled.b.players, 10);
+    // two groups thin on b (2 + 2 = 4 >= 3 combined) and fat on a: pooled kept
+    const two = runQ2([...rooks('top12', 2015, 3), ...rooks('top12', 2021, 2), ...rooks('r1', 2015, 3), ...rooks('r1', 2021, 2),
+      ...rooks('day2', 2015, 3), ...rooks('day2', 2021, 3), ...rooks('day3+', 2015, 3), ...rooks('day3+', 2021, 3)], QB_ROOKIE_DEFAULTS);
+    assert.equal(two.era.top12.b.value, null);
+    assert.equal(two.era.r1.b.value, null);
+    assert.notEqual(two.era.pooled.a.value, null);
+    assert.notEqual(two.era.pooled.b.value, null);
+  });
+  test('no quantile keys (p25/p50/p75/p90) anywhere in the serialised panel or constants', () => {
+    const result = runQbRookieLevel({ load: synthLoad() });
+    const text = JSON.stringify(result);
+    for (const k of ['p25', 'p50', 'p75', 'p90']) assert.ok(!text.includes(`"${k}"`), k);
   });
 });
