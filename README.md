@@ -1279,7 +1279,7 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
 `--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
 rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`),
-`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included).
+`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1292,8 +1292,8 @@ the app's live default, load-bearing for the reconstruction.
 
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
 `<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
-`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`).
+`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`) and `grading/`
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`).
 Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
@@ -1973,6 +1973,27 @@ node bin/backtest.mjs --qb-takeover --write   # persist the three artifacts abov
 ```
 
 Reproduce: `node bin/backtest.mjs --qb-takeover --write`.
+
+### Rookie QB starter level (`bin/backtest.mjs --qb-rookie-level`)
+
+P12a (`.claude/tasks/qb-rookie-level-research.md`). Offline analysis only: no ingest, no served family, no manifest entry. It measures the PPG a rookie QB scores **in the games he starts**, by draft group, 2013–2025, and compares it with the shipped ktc-neutral rookie level (`rookiePriorFor` → `lib/rookieMirror.mjs`) and with the live snapshot's rookie QBs. Pure logic is `lib/qbRookieLevel.mjs`; the adapter is `scripts/qb-rookie-level-run.mjs`.
+
+- **Started** = primary passer of the REG team-game (`primaryPassers`, reused unchanged from the QB takeover fit: max `attempts + sacksSuffered`). Points are season-totals `weeklyPoints[week]` (half-PPR) — no gamelogs points are read.
+- **Groups are round-based**: `top12` = round 1 pick ≤ 12, `r1` = round 1 pick ≥ 13, `day2` = rounds 2–3, `day3+` = rounds 4–7 or undrafted (within-round `draftPick`; deliberately not the takeover fit's `draftOvr` bins).
+- **Estimator** = game-weighted mean (Σ points ÷ Σ primary games) per group; 95% CIs are a rookie-season-cluster bootstrap (4000 resamples, seed 12345). Pinned values are half-PPR; the app multiplies by its runtime `positionBasisScale`.
+- **Held out**: leave-one-season-out on rookie-seasons with ≥ 3 primary games, group mean vs the shipped ktc-neutral level, vs the pooled rookie mean, and a cap (`min(shipped, group)`) vs shipped.
+- **Stops**: exit 1 if primary-passer coverage is < 0.99 in any season (`CoverageStop`) or the snapshot is unusable (`SnapshotStop`: absent, no `scoringSettings`/`players`, `targetSeason` ≤ 2025, or a non-zero `bonus_fd_qb`). The live comparison reads the pinned `snapshots/2026-10-03.json`.
+- **Disclosure**: nothing gamelogs-derived is emitted per player or per season; report cells under 3 rookies are `null`, and split cells are suppressed in complementary pairs.
+
+**Artifacts** (`--write`, unregistered — the Invariant 3 analysis-output exception): `backtests/<date>-qb-rookie-level-panel.json` (aggregate tables; Q4 rows are app snapshot outputs), `backtests/<date>-qb-rookie-level-constants.json` (the pinned per-group values, CIs and the provenance fixture P12b re-derives from) and `grading/<date>-qb-rookie-level-verdict.md`.
+
+```sh
+node bin/backtest.mjs --qb-rookie-level           # verdict markdown to stdout
+node bin/backtest.mjs --qb-rookie-level --json    # the result object
+node bin/backtest.mjs --qb-rookie-level --write   # persist the three artifacts above
+```
+
+Reproduce: `node bin/backtest.mjs --qb-rookie-level --write`.
 
 ---
 

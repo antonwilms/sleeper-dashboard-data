@@ -35,6 +35,11 @@
  *                comparison. Takes only --json / --write. --write persists
  *                backtests/<date>-qb-takeover-{panel,constants}.json + grading/<date>-qb-takeover-verdict.md.
  *                Exit 1 if the primary-passer coverage stop fires (no artifacts written).
+ *   --qb-rookie-level  rookie QB starter level (P12a, offline analysis only): PPG in games a rookie QB starts
+ *                (primary passer), by round-based draft group, with held-out comparison against the shipped
+ *                ktc-neutral level and the live snapshot's rookie QBs. Takes only --json / --write. --write
+ *                persists backtests/<date>-qb-rookie-level-{panel,constants}.json +
+ *                grading/<date>-qb-rookie-level-verdict.md. Exit 1 if the coverage or snapshot stop fires.
  *   --dynasty    (with --inseason) dynasty-side (rookies + SHORT veterans) k-fit (Phase 2c, offline
  *                analysis only): the prospect prior (arm A vs arm B), the SHORT-veteran history prior,
  *                and the KTC-anchor report. --write persists
@@ -58,6 +63,7 @@ import {
 import { inSeasonMain } from '../scripts/inseason-run.mjs';
 import { inSeasonDynMain } from '../scripts/inseason-dyn-run.mjs';
 import { qbTakeoverMain } from '../scripts/qb-takeover-run.mjs';
+import { qbRookieLevelMain } from '../scripts/qb-rookie-level-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -176,6 +182,18 @@ if (isMain) {
       const asJson    = flag('--json');
       const write     = flag('--write');
       const bySeason  = flag('--by-season');
+
+      if (flag('--qb-rookie-level')) {
+        const rejected = args.filter(a => a.startsWith('--') && !['--qb-rookie-level', '--json', '--write'].includes(a));
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --qb-rookie-level rejects ${rejected.join(', ')} — the seasons, groups, snapshot and basis (half_ppr) are pinned ` +
+            'by the task file, not knobs; it takes only --json and --write'
+          );
+          process.exit(1);
+        }
+        process.exit(qbRookieLevelMain({ write, asJson }));
+      }
 
       if (flag('--qb-takeover')) {
         const rejected = args.filter(a => a.startsWith('--') && !['--qb-takeover', '--json', '--write'].includes(a));
