@@ -483,3 +483,19 @@ the SHA.
   totals on Mon 2026-10-05 at 06:13 UTC. Record here which attempt verified each path, and the independent CDN-vs-origin check.
 - **Step 5 dropped (Anton, 2026-10-03):** the app fix and the console check are skipped. Cowork saw the CDN manifest itself stale at ~08:35 UTC 2026-10-03, about 14 h after the push (`future_plans/in-season-notes-plan.md`). At 08:48 UTC this machine saw it fresh on cdn/fastly/testingcf/gcore through FRA/AMS/RTM edges (`age` ≈ 32 600 s, the copy cached by the 23:43 probe). The staleness is therefore **edge-location-specific**, matching fact 3's stale-fill-at-another-location case, which the D4 final re-purge sweep targets. Fact 5's browser theory does not explain Cowork's fresh fetch from outside the app, so the § App follow-up is withdrawn.
 - A one-shot scheduled check (`p8-cdn-live-check`, 2026-10-03 22:45 UTC) runs Verification steps 2–3 on tonight's daily snapshot and appends a "Live run 1" record here. If it still shows a stale edge, the fallback is D8 (c): a commit-pinned URL, which needs a registry entry.
+
+- **Live run 1 (daily snapshot 2026-10-03)**, recorded 2026-10-04 ~17:35 UTC (the check ran late, about 22 h after the run):
+  - Run `37147460170`, `daily-snapshot.yml`, started 2026-10-03T19:19:16Z, took 4m16s, conclusion **success**.
+  - Log lines: `purge manifest.json attempt 1: finished CF=true FY=true`; `verify manifest.json attempt 1: fresh cdn=2026-10-03T19:23:09.570Z local=2026-10-03T19:23:09.570Z x-cache=MISS, MISS age=0`; `purge manifest.json sweep: finished CF=true FY=true`; `cdn-purge: 1/1 verified`. No `::error::cdn-purge` line. Only the manifest is purged on this workflow (snapshots are read back via the manifest). The two `::error::` hits are echo text in the workflow script, not emitted errors.
+  - The manifest verified on **attempt 1**, so jsDelivr resolved the branch in under 15 s.
+  - Independent check (~22 h after the run, so 5 min was long exceeded). origin/main `generatedAt` is 2026-10-03T19:23:09.570Z. Every host was fresh: `generatedAt` equal to origin, 0 `files` entries differing, `snapshots/2026-10-03.json` present.
+
+    | host | age | x-cache | x-served-by | cf-cache-status |
+    |---|---|---|---|---|
+    | cdn | 0 | MISS, HIT | FRA, AMS | – |
+    | fastly | 0 | MISS, MISS | FRA, AMS | – |
+    | testingcf | – | MISS | FRA | EXPIRED |
+    | gcore | 0 | MISS, MISS | FRA, RTM | EXPIRED |
+    | quantil | 0 | MISS, MISS | FRA, AMS | – |
+    | originfastly | 0 | MISS, MISS | FRA, AMS | – |
+  - Caveat: this machine sees only the FRA/AMS/RTM edges, so Cowork should re-check from its own vantage point. The long delay means this shows the settled state, not the state 5 min after the run. Verification steps 3–4 (the `_ingest.yml` path) are still open for Mon 2026-10-05 06:13 UTC.
