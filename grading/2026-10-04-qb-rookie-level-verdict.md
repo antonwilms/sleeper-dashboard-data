@@ -38,15 +38,15 @@ Excluded primary games: noCrosswalk 0, noScheduleGame 0, nonQB 1, noDraftRound 0
 
 ## Q1 — Level
 
-| group | rookies | games | value | 95% CI | player-weighted mean (n ≥ 4 games) | p25 | p50 | p75 | p90 | league × scale | league by ratio |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| top12 | 30 | 349 | 15.801 | [14.255, 17.415] | 15.748 (n=26) | 12.317 | 16.214 | 18.593 | 20.829 | 17.602 | 17.504 (30 rookies) |
-| r1 | 9 | 81 | 14.355 | [12.061, 16.532] | 14.584 (n=7) | 13.245 | 13.648 | 16.125 | 18.862 | 15.991 | 15.774 (9 rookies) |
-| day2 | 17 | 124 | 13.303 | [12.311, 14.399] | 13.917 (n=13) | 12.336 | 13.600 | 14.132 | 16.177 | 14.820 | 14.814 (17 rookies) |
-| day3+ | 34 | 136 | 12.341 | [10.358, 14.081] | 12.465 (n=14) | 10.864 | 11.985 | 13.058 | 17.400 | 13.748 | 13.813 (33 rookies) |
-| pooled | 90 | 690 | 14.500 | [13.556, 15.471] | 14.450 (n=60) | 11.991 | 13.592 | 17.587 | 19.299 | 16.153 | 16.093 (89 rookies) |
+| group | rookies | games | value | 95% CI | rookies with ≥ 3 starts (n) | player-weighted mean | league × scale | league by ratio |
+|---|---|---|---|---|---|---|---|---|
+| top12 | 30 | 349 | 15.801 | [14.255, 17.415] | 27 | 15.728 | 17.602 | 17.504 (30 rookies) |
+| r1 | 9 | 81 | 14.355 | [12.061, 16.532] | 8 | 13.902 | 15.991 | 15.774 (9 rookies) |
+| day2 | 17 | 124 | 13.303 | [12.311, 14.399] | 14 | 13.443 | 14.820 | 14.814 (17 rookies) |
+| day3+ | 34 | 136 | 12.341 | [10.358, 14.081] | 19 | 11.454 | 13.748 | 13.813 (33 rookies) |
+| pooled | 90 | 690 | 14.500 | [13.556, 15.471] | 68 | 13.849 | 16.153 | 16.093 (89 rookies) |
 
-Quantiles need ≥ 7 rookie-seasons with ≥ 4 starts; cells under 3 rookies show `—`. League × scale uses the snapshot's captured `rookieBasisScale` (1.114).
+The player-weighted mean covers the rookie-seasons with ≥ 3 starts (the Q3 unit set); cells under 3 rookies show `—`. League × scale uses the snapshot's captured `rookieBasisScale` (1.114).
 
 ## Q2 — Splits (report-only)
 
