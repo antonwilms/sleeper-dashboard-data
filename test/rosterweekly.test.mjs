@@ -26,6 +26,8 @@ test('R-1 parseRosterWeekly: REG filter, alias, crosswalk join, unmapped, duplic
     '2013,NYJ,TE,RES,00-C,1003,2,REG',      // duplicate (player, week): two pairs
     '2013,KC,TE,ACT,00-C,1003,2,REG',
     '2013,KC,K,ACT,00-D,1004,2,REG',        // non-skill, joined
+    '2013,KC,WR,RES,00-E,1005,3,REG',       // same-team duplicate, reverse status order
+    '2013,KC,WR,ACT,00-E,1005,3,REG',
   ].join('\n');
   const out = parseRosterWeekly(csv, { season: 2013, idsByGsis: { '00-B': { sleeperId: '1002' } } });
 
@@ -34,12 +36,18 @@ test('R-1 parseRosterWeekly: REG filter, alias, crosswalk join, unmapped, duplic
   assert.equal(out.unmapped, 1);
   assert.equal(out.players['00-X'], undefined);
   assert.deepEqual(out.players['1003'], { 2: [['KC', 'ACT'], ['NYJ', 'RES']] }, 'duplicate kept, sorted by team');
-  assert.equal(out.rowCount, 6, 'REG rows, mapped + unmapped');
-  assert.equal(out.skillRows, 5);    // WR, QB, RB, TE, TE
-  assert.equal(out.skillJoined, 4);  // the unmapped RB is not joined
-  assert.deepEqual(out.weeks, [1, 2]);
-  assert.deepEqual(out.rowsByWeek, { 1: 3, 2: 3 });
-  assert.deepEqual(out.teamsByWeek, { 1: 2, 2: 2 });
+  assert.deepEqual(out.players['1005'], { 3: [['KC', 'ACT'], ['KC', 'RES']] }, 'same-team duplicate sorted by status');
+  assert.equal(out.rowCount, 8, 'REG rows, mapped + unmapped');
+  assert.equal(out.skillRows, 7);    // WR, QB, RB, TE, TE, WR, WR
+  assert.equal(out.skillJoined, 6);  // the unmapped RB is not joined
+  assert.deepEqual(out.weeks, [1, 2, 3]);
+  assert.deepEqual(out.rowsByWeek, { 1: 3, 2: 3, 3: 2 });
+  assert.deepEqual(out.teamsByWeek, { 1: 2, 2: 2, 3: 1 });
+});
+
+test('R-5 parseRosterWeekly: a header lacking status throws, naming the column', () => {
+  const csv = ['season,team,position,gsis_id,sleeper_id,week,game_type', '2013,KC,WR,00-A,1001,1,REG'].join('\n');
+  assert.throws(() => parseRosterWeekly(csv, { season: 2013 }), /required columns missing — status/);
 });
 
 // ─── R-2 validate ────────────────────────────────────────────────────────────

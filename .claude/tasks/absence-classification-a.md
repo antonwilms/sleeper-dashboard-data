@@ -435,3 +435,49 @@ rejected**.
 
 Sizes after the round: A ~27 KB, B ~17 KB, C 17 KB, C2 26 KB. C was split into C and C2 because
 the round pushed it over 40 KB.
+
+## Verification record (Session 1, 2026-10-05, `4f469cc..5f1bb67`)
+
+The data implementation-reviewer mandate ran (general-purpose, opus, full depth). It found **no
+blocking issues**.
+- `npm test` 1306 pass / 0 fail; `npm run smoke` green.
+- The hand-back's file list equals `git diff --stat` (34 files).
+- §2.3, §3 and §4 match the spec.
+- The backfill re-derived independently from the upstream CSVs: deep-equal `players` for 2013,
+  2016, 2024 and 2026. 11566 reads ACT/ACT/INA/INA.
+- Manifest union is clean: 15 added, 0 lost or changed.
+
+Session 2's deviations (missing-column throw, URL constant placement, README additions) are accepted.
+
+| # | Flag | Decision |
+|---|---|---|
+| 1 | (low, disclosed) The CLAUDE.md prune went beyond the named candidates | Accepted: disclosed, nothing material lost, size test green |
+| 2 | (low) CLAUDE.md points to README → GitHub Actions, whose `_ingest.yml` row still says "ten" and lacks the new workflow | Fix pass 1 item 1 (also raised by Session 2) |
+| 3 | (low) The `parseRosterWeekly` missing-column throw is untested | Fix pass 1 item 2 |
+| 4 | (trivial) R-1 never exercises the within-team status sort | Fix pass 1 item 3 |
+
+## Fix pass 1
+
+Scope: `README.md`, `test/rosterweekly.test.mjs`. Touch nothing else.
+
+1. **README → GitHub Actions table.**
+   - In the `_ingest.yml` row (`README.md:1478`), change "Shared body for the ten uniform ingest
+     jobs" to "Shared body for the eleven uniform ingest jobs". In its caller list, add
+     `` `nflverse-rosterweekly.yml` `` after `` `nflverse-depth.yml` ``.
+   - Insert a new row directly after the `nflverse-depth.yml` row (`:1473`):
+     ```
+     | `nflverse-rosterweekly.yml` | Daily 06:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs rosterweekly` (current season) — daily, after upstream's observed ~06:02 UTC refresh of `roster_weekly_<year>.csv`. Internal-only family (never read by the app); `scripts/update-nfl.mjs` classifies absences against it from absence-classification-c (CR-28), so the 06:13 Mon/Tue/Fri season-totals run reads the previous morning's file. Commits if content hash changed, purges jsDelivr CDN cache; delegates to `_ingest.yml` |
+     ```
+   - Edit no other row.
+2. **Test the missing-column guard.** In `test/rosterweekly.test.mjs`, add **R-5**: a CSV whose
+   header lacks `status` makes `parseRosterWeekly` throw. Assert that the message names the missing
+   column, using the same `assert.throws` regex pattern the file already uses. Confirm it fails if
+   the guard is removed (temporarily, not committed).
+3. **Within-team status sort.** Extend R-1's duplicate fixture so that one (player, week) has two
+   rows on the **same** team with different statuses, listed in reverse order in the CSV (e.g.
+   `RES` before `ACT`). Assert that the stored pairs are sorted `[['KC','ACT'],['KC','RES']]`. Keep
+   the existing different-team duplicate assertion.
+
+Done-definition: `npm test` green and `npm run smoke` green. Commit as
+`Fix pass 1: L5 Stage A — README Actions row, parser guard and sort tests`, with the attribution
+trailer. Do not push.
