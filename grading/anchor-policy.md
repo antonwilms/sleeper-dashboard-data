@@ -107,11 +107,11 @@ app push of boundary 5 reflects it, and every earlier capture is legacy on this 
 
 | capture date | expected QB start-share model |
 |---|---|
-| `< first capture after the app push` | legacy — no QB row carries `qbTakeoverBasis` |
-| `>= first capture after the app push` | qb-takeover — to be confirmed against the first such capture |
+| `< first capture after the app push` | legacy — no QB row carries `qbTakeoverBasis` — confirmed on `snapshots/2026-10-03.json` (19:20:24 UTC; 737 rows, none carry it) |
+| `>= first capture after the app push` | qb-takeover — confirmed: all 738 rows in `snapshots/2026-10-04.json` (captured 19:45:05 UTC) carry `qbTakeoverBasis` (`chain` 54 · `incumbent` 32 · `stale` 20 · `none` 632) |
 
-No such capture exists at the time of writing; the first sync after one lands fills this table with a
-confirmed row, as the other two tables carry.
+Boundary 6 was pushed 12 h 39 min later, before the next capture, so no capture reflects boundary 5
+without boundary 6.
 
 ### Rookie QB rows — boundary 6
 
@@ -133,8 +133,8 @@ app push of boundary 6 reflects it; every earlier capture is pre-boundary on thi
 
 | capture date | expected rookie QB starter level |
 |---|---|
-| `< first capture after the app push` | rookie-path level — no row carries `qbStarterBasis` |
-| `>= first capture after the app push` | pinned group level on `'rookie:*'` rows — to be confirmed against the first such capture |
+| `< first capture after the app push` | rookie-path level — no row carries `qbStarterBasis` — confirmed on `snapshots/2026-10-03.json` (19:20:24 UTC; 737 rows, none carry it) |
+| `>= first capture after the app push` | pinned group level — confirmed: every row in `snapshots/2026-10-04.json` carries `qbStarterBasis` (`'projection'` 89 · `'rookie:day3+'` 13 · `'rookie:day2'` 2 · `'rookie:r1'` 1 · `'rookie:top12'` 1 · `null` 632), and each `'rookie:*'` row's `qbStarterPPG` equals the pinned level × `rookieBasisScale` to 3 dp (17 rows) |
 
 ## Boundaries by path
 
