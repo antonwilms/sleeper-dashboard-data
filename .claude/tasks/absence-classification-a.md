@@ -481,3 +481,8 @@ Scope: `README.md`, `test/rosterweekly.test.mjs`. Touch nothing else.
 Done-definition: `npm test` green and `npm run smoke` green. Commit as
 `Fix pass 1: L5 Stage A — README Actions row, parser guard and sort tests`, with the attribution
 trailer. Do not push.
+
+Re-review of `5f1bb67..86de3c5` (fix pass 1): clean. Scope is README + test + task file only.
+`npm test` 1307 pass / 0 fail; smoke green. The R-1 count changes match the two added fixture rows
+exactly, and the R-5 guard-removal check was done by the fix-applier. Stage A is verified and awaits
+Anton's sign-off, then push. Stage B starts after the push.
