@@ -66,6 +66,8 @@ sleeper-dashboard-data/
       2024.json
     oline/                    — nflverse OL composition per team-week (ESPN depth charts), one file per year, TEAM-keyed, capture-only
       2025.json
+    rosterweekly/             — nflverse weekly roster status (REG), one file per year, keyed by sleeper_id, internal-only
+      2016.json
   raw/                        — Everything else exported from IndexedDB
                                 (league data, player map, etc.)
 ```
@@ -1124,6 +1126,29 @@ node bin/update.mjs depth --all      # backfill every season ≥ 2013
 
 ---
 
+### `nflverse/rosterweekly/<year>.json`
+
+Weekly roster status (absence classification, L5 Stage A), produced by
+`bin/update.mjs rosterweekly [--year YYYY] [--all]` from `roster_weekly_<year>.csv` in the nflverse
+`weekly_rosters` release. **Internal-only — the app never reads it.** It is consumed by
+`scripts/update-nfl.mjs` (from Stage C) through `lib/absence.mjs`.
+
+```json
+{
+  "schemaVersion": 1, "season": 2025, "generatedAt": "…", "rowCount": 0, "playerCount": 0,
+  "unmapped": 0, "weeks": [1, 2, 3],
+  "players": { "11566": { "1": [["WAS", "ACT"]], "3": [["WAS", "INA"]] } }
+}
+```
+
+`players[sleeperId][week]` is an array of `[team, status]` pairs sorted by team then status
+(`status` verbatim from nflverse, `''` when empty). `rowCount` counts REG rows (mapped and
+unmapped); `unmapped` counts rows with no resolvable `sleeper_id`. Files are written minified.
+2012–2015 team codes are mapped to the schedule domain; those seasons' `status` is season-level
+(see the catalog row), so they are ingested but never classified.
+
+---
+
 ### `raw/<name>.json`
 
 Miscellaneous IndexedDB entries that don't fit a named category: league data, roster snapshots, the Sleeper player map, etc. Filenames are derived from the original cache key with `/` replaced by `-`.
@@ -1238,6 +1263,11 @@ node bin/update.mjs snaps --year 2016
 node bin/update.mjs snaps               # current season
 node bin/update.mjs snaps --all         # backfill ≥ 2013
 
+# Fetch nflverse weekly roster status (REG), keyed by sleeper_id — internal-only
+node bin/update.mjs rosterweekly --year 2016
+node bin/update.mjs rosterweekly        # current season
+node bin/update.mjs rosterweekly --all  # backfill ≥ 2012
+
 # Dry-run any subcommand (fetch + validate, no writes)
 # --dry-run also suppresses per-iteration fetch progress (the NFL week loop and
 #   KTC page loop); real (non-dry-run) ingests still print full progress.
@@ -1254,8 +1284,9 @@ node bin/update.mjs teamcontext --year 2023 --dry-run
 node bin/update.mjs playerstate --dry-run
 node bin/update.mjs oline --year 2025 --dry-run
 node bin/update.mjs snaps --year 2016 --dry-run
+node bin/update.mjs rosterweekly --year 2016 --dry-run
 
-# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext/oline/snaps)
+# Force overwrite of a completed-season file (nfl/cfbd/roster/advstats/schedule/gamelogs/teamcontext/oline/snaps/rosterweekly)
 node bin/update.mjs nfl --year 2023 --force
 node bin/update.mjs roster --year 2024 --force
 node bin/update.mjs advstats --year 2023 --force
@@ -1345,6 +1376,19 @@ I/O + fetch surface mirroring `scripts/panel-run.mjs`'s `DEFAULT_LOAD` pattern, 
 `updateNfl({ …, deps })` can be control-flow-tested without touching the network or the real repo
 file tree. Section references are to
 `sleeper-dashboard/.claude/tasks/in-season-season-totals.md` (sibling repo).
+
+#### `lib/absence.mjs` — weekly-roster absence classification
+
+Pure, no I/O. `classifyAbsences(totals, rosterWeekly, { season })` turns an `'X'` slot (Sleeper's
+weekly response omitted the player) into `'D'` when `nflverse/rosterweekly` lists him that week
+with a status in `MISSED_ROSTER_STATUSES` (`ACT`, `INA`, `RES`, `PUP`) on a team that played.
+"Played" is read from the season file's own `TEAM_*` rows (`'P'` in `weeklyStatus`), not the
+schedule, so a bye or a not-yet-played week never converts. Only `'X'` → `'D'` ever changes;
+`'P'`/`'D'`/`'B'`, `TEAM_*` rows, and every stat field are untouched. A converted row gains
+`dnpWeeks` per slot and a recomputed `availability`; the input is never mutated and unchanged rows
+keep their reference. Seasons before `MIN_ABSENCE_CLASSIFY_SEASON = 2016` return the input as-is
+(the weekly status is season-level there). A missing `rosterWeekly` throws — the caller decides
+what an absent file means.
 
 #### `lib/nflverse.mjs` — floors vs. bands
 

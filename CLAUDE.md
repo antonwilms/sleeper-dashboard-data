@@ -10,7 +10,7 @@ Script-driven longitudinal data store consumed by the sleeper-dashboard React ap
 
 | CLI | Entry | Subcommands / modes |
 |---|---|---|
-| Update | `bin/update.mjs` | `nfl`, `cfbd`, `ktc`, `snapshots`, `roster`, `draft`, `playerids`, `advstats`, `schedule`, `gamelogs`, `playerstats`, `teamcontext`, `playerstate`, `oline`, `snaps`, `depth` |
+| Update | `bin/update.mjs` | `nfl`, `cfbd`, `ktc`, `snapshots`, `roster`, `draft`, `playerids`, `advstats`, `schedule`, `gamelogs`, `playerstats`, `teamcontext`, `playerstate`, `oline`, `snaps`, `depth`, `rosterweekly` |
 | Enrichment | `bin/enrich.mjs` | `coaching`/`scheme`/`injuries`/`notes` `add`, `validate`, `list`, `remove` |
 | Grading | `bin/grade.mjs` | `<snapshotDate>`, `--self-test` |
 | Backtest | `bin/backtest.mjs` | offline analysis over advstats + season-totals; `--inseason [--dynasty]` (in-season k-fits); `--qb-takeover` (QB takeover fit); `--qb-rookie-level` (rookie QB starter PPG) |
@@ -18,14 +18,14 @@ Script-driven longitudinal data store consumed by the sleeper-dashboard React ap
 | Dead-man | `bin/deadman.mjs` | monitoring only; needs `GITHUB_REPOSITORY` + `GITHUB_TOKEN` |
 | Purge | `bin/purge-cdn.mjs` | `<path>…` — jsDelivr purge + verify, manifest last; exit 1 if stale |
 
-Every update subcommand is `node bin/update.mjs <subcommand> [--year YYYY]`. Flags: `--dry-run` (fetch + validate, no writes); `--force` (overwrite a completed-season file — nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline/snaps/depth); `--all` (backfill; schedule/gamelogs/teamcontext/oline/snaps/depth only). Per-subcommand semantics, the analysis CLIs' full flag lists, and coverage floors: README → [Update scripts](README.md#update-scripts) and [Module notes](README.md#module-notes).
+Update subcommands: `node bin/update.mjs <subcommand> [--year YYYY]`. Flags: `--dry-run` (fetch + validate, no writes); `--force` (overwrite a completed-season file — nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline/snaps/depth/rosterweekly); `--all` (backfill; schedule/gamelogs/teamcontext/oline/snaps/depth/rosterweekly only). Per-subcommand semantics, analysis-CLI flags and coverage floors: README → [Update scripts](README.md#update-scripts), [Module notes](README.md#module-notes).
 
 ```sh
 npm run smoke               # all dry-runs + validate:enrichment + grade --self-test
 npm test                    # node --test — unit validators under test/
 ```
 
-Other shortcuts: `update:nfl`, `update:cfbd`, `update:ktc`, `import:snapshot`, `enrich`, `grade`, `backtest`, `backtest:inseason`, `backtest:qb-takeover`, `backtest:qb-rookie-level`, `panel`, `panel:flip`, `panel:fit`, `validate:enrichment`.
+Other shortcuts: `update:{nfl,cfbd,ktc}`, `import:snapshot`, `enrich`, `grade`, `backtest`, `backtest:{inseason,qb-takeover,qb-rookie-level}`, `panel`, `panel:{flip,fit}`, `validate:enrichment`.
 
 `bin/backtest.mjs` and `bin/panel.mjs` are **offline analysis, not the snapshot grader** (`bin/grade.mjs`). `--fit` pins `--basis half_ppr` and `--attribution per-season-team` and rejects an explicit `--attribution`.
 
@@ -42,23 +42,24 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | Path | Purpose |
 |---|---|
 | `bin/*.mjs` | Thin CLIs — parse flags, dispatch to a `scripts/` adapter; no logic of their own. Entry points and modes: [Commands](#commands) |
-| `bin/import-snapshot.mjs` | One-command projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
-| `lib/args.mjs` | `bin/update.mjs` arg validation. `MIN_CLI_YEAR = 1999` is a typo bound, **not** a coverage floor (CR-18); `ALL_SUBCOMMANDS` = schedule/gamelogs/teamcontext/oline/snaps/depth |
+| `bin/import-snapshot.mjs` | Projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
+| `lib/args.mjs` | `bin/update.mjs` arg validation. `MIN_CLI_YEAR = 1999` is a typo bound, **not** a coverage floor (CR-18); `ALL_SUBCOMMANDS` = schedule/gamelogs/teamcontext/oline/snaps/depth/rosterweekly |
+| `lib/absence.mjs` | Pure weekly-roster absence classifier (`classifyAbsences`) for season-totals `weeklyStatus` |
 | `lib/validate.mjs` | Schema validators + `findNonFinite`; holds `NFL_SENTINELS`, `KTC_TOP_QB_SENTINELS` (Invariant 7). |
 | `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`, `RATE_KEYS`); drives the grading in-basis path — see Cross-repo contract registry |
 | `lib/cfbd.mjs` | CFBD fetch helpers; `pivotCfbdRows` is the long-form→pivoted-envelope transform, shared by `update-cfbd.mjs` and `migrate-college-pivot.mjs` |
 | `lib/io.mjs` | `readJson`, `writeJsonStable`, `setStepOutput`, `repoPath`, `stableHash`, `sortObjectKeys` (shallow) / `deepSortKeys` (recursive) |
 | `lib/{enrichment,ktc,manifest,sleeper}.mjs` | Helpers — enrichment schema validation, KTC scraping, manifest read/write, Sleeper API fetch |
-| `lib/seasonIngest.mjs` | `runSeasonKeyedIngest` — shared manifest-registration adapter for the five season-keyed family ingests (`schedule`, `teamcontext`, `oline`, `gamelogs`, `advstats`); hard-codes `inProgress: false`, `schemaVersion: 1` (CR-04 data-side trigger) |
+| `lib/seasonIngest.mjs` | `runSeasonKeyedIngest` — shared manifest-registration adapter for the eight season-keyed family ingests (`schedule`, `teamcontext`, `oline`, `gamelogs`, `advstats`, `snaps`, `depth`, `rosterweekly`); hard-codes `inProgress: false`, `schemaVersion: 1` (CR-04 data-side trigger) |
 | `lib/registry.mjs`, `scripts/registry-audit.mjs` | Field-block parser + read-only CLI for the mirrored registry region in `cross-repo-registry.md`; reports per-entry cache-field anchor counts, no writes |
 | `scripts/update-nfl.mjs` | NFL season-totals ingest. `--year` omitted resolves via `fetchCurrentNflSeason()` + `setStepOutput('season', …)`. Guards `hasNoData` / `isOpeningWeekPartial` / `shouldSkipCompletedSeason`; `DEFAULT_DEPS` is the injectable I/O+fetch seam |
 | `scripts/migrate-*.mjs` | One-shot historical rewrites, `--dry-run` capable — the Invariant 1 exceptions: `migrate-f24-prune.mjs`, `migrate-college-pivot.mjs` |
 | `scripts/update-cfbd.mjs` | CFBD ingest — fetch long-form, pivot, validate, write the pivoted envelope; dedup hashes the pivoted form on both sides |
 | `scripts/update-ktc.mjs` | KTC snapshot capture; the Spearman ordering guard lives here — `ktcOrderingGuard`, `KTC_ORDERING_THRESHOLD` |
 | `scripts/register-snapshots.mjs` | Snapshot manifest registration |
-| `scripts/update-{roster,draft,playerids,advstats,schedule,gamelogs,teamcontext,playerstate,oline,snaps,depth}.mjs` | Uniform family ingests — fetch, parse, dedup, write. `teamcontext`/`oline`/`playerstate` are TEAM- or date-keyed and read no crosswalk; the rest re-key to `sleeper_id` (`snaps` via `pfrId`, `depth` via `gsisId` primary / `espnId` fallback on ESPN-era seasons, the rest via `gsisId`) |
+| `scripts/update-{roster,draft,playerids,advstats,schedule,gamelogs,teamcontext,playerstate,oline,snaps,depth,rosterweekly}.mjs` | Uniform family ingests — fetch, parse, dedup, write. `teamcontext`/`oline`/`playerstate` are TEAM- or date-keyed and read no crosswalk; the rest re-key to `sleeper_id` (`snaps` via `pfrId`, `depth` via `gsisId` primary / `espnId` fallback on ESPN-era seasons, the rest via `gsisId`) |
 | `scripts/update-playerstats.mjs` | Single-fetch orchestrator — one `stats_player_week_<year>.csv` drives `updateAdvStats` + `updateGameLogs` under per-family throw isolation; emits `advstats_ok`/`gamelogs_ok` |
-| `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers. **Coverage floors** (CR-18 trigger sites): `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS`, `MIN_ADVSTATS_ROWS`, `MIN_SCHEDULE_SEASON`, `MIN_SCHEDULE_GAMES`, `MIN_PLAYERGAME_ROWS`, `MIN_GAMELOG_SEASON`, `MIN_TEAMCONTEXT_ROWS`, `MIN_TEAMCONTEXT_SEASON`, `MIN_OLINE_ROWS`, `MIN_OLINE_SEASON`, `MIN_SNAPS_ROWS`, `MIN_SNAPS_SEASON` (2013 — **not** the 2012 floor its nflverse siblings share; `snap_counts_2012.csv` exists upstream but is header-only), `MIN_DEPTH_ROWS`, `MIN_DEPTH_SEASON`, `DEPTH_ESPN_FROM_SEASON` (2025 — legacy/ESPN schema split), `DEPTH_JOIN_RATE_MIN`, `MIN_DEPTH_QB1_TEAMS`. `AY_PER_TARGET_MIN`/`MAX` is a plausibility **band**, not a floor |
+| `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers. **Coverage floors** (CR-18 trigger sites): `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS`, `MIN_ADVSTATS_ROWS`, `MIN_SCHEDULE_SEASON`, `MIN_SCHEDULE_GAMES`, `MIN_PLAYERGAME_ROWS`, `MIN_GAMELOG_SEASON`, `MIN_TEAMCONTEXT_ROWS`, `MIN_TEAMCONTEXT_SEASON`, `MIN_OLINE_ROWS`, `MIN_OLINE_SEASON`, `MIN_SNAPS_ROWS`, `MIN_SNAPS_SEASON` (2013 — the 2012 upstream file is header-only), `MIN_DEPTH_ROWS`, `MIN_DEPTH_SEASON`, `DEPTH_ESPN_FROM_SEASON` (2025 — legacy/ESPN schema split), `DEPTH_JOIN_RATE_MIN`, `MIN_DEPTH_QB1_TEAMS`, `MIN_ROSTERWEEKLY_SEASON`, `MIN_ROSTERWEEKLY_WEEK_ROWS`, `MIN_ROSTERWEEKLY_WEEK_TEAMS`, `ROSTERWEEKLY_JOIN_RATE_MIN`. `AY_PER_TARGET_MIN`/`MAX` is a plausibility **band**, not a floor |
 | `scripts/grade-snapshot.mjs` | Grading adapter — loads snapshot + outcomes, builds GradeInput, orchestrates `lib/grade.mjs` |
 | `scripts/backtest-run.mjs` | Backtest adapters (injectable loaders): `scripts/backtest-run.mjs` (advstats), `qb-takeover-run.mjs` (`--qb-takeover`); `scripts/inseason-run.mjs` (`--inseason`), `inseason-dyn-run.mjs` (`--dynasty`), `qb-rookie-level-run.mjs` (`--qb-rookie-level`) reach `lib/rookieMirror.mjs` outside `bin/panel.mjs`'s closure |
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
@@ -68,7 +69,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `lib/panel.mjs` | Pure panel/fit logic — feature builders, forward-chain CV, ridge, spearman; no I/O. `buildTeamTotalsForSeason` **must** exclude `TEAM_<abbr>` pseudo-rows (mirror of app `isTeamAggregateId`), now also accumulates `fantasyPts` (team-offense rank input). D6a dispatch lists: README → Module notes. `predictFullPipeline` (D6b) is the real composed 13-factor product. `assembleRookiePanel` takes two enumerators (`season-presence`, `entry-cohort`) sharing one predicate, `rookiePathStateAt`; the uncorrected-fit-predictor guard (CR-15 re-fit trap) throws on any declared `appliedCorrections` |
 | `lib/projectionFactors.mjs` | Pure app-factor-multiplier reconstruction for R3-FIT — mirrors the app's leaf factor transforms and their input pipelines. **Cross-repo mirror contract (CR-15)**, now thirteen factors (D6a adds age/depth/teamOffense/qbQuality/efficiency/compBlend) |
 | `scripts/check-crons.mjs` | Dead-man detector for the scheduled workflows; monitoring only, no data-file I/O |
-| `.github/workflows/` | Ten uniform ingest jobs (weekly, except `nflverse-snaps.yml`, which is yearly) delegate to the reusable `_ingest.yml` (`workflow_call`) template. Six are deliberately **not** callers: `nflverse-playerstats.yml`, `weekly-ktc.yml`, `cron-deadman.yml`, `smoke-test.yml`, `registry-mirror.yml`, `daily-snapshot.yml` (D1b — a browser capture against the app's build, which `_ingest.yml` cannot express; cron + `workflow_dispatch`). Triggers, per-job detail and why each standalone cannot delegate: README → [GitHub Actions](README.md#github-actions). Purge: `bin/purge-cdn.mjs`; URLs: Invariant 8 |
+| `.github/workflows/` | Eleven uniform ingest jobs (mostly weekly; `nflverse-snaps` yearly, `nflverse-rosterweekly` daily) delegate to the reusable `_ingest.yml` (`workflow_call`) template. Six are deliberately **not** callers (`nflverse-playerstats`, `weekly-ktc`, `cron-deadman`, `smoke-test`, `registry-mirror`, `daily-snapshot` — a browser capture `_ingest.yml` cannot express). Triggers and per-job detail: README → [GitHub Actions](README.md#github-actions). Purge: `bin/purge-cdn.mjs`; URLs: Invariant 8 |
 | `nfl/`, `college/`, `ktc/`, `nflverse/`, `snapshots/` | Served data families — a section each in [data-catalog.md](data-catalog.md), schemas in README → [File schemas](README.md#file-schemas) |
 | `ktc/quarantine/` | Scrapes rejected by the Spearman ordering / sentinel-QB guard — script-produced, **not** manifest-registered, **not** app-read; review and promote manually |
 | `nflverse/playerids.json` | gsis_id→sleeper_id crosswalk — **internal-only**: read server-side by `update-advstats.mjs`/`update-gamelogs.mjs`, never by the app |
@@ -102,7 +103,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 
 7. **Yearly maintenance.** At each season start, update `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` in `lib/validate.mjs` to reflect the current player landscape.
 
-8. **CDN purge URLs for season-keyed files (`nflverse/roster`, `nflverse/advstats`, `nflverse/schedule`, `nflverse/gamelogs`, `nflverse/teamcontext`, `nflverse/oline`, `nflverse/snaps`, `nflverse/depth`) must be built from the NFL season surfaced by the node step (`setStepOutput('season', …)` → `${{ steps.fetch.outputs.season }}`), never `date -u +%Y`. Calendar year and resolved season diverge Jan–Feb; KTC is exempt (date-keyed).**
+8. **CDN purge URLs for season-keyed files (`nflverse/roster`, `nflverse/advstats`, `nflverse/schedule`, `nflverse/gamelogs`, `nflverse/teamcontext`, `nflverse/oline`, `nflverse/snaps`, `nflverse/depth`, `nflverse/rosterweekly`) must be built from the NFL season surfaced by the node step (`setStepOutput('season', …)` → `${{ steps.fetch.outputs.season }}`), never `date -u +%Y`. Calendar year and resolved season diverge Jan–Feb; KTC is exempt (date-keyed).**
 
 9. **Grading reads are never recomputed.** `bin/grade.mjs` joins captured projections to captured outcomes — it never re-runs the projection pipeline. The GradeReport is fully determined by the snapshot and outcome files at read time. *Clarification: grading MAY recompute actual fantasy points from stored season-totals `stats` under the snapshot's `scoringSettings` (a deterministic dot-product); it never re-runs the projection pipeline.*
 

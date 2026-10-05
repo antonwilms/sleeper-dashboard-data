@@ -264,6 +264,18 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Snapshot parity (a measurement, not a gate; task §E):** the app's `snapshots/2026-09-05.json` `teamDepthCharts` targets season 2026, but nflverse depth_charts_2026.csv has zero REG rows as of this measurement (2026 week 1 REG has not been played yet — correctly reads as "not published" and is skipped) — the design's assumption that 2026 week 1 would already be servable did not hold against live source. Substituted the most recent available data (2025 week 18) as the closest directional comparison: depth-1 agreement per position — QB 22/32 (68.8%), RB 16/32 (50.0%), WR 15/32 (46.9%), TE 23/32 (71.9%). Well under 100%, as expected — Sleeper and ESPN/ nflverse maintain independent depth charts; this is not gated and nothing here is "fixed" toward agreement
 - **Keep-rationale:** reclassifies `depth_chart_order`/QB1 identity from "ephemeral, never reconstructable" to reconstructable back to 2013 (CR-18) — the prerequisite for D6's depth-order multiplier and QB-change flag to be gradable at all, neither of which has any history today
 
+## nflverse weekly roster status (internal — absence classification, L5)
+- **Served path / subcommand / refresh:** `nflverse/rosterweekly/<year>.json`; `bin/update.mjs rosterweekly [--year|--all]`; daily Action 06:23 UTC (`nflverse-rosterweekly.yml`; commits only on change)
+- **Source + provenance:** nflverse `weekly_rosters` release, `roster_weekly_<year>.csv` (`season`, `team`, `position`, `status`, `gsis_id`, `sleeper_id`, `week`, `game_type`); REG rows only
+- **Grain:** player × REG week → array of `[team, status]` pairs (a traded player can carry two in one week; duplicates kept)
+- **Join id(s):** the row's own `sleeper_id`, else `gsis_id` → `sleeper_id` via `nflverse/playerids.json` `.ids`. 2012–2015 GSIS team codes (`ARZ`, `BLT`, `CLV`, `HST`, `SL`) are mapped to the schedule domain (`ROSTER_WEEKLY_TEAM_ALIAS`)
+- **Coverage:** 2012–present (`MIN_ROSTERWEEKLY_SEASON`). **Caveat:** reserve lists are week-accurate only from 2016; in 2012–2015 `status` is a season-level value copied onto every week, so `lib/absence.mjs` never classifies those seasons (`MIN_ABSENCE_CLASSIFY_SEASON = 2016`)
+- **schemaVersion:** 1
+- **Gates (`validateRosterWeekly`):** contiguous REG weeks from 1 (17 through 2020, 18 from 2021 for a completed season); every week ≥ `MIN_ROSTERWEEKLY_WEEK_ROWS = 1500` rows and ≥ `MIN_ROSTERWEEKLY_WEEK_TEAMS = 24` teams (an in-progress season's newest week is exempt); every stored team in the schedule domain (no `LAR`, no GSIS alias key); QB/RB/WR/TE join rate ≥ `ROSTERWEEKLY_JOIN_RATE_MIN = 0.70`
+- **Served shape:** `{ schemaVersion: 1, season, generatedAt, rowCount, playerCount, unmapped, weeks, players }`, written minified
+- **Consumption:** **internal-only — never read by the app; consumed by `scripts/update-nfl.mjs` from absence-classification-c** (a pure classifier, `lib/absence.mjs`, turns an omitted `'X'` week into `'D'` when the roster lists an available status on a team that played)
+- **Keep-rationale:** Sleeper omits some missed games entirely, so `'X'` undercounts absences; the weekly roster status is the only reconstructable source for those weeks
+
 ## Sleeper players-state (weekly status/injury/depth capture)
 - **Served path / subcommand / refresh:** `nfl/players-state/<date>.json`; `bin/update.mjs playerstate`; Saturday Action
 - **Source + provenance:** Sleeper `/v1/players/nfl` (current-state only; no upstream history)

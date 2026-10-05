@@ -43,6 +43,7 @@ import { updateTeamContext } from '../scripts/update-teamcontext.mjs';
 import { updatePlayerState } from '../scripts/update-playerstate.mjs';
 import { updateOline }       from '../scripts/update-oline.mjs';
 import { updateSnaps }       from '../scripts/update-snaps.mjs';
+import { updateRosterWeekly } from '../scripts/update-rosterweekly.mjs';
 import { updateDepth }       from '../scripts/update-depth.mjs';
 import { parseAndValidateArgs } from '../lib/args.mjs';
 
@@ -104,12 +105,15 @@ SUBCOMMANDS
   depth                       nflverse historical depth charts (QB/RB/WR/TE), sleeper_id-keyed, capture-only
   depth --year YYYY           Depth chart for a specific season
   depth --all                 Backfill every season (≥ 2013)
+  rosterweekly                nflverse weekly roster status (REG), sleeper_id-keyed, internal-only
+  rosterweekly --year YYYY    Weekly roster status for a specific season
+  rosterweekly --all          Backfill every season (≥ 2012)
 
 OPTIONS
   --dry-run   Fetch + validate, print diff/plan, but don't write any files
-  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline/snaps/depth only)
-  --year YYYY Target season year (nfl, cfbd, roster, advstats, schedule, gamelogs, playerstats, teamcontext, oline, snaps, depth subcommands)
-  --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline/snaps/depth subcommands)
+  --force     Overwrite completed-season files (skipped by default; nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline/snaps/depth/rosterweekly only)
+  --year YYYY Target season year (nfl, cfbd, roster, advstats, schedule, gamelogs, playerstats, teamcontext, oline, snaps, depth, rosterweekly subcommands)
+  --all       Backfill all seasons (schedule/gamelogs/teamcontext/oline/snaps/depth/rosterweekly subcommands)
 
 EXAMPLES
   node bin/update.mjs nfl
@@ -147,6 +151,8 @@ EXAMPLES
   node bin/update.mjs snaps --all
   node bin/update.mjs depth --year 2013 --dry-run
   node bin/update.mjs depth --all
+  node bin/update.mjs rosterweekly --year 2016 --dry-run
+  node bin/update.mjs rosterweekly --all
 `);
 }
 
@@ -209,6 +215,9 @@ if (!subcommand || subcommand === '--help' || subcommand === '-h') {
         break;
       case 'depth':
         await updateDepth(opts);
+        break;
+      case 'rosterweekly':
+        await updateRosterWeekly(opts);
         break;
       default:
         console.error(`Unknown subcommand: ${opts.subcommand}\n`);

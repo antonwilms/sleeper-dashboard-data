@@ -1,0 +1,30 @@
+name: Daily nflverse weekly roster status
+
+on:
+  schedule:
+    # 06:23 UTC every day. Upstream's weekly_rosters asset was observed updating at ~06:02 UTC
+    # (one observation, 2026-10-05). This runs after it every day and commits only on change.
+    # nfl-season-totals.yml (06:13 Mon/Tue/Fri) therefore classifies against the previous
+    # morning's refresh, so a week's gameday inactives (INA) reach 'D' one season-totals run
+    # after the games — Sunday's on Tuesday, Monday night's on Friday. Clear of nfl-season-totals
+    # (06:13) and registry-mirror (06:41, commits nothing).
+    - cron: "23 6 * * *"
+  workflow_dispatch: {}   # allow manual trigger for backfill / corrections
+
+permissions:
+  contents: write
+
+jobs:
+  rosterweekly:
+    uses: ./.github/workflows/_ingest.yml
+    with:
+      subcommand: rosterweekly
+      # Reads the crosswalk (scripts/update-rosterweekly.mjs readJson('nflverse/playerids.json')
+      # `.ids`) and the family's own files for content-hash dedup.
+      sparse-paths: |
+        nflverse/rosterweekly
+        nflverse/playerids.json
+      commit-scope: "nflverse/"
+      commit-message: "nflverse: rosterweekly"
+      purge-path: "nflverse/rosterweekly/<season>.json"
+      season-keyed: true
