@@ -200,7 +200,7 @@ Behaviour:
 - **`README.md`:** Module notes for `update-nfl.mjs` (classification step) and the migration script;
   the File-schemas season-totals `weeklyStatus` description.
 - **`CLAUDE.md`:**
-  - Invariant 1's "Two documented one-off rewrites" → "Three";
+  - Invariant 1's pointer sentence (restored by Stage B fix pass 1, no count) needs no edit; the correction's what/why/proof go in the commit body and the season-totals `data-catalog.md` row it points to;
   - the `scripts/migrate-*.mjs` row: add `migrate-absence-roster.mjs`;
   - the registry paragraph "all 27 `CR-NN` entries" → "all 28" (also the app CLAUDE.md, §3.4);
   - keep ≤ 25,000 bytes.

@@ -252,3 +252,56 @@ Push after Session 1 verification. Hand back the verdict's §3 table and §7 rec
   triggers.
 - No CR-15 change: `lib/projectionFactors.mjs` is not touched, and the R3-FIT path does not read
   this mirror.
+
+## Verification record (Session 1, 2026-10-06, `29c97ee..533b83c`)
+
+The data implementation-reviewer mandate ran (general-purpose, opus, full depth).
+- The diff stat equals the touch list. No `nfl/`, `manifest.json`, registry, `lib/absence.mjs` or
+  app change.
+- The DM-0 fixture is byte-equal to `4f469cc` on a 1,155-row sample, and its 432 snapshot rows
+  equal the capture.
+- The mirror is line-for-line with app `d627562`, including the code's below-floor fall-through.
+- The panel rules match §4.
+- `--absence --json` reproduces the committed panel exactly: the per-season `changedSlots` match the
+  expected figures, and all rows give ΔMAE −0.009 [−0.016, −0.002].
+- `npm test` 1323 pass / 0 fail; smoke green.
+
+Session 2's deviations:
+- **Parity rounding** (`Math.round(x*1000)/1000`, the app's own `seasonProjection.js:1089`):
+  accepted. The six `toFixed` misses are exactly 0.95 × 0.97 = 0.9215, and nothing is special-cased.
+- **Extra tests and reporting:** accepted.
+- **Smoke transient:** accepted.
+
+| # | Flag | Decision |
+|---|---|---|
+| 1 | (medium) The CLAUDE.md prune deleted Invariant 1's note. Its pointer sentence is rule-bearing (where an exception's what/why/proof live), C §2.4 edits text that no longer exists, and `README.md:1437` says "where Invariant 1 points" | Fix pass 1 item 1: restore the pointer without a count; prune elsewhere. Session 1 amends C §2.4 (no count to bump) |
+| 2 | (low) Verdict §1 says the outcome-0 rows were "on a reserve/active list all year"; the rule is ≥1 REG week | Fix pass 1 item 2 |
+
+## Fix pass 1
+
+Scope: `CLAUDE.md`, `scripts/absence-run.mjs`, `grading/2026-10-06-absence-verdict.md`,
+`backtests/2026-10-06-absence-panel.json` (regenerated). Touch nothing else.
+
+1. **CLAUDE.md — restore Invariant 1's pointer, net ≤ 25,000 bytes.**
+   - After Invariant 1's paragraph (`CLAUDE.md:86`), insert a blank line and then, indented three
+     spaces like the deleted original:
+     `   *Each rewrite under this invariant records what, why and the proof in `git log` and in the family's row in [data-catalog.md](data-catalog.md).*`
+   - Make these three trims, exact replacements, and no others:
+     - `:64`: "`scripts/backtest-run.mjs` (advstats)" → "this file (advstats)".
+     - `:49`: "drives the grading in-basis path — see Cross-repo contract registry" → "drives the grading
+       in-basis path (CR-14)".
+     - `:16`: "`--absence` (absence-correction before/after)" → "`--absence` (absence correction)".
+   - `test/claudeMdSize.test.mjs` must pass. Report the final byte count. If it is still over, stop
+     and report; do not trim further on your own.
+2. **Verdict wording.** In `scripts/absence-run.mjs:346`, replace
+   "no S+1 row but on a reserve/active list all year" with
+   "no S+1 row but listed ACT/INA/RES/PUP in ≥1 S+1 REG week". After
+   "${pc.excludedNoRowNoReserve} excluded: no S+1 row and no such listing", add
+   " — this includes every season after a player's retirement".
+   - Re-run `node bin/backtest.mjs --absence --write`. It regenerates both dated artifacts.
+   - Confirm with `git diff` that the only content changes in them are that sentence and
+     `generatedAt`. The numbers must be identical; if any number moves, stop and report.
+
+Done-definition: `npm test` and `npm run smoke` green. Commit as
+`Fix pass 1: L5 Stage B — restore Invariant 1 pointer, verdict wording`, with the attribution
+trailer. Do not push.

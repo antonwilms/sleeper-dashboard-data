@@ -4,7 +4,7 @@
 
 Season-totals 2012–2025 as committed ("before") against the same files with each omitted `'X'` week reclassified `'D'` by `classifyAbsences` against `nflverse/rosterweekly` ("after"; D1 status set ACT/INA/RES/PUP, a team that played, 2016+ only). Predictor seasons S = 2015–2024, outcome S+1 `gamesPlayed`. Prediction = the mirrored veteran projected-games rule (`lib/durabilityMirror.mjs`, app `d627562`), as-of S. Basis: half_ppr (served fantasyPoints).
 
-Panel: 4362 player-seasons (194 included at outcome 0: no S+1 row but on a reserve/active list all year; 5980 excluded: no S+1 row and no such listing; 670 not yet veterans; 3890 with no qualifying season).
+Panel: 4362 player-seasons (194 included at outcome 0: no S+1 row but listed ACT/INA/RES/PUP in ≥1 S+1 REG week; 5980 excluded: no S+1 row and no such listing — this includes every season after a player's retirement; 670 not yet veterans; 3890 with no qualifying season).
 
 Per-season correction totals, all rows (every position; Stage C §2.3 step 2 checks its migration dry-run against these):
 

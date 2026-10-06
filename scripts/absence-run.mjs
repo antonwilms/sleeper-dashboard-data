@@ -343,7 +343,7 @@ export function buildAbsenceVerdictMarkdown(r) {
     `Season-totals ${meta.seasons.from}–${meta.seasons.to} as committed ("before") against the same files with each omitted \`'X'\` week reclassified \`'D'\` by \`classifyAbsences\` ` +
     `against \`nflverse/rosterweekly\` ("after"; D1 status set ACT/INA/RES/PUP, a team that played, 2016+ only). Predictor seasons S = ${meta.predictorSeasons.from}–${meta.predictorSeasons.to}, outcome S+1 \`gamesPlayed\`. ` +
     'Prediction = the mirrored veteran projected-games rule (`lib/durabilityMirror.mjs`, app `d627562`), as-of S. Basis: ' + meta.basis + '.', '',
-    `Panel: ${pc.included} player-seasons (${pc.includedZeroOutcome} included at outcome 0: no S+1 row but on a reserve/active list all year; ${pc.excludedNoRowNoReserve} excluded: no S+1 row and no such listing; ` +
+    `Panel: ${pc.included} player-seasons (${pc.includedZeroOutcome} included at outcome 0: no S+1 row but listed ACT/INA/RES/PUP in ≥1 S+1 REG week; ${pc.excludedNoRowNoReserve} excluded: no S+1 row and no such listing — this includes every season after a player's retirement; ` +
     `${pc.notVeteran} not yet veterans; ${pc.noQualifying} with no qualifying season).`, '',
     'Per-season correction totals, all rows (every position; Stage C §2.3 step 2 checks its migration dry-run against these):', '',
     '| season | changedSlots | changedRows | byStatus |', '|---|---|---|---|');
