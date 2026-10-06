@@ -305,3 +305,9 @@ Scope: `CLAUDE.md`, `scripts/absence-run.mjs`, `grading/2026-10-06-absence-verdi
 Done-definition: `npm test` and `npm run smoke` green. Commit as
 `Fix pass 1: L5 Stage B — restore Invariant 1 pointer, verdict wording`, with the attribution
 trailer. Do not push.
+
+Re-review of `533b83c..a49d1d3` (fix pass 1): clean. Six files only. The CLAUDE.md pointer and
+trims are exact (24,992 bytes). The regenerated artifacts differ only in the sentence and
+`generatedAt`. `npm test` 1323 pass / 0 fail. **Stage B is verified; awaiting Anton's (a)/(b)/(c)
+choice and push sign-off.** C-D4 check: one bounce-back flip among today's veterans (Mason Rudolph),
+under the ~10 stop threshold.
