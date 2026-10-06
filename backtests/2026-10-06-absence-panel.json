@@ -1,0 +1,1866 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-06T07:58:01.898Z",
+    "seasons": {
+      "from": 2012,
+      "to": 2025
+    },
+    "predictorSeasons": {
+      "from": 2015,
+      "to": 2024
+    },
+    "snapshot": "2026-10-04",
+    "bootstrap": {
+      "resamples": 4000,
+      "seed": 12345
+    },
+    "parityFixture": "test/fixtures/durability-parity-2026-10-04.json",
+    "parityFixtureRev": "4f469cc",
+    "basis": "half_ppr (served fantasyPoints)"
+  },
+  "parity": {
+    "dm1": {
+      "rows": 431,
+      "matched": 431,
+      "rate": 1,
+      "noQualifying": 0,
+      "nonSkill": 1,
+      "mismatches": []
+    },
+    "dm2": {
+      "rows": 431,
+      "agree": 428,
+      "rate": 0.993
+    }
+  },
+  "corrections": [
+    {
+      "season": 2012,
+      "changedSlots": 0,
+      "changedRows": 0,
+      "byStatus": {}
+    },
+    {
+      "season": 2013,
+      "changedSlots": 0,
+      "changedRows": 0,
+      "byStatus": {}
+    },
+    {
+      "season": 2014,
+      "changedSlots": 0,
+      "changedRows": 0,
+      "byStatus": {}
+    },
+    {
+      "season": 2015,
+      "changedSlots": 0,
+      "changedRows": 0,
+      "byStatus": {}
+    },
+    {
+      "season": 2016,
+      "changedSlots": 1900,
+      "changedRows": 450,
+      "byStatus": {
+        "RES": 1492,
+        "ACT": 317,
+        "PUP": 91
+      }
+    },
+    {
+      "season": 2017,
+      "changedSlots": 1702,
+      "changedRows": 277,
+      "byStatus": {
+        "RES": 1596,
+        "ACT": 25,
+        "PUP": 81
+      }
+    },
+    {
+      "season": 2018,
+      "changedSlots": 1749,
+      "changedRows": 289,
+      "byStatus": {
+        "RES": 1670,
+        "ACT": 23,
+        "PUP": 56
+      }
+    },
+    {
+      "season": 2019,
+      "changedSlots": 1888,
+      "changedRows": 300,
+      "byStatus": {
+        "RES": 1822,
+        "ACT": 13,
+        "PUP": 50,
+        "INA": 3
+      }
+    },
+    {
+      "season": 2020,
+      "changedSlots": 2457,
+      "changedRows": 560,
+      "byStatus": {
+        "RES": 2389,
+        "ACT": 22,
+        "INA": 28,
+        "PUP": 18
+      }
+    },
+    {
+      "season": 2021,
+      "changedSlots": 1928,
+      "changedRows": 718,
+      "byStatus": {
+        "INA": 1809,
+        "ACT": 6,
+        "RES": 113
+      }
+    },
+    {
+      "season": 2022,
+      "changedSlots": 2715,
+      "changedRows": 898,
+      "byStatus": {
+        "INA": 2679,
+        "RES": 35,
+        "ACT": 1
+      }
+    },
+    {
+      "season": 2023,
+      "changedSlots": 2622,
+      "changedRows": 843,
+      "byStatus": {
+        "INA": 2574,
+        "RES": 48
+      }
+    },
+    {
+      "season": 2024,
+      "changedSlots": 2593,
+      "changedRows": 834,
+      "byStatus": {
+        "INA": 2579,
+        "RES": 10,
+        "ACT": 4
+      }
+    },
+    {
+      "season": 2025,
+      "changedSlots": 2571,
+      "changedRows": 808,
+      "byStatus": {
+        "INA": 2555,
+        "ACT": 13,
+        "RES": 3
+      }
+    }
+  ],
+  "panelCounts": {
+    "noQualifying": 3890,
+    "notVeteran": 670,
+    "included": 4362,
+    "includedZeroOutcome": 194,
+    "excludedNoRowNoReserve": 5980
+  },
+  "primary": {
+    "all": {
+      "n": 4362,
+      "players": 1277,
+      "maeBefore": 4.881,
+      "maeAfter": 4.872,
+      "biasBefore": 3.465,
+      "biasAfter": 3.426,
+      "deltaMae": -0.009,
+      "ci95": [
+        -0.016,
+        -0.002
+      ]
+    },
+    "changed": {
+      "n": 156,
+      "players": 75,
+      "maeBefore": 5.135,
+      "maeAfter": 4.891,
+      "biasBefore": 3.365,
+      "biasAfter": 2.263,
+      "deltaMae": -0.244,
+      "ci95": [
+        -0.425,
+        -0.062
+      ]
+    },
+    "byPosition": {
+      "QB": {
+        "n": 530,
+        "players": 113,
+        "maeBefore": 5.372,
+        "maeAfter": 5.347,
+        "biasBefore": 4.489,
+        "biasAfter": 4.46,
+        "deltaMae": -0.025,
+        "ci95": [
+          -0.055,
+          0
+        ]
+      },
+      "RB": {
+        "n": 1139,
+        "players": 365,
+        "maeBefore": 4.803,
+        "maeAfter": 4.804,
+        "biasBefore": 3.205,
+        "biasAfter": 3.162,
+        "deltaMae": 0.001,
+        "ci95": [
+          -0.009,
+          0.011
+        ]
+      },
+      "WR": {
+        "n": 1654,
+        "players": 493,
+        "maeBefore": 5.066,
+        "maeAfter": 5.058,
+        "biasBefore": 3.69,
+        "biasAfter": 3.653,
+        "deltaMae": -0.008,
+        "ci95": [
+          -0.019,
+          0.003
+        ]
+      },
+      "TE": {
+        "n": 1039,
+        "players": 306,
+        "maeBefore": 4.421,
+        "maeAfter": 4.408,
+        "biasBefore": 2.871,
+        "biasAfter": 2.826,
+        "deltaMae": -0.013,
+        "ci95": [
+          -0.027,
+          -0.001
+        ]
+      }
+    },
+    "byBucket": {
+      "2015": {
+        "n": 451,
+        "players": 451,
+        "maeBefore": 5.361,
+        "maeAfter": 5.361,
+        "biasBefore": 4.288,
+        "biasAfter": 4.288,
+        "deltaMae": 0,
+        "ci95": [
+          0,
+          0
+        ]
+      },
+      "2016-2020": {
+        "n": 2060,
+        "players": 769,
+        "maeBefore": 4.531,
+        "maeAfter": 4.531,
+        "biasBefore": 3.09,
+        "biasAfter": 3.077,
+        "deltaMae": 0,
+        "ci95": [
+          -0.004,
+          0.004
+        ]
+      },
+      "2021-2024": {
+        "n": 1851,
+        "players": 754,
+        "maeBefore": 5.153,
+        "maeAfter": 5.133,
+        "biasBefore": 3.683,
+        "biasAfter": 3.604,
+        "deltaMae": -0.021,
+        "ci95": [
+          -0.036,
+          -0.005
+        ]
+      }
+    },
+    "changedByPosition": {
+      "QB": {
+        "n": 15,
+        "players": 5,
+        "maeBefore": 5.6,
+        "maeAfter": 4.733,
+        "biasBefore": 4.933,
+        "biasAfter": 3.933,
+        "deltaMae": -0.867
+      },
+      "RB": {
+        "n": 42,
+        "players": 20,
+        "maeBefore": 5.31,
+        "maeAfter": 5.333,
+        "biasBefore": 2.881,
+        "biasAfter": 1.714,
+        "deltaMae": 0.024
+      },
+      "WR": {
+        "n": 59,
+        "players": 30,
+        "maeBefore": 5.051,
+        "maeAfter": 4.831,
+        "biasBefore": 3.525,
+        "biasAfter": 2.492,
+        "deltaMae": -0.22
+      },
+      "TE": {
+        "n": 40,
+        "players": 20,
+        "maeBefore": 4.9,
+        "maeAfter": 4.575,
+        "biasBefore": 3.05,
+        "biasAfter": 1.875,
+        "deltaMae": -0.325
+      }
+    },
+    "spearman": {
+      "before": 0.337,
+      "after": 0.336
+    }
+  },
+  "descriptive": {
+    "m1": {
+      "distBefore": [
+        3859,
+        461,
+        37,
+        5
+      ],
+      "distAfter": [
+        3748,
+        546,
+        58,
+        10
+      ],
+      "rowsChangedInjurySeasons": 135
+    },
+    "m2": {
+      "rowsChangedAbsenceShape": 259
+    },
+    "m3": {
+      "onToOff": {
+        "n": 0,
+        "nWithOutcome": 0,
+        "meanRatio": null,
+        "medianRatio": null
+      },
+      "offToOn": {
+        "n": 14,
+        "nWithOutcome": 11,
+        "meanRatio": 0.72,
+        "medianRatio": 0.611
+      },
+      "note": "PPG is served half-PPR fantasyPoints, not the app's league-rescored points; ratio = PPG(S+1) / PPG(last qualifying season ≤ S)"
+    },
+    "m4": {
+      "veterans": {
+        "rows": 431,
+        "changed": 37,
+        "matrixBeforeByAfter": [
+          [
+            266,
+            18,
+            0,
+            0
+          ],
+          [
+            0,
+            75,
+            9,
+            0
+          ],
+          [
+            0,
+            0,
+            27,
+            3
+          ],
+          [
+            0,
+            0,
+            0,
+            33
+          ]
+        ]
+      },
+      "activeIn2025": {
+        "rows": 793,
+        "changed": 59,
+        "matrixBeforeByAfter": [
+          [
+            531,
+            22,
+            0,
+            1
+          ],
+          [
+            0,
+            111,
+            17,
+            1
+          ],
+          [
+            0,
+            0,
+            47,
+            5
+          ],
+          [
+            0,
+            0,
+            0,
+            58
+          ]
+        ]
+      },
+      "injuryRiskBadge": {
+        "turnsOn": [
+          "Dak Prescott",
+          "Chris Godwin",
+          "Cooper Kupp",
+          "Zamir White",
+          "Greg Dulcich",
+          "Brock Purdy",
+          "Will Levis",
+          "Spencer Rattler",
+          "Cam Grandy"
+        ],
+        "turnsOff": []
+      }
+    }
+  },
+  "impact2026": {
+    "veterans": 431,
+    "changedProjectedGames": 35,
+    "meanChangeAll": -0.095,
+    "meanChangeChanged": -1.171,
+    "topMovers": [
+      {
+        "id": "6323",
+        "name": "Andrew Beck",
+        "position": "RB",
+        "before": 16,
+        "after": 14,
+        "delta": -2,
+        "injBefore": 0,
+        "injAfter": 0
+      },
+      {
+        "id": "8183",
+        "name": "Brock Purdy",
+        "position": "QB",
+        "before": 12,
+        "after": 10,
+        "delta": -2,
+        "injBefore": 1,
+        "injAfter": 2
+      },
+      {
+        "id": "4039",
+        "name": "Cooper Kupp",
+        "position": "WR",
+        "before": 14,
+        "after": 12,
+        "delta": -2,
+        "injBefore": 1,
+        "injAfter": 2
+      },
+      {
+        "id": "7066",
+        "name": "K.J. Osborn",
+        "position": "WR",
+        "before": 12,
+        "after": 10,
+        "delta": -2,
+        "injBefore": 1,
+        "injAfter": 2
+      },
+      {
+        "id": "1479",
+        "name": "Keenan Allen",
+        "position": "WR",
+        "before": 16,
+        "after": 14,
+        "delta": -2,
+        "injBefore": 0,
+        "injAfter": 0
+      },
+      {
+        "id": "5927",
+        "name": "Terry McLaurin",
+        "position": "WR",
+        "before": 14,
+        "after": 12,
+        "delta": -2,
+        "injBefore": 0,
+        "injAfter": 0
+      },
+      {
+        "id": "829",
+        "name": "Andy Dalton",
+        "position": "QB",
+        "before": 11,
+        "after": 10,
+        "delta": -1,
+        "injBefore": 1,
+        "injAfter": 1
+      },
+      {
+        "id": "9229",
+        "name": "Anthony Richardson",
+        "position": "QB",
+        "before": 11,
+        "after": 10,
+        "delta": -1,
+        "injBefore": 0,
+        "injAfter": 0
+      },
+      {
+        "id": "4663",
+        "name": "Austin Ekeler",
+        "position": "RB",
+        "before": 14,
+        "after": 13,
+        "delta": -1,
+        "injBefore": 0,
+        "injAfter": 0
+      },
+      {
+        "id": "7568",
+        "name": "Brevin Jordan",
+        "position": "TE",
+        "before": 12,
+        "after": 11,
+        "delta": -1,
+        "injBefore": 1,
+        "injAfter": 1
+      },
+      {
+        "id": "11584",
+        "name": "Bucky Irving",
+        "position": "RB",
+        "before": 12,
+        "after": 11,
+        "delta": -1,
+        "injBefore": 0,
+        "injAfter": 0
+      },
+      {
+        "id": "4037",
+        "name": "Chris Godwin",
+        "position": "WR",
+        "before": 13,
+        "after": 12,
+        "delta": -1,
+        "injBefore": 0,
+        "injAfter": 1
+      },
+      {
+        "id": "8129",
+        "name": "Dameon Pierce",
+        "position": "RB",
+        "before": 12,
+        "after": 11,
+        "delta": -1,
+        "injBefore": 0,
+        "injAfter": 0
+      },
+      {
+        "id": "4217",
+        "name": "George Kittle",
+        "position": "TE",
+        "before": 13,
+        "after": 12,
+        "delta": -1,
+        "injBefore": 0,
+        "injAfter": 1
+      },
+      {
+        "id": "7564",
+        "name": "Ja'Marr Chase",
+        "position": "WR",
+        "before": 16,
+        "after": 15,
+        "delta": -1,
+        "injBefore": 0,
+        "injAfter": 0
+      }
+    ],
+    "bounceBackFlips": [
+      {
+        "name": "Mason Rudolph",
+        "position": "QB",
+        "before": false,
+        "after": true
+      }
+    ]
+  },
+  "recommendation": {
+    "outcome": "a",
+    "text": "(a) ship — ΔMAE CI [-0.016, -0.002] is entirely at or below 0: the corrected data does not predict games worse; Stage C proceeds as planned."
+  },
+  "changedRows": [
+    {
+      "id": "1149",
+      "S": 2018,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 10
+    },
+    {
+      "id": "2545",
+      "S": 2018,
+      "position": "TE",
+      "before": 11,
+      "after": 10,
+      "outcome": 6
+    },
+    {
+      "id": "2751",
+      "S": 2018,
+      "position": "TE",
+      "before": 13,
+      "after": 12,
+      "outcome": 16
+    },
+    {
+      "id": "19",
+      "S": 2019,
+      "position": "QB",
+      "before": 10,
+      "after": 9,
+      "outcome": 5
+    },
+    {
+      "id": "2545",
+      "S": 2019,
+      "position": "TE",
+      "before": 11,
+      "after": 10,
+      "outcome": 10
+    },
+    {
+      "id": "2751",
+      "S": 2019,
+      "position": "TE",
+      "before": 15,
+      "after": 14,
+      "outcome": 16
+    },
+    {
+      "id": "4038",
+      "S": 2019,
+      "position": "WR",
+      "before": 10,
+      "after": 9,
+      "outcome": 3
+    },
+    {
+      "id": "4468",
+      "S": 2019,
+      "position": "TE",
+      "before": 10,
+      "after": 9,
+      "outcome": 8
+    },
+    {
+      "id": "19",
+      "S": 2020,
+      "position": "QB",
+      "before": 10,
+      "after": 9,
+      "outcome": 2
+    },
+    {
+      "id": "829",
+      "S": 2020,
+      "position": "QB",
+      "before": 12,
+      "after": 11,
+      "outcome": 8
+    },
+    {
+      "id": "2545",
+      "S": 2020,
+      "position": "TE",
+      "before": 11,
+      "after": 9,
+      "outcome": 16
+    },
+    {
+      "id": "2749",
+      "S": 2020,
+      "position": "RB",
+      "before": 11,
+      "after": 9,
+      "outcome": 1
+    },
+    {
+      "id": "2751",
+      "S": 2020,
+      "position": "TE",
+      "before": 16,
+      "after": 15,
+      "outcome": 12
+    },
+    {
+      "id": "3976",
+      "S": 2020,
+      "position": "QB",
+      "before": 12,
+      "after": 11,
+      "outcome": 6
+    },
+    {
+      "id": "4038",
+      "S": 2020,
+      "position": "WR",
+      "before": 10,
+      "after": 9,
+      "outcome": 10
+    },
+    {
+      "id": "4455",
+      "S": 2020,
+      "position": "RB",
+      "before": 13,
+      "after": 12,
+      "outcome": 9
+    },
+    {
+      "id": "4468",
+      "S": 2020,
+      "position": "TE",
+      "before": 10,
+      "after": 8,
+      "outcome": 16
+    },
+    {
+      "id": "4663",
+      "S": 2020,
+      "position": "RB",
+      "before": 13,
+      "after": 12,
+      "outcome": 16
+    },
+    {
+      "id": "5185",
+      "S": 2020,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 15
+    },
+    {
+      "id": "5773",
+      "S": 2020,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 16
+    },
+    {
+      "id": "5828",
+      "S": 2020,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 15
+    },
+    {
+      "id": "5980",
+      "S": 2020,
+      "position": "RB",
+      "before": 10,
+      "after": 9,
+      "outcome": 17
+    },
+    {
+      "id": "6323",
+      "S": 2020,
+      "position": "RB",
+      "before": 12,
+      "after": 11,
+      "outcome": 12
+    },
+    {
+      "id": "19",
+      "S": 2021,
+      "position": "QB",
+      "before": 10,
+      "after": 9,
+      "outcome": 5
+    },
+    {
+      "id": "1339",
+      "S": 2021,
+      "position": "TE",
+      "before": 15,
+      "after": 14,
+      "outcome": 10
+    },
+    {
+      "id": "1992",
+      "S": 2021,
+      "position": "WR",
+      "before": 14,
+      "after": 13,
+      "outcome": 10
+    },
+    {
+      "id": "2319",
+      "S": 2021,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 13
+    },
+    {
+      "id": "2378",
+      "S": 2021,
+      "position": "RB",
+      "before": 11,
+      "after": 10,
+      "outcome": 5
+    },
+    {
+      "id": "2391",
+      "S": 2021,
+      "position": "RB",
+      "before": 13,
+      "after": 12,
+      "outcome": 5
+    },
+    {
+      "id": "2505",
+      "S": 2021,
+      "position": "TE",
+      "before": 14,
+      "after": 13,
+      "outcome": 9
+    },
+    {
+      "id": "2545",
+      "S": 2021,
+      "position": "TE",
+      "before": 13,
+      "after": 11,
+      "outcome": 17
+    },
+    {
+      "id": "2749",
+      "S": 2021,
+      "position": "RB",
+      "before": 11,
+      "after": 9,
+      "outcome": 16
+    },
+    {
+      "id": "3976",
+      "S": 2021,
+      "position": "QB",
+      "before": 12,
+      "after": 11,
+      "outcome": 7
+    },
+    {
+      "id": "4035",
+      "S": 2021,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 15
+    },
+    {
+      "id": "4323",
+      "S": 2021,
+      "position": "TE",
+      "before": 13,
+      "after": 12,
+      "outcome": 0
+    },
+    {
+      "id": "4381",
+      "S": 2021,
+      "position": "TE",
+      "before": 14,
+      "after": 13,
+      "outcome": 16
+    },
+    {
+      "id": "4455",
+      "S": 2021,
+      "position": "RB",
+      "before": 11,
+      "after": 10,
+      "outcome": 17
+    },
+    {
+      "id": "4468",
+      "S": 2021,
+      "position": "TE",
+      "before": 12,
+      "after": 9,
+      "outcome": 0
+    },
+    {
+      "id": "4866",
+      "S": 2021,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 16
+    },
+    {
+      "id": "4988",
+      "S": 2021,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 17
+    },
+    {
+      "id": "5022",
+      "S": 2021,
+      "position": "TE",
+      "before": 14,
+      "after": 13,
+      "outcome": 12
+    },
+    {
+      "id": "5185",
+      "S": 2021,
+      "position": "WR",
+      "before": 14,
+      "after": 13,
+      "outcome": 15
+    },
+    {
+      "id": "5773",
+      "S": 2021,
+      "position": "WR",
+      "before": 14,
+      "after": 13,
+      "outcome": 17
+    },
+    {
+      "id": "5828",
+      "S": 2021,
+      "position": "WR",
+      "before": 14,
+      "after": 13,
+      "outcome": 0
+    },
+    {
+      "id": "5915",
+      "S": 2021,
+      "position": "WR",
+      "before": 11,
+      "after": 10,
+      "outcome": 5
+    },
+    {
+      "id": "5980",
+      "S": 2021,
+      "position": "RB",
+      "before": 15,
+      "after": 14,
+      "outcome": 4
+    },
+    {
+      "id": "6239",
+      "S": 2021,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 0
+    },
+    {
+      "id": "19",
+      "S": 2022,
+      "position": "QB",
+      "before": 10,
+      "after": 9,
+      "outcome": 5
+    },
+    {
+      "id": "829",
+      "S": 2022,
+      "position": "QB",
+      "before": 11,
+      "after": 10,
+      "outcome": 3
+    },
+    {
+      "id": "1479",
+      "S": 2022,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 13
+    },
+    {
+      "id": "1992",
+      "S": 2022,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 17
+    },
+    {
+      "id": "2319",
+      "S": 2022,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 13
+    },
+    {
+      "id": "2390",
+      "S": 2022,
+      "position": "TE",
+      "before": 10,
+      "after": 9,
+      "outcome": 8
+    },
+    {
+      "id": "2545",
+      "S": 2022,
+      "position": "TE",
+      "before": 15,
+      "after": 13,
+      "outcome": 14
+    },
+    {
+      "id": "2749",
+      "S": 2022,
+      "position": "RB",
+      "before": 14,
+      "after": 11,
+      "outcome": 15
+    },
+    {
+      "id": "3242",
+      "S": 2022,
+      "position": "RB",
+      "before": 13,
+      "after": 12,
+      "outcome": 3
+    },
+    {
+      "id": "3976",
+      "S": 2022,
+      "position": "QB",
+      "before": 12,
+      "after": 11,
+      "outcome": 5
+    },
+    {
+      "id": "4039",
+      "S": 2022,
+      "position": "WR",
+      "before": 13,
+      "after": 11,
+      "outcome": 12
+    },
+    {
+      "id": "4152",
+      "S": 2022,
+      "position": "RB",
+      "before": 11,
+      "after": 10,
+      "outcome": 0
+    },
+    {
+      "id": "4323",
+      "S": 2022,
+      "position": "TE",
+      "before": 13,
+      "after": 12,
+      "outcome": 3
+    },
+    {
+      "id": "4381",
+      "S": 2022,
+      "position": "TE",
+      "before": 15,
+      "after": 14,
+      "outcome": 16
+    },
+    {
+      "id": "4455",
+      "S": 2022,
+      "position": "RB",
+      "before": 14,
+      "after": 12,
+      "outcome": 17
+    },
+    {
+      "id": "4854",
+      "S": 2022,
+      "position": "WR",
+      "before": 10,
+      "after": 9,
+      "outcome": 10
+    },
+    {
+      "id": "4866",
+      "S": 2022,
+      "position": "RB",
+      "before": 15,
+      "after": 14,
+      "outcome": 14
+    },
+    {
+      "id": "4951",
+      "S": 2022,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 15
+    },
+    {
+      "id": "5773",
+      "S": 2022,
+      "position": "WR",
+      "before": 15,
+      "after": 14,
+      "outcome": 17
+    },
+    {
+      "id": "5915",
+      "S": 2022,
+      "position": "WR",
+      "before": 11,
+      "after": 10,
+      "outcome": 2
+    },
+    {
+      "id": "5955",
+      "S": 2022,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 17
+    },
+    {
+      "id": "5980",
+      "S": 2022,
+      "position": "RB",
+      "before": 15,
+      "after": 14,
+      "outcome": 3
+    },
+    {
+      "id": "6239",
+      "S": 2022,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 3
+    },
+    {
+      "id": "6323",
+      "S": 2022,
+      "position": "RB",
+      "before": 12,
+      "after": 11,
+      "outcome": 15
+    },
+    {
+      "id": "6402",
+      "S": 2022,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 3
+    },
+    {
+      "id": "6790",
+      "S": 2022,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 16
+    },
+    {
+      "id": "6798",
+      "S": 2022,
+      "position": "WR",
+      "before": 16,
+      "after": 15,
+      "outcome": 11
+    },
+    {
+      "id": "6828",
+      "S": 2022,
+      "position": "RB",
+      "before": 16,
+      "after": 15,
+      "outcome": 15
+    },
+    {
+      "id": "6843",
+      "S": 2022,
+      "position": "TE",
+      "before": 10,
+      "after": 9,
+      "outcome": 4
+    },
+    {
+      "id": "7561",
+      "S": 2022,
+      "position": "RB",
+      "before": 11,
+      "after": 10,
+      "outcome": 11
+    },
+    {
+      "id": "7564",
+      "S": 2022,
+      "position": "WR",
+      "before": 14,
+      "after": 13,
+      "outcome": 16
+    },
+    {
+      "id": "7597",
+      "S": 2022,
+      "position": "TE",
+      "before": 10,
+      "after": 9,
+      "outcome": 5
+    },
+    {
+      "id": "19",
+      "S": 2023,
+      "position": "QB",
+      "before": 10,
+      "after": 9,
+      "outcome": 8
+    },
+    {
+      "id": "412",
+      "S": 2023,
+      "position": "TE",
+      "before": 10,
+      "after": 9,
+      "outcome": 0
+    },
+    {
+      "id": "829",
+      "S": 2023,
+      "position": "QB",
+      "before": 11,
+      "after": 10,
+      "outcome": 6
+    },
+    {
+      "id": "1479",
+      "S": 2023,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 15
+    },
+    {
+      "id": "1992",
+      "S": 2023,
+      "position": "WR",
+      "before": 14,
+      "after": 13,
+      "outcome": 12
+    },
+    {
+      "id": "2545",
+      "S": 2023,
+      "position": "TE",
+      "before": 15,
+      "after": 13,
+      "outcome": 8
+    },
+    {
+      "id": "2749",
+      "S": 2023,
+      "position": "RB",
+      "before": 14,
+      "after": 12,
+      "outcome": 13
+    },
+    {
+      "id": "3423",
+      "S": 2023,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 2
+    },
+    {
+      "id": "3976",
+      "S": 2023,
+      "position": "QB",
+      "before": 12,
+      "after": 11,
+      "outcome": 9
+    },
+    {
+      "id": "4035",
+      "S": 2023,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 14
+    },
+    {
+      "id": "4039",
+      "S": 2023,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 12
+    },
+    {
+      "id": "4080",
+      "S": 2023,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 11
+    },
+    {
+      "id": "4199",
+      "S": 2023,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 17
+    },
+    {
+      "id": "4234",
+      "S": 2023,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 11
+    },
+    {
+      "id": "4381",
+      "S": 2023,
+      "position": "TE",
+      "before": 15,
+      "after": 14,
+      "outcome": 8
+    },
+    {
+      "id": "4718",
+      "S": 2023,
+      "position": "RB",
+      "before": 15,
+      "after": 14,
+      "outcome": 17
+    },
+    {
+      "id": "4854",
+      "S": 2023,
+      "position": "WR",
+      "before": 10,
+      "after": 9,
+      "outcome": 8
+    },
+    {
+      "id": "5185",
+      "S": 2023,
+      "position": "WR",
+      "before": 15,
+      "after": 14,
+      "outcome": 12
+    },
+    {
+      "id": "5773",
+      "S": 2023,
+      "position": "WR",
+      "before": 17,
+      "after": 16,
+      "outcome": 17
+    },
+    {
+      "id": "5915",
+      "S": 2023,
+      "position": "WR",
+      "before": 11,
+      "after": 10,
+      "outcome": 0
+    },
+    {
+      "id": "5980",
+      "S": 2023,
+      "position": "RB",
+      "before": 15,
+      "after": 14,
+      "outcome": 5
+    },
+    {
+      "id": "6239",
+      "S": 2023,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 0
+    },
+    {
+      "id": "6323",
+      "S": 2023,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 4
+    },
+    {
+      "id": "6402",
+      "S": 2023,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 9
+    },
+    {
+      "id": "6790",
+      "S": 2023,
+      "position": "RB",
+      "before": 15,
+      "after": 14,
+      "outcome": 17
+    },
+    {
+      "id": "6843",
+      "S": 2023,
+      "position": "TE",
+      "before": 10,
+      "after": 9,
+      "outcome": 0
+    },
+    {
+      "id": "6927",
+      "S": 2023,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 0
+    },
+    {
+      "id": "7559",
+      "S": 2023,
+      "position": "WR",
+      "before": 12,
+      "after": 11,
+      "outcome": 15
+    },
+    {
+      "id": "7561",
+      "S": 2023,
+      "position": "RB",
+      "before": 11,
+      "after": 10,
+      "outcome": 0
+    },
+    {
+      "id": "7568",
+      "S": 2023,
+      "position": "TE",
+      "before": 12,
+      "after": 11,
+      "outcome": 2
+    },
+    {
+      "id": "7597",
+      "S": 2023,
+      "position": "TE",
+      "before": 10,
+      "after": 9,
+      "outcome": 9
+    },
+    {
+      "id": "7606",
+      "S": 2023,
+      "position": "WR",
+      "before": 11,
+      "after": 10,
+      "outcome": 3
+    },
+    {
+      "id": "8121",
+      "S": 2023,
+      "position": "WR",
+      "before": 16,
+      "after": 15,
+      "outcome": 13
+    },
+    {
+      "id": "8135",
+      "S": 2023,
+      "position": "WR",
+      "before": 11,
+      "after": 10,
+      "outcome": 5
+    },
+    {
+      "id": "8197",
+      "S": 2023,
+      "position": "TE",
+      "before": 11,
+      "after": 10,
+      "outcome": 7
+    },
+    {
+      "id": "829",
+      "S": 2024,
+      "position": "QB",
+      "before": 11,
+      "after": 10,
+      "outcome": 4
+    },
+    {
+      "id": "1339",
+      "S": 2024,
+      "position": "TE",
+      "before": 15,
+      "after": 14,
+      "outcome": 13
+    },
+    {
+      "id": "1479",
+      "S": 2024,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 17
+    },
+    {
+      "id": "2505",
+      "S": 2024,
+      "position": "TE",
+      "before": 11,
+      "after": 10,
+      "outcome": 9
+    },
+    {
+      "id": "2749",
+      "S": 2024,
+      "position": "RB",
+      "before": 14,
+      "after": 12,
+      "outcome": 12
+    },
+    {
+      "id": "3200",
+      "S": 2024,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 13
+    },
+    {
+      "id": "3294",
+      "S": 2024,
+      "position": "QB",
+      "before": 12,
+      "after": 11,
+      "outcome": 17
+    },
+    {
+      "id": "3423",
+      "S": 2024,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 3
+    },
+    {
+      "id": "4035",
+      "S": 2024,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 11
+    },
+    {
+      "id": "4039",
+      "S": 2024,
+      "position": "WR",
+      "before": 11,
+      "after": 10,
+      "outcome": 16
+    },
+    {
+      "id": "4068",
+      "S": 2024,
+      "position": "WR",
+      "before": 16,
+      "after": 15,
+      "outcome": 0
+    },
+    {
+      "id": "4199",
+      "S": 2024,
+      "position": "RB",
+      "before": 15,
+      "after": 14,
+      "outcome": 12
+    },
+    {
+      "id": "4381",
+      "S": 2024,
+      "position": "TE",
+      "before": 12,
+      "after": 11,
+      "outcome": 13
+    },
+    {
+      "id": "4663",
+      "S": 2024,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 2
+    },
+    {
+      "id": "4718",
+      "S": 2024,
+      "position": "RB",
+      "before": 16,
+      "after": 15,
+      "outcome": 17
+    },
+    {
+      "id": "4854",
+      "S": 2024,
+      "position": "WR",
+      "before": 9,
+      "after": 8,
+      "outcome": 2
+    },
+    {
+      "id": "5022",
+      "S": 2024,
+      "position": "TE",
+      "before": 11,
+      "after": 10,
+      "outcome": 15
+    },
+    {
+      "id": "5185",
+      "S": 2024,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 10
+    },
+    {
+      "id": "5409",
+      "S": 2024,
+      "position": "TE",
+      "before": 11,
+      "after": 10,
+      "outcome": 15
+    },
+    {
+      "id": "5773",
+      "S": 2024,
+      "position": "WR",
+      "before": 17,
+      "after": 16,
+      "outcome": 12
+    },
+    {
+      "id": "5980",
+      "S": 2024,
+      "position": "RB",
+      "before": 15,
+      "after": 14,
+      "outcome": 1
+    },
+    {
+      "id": "6323",
+      "S": 2024,
+      "position": "RB",
+      "before": 14,
+      "after": 13,
+      "outcome": 17
+    },
+    {
+      "id": "6402",
+      "S": 2024,
+      "position": "WR",
+      "before": 11,
+      "after": 10,
+      "outcome": 3
+    },
+    {
+      "id": "6798",
+      "S": 2024,
+      "position": "WR",
+      "before": 11,
+      "after": 10,
+      "outcome": 0
+    },
+    {
+      "id": "6843",
+      "S": 2024,
+      "position": "TE",
+      "before": 10,
+      "after": 9,
+      "outcome": 1
+    },
+    {
+      "id": "6927",
+      "S": 2024,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 0
+    },
+    {
+      "id": "6996",
+      "S": 2024,
+      "position": "RB",
+      "before": 15,
+      "after": 14,
+      "outcome": 0
+    },
+    {
+      "id": "7002",
+      "S": 2024,
+      "position": "TE",
+      "before": 16,
+      "after": 15,
+      "outcome": 17
+    },
+    {
+      "id": "7066",
+      "S": 2024,
+      "position": "WR",
+      "before": 12,
+      "after": 10,
+      "outcome": 0
+    },
+    {
+      "id": "7535",
+      "S": 2024,
+      "position": "TE",
+      "before": 15,
+      "after": 14,
+      "outcome": 9
+    },
+    {
+      "id": "7561",
+      "S": 2024,
+      "position": "RB",
+      "before": 11,
+      "after": 10,
+      "outcome": 1
+    },
+    {
+      "id": "7564",
+      "S": 2024,
+      "position": "WR",
+      "before": 16,
+      "after": 15,
+      "outcome": 16
+    },
+    {
+      "id": "7568",
+      "S": 2024,
+      "position": "TE",
+      "before": 12,
+      "after": 11,
+      "outcome": 0
+    },
+    {
+      "id": "7694",
+      "S": 2024,
+      "position": "TE",
+      "before": 14,
+      "after": 13,
+      "outcome": 17
+    },
+    {
+      "id": "8129",
+      "S": 2024,
+      "position": "RB",
+      "before": 12,
+      "after": 11,
+      "outcome": 5
+    },
+    {
+      "id": "8135",
+      "S": 2024,
+      "position": "WR",
+      "before": 11,
+      "after": 10,
+      "outcome": 8
+    },
+    {
+      "id": "8145",
+      "S": 2024,
+      "position": "TE",
+      "before": 15,
+      "after": 14,
+      "outcome": 17
+    },
+    {
+      "id": "8151",
+      "S": 2024,
+      "position": "RB",
+      "before": 13,
+      "after": 12,
+      "outcome": 17
+    },
+    {
+      "id": "8527",
+      "S": 2024,
+      "position": "WR",
+      "before": 14,
+      "after": 13,
+      "outcome": 9
+    },
+    {
+      "id": "9229",
+      "S": 2024,
+      "position": "QB",
+      "before": 11,
+      "after": 10,
+      "outcome": 2
+    },
+    {
+      "id": "11210",
+      "S": 2024,
+      "position": "WR",
+      "before": 13,
+      "after": 12,
+      "outcome": 11
+    },
+    {
+      "id": "11433",
+      "S": 2024,
+      "position": "TE",
+      "before": 15,
+      "after": 14,
+      "outcome": 9
+    }
+  ]
+}
