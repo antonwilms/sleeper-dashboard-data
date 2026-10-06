@@ -112,9 +112,9 @@ Source: Sleeper stats/projections API (`api.sleeper.com`). Fields vary by positi
 | Code | Meaning |
 |------|---------|
 | `P` | Played — `gp === 1` in the per-week response |
-| `D` | DNP — `gp === 0` and the player's team had other players with `gp === 1` that week |
+| `D` | DNP — `gp === 0` and the player's team had other players with `gp === 1` that week; **since absence-classification (2016+) also** a week Sleeper omitted the player while `nflverse/rosterweekly` lists him `ACT`/`INA`/`RES`/`PUP` on a team that played (CR-28) |
 | `B` | Bye — `gp === 0` and no player on the team appeared in that week's response |
-| `X` | Absent — player not in the per-week response at all |
+| `X` | Absent — player not in the per-week response at all, and (2016+) not on the weekly roster with an availability status for a team that played |
 
 Pre-2021 NFL had 17 regular-season weeks. Those seasons store `X` at week 18 for every player; consumers may hide it from week-by-week visualisations.
 
@@ -1131,7 +1131,7 @@ node bin/update.mjs depth --all      # backfill every season ≥ 2013
 Weekly roster status (absence classification, L5 Stage A), produced by
 `bin/update.mjs rosterweekly [--year YYYY] [--all]` from `roster_weekly_<year>.csv` in the nflverse
 `weekly_rosters` release. **Internal-only — the app never reads it.** It is consumed by
-`scripts/update-nfl.mjs` (from Stage C) through `lib/absence.mjs`.
+`scripts/update-nfl.mjs` through `lib/absence.mjs`.
 
 ```json
 {
@@ -1333,6 +1333,8 @@ Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 `attachFactorMultipliers`' ctx carries two optional in-season backtest seams (`bin/backtest.mjs --inseason`): `requirePositiveOutcome` (default `true`; `false` skips only the `nonPositiveOutcome` drop) and `depthOrderOf(pid, position, lastQSeason, lastQTeam)` (default `null`; replaces the Step 8 depth-order lookup, with the sentinel/coverage bookkeeping unchanged). Defaults reproduce every committed artifact byte-for-byte. `scripts/panel-run.mjs`'s `loadFactorInputs` / `buildFactorContext` are the loading and ctx blocks of `assemblePanel`, extracted so `scripts/inseason-run.mjs` reuses them rather than forking. `resolvePosition` gains a season-independent crosswalk fallback (D6a finding 2); `resolveSnapCounts` is the R1-SNAPS fallback (finding 3). `compBlend` is a stated architecture deviation — a synthetic ratio factor, since the app's comp blend is a post-hoc convex combination, not a multiplier.
 
+`scripts/panel-run.mjs` panels (R3-FIT, D-12 and the rest) re-run on the corrected season-totals read the new `dnpWeeks`/`absenceSegments` (`lib/panel.mjs:1606,1967`, `scripts/panel-run.mjs:1371`), so their outputs are not comparable with verdicts dated before absence-classification.
+
 #### The poisoned-snapshot window (2026-07-16 → 2026-07-18)
 
 App snapshots written in this window carry ~½-scale `teamRzShare` and `shareVolatility`, captured
@@ -1368,6 +1370,14 @@ Both are pure and exported for direct unit testing.
   first run after `state.season` rolls over; see the fix's own header comment in the file.
   `--force` still overrides for a deliberate interactive correction, and `--dry-run` stays exempt
   so a completed season can be previewed without `--force` (§2.3).
+
+**Absence classification (CR-28).** After `aggregateWeeks`, every run — in-progress, `--force` and
+`--dry-run` — reads `nflverse/rosterweekly/<year>.json` and applies `lib/absence.mjs`'s
+`classifyAbsences` (seasons ≥ 2016 only; below that the file is never read). A run without it would
+turn already-classified `'D'` back into `'X'`, so a missing roster file **throws** for a completed
+season, for `--force`, and for an in-progress season whose file already exists; only an in-progress
+season's first file (no season file yet) warns and writes unclassified. The bye inference above stays
+forward-only; classification does not.
 
 `--year` is optional: when omitted the live season resolves via `fetchCurrentNflSeason()` and is
 surfaced with `setStepOutput('season', …)` for the workflow's Invariant 8 purge URL — matching
@@ -1427,6 +1437,15 @@ it hashes through `deepSortKeys`. Stated as JSDoc at `lib/cfbd.mjs:63-66`.
 
 - `migrate-f24-prune.mjs` — drops `idp_*`/`punt*` from every completed season file, minifies,
   bumps the manifest to `schemaVersion` 4. Invariant 1 exception; rationale in commit `2b06c5b`.
+- `migrate-absence-roster.mjs` — Invariant-1 correction #3 (absence-classification, CR-28): for every
+  completed 2016+ `nfl/season-totals/<year>.json` runs `classifyAbsences` against its
+  `nflverse/rosterweekly/<year>.json` and rewrites **only** `weeklyStatus` `'X'` → `'D'`, `dnpWeeks`
+  and `availability`, in place (never a Sleeper re-fetch — that would also pull unrelated stat
+  corrections and re-run CR-02's dominant-team rule). Guards throw on any other field change, any
+  non-`'X'`→`'D'` slot change, a `dnpWeeks` mismatch or a `validateNflSeason` failure; manifest entries
+  of changed seasons get `schemaVersion: 4`. `--dry-run` reports only; idempotent; skips `inProgress`
+  seasons (the next `update-nfl` run classifies those). One-way — the Sleeper-only baseline is gone, so
+  narrowing the status set needs a forced re-fetch.
 - `migrate-college-pivot.mjs` — rewrites all 27 `college/{passing,receiving,rushing}/<year>.json`
   files from a long-form row array to the pivoted player-keyed envelope via `lib/cfbd.mjs`
   `pivotCfbdRows`, bumping `schemaVersion` to 2 and setting `recordCount` to the player count.

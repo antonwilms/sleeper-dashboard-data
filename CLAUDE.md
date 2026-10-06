@@ -43,7 +43,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 |---|---|
 | `bin/*.mjs` | Thin CLIs — parse flags, dispatch to a `scripts/` adapter; no logic of their own. Entry points and modes: [Commands](#commands) |
 | `bin/import-snapshot.mjs` | Projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
-| `lib/args.mjs` | `bin/update.mjs` arg validation. `MIN_CLI_YEAR = 1999` is a typo bound, **not** a coverage floor (CR-18); `ALL_SUBCOMMANDS` = schedule/gamelogs/teamcontext/oline/snaps/depth/rosterweekly |
+| `lib/args.mjs` | `bin/update.mjs` arg validation. `MIN_CLI_YEAR = 1999` is a typo bound, **not** a coverage floor (CR-18); `ALL_SUBCOMMANDS` = the `--all` families |
 | `lib/absence.mjs` | Pure weekly-roster absence classifier (`classifyAbsences`) for season-totals `weeklyStatus` |
 | `lib/validate.mjs` | Schema validators + `findNonFinite`; holds `NFL_SENTINELS`, `KTC_TOP_QB_SENTINELS` (Invariant 7). |
 | `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`, `RATE_KEYS`); drives the grading in-basis path (CR-14) |
@@ -53,7 +53,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `lib/seasonIngest.mjs` | `runSeasonKeyedIngest` — shared manifest-registration adapter for the eight season-keyed family ingests (`schedule`, `teamcontext`, `oline`, `gamelogs`, `advstats`, `snaps`, `depth`, `rosterweekly`); hard-codes `inProgress: false`, `schemaVersion: 1` (CR-04 data-side trigger) |
 | `lib/registry.mjs`, `scripts/registry-audit.mjs` | Field-block parser + read-only CLI for the mirrored registry region in `cross-repo-registry.md`; reports per-entry cache-field anchor counts, no writes |
 | `scripts/update-nfl.mjs` | NFL season-totals ingest. `--year` omitted resolves via `fetchCurrentNflSeason()` + `setStepOutput('season', …)`. Guards `hasNoData` / `isOpeningWeekPartial` / `shouldSkipCompletedSeason`; `DEFAULT_DEPS` is the injectable I/O+fetch seam |
-| `scripts/migrate-*.mjs` | One-shot historical rewrites, `--dry-run` capable — the Invariant 1 exceptions: `migrate-f24-prune.mjs`, `migrate-college-pivot.mjs` |
+| `scripts/migrate-*.mjs` | One-shot historical rewrites, `--dry-run` capable — the Invariant 1 exceptions: `migrate-f24-prune.mjs`, `migrate-college-pivot.mjs`, `migrate-absence-roster.mjs` |
 | `scripts/update-cfbd.mjs` | CFBD ingest — fetch long-form, pivot, validate, write the pivoted envelope; dedup hashes the pivoted form on both sides |
 | `scripts/update-ktc.mjs` | KTC snapshot capture; the Spearman ordering guard lives here — `ktcOrderingGuard`, `KTC_ORDERING_THRESHOLD` |
 | `scripts/register-snapshots.mjs` | Snapshot manifest registration |
@@ -115,7 +115,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 reaches the other side. A session started in the *parent folder* holding both repos can write both,
 and that is the one sanctioned way to land a two-sided change: registry-listed contracts and
 genuinely new couplings only, both sides in the same change, the registry entry updated or drafted
-in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 27 `CR-NN` entries — lives in [cross-repo-registry.md](cross-repo-registry.md). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that file and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
+in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 28 `CR-NN` entries — lives in [cross-repo-registry.md](cross-repo-registry.md). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that file and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
 
 **Rule.** Any change touching a listed contract **must emit that entry's `Mirror` text as Session 1 output**, in a `## Cross-repo impact` section of the task file, quoting the `CR-NN` id. Naming the contract in prose is not enough; the mirror instruction itself is the deliverable.
 

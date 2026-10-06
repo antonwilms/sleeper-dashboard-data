@@ -27,6 +27,7 @@ import { fetchSeasonWeeks, aggregateWeeks, fetchCurrentNflSeason } from '../lib/
 import { readJson, writeJsonStable, diffSummary, setStepOutput, stableHash, sortObjectKeys } from '../lib/io.mjs';
 import { updateManifestEntry, setManifestInProgress } from '../lib/manifest.mjs';
 import { validateNflSeason } from '../lib/validate.mjs';
+import { classifyAbsences, MIN_ABSENCE_CLASSIFY_SEASON } from '../lib/absence.mjs';
 
 export const nflHash = players => stableHash(players, sortObjectKeys);
 
@@ -144,47 +145,66 @@ export async function updateNfl({ year: yearOpt = null, force, dryRun, deps = {}
   // only thread the schedule in while this season is still in-progress. A completed season
   // re-aggregated later (dry-run or --force) must reproduce the once-migrated on-disk file
   // bit-for-bit, including its untouched 'X' history — passing the schedule there would
-  // silently diverge the aggregation and break the nflHash skip.
+  // silently diverge the aggregation and break the nflHash skip. Absence classification
+  // (below) is NOT forward-only: it runs in every mode (absence-classification-c.md C-D2).
   const schedule = inProgress ? d.readJson(`nflverse/schedule/${year}.json`) : null;
   const totals = aggregateWeeks(weekData, schedule?.games ?? null);
   console.log(`[nfl] Aggregated: ${Object.keys(totals).length} players`);
 
+  // absence-classification (CR-28): an 'X' week Sleeper omitted becomes 'D' when the weekly roster
+  // lists the player ACT/INA/RES/PUP on a team that played. Every mode classifies — a run without it
+  // would turn classified 'D' back into 'X'.
+  let classified = totals;
+  if (year >= MIN_ABSENCE_CLASSIFY_SEASON) {
+    const rosterPath = `nflverse/rosterweekly/${year}.json`;
+    const roster = d.readJson(rosterPath);
+    if (!roster?.players) {
+      const msg = `[nfl] ${rosterPath} missing — run 'node bin/update.mjs rosterweekly --year ${year}' first (absence classification, CR-28).`;
+      if (!inProgress || force || existing) throw new Error(msg);   // C-D2
+      console.warn(`${msg} Writing UNCLASSIFIED — first file of an in-progress season.`);
+    } else {
+      const r = classifyAbsences(totals, roster.players, { season: year });
+      classified = r.totals;
+      console.log(`[nfl] Absence classification: ${r.changedSlots} week(s) 'X' → 'D' ${JSON.stringify(r.byStatus)}`);
+    }
+  }
+
   // 3. Validate (throws on failure → non-zero exit → red CI)
-  validateNflSeason(totals, { year });
+  validateNflSeason(classified, { year });
   console.log('[nfl] Validation passed');
 
   // 4. Idempotency / dry-run checks
   if (existing) {
-    if (nflHash(totals) === nflHash(existing)) {
+    if (nflHash(classified) === nflHash(existing)) {
       console.log(`[nfl] No change for ${dataPath} — skipping write.`);
       return;
     }
 
     // Show diff summary for human-readable info (points-neutral changes still detected above)
-    const summary = d.diffSummary(existing, totals);
+    const summary = d.diffSummary(existing, classified);
     console.log(`[nfl] Diff vs existing:\n${summary.text}`);
 
     // Dry-run: show what we would do and exit cleanly (bypass force requirement)
     if (dryRun) {
-      console.log(`[nfl] [dry-run] would write ${dataPath}: ${Object.keys(totals).length} players`);
+      console.log(`[nfl] [dry-run] would write ${dataPath}: ${Object.keys(classified).length} players`);
       return;
     }
   }
 
   // 5. Dry-run exit (no existing file case)
   if (dryRun) {
-    console.log(`[nfl] [dry-run] would write ${dataPath}: ${Object.keys(totals).length} players`);
+    console.log(`[nfl] [dry-run] would write ${dataPath}: ${Object.keys(classified).length} players`);
     return;
   }
 
   // 6. Write (minified — F-24; nfl/season-totals/ only, manifest.json stays pretty-printed)
-  d.writeJsonStable(dataPath, totals, { minify: true });
-  console.log(`[nfl] Wrote ${dataPath} (${Object.keys(totals).length} players)`);
+  d.writeJsonStable(dataPath, classified, { minify: true });
+  console.log(`[nfl] Wrote ${dataPath} (${Object.keys(classified).length} players)`);
 
   // 7. Update manifest (F-24: schemaVersion 4 — idp_*/punt* pruned from stats)
   d.updateManifestEntry({
     path: dataPath,
-    recordCount: Object.keys(totals).length,
+    recordCount: Object.keys(classified).length,
     inProgress,
     schemaVersion: 4,
   });

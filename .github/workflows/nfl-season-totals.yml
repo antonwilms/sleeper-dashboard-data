@@ -10,6 +10,8 @@ on:
     # Mon, roster 13:23 Tue, schedule 13:35 Fri); cron-deadman (05:19) and registry-mirror (06:41)
     # commit nothing. Reads nflverse/schedule/<year>.json for D-1 bye inference; the season's
     # schedule is written long before week 1, so the Friday schedule job's timing does not matter.
+    # Also reads nflverse/rosterweekly/<year>.json (refreshed daily at 06:23 UTC, after this job, so
+    # classification lags one run) for absence classification (CR-28).
     - cron: "13 6 * * 1,2,5"
   workflow_dispatch: {}   # allow manual trigger for backfill / corrections
 
@@ -28,6 +30,7 @@ jobs:
       sparse-paths: |
         nfl/season-totals
         nflverse/schedule
+        nflverse/rosterweekly
       commit-scope: "nfl/"
       commit-message: "nfl: season-totals"
       purge-path: "nfl/season-totals/<season>.json"

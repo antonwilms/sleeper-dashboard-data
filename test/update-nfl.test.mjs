@@ -352,3 +352,93 @@ test('updateNfl D-D: all 18 weeks failed → rejects rather than the hasNoData c
   await assert.rejects(updateNfl({ year: 2026, force: false, dryRun: false, deps }), /fetch failed for week\(s\) 1, 2/);
   assert.equal(deps.writeJsonStable.calls.length, 0);
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// absence-classification-c.md §2.1 — every run classifies (CR-28, C-D2)
+// ═══════════════════════════════════════════════════════════════════
+
+const ROSTER_2026 = 'nflverse/rosterweekly/2026.json';
+
+// 20 teams × 25 players over weeks 1 and 2, plus a TEAM_<abbr> pseudo-row per team (the
+// classifier reads team-played weeks from those). Teams are real schedule abbreviations
+// (validateNflSeason checks the domain); player ids stay T<nn>_<k>. `absent` ids are dropped
+// from week 2.
+const REAL_TEAMS = ['ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LA','LAC','LV','MIA'];
+function twoWeekSeason({ absent = [] } = {}) {
+  const weekData = weeksWithTeams(20, 25);
+  const retag = e => ({ ...e, team: REAL_TEAMS[TEAM_NAMES.indexOf(e.team)] });
+  const week1 = weekData[0].entries.map(retag);
+  for (const abbr of REAL_TEAMS) week1.push({ player_id: `TEAM_${abbr}`, team: abbr, stats: { gp: 1 } });
+  weekData[0].entries = week1;
+  weekData[1].entries = week1.filter(e => !absent.includes(e.player_id));
+  return weekData;
+}
+
+function absenceDeps({ roster, stored = null, current = 2026 } = {}) {
+  return liveDeps({
+    fetchCurrentNflSeason: async () => current,
+    fetchSeasonWeeks: async () => twoWeekSeason({ absent: ['T00_0'] }),
+    readJson: countingFn(path => {
+      if (path === ROSTER_2026 || path === 'nflverse/rosterweekly/2025.json') return roster ?? null;
+      if (path.startsWith('nfl/season-totals/')) return stored;
+      return null;
+    }),
+  });
+}
+
+test('updateNfl NFL-1: a missing roster throws for a completed season (--force and --dry-run)', async () => {
+  for (const [force, dryRun] of [[true, false], [false, true]]) {
+    const deps = absenceDeps({ current: 2027 });
+    await assert.rejects(updateNfl({ year: 2026, force, dryRun, deps }), /rosterweekly\/2026\.json missing/);
+    assert.equal(deps.writeJsonStable.calls.length, 0);
+  }
+});
+
+test('updateNfl NFL-1: a missing roster throws for an in-progress season that already has a file, and with --force', async () => {
+  const stored = { stale: true };
+  const withFile = absenceDeps({ stored });
+  await assert.rejects(updateNfl({ year: 2026, force: false, dryRun: false, deps: withFile }), /rosterweekly\/2026\.json missing/);
+  assert.equal(withFile.writeJsonStable.calls.length, 0);
+
+  const forced = absenceDeps({});
+  await assert.rejects(updateNfl({ year: 2026, force: true, dryRun: false, deps: forced }), /rosterweekly\/2026\.json missing/);
+  assert.equal(forced.writeJsonStable.calls.length, 0);
+});
+
+test('updateNfl NFL-1: a missing roster on an in-progress season with no file yet warns and writes UNCLASSIFIED', async () => {
+  const deps = absenceDeps({});
+  const warn = console.warn;
+  const warnings = [];
+  console.warn = msg => warnings.push(msg);
+  try {
+    await updateNfl({ year: 2026, force: false, dryRun: false, deps });
+  } finally {
+    console.warn = warn;
+  }
+  assert.equal(deps.writeJsonStable.calls.length, 1);
+  const written = deps.writeJsonStable.calls[0][1];
+  assert.equal(written['T00_0'].weeklyStatus[1], 'X');   // not classified
+  assert.equal(written['T00_0'].dnpWeeks, 0);
+  assert.match(warnings.join('\n'), /UNCLASSIFIED/);
+});
+
+test('updateNfl NFL-1: the roster is never read for a season below 2016', async () => {
+  const deps = absenceDeps({ current: 2027 });
+  deps.fetchSeasonWeeks = async () => twoWeekSeason({ absent: ['T00_0'] });
+  await updateNfl({ year: 2015, force: true, dryRun: false, deps });
+  assert.equal(deps.readJson.calls.some(([p]) => p.startsWith('nflverse/rosterweekly/')), false);
+  assert.equal(deps.writeJsonStable.calls.length, 1);
+});
+
+test("updateNfl NFL-2: an INA roster week for a team that played becomes 'D' and dnpWeeks + 1", async () => {
+  const roster = { players: { T00_0: { 2: [['ARI', 'INA']] } } };
+  const deps = absenceDeps({ roster });
+  await updateNfl({ year: 2026, force: false, dryRun: false, deps });
+  const written = deps.writeJsonStable.calls[0][1];
+  assert.equal(written['T00_0'].weeklyStatus[1], 'D');
+  assert.equal(written['T00_0'].weeklyStatus[0], 'P');
+  assert.equal(written['T00_0'].dnpWeeks, 1);
+  assert.equal(deps.updateManifestEntry.calls[0][0].recordCount, Object.keys(written).length);
+  // a player with no roster entry stays untouched
+  assert.equal(written['T00_1'].dnpWeeks, 0);
+});
