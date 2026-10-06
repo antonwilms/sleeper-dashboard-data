@@ -16,6 +16,7 @@
     "backtest:inseason": "node bin/backtest.mjs --inseason",
     "backtest:qb-takeover": "node bin/backtest.mjs --qb-takeover",
     "backtest:qb-rookie-level": "node bin/backtest.mjs --qb-rookie-level",
+    "backtest:absence": "node bin/backtest.mjs --absence",
     "panel": "node bin/panel.mjs",
     "panel:flip": "node bin/panel.mjs --flip-gate",
     "panel:fit": "node bin/panel.mjs --fit",

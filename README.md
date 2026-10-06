@@ -1310,7 +1310,7 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
 `--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
 rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`),
-`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`).
+`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1323,8 +1323,8 @@ the app's live default, load-bearing for the reconstruction.
 
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
 `<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
-`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`).
+`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`) and `grading/`
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`).
 Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
@@ -1389,6 +1389,21 @@ schedule, so a bye or a not-yet-played week never converts. Only `'X'` → `'D'`
 keep their reference. Seasons before `MIN_ABSENCE_CLASSIFY_SEASON = 2016` return the input as-is
 (the weekly status is season-level there). A missing `rosterWeekly` throws — the caller decides
 what an absent file means.
+
+#### `lib/durabilityMirror.mjs` — offline mirror of the app's durability rules
+
+Pure, no I/O; used only by `bin/backtest.mjs --absence` (`scripts/absence-run.mjs`). It mirrors, at
+app `d627562` (CR-28), the veteran projected-games rule (`src/utils/durabilitySignals.js`;
+`seasonProjection.js` Step 1 qualifying seasons/weights and Step 6), the bounce-back predicate
+(`projectionSignals.js` `computeBounceBackFlag`) and the dynasty `injurySeasonCount`
+(`dynastyScore.js`). Every function takes a `throughSeason` and reads a season-filtered view of
+`careerStats`, so as-of-S+1 the app's missing S+1 row reads as absent. The contributor test follows
+the app **code** (any one of snap share, starts, volume suffices — a below-floor snap share falls
+through), not its header comment. `test/durability-mirror.test.mjs` pins parity against
+`test/fixtures/durability-parity-2026-10-04.json` (pre-correction inputs at data `4f469cc`, built by
+`test/fixtures/build-durability-parity.mjs`): ≥ 99% of the 2026-10-04 snapshot's veteran rows must
+match on `projectedGames`, `injurySeasons` and `absenceShapeFactor` (compared at the app's own
+`Math.round(x·1000)/1000`). A change to those four app sites stales the mirror silently.
 
 #### `lib/nflverse.mjs` — floors vs. bands
 

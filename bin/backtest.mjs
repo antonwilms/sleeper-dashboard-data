@@ -40,6 +40,11 @@
  *                ktc-neutral level and the live snapshot's rookie QBs. Takes only --json / --write. --write
  *                persists backtests/<date>-qb-rookie-level-{panel,constants}.json +
  *                grading/<date>-qb-rookie-level-verdict.md. Exit 1 if the coverage or snapshot stop fires.
+ *   --absence    graded before/after check of the absence correction (L5 Stage B, offline analysis only):
+ *                the mirrored projected-games rule on season-totals with and without `classifyAbsences`
+ *                applied, vs next-season games played. Takes only --json / --write. --write persists
+ *                backtests/<date>-absence-panel.json + grading/<date>-absence-verdict.md.
+ *                Exit 1 if DM-1 parity falls below 99% or the snapshot is missing (nothing written).
  *   --dynasty    (with --inseason) dynasty-side (rookies + SHORT veterans) k-fit (Phase 2c, offline
  *                analysis only): the prospect prior (arm A vs arm B), the SHORT-veteran history prior,
  *                and the KTC-anchor report. --write persists
@@ -64,6 +69,7 @@ import { inSeasonMain } from '../scripts/inseason-run.mjs';
 import { inSeasonDynMain } from '../scripts/inseason-dyn-run.mjs';
 import { qbTakeoverMain } from '../scripts/qb-takeover-run.mjs';
 import { qbRookieLevelMain } from '../scripts/qb-rookie-level-run.mjs';
+import { absenceMain } from '../scripts/absence-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -182,6 +188,18 @@ if (isMain) {
       const asJson    = flag('--json');
       const write     = flag('--write');
       const bySeason  = flag('--by-season');
+
+      if (flag('--absence')) {
+        const rejected = args.filter(a => a.startsWith('--') && !['--absence', '--json', '--write'].includes(a));
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --absence rejects ${rejected.join(', ')} — the seasons, snapshot and basis are pinned ` +
+            'by the task file, not knobs; it takes only --json and --write'
+          );
+          process.exit(1);
+        }
+        process.exit(absenceMain({ write, asJson }));
+      }
 
       if (flag('--qb-rookie-level')) {
         const rejected = args.filter(a => a.startsWith('--') && !['--qb-rookie-level', '--json', '--write'].includes(a));
