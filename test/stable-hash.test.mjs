@@ -2,7 +2,7 @@
  * test/stable-hash.test.mjs — verification for stable-hash.md.
  *
  * Eleven digest-equality assertions against test/fixtures/hash-baseline.json (§4 step 2).
- * Seven of them still hold the original pre-refactor claim: each digest was captured by
+ * Six of them still hold the original pre-refactor claim: each digest was captured by
  * calling the real pre-refactor function against a real served file, before any body was
  * rewritten as a stableHash wrapper, so matching proves the refactor is bit-identical to what
  * it replaced. Four (roster, games, oline, cfbd) were re-pointed at a recaptured digest in a
@@ -12,7 +12,10 @@
  * long-form row array to the pivoted envelope, so the pre-refactor baseline no longer parses
  * as the same shape at all — no immutable pre-refactor baseline survives for any of the four,
  * so their digests were recaptured from the CURRENT implementation instead and their tests are
- * named accordingly: they are change detectors now, not pre-refactor proofs. A twelfth entry
+ * named accordingly: they are change detectors now, not pre-refactor proofs. A fifth, nflHash,
+ * joined them in absence-classification (CR-28): the migration rewrote the pinned 2023 file's
+ * weeklyStatus, so the pin moved to 2015 (outside the 2016+ correction floor). nflHash itself is
+ * unchanged — the pre-correction 2023 file still hashes to the original pre-refactor digest. A twelfth entry
  * (idsHash) was dropped entirely — nflverse/playerids.json is a weekly-refreshed crosswalk
  * with no immutable version at all, and a digest that must be regenerated on a schedule
  * asserts nothing (§2.2).
@@ -52,7 +55,7 @@ test('cfbdHash matches the pinned current-behaviour digest', () => {
   assert.equal(cfbdHash(readJson(file)), digest);
 });
 
-test('nflHash matches the pre-refactor baseline digest', () => {
+test('nflHash matches the pinned current-behaviour digest', () => {
   const { file, digest } = baseline.nflHash;
   assert.equal(nflHash(readJson(file)), digest);
 });
