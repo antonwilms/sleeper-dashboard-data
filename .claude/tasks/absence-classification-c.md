@@ -297,3 +297,82 @@ Data commits: code `b6f13e9`, correction `8b95519`, then registry byte copy + an
 byStatus) for 2016–2025 before anything was written; a second dry-run read 0 everywhere. 2026 run via
 `node bin/update.mjs nfl`: 399 slots (INA 384, ACT 9, RES 6); Daniels (11566) 2026 weeklyStatus is
 `P P D D X X B …`, slot 3 `'D'`. Deviations are in the hand-back. App smoke pending the data push + purge.
+
+## Verification record (Session 1, 2026-10-06; data `e93c96c..88be0ea`, app `d627562..f3393da`)
+
+Two reviewers ran: the data implementation-reviewer mandate (general-purpose, opus, full) and the
+app implementation-reviewer. **Neither found a blocking issue.**
+
+**Data side, independently re-derived.** For every season 2016–2025, against `e93c96c`:
+- ids are unchanged, and every field other than `weeklyStatus`/`dnpWeeks`/`availability` is
+  deep-equal;
+- every change is `'X'` → `'D'` and each one is justified by roster status plus `TEAM_*` `'P'`
+  (0 unjustified);
+- the `dnpWeeks` and `availability` recomputations match;
+- per-season counts equal Stage B's, and 2012–2015 are byte-identical.
+
+2026 has 399 justified conversions, plus fresh Sleeper data since the 13:14Z cron. Manifest:
+`lastModified` only, nothing lost. The registry spans are byte-identical (148,898 B). Gates:
+- data: `npm test` 1334/0, smoke green (the live 2023 re-aggregation reproduces the migrated file:
+  "No change"), REGISTRY_MIRROR 21/21;
+- app (run by Session 1): 2853 tests pass, lint clean, build clean, 30 `PROVISIONAL(`.
+
+Deviations accepted:
+- the stray `console.log` (its variables were undefined in the spec's snippet) was dropped;
+- the stable-hash pin was re-pointed to 2015, verified not weakened: `nflHash` is unchanged and the
+  old 2023 bytes still hash to the original digest;
+- the CR-16 backtick drop;
+- the CLAUDE.md trims;
+- "Seven…five";
+- the two sweep hits (`gameLog.js`, `integrations.md`);
+- the two app commits.
+
+| # | Flag | Decision |
+|---|---|---|
+| 1 | (app, low) CR-04 binds `updateAdvStats`/`updateGameLogs` to `update-playerstats.mjs`, a call site, not where they are defined | Fix pass 1 item 1 |
+| 2 | (data, minor, plan text) CR-21 Mirror says "the first runs … write unclassified"; under C-D2 only the first file is, and later runs fail until the roster lands | Fix pass 1 item 2 |
+| 3 | (app, low) The `gameLog.js` clause reads as roster-only `'D'` | Fix pass 1 item 3 |
+| 4 | (app, low) The `integrations.md:230` parenthetical also covers the API-only aggregation | Fix pass 1 item 4 |
+| 5 | (data, nit) anchor-policy says "verified against the actually-committed app files", but row 7 is a data commit | Fix pass 1 item 5 |
+| 6 | (data, nit, pre-existing) The stable-hash §4 banner counts disagree with its header | Fix pass 1 item 6 |
+| 7 | (app, low) The D-63 resolution cites only Stage C's data SHAs | Deferred to the post-push commit, which also fills the boundary-7 time: the push-time rebase can still rewrite B/C SHAs. Name A, B and C with backticked SHAs there |
+| 8 | (data, nit) The `8b95519` title says 2012–2025 | No action: the title is the one the task specified, and the body is accurate |
+
+## Fix pass 1 (both repos; the registry spans stay byte-identical)
+
+Scope:
+- app: `docs/cross-repo-registry.md`, `src/utils/gameLog.js` (comment), `docs/integrations.md`;
+- data: `cross-repo-registry.md`, `grading/anchor-policy.md`, `test/stable-hash.test.mjs` (comment);
+- this task file.
+
+Touch nothing else.
+
+1. **CR-04 Data side** (both registries, identical edit). Replace
+   ``` `updateAdvStats`/`updateGameLogs` in `scripts/update-playerstats.mjs` ```
+   with
+   ``` `updateAdvStats` in `scripts/update-advstats.mjs` / `updateGameLogs` in `scripts/update-gamelogs.mjs`, both called from `scripts/update-playerstats.mjs` ```.
+   `test/registry.test.mjs` must pass. If the parser rejects this exact form, stop and report the
+   failing claim; do not reword further.
+2. **CR-21 Mirror** (both registries). Replace "The first runs of a season, before upstream publishes
+   that year's roster, write unclassified." with "The first file of a season, written before
+   upstream publishes that year's roster, is unclassified; later runs fail until
+   `nflverse/rosterweekly/<year>.json` exists (the daily roster job fetches it)."
+3. **`src/utils/gameLog.js:122`.** Replace "by the data store's roster classification since CR-28"
+   with "by the data repo's aggregation on the store path (Sleeper `gp`, plus nflverse roster status
+   2016+, CR-28)".
+4. **`docs/integrations.md:230`.** Replace "(since absence-classification, 2016+, also an omitted
+   week" with "(in data-store files since absence-classification, 2016+, also an omitted week".
+5. **`grading/anchor-policy.md:59`.** Replace "verified against the actually-committed app files:"
+   with "verified against the actually-committed app files (row 7: the data commit):".
+6. **`test/stable-hash.test.mjs:49-50`** (comment only). "(eight pre-refactor baselines, three
+   current-behaviour re-captures" → "(six pre-refactor baselines, five current-behaviour re-captures".
+   Verify against the header's own counts first. If they disagree, use the header's and report it.
+
+Done-definition:
+- data: `npm test`, `npm run smoke`, `REGISTRY_MIRROR=1 node --test test/registry-mirror.test.mjs`
+  green;
+- app: `npm test`, `npm run lint`, `npm run build` clean;
+- the two registry spans are byte-identical.
+
+Commit per repo: `Fix pass 1: L5 Stage C — CR-04 definition sites, CR-21 first-file wording, doc
+precision`, with the attribution trailer. In the data repo, include this task file. Do not push.

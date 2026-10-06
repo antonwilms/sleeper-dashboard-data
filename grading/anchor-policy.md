@@ -56,7 +56,7 @@ captures either side of boundary 4.
 
 ## The date table is the cross-check, not the rule
 
-Seven changes on the five tracked axes, verified against the actually-committed app files:
+Seven changes on the five tracked axes, verified against the actually-committed app files (row 7: the data commit):
 
 | # | commit | date (UTC) | path | mechanism |
 |---|---|---|---|---|

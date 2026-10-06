@@ -46,8 +46,8 @@ import { snapshotHash }      from '../scripts/update-ktc.mjs';
 const baseline = JSON.parse(fs.readFileSync(new URL('./fixtures/hash-baseline.json', import.meta.url), 'utf8'));
 
 // ═══════════════════════════════════════════════════════════════════
-// §4 step 6 — eleven digest equalities against the fixture (eight pre-refactor baselines,
-// three current-behaviour re-captures — see the module doc above)
+// §4 step 6 — eleven digest equalities against the fixture (six pre-refactor baselines,
+// five current-behaviour re-captures — see the module doc above)
 // ═══════════════════════════════════════════════════════════════════
 
 test('cfbdHash matches the pinned current-behaviour digest', () => {
