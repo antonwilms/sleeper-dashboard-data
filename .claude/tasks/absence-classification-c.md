@@ -7,6 +7,8 @@ the registry route CLAUDE.md names for a new coupling), 2026-10-05. Stage C of t
 **Precondition: Anton has read Stage B's verdict and chosen (a) or (b).** If (c), or if no choice has
 been recorded at the top of this file, stop.
 
+**Recorded 2026-10-06: Anton chose (a) — ship on Stage B's verdict** (told to Session 2 in chat).
+
 Sonnet implements. This stage changes served data that moves app projections with no app-side
 projection diff. That is why Stage B ran first and why §5 adds a grading boundary.
 
@@ -286,3 +288,12 @@ The registry-mirror daily run is red between the two pushes; keep that window mi
 ## Cross-repo impact
 
 In `absence-classification-c2.md` → `## Cross-repo impact` (CR-28 new; CR-02, CR-04, CR-16, CR-18 and CR-21 edited; CR-03 quoted; CR-25 deliberately not fired).
+
+## Session 2 record (2026-10-06)
+
+Implemented as one change in the order C §2 → C2 §3–§4 → C §5–§6, parent-folder session. Not pushed.
+Data commits: code `b6f13e9`, correction `8b95519`, then registry byte copy + anchor-policy + catalog SHA
+(`git log` after `8b95519`). Migration dry-run equalled Stage B's per-season totals (slots, rows and
+byStatus) for 2016–2025 before anything was written; a second dry-run read 0 everywhere. 2026 run via
+`node bin/update.mjs nfl`: 399 slots (INA 384, ACT 9, RES 6); Daniels (11566) 2026 weeklyStatus is
+`P P D D X X B …`, slot 3 `'D'`. Deviations are in the hand-back. App smoke pending the data push + purge.
