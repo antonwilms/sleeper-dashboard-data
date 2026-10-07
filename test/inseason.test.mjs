@@ -25,7 +25,7 @@ import {
 import {
   guardLoad, runReconciliation, ReconciliationStop, runArmS, enumerateCandidates, makeScheduleIndex, verifyConstants,
   formatConstantsJson, pinDecision, makePut, runInSeason, addFoldK, inSeasonMain,
-  assembleSeason, writeQ4Pin, startsArmRows, gameOneStatus, rookieRecordFor, rookiePriorFor, QB_PRIOR_MODELS,
+  assembleSeason, writeQ4Pin, assertPrimaryCoverage, loadQbChainModels, rookieRosPrior, startsArmRows, gameOneStatus, rookieRecordFor, rookiePriorFor, QB_PRIOR_MODELS,
 } from '../scripts/inseason-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -707,7 +707,7 @@ describe('16: writeQ4Pin', () => {
   test("choice 'own' pins the own cell: no fixtureKey, basis fitted, keep-own note, own fixture cell", () => {
     const P = makePut();
     const slim = {};
-    writeQ4Pin(P, { name: 'K_ROS_POINTS_ROOKIE0', pos: 'WR', choice: 'own', own, pooled, p1: 6, cell: slim });
+    writeQ4Pin(P, { name: 'K_ROS_POINTS_ROOKIE0', pos: 'WR', choice: 'own', own, pooled, p1: 6, cell: slim, group: 'X-rookie0', horizon: 'ros' });
     const e = P.constants.K_ROS_POINTS_ROOKIE0.WR;
     assert.equal(e.basis, 'fitted');
     assert.equal(e.k, 4);
@@ -716,12 +716,13 @@ describe('16: writeQ4Pin', () => {
     assert.ok(P.fixture['K_ROS_POINTS_ROOKIE0|WR']);
     assert.equal(P.fixture['K_ROS_POINTS_ROOKIE0|ALL'], undefined);
     assert.equal(slim.pinnedToPooledUnderNoGainRule, undefined);
+    assert.equal(P.pinnedFrom['K_ROS_POINTS_ROOKIE0|WR'], 'q4|X-rookie0|ros|WR');
   });
 
   test("choice 'pooled' pins the pooled-positions cell under the fixtureKey ...|ALL and flags the cell", () => {
     const P = makePut();
     const slim = {};
-    writeQ4Pin(P, { name: 'K_ROS_POINTS_ROOKIE0', pos: 'RB', choice: 'pooled', own, pooled, p1: 6, cell: slim });
+    writeQ4Pin(P, { name: 'K_ROS_POINTS_ROOKIE0', pos: 'RB', choice: 'pooled', own, pooled, p1: 6, cell: slim, group: 'X-rookie0', horizon: 'ros' });
     const e = P.constants.K_ROS_POINTS_ROOKIE0.RB;
     assert.equal(e.fixtureKey, 'K_ROS_POINTS_ROOKIE0|ALL');
     assert.equal(e.basis, 'pooled');
@@ -730,6 +731,39 @@ describe('16: writeQ4Pin', () => {
     assert.ok(P.fixture['K_ROS_POINTS_ROOKIE0|ALL']);
     assert.equal(P.fixture['K_ROS_POINTS_ROOKIE0|RB'], undefined);
     assert.equal(slim.pinnedToPooledUnderNoGainRule, true);
+    assert.equal(P.pinnedFrom['K_ROS_POINTS_ROOKIE0|RB'],
+      'q4|X-rookie0|ros|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)');
+  });
+
+  test('group and horizon are required: no defaults', () => {
+    for (const miss of [{ group: 'X-rookie0' }, { horizon: 'ros' }, {}]) {
+      assert.throws(() => writeQ4Pin(makePut(), { name: 'K_ROS_POINTS_ROOKIE0', pos: 'WR', choice: 'own', own, pooled, p1: 6, cell: {}, ...miss }),
+        /writeQ4Pin needs group and horizon/);
+    }
+  });
+});
+
+describe('16b: QB-prior guards (assertPrimaryCoverage, loadQbChainModels, rookieRosPrior)', () => {
+  test('assertPrimaryCoverage: 0.99 passes, 0.9899 throws, NaN (0 team-games) throws', () => {
+    assert.deepEqual(assertPrimaryCoverage(2020, { teamGames: 100, withPrimary: 99, rate: 0.99 }), { teamGames: 100, withPrimary: 99, rate: 0.99 });
+    assert.throws(() => assertPrimaryCoverage(2020, { teamGames: 10000, withPrimary: 9899, rate: 0.9899 }), /below 0\.99/);
+    assert.throws(() => assertPrimaryCoverage(2020, { teamGames: 0, withPrimary: 0, rate: NaN }), /below 0\.99/);
+  });
+
+  test('loadQbChainModels: missing loader throws the named message; the real 2026-10-03 file yields the four hazards', () => {
+    assert.throws(() => loadQbChainModels({}), /needs load\.loadQbTakeoverConstants/);
+    const real = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'backtests/2026-10-03-qb-takeover-constants.json'), 'utf8'));
+    const models = loadQbChainModels({ loadQbTakeoverConstants: () => real });
+    assert.deepEqual(models.hazard.keys, ['dp', 'og', 'rk', 'iq']);
+  });
+
+  test('rookieRosPrior: group level only for a non-game-1 rookie-basis QB; next-season prior is always projectedPPG', () => {
+    const base = { qbStarterPPG: 15.8, projectedPPG: 12.5 };
+    const day2 = { ...base, qbStarterBasis: 'rookie:day2' };
+    assert.deepEqual(rookieRosPrior(day2, false), { pointsPrior: 15.8, pointsPriorNext: 12.5 });
+    assert.deepEqual(rookieRosPrior(day2, true), { pointsPrior: 12.5, pointsPriorNext: 12.5 });
+    assert.deepEqual(rookieRosPrior({ ...base, qbStarterBasis: 'projection' }, false), { pointsPrior: 12.5, pointsPriorNext: 12.5 });
+    assert.deepEqual(rookieRosPrior({ ...base, rookieQbGroup: null, qbStarterBasis: 'projection' }, false), { pointsPrior: 12.5, pointsPriorNext: 12.5 });
   });
 });
 

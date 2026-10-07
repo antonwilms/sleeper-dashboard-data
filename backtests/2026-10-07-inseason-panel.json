@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-07T07:24:19.583Z",
+    "generatedAt": "2026-10-07T07:44:45.878Z",
     "basis": "half_ppr",
     "seasons": {
       "from": 2014,
@@ -40,7 +40,7 @@
     "qbPrior": "starter",
     "depthModel": "qb-takeover",
     "rookieQbModel": "rookie-qb-level",
-    "runtimeMs": 48268
+    "runtimeMs": 42901
   },
   "reconciliation": {
     "population": 7033,

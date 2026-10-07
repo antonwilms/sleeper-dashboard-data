@@ -1,6 +1,6 @@
 # In-season evidence — Phase 2a graded backtest
 
-Generated 2026-10-07T07:24:19.583Z. Basis **half_ppr** (pinned; a league-basis refit belongs to the custom-basis backlog item). Outcome seasons 2014–2025, calendar checkpoints W = 1–12, n = games played, leave-one-season-out, player-clustered bootstrap (4000 resamples, seed 12345, mulberry32), k grid 0–40 in tenths.
+Generated 2026-10-07T07:44:45.878Z. Basis **half_ppr** (pinned; a league-basis refit belongs to the custom-basis backlog item). Outcome seasons 2014–2025, calendar checkpoints W = 1–12, n = games played, leave-one-season-out, player-clustered bootstrap (4000 resamples, seed 12345, mulberry32), k grid 0–40 in tenths.
 
 ## Answers
 
@@ -373,6 +373,8 @@ Skill player-seasons (gp ≥ 4) absent from gamelogs (their opportunity / share 
 
 Per season: the primary-passer coverage that gates the QB prior (stop below 0.99), and the preseason start share rebuilt from the S week-1 chart with the pinned chain (`reconstructQbPreseasonShares`; half-PPR S−1 PPG for the incumbent prior). A veteran backup with `depthStale` counts as `stale`, as the app does.
 
+The chart is week 1 only, matching the frozen depth prior: a team missing from that week's chart (2017: MIA and TB, Hurricane Irma) is left out of the share counts, and a team whose order-1 slot is empty (TEN 2013–2014) counts its QBs as `no chart`.
+
 | S | team-games with primary | rate | teams | incumbent | chain | stale | no chart | median chain share |
 |---|---|---|---|---|---|---|---|---|
 | 2014 | 509 / 512 | 0.9941 | 32 | 31 | 39 | 6 | 2 | 0.1558 |
@@ -387,6 +389,7 @@ Per season: the primary-passer coverage that gates the QB prior (stop below 0.99
 | 2023 | 544 / 544 | 1.0000 | 32 | 32 | 37 | 7 | 0 | 0.1558 |
 | 2024 | 544 / 544 | 1.0000 | 32 | 32 | 36 | 6 | 0 | 0.1558 |
 | 2025 | 544 / 544 | 1.0000 | 32 | 32 | 46 | 5 | 0 | 0.1131 |
+
 Totals: 382 team-seasons, 381 incumbent, 493 chain, 62 stale, 2 no chart.
 
 ## Excluded-population report

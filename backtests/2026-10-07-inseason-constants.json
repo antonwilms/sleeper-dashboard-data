@@ -1,6 +1,6 @@
 {
   "source": "sleeper-dashboard-data backtests/2026-10-07-inseason-constants.json (node bin/backtest.mjs --inseason --write)",
-  "generatedAt": "2026-10-07T07:24:19.583Z",
+  "generatedAt": "2026-10-07T07:44:45.878Z",
   "basis": "half_ppr",
   "fit": {"kTenths":[0,400],"loss":"sum of squared error, rows equal weight","tie":"smaller k","pin":"Math.round(k*2)/2","checkpoints":"calendar weeks 1-12, n = games played","minRosGames":4,"nextMinGames":6,"prior":"frozen","opportunityBaseline":"B","priorOptimism":"The reconstructed projection prior runs optimistic: the joint diagnostic puts the prior scale c at 0.80–0.86 across positions, consistent with `grading/2026-09-06-fullpipeline-verdict.md`, which STOPPED on live-state reconstruction limits — the same limit applies here, so c is reported, not pinned. The pinned k partly correct that optimism (evidence gets extra weight because the prior sits high). (a) These k MUST be re-fitted if the projection's optimism is ever corrected. (b) Phase 2b's in-season \"what changed\" display will skew below-prior early in the season for this reason and must say so.","qbPrior":{"model":"starter","ros":"QB rows blend the starter level — depth model qb-takeover, no start share; a yearsExp-0 rookie QB with draft capital who was not his team's game-1 primary passer takes the pinned rookie starter level (half-PPR); a game-1 starter keeps the ceiled rookie-path level","next":"veterans as ros; rookies keep the ceiled rookie-path level (arm B), the prior the dynasty update blends"}},
   "combination": null,

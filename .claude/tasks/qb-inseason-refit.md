@@ -445,3 +445,70 @@ The exact edits and **every touched entry's `Mirror` text verbatim** are in `qb-
 6. *registry-stale* — CR-27 lacks `dpCode` and the in-season loader. Applied: E27-1/E27-2/E27-3 extended.
 7. *cross-repo* — E15-2 prose on `priorPPG`. Applied.
 8. *edge-case* — §4 rationale (X-rookie1p reachability, Q7 path, vacuous `sortMeasure.params`). Applied.
+
+---
+
+## Verification — Stage A (Session 1, 2026-10-07)
+
+Diff `2d0076b..e7b4255` (A1 `58cd66a`, A2 `e7b4255`). Implementation-reviewer re-ran in memory, with no writes:
+V-1 true, V-2 true, and `runInSeason({})` reproduces the committed 2026-10-07 constants exactly; `npm test` 1361
+(1357 pass, 4 skipped, 0 fail); smoke green. Constants sha1 `4f22a660…` confirmed. Session 1 also re-checked
+every companion anchor against the app registry after L5's intervening registry edits (CR-04/16 among them):
+each `old` string still occurs exactly once, and no source file behind the §A.1 line anchors changed since
+`d627562`, so Stage B's text stands.
+
+**Correction to the hand-back's diff narrative:** 11 of 46 entries differ from 2026-09-26, not 7. The 7 are
+K_ROS_POINTS_ROOKIE0 QB/RB/TE (k 3 → 2.5) and K_DYN_POINTS_SHORT ×4 (kFit 2.7 → 2.6, k unchanged). Four more change
+in `foldK` only: K_ROS_POINTS.QB, K_DYN_POINTS.QB, K_ROS_POINTS_SHORT.QB/.RB. All 11 are in the allowed set. The
+only pinned app value that moves is `K_ROS_POINTS_ROOKIE0` QB/RB/TE, 3 → 2.5. Stage B's backlog text says 11.
+
+Review flags (6) and decisions:
+1. *coverage-gap* — three guards untested (coverage stop, missing-loader throw, `takesGroup`). → Fix 1.
+2. *undisclosed* — `writeQ4Pin` defaults `group = 'X-group'`, `horizon = 'ros'`. → Fix 2.
+3. *undisclosed* — 7 vs 11 entries. → recorded above; no code change.
+4. *fidelity* — the coverage oddities are data facts (2017 week-1 chart lacks MIA/TB, Irma; TEN 2013–14 slot 0 null),
+   but the verdict doesn't say so. Keep the week-1 read, because it is the same chart the frozen depth prior uses. → Fix 3.
+5. *fidelity* — README seam paragraph contradicts itself. → Fix 4.
+6. *fidelity* — the verdict's "Totals" line is glued to the table. → Fix 3.
+
+## Fix pass 1
+
+Scope: `scripts/inseason-run.mjs`, `test/inseason.test.mjs`, `README.md`, the regenerated A2 artifacts. Touch nothing
+else. No fitted value may change.
+
+**Fix 1 — test the three guards by extracting them into exported pure helpers (behaviour identical):**
+- `export function assertPrimaryCoverage(S, cov, min = QB_TAKEOVER_DEFAULTS.coverageMin)` → returns
+  `{ teamGames, withPrimary, rate }` (the current `qbCoverage` object) or throws the current message; `assembleSeason`
+  calls it in place of the inline `if` (`:429-433`).
+- `export function loadQbChainModels(load)` → the current two lines at `:1419-1420` (named throw when
+  `load.loadQbTakeoverConstants` is not a function, else `pinnedQbChainModels(load.loadQbTakeoverConstants())`);
+  `runInSeason` calls it at the same place (after reconciliation).
+- `export function rookieRosPrior(rec, isGame1Primary)` → `{ pointsPrior, pointsPriorNext }` with the current
+  `takesGroup` rule (`:463-465`); `assembleSeason` calls it.
+- Tests in `test/inseason.test.mjs`: `assertPrimaryCoverage` at rate 0.99 passes, at 0.9899 throws `/below 0.99/`,
+  at `NaN` (0 team-games) throws; `loadQbChainModels({})` throws the named message, and with a loader returning the
+  real 2026-10-03 file it returns hazard keys `['dp','og','rk','iq']`; `rookieRosPrior` — a
+  `qbStarterBasis 'rookie:day2'` record non-game-1 → `pointsPrior === qbStarterPPG`; the same record game-1 →
+  `projectedPPG`; a `'projection'` record → `projectedPPG`; a legacy record (`rookieQbGroup` null, basis
+  `'projection'`) → `projectedPPG`; `pointsPriorNext === projectedPPG` in all four.
+
+**Fix 2 — `writeQ4Pin`:** make `group` and `horizon` required (throw `[inseason] writeQ4Pin needs group and horizon`
+when either is missing; no defaults). Extend test 16 to pass them and assert `P.pinnedFrom['<name>|<pos>']` on both
+branches equals what `buildConstants` writes today (own: `q4|<group>|<horizon>|<pos>`; pooled:
+`q4|<group>|<horizon>|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)`), plus the
+missing-argument throw.
+
+**Fix 3 — verdict text** (`buildInSeasonVerdictMarkdown`, `coverage.qbStart` block): add `''` between the table and
+the Totals line. Add one sentence after the intro: "The chart is week 1 only, matching the frozen depth prior: a team
+missing from that week's chart (2017: MIA and TB, Hurricane Irma) is left out of the share counts, and a team whose
+order-1 slot is empty (TEN 2013–2014) counts its QBs as `no chart`." Then regenerate:
+`node bin/backtest.mjs --inseason --write`. The run date is still 2026-10-07, so the same three files are overwritten.
+Gate: the new constants file differs from `e7b4255`'s **only** in `generatedAt` (check with a node deep-equal that
+ignores that one key), and the panel differs only in `generatedAt`/`runtimeMs`. Anything else: stop. Report the new
+constants sha1.
+
+**Fix 4 — README** (`:1334`): change "Defaults reproduce every committed artifact byte-for-byte." to "The two
+in-season seams' defaults reproduce every committed artifact byte-for-byte; `depthModel` (below) is the exception."
+
+Gates: `npm test` green (count +the new cases); `npm run smoke` green; V-1 still true. Commit as one commit
+("qb-inseason-refit Fix pass 1: …"). Do not push.

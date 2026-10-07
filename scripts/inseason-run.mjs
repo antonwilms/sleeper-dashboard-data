@@ -427,10 +427,7 @@ export function assembleSeason(S, env) {
     const glFile = load.loadGameLogs(S);
     primaries = primaryPassers(glFile, S);
     const cov = coverageFor(load.loadSchedule(S), primaries);
-    qbCoverage = { teamGames: cov.teamGames, withPrimary: cov.withPrimary, rate: Number.isFinite(cov.rate) ? cov.rate : null };
-    if (!(cov.rate >= QB_TAKEOVER_DEFAULTS.coverageMin)) {
-      throw new Error(`[inseason] primary-passer coverage S=${S} ${cov.withPrimary}/${cov.teamGames} below ${QB_TAKEOVER_DEFAULTS.coverageMin} — stop`);
-    }
+    qbCoverage = assertPrimaryCoverage(S, cov);
   }
   const isGame1Primary = (pid) => gameOneStatus(pid, S, { gamelogsPlayer: gIdx?.players?.[pid], primaries, scheduleIdxS: sched }).primary;
   const totalsM1 = totalsByYear[S - 1];
@@ -460,9 +457,7 @@ export function assembleSeason(S, env) {
       // the ROUNDED projectedPPG (the unrounded qbStarterPPG would shift every rookie-path QB row by up to 0.05).
       // Next season: always the ceiled rookie-path level (arm B) — the prior buildProspectLevel blends (D2).
       const rec = rookieRecordFor(pid, position, S, playerIds, { rookieQbModel });
-      const takesGroup = typeof rec.qbStarterBasis === 'string' && rec.qbStarterBasis.startsWith('rookie:') && !isGame1Primary(pid);
-      pointsPrior = takesGroup ? rec.qbStarterPPG : rec.projectedPPG;
-      pointsPriorNext = rec.projectedPPG;
+      ({ pointsPrior, pointsPriorNext } = rookieRosPrior(rec, primaries ? isGame1Primary(pid) : false));   // primaries is null only on the legacy prior, whose rookie basis never takes the group level
     } else {
       const fr = frozenBy.get(pid);
       if (fr) { pointsPrior = predictFullPipeline(fr).predicted; confidence = confidenceTier(fr.qualifyingSeasons.length); }
@@ -1129,7 +1124,8 @@ export function makePut() {
 }
 
 /** The Q4 NO-GAIN branch's pin write, after `decideOwnVsPooled` chose: own k, or the pooled-positions k. */
-export function writeQ4Pin(P, { name, pos, choice, own, pooled, p1, cell, group = 'X-group', horizon = 'ros' }) {
+export function writeQ4Pin(P, { name, pos, choice, own, pooled, p1, cell, group, horizon }) {
+  if (!group || !horizon) throw new Error('[inseason] writeQ4Pin needs group and horizon');
   if (choice === 'own') {
     P.put(name, pos, pinDecision(own, p1), own, `q4|${group}|${horizon}|${pos}`,
       'NO-GAIN vs Phase 1; own k BEATS the pooled k out of sample → own k pinned');
@@ -1404,6 +1400,26 @@ function buildCombination(q2) {
   return any ? out : null;
 }
 
+/** Primary-passer coverage gate for the QB starter prior: returns the coverage record, or throws below the floor. */
+export function assertPrimaryCoverage(S, cov, min = QB_TAKEOVER_DEFAULTS.coverageMin) {
+  if (!(cov.rate >= min)) {
+    throw new Error(`[inseason] primary-passer coverage S=${S} ${cov.withPrimary}/${cov.teamGames} below ${min} — stop`);
+  }
+  return { teamGames: cov.teamGames, withPrimary: cov.withPrimary, rate: Number.isFinite(cov.rate) ? cov.rate : null };
+}
+
+/** The pinned QB chain models from the loader's takeover constants file; throws if the loader is missing. */
+export function loadQbChainModels(load) {
+  if (typeof load.loadQbTakeoverConstants !== 'function') throw new Error("[inseason] qbPrior 'starter' needs load.loadQbTakeoverConstants");
+  return pinnedQbChainModels(load.loadQbTakeoverConstants());
+}
+
+/** ROS / next-season points priors for a rookie-path record: a non-game-1 rookie QB with capital takes the group level. */
+export function rookieRosPrior(rec, isGame1Primary) {
+  const takesGroup = typeof rec.qbStarterBasis === 'string' && rec.qbStarterBasis.startsWith('rookie:') && !isGame1Primary;
+  return { pointsPrior: takesGroup ? rec.qbStarterPPG : rec.projectedPPG, pointsPriorNext: rec.projectedPPG };
+}
+
 // ─── runInSeason ──────────────────────────────────────────────────────────────
 
 export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULTS, log = () => {}, qbPrior = 'starter' } = {}) {
@@ -1416,8 +1432,7 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
   const env = { load: g, defaults, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds: g.loadPlayerIds(), qbPrior };
   // Loaded after the reconciliation stop so the earlier errors keep winning (stub-load tests).
   if (qbPrior === 'starter') {
-    if (typeof g.loadQbTakeoverConstants !== 'function') throw new Error("[inseason] qbPrior 'starter' needs load.loadQbTakeoverConstants");
-    env.qbChainModels = pinnedQbChainModels(g.loadQbTakeoverConstants());
+    env.qbChainModels = loadQbChainModels(g);
   }
   const rows = [], playerSeasons = [], noPrior = [], perSeason = [];
   const q9Rows = { rows: [], playerSeasons: 0, missingPoints: 0, noSchedule: 0 };
@@ -1778,8 +1793,9 @@ export function buildInSeasonVerdictMarkdown(result) {
     const qs = coverage.qbStart;
     lines.push('### QB start share (report-only) and primary-passer coverage', '',
       'Per season: the primary-passer coverage that gates the QB prior (stop below 0.99), and the preseason start share rebuilt from the S week-1 chart with the pinned chain (`reconstructQbPreseasonShares`; half-PPR S−1 PPG for the incumbent prior). A veteran backup with `depthStale` counts as `stale`, as the app does.', '',
+      'The chart is week 1 only, matching the frozen depth prior: a team missing from that week\'s chart (2017: MIA and TB, Hurricane Irma) is left out of the share counts, and a team whose order-1 slot is empty (TEN 2013–2014) counts its QBs as `no chart`.', '',
       ...tbl(['S', 'team-games with primary', 'rate', 'teams', 'incumbent', 'chain', 'stale', 'no chart', 'median chain share'],
-        qs.seasons.map(x => [String(x.S), `${x.primaryCoverage.withPrimary} / ${x.primaryCoverage.teamGames}`, f(x.primaryCoverage.rate, 4), String(x.teams), String(x.incumbent), String(x.chain), String(x.stale), String(x.noChart), f(x.medianChainShare, 4)])),
+        qs.seasons.map(x => [String(x.S), `${x.primaryCoverage.withPrimary} / ${x.primaryCoverage.teamGames}`, f(x.primaryCoverage.rate, 4), String(x.teams), String(x.incumbent), String(x.chain), String(x.stale), String(x.noChart), f(x.medianChainShare, 4)])), '',
       `Totals: ${qs.totals.teams} team-seasons, ${qs.totals.incumbent} incumbent, ${qs.totals.chain} chain, ${qs.totals.stale} stale, ${qs.totals.noChart} no chart.`, '');
   }
 
