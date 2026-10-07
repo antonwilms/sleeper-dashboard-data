@@ -437,3 +437,41 @@ It raised ten flags. All ten were verified against live source and applied:
 9. CR-15's data side would go stale. The edit is drafted in companion §A.7 (W0), with the Mirror in §M.
 10. The plan added a direct schedule read (CR-08). Team weeks now reuse `env.scheduleIdx`; the remaining `coverageFor`
     read is registered in companion §A.6, with the Mirror in §M.
+
+## Verification — Stage A (Session 1, 2026-10-07)
+
+Diff `148f432..9b16984`: A1 `02642a0`, A2 `804e58a`, and the gate record `9b16984`. The third commit is accepted:
+recording the gates needed the A2 files, and A2 had to hold only artifacts.
+
+**Gates re-run independently** (read-only scratch script):
+- **V-1:** the legacy run matches 2026-09-27 exactly — constants and `q1`/`q2`/`q3`; `q4`/`q5` are null.
+- **V-2:** constants are equal once reuse `source` is ignored. `q1`/`q3` are equal, and `q2` differs in exactly the six
+  F2 leaves.
+- **A2 reproducibility:** a fresh `runInSeasonDyn({ qbPrior: 'starter' })` equals the committed constants file except for
+  `generatedAt`/`source`.
+- **Q4c** in the panel: every mean in a cell under 3 players is null, and there are no totals.
+
+**Results:**
+- Q4 `keep`: GS/GC/RC are NO-GAIN on y1, y2 and the posterior. The gate is QB 1.124 vs other positions 1.101, CI
+  [−0.092, 0.143] → `none`.
+- Q5a `insufficient`: 13 players against the floor of 20. The estimate leans against the discount: dFull 1.09, and
+  d 1.0 BEATS 0.90.
+- Q5b `insufficient`: 6 players.
+
+**Implementer's deviations (2)–(6):** accepted.
+- `satLongerAggregates` joins the companion §A.3 helper list at wiring.
+- The inline pair suppression is accepted because the import would be circular (`lib/qbRookieLevel.mjs` imports
+  `lib/inSeasonEvidence.mjs`).
+
+**Implementation reviewer:** two low flags and no defects. Neither gets a fix pass.
+1. *Undeclared guard* (`qbResearch` with `legacy` throws): accepted. It enforces D2's pairing and has its own test.
+2. *No unit test for the Q4 adapter's suppression, bounds or drift throw:* accepted for this research-only harness.
+   - V-3/V-5 and the Q4c check above exercised that code on the real data.
+   - Q4 reads season-totals, not gamelogs, so CR-09 does not apply to it.
+   - If the harness is re-run for a decision that would pin a value, add the test first.
+
+**Next:**
+- push data (no CDN purge — nothing served);
+- Anton reads `grading/2026-10-07-inseason-dyn-verdict.md`;
+- wiring Session 1 takes the §7 branch `W0` plus "Q4 keep / Q5 insufficient": registry text, the D-60/D-64 backlog, and a
+  re-pin of the app panel fixture.
