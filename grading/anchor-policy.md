@@ -66,7 +66,7 @@ Seven changes on the five tracked axes, verified against the actually-committed 
 | 4 | `7b5b055` | 2026-09-12 22:27 | veteran | step4-upside (RB/WR/TE up-side removed, QB retained) |
 | 5 | `c7a5d84` (Stage A; the model is live only once the Stage B commits ship with it) | 2026-10-04 01:04 (the **app push**, `00c0946..c53db19`); captures check out app `main`, and the push follows commits 2–3, so the Stage A commit time would be too early | both (QB rows) | qb-takeover start share |
 | 6 | `f97080a` (the model is live once the push lands; captures check out app `main`) | 2026-10-04 13:43 (the **app push**, `422fcfb..cec846d`, which also carried P11's seam fix `c804ada` — no projection-output change) | rookie (QB rows, yearsExp 0) | rookie QB starter level |
-| 7 | data `8b95519` (an input correction — no app commit) | <data push UTC> + CDN purge | veteran (QB/RB/WR/TE) | absence classification (served 'D', CR-28) |
+| 7 | data `c7cfcc7` (an input correction — no app commit; was `8b95519` before the push-time rebase) | 2026-10-07 06:50 (the **data push**, `0b41c62..3097397`; CDN purge of all eleven files verified 12/12 immediately after) | veteran (QB/RB/WR/TE) | absence classification (served 'D', CR-28) |
 
 Scheduled captures (`daily-snapshot.yml`) trigger at 16:29 UTC against app `main` but can
 start hours late — `snapshots/2026-09-12.json` has `capturedAt` 18:34:49 UTC. Cross-check a
