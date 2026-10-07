@@ -518,3 +518,9 @@ Constants sha1 now `f2e2f41e5752cbc9f7084307cbf37fa83d5fa29a` (only `generatedAt
 `npm test` 1365 (0 fail), smoke green, V-1 true. Applier deviation (`primaries ? isGame1Primary(pid) : false`)
 accepted: legacy never yields a `rookie:` basis. Stage A cleared for push; Stage B pins the pushed SHA of
 `f2c3b83`'s artifacts (the commit that last wrote `backtests/2026-10-07-inseason-constants.json`).
+
+**Stage B/C hand-back (2026-10-07):** data pushed `2d0076b..833c748`; B1 app `911e6fa` (unpushed; keep-own test moved to
+`K_ROS_POINTS_ROOKIE1P.WR` because ROOKIE0.WR's own pin now equals its pool). Stage C stopped: `test/registry.test.mjs`
+red on CR-27 `buildRows`/`primaryPassers` bound to `test/qb-mirror.test.mjs` — a companion wording defect (Session 1's).
+Decision: amend E27-1 (companion updated, simulated green); apply it as a separate app fix commit B2, re-copy the span,
+then commit C1.

@@ -103,13 +103,15 @@ new: ``` `buildProspectLevel`, `historyRowOf`, `buildScoringPosteriors` (its QB 
 ### A.4 CR-27 · QB takeover constants
 
 **E27-1 · Data side.** old: ``` `backtests/<date>-qb-rookie-level-constants.json`, `test/qb-rookie-level.test.mjs` ```
-new: ``` `backtests/<date>-qb-rookie-level-constants.json`, `test/qb-rookie-level.test.mjs`; the in-season mirrors read both pinned files — `pinnedQbChainModels`/`reconstructQbPreseasonShares` in `lib/projectionFactors.mjs` take `backtests/2026-10-03-qb-takeover-constants.json` (loaded by `scripts/inseason-run.mjs`), and `QB_ROOKIE_STARTER_PPG` in `lib/rookieMirror.mjs` copies `backtests/2026-10-04-qb-rookie-level-constants.json` `starterPPG`, held equal by `test/qb-mirror.test.mjs`; `dpCode` in `lib/qbTakeover.mjs` (the `dp` bin, read by `buildRows` and the share mirror); `loadQbTakeoverConstants` in `scripts/inseason-run.mjs` holds the takeover constants path, and `primaryPassers` also decides the in-season QB prior and Q9 there ```
+new: ``` `backtests/<date>-qb-rookie-level-constants.json`, `test/qb-rookie-level.test.mjs`; the in-season mirrors read both pinned files — `pinnedQbChainModels`/`reconstructQbPreseasonShares` in `lib/projectionFactors.mjs` take `backtests/2026-10-03-qb-takeover-constants.json` (loaded by `scripts/inseason-run.mjs`), and `QB_ROOKIE_STARTER_PPG` in `lib/rookieMirror.mjs` copies `backtests/2026-10-04-qb-rookie-level-constants.json` `starterPPG`, held equal by `test/qb-mirror.test.mjs`; `dpCode` in `lib/qbTakeover.mjs` (the `dp` bin, read by `buildRows` in `lib/qbTakeover.mjs` and the share mirror); `loadQbTakeoverConstants` in `scripts/inseason-run.mjs` holds the takeover constants path, and `primaryPassers` in `lib/qbTakeover.mjs` also decides the in-season QB prior and Q9 there ```
 
 **E27-2 · Triggers.** old: ``` `scripts/qb-rookie-level-run.mjs`; `test/qb-rookie-level.test.mjs` ```
 new: ``` `scripts/qb-rookie-level-run.mjs`; `test/qb-rookie-level.test.mjs`; `pinnedQbChainModels`, `reconstructQbPreseasonShares` in `lib/projectionFactors.mjs`; `QB_ROOKIE_STARTER_PPG` in `lib/rookieMirror.mjs`; `dpCode` in `lib/qbTakeover.mjs`; `loadQbTakeoverConstants` in `scripts/inseason-run.mjs`; `test/qb-mirror.test.mjs` ```
 
 **E27-3 · Mirror.** old: ``` The app applies the level to `qbStarterPPG` only; a `chain` row's `projectedPPG` follows as share × level. ```
 new: ``` The app applies the level to `qbStarterPPG` only; a `chain` row's `projectedPPG` follows as share × level. **qb-inseason-refit:** the data side's in-season mirrors pin the same two files — a takeover re-pin also re-points `scripts/inseason-run.mjs`'s constants path, a rookie-level re-pin re-copies `QB_ROOKIE_STARTER_PPG`, and either re-runs `--inseason` (CR-25) before the app re-pins its k; a change to the primary-passer definition now also moves `--inseason` (which rookie QBs take the group level, and Q9). ```
+
+*E27-1 amended 2026-10-07 (Stage C stop):* `buildRows` and `primaryPassers` now carry "in `lib/qbTakeover.mjs`" — `lib/registry.mjs` bound both bare symbols to the preceding `test/qb-mirror.test.mjs`, reddening `test/registry.test.mjs`. Simulated against the matcher: every CR-27 claim resolves. Same physical line, so the 19-line gate is unchanged.
 
 ### A.5 CR-09 and CR-16 (data plan gate flag 3)
 
