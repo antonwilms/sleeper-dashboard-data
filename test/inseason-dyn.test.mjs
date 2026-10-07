@@ -18,9 +18,13 @@ import {
   dynastyPickProxy, ageOnDate, historyPriorOf, modelScore, analyzeKCell, blend, pairedDelta,
 } from '../lib/inSeasonEvidence.mjs';
 import {
-  runInSeasonDyn, inSeasonDynMain, INSEASON_DYN_LOAD,
+  runInSeasonDyn, inSeasonDynMain, INSEASON_DYN_LOAD, pinnedSourceOf, DYN_2A_PIN,
 } from '../scripts/inseason-dyn-run.mjs';
-import { verifyConstants, formatConstantsJson, makePut, pinDecision, addFoldK, ReconciliationStop } from '../scripts/inseason-run.mjs';
+import { verifyConstants, formatConstantsJson, makePut, pinDecision, addFoldK, ReconciliationStop, INSEASON_LOAD } from '../scripts/inseason-run.mjs';
+import {
+  QB_DYN_RESEARCH, satLongerAt, fitDiscount, discountLoso, calibrateGroup, fullCalibration, ratioDiffBootstrap,
+  decideQ4, decideQ5a, decideQ5b, diffDynConstants, satLongerAggregates,
+} from '../lib/inSeasonEvidence.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -332,7 +336,7 @@ describe('9: population routing (injectable assemble)', () => {
   test('a YE<=1 row in a non-rookie arm is counted as routeMismatch and dropped', () => {
     const load = dynLoadFixture();
     const rowsBySeason = { 2020: [row({ sleeperId: 'p0', S: 2020, arm: 'P' })] };
-    const result = runInSeasonDyn({ load, assemble: fakeAssemble(rowsBySeason) });
+    const result = runInSeasonDyn({ qbPrior: 'legacy', load, assemble: fakeAssemble(rowsBySeason) });
     assert.equal(result.coverage.routeMismatchRows, 1);
     assert.equal(result.coverage.q1Rows, 0);
   });
@@ -344,7 +348,7 @@ describe('9: population routing (injectable assemble)', () => {
     const baseLoadSeasonTotals = load.loadSeasonTotals;
     load.loadSeasonTotals = (y) => (y === 2017 ? { p0: totalsRec({ gamesPlayed: 12, fantasyPoints: 150 }) } : baseLoadSeasonTotals(y));
     const rowsBySeason = { 2020: [row({ sleeperId: 'p0', S: 2020, arm: 'X-short' })] };
-    const result = runInSeasonDyn({ load, assemble: fakeAssemble(rowsBySeason) });
+    const result = runInSeasonDyn({ qbPrior: 'legacy', load, assemble: fakeAssemble(rowsBySeason) });
     assert.equal(result.coverage.q2PrimaryRows, 0, 'L=2017=S-3 is stale, not primary (primary requires L=S-2)');
     assert.equal(result.excluded.q2.stale.rows, 1);
     assert.equal(result.excluded.q2.stale.playerSeasons, 1);
@@ -356,7 +360,7 @@ describe('9: population routing (injectable assemble)', () => {
       2020: [row({ sleeperId: 'p0', S: 2020, arm: 'X-rookie0', extra: { obsOpp: 5, obsShare: 0.4, O: 20, mover: true, missedInWindow: false, oppMissingWeeks: 0 } })],
     };
     let seenRows = null;
-    runInSeasonDyn({ load, assemble: fakeAssemble(rowsBySeason), onRows: (rows) => { seenRows = rows; } });
+    runInSeasonDyn({ qbPrior: 'legacy', load, assemble: fakeAssemble(rowsBySeason), onRows: (rows) => { seenRows = rows; } });
     assert.ok(Array.isArray(seenRows) && seenRows.length > 0);
     const D10_KEYS = ['obsOpp', 'obsShare', 'O', 'mover', 'missedInWindow', 'oppMissingWeeks'];
     for (const r of seenRows) {
@@ -385,7 +389,7 @@ describe('9: population routing (injectable assemble)', () => {
       ],
     };
     let seenRows = null;
-    const result = runInSeasonDyn({ load, assemble: fakeAssemble(rowsBySeason), onRows: (rows) => { seenRows = rows; } });
+    const result = runInSeasonDyn({ qbPrior: 'legacy', load, assemble: fakeAssemble(rowsBySeason), onRows: (rows) => { seenRows = rows; } });
     const p0 = seenRows.find(r => r.sleeperId === 'p0');
     const p1 = seenRows.find(r => r.sleeperId === 'p1');
     const p2 = seenRows.find(r => r.sleeperId === 'p2');
@@ -403,7 +407,7 @@ describe('9: population routing (injectable assemble)', () => {
     // which is exactly the drift condition §4.3 requires runInSeasonDyn to throw on.
     const load = dynLoadFixture();
     const rowsBySeason = { 2020: [row({ sleeperId: 'p0', S: 2020, arm: 'X-short' })] };
-    assert.throws(() => runInSeasonDyn({ load, assemble: fakeAssemble(rowsBySeason) }), /noL drift/);
+    assert.throws(() => runInSeasonDyn({ qbPrior: 'legacy', load, assemble: fakeAssemble(rowsBySeason) }), /noL drift/);
   });
 });
 
@@ -494,7 +498,7 @@ describe('11: constants file', () => {
     const baseIds = load.loadPlayerIds().ids;
     load.loadPlayerIds = () => ({ ids: baseIds, bySleeper });
     assert.throws(
-      () => runInSeasonDyn({ load, assemble: (S) => ({ rows: rowsBySeason[S] ?? [] }) }),
+      () => runInSeasonDyn({ qbPrior: 'legacy', load, assemble: (S) => ({ rows: rowsBySeason[S] ?? [] }) }),
       /is absent from the loaded/,
     );
   });
@@ -537,7 +541,7 @@ describe('11: constants file', () => {
 
   test('Q2 ladder ending on the fixed rung records a reuse entry equal to K_DYN_POINTS_HISTORY (reuses = ["K_DYN_POINTS_HISTORY"])', () => {
     const { load, assemble } = q2HistFixture({ kHist: 5.5, kShort: 2 });
-    const result = runInSeasonDyn({ load, assemble });
+    const result = runInSeasonDyn({ qbPrior: 'legacy', load, assemble });
     const entry = result.constants.reuse['K_DYN_POINTS_SHORT_HISTORY|WR'];
     assert.ok(entry, 'expected a reuse entry for K_DYN_POINTS_SHORT_HISTORY|WR');
     assert.deepEqual(entry.reuses, ['K_DYN_POINTS_HISTORY']);
@@ -546,7 +550,26 @@ describe('11: constants file', () => {
 
   test('runInSeasonDyn throws when K_DYN_POINTS_HISTORY alone is absent from the loaded 2a file (Q2)', () => {
     const { load, assemble } = q2HistFixture({ kHist: 5.5, kShort: 2, missingHistory: true });
-    assert.throws(() => runInSeasonDyn({ load, assemble }), /is absent from the loaded/);
+    assert.throws(() => runInSeasonDyn({ qbPrior: 'legacy', load, assemble }), /is absent from the loaded/);
+  });
+
+  test('the 2a file is loaded for the run\'s qbPrior and every reuse source follows it (legacy and starter)', () => {
+    for (const qbPrior of ['legacy', 'starter']) {
+      const { load, assemble } = q2HistFixture({ kHist: 5.5, kShort: 2 });
+      const seen = [];
+      const inner = load.loadInSeasonConstants;
+      load.loadInSeasonConstants = (arg) => { seen.push(arg); return inner(arg); };
+      load.loadQbTakeoverConstants = INSEASON_LOAD.loadQbTakeoverConstants;   // starter only: the pinned chain models
+      const result = runInSeasonDyn({ qbPrior, qbResearch: false, load, assemble });
+      assert.deepEqual(seen, [qbPrior]);
+      const sources = Object.values(result.constants.reuse).map(e => e.source);
+      assert.ok(sources.length > 0);
+      assert.ok(sources.every(x => x === pinnedSourceOf(qbPrior)), `${qbPrior}: ${sources}`);
+      assert.equal(result.meta.inSeasonConstants, pinnedSourceOf(qbPrior));
+      assert.equal(result.constants.fit.qbPrior, qbPrior);
+      assert.equal(result.q4, null);
+      assert.equal(result.q5, null);
+    }
   });
 });
 
@@ -558,10 +581,10 @@ describe('12: CLI', () => {
   test('inSeasonDynMain with a small fixture returns 0 and calls writeArtifacts only when write:true', () => {
     const load = dynLoadFixture();
     let calls = 0;
-    const code0 = inSeasonDynMain({ load, write: false, writeArtifacts: () => { calls++; return {}; }, log: () => {}, logErr: () => {} });
+    const code0 = inSeasonDynMain({ qbPrior: 'legacy', load, write: false, writeArtifacts: () => { calls++; return {}; }, log: () => {}, logErr: () => {} });
     assert.equal(code0, 0);
     assert.equal(calls, 0);
-    const code1 = inSeasonDynMain({ load, write: true, writeArtifacts: () => { calls++; return { panelPath: 'x', panelBytes: 1, constantsPath: 'y', constantsBytes: 1, verdictPath: 'z' }; }, log: () => {}, logErr: () => {} });
+    const code1 = inSeasonDynMain({ qbPrior: 'legacy', load, write: true, writeArtifacts: () => { calls++; return { panelPath: 'x', panelBytes: 1, constantsPath: 'y', constantsBytes: 1, verdictPath: 'z' }; }, log: () => {}, logErr: () => {} });
     assert.equal(code1, 0);
     assert.equal(calls, 1);
   });
@@ -569,7 +592,7 @@ describe('12: CLI', () => {
   test('a fixture that trips the reconciliation stop, run with write:true, returns 1 and never calls the spy', () => {
     const load = dynLoadFixture({ mismatched: 5 });
     let calls = 0;
-    const code = inSeasonDynMain({ load, write: true, writeArtifacts: () => { calls++; return {}; }, log: () => {}, logErr: () => {} });
+    const code = inSeasonDynMain({ qbPrior: 'legacy', load, write: true, writeArtifacts: () => { calls++; return {}; }, log: () => {}, logErr: () => {} });
     assert.equal(code, 1);
     assert.equal(calls, 0);
   });
@@ -595,5 +618,241 @@ describe('13: scripts/inseason-dyn-run.mjs source', () => {
   const src = fs.readFileSync(path.join(REPO_ROOT, 'scripts/inseason-dyn-run.mjs'), 'utf8');
   test('does not reference assembleRookiePanel (T-RM1 stays green)', () => {
     assert.ok(!/assembleRookiePanel/.test(src));
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 14 — qbPrior seam (qb-rookie-dynasty-research D2)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('14: qbPrior is required and paired with its 2a file', () => {
+  const explodes = Object.fromEntries(Object.keys(INSEASON_DYN_LOAD).map(k => [k, () => { throw new Error(`loader ${k} was read`); }]));
+
+  test('runInSeasonDyn throws on a missing and on an unknown qbPrior before reading any loader', () => {
+    assert.throws(() => runInSeasonDyn({ load: explodes }), /needs qbPrior legacy\|starter/);
+    assert.throws(() => runInSeasonDyn({ load: explodes, qbPrior: 'bogus' }), /needs qbPrior legacy\|starter/);
+  });
+
+  test('qbResearch refuses the legacy prior (Q4/Q5 need the starter chain models)', () => {
+    assert.throws(() => runInSeasonDyn({ load: explodes, qbPrior: 'legacy', qbResearch: true }), /starter QB prior only/);
+  });
+
+  test('pinnedSourceOf(legacy) is the 2026-09-27 literal byte for byte; starter pins 2026-10-07', () => {
+    assert.equal(pinnedSourceOf('legacy'), 'backtests/2026-09-26-inseason-constants.json @ a071bdb324976203ed915e14a57b88fb740fb0b6');
+    assert.equal(pinnedSourceOf('starter'), 'backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477');
+    assert.ok(Object.isFrozen(DYN_2A_PIN) && Object.isFrozen(DYN_2A_PIN.legacy));
+  });
+
+  test('INSEASON_DYN_LOAD.loadInSeasonConstants reads the file of the prior it is given', () => {
+    const legacy = INSEASON_DYN_LOAD.loadInSeasonConstants('legacy'), starter = INSEASON_DYN_LOAD.loadInSeasonConstants('starter');
+    assert.ok(legacy.source.includes('2026-09-26'), legacy.source);
+    assert.ok(starter.source.includes('2026-10-07'), starter.source);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 15 — Q5 sat-longer pure helpers
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('15: satLongerAt / fitDiscount / discountLoso', () => {
+  test('residual −0.9 / −1.0 / −1.2 → false / false / true (−1 exactly is not flagged); band 1', () => {
+    const perGame = [0.5, 0.5, 0.5, 0.5];
+    // g = 2 → expected 1.0
+    assert.equal(satLongerAt({ starts: 0.1, perGame, g: 2, band: 1 }).satLonger, false);   // residual −0.9
+    assert.equal(satLongerAt({ starts: 0, perGame, g: 2, band: 1 }).satLonger, false);     // residual −1.0
+    assert.equal(satLongerAt({ starts: 0, perGame: [0.6, 0.6], g: 2, band: 1 }).satLonger, true);   // residual −1.2
+  });
+
+  test('a perGame shorter than g counts the missing slots as 0', () => {
+    const r = satLongerAt({ starts: 0, perGame: [0.7], g: 5, band: 1 });
+    assert.equal(r.expectedSoFar, 0.7);
+    assert.equal(r.satLonger, false);
+    assert.equal(satLongerAt({ starts: 0, perGame: null, g: 5 }).expectedSoFar, 0);
+  });
+
+  test('fitDiscount recovers d = 0.80 on n = 0 rows with y = 0.8·prior', () => {
+    const rows = [10, 12, 15, 9].map(p => ({ prior: p, obs: null, n: 0, k: 6.5, y: 0.8 * p }));
+    const fit = fitDiscount(rows);
+    assert.equal(fit.d, 0.8);
+    assert.ok(fit.mae < 1e-9);
+    assert.equal(fit.rows, 4);
+  });
+
+  test('fitDiscount: a flat-loss tie resolves to the d closest to 1; the grid bounds clamp; empty → d 1', () => {
+    // y = 9 and 11 on prior 10: loss is flat on d ∈ [0.9, 1.1] → ties → |d − 1| smallest → 1.0
+    const tie = fitDiscount([{ prior: 10, obs: null, n: 0, k: 5, y: 9 }, { prior: 10, obs: null, n: 0, k: 5, y: 11 }]);
+    assert.equal(tie.d, 1);
+    assert.equal(fitDiscount([{ prior: 10, obs: null, n: 0, k: 5, y: 3 }]).d, 0.5);
+    assert.equal(fitDiscount([{ prior: 10, obs: null, n: 0, k: 5, y: 40 }]).d, 1.2);
+    assert.deepEqual(fitDiscount([]), { d: 1, mae: null, rows: 0 });
+  });
+
+  test('discountLoso: a season\'s held-out prediction uses the d fitted on the OTHER seasons; an empty fold gives 1.0 and is counted', () => {
+    const mk = (S, id, d) => ({ sleeperId: id, S, prior: 10, obs: null, n: 0, k: 5, y: 10 * d });
+    const rows = [mk(2020, 'a1', 0.6), mk(2020, 'a2', 0.6), mk(2021, 'b1', 1.0), mk(2021, 'b2', 1.0)];
+    const lo = discountLoso(rows);
+    assert.equal(lo.folds, 2);
+    assert.equal(lo.emptyFolds, 0);
+    assert.equal(lo.preds[0].pred, 10);     // season 2020 predicted with d fitted on 2021 only (= 1.0)
+    assert.equal(lo.preds[2].pred, 6);      // season 2021 predicted with d fitted on 2020 only (= 0.6)
+    const one = discountLoso([mk(2020, 'a1', 0.6)]);
+    assert.equal(one.emptyFolds, 1);
+    assert.equal(one.preds[0].pred, 10);    // empty training set → d = 1.0
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 16 — Q4 pure helpers
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('16: calibrateGroup / fullCalibration / ratioDiffBootstrap', () => {
+  const train = [];
+  for (let i = 0; i < 6; i++) train.push({ sleeperId: `t${i}`, S: 2014 + i, group: 'G', prior: 10, y: 12 + i });
+  train.push({ sleeperId: 'u0', S: 2014, group: 'H', prior: 8, y: 9 }, { sleeperId: 'u1', S: 2015, group: 'H', prior: 8, y: 11 });
+
+  test('level = mean y of the other seasons\' rows; the test season is excluded', () => {
+    const { values, fallbacks } = calibrateGroup({ train, test: [{ sleeperId: 'x', S: 2014, group: 'G', prior: 10 }], kind: 'level' });
+    assert.equal(fallbacks, 0);
+    assert.equal(values[0], (13 + 14 + 15 + 16 + 17) / 5);   // 2014's own y (12) excluded
+  });
+
+  test('ratio = prior × Σy/Σprior over the other seasons', () => {
+    const { values } = calibrateGroup({ train, test: [{ sleeperId: 'x', S: 2019, group: 'G', prior: 20 }], kind: 'ratio' });
+    assert.ok(Math.abs(values[0] - 20 * ((12 + 13 + 14 + 15 + 16) / 50)) < 1e-12);
+  });
+
+  test('a group below the floor falls back to the row\'s own prior and is counted', () => {
+    const { values, fallbacks } = calibrateGroup({ train, test: [{ sleeperId: 'x', S: 2019, group: 'H', prior: 7 }, { sleeperId: 'y', S: 2019, group: 'none', prior: 5 }], kind: 'level' });
+    assert.deepEqual(values, [7, 5]);
+    assert.equal(fallbacks, 2);
+  });
+
+  test('fullCalibration: 3 dp per group; a thin group is null; ratio kind returns the multiplier', () => {
+    const lvl = fullCalibration({ train, kind: 'level' });
+    assert.equal(lvl.G, 14.5);
+    assert.equal(lvl.H, null);
+    assert.equal(fullCalibration({ train, kind: 'ratio' }).G, 1.45);
+  });
+
+  const side = (ratio, n, tag, wobble = 0) => Array.from({ length: n }, (_, i) => ({ sleeperId: `${tag}${i}`, prior: 10, y: 10 * (ratio + (i % 2 ? wobble : -wobble)) }));
+
+  test('ratioDiffBootstrap: clear above / clear below / straddling, and deterministic under the seed', () => {
+    const above = ratioDiffBootstrap(side(1.5, 20, 'a', 0.05), side(1.0, 20, 'b', 0.05));
+    assert.equal(above.direction, 'above');
+    assert.ok(above.ci95[0] > 0);
+    assert.equal(ratioDiffBootstrap(side(1.0, 20, 'a', 0.05), side(1.5, 20, 'b', 0.05)).direction, 'below');
+    const strad = ratioDiffBootstrap(side(1.1, 20, 'a', 0.5), side(1.0, 20, 'b', 0.5));
+    assert.equal(strad.direction, 'none');
+    assert.deepEqual(ratioDiffBootstrap(side(1.5, 20, 'a', 0.05), side(1.0, 20, 'b', 0.05)), above);
+    assert.equal(Object.keys(above).includes('label'), false);
+    assert.equal(ratioDiffBootstrap([], side(1, 3, 'b')).direction, 'none');
+  });
+});
+
+describe('17: decideQ4 / decideQ5a / decideQ5b / diffDynConstants', () => {
+  const cand = (over = {}) => ({ maeY1: 4.0, y1: 'BEATS', y2: 'NO-GAIN', posterior: 'NO-GAIN', meanRatio: 1.0, ...over });
+  const none = { direction: 'none' };
+
+  test('decideQ4: fewer than 30 players → insufficient; no BEATS → keep', () => {
+    assert.equal(decideQ4({ players: 29, candidates: { GS: cand() }, gate: none }).decision, 'insufficient');
+    assert.equal(decideQ4({ players: 62, candidates: { GS: cand({ y1: 'NO-GAIN' }), GC: cand({ y1: 'WORSE' }) }, gate: none }).decision, 'keep');
+  });
+
+  test('decideQ4: the lowest y1 MAE among the eligible wins; a y2-WORSE or posterior-WORSE candidate is ineligible', () => {
+    const out = decideQ4({ players: 62, gate: none, candidates: { GS: cand({ maeY1: 4.2 }), GC: cand({ maeY1: 3.9 }), RC: cand({ maeY1: 3.0, y2: 'WORSE' }) } });
+    assert.equal(out.decision, 'GC');
+    assert.deepEqual(out.eligible, ['GS', 'GC']);
+    assert.equal(decideQ4({ players: 62, gate: none, candidates: { RC: cand({ posterior: 'WORSE' }) } }).decision, 'keep');
+  });
+
+  test('decideQ4 position gate: a raising candidate needs direction above, a lowering one below; a gate-only failure is keep-not-qb-specific', () => {
+    const up = { GC: cand({ meanRatio: 1.1 }) }, down = { GC: cand({ meanRatio: 0.9 }) };
+    assert.equal(decideQ4({ players: 62, candidates: up, gate: none }).decision, 'keep-not-qb-specific');
+    assert.deepEqual(decideQ4({ players: 62, candidates: up, gate: none }).gateFailed, ['GC']);
+    assert.equal(decideQ4({ players: 62, candidates: up, gate: { direction: 'above' } }).decision, 'GC');
+    assert.equal(decideQ4({ players: 62, candidates: up, gate: { direction: 'below' } }).decision, 'keep-not-qb-specific');
+    assert.equal(decideQ4({ players: 62, candidates: down, gate: { direction: 'below' } }).decision, 'GC');
+    assert.equal(decideQ4({ players: 62, candidates: down, gate: { direction: 'above' } }).decision, 'keep-not-qb-specific');
+  });
+
+  test('decideQ5a: floor, fitted, fitted-rounds-to-0.90 → keep, drop (d ≥ 1 and none-beats-shipped), keep', () => {
+    const B = { label: 'BEATS' }, N = { label: 'NO-GAIN' };
+    assert.deepEqual(decideQ5a({ players: 19, vsShipped: B, noneVsShipped: B, dFull: 0.7 }), { decision: 'insufficient', discount: 0.9 });
+    assert.deepEqual(decideQ5a({ players: 25, vsShipped: B, noneVsShipped: N, dFull: 0.78 }), { decision: 'fitted', discount: 0.8 });
+    assert.deepEqual(decideQ5a({ players: 25, vsShipped: B, noneVsShipped: N, dFull: 0.91 }), { decision: 'keep', discount: 0.9 });
+    assert.deepEqual(decideQ5a({ players: 25, vsShipped: B, noneVsShipped: N, dFull: 1.02 }), { decision: 'drop', discount: 1 });
+    assert.deepEqual(decideQ5a({ players: 25, vsShipped: N, noneVsShipped: B, dFull: 1.09 }), { decision: 'drop', discount: 1 });
+    assert.deepEqual(decideQ5a({ players: 25, vsShipped: N, noneVsShipped: N, dFull: 0.8 }), { decision: 'keep', discount: 0.9 });
+  });
+
+  test('decideQ5b: floor → insufficient; BEATS with dFull < 1 → extend; otherwise stops-at-ye1', () => {
+    assert.equal(decideQ5b({ players: 19, vsNone: { label: 'BEATS' }, dFull: 0.8 }).decision, 'insufficient');
+    assert.equal(decideQ5b({ players: 20, vsNone: { label: 'BEATS' }, dFull: 0.8 }).decision, 'extend');
+    assert.equal(decideQ5b({ players: 20, vsNone: { label: 'BEATS' }, dFull: 1.1 }).decision, 'stops-at-ye1');
+    assert.equal(decideQ5b({ players: 20, vsNone: { label: 'NO-GAIN' }, dFull: 0.8 }).decision, 'stops-at-ye1');
+  });
+
+  test('diffDynConstants ignores a reuse source, catches a changed k and a changed decision', () => {
+    const base = { constants: { K: { QB: { k: 6.5 } } }, reuse: { 'R|QB': { k: [6.5], reuses: ['X'], source: 'a @ 1' } }, decisions: { q1: { YE0: 'B' } } };
+    const same = structuredClone(base); same.reuse['R|QB'].source = 'b @ 2';
+    assert.deepEqual(diffDynConstants(same, base), { changed: [], equal: true });
+    const moved = structuredClone(base); moved.constants.K.QB.k = 7; moved.decisions.q1.YE0 = 'A';
+    const d = diffDynConstants(moved, base);
+    assert.equal(d.equal, false);
+    assert.deepEqual(d.changed.map(c => c.path).sort(), ['constants.K.QB.k', 'decisions.q1.YE0']);
+    assert.deepEqual(d.changed.find(c => c.path === 'constants.K.QB.k'), { path: 'constants.K.QB.k', before: 6.5, after: 7 });
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 18 — Q5 aggregates and the disclosure rule (D8)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('18: satLongerAggregates — aggregates only', () => {
+  function population(nFlagged, { trueD = 0.7 } = {}) {
+    const checkpointRows = [], playerRows = [];
+    for (let i = 0; i < nFlagged; i++) {
+      const id = `qx${i + 1}`, S = 2014 + (i % 5), prior = 10 + (i % 4);
+      for (const W of [1, 2]) checkpointRows.push({ sleeperId: id, S, prior, obs: null, n: 0, flagged: true, y1: trueD * prior });
+      playerRows.push({ sleeperId: id, S, flaggedEver: true, flaggedAtEnd: true, prior, y1: trueD * prior, y2: trueD * (prior + 1), priorY2: prior + 1, startShareY1: 0.2 });
+    }
+    for (let j = 0; j < 4; j++) {
+      const id = `qx9${j}`;
+      playerRows.push({ sleeperId: id, S: 2016, flaggedEver: false, flaggedAtEnd: false, prior: 10, y1: 11, y2: null, priorY2: 11, startShareY1: 0.3 });
+    }
+    return { checkpointRows, playerRows };
+  }
+
+  test('25 flagged rookies whose S+1 PPG is 0.7 × the prior → fitted 0.7, counts match', () => {
+    const out = satLongerAggregates({ ...population(25), k: 6.5 });
+    assert.equal(out.q5a.players, 25);
+    assert.equal(out.q5a.rows, 50);
+    assert.equal(out.q5a.decision, 'fitted');
+    assert.equal(out.q5a.discount, 0.7);
+    assert.equal(out.q5a.dFull, 0.7);
+    assert.equal(out.q5a.labels.vsShipped, 'BEATS');
+    assert.equal(out.populations.flaggedEver, 25);
+    assert.equal(out.populations.backups, 29);
+    assert.equal(out.q5b.players, 25);
+    assert.equal(out.q5b.decision, 'extend');
+  });
+
+  test('the output contains no player id, and a population under three players publishes counts only', () => {
+    const big = satLongerAggregates({ ...population(25), k: 6.5 });
+    assert.ok(!JSON.stringify(big).includes('qx'));
+    const small = satLongerAggregates({ ...population(2), k: 6.5 });
+    assert.ok(!JSON.stringify(small).includes('qx'));
+    assert.equal(small.q5a.players, 2);
+    assert.equal(small.q5a.dFull, null);
+    assert.deepEqual(small.q5a.mae, { d100: null, d090: null, loso: null });
+    assert.equal(small.q5a.deltas, null);
+    assert.equal(small.q5b.dFull, null);
+    assert.equal(small.q5b.label, null);
+    assert.equal(small.q5c.flaggedEver.players, 2);
+    assert.equal(small.q5c.flaggedEver.y1OverPrior, null);
+    assert.equal(small.q5c.flaggedEver.startShareY1, null);
+    assert.equal(small.q5c.neverFlagged.y1OverPrior, null, 'a pair is suppressed together');
+    assert.equal(small.q5c.neverFlagged.players, 4);
+    assert.equal(QB_DYN_RESEARCH.minCellPlayers, 3);
   });
 });

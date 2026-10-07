@@ -38,7 +38,7 @@ const POOLED = 'pooled';
 const CELLS = [...GROUPS, POOLED];
 const cellOf = (a) => ({ players: a?.players ?? 0, games: a?.games ?? 0, value: a && a.games > 0 ? round3(a.sumPts / a.games) : null });
 
-function positionOfFrom(playerIds) {
+export function positionOfFrom(playerIds) {
   const positionOf = {};
   for (const entry of Object.values(playerIds?.ids ?? {})) {
     if (entry?.sleeperId && entry?.position) positionOf[entry.sleeperId] = entry.position;

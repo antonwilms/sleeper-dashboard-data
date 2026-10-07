@@ -1997,7 +1997,7 @@ Phase 2a of the in-season evidence work (`.claude/tasks/in-season-evidence-2a-ba
 
 **Why not a `bin/panel.mjs` mode:** the rookie prior must be the *shipped* (corrected) projection, which lives in `lib/rookieMirror.mjs`, and `test/rookie-mirror.test.mjs` T-RM1 forbids that file anywhere in `bin/panel.mjs`'s import closure. `bin/backtest.mjs` is outside that closure. `--inseason` fits no rookie constant and never calls `assembleRookiePanel`, so the CR-15 re-fit trap does not apply.
 
-**QB prior (qb-inseason-refit).** `assembleSeason(S, env)` requires `env.qbPrior` ∈ `QB_PRIOR_MODELS` = `legacy` | `starter` (it throws when absent — no caller inherits a QB prior silently). `runInSeason` defaults to `starter`: QB rows blend the **starter level** the app blends from — depth model `qb-takeover` (no share), and for a `yearsExp` 0 rookie QB with draft capital the pinned rookie level, **unless** he was his team's game-1 primary passer (the app's `original` kind keeps the ceiled rookie-path level; `primaryPassers` and `coverageFor` ≥ 0.99 per season decide it, recorded in `coverage.qbStart`). A rookie without a group keeps the rounded `projectedPPG`. Rows carry `pointsPriorNext` (the ceiled rookie-path level for rookies, = `pointsPrior` for veterans): `SPEC.pointsNext.prior` reads it, so the next-season horizon keeps the arm-B rookie prior the dynasty update blends. `runInSeason({ qbPrior: 'legacy' })` reproduces the committed `2026-09-26` constants exactly. **Q9** (report-only, pins nothing) fits the QB ROS k with n = **starts** on the non-`original` QB population (`startsArmRows`), compared per row with that arm's pinned QB k. `coverage.qbStart` also reports the preseason start share rebuilt from the week-1 chart (teams, incumbent / chain / stale / no-chart counts, median chain share). `writeQ4Pin` is buildConstants' Q4 NO-GAIN pin write (own vs pooled), extracted so it can be tested. `scripts/inseason-dyn-run.mjs` holds `qbPrior: 'legacy'` — the 2c dynasty k and arm B stay fitted on the legacy QB priors (re-fit belongs to L4/P12c, app backlog D-64).
+**QB prior (qb-inseason-refit).** `assembleSeason(S, env)` requires `env.qbPrior` ∈ `QB_PRIOR_MODELS` = `legacy` | `starter` (it throws when absent — no caller inherits a QB prior silently). `runInSeason` defaults to `starter`: QB rows blend the **starter level** the app blends from — depth model `qb-takeover` (no share), and for a `yearsExp` 0 rookie QB with draft capital the pinned rookie level, **unless** he was his team's game-1 primary passer (the app's `original` kind keeps the ceiled rookie-path level; `primaryPassers` and `coverageFor` ≥ 0.99 per season decide it, recorded in `coverage.qbStart`). A rookie without a group keeps the rounded `projectedPPG`. Rows carry `pointsPriorNext` (the ceiled rookie-path level for rookies, = `pointsPrior` for veterans): `SPEC.pointsNext.prior` reads it, so the next-season horizon keeps the arm-B rookie prior the dynasty update blends. `runInSeason({ qbPrior: 'legacy' })` reproduces the committed `2026-09-26` constants exactly. **Q9** (report-only, pins nothing) fits the QB ROS k with n = **starts** on the non-`original` QB population (`startsArmRows`), compared per row with that arm's pinned QB k. `coverage.qbStart` also reports the preseason start share rebuilt from the week-1 chart (teams, incumbent / chain / stale / no-chart counts, median chain share). `writeQ4Pin` is buildConstants' Q4 NO-GAIN pin write (own vs pooled), extracted so it can be tested. Since qb-rookie-dynasty-research `scripts/inseason-dyn-run.mjs` takes `qbPrior` as a required argument (the CLI runs `starter`; `legacy` re-runs 2026-09-27) — see the dynasty-side k-fit section.
 
 **Artifacts** (`--write`, unregistered — the Invariant 3 analysis-output exception): `backtests/<date>-inseason-panel.json` (aggregate tables and per-fold results, no per-row data), `backtests/<date>-inseason-constants.json` (the table the app pins, plus the sufficient-statistics fixture Phase 2b copies into `src/__fixtures__/`), `grading/<date>-inseason-verdict.md`.
 
@@ -2033,6 +2033,31 @@ beat a simpler rung reuses it rather than pinning a noisier fit — `reuse` entr
 name what was reused instead of writing a new constant. The pure logic (prospect-prior mirror,
 history-prior, the ladder) is additive in `lib/inSeasonEvidence.mjs`; the adapter is
 `scripts/inseason-dyn-run.mjs`.
+
+**QB prior and the Q4/Q5 questions (qb-rookie-dynasty-research, L4).** `runInSeasonDyn` **requires** `qbPrior`
+(`legacy` | `starter`; it throws before reading any loader when absent or unknown). The CLI runs `starter`: rows are
+assembled on the prior the app blends from, with the 2a k file fitted under it — each prior is paired with its file in
+`DYN_2A_PIN` (`legacy` → `2026-09-26 @ a071bdb`, `starter` → `2026-10-07 @ f2c3b83`), and every reuse entry's `source`
+follows the loaded file. `legacy` reproduces `2026-09-27` exactly. On `starter` the result also carries `d64`
+(`diffDynConstants` against `2026-09-27`: every 2c constant, reuse entry and decision) and two held-out questions.
+**Q4** (P12c): should a `yearsExp` 0 QB's arm-B prior start from a calibrated draft-group level instead of the
+rookie-path level B0? One row per rookie QB-season (`draftYear === S`, S 2014–2024), whether or not he played; candidates
+GS (P12a's starter level), GC (leave-one-class-out group mean of S+1 PPG) and RC (B0 × the group's Σy/Σprior), scored
+prior-only on S+1 (decision) and S+2 (confirmation) and as the posterior on the 2c Q1 YE0 QB rows at the pinned rookie k.
+A **position control** (Σ S+1 PPG / Σ B0 for QB vs RB∪WR∪TE) gates any candidate that raises or lowers the QB level
+(arm B is pessimistic for every position, so a QB-only level fitted to survivors would be selection, not signal).
+Decision rule `decideQ4`: `insufficient` below 30 players, `keep`, `keep-not-qb-specific`, or the lowest-MAE eligible
+candidate. Q4c (report-only) tabulates the season-S level by week-1 chart role. **Q5** (D-60): the app's own
+sat-longer rule (`satLongerAt`: a `years_exp` 0 chart-backup QB whose starts trail the preseason chain by more than 1
+game at a checkpoint) replicated on the week-1 chart over checkpoints 1–12; Q5a fits the discount `d` on S+1 PPG of the
+flagged rows (`fitDiscount`/`discountLoso`, grid 0.50–1.20) against the shipped 0.90 and against none, Q5b asks whether
+the effect persists into year 2, Q5c is a report-only flagged/never-flagged split. Floors: 20 players for Q5a/Q5b
+(below it the decision is `insufficient` and 0.90 stays). Q5 reads gamelogs primary passers, so every Q5 output is an
+aggregate (counts, MAE, labels, CIs, the full-sample `d`); any mean/MAE/ratio over fewer than 3 players is `null`.
+The constants file gains `qbRookieDynasty` and `qbSatLonger` decision blocks (nothing is pinned from them here).
+Pure helpers: `QB_DYN_RESEARCH`, `satLongerAt`, `fitDiscount`, `discountLoso`, `calibrateGroup`, `fullCalibration`,
+`ratioDiffBootstrap`, `decideQ4`, `decideQ5a`, `decideQ5b`, `diffDynConstants`, `satLongerAggregates`
+(`lib/inSeasonEvidence.mjs`).
 
 **Artifacts** (`--write`): `backtests/<date>-inseason-dyn-panel.json`, `backtests/<date>-inseason-dyn-constants.json`
 (the app's pinned-vs-reused table plus the sufficient-statistics fixture), `grading/<date>-inseason-dyn-verdict.md`.

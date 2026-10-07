@@ -47,7 +47,8 @@
  *                Exit 1 if DM-1 parity falls below 99% or the snapshot is missing (nothing written).
  *   --dynasty    (with --inseason) dynasty-side (rookies + SHORT veterans) k-fit (Phase 2c, offline
  *                analysis only): the prospect prior (arm A vs arm B), the SHORT-veteran history prior,
- *                and the KTC-anchor report. --write persists
+ *                and the KTC-anchor report, plus the rookie QB level in the dynasty prior (Q4) and the
+ *                sat-longer discount (Q5); runs on the starter QB prior. --write persists
  *                backtests/<date>-inseason-dyn-{panel,constants}.json + grading/<date>-inseason-dyn-verdict.md.
  */
 

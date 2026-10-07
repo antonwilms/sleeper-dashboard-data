@@ -24,25 +24,37 @@ import { isTeamAggregateId } from '../lib/backtest.mjs';
 import {
   assembleSeason, makeGamelogsIndex, makeScheduleIndex, guardLoad, runReconciliation, ReconciliationStop,
   INSEASON_LOAD, pinDecision, fixtureFrom, makePut, entryOf, addFoldK, verifyConstants, formatConstantsJson,
-  ARTIFACT_CAPS, SPEC,
+  ARTIFACT_CAPS, SPEC, QB_PRIOR_MODELS, loadQbChainModels, rookiePriorFor, assertPrimaryCoverage,
 } from './inseason-run.mjs';
 import {
   IN_SEASON_DEFAULTS, analyzeKCell, pairedDelta, blend, fitCK, spearman, assertAligned,
   DYN_DEFAULTS, DYN_OPTIMISM_C, PROSPECT_MIRROR, prospectPriorPPG, modelScore,
   ageOnDate, dynastyPickProxy, historyPriorOf, ladderPick,
+  QB_DYN_RESEARCH, satLongerAt, calibrateGroup, fullCalibration, ratioDiffBootstrap, decideQ4, satLongerAggregates, diffDynConstants,
 } from '../lib/inSeasonEvidence.mjs';
+import { positionOfFrom } from './qb-rookie-level-run.mjs';
+import { primaryPassers, coverageFor, priorPPG } from '../lib/qbTakeover.mjs';
+import { rookieGroup, GROUPS } from '../lib/qbRookieLevel.mjs';
+import { reconstructQbPreseasonShares } from '../lib/projectionFactors.mjs';
 import { loadFactorInputs } from './panel-run.mjs';
 import { computeSeasonPoints, HISTORY_FLOOR, PANEL_POSITIONS } from '../lib/panel.mjs';
 import { reconstructAgeCurves } from '../lib/projectionFactors.mjs';
 
 const POSITIONS = PANEL_POSITIONS;
 
+// Each QB prior is paired with the 2a k file that was fitted under it (qb-rookie-dynasty-research D2).
+export const DYN_2A_PIN = Object.freeze({
+  legacy: Object.freeze({ path: 'backtests/2026-09-26-inseason-constants.json', commit: 'a071bdb324976203ed915e14a57b88fb740fb0b6' }),
+  starter: Object.freeze({ path: 'backtests/2026-10-07-inseason-constants.json', commit: 'f2c3b83b31acc589dac78b6d61a704ac02a57477' }),
+});
+export const pinnedSourceOf = (qbPrior) => `${DYN_2A_PIN[qbPrior].path} @ ${DYN_2A_PIN[qbPrior].commit}`;
+
 export const INSEASON_DYN_LOAD = {
   ...INSEASON_LOAD,
-  loadInSeasonConstants: () => readJson('backtests/2026-09-26-inseason-constants.json'),
+  loadInSeasonConstants: (qbPrior) => readJson(DYN_2A_PIN[qbPrior].path),
+  loadQbRookieLevelConstants: () => readJson('backtests/2026-10-04-qb-rookie-level-constants.json'),
+  loadDynBaseline: () => readJson('backtests/2026-09-27-inseason-dyn-constants.json'),
 };
-
-const PINNED_2A_SOURCE = 'backtests/2026-09-26-inseason-constants.json @ a071bdb324976203ed915e14a57b88fb740fb0b6';
 
 const r1 = (v) => (v == null || !Number.isFinite(v) ? null : Math.round(v * 10) / 10);
 const r2 = (v) => (v == null || !Number.isFinite(v) ? null : Math.round(v * 100) / 100);
@@ -229,14 +241,14 @@ function twoRungLadder({ rowsPooled, positions, spec }) {
  * per position). When refitPooled is also INSUFFICIENT (`res.reuseOnly`), the entry is a reuse over the
  * position's own rows — never a `basis: 'insufficient'` constant.
  */
-function writeThreeRungEntry(P, reuse, name, pos, res, kFixedNameOf, kFixedOf) {
+function writeThreeRungEntry(P, reuse, name, pos, res, kFixedNameOf, kFixedOf, pinnedSource) {
   if (res.reuseOnly) {
     const rowsForPos = res.rows;
     const missing = rowsForPos.filter(r => kFixedOf(r) == null);
     if (missing.length) {
-      throw new Error(`[inseason-dyn] ${name}|${pos}: no ladder ran (own and pooled both INSUFFICIENT) but ${missing.length} row(s) have no fixed-k — the referenced 2a constant/position is absent from the loaded backtests/2026-09-26-inseason-constants.json`);
+      throw new Error(`[inseason-dyn] ${name}|${pos}: no ladder ran (own and pooled both INSUFFICIENT) but ${missing.length} row(s) have no fixed-k — the referenced 2a constant/position is absent from the loaded ${pinnedSource}`);
     }
-    reuse[`${name}|${pos}`] = { reuses: uniq(rowsForPos.map(kFixedNameOf)), k: uniq(rowsForPos.map(kFixedOf)), source: PINNED_2A_SOURCE };
+    reuse[`${name}|${pos}`] = { reuses: uniq(rowsForPos.map(kFixedNameOf)), k: uniq(rowsForPos.map(kFixedOf)), source: pinnedSource };
     return;
   }
   if (res.insufficient) {
@@ -248,9 +260,9 @@ function writeThreeRungEntry(P, reuse, name, pos, res, kFixedNameOf, kFixedOf) {
     const rowsForPos = res.rows.filter(r => r.position === pos);
     const missing = rowsForPos.filter(r => kFixedOf(r) == null);
     if (missing.length) {
-      throw new Error(`[inseason-dyn] ${name}|${pos}: ladder reached the fixed (reuse) rung but ${missing.length} row(s) have no fixed-k — the referenced 2a constant/position is absent from the loaded backtests/2026-09-26-inseason-constants.json`);
+      throw new Error(`[inseason-dyn] ${name}|${pos}: ladder reached the fixed (reuse) rung but ${missing.length} row(s) have no fixed-k — the referenced 2a constant/position is absent from the loaded ${pinnedSource}`);
     }
-    reuse[`${name}|${pos}`] = { reuses: uniq(rowsForPos.map(kFixedNameOf)), k: uniq(rowsForPos.map(kFixedOf)), source: PINNED_2A_SOURCE };
+    reuse[`${name}|${pos}`] = { reuses: uniq(rowsForPos.map(kFixedNameOf)), k: uniq(rowsForPos.map(kFixedOf)), source: pinnedSource };
     return;
   }
   if (chosen === 'pooled') {
@@ -289,7 +301,7 @@ function writeTwoRungEntry(P, name, pos, res) {
 
 // ─── Q1 — prospect prior: arm A vs arm B (§5.1, §6) ────────────────────────────
 
-function runQ1(q1Rows) {
+function runQ1(q1Rows, pinnedSource) {
   const out = { subgroups: {}, decisions: {} };
   const P = makePut();
   const reuse = {};
@@ -381,7 +393,7 @@ function runQ1(q1Rows) {
     if (chooseB) {
       const name = `K_DYN_PROSPECT_B_YE${g}`;
       const { results } = threeRungLadder({ rowsPooled, positions: POSITIONS, spec: SPEC_B, kFixedOf: r => r.k2a });
-      for (const pos of POSITIONS) writeThreeRungEntry(P, reuse, name, pos, results[pos] ?? { insufficient: true }, r => r.k2aName, r => r.k2a);
+      for (const pos of POSITIONS) writeThreeRungEntry(P, reuse, name, pos, results[pos] ?? { insufficient: true }, r => r.k2aName, r => r.k2a, pinnedSource);
       out.decisions[label].ladderName = name;
       out.decisions[label].ladders = Object.fromEntries(POSITIONS.map(pos => [pos, results[pos]?.ladder ?? null]));
       resultsByPos[label] = results;
@@ -400,7 +412,7 @@ function runQ1(q1Rows) {
 
 // ─── Q2 — SHORT-recent: history prior vs projection prior (§5.2, §6) ──────────
 
-function runQ2(q2PrimaryRows, q2StaleRows) {
+function runQ2(q2PrimaryRows, q2StaleRows, pinnedSource) {
   const P = makePut();
   const reuse = {};
   const Hist = q2PrimaryRows.length ? analyzeKCell(q2PrimaryRows, SPEC_HIST, { studyK: r => r.kStd }) : { verdict: 'INSUFFICIENT', rows: 0, players: 0 };
@@ -441,7 +453,7 @@ function runQ2(q2PrimaryRows, q2StaleRows) {
   if (chooseHist) {
     const name = 'K_DYN_POINTS_SHORT_HISTORY';
     const { results } = threeRungLadder({ rowsPooled: q2PrimaryRows, positions: POSITIONS, spec: SPEC_HIST, kFixedOf: r => r.kStd });
-    for (const pos of POSITIONS) writeThreeRungEntry(P, reuse, name, pos, results[pos] ?? { insufficient: true }, () => 'K_DYN_POINTS_HISTORY', r => r.kStd);
+    for (const pos of POSITIONS) writeThreeRungEntry(P, reuse, name, pos, results[pos] ?? { insufficient: true }, () => 'K_DYN_POINTS_HISTORY', r => r.kStd, pinnedSource);
     decision.ladderName = name;
     decision.ladders = Object.fromEntries(POSITIONS.map(pos => [pos, results[pos]?.ladder ?? null]));
     resultsByPos = results;
@@ -619,9 +631,243 @@ function buildExcluded({ preFilterRows, allRows, q1Rows, q2PrimaryRows, q2StaleR
   };
 }
 
+// ─── Q4 / Q5 — qb-rookie-dynasty-research (L4). Aggregates only (D8); never a per-player or per-rookie-season value. ───
+
+const REG_POSITIONS = ['QB', 'RB', 'WR', 'TE'];
+const GROUP_ORDER = GROUPS;
+
+/** Season-totals PPG (half-PPR fantasyPoints / gamesPlayed) with the harness's nextMinGames floor; null above the load ceiling. */
+function ppgFrom(g, season, pid) {
+  if (season > IN_SEASON_DEFAULTS.maxLoadSeason) return null;   // guardLoad throws above the ceiling — test before calling
+  const rec = g.loadSeasonTotals(season)?.[pid];
+  return (rec?.gamesPlayed ?? 0) >= IN_SEASON_DEFAULTS.nextMinGames && Number.isFinite(rec.fantasyPoints) ? rec.fantasyPoints / rec.gamesPlayed : null;
+}
+
+/** Week-1 chart roles per season for every QB on the chart (the Q5 population and the Q4c role split). */
+function weekOneRoles(g, env, playerIds) {
+  const bySeason = new Map();
+  for (let S = DYN_DEFAULTS.seasons.from; S <= DYN_DEFAULTS.seasons.to; S++) {
+    const depthFile = g.loadDepth(S);
+    const totalsM1 = g.loadSeasonTotals(S - 1);
+    const seen = new Set();
+    const qbs = [];
+    const teams = depthFile?.weeks?.[1] ?? {};
+    for (const T of Object.keys(teams)) {
+      const arr = teams[T]?.QB;
+      if (!Array.isArray(arr)) continue;
+      arr.forEach((pid, i) => {
+        if (pid == null || seen.has(pid)) return;
+        seen.add(pid);
+        qbs.push({ id: pid, team: T, order: i + 1, rookie: playerIds?.bySleeper?.[pid]?.draftYear === S });
+      });
+    }
+    const shares = reconstructQbPreseasonShares({ qbs, priorOf: (pid) => priorPPG(totalsM1?.[pid]), models: env.qbChainModels });
+    bySeason.set(S, qbs.map(q => ({ pid: q.id, team: q.team, rookie: q.rookie, role: shares[q.id].role, perGame: shares[q.id].perGame ?? null })));
+  }
+  return bySeason;
+}
+
+const startWeeksOf = (primaries) => {
+  const m = new Map();
+  for (const [key, v] of primaries) {
+    const week = Number(key.slice(key.lastIndexOf('|') + 1));
+    if (!m.has(v.pid)) m.set(v.pid, []);
+    m.get(v.pid).push(week);
+  }
+  return m;
+};
+
+function runQbSatLonger({ g, env, playerIds, constants2a, obsBy, rolesBySeason }) {
+  const k = constants2a?.constants?.K_DYN_POINTS_ROOKIE0?.QB?.k;
+  if (!Number.isFinite(k)) throw new Error('[inseason-dyn] Q5: K_DYN_POINTS_ROOKIE0.QB is absent from the loaded 2a constants file');
+  const checkpointRows = [], playerRows = [];
+  const excluded = { noSchedule: 0 };
+  const roleCounts = { backup: 0, incumbent: 0, 'no-chart': 0, other: 0 };
+  for (let S = DYN_DEFAULTS.seasons.from; S <= DYN_DEFAULTS.seasons.to; S++) {
+    const primaries = primaryPassers(g.loadGameLogs(S), S);
+    assertPrimaryCoverage(S, coverageFor(g.loadSchedule(S), primaries));   // same stop as assembleSeason (CR-09/CR-16)
+    const startWeeks = startWeeksOf(primaries);
+    const sched = env.scheduleIdx(S);
+    let primaries1 = null, maxTeamGames1 = null;
+    if (S + 1 <= IN_SEASON_DEFAULTS.maxLoadSeason) {
+      primaries1 = primaryPassers(g.loadGameLogs(S + 1), S + 1);
+      const sched1 = env.scheduleIdx(S + 1);
+      maxTeamGames1 = Math.max(...[...(sched1?.values() ?? [])].map(ws => ws.size), 0);
+    }
+    const games1 = primaries1 ? (() => { const m = new Map(); for (const v of primaries1.values()) m.set(v.pid, (m.get(v.pid) ?? 0) + 1); return m; })() : null;
+    for (const q of rolesBySeason.get(S) ?? []) {
+      if (!q.rookie) continue;
+      if (q.role === 'backup') roleCounts.backup++; else if (q.role === 'incumbent') roleCounts.incumbent++; else if (q.role === 'no-chart') roleCounts['no-chart']++; else roleCounts.other++;
+      if (q.role !== 'backup') continue;
+      const weeks = [...(sched?.get(q.team) ?? [])].sort((a, b) => a - b);
+      if (!weeks.length) { excluded.noSchedule++; continue; }
+      const prior = rookiePriorFor(q.pid, 'QB', S, playerIds);
+      const y1 = ppgFrom(g, S + 1, q.pid), y2 = ppgFrom(g, S + 2, q.pid);
+      const mine = startWeeks.get(q.pid) ?? [];
+      let flaggedEver = false, flaggedAtEnd = false;
+      for (const W of IN_SEASON_DEFAULTS.checkpoints) {
+        const gW = weeks.filter(w => w <= W).length;
+        if (gW === 0) continue;
+        const starts = mine.filter(w => w <= W).length;
+        const { satLonger } = satLongerAt({ starts, perGame: q.perGame, g: gW, band: QB_DYN_RESEARCH.satLongerBand });
+        const o = obsBy.get(`${q.pid}|${S}|${W}`) ?? { n: 0, obsPPG: null };
+        checkpointRows.push({ sleeperId: q.pid, S, prior, obs: o.obsPPG, n: o.n, flagged: satLonger, y1 });
+        if (satLonger) flaggedEver = true;
+        flaggedAtEnd = satLonger;
+      }
+      playerRows.push({
+        sleeperId: q.pid, S, flaggedEver, flaggedAtEnd, prior, y1, y2, priorY2: rookiePriorFor(q.pid, 'QB', S + 1, playerIds),
+        startShareY1: games1 && maxTeamGames1 > 0 ? (games1.get(q.pid) ?? 0) / maxTeamGames1 : null,
+      });
+    }
+  }
+  const agg = satLongerAggregates({ checkpointRows, playerRows, k });
+  const flaggedWithY1 = new Set(checkpointRows.filter(r => r.flagged && Number.isFinite(r.y1)).map(r => r.sleeperId)).size;
+  return {
+    k, band: QB_DYN_RESEARCH.satLongerBand, shippedDiscount: QB_DYN_RESEARCH.shippedDiscount, excluded,
+    populations: { ...agg.populations, roleCounts, flaggedWithY1, flaggedCheckpointRowsWithY1: agg.q5a.rows, flaggedAtEndWithY2: agg.q5b.players },
+    q5a: agg.q5a, q5b: agg.q5b, q5c: agg.q5c,
+  };
+}
+
+function runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesBySeason, levelsFile }) {
+  const positionOf = positionOfFrom(playerIds);
+  const bySleeper = playerIds?.bySleeper ?? {};
+  const levels = Object.fromEntries(GROUP_ORDER.map(gr => [gr, levelsFile?.starterPPG?.[gr]?.value]));
+  for (const [gr, v] of Object.entries(levels)) if (!Number.isFinite(v)) throw new Error(`[inseason-dyn] Q4: starterPPG.${gr}.value is absent from the rookie-level constants file`);
+  const k = constants2a?.constants?.K_DYN_POINTS_ROOKIE0?.QB?.k;
+  if (!Number.isFinite(k)) throw new Error('[inseason-dyn] Q4: K_DYN_POINTS_ROOKIE0.QB is absent from the loaded 2a constants file');
+
+  // Q4a panel: one row per rookie QB-season (draftYear === S), whether or not he played in S.
+  const excluded = { noGroup: 0, noPrior: 0 };
+  const qbPanel = [], others = [];
+  for (let S = DYN_DEFAULTS.seasons.from; S <= DYN_DEFAULTS.seasons.to; S++) {
+    for (const [pid, pos] of Object.entries(positionOf)) {
+      if (!REG_POSITIONS.includes(pos) || bySleeper[pid]?.draftYear !== S) continue;
+      const prior = rookiePriorFor(pid, pos, S, playerIds);
+      if (pos !== 'QB') {
+        const y1 = ppgFrom(g, S + 1, pid);
+        if (Number.isFinite(prior) && Number.isFinite(y1)) others.push({ sleeperId: pid, S, position: pos, prior, y: y1 });
+        continue;
+      }
+      const group = rookieGroup(bySleeper[pid]);
+      if (group == null) { excluded.noGroup++; continue; }
+      if (!Number.isFinite(prior)) { excluded.noPrior++; continue; }
+      qbPanel.push({ sleeperId: pid, S, group, prior, y0: ppgFrom(g, S, pid), y1: ppgFrom(g, S + 1, pid), y2: ppgFrom(g, S + 2, pid) });
+    }
+  }
+  const rowsFor = (key) => qbPanel.filter(r => Number.isFinite(r[key])).map(r => ({ sleeperId: r.sleeperId, S: r.S, group: r.group, prior: r.prior, y: r[key] }));
+  const y1Rows = rowsFor('y1'), y2Rows = rowsFor('y2'), y0Rows = rowsFor('y0');
+  const countBy = (rows) => Object.fromEntries(GROUP_ORDER.map(gr => [gr, rows.filter(r => r.group === gr).length]));
+  const populations = {
+    rookies: qbPanel.length, excluded,
+    byGroup: Object.fromEntries(GROUP_ORDER.map(gr => [gr, {
+      rookies: qbPanel.filter(r => r.group === gr).length, y0: countBy(y0Rows)[gr], y1: countBy(y1Rows)[gr], y2: countBy(y2Rows)[gr],
+    }])),
+    y0Players: y0Rows.length, y1Players: y1Rows.length, y2Players: y2Rows.length,
+  };
+
+  const predsOf = (rows, vals) => rows.map((r, i) => ({ pred: vals[i], actual: r.y }));
+  const maeOfPreds = (ps) => (ps.length ? ps.reduce((a, p) => a + Math.abs(p.pred - p.actual), 0) / ps.length : null);
+  const candidateValues = (rows, trainRows) => {
+    const gc = calibrateGroup({ train: trainRows, test: rows, kind: 'level' });
+    const rc = calibrateGroup({ train: trainRows, test: rows, kind: 'ratio' });
+    return { B0: rows.map(r => r.prior), GS: rows.map(r => levels[r.group]), GC: gc.values, RC: rc.values, fallbacks: { GC: gc.fallbacks, RC: rc.fallbacks } };
+  };
+  const compare = (rows, vals) => {
+    const base = predsOf(rows, vals.B0);
+    const out = { mae: { B0: r4(maeOfPreds(base)) }, deltas: {}, meanRatio: {} };
+    for (const X of ['GS', 'GC', 'RC']) {
+      const px = predsOf(rows, vals[X]);
+      out.mae[X] = r4(maeOfPreds(px));
+      out.deltas[X] = rows.length ? deltaOut(pairedDelta(rows, base, px)) : null;
+      out.meanRatio[X] = rows.length ? mean(rows.map((r, i) => vals[X][i] / vals.B0[i])) : null;
+    }
+    return out;
+  };
+  const vY1 = candidateValues(y1Rows, y1Rows), vY2 = candidateValues(y2Rows, y1Rows);
+  const priorOnly = { y1: { ...compare(y1Rows, vY1), fallbacks: vY1.fallbacks }, y2: { ...compare(y2Rows, vY2), fallbacks: vY2.fallbacks } };
+
+  // Q4b: posterior on the Q1 YE0 QB rows at the pinned 2a rookie k.
+  const post = q1Rows.filter(r => r.ye === 0 && r.position === 'QB' && Number.isFinite(r.projPrior) && Number.isFinite(r.obsPPG) && Number.isFinite(r.nextPPG));
+  for (const r of post) {
+    if (!(Math.abs(r.projPrior - rookiePriorFor(r.sleeperId, 'QB', r.S, playerIds)) < 1e-9)) throw new Error('[inseason-dyn] Q4b prior drift');
+  }
+  const postTest = post.map(r => ({ sleeperId: r.sleeperId, S: r.S, group: rookieGroup(bySleeper[r.sleeperId]), prior: r.projPrior, y: r.nextPPG }));
+  const gcP = calibrateGroup({ train: y1Rows, test: postTest, kind: 'level' }), rcP = calibrateGroup({ train: y1Rows, test: postTest, kind: 'ratio' });
+  const postVals = { B0: post.map(r => r.projPrior), GS: postTest.map(r => levels[r.group] ?? r.prior), GC: gcP.values, RC: rcP.values };
+  const postBase = post.map((r, i) => ({ pred: blend(postVals.B0[i], r.obsPPG, r.n, k), actual: r.nextPPG }));
+  const posterior = { k, rows: post.length, players: new Set(post.map(r => r.sleeperId)).size, mae: { B0: r4(maeOfPreds(postBase)) }, deltas: {} };
+  for (const X of ['GS', 'GC', 'RC']) {
+    const px = post.map((r, i) => ({ pred: blend(postVals[X][i], r.obsPPG, r.n, k), actual: r.nextPPG }));
+    posterior.mae[X] = r4(maeOfPreds(px));
+    posterior.deltas[X] = post.length ? deltaOut(pairedDelta(post, postBase, px)) : null;
+  }
+
+  // Q4d: position control — Σy1/ΣB0 over YE0 survivors; QB − (RB ∪ WR ∪ TE).
+  const qbSurv = y1Rows.map(r => ({ sleeperId: r.sleeperId, prior: r.prior, y: r.y }));
+  const ratioOf = (rows) => { const p = rows.reduce((a, r) => a + r.prior, 0); return p > 0 ? rows.reduce((a, r) => a + r.y, 0) / p : null; };
+  const gateRaw = ratioDiffBootstrap(qbSurv, others);
+  const positionControl = {
+    byPosition: Object.fromEntries(REG_POSITIONS.map(pos => {
+      const rs = pos === 'QB' ? qbSurv : others.filter(r => r.position === pos);
+      const players = new Set(rs.map(r => r.sleeperId)).size;
+      return [pos, { players, ratio: players >= QB_DYN_RESEARCH.minCellPlayers ? r4(ratioOf(rs)) : null }];
+    })),
+    gate: { qbRatio: r4(ratioOf(qbSurv)), otherRatio: r4(ratioOf(others)), diff: r4(gateRaw.diff), ci95: gateRaw.ci95?.map(r4) ?? null, direction: gateRaw.direction },
+  };
+
+  // Q4c (report-only): season-S level by week-1 role. Per-cell means only — no totals of the same statistic.
+  const roleOf = (S, pid) => (rolesBySeason.get(S) ?? []).find(q => q.pid === pid)?.role ?? 'not-on-chart';
+  const y0Roles = y0Rows.map(r => ({ ...r, role: roleOf(r.S, r.sleeperId) }));
+  const roleNames = [...new Set(y0Roles.map(r => r.role))].sort();
+  const cells = {};
+  for (const gr of GROUP_ORDER) {
+    cells[gr] = {};
+    for (const role of roleNames) {
+      const rs = y0Roles.filter(r => r.group === gr && r.role === role);
+      const players = rs.length;
+      const show = players >= QB_DYN_RESEARCH.minCellPlayers;
+      cells[gr][role] = { players, meanY0: show ? r2(mean(rs.map(r => r.y))) : null, meanB0: show ? r2(mean(rs.map(r => r.prior))) : null, meanGS: show ? r2(mean(rs.map(r => levels[r.group]))) : null };
+    }
+  }
+  const inc = y0Roles.filter(r => r.role === 'incumbent');
+  const incB0 = predsOf(inc, inc.map(r => r.prior)), incGS = predsOf(inc, inc.map(r => levels[r.group]));
+  const q4c = {
+    note: 'report-only; per-cell means, cells under 3 players suppressed', cells,
+    incumbent: { players: inc.length, maeB0: inc.length >= QB_DYN_RESEARCH.minCellPlayers ? r4(maeOfPreds(incB0)) : null, maeGS: inc.length >= QB_DYN_RESEARCH.minCellPlayers ? r4(maeOfPreds(incGS)) : null, deltaGS: inc.length >= QB_DYN_RESEARCH.minCellPlayers ? deltaOut(pairedDelta(inc, incB0, incGS)) : null },
+  };
+
+  // Decision (D5)
+  const candidates = {};
+  for (const X of ['GS', 'GC', 'RC']) {
+    candidates[X] = { maeY1: priorOnly.y1.mae[X], y1: priorOnly.y1.deltas[X]?.label ?? null, y2: priorOnly.y2.deltas[X]?.label ?? null, posterior: posterior.deltas[X]?.label ?? null, meanRatio: priorOnly.y1.meanRatio[X] };
+  }
+  const decision = decideQ4({ players: y1Rows.length, candidates, gate: positionControl.gate });
+
+  // k check (report): the dynasty k re-fitted on the chosen level. No constant is written from it.
+  let kCheck = null;
+  if (decision.chosen) {
+    const X = decision.chosen;
+    const pool = allRows.filter(r => r.arm === 'X-rookie0' && r.position === 'QB' && r.ye === 0);
+    const testRows = pool.map(r => ({ sleeperId: r.sleeperId, S: r.S, group: rookieGroup(bySleeper[r.sleeperId]), prior: r.projPrior, y: r.nextPPG }));
+    const vals = X === 'GS' ? testRows.map(r => levels[r.group] ?? r.prior) : calibrateGroup({ train: y1Rows, test: testRows, kind: X === 'GC' ? 'level' : 'ratio' }).values;
+    const valueOf = new Map(pool.map((r, i) => [`${r.sleeperId}|${r.S}`, vals[i]]));
+    const cell = analyzeKCell(allRows.filter(r => r.arm === 'X-rookie0'), {
+      prior: (r) => (r.position === 'QB' && r.ye === 0 ? (valueOf.get(`${r.sleeperId}|${r.S}`) ?? r.projPrior) : r.projPrior), obs: 'obsPPG', outcome: 'nextPPG',
+    });
+    kCheck = { candidate: X, verdict: cell.verdict, rows: cell.rows, kFit: cell.kFit?.k ?? null, kPinned: k };
+  }
+
+  const levelsOut = decision.chosen === 'GC' ? fullCalibration({ train: y1Rows, kind: 'level' }) : decision.chosen === 'RC' ? fullCalibration({ train: y1Rows, kind: 'ratio' }) : null;
+  return { decision: decision.decision, chosen: decision.chosen, eligible: decision.eligible, gateFailed: decision.gateFailed, populations, priorOnly, posterior, positionControl, kCheck, q4c, levels: levelsOut, starterLevels: levels };
+}
+
 // ─── runInSeasonDyn (§4) ────────────────────────────────────────────────────────
 
-export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assemble = assembleSeason, onRows = null } = {}) {
+export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assemble = assembleSeason, onRows = null, qbPrior, qbResearch = qbPrior === 'starter' } = {}) {
+  if (!QB_PRIOR_MODELS.includes(qbPrior)) throw new Error('[inseason-dyn] runInSeasonDyn needs qbPrior legacy|starter');
+  if (qbResearch && qbPrior !== 'starter') throw new Error("[inseason-dyn] Q4/Q5 run on the starter QB prior only (qbResearch needs qbPrior 'starter')");
   const t0 = Date.now();
   const g = guardLoad(load, { maxLoadSeason: 2025 });
   const reconciliation = runReconciliation(g, { fromYear: 2012, toYear: 2025 });
@@ -629,12 +875,13 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
 
   const inputs = loadFactorInputs({ fromYear: 2013, toYear: 2024, basis: 'half_ppr', withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, load: g });
   const playerIds = g.loadPlayerIds();
-  // qbPrior 'legacy': 2c's dynasty k and the arm-B comparison were fitted on the pre-boundary-5 QB priors (flat 0.88/0.68
-  // depth step, ceiled rookie level). Re-fitting 2c on the starter prior belongs to L4/P12c (data backlog D-64).
-  const env = { load: g, defaults: IN_SEASON_DEFAULTS, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds, qbPrior: 'legacy' };
+  // D-64: 2c ran on the legacy QB prior (flat 0.88/0.68 depth step, ceiled rookie level); `starter` re-runs it on what the app blends from.
+  const env = { load: g, defaults: IN_SEASON_DEFAULTS, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds, qbPrior };
+  if (qbPrior === 'starter') env.qbChainModels = loadQbChainModels(g);   // after the reconciliation stop, so a stub load's earlier error wins
   const peakByS = buildPeakByS(inputs);
   const pickProxy = buildPickProxy(playerIds, inputs);
-  const constants2a = typeof load.loadInSeasonConstants === 'function' ? load.loadInSeasonConstants() : null;
+  const pinnedSource = pinnedSourceOf(qbPrior);
+  const constants2a = typeof load.loadInSeasonConstants === 'function' ? load.loadInSeasonConstants(qbPrior) : null;
   const ctx = { inputs, playerIds, peakByS, pickProxy, constants2a };
 
   // Fix pass 1 item 2: every row is augmented before the nextPPG filter, and carries `nextGp` (S+1 gp
@@ -671,12 +918,22 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
   }
   const routeMismatchRate = q1Rows.length + routeMismatchRows.length > 0 ? routeMismatchRows.length / (q1Rows.length + routeMismatchRows.length) : 0;
 
-  const q1Full = runQ1(q1Rows);
+  const q1Full = runQ1(q1Rows, pinnedSource);
   const { resultsByPos: q1ResultsByPos, ...q1 } = q1Full;
-  const q2 = runQ2(q2PrimaryRows, q2StaleRows);
+  const q2 = runQ2(q2PrimaryRows, q2StaleRows, pinnedSource);
   const { resultsByPos: q2ResultsByPos, ...q2Public } = q2;
   const q3 = runQ3(q1Rows, q1.decisions, q1ResultsByPos);
   const excluded = buildExcluded({ preFilterRows, allRows, q1Rows, q2PrimaryRows, q2StaleRows, routeMismatchRows, ye1Rookie0Rows });
+
+  let q4 = null, q5 = null, rolesBySeason = null;
+  if (qbResearch) {
+    const obsBy = new Map();
+    for (const r of preFilterRows) if (r.position === 'QB') obsBy.set(`${r.sleeperId}|${r.S}|${r.W}`, { n: r.n, obsPPG: r.obsPPG });
+    rolesBySeason = weekOneRoles(g, env, playerIds);
+    q5 = runQbSatLonger({ g, env, playerIds, constants2a, obsBy, rolesBySeason });
+    q4 = runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesBySeason, levelsFile: load.loadQbRookieLevelConstants() });
+    log(`Q4 ${q4.decision}; Q5a ${q5.q5a.decision} (${q5.q5a.players} players), Q5b ${q5.q5b.decision} (${q5.q5b.players} players)`);
+  }
 
   const constants = { ...q1.constants, ...q2Public.constants };
   const fixture = { ...q1.fixture, ...q2Public.fixture };
@@ -713,12 +970,37 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
     decisions: { q1: { YE0: q1.decisions.YE0.arm, YE1: q1.decisions.YE1.arm }, q2: q2Public.decision.chooseHist ? 'history' : 'no-recommendation' },
     constants, fixture, reuse,
   };
+  constantsFile.fit.qbPrior = qbPrior;
+  constantsFile.fit.inSeasonConstants = pinnedSource;
+  if (qbResearch) {
+    constantsFile.qbRookieDynasty = {
+      decision: q4.decision, horizon: 'S+1', confirm: 'S+2',
+      players: { y1: q4.populations.y1Players, y2: q4.populations.y2Players },
+      maeY1: q4.priorOnly.y1.mae,
+      labels: {
+        y1: Object.fromEntries(['GS', 'GC', 'RC'].map(X => [X, q4.priorOnly.y1.deltas[X]?.label ?? null])),
+        y2: Object.fromEntries(['GS', 'GC', 'RC'].map(X => [X, q4.priorOnly.y2.deltas[X]?.label ?? null])),
+        posterior: Object.fromEntries(['GS', 'GC', 'RC'].map(X => [X, q4.posterior.deltas[X]?.label ?? null])),
+      },
+      gate: q4.positionControl.gate,
+      levels: q4.levels,
+      starterLevelsRef: 'backtests/2026-10-04-qb-rookie-level-constants.json',
+    };
+    constantsFile.qbSatLonger = {
+      decision: q5.q5a.decision, discount: q5.q5a.discount, band: QB_DYN_RESEARCH.satLongerBand, shippedDiscount: QB_DYN_RESEARCH.shippedDiscount,
+      players: { flaggedWithY1: q5.q5a.players, flaggedAtEndWithY2: q5.q5b.players },
+      dFull: q5.q5a.dFull,
+      maeQ5a: { d100: q5.q5a.mae.d100, d090: q5.q5a.mae.d090, loso: q5.q5a.mae.loso },
+      labels: q5.q5a.labels,
+      persistence: { decision: q5.q5b.decision, players: q5.q5b.players, dFull: q5.q5b.dFull, label: q5.q5b.label },
+    };
+  }
   const bad = verifyConstants(constantsFile);
   if (bad.length) throw new Error(`[inseason-dyn] constants do not re-derive from their fixture: ${JSON.stringify(bad.slice(0, 5))}`);
 
   const meta = {
     generatedAt, basis: 'half_ppr', seasons: DYN_DEFAULTS.seasons, runtimeMs: Date.now() - t0,
-    routeMismatchRate: r4(routeMismatchRate),
+    routeMismatchRate: r4(routeMismatchRate), qbPrior, inSeasonConstants: pinnedSource,
   };
   const coverage = {
     rowsTotal: allRows.length, q1Rows: q1Rows.length, q2PrimaryRows: q2PrimaryRows.length, q2StaleRows: q2StaleRows.length,
@@ -734,7 +1016,9 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
     q2: q2Public.decision.ladders ?? null,
   };
 
-  return { meta, reconciliation, coverage, excluded, q1, q2: q2Public, q3, diagnostics, ladders, pinnedFrom, constants: constantsFile };
+  const d64 = qbPrior === 'starter' && typeof load.loadDynBaseline === 'function' ? diffDynConstants(constantsFile, load.loadDynBaseline()) : null;
+
+  return { meta, reconciliation, coverage, excluded, q1, q2: q2Public, q3, d64, q4, q5, diagnostics, ladders, pinnedFrom, constants: constantsFile };
 }
 
 // ─── Verdict markdown (§7) ──────────────────────────────────────────────────────
@@ -772,10 +1056,68 @@ function q3Line(m) {
   return `rows=${m.rows}, model-share update=${f(m.updateModelShare, 2)}, left on table=${f(m.leftOnTable, 2)} (${f((m.leftOnTableShare ?? 0) * 100, 1)}% of realised movement), captured share=${f(m.capturedShare, 3)}, rank agreement=${f(m.rankAgreement, 3)}, peak-clamp share (xn/y)=${f(m.clampShareXn, 3)}/${f(m.clampShareY, 3)}, cap-of-35 row share=${f(m.capOf35.rowShare, 3)} [upper bound: KTC unknown historically].`;
 }
 
+const pct = (v) => (v == null ? '—' : `${f(v * 100, 1)}%`);
+const lab = (d) => (d ? `${d.label} (mean ${f(d.mean, 4)}, CI ${ciStr4(d.ci95)})` : '—');
+
+function qbResearchMarkdown(result) {
+  const { d64, q2, q4, q5 } = result;
+  const L = [];
+  if (d64) {
+    L.push('', '## D-64 — 2c on the current QB model', '');
+    if (d64.equal) L.push('No 2c constant, reuse entry or decision moved against `backtests/2026-09-27-inseason-dyn-constants.json` (reuse `source` strings aside).');
+    else {
+      L.push('| path | 2026-09-27 | this run |', '|---|---|---|');
+      for (const c of d64.changed) L.push(`| ${c.path} | ${JSON.stringify(c.before)} | ${JSON.stringify(c.after)} |`);
+    }
+    L.push('', `Q2 pooled (this run): Proj Δ ${lab(q2.pooled.Proj.delta)}; ΔHP ${lab(q2.pooled.deltaHP)} (also in \`q2.decision.deltaHP\`). These are the leaves the comparison panel carries; the constants, reuse entries and decisions above are what the app pins.`);
+  }
+  if (!q4 || !q5) return L;
+  const P = q4.populations;
+  L.push('', '## Q4 — Rookie QB level in the dynasty prior (P12c)', '');
+  L.push(`Population: ${P.rookies} rookie QBs (S 2014–2024; excluded: ${P.excluded.noGroup} no group, ${P.excluded.noPrior} no prior); S+1 PPG ${P.y1Players}, S+2 PPG ${P.y2Players}, season-S PPG ${P.y0Players}.`, '');
+  L.push('| group | rookies | S | S+1 | S+2 |', '|---|---|---|---|---|');
+  for (const [gr, c] of Object.entries(P.byGroup)) L.push(`| ${gr} | ${c.rookies} | ${c.y0} | ${c.y1} | ${c.y2} |`);
+  L.push('', '**Q4a — prior-only on held-out next-season PPG** (B0 = shipped rookie-path level; GS = P12a "if he starts" level; GC = leave-one-class-out group mean; RC = B0 × group ratio).', '');
+  L.push('| horizon | players | MAE B0 | MAE GS | MAE GC | MAE RC | Δ GS | Δ GC | Δ RC |', '|---|---|---|---|---|---|---|---|---|');
+  for (const [h, n] of [['y1', P.y1Players], ['y2', P.y2Players]]) {
+    const po = q4.priorOnly[h];
+    L.push(`| S+${h === 'y1' ? 1 : 2} | ${n} | ${f(po.mae.B0, 3)} | ${f(po.mae.GS, 3)} | ${f(po.mae.GC, 3)} | ${f(po.mae.RC, 3)} | ${po.deltas.GS?.label ?? '—'} | ${po.deltas.GC?.label ?? '—'} | ${po.deltas.RC?.label ?? '—'} |`);
+  }
+  L.push('', `Fallbacks to B0 (group below ${QB_DYN_RESEARCH.minGroupTrainPlayers} training players): S+1 GC ${q4.priorOnly.y1.fallbacks.GC}, RC ${q4.priorOnly.y1.fallbacks.RC}; S+2 GC ${q4.priorOnly.y2.fallbacks.GC}, RC ${q4.priorOnly.y2.fallbacks.RC}.`);
+  L.push('', `**Q4b — posterior** at the pinned 2a rookie k (${q4.posterior.k}), ${q4.posterior.rows} rows / ${q4.posterior.players} players: MAE B0 ${f(q4.posterior.mae.B0, 3)}, GS ${f(q4.posterior.mae.GS, 3)}, GC ${f(q4.posterior.mae.GC, 3)}, RC ${f(q4.posterior.mae.RC, 3)}. Δ GS ${lab(q4.posterior.deltas.GS)}; Δ GC ${lab(q4.posterior.deltas.GC)}; Δ RC ${lab(q4.posterior.deltas.RC)}.`);
+  const pc = q4.positionControl;
+  L.push('', `**Q4d — position control** (Σ S+1 PPG / Σ B0 over YE0 survivors): ${Object.entries(pc.byPosition).map(([pos, c]) => `${pos} ${f(c.ratio, 3)} (${c.players} players)`).join(', ')}. QB ${f(pc.gate.qbRatio, 3)} vs RB∪WR∪TE ${f(pc.gate.otherRatio, 3)}: difference ${f(pc.gate.diff, 3)}, CI ${ciStr4(pc.gate.ci95)} → ${pc.gate.direction}.`);
+  L.push('', q4.kCheck ? `**k check (report):** with ${q4.kCheck.candidate} the YE0 QB dynasty k re-fits to ${f(q4.kCheck.kFit, 1)} (${q4.kCheck.verdict}, ${q4.kCheck.rows} rows) vs pinned ${q4.kCheck.kPinned}. No constant is written from it.` : '**k check:** not run (no candidate chosen).');
+  L.push('', '**Q4c — season-S level by week-1 role (report-only; per-cell means, cells under 3 players suppressed):**', '');
+  const roleNames = [...new Set(Object.values(q4.q4c.cells).flatMap(c => Object.keys(c)))].sort();
+  L.push(`| group | ${roleNames.map(r => `${r} (n / PPG / B0 / GS)`).join(' | ')} |`, `|---|${roleNames.map(() => '---').join('|')}|`);
+  for (const [gr, cs] of Object.entries(q4.q4c.cells)) L.push(`| ${gr} | ${roleNames.map(r => { const c = cs[r]; return c ? `${c.players} / ${f(c.meanY0, 1)} / ${f(c.meanB0, 1)} / ${f(c.meanGS, 1)}` : '—'; }).join(' | ')} |`);
+  const ic = q4.q4c.incumbent;
+  L.push('', `Week-1 incumbents (${ic.players} players, report-only — too few to decide anything): MAE B0 ${f(ic.maeB0, 3)}, GS ${f(ic.maeGS, 3)}, Δ GS ${lab(ic.deltaGS)}.`);
+  L.push('', '**What history cannot test (F6):** KTC history starts 2026-05-18 and the reconstruction holds `ktcMult` and college at 1.0, so the live `projectedPPG` excess for top picks (P12a Q4) is out of reach of any held-out test until a completed season carries KTC values (~2027). This run tests the neutral level only.');
+  L.push('', `**Decision — Q4: \`${q4.decision}\`.**${q4.eligible.length ? ` Eligible before the position gate: ${q4.eligible.join(', ')}${q4.gateFailed.length ? `; failed the gate: ${q4.gateFailed.join(', ')}` : ''}.` : ''}`);
+
+  const a = q5.q5a, b = q5.q5b, c = q5.q5c, pp = q5.populations;
+  L.push('', '## Q5 — Sat-longer discount (D-60)', '');
+  L.push(`**Definition (the app's, F3).** A \`years_exp\` 0 QB whose preseason chain role is \`backup\`; at team-game index g, residual = starts − Σ_{i<g} preseason.perGame[i]; sat-longer iff residual < −${q5.band}. It multiplies the prospect prior by ${q5.shippedDiscount} and is re-evaluated at every checkpoint. **Transport:** the data side uses the week-1 chart team (the app: his current team) and \`draftYear === S\` (the app: \`years_exp\` 0). P6a Q5 measured the residual at the end of the fitted window on takeover rows; this replicates the app's own residual at each of checkpoints 1–12.`);
+  L.push('', `Population: ${pp.backups} preseason-backup rookie QBs; ${pp.flaggedEver} ever flagged; ${pp.flaggedAtEnd} flagged at the last checkpoint. Roles seen among rookies on the week-1 chart: ${JSON.stringify(pp.roleCounts)}.`);
+  L.push('', `**Q5a — S+1 PPG on flagged checkpoint rows:** ${a.players} players / ${a.rows} rows (floor ${QB_DYN_RESEARCH.floors.q5a} players) → \`${a.decision}\`, discount ${a.discount}. dFull ${f(a.dFull, 2)}. MAE d=1.0 ${f(a.mae.d100, 3)}, d=0.90 ${f(a.mae.d090, 3)}, LOSO ${f(a.mae.loso, 3)}. Labels: LOSO vs 0.90 ${a.labels.vsShipped ?? '—'}; none vs 0.90 ${a.labels.noneVsShipped ?? '—'}; none vs LOSO ${a.labels.noneVsLoso ?? '—'}.`);
+  L.push('', `**Q5b — persistence into year 2** (prior-only, flagged at the last rookie checkpoint, S+2 PPG): ${b.players} players (floor ${QB_DYN_RESEARCH.floors.q5b}) → \`${b.decision}\`; dFull ${f(b.dFull, 2)}; label ${b.label ?? '—'}. **Limitation:** this is the rookie-path level at \`yearsExp\` 1; a flagged rookie who played enough in S to be veteran-routed at S+1 gets the veteran projection as his arm-B prior (assembleSeason and the app), so Q5b over-covers. It is \`insufficient\` either way.`);
+  L.push('', '**Q5c — flagged-ever vs never-flagged (report-only; suppressed as a pair below 3 players):**', '', '| group | players | with S+1 PPG | mean S+1 / prior | S+1 primary-passer share |', '|---|---|---|---|---|');
+  for (const [name, cell] of [['flagged ever', c.flaggedEver], ['never flagged', c.neverFlagged]]) L.push(`| ${name} | ${cell.players} | ${cell.withY1} | ${f(cell.y1OverPrior, 3)} | ${pct(cell.startShareY1)} |`);
+  L.push('', `**Decision — Q5a: \`${a.decision}\` (${a.discount}); Q5b: \`${b.decision}\`.** Outputs are aggregates only: counts, MAE, labels, CIs and the full-sample fitted d — never per-player, per-rookie-season or per-fold values.`);
+
+  L.push('', '## For wiring', '');
+  L.push(`- **Always (W0):** registry edits from the companion; app re-pins \`IN_SEASON_DYN_PANEL_SOURCE\` + fixture to this panel by byte copy; D-64 resolved, D-60 per Q5.`);
+  L.push(`- **Q5 → ${a.decision}:** ${a.decision === 'insufficient' || a.decision === 'keep' ? 'keep 0.90 in `qbTakeoverConstants.js`/`inSeasonScoring.js`, PROVISIONAL(heuristic) re-cited to this verdict; no score moves.' : `pin ${a.discount} from \`qbSatLonger.discount\` with a constants fixture; flagged rookie QBs' dynasty scores move, no \`PRIOR_MODEL_FROM\` bump.`} Q5b \`${b.decision}\`${b.decision === 'extend' ? ': a design question first (the app has no rookie-season live state at yearsExp 1).' : '.'}`);
+  L.push(`- **Q4 → ${q4.decision}:** ${['keep', 'insufficient', 'keep-not-qb-specific'].includes(q4.decision) ? 'CR-25/CR-27 text only.' : 'the dynasty prior for yearsExp 0 QBs with a group takes the pinned level in `buildRookieDynastyPriors`; whether `projectedPPG` follows is Anton\'s call (F6).'}`);
+  return L;
+}
+
 export function buildInSeasonDynVerdictMarkdown(result) {
   const { q1, q2, q3, excluded, constants, meta } = result;
   const lines = [];
-  lines.push('# In-season evidence — Phase 2c: dynasty-side (rookies and SHORT veterans) verdict', '');
+  lines.push(`# In-season evidence — Phase 2c: dynasty-side (rookies and SHORT veterans) verdict — QB prior \`${meta.qbPrior}\`, 2a k \`${meta.inSeasonConstants}\``, '');
   lines.push(`**Q1 — prospect prior.** YE0: arm ${q1.decisions.YE0.arm} (ΔAB ${q1.decisions.YE0.deltaAB?.label ?? '—'}, mean ${f(q1.decisions.YE0.deltaAB?.mean, 4)}, CI ${ciStr4(q1.decisions.YE0.deltaAB?.ci95)}). YE1: arm ${q1.decisions.YE1.arm} (ΔAB ${q1.decisions.YE1.deltaAB?.label ?? '—'}, mean ${f(q1.decisions.YE1.deltaAB?.mean, 4)}, CI ${ciStr4(q1.decisions.YE1.deltaAB?.ci95)}).`, '');
   lines.push(`**Q2 — SHORT-recent prior.** ${q2.decision.chooseHist ? 'History prior' : 'No wiring recommendation'} (ΔHP ${q2.decision.deltaHP?.label ?? '—'}, mean ${f(q2.decision.deltaHP?.mean, 4)}, CI ${ciStr4(q2.decision.deltaHP?.ci95)}).`, '');
   lines.push(`**Q3 — the KTC anchor.** Measured (pooled): ${q3Line(q3.pooled)} Not measurable yet: whether KTC itself moves with in-season evidence (KTC history starts 2026-05-18).`, '');
@@ -802,6 +1144,7 @@ export function buildInSeasonDynVerdictMarkdown(result) {
     lines.push(`${label}: ${q3Line(q3.bySubgroup[label])}`);
   }
   for (const b of q3.byBand) lines.push(`n∈${b.band}: ${q3Line(b)}`);
+  lines.push(...qbResearchMarkdown(result));
   lines.push('', '## Excluded population', '');
   lines.push(`Q1: YE<=1 player-seasons ${excluded.q1.ye01.playerSeasons} (rows ${excluded.q1.ye01.rows}, players ${excluded.q1.ye01.players}). No S+1 outcome — absent: player-seasons ${excluded.q1.noOutcomeAbsent.playerSeasons} (rows ${excluded.q1.noOutcomeAbsent.rows}); gp<6: player-seasons ${excluded.q1.noOutcomeGpUnder6.playerSeasons} (rows ${excluded.q1.noOutcomeGpUnder6.rows}). draftYear unusable: player-seasons ${excluded.q1.draftYearUnusable.playerSeasons} (rows ${excluded.q1.draftYearUnusable.rows}). routeMismatch: player-seasons ${excluded.q1.routeMismatch.playerSeasons} (rows ${excluded.q1.routeMismatch.rows}, rate ${f(meta.routeMismatchRate * 100, 2)}%). YE1-in-rookie0: player-seasons ${excluded.q1.ye1InRookie0.playerSeasons} (rows ${excluded.q1.ye1InRookie0.rows}). YE2-3 no qualifying season: player-seasons ${excluded.q1.ye23NoQualifyingSeason.playerSeasons} (rows ${excluded.q1.ye23NoQualifyingSeason.rows}).`);
   lines.push(`Q2: SHORT-recent player-seasons ${excluded.q2.recent.playerSeasons} (rows ${excluded.q2.recent.rows}), SHORT-stale player-seasons ${excluded.q2.stale.playerSeasons} (rows ${excluded.q2.stale.rows}), SHORT-noL player-seasons ${excluded.q2.noL.playerSeasons} (rows ${excluded.q2.noL.rows}). No S+1 outcome — absent: player-seasons ${excluded.q2.noOutcomeAbsent.playerSeasons} (rows ${excluded.q2.noOutcomeAbsent.rows}, includes retirements); gp<6: player-seasons ${excluded.q2.noOutcomeGpUnder6.playerSeasons} (rows ${excluded.q2.noOutcomeGpUnder6.rows}). Without a projPrior: player-seasons ${excluded.q2.noProjPrior.playerSeasons} (rows ${excluded.q2.noProjPrior.rows}).`);
@@ -842,10 +1185,10 @@ export function writeInSeasonDynArtifacts({ result, verdictMd }) {
 
 export function inSeasonDynMain({
   load = INSEASON_DYN_LOAD, write = false, asJson = false, writeArtifacts = writeInSeasonDynArtifacts,
-  log = console.log, logErr = console.error,
+  log = console.log, logErr = console.error, qbPrior = 'starter',
 } = {}) {
   try {
-    const result = runInSeasonDyn({ load, log: (m) => logErr(`[backtest] ${m}`) });
+    const result = runInSeasonDyn({ load, qbPrior, log: (m) => logErr(`[backtest] ${m}`) });
     const verdictMd = buildInSeasonDynVerdictMarkdown(result);
     if (write) {
       const w = writeArtifacts({ result, verdictMd });
