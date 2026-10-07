@@ -381,6 +381,35 @@ A (CR-18: no new served signal); the wiring stage re-checks `docs/signal-registr
 YE1 rookie priors (D3); KTC/college in the dynasty prior (F6); the position-wide survivor pessimism of arm B (2c's c — a
 re-fit of every rookie k, its own slice); D-54/D-55/D-56; L6 (projected games).
 
+## Gate results (Session 2, 2026-10-07)
+
+Stage A1 = `02642a0`; A2 = the commit after it (three artifacts `backtests/2026-10-07-inseason-dyn-{panel,constants}.json`,
+`grading/2026-10-07-inseason-dyn-verdict.md`). Checks ran on the committed A2 files; V-1 on a fresh `runInSeasonDyn({ qbPrior: 'legacy' })`.
+
+- **V-0** `npm test`: before 1365 tests / 1361 pass / 4 skipped / 0 fail; after 1388 / 1384 / 4 / 0 (+23 tests, all in
+  `test/inseason-dyn.test.mjs`). `npm run smoke` exit 0. CLAUDE.md size test green (no edit).
+- **V-1** PASS. The legacy run deep-equals `2026-09-27-inseason-dyn-constants.json` on every key (including `fixture`;
+  ignoring `source`, `generatedAt`, `fit.qbPrior`, `fit.inSeasonConstants`, and each reuse `source`, which equals
+  `pinnedSourceOf('legacy')`), and the committed panel's `q1`/`q2`/`q3` leaf for leaf; `q4`/`q5` are `null`.
+- **V-2** PASS. A2 constants file equals 2026-09-27 on the same keys (all 12 reuse `source` = `pinnedSourceOf('starter')`);
+  `d64.equal === true`, 0 changed. Panel: all 12 reuse `source` leaves in `q1`/`q2` equal `pinnedSourceOf('starter')`;
+  `q1`, `q3` 0 differing leaves; `q2` exactly the six F2 leaves (`pooled.Proj.delta.mean` 0.0241 → 0.023 and its ci95,
+  `pooled.deltaHP.mean` −0.085 → −0.0833 and its ci95, and the two `decision.deltaHP` copies).
+- **V-3** PASS. 188 rookies; S+1 62 / S+2 38 players; top12 30/26/29/21, r1 8/5/7/2, day2 22/9/9/7, day3+ 128/11/17/8
+  (rookies/y0/y1/y2); posterior 494 rows / 48 players. No rookie excluded for group or prior.
+- **V-4** PASS. 89 backups (roles seen among chart rookies: 89 backup, 18 incumbent, 1 no-chart); 31 flagged ever;
+  13 flagged with an S+1 PPG (66 checkpoint rows); 25 flagged at the last checkpoint, 6 of them with an S+2 PPG.
+- **V-5** PASS with a note. Exact walk of every key and string value in the A2 panel and constants, plus the verdict's
+  backtick/quote-delimited tokens and table cells, against all 1,792 sleeper ids of 2014–2024 rookie QB/RB/WR/TE (a superset of
+  the Q4 and Q5 populations). 8 matches, all the **season-year keys** `2019/2023/2024/2025` under the pre-existing
+  `panel.reconciliation.{absentFromGamelogs,unmapped}` — four-digit sleeper ids that coincide with calendar years, not
+  player references. Zero matches in `q4`, `q5`, `constants.qbRookieDynasty`, `constants.qbSatLonger` or the verdict.
+
+**Verdicts (for Anton):** Q4 `keep` — GS/GC/RC all NO-GAIN vs B0 on S+1 (MAE 4.455 → 3.960 / 4.108 / 4.318), S+2 and the
+posterior; the position gate reads QB 1.124 vs other positions 1.101 (diff 0.023, CI [−0.092, 0.143], not above 0), so
+the arm-B pessimism is position-wide (2c's c), not QB-specific. Q5a `insufficient` (13 < 20 players; 0.90 stays; the data
+lean the other way — d = 1.0 BEATS 0.90 and dFull 1.09 — but under the floor); Q5b `insufficient` (6 < 20).
+
 ## Review record
 
 **Plan gate 2026-10-07** — data plan-reviewer, full depth. It ran as a general-purpose agent carrying the mandate in
