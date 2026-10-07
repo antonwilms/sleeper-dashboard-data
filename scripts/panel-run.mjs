@@ -11,7 +11,7 @@
  *   resolveScoring({ basis, scoringFrom, load })              → { scoringSettings|null, basisMeta }
  *   buildOutcomeMaps(years, scoring, load)                    → { [year]: { outcomes, droppedTerms, excludedRateKeys, scoredKeyCount } | null }
  *   loadFactorInputs({ fromYear, toYear, basis, scoringFrom, load, withFactorMultipliers, historyFloor }) → { years, scoring, basisMeta, outcomeMapsByYear, inputsByYear, crosswalk, birthdateBySleeper, snapsByYear }
- *   buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel, load }) → attachFactorMultipliers ctx
+ *   buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel, depthModel, load }) → attachFactorMultipliers ctx
  *   assemblePanel({ fromYear, toYear, attribution, basis, scoringFrom, minOutcomeGames, load }) → { rows, coverage, meta }
  *   runBaseline(panel, opts)                                  → { [position]: EvaluateModelResult }
  *   runCandidates(panel, opts)                                → CandidateReport[]
@@ -24,7 +24,7 @@ import fs from 'fs';
 import path from 'path';
 import { readJson, writeJsonStable, repoPath } from '../lib/io.mjs';
 import { buildInBasisOutcomes, buildHalfPprOutcomes } from './grade-snapshot.mjs';
-import { REGRESSION_MODELS, CURRENT_REGRESSION_MODEL } from '../lib/projectionFactors.mjs';
+import { REGRESSION_MODELS, CURRENT_REGRESSION_MODEL, DEPTH_MODELS, CURRENT_DEPTH_MODEL } from '../lib/projectionFactors.mjs';
 import {
   PANEL_DEFAULTS,
   PANEL_POSITIONS,
@@ -199,7 +199,7 @@ export function loadFactorInputs({
 
 // Extracted from assemblePanel (§2.1): the attachFactorMultipliers ctx. Returns
 // exactly the object assemblePanel passes today.
-export function buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel = CURRENT_REGRESSION_MODEL, load = DEFAULT_LOAD }) {
+export function buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel = CURRENT_REGRESSION_MODEL, depthModel = CURRENT_DEPTH_MODEL, load = DEFAULT_LOAD }) {
   const { years, inputsByYear, crosswalk, birthdateBySleeper, snapsByYear } = inputs;
 
   // Per-loaded-year totals/outcomes/position-source maps (widens the E-0a
@@ -228,7 +228,7 @@ export function buildFactorContext(inputs, { attribution, fromYear, toYear, regr
 
   return {
     totalsByYear, teamTotalsByYear, ppgByYear, advstatsByYear, rosterByYear, fromYear, toYear,
-    crosswalk, snapsByYear, birthdateOf, depthByYear, regressionModel,
+    crosswalk, snapsByYear, birthdateOf, depthByYear, regressionModel, depthModel,
   };
 }
 
@@ -243,6 +243,7 @@ export function assemblePanel({
   withFactorMultipliers = false,
   historyFloor = null,
   regressionModel = CURRENT_REGRESSION_MODEL,
+  depthModel = CURRENT_DEPTH_MODEL,
 }) {
   if (!ATTRIBUTION_MODES.includes(attribution)) {
     throw new Error(`[panel] unknown --attribution '${attribution}' — use current-team|per-season-team`);
@@ -260,7 +261,7 @@ export function assemblePanel({
   let finalCoverage = coverage;
 
   if (withFactorMultipliers) {
-    const ctx = buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel, load });
+    const ctx = buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel, depthModel, load });
     const { rows: fitRows, fitCoverage } = attachFactorMultipliers(rows, ctx);
     finalRows = fitRows;
     finalCoverage = { ...coverage, fitCoverage };
@@ -280,7 +281,7 @@ export function assemblePanel({
     gates: PANEL_GATES,
     minOutcomeGames,
     minTrainSeasons: PANEL_DEFAULTS.minTrainSeasons,
-    ...(withFactorMultipliers ? { regressionModel } : {}),
+    ...(withFactorMultipliers ? { regressionModel, depthModel } : {}),
   };
 
   return { rows: finalRows, coverage: finalCoverage, meta };
@@ -982,13 +983,14 @@ export function runFit({
   alphaSweep = FIT_ALPHA_SWEEP,
   load = DEFAULT_LOAD,
   regressionModel = CURRENT_REGRESSION_MODEL,
+  depthModel = CURRENT_DEPTH_MODEL,
 } = {}) {
   // per-season-team is hardcoded — the app's live DEFAULT_ATTRIBUTION, not
   // user-overridable (§6.3); the CLI-level guard against --fit --attribution
   // lives in bin/panel.mjs (§6.4).
   const panel = assemblePanel({
     fromYear, toYear, attribution: 'per-season-team', basis, scoringFrom, minOutcomeGames, load,
-    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, regressionModel,
+    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, regressionModel, depthModel,
   });
 
   const folds = panelFolds(panel);
@@ -1044,6 +1046,7 @@ export function buildFitVerdictReport({ panel, perPosition, pool, folds, alpha, 
       envelopeFactors: ENVELOPE_FACTORS,
       baselineOfRecord: BASELINE_OF_RECORD,
       regressionModel: panel.meta.regressionModel,
+      depthModel: panel.meta.depthModel,
     },
     coverage: panel.coverage,
     perPosition,
@@ -1326,10 +1329,11 @@ export function runFullPipeline({
   toYear = PANEL_DEFAULTS.toYear,
   load = DEFAULT_LOAD,
   regressionModel = CURRENT_REGRESSION_MODEL,
+  depthModel = CURRENT_DEPTH_MODEL,
 } = {}) {
   const panel = assemblePanel({
     fromYear, toYear, attribution: 'per-season-team', basis: 'half_ppr', load,
-    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, regressionModel,
+    withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, regressionModel, depthModel,
   });
 
   const rowsByPosition = {};
@@ -1355,6 +1359,7 @@ export function runFullPipeline({
     sensitivityStep: SENSITIVITY_STEP,
     sensitivityHoldFactors: SENSITIVITY_HOLD_FACTORS,
     regressionModel: panel.meta.regressionModel,
+    depthModel: panel.meta.depthModel,
   };
 
   // §E Step 4 — "unaffected... reconstructs from PPG history alone" (the

@@ -21,6 +21,7 @@
  *   --alpha X                         R3-FIT shrinkage knob override (default 0.5; sweep {0.1,0.25,0.5,1,2} always reported)
  *   --fullpipeline                    D6b full-pipeline calibration + verdicts (13-factor composition); mutually exclusive with --fit/--flip-gate; basis always half_ppr, attribution always per-season-team (teamOffense alone reconstructed under current-team)
  *   --regression-model M              Step 4 regression table for --fit/--fullpipeline (default step4-upside = the current app; legacy reproduces unstamped artifacts committed before this flag existed)
+ *   --depth-model M                   Step 8 depth step for --fit/--fullpipeline (default qb-takeover = the current app: a QB at order 1 x1.05, any other QB x1.00; legacy = flat 1.05/0.88/0.68 at every position, reproduces artifacts committed before this flag existed)
  *   --rookie                          D-8/D-9/D-12/D-13 rookie outcome panels (debut/ungated/total-points), plus D-14's independent re-derivation of the app's eight rookie-ceiling quantiles (§G, rookie-mirror.md §5); mutually exclusive with --fit/--flip-gate/--fullpipeline; rejects --from/--to/--attribution/--basis/--min-games — the three assemblies (legacy/debut/rookiePathAll) carry three different year semantics, one CLI pair cannot express them, the basis is pinned half_ppr, and the outcome gate is structural, not a knob (see .claude/tasks/rookie-outcome-panels.md §2.4)
  *   --json                            machine-readable FitReport (FlipReport under --flip-gate, R3-FIT FitReport under --fit, full-pipeline result under --fullpipeline, rookie-panel result under --rookie) to stdout
  *   --write                           persist the three artifacts (backtests/ + grading/)
@@ -51,7 +52,7 @@ import {
   DEFAULT_SCORING_SNAPSHOT,
 } from '../scripts/panel-run.mjs';
 import { PANEL_DEFAULTS, FIT_ALPHA_DEFAULT, FIT_ALPHA_SWEEP } from '../lib/panel.mjs';
-import { REGRESSION_MODELS } from '../lib/projectionFactors.mjs';
+import { REGRESSION_MODELS, DEPTH_MODELS } from '../lib/projectionFactors.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -137,6 +138,19 @@ if (isMain) {
         console.error('[panel] Error: --regression-model applies only to --fit/--fullpipeline');
         process.exit(1);
       }
+      if (args.includes('--depth-model') && !fitMode && !fullPipelineMode) {
+        console.error('[panel] Error: --depth-model applies only to --fit/--fullpipeline');
+        process.exit(1);
+      }
+      let depthModel;
+      if (args.includes('--depth-model')) {
+        const value = option('--depth-model');
+        if (value == null || !DEPTH_MODELS.includes(value)) {
+          console.error('[panel] Error: --depth-model needs legacy|qb-takeover');
+          process.exit(1);
+        }
+        depthModel = value;
+      }
       let regressionModel;
       if (args.includes('--regression-model')) {
         const value = option('--regression-model');
@@ -167,7 +181,7 @@ if (isMain) {
       }
 
       if (fullPipelineMode) {
-        const result = runFullPipeline({ fromYear, toYear, ...(regressionModel !== undefined ? { regressionModel } : {}) });
+        const result = runFullPipeline({ fromYear, toYear, ...(regressionModel !== undefined ? { regressionModel } : {}), ...(depthModel !== undefined ? { depthModel } : {}) });
         const verdictMd = buildFullPipelineVerdictMarkdown(result);
 
         if (asJson) {
@@ -189,6 +203,7 @@ if (isMain) {
         const { panel, fitReport } = runFit({
           fromYear, toYear, basis, scoringFrom, minOutcomeGames, alpha, alphaSweep: FIT_ALPHA_SWEEP,
           ...(regressionModel !== undefined ? { regressionModel } : {}),
+          ...(depthModel !== undefined ? { depthModel } : {}),
         });
         const verdictMd = buildFitVerdictMarkdown(fitReport);
 

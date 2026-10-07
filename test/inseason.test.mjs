@@ -25,6 +25,7 @@ import {
 import {
   guardLoad, runReconciliation, ReconciliationStop, runArmS, enumerateCandidates, makeScheduleIndex, verifyConstants,
   formatConstantsJson, pinDecision, makePut, runInSeason, addFoldK, inSeasonMain,
+  assembleSeason, writeQ4Pin, startsArmRows, gameOneStatus, rookieRecordFor, rookiePriorFor, QB_PRIOR_MODELS,
 } from '../scripts/inseason-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -660,5 +661,134 @@ describe('helpers', () => {
     assert.deepEqual(STUDY_K.next.opp, { QB: 5.5, RB: 3.5, WR: 4.5, TE: 4 });
     assert.deepEqual(PHASE1_K.rosWeak, { RB: 3, WR: 3.5, TE: 4 });
     assert.deepEqual(PHASE1_K.dynPoints, STUDY_K.next.points);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// qb-inseason-refit — QB prior switch, Q4 pin write, starts arm, rookie record (task §3 A1.6)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('15: QB prior model (qb-inseason-refit)', () => {
+  test('assembleSeason throws without env.qbPrior and on an unknown value, before touching any loader', () => {
+    assert.deepEqual([...QB_PRIOR_MODELS], ['legacy', 'starter']);
+    const boom = () => { throw new Error('loader reached'); };
+    const env = { load: new Proxy({}, { get: boom }), defaults: IN_SEASON_DEFAULTS };
+    assert.throws(() => assembleSeason(2020, env), /assembleSeason needs env\.qbPrior \(legacy\|starter\)/);
+    assert.throws(() => assembleSeason(2020, { ...env, qbPrior: 'x' }), /assembleSeason needs env\.qbPrior \(legacy\|starter\)/);
+  });
+
+  test('runInSeason refuses an unknown qbPrior', () => {
+    assert.throws(() => runInSeason({ load: skillFixture(), qbPrior: 'x' }), /qbPrior legacy\|starter/);
+  });
+
+  test('rookiePriorFor equals rookieRecordFor(legacy).projectedPPG for a QB and an RB', () => {
+    const playerIds = { bySleeper: {
+      q1: { draftYear: 2020, draftRound: 1, draftPick: 3, birthdate: '1998-06-01' },
+      r1: { draftYear: 2020, draftRound: 2, draftPick: 5, birthdate: '1998-06-01' },
+    } };
+    for (const [pid, pos] of [['q1', 'QB'], ['r1', 'RB']]) {
+      const rec = rookieRecordFor(pid, pos, 2020, playerIds, { rookieQbModel: 'legacy' });
+      assert.equal(rookiePriorFor(pid, pos, 2020, playerIds), rec.projectedPPG);
+    }
+    // the group level exists only under rookie-qb-level, for the QB
+    const lvl = rookieRecordFor('q1', 'QB', 2020, playerIds, { rookieQbModel: 'rookie-qb-level' });
+    assert.equal(lvl.qbStarterBasis, 'rookie:top12');
+    assert.equal(rookieRecordFor('q1', 'QB', 2020, playerIds, { rookieQbModel: 'legacy' }).qbStarterBasis, 'projection');
+  });
+});
+
+describe('16: writeQ4Pin', () => {
+  const cell = (k, rows) => ({
+    verdict: 'OK', rows, players: 30, kFit: { k, boundary: null }, kPin: Math.round(k * 2) / 2, ci95: [k - 1, k + 1],
+    statsBySeason: new Map([[2020, new Map([[1, { count: 3, Saa: 1, Sab: 2, Sbb: 3 }]])]]),
+  });
+  const own = cell(4.2, 120), pooled = cell(3.1, 400);
+
+  test("choice 'own' pins the own cell: no fixtureKey, basis fitted, keep-own note, own fixture cell", () => {
+    const P = makePut();
+    const slim = {};
+    writeQ4Pin(P, { name: 'K_ROS_POINTS_ROOKIE0', pos: 'WR', choice: 'own', own, pooled, p1: 6, cell: slim });
+    const e = P.constants.K_ROS_POINTS_ROOKIE0.WR;
+    assert.equal(e.basis, 'fitted');
+    assert.equal(e.k, 4);
+    assert.equal(e.fixtureKey, undefined);
+    assert.match(e.note, /own k BEATS the pooled k out of sample → own k pinned/);
+    assert.ok(P.fixture['K_ROS_POINTS_ROOKIE0|WR']);
+    assert.equal(P.fixture['K_ROS_POINTS_ROOKIE0|ALL'], undefined);
+    assert.equal(slim.pinnedToPooledUnderNoGainRule, undefined);
+  });
+
+  test("choice 'pooled' pins the pooled-positions cell under the fixtureKey ...|ALL and flags the cell", () => {
+    const P = makePut();
+    const slim = {};
+    writeQ4Pin(P, { name: 'K_ROS_POINTS_ROOKIE0', pos: 'RB', choice: 'pooled', own, pooled, p1: 6, cell: slim });
+    const e = P.constants.K_ROS_POINTS_ROOKIE0.RB;
+    assert.equal(e.fixtureKey, 'K_ROS_POINTS_ROOKIE0|ALL');
+    assert.equal(e.basis, 'pooled');
+    assert.equal(e.k, 3);
+    assert.match(e.note, /own k does not beat the pooled k out of sample → pooled value pinned/);
+    assert.ok(P.fixture['K_ROS_POINTS_ROOKIE0|ALL']);
+    assert.equal(P.fixture['K_ROS_POINTS_ROOKIE0|RB'], undefined);
+    assert.equal(slim.pinnedToPooledUnderNoGainRule, true);
+  });
+});
+
+describe('17: startsArmRows (Q9) on a two-team, five-week synthetic season', () => {
+  // Team AAA: QB 'a1' starts weeks 1-2, QB 'a2' starts weeks 3-5. Team BBB: 'b1' starts every week (game-1 primary).
+  const mkGame = (team, week, attempts) => ({ team, week, seasonType: 'REG', attempts, sacksSuffered: 0 });
+  const gamelogsFile = { players: {
+    a1: { games: [mkGame('AAA', 1, 35), mkGame('AAA', 2, 35), mkGame('AAA', 3, 2), mkGame('AAA', 4, 1), mkGame('AAA', 5, 1)] },
+    a2: { games: [mkGame('AAA', 1, 0), mkGame('AAA', 3, 33), mkGame('AAA', 4, 33), mkGame('AAA', 5, 33)] },
+    b1: { games: [1, 2, 3, 4, 5].map(w => mkGame('BBB', w, 30)) },
+  } };
+  const sched = new Map([['AAA', new Set([1, 2, 3, 4, 5])], ['BBB', new Set([1, 2, 3, 4, 5])]]);
+  const scheduleIdx = () => sched;
+  const totalsS = {
+    a1: { weeklyPoints: { 1: 20, 2: 20, 3: 1, 4: 1, 5: 1 } },
+    a2: { weeklyPoints: { 3: 10, 4: 14, 5: 18 } },
+    b1: { weeklyPoints: { 1: 15, 2: 15, 3: 15, 4: 15, 5: 15 } },
+  };
+  const priorRows = [
+    { sleeperId: 'a1', arm: 'P', pointsPrior: 18 },
+    { sleeperId: 'a2', arm: 'X-short', pointsPrior: 12 },
+    { sleeperId: 'b1', arm: 'P', pointsPrior: 16 },
+  ];
+  const run = (over = {}) => startsArmRows({
+    S: 2020, gamelogsFile, scheduleIdx, totalsS, priorRows, checkpoints: [1, 2, 3, 4, 5], minRosGames: 2, ...over,
+  });
+
+  test('game-1 primaries (a1, b1) are excluded; the backup who starts weeks 3-5 yields W = 3, 4, 5 with the right means', () => {
+    const { rows, playerSeasons } = run();
+    assert.equal(playerSeasons, 1);
+    assert.deepEqual(rows.map(r => r.sleeperId), ['a2', 'a2', 'a2']);
+    assert.deepEqual(rows.map(r => [r.W, r.n]), [[3, 1], [4, 2], [5, 3]]);
+    assert.deepEqual(rows.map(r => r.startObs), [10, 12, 14]);
+    // startRos needs >= 2 later starts: W = 3 has weeks 4-5 (mean 16); W = 4 and W = 5 have fewer → null
+    assert.deepEqual(rows.map(r => r.startRos), [16, null, null]);
+    assert.ok(rows.every(r => r.position === 'QB' && r.arm === 'X-short' && r.pointsPrior === 12 && r.S === 2020));
+  });
+
+  test('a missing weekly point is skipped and counted', () => {
+    const t = { ...totalsS, a2: { weeklyPoints: { 3: 10, 5: 18 } } };
+    const r = run({ totalsS: t });
+    assert.equal(r.missingPoints, 1);
+    assert.deepEqual(r.rows.map(x => [x.W, x.n, x.startObs]), [[3, 1, 10], [4, 1, 10], [5, 2, 14]]);
+  });
+
+  test('a QB whose team has no schedule entry is counted and excluded; a non-finite prior is skipped', () => {
+    const r = run({ scheduleIdx: () => new Map([['BBB', new Set([1, 2, 3, 4, 5])]]) });
+    assert.equal(r.noSchedule, 2); // a1 and a2 are AAA
+    assert.equal(r.rows.length, 0);
+    const r2 = run({ priorRows: [{ sleeperId: 'a2', arm: 'X-short', pointsPrior: null }] });
+    assert.equal(r2.rows.length, 0);
+  });
+
+  test('gameOneStatus: ok / primary, ok / backup, noGames, noSchedule', () => {
+    const primaries = new Map([['AAA|1', { pid: 'a1' }]]);
+    const base = { primaries, scheduleIdxS: sched };
+    assert.deepEqual(gameOneStatus('a1', 2020, { ...base, gamelogsPlayer: gamelogsFile.players.a1 }), { status: 'ok', primary: true });
+    assert.deepEqual(gameOneStatus('a2', 2020, { ...base, gamelogsPlayer: gamelogsFile.players.a2 }), { status: 'ok', primary: false });
+    assert.equal(gameOneStatus('z', 2020, { ...base, gamelogsPlayer: undefined }).status, 'noGames');
+    assert.equal(gameOneStatus('a1', 2020, { primaries, scheduleIdxS: new Map(), gamelogsPlayer: gamelogsFile.players.a1 }).status, 'noSchedule');
   });
 });

@@ -108,7 +108,7 @@ function augmentRow(row, ctx) {
   const pid = row.sleeperId, S = row.S;
   const projected = {
     sleeperId: pid, S, W: row.W, n: row.n, position: row.position, arm: row.arm,
-    obsPPG: row.obsPPG, nextPPG: row.nextPPG, projPrior: row.pointsPrior,
+    obsPPG: row.obsPPG, nextPPG: row.nextPPG, projPrior: row.pointsPriorNext,
   };
 
   const b = playerIds?.bySleeper?.[pid];
@@ -629,7 +629,9 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
 
   const inputs = loadFactorInputs({ fromYear: 2013, toYear: 2024, basis: 'half_ppr', withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, load: g });
   const playerIds = g.loadPlayerIds();
-  const env = { load: g, defaults: IN_SEASON_DEFAULTS, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds };
+  // qbPrior 'legacy': 2c's dynasty k and the arm-B comparison were fitted on the pre-boundary-5 QB priors (flat 0.88/0.68
+  // depth step, ceiled rookie level). Re-fitting 2c on the starter prior belongs to L4/P12c (data backlog D-64).
+  const env = { load: g, defaults: IN_SEASON_DEFAULTS, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds, qbPrior: 'legacy' };
   const peakByS = buildPeakByS(inputs);
   const pickProxy = buildPickProxy(playerIds, inputs);
   const constants2a = typeof load.loadInSeasonConstants === 'function' ? load.loadInSeasonConstants() : null;

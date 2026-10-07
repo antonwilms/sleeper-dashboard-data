@@ -322,7 +322,7 @@ function dynLoadFixture({ mismatched = 0 } = {}) {
 
 describe('9: population routing (injectable assemble)', () => {
   function row({ sleeperId, S, arm, pointsPrior = 10, obsPPG = 10, nextPPG = 10, extra = {} }) {
-    return { sleeperId, S, W: 4, n: 4, position: 'WR', arm, obsPPG, nextPPG, pointsPrior, ...extra };
+    return { sleeperId, S, W: 4, n: 4, position: 'WR', arm, obsPPG, nextPPG, pointsPrior, pointsPriorNext: pointsPrior, ...extra };
   }
 
   function fakeAssemble(rowsBySeason) {
@@ -486,7 +486,7 @@ describe('11: constants file', () => {
         for (const W of [2, 4, 6, 8, 10]) {
           rowsBySeason[S].push({
             sleeperId: pid, S, W, n: W, position: 'WR', arm: 'X-rookie0',
-            obsPPG: nextPPG + ((i % 3) - 1) * 2, nextPPG, pointsPrior: nextPPG,
+            obsPPG: nextPPG + ((i % 3) - 1) * 2, nextPPG, pointsPrior: nextPPG, pointsPriorNext: nextPPG,
           });
         }
       }
@@ -524,7 +524,7 @@ describe('11: constants file', () => {
           // so the ladder deterministically ends on 'fixed' regardless of the fitted rungs' noise.
           const kFixed = missingHistory ? null : kHist;
           const nextPPG = blend(H, obsPPG, W, kFixed);
-          rowsBySeason[S].push({ sleeperId: pid, S, W, n: W, position: 'WR', arm: 'X-short', obsPPG, nextPPG, pointsPrior: H + 1 });
+          rowsBySeason[S].push({ sleeperId: pid, S, W, n: W, position: 'WR', arm: 'X-short', obsPPG, nextPPG, pointsPrior: H + 1, pointsPriorNext: H + 1 });
         }
       }
     }

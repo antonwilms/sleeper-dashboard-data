@@ -11,11 +11,13 @@
  * constant and never calls the fit path's rookie-panel assembler, so the CR-15 re-fit trap does not apply.
  *
  * Public exports:
- *   INSEASON_LOAD
+ *   INSEASON_LOAD, QB_PRIOR_MODELS
  *   runReconciliation(load, opts)   → reconciliation report (throws ReconciliationStop below 0.99)
  *   runArmS({ load })               → study-reproduction ROS points k by position (no factor reconstruction)
  *   enumerateCandidates(...)        → per-season candidates with route + arm
- *   runInSeason({ load })           → result object (meta, reconciliation, coverage, excluded, q1…q8, constants)
+ *   assembleSeason(S, env)          → one season's rows (env.qbPrior legacy|starter is REQUIRED — qb-inseason-refit)
+ *   rookieRecordFor / rookiePriorFor, startsArmRows (Q9, report-only), writeQ4Pin
+ *   runInSeason({ load, qbPrior })  → result object (meta, reconciliation, coverage, excluded, q1…q9, constants)
  *   buildInSeasonVerdictMarkdown(result) → string
  *   writeInSeasonArtifacts({ result, verdictMd }) → { panelPath, constantsPath, verdictPath }
  */
@@ -28,8 +30,12 @@ import {
   attachFactorMultipliers, predictFullPipeline, rookiePathStateAt, resolvePosition,
   PANEL_POSITIONS, computeSeasonPoints, HISTORY_FLOOR,
 } from '../lib/panel.mjs';
-import { CURRENT_REGRESSION_MODEL } from '../lib/projectionFactors.mjs';
+import {
+  CURRENT_REGRESSION_MODEL, pinnedQbChainModels, reconstructQbPreseasonShares,
+} from '../lib/projectionFactors.mjs';
 import { reconstructShippedRookieProjection } from '../lib/rookieMirror.mjs';
+import { primaryPassers, coverageFor, priorPPG, QB_TAKEOVER_DEFAULTS } from '../lib/qbTakeover.mjs';
+import { eraTeam } from '../lib/nflverse.mjs';
 import {
   IN_SEASON_DEFAULTS, STUDY_K, PHASE1_K, opportunities, reconcileOpportunities, buildCheckpoints, regGames,
   depthOrderIndex, confidenceTier, median, blend, suffStats, fitK, pinK, analyzeKCell, loso, bySeason,
@@ -45,6 +51,17 @@ export const INSEASON_LOAD = {
   loadGameLogs: (year) => readJson(`nflverse/gamelogs/${year}.json`),
   loadSchedule: (year) => readJson(`nflverse/schedule/${year}.json`),
   loadManifest: () => readJson('manifest.json'),
+  loadQbTakeoverConstants: () => readJson('backtests/2026-10-03-qb-takeover-constants.json'),
+};
+
+// The QB prior the k-fit blends from (qb-inseason-refit). `legacy` = the pre-boundary-5 reconstruction (flat
+// 0.88/0.68 QB depth step, rookie-path level for every rookie QB) — reproduces every committed constants file
+// before this change. `starter` = what the app blends from: the share-free starter level (depth model
+// qb-takeover; a first-year QB with capital who was NOT his team's game-1 primary takes the pinned rookie level).
+export const QB_PRIOR_MODELS = Object.freeze(['legacy', 'starter']);
+const QB_PRIOR_MAP = {
+  legacy: { depthModel: 'legacy', rookieQbModel: 'legacy' },
+  starter: { depthModel: 'qb-takeover', rookieQbModel: 'rookie-qb-level' },
 };
 
 export class ReconciliationStop extends Error {
@@ -199,7 +216,7 @@ export function enumerateCandidates({ S, totalsByYear, ppgByYear, positionOf }) 
 }
 
 /** The SHIPPED rookie projection (CR-15 mapping note: no entry → unknown, undrafted → undrafted, else matched). */
-export function rookiePriorFor(pid, position, S, playerIds) {
+export function rookieRecordFor(pid, position, S, playerIds, { rookieQbModel }) {
   const b = playerIds?.bySleeper?.[pid];
   const draftCapitalStatus = !b ? 'unknown' : b.undrafted === true ? 'undrafted' : 'matched';
   const birthYear = typeof b?.birthdate === 'string' ? parseInt(b.birthdate.slice(0, 4), 10) : null;
@@ -207,7 +224,74 @@ export function rookiePriorFor(pid, position, S, playerIds) {
   const yearsExp = (b?.draftYear != null && b.draftYear > 0) ? S - b.draftYear : null;
   return reconstructShippedRookieProjection({
     position, ageAtDraft, draftRound: b?.draftRound ?? null, draftPick: b?.draftPick ?? null, draftCapitalStatus, yearsExp,
-  }).projectedPPG;
+    rookieQbModel,
+  });
+}
+
+/** Legacy rookie prior (the rounded projectedPPG). Other harnesses (qb-rookie-level-run, inseason-dyn-run) read it. */
+export function rookiePriorFor(pid, position, S, playerIds) {
+  return rookieRecordFor(pid, position, S, playerIds, { rookieQbModel: 'legacy' }).projectedPPG;
+}
+
+/**
+ * Was this QB his team's primary passer in that team's first REG game? Team = era code of his first REG gamelog
+ * game; first game = the earliest REG week of that team in the schedule. False when he has no REG game, or his
+ * team has no schedule entry (the caller counts `noSchedule` separately via `gameOneStatus`).
+ */
+export function gameOneStatus(pid, S, { gamelogsPlayer, primaries, scheduleIdxS }) {
+  const games = regGames(gamelogsPlayer);
+  if (!games.length) return { status: 'noGames', primary: false };
+  let first = games[0];
+  for (const g of games) if (g.week < first.week) first = g;
+  const team = eraTeam(first.team, S);
+  const weeks = scheduleIdxS?.get(team);
+  if (!weeks || weeks.size === 0) return { status: 'noSchedule', primary: false };
+  const firstWeek = Math.min(...weeks);
+  return { status: 'ok', primary: primaries.get(`${team}|${firstWeek}`)?.pid === pid };
+}
+
+/**
+ * Q9 — the starts arm (report-only). One row per (QB player-season, checkpoint W with >= 1 start through W) for
+ * every QB with a finite pointsPrior who was NOT his team's game-1 primary passer (the app's non-`original` QB);
+ * n = his starts through W, startObs = their mean points, startRos = mean over later starts when there are
+ * >= minRosGames of them. A start = a REG gamelog week where he is the primary passer. Points come from
+ * season-totals `weeklyPoints`; a missing week is skipped and counted.
+ * priorRows: [{ sleeperId, arm, pointsPrior }] (one per QB player-season). scheduleIdx: (S) => Map<team, Set<week>>.
+ * → { rows, playerSeasons, missingPoints, noSchedule }
+ */
+export function startsArmRows({ S, gamelogsFile, scheduleIdx, totalsS, priorRows, checkpoints, minRosGames, primaries = null }) {
+  const prim = primaries ?? primaryPassers(gamelogsFile, S);
+  const schedS = scheduleIdx(S);
+  const rows = [];
+  let playerSeasons = 0, missingPoints = 0, noSchedule = 0;
+  for (const pr of priorRows) {
+    if (!Number.isFinite(pr.pointsPrior)) continue;
+    const pid = pr.sleeperId;
+    const glp = gamelogsFile?.players?.[pid];
+    const go = gameOneStatus(pid, S, { gamelogsPlayer: glp, primaries: prim, scheduleIdxS: schedS });
+    if (go.status === 'noSchedule') { noSchedule++; continue; }
+    if (go.status !== 'ok' || go.primary) continue;
+    const starts = [];
+    for (const g of regGames(glp).slice().sort((a, b) => a.week - b.week)) {
+      if (prim.get(`${eraTeam(g.team, S)}|${g.week}`)?.pid !== pid) continue;
+      const pts = totalsS?.[pid]?.weeklyPoints?.[g.week];
+      if (typeof pts !== 'number' || !Number.isFinite(pts)) { missingPoints++; continue; }
+      starts.push({ week: g.week, pts });
+    }
+    if (!starts.length) continue;
+    playerSeasons++;
+    for (const W of checkpoints) {
+      const upTo = starts.filter(x => x.week <= W);
+      if (!upTo.length) continue;
+      const after = starts.filter(x => x.week > W);
+      rows.push({
+        sleeperId: pid, S, W, n: upTo.length, position: 'QB', arm: pr.arm, pointsPrior: pr.pointsPrior,
+        startObs: mean(upTo.map(x => x.pts)),
+        startRos: after.length >= minRosGames ? mean(after.map(x => x.pts)) : null,
+      });
+    }
+  }
+  return { rows, playerSeasons, missingPoints, noSchedule };
 }
 
 function oppPerGame(rec, position) {
@@ -273,7 +357,9 @@ function seasonShare(gIdx, pid) {
 // ─── Per-season assembly ──────────────────────────────────────────────────────
 
 export function assembleSeason(S, env) {
-  const { load, defaults, gamelogsIdx, scheduleIdx, playerIds } = env;
+  if (!QB_PRIOR_MODELS.includes(env?.qbPrior)) throw new Error('[inseason] assembleSeason needs env.qbPrior (legacy|starter)');
+  const { load, defaults, gamelogsIdx, scheduleIdx, playerIds, qbPrior } = env;
+  const { depthModel, rookieQbModel } = QB_PRIOR_MAP[qbPrior];
   const inputs = loadFactorInputs({
     fromYear: S - 1, toYear: S - 1, basis: 'half_ppr', withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, load,
   });
@@ -285,7 +371,7 @@ export function assembleSeason(S, env) {
 
   // Veteran priors: frozen (S week 1) depth chart; live depth per distinct order for arm L.
   const ctx = buildFactorContext(inputs, {
-    attribution: 'per-season-team', fromYear: S - 1, toYear: S, regressionModel: CURRENT_REGRESSION_MODEL, load,
+    attribution: 'per-season-team', fromYear: S - 1, toYear: S, regressionModel: CURRENT_REGRESSION_MODEL, depthModel, load,
   });
   const depthFile = load.loadDepth(S);
   const depthWeeks = Object.keys(depthFile?.weeks ?? {}).map(Number);
@@ -332,6 +418,21 @@ export function assembleSeason(S, env) {
   const gIdx = gamelogsIdx(S);
   const sched = scheduleIdx(S);
   const totalsS = totalsByYear[S];
+
+  // QB starter prior (qb-inseason-refit): primary passers decide which rookie QBs take the group level (a game-1
+  // primary keeps the ceiled level — the app's `original` kind) and build the report-only starts arm (Q9). A thin
+  // season must stop here, never silently turn a game-1 starter into a backup (CR-09/CR-16/CR-27).
+  let primaries = null, qbCoverage = null;
+  if (qbPrior === 'starter') {
+    const glFile = load.loadGameLogs(S);
+    primaries = primaryPassers(glFile, S);
+    const cov = coverageFor(load.loadSchedule(S), primaries);
+    qbCoverage = { teamGames: cov.teamGames, withPrimary: cov.withPrimary, rate: Number.isFinite(cov.rate) ? cov.rate : null };
+    if (!(cov.rate >= QB_TAKEOVER_DEFAULTS.coverageMin)) {
+      throw new Error(`[inseason] primary-passer coverage S=${S} ${cov.withPrimary}/${cov.teamGames} below ${QB_TAKEOVER_DEFAULTS.coverageMin} — stop`);
+    }
+  }
+  const isGame1Primary = (pid) => gameOneStatus(pid, S, { gamelogsPlayer: gIdx?.players?.[pid], primaries, scheduleIdxS: sched }).primary;
   const totalsM1 = totalsByYear[S - 1];
   const nextTotals = S <= defaults.nextTo ? load.loadSeasonTotals(S + 1) : null;
   const nextIdx = S <= defaults.nextTo ? gamelogsIdx(S + 1) : null;
@@ -353,11 +454,19 @@ export function assembleSeason(S, env) {
   for (const c of candidates) {
     const { pid, position } = c;
     const rec = totalsS[pid];
-    let pointsPrior = null, confidence = null;
-    if (c.route === 'rookie') pointsPrior = rookiePriorFor(pid, position, S, playerIds);
-    else {
+    let pointsPrior = null, pointsPriorNext = null, confidence = null;
+    if (c.route === 'rookie') {
+      // ROS: a non-game-1 first-year QB with capital blends the pinned group level; a rookie without a group keeps
+      // the ROUNDED projectedPPG (the unrounded qbStarterPPG would shift every rookie-path QB row by up to 0.05).
+      // Next season: always the ceiled rookie-path level (arm B) — the prior buildProspectLevel blends (D2).
+      const rec = rookieRecordFor(pid, position, S, playerIds, { rookieQbModel });
+      const takesGroup = typeof rec.qbStarterBasis === 'string' && rec.qbStarterBasis.startsWith('rookie:') && !isGame1Primary(pid);
+      pointsPrior = takesGroup ? rec.qbStarterPPG : rec.projectedPPG;
+      pointsPriorNext = rec.projectedPPG;
+    } else {
       const fr = frozenBy.get(pid);
       if (fr) { pointsPrior = predictFullPipeline(fr).predicted; confidence = confidenceTier(fr.qualifyingSeasons.length); }
+      pointsPriorNext = pointsPrior;
     }
 
     // Evidence for season S.
@@ -410,7 +519,7 @@ export function assembleSeason(S, env) {
     const w1Order = c.arm === 'P' ? (week1.get(`${position}|${pid}`) ?? null) : null;
     playerSeasons.push({
       sleeperId: pid, S, position, arm: c.arm, inR: c.inR, hasPrior: pointsPrior != null, mover, inGamelogs: !!glp,
-      anyGamesThroughW12: cps[cps.length - 1].n > 0, oppPrior, oppPriorB, sm1Games: c.sm1Games, pointsPrior,
+      anyGamesThroughW12: cps[cps.length - 1].n > 0, oppPrior, oppPriorB, sm1Games: c.sm1Games, pointsPrior, pointsPriorNext,
     });
     if (pointsPrior == null && c.arm !== 'P' && c.route === 'rookie') { /* rookie prior always resolves */ }
     if (pointsPrior == null) noPrior.push({ sleeperId: pid, S, position, arm: c.arm });
@@ -428,7 +537,7 @@ export function assembleSeason(S, env) {
       }
       rows.push({
         sleeperId: pid, S, W: cp.W, n: cp.n, position, arm: c.arm, inR: c.inR, sm1Games: c.sm1Games,
-        pointsPrior, pointsPriorLive, orderWeek1: w1Order, orderLive, rawPrior: c.inR ? c.sm1PPG : null,
+        pointsPrior, pointsPriorNext, pointsPriorLive, orderWeek1: w1Order, orderLive, rawPrior: c.inR ? c.sm1PPG : null,
         confidence, band, oppPrior, oppPriorB, sharePrior, hasBaseline: oppPrior != null,
         obsPPG: cp.obsPPG, obsOpp: cp.obsOpp, O: cp.O, obsShare: cp.obsShare,
         missedInWindow: cp.missedInWindow, oppMissingWeeks: cp.oppMissingWeeks, mover,
@@ -438,7 +547,51 @@ export function assembleSeason(S, env) {
       });
     }
   }
-  return { rows, playerSeasons, noPrior, movers, dropsByReason: frozen.fitCoverage.droppedByReason, bandMedian, candidates: candidates.length, changedByW };
+  let qbStart = null, q9 = null;
+  if (qbPrior === 'starter') {
+    qbStart = { primaryCoverage: qbCoverage, ...qbShareCoverage({ S, depthFile, playerIds, totalsM1, env }) };
+    q9 = startsArmRows({
+      S, gamelogsFile: load.loadGameLogs(S), scheduleIdx, totalsS, primaries,
+      priorRows: playerSeasons.filter(p => p.position === 'QB'), checkpoints: defaults.checkpoints, minRosGames: defaults.minRosGames,
+    });
+  }
+  return { rows, playerSeasons, noPrior, movers, dropsByReason: frozen.fitCoverage.droppedByReason, bandMedian, candidates: candidates.length, changedByW, qbStart, q9 };
+}
+
+// Report-only: the preseason start share rebuilt from the S week-1 chart (the stand-in for a capture) with the pinned
+// chain. Basis per QB as the app counts it: incumbent / chain / stale (a veteran backup with depthStale) / noChart.
+function qbShareCoverage({ S, depthFile, playerIds, totalsM1, env }) {
+  const seen = new Set();
+  const qbs = [];
+  const teams = depthFile?.weeks?.[1] ?? {};
+  for (const T of Object.keys(teams)) {
+    const arr = teams[T]?.QB;
+    if (!Array.isArray(arr)) continue;
+    arr.forEach((pid, i) => {
+      if (pid == null || seen.has(pid)) return;
+      seen.add(pid);
+      qbs.push({ id: pid, team: T, order: i + 1, rookie: playerIds?.bySleeper?.[pid]?.draftYear === S });
+    });
+  }
+  const shares = reconstructQbPreseasonShares({
+    qbs, priorOf: (pid) => priorPPG(totalsM1?.[pid]), models: env.qbChainModels,
+  });
+  const out = { teams: 0, incumbent: 0, chain: 0, stale: 0, noChart: 0, medianChainShare: null };
+  const teamSet = new Set(qbs.map(q => q.team));
+  out.teams = teamSet.size;
+  const chainShares = [];
+  for (const q of qbs) {
+    const r = shares[q.id];
+    if (r.role === 'incumbent') out.incumbent++;
+    else if (r.role === 'no-chart') out.noChart++;
+    else if (r.role === 'backup') {
+      const stale = !q.rookie && q.order >= 2 && (totalsM1?.[q.id]?.gamesStarted ?? 0) >= 8;
+      if (stale) out.stale++;
+      else { out.chain++; chainShares.push(r.share); }
+    }
+  }
+  out.medianChainShare = r4(median(chainShares));
+  return out;
 }
 
 export { makeGamelogsIndex, makeScheduleIndex };
@@ -447,7 +600,7 @@ export { makeGamelogsIndex, makeScheduleIndex };
 
 export const SPEC = {
   pointsRos:  { prior: 'pointsPrior', obs: 'obsPPG',   outcome: 'rosPPG' },
-  pointsNext: { prior: 'pointsPrior', obs: 'obsPPG',   outcome: 'nextPPG' },
+  pointsNext: { prior: 'pointsPriorNext', obs: 'obsPPG', outcome: 'nextPPG' },
   rawRos:     { prior: 'rawPrior',    obs: 'obsPPG',   outcome: 'rosPPG' },
   rawNext:    { prior: 'rawPrior',    obs: 'obsPPG',   outcome: 'nextPPG' },
   oppRos:     { prior: 'oppPrior',    obs: 'obsOpp',   outcome: 'rosOpp' },
@@ -511,7 +664,7 @@ export function fixtureFrom(a) {
 
 // ─── The analyses ─────────────────────────────────────────────────────────────
 
-function analyze(rows, playerSeasons, defaults, armSRowsList, changedByW) {
+function analyze(rows, playerSeasons, defaults, armSRowsList, changedByW, q9In = null) {
   const D = defaults;
   const store = new Map();
   const isFin = Number.isFinite;
@@ -614,7 +767,29 @@ function analyze(rows, playerSeasons, defaults, armSRowsList, changedByW) {
   // ── Q8 ──
   const q8 = runQ8(store, popP, popR);
 
-  return { q1, q2, q3, q4, q5, q6, q7, q8, pinned, store, popP };
+  // ── Q9 — starts arm (report-only; after the pins it is compared against) ──
+  const q9 = q9In ? runQ9(store, q9In, pinned.constants) : null;
+
+  return { q1, q2, q3, q4, q5, q6, q7, q8, q9, pinned, store, popP };
+}
+
+// Q9 — the population the app applies the QB ROS k to, with n = starts. Report-only: pins nothing.
+const Q9_PIN_OF = { P: 'K_ROS_POINTS', 'X-short': 'K_ROS_POINTS_SHORT', 'X-rookie0': 'K_ROS_POINTS_ROOKIE0', 'X-rookie1p': 'K_ROS_POINTS_ROOKIE1P' };
+function runQ9(store, q9In, constants) {
+  const kOfArm = (arm) => {
+    const k = constants[Q9_PIN_OF[arm]]?.QB?.k;
+    if (!Number.isFinite(k)) throw new Error(`[inseason] Q9 needs a numeric pinned QB k for arm ${arm} (${Q9_PIN_OF[arm]}) — stop and report`);
+    return k;
+  };
+  const rows = q9In.rows;
+  const a = runCell(store, 'q9|QB', rows, { prior: 'pointsPrior', obs: 'startObs', outcome: 'startRos' }, { studyK: (r) => kOfArm(r.arm) });
+  const byArm = rows.reduce((m, r) => { m[r.arm] = (m[r.arm] ?? 0) + 1; return m; }, {});
+  return {
+    ...slimCell(a),
+    population: { playerSeasons: q9In.playerSeasons, rows: rows.length, byArm },
+    excluded: { missingPoints: q9In.missingPoints, noSchedule: q9In.noSchedule },
+    pinnedComparator: Object.fromEntries(Object.keys(Q9_PIN_OF).map(arm => [arm, kOfArm(arm)])),
+  };
 }
 
 // Q7 — live vs frozen depth prior, points ROS, arm P.
@@ -953,6 +1128,26 @@ export function makePut() {
   return { constants, fixture, pinnedFrom, put, putWithPooled };
 }
 
+/** The Q4 NO-GAIN branch's pin write, after `decideOwnVsPooled` chose: own k, or the pooled-positions k. */
+export function writeQ4Pin(P, { name, pos, choice, own, pooled, p1, cell, group = 'X-group', horizon = 'ros' }) {
+  if (choice === 'own') {
+    P.put(name, pos, pinDecision(own, p1), own, `q4|${group}|${horizon}|${pos}`,
+      'NO-GAIN vs Phase 1; own k BEATS the pooled k out of sample → own k pinned');
+  } else {
+    const p = pinDecision(pooled, p1);
+    const e = { ...p, basis: p.basis === 'fitted' ? 'pooled' : p.basis };
+    P.constants[name] ??= {};
+    P.constants[name][pos] = {
+      ...entryOf(e), fixtureKey: `${name}|ALL`,
+      note: 'NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned',
+    };
+    const fx = fixtureFrom(pooled);
+    if (fx) P.fixture[`${name}|ALL`] = fx;
+    P.pinnedFrom[`${name}|${pos}`] = `q4|${group}|${horizon}|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)`;
+    if (cell) cell.pinnedToPooledUnderNoGainRule = true;
+  }
+}
+
 function buildConstants({ store, q3, q4, q5, q7, popP }) {
   const P = makePut();
   const { put, putWithPooled } = P;
@@ -1030,22 +1225,7 @@ function buildConstants({ store, q3, q4, q5, q7, popP }) {
           const { choice, vsPooled } = decideOwnVsPooled({ own, pooled, spec });
           if (cell) cell.vsPooled = vsPooled ? { mean: r4(vsPooled.mean), ci95: vsPooled.ci95.map(r4), label: vsPooled.label } : null;
 
-          if (choice === 'own') {
-            put(name, pos, pinDecision(own, p1), own, `q4|${group}|${horizon}|${pos}`,
-              'NO-GAIN vs Phase 1; own k BEATS the pooled k out of sample → own k pinned');
-          } else {
-            const p = pinDecision(pooled, p1);
-            const e = { ...p, basis: p.basis === 'fitted' ? 'pooled' : p.basis };
-            P.constants[name] ??= {};
-            P.constants[name][pos] = {
-              ...entryOf(e), fixtureKey: `${name}|ALL`,
-              note: 'NO-GAIN vs Phase 1; own k does not beat the pooled k out of sample → pooled value pinned',
-            };
-            const fx = fixtureFrom(pooled);
-            if (fx) P.fixture[`${name}|ALL`] = fx;
-            P.pinnedFrom[`${name}|${pos}`] = `q4|${group}|${horizon}|ALL (pooled positions; own cell NO-GAIN vs Phase 1 and does not BEAT pooled)`;
-            if (cell) cell.pinnedToPooledUnderNoGainRule = true;
-          }
+          writeQ4Pin(P, { name, pos, choice, own, pooled, p1, cell, group, horizon });
           continue;
         }
 
@@ -1155,6 +1335,12 @@ function buildExcluded(rows, playerSeasons, noPrior, defaults) {
   };
 }
 
+function qbStartTotals(seasons) {
+  const t = { teams: 0, incumbent: 0, chain: 0, stale: 0, noChart: 0 };
+  for (const s of seasons) for (const k of Object.keys(t)) t[k] += s[k] ?? 0;
+  return t;
+}
+
 function buildCoverage(perSeason, rows, playerSeasons, reconciliation) {
   const byArmPos = {};
   for (const p of playerSeasons) {
@@ -1220,19 +1406,32 @@ function buildCombination(q2) {
 
 // ─── runInSeason ──────────────────────────────────────────────────────────────
 
-export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULTS, log = () => {} } = {}) {
+export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULTS, log = () => {}, qbPrior = 'starter' } = {}) {
+  if (!QB_PRIOR_MODELS.includes(qbPrior)) throw new Error('[inseason] runInSeason needs qbPrior legacy|starter');
   const t0 = Date.now();
   const g = guardLoad(load, { maxLoadSeason: defaults.maxLoadSeason });
   const reconciliation = runReconciliation(g, { fromYear: 2012, toYear: defaults.maxLoadSeason });   // throws ReconciliationStop below 0.99
   log(`reconciliation ${reconciliation.pass}/${reconciliation.population} (${reconciliation.rate.toFixed(4)})`);
 
-  const env = { load: g, defaults, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds: g.loadPlayerIds() };
+  const env = { load: g, defaults, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds: g.loadPlayerIds(), qbPrior };
+  // Loaded after the reconciliation stop so the earlier errors keep winning (stub-load tests).
+  if (qbPrior === 'starter') {
+    if (typeof g.loadQbTakeoverConstants !== 'function') throw new Error("[inseason] qbPrior 'starter' needs load.loadQbTakeoverConstants");
+    env.qbChainModels = pinnedQbChainModels(g.loadQbTakeoverConstants());
+  }
   const rows = [], playerSeasons = [], noPrior = [], perSeason = [];
+  const q9Rows = { rows: [], playerSeasons: 0, missingPoints: 0, noSchedule: 0 };
+  const qbStartBySeason = [];
   const changedByW = {};
   for (const W of defaults.checkpoints) changedByW[W] = { rows: 0, changed: 0 };
   for (let S = defaults.seasons.from; S <= defaults.seasons.to; S++) {
     const a = assembleSeason(S, env);
     rows.push(...a.rows); playerSeasons.push(...a.playerSeasons); noPrior.push(...a.noPrior);
+    if (a.q9) {
+      q9Rows.rows.push(...a.q9.rows); q9Rows.playerSeasons += a.q9.playerSeasons;
+      q9Rows.missingPoints += a.q9.missingPoints; q9Rows.noSchedule += a.q9.noSchedule;
+      qbStartBySeason.push({ S, ...a.qbStart });
+    }
     for (const W of defaults.checkpoints) { changedByW[W].rows += a.changedByW[W].rows; changedByW[W].changed += a.changedByW[W].changed; }
     const byArm = a.playerSeasons.reduce((m, p) => { m[p.arm] = (m[p.arm] ?? 0) + 1; return m; }, {});
     const armP = a.playerSeasons.filter(p => p.arm === 'P');
@@ -1245,7 +1444,7 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
   }
 
   const armSList = armSRows({ load: g });
-  const an = analyze(rows, playerSeasons, defaults, armSList, changedByW);
+  const an = analyze(rows, playerSeasons, defaults, armSList, changedByW, qbPrior === 'starter' ? q9Rows : null);
   const generatedAt = new Date().toISOString();
   const date = generatedAt.slice(0, 10);
   const combination = buildCombination(an.q2);
@@ -1268,6 +1467,11 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
       checkpoints: 'calendar weeks 1-12, n = games played', minRosGames: defaults.minRosGames, nextMinGames: defaults.nextMinGames,
       prior: an.q7.decision.result === 'ACCEPT' ? 'live' : 'frozen', opportunityBaseline: q5arm,
       priorOptimism: priorOptimismText,
+      ...(qbPrior === 'starter' ? { qbPrior: {
+        model: 'starter',
+        ros: 'QB rows blend the starter level — depth model qb-takeover, no start share; a yearsExp-0 rookie QB with draft capital who was not his team\'s game-1 primary passer takes the pinned rookie starter level (half-PPR); a game-1 starter keeps the ceiled rookie-path level',
+        next: 'veterans as ros; rookies keep the ceiled rookie-path level (arm B), the prior the dynasty update blends',
+      } } : {}),
     },
     constants: an.pinned.constants,
     combination,
@@ -1279,15 +1483,16 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
 
   const excluded = buildExcluded(rows, playerSeasons, noPrior, defaults);
   const coverage = buildCoverage(perSeason, rows, playerSeasons, reconciliation);
+  if (qbPrior === 'starter') coverage.qbStart = { seasons: qbStartBySeason, totals: qbStartTotals(qbStartBySeason) };
   const meta = {
     generatedAt, basis: 'half_ppr', seasons: defaults.seasons, checkpoints: defaults.checkpoints,
     nextTo: defaults.nextTo, plus2To: defaults.plus2To, bootstrap: defaults.bootstrap, kGridTenths: [0, defaults.kGridMaxTenths],
     minRosGames: defaults.minRosGames, nextMinGames: defaults.nextMinGames, minCell: { players: defaults.minCellPlayers, rows: defaults.minCellRows },
-    regressionModel: CURRENT_REGRESSION_MODEL, runtimeMs: Date.now() - t0,
+    regressionModel: CURRENT_REGRESSION_MODEL, qbPrior, ...QB_PRIOR_MAP[qbPrior], runtimeMs: Date.now() - t0,
   };
   return {
     meta, reconciliation, coverage, excluded,
-    q1: an.q1, q2: an.q2, q3: an.q3, q4: an.q4, q5: an.q5, q6: an.q6, q7: an.q7, q8: an.q8,
+    q1: an.q1, q2: an.q2, q3: an.q3, q4: an.q4, q5: an.q5, q6: an.q6, q7: an.q7, q8: an.q8, ...(an.q9 ? { q9: an.q9 } : {}),
     pinnedFrom: an.pinned.pinnedFrom, constants: constantsFile,
   };
 }
@@ -1312,6 +1517,27 @@ const STUDY_TABLES = {
   K_ROS_POINTS_WEAK: (pos) => STUDY_K.ros.pointsWeak[pos], K_ROS_POINTS_STRONG: (pos) => STUDY_K.ros.pointsStrong[pos],
   K_DYN_POINTS_WEAK: (pos) => STUDY_K.next.points[pos], K_DYN_POINTS_STRONG: (pos) => STUDY_K.next.points[pos],
 };
+function q9Bullet(q9) {
+  if (q9.verdict === 'INSUFFICIENT') {
+    return `- **Q9 — QB starts arm (report-only).** INSUFFICIENT: ${q9.rows} rows / ${q9.players} QBs (floor ${IN_SEASON_DEFAULTS.minCellRows} rows / ${IN_SEASON_DEFAULTS.minCellPlayers} players).`;
+  }
+  return `- **Q9 — QB starts arm (report-only).** n = starts, non-original QBs: k ${f(q9.kFit, 1)} ${ci(q9.ci95)} on ${q9.rows} rows / ${q9.players} QBs; ` +
+    `vs the pinned games-played QB k (per arm): ΔMAE ${f(q9.delta?.mean, 4)} ${ci(q9.delta?.ci95, 4)} → ${q9.delta?.label ?? '—'}. Pins nothing.`;
+}
+
+function q9Section(q9) {
+  const out = ['## Q9 — QB starts arm (report-only)', '',
+    'The population the app applies the QB ROS k to with n = starts: every QB with a finite prior who was **not** his team\'s primary passer in that team\'s first REG game (the app\'s non-`original` QB). A start = a REG gamelog week where he is the primary passer; points are season-totals `weeklyPoints`; `startRos` needs ≥ 4 later starts. The comparator is each row\'s pinned QB k for its arm (K_ROS_POINTS / _SHORT / _ROOKIE0 / _ROOKIE1P).', ''];
+  if (q9.verdict === 'INSUFFICIENT') {
+    out.push(`**INSUFFICIENT** — ${q9.rows} rows / ${q9.players} QBs against the floor. Population: ${q9.population.playerSeasons} player-seasons.`, '');
+  } else {
+    out.push(...tbl(['k (fit)', 'k (pin rule)', '95% CI', 'rows / QBs', 'player-seasons', 'ΔMAE vs pinned k', 'label'],
+      [[f(q9.kFit, 1), f(q9.kPin, 1), ci(q9.ci95), `${q9.rows} / ${q9.players}`, String(q9.population.playerSeasons), `${f(q9.delta?.mean, 4)} ${ci(q9.delta?.ci95, 4)}`, q9.delta?.label ?? '—']]), '');
+  }
+  out.push(`Rows by arm: ${Object.entries(q9.population.byArm).map(([a, n]) => `${a} ${n}`).join(' · ') || 'none'}. Pinned comparators: ${Object.entries(q9.pinnedComparator).map(([a, k]) => `${a} ${f(k, 1)}`).join(' · ')}. Excluded: ${q9.excluded.missingPoints} start weeks missing a season-totals point (skipped), ${q9.excluded.noSchedule} player-seasons whose team has no schedule entry.`, '');
+  return out;
+}
+
 function studyValueOf(name, cellKey) {
   const pos = cellKey.split('|')[0];
   if (STUDY_TABLES[name]) return STUDY_TABLES[name](pos);
@@ -1323,7 +1549,7 @@ function studyValueOf(name, cellKey) {
 }
 
 export function buildInSeasonVerdictMarkdown(result) {
-  const { meta, reconciliation, coverage, excluded, q1, q2, q3, q4, q5, q6, q7, q8, constants } = result;
+  const { meta, reconciliation, coverage, excluded, q1, q2, q3, q4, q5, q6, q7, q8, q9, constants } = result;
   const C = constants.constants;
   const cellOf = (id, pos) => q1.cells[id][pos];
   const posRow = (id, key) => POSITIONS.map(p => cellOf(id, p)?.verdict === 'OK' ? `${p} ${f(cellOf(id, p)[key], 1)}` : `${p} n/a`).join(' · ');
@@ -1389,6 +1615,7 @@ export function buildInSeasonVerdictMarkdown(result) {
       `Cross-application MAE penalty (kNext on ROS / kROS on next): ${POSITIONS.map(p => `${p} ${f(q8.byPosition[p].penalty.kNextOnRos * 100, 2)}% / ${f(q8.byPosition[p].penalty.kRosOnNext * 100, 2)}%`).join(' · ')}. ` +
       `${q8.oneSetWouldDo ? 'Both penalties are < 1% at every position: one k set would do.' : `Both penalties < 1% for ${oneSetPos.join(', ') || 'no position'}; not at every position, so the two sets stay separate.`} ` +
       `S+2 diagnostic k: ${POSITIONS.map(p => `${p} ${f(q8.plus2[p].k, 1)}`).join(' · ')}; arm R next-season k (K_DYN_POINTS_HISTORY): ${POSITIONS.map(p => `${p} ${f(q8.armRNext[p], 1)}`).join(' · ')}.`,
+    ...(q9 ? [q9Bullet(q9)] : []),
     '',
     '## Constants table',
     '',
@@ -1531,6 +1758,9 @@ export function buildInSeasonVerdictMarkdown(result) {
       })), '',
     `Rule: ${q8.rule}. ${q8.oneSetWouldDo ? 'One set would do at every position.' : 'Not every position clears 1% on both, so the two sets stay separate.'}`, '');
 
+  // ── Q9 (starts arm) ──
+  if (q9) lines.push(...q9Section(q9));
+
   // ── reconciliation, coverage, excluded ──
   lines.push('## Reconciliation (gamelogs ↔ season-totals)', '',
     `Gate population: season-totals rows 2012–2025, non-\`TEAM_\`, QB/RB/WR/TE via the panel position resolver, gp ≥ 4, present in that season's gamelogs. ` +
@@ -1543,6 +1773,15 @@ export function buildInSeasonVerdictMarkdown(result) {
     `${coverage.rowsTotal} evidence rows (n ≥ 1). Mid-season movers (> 1 distinct gamelogs team) are ${coverage.armP.movers} of ${coverage.armP.playerSeasons} arm-P player-seasons (${f(coverage.armP.moverShare, 3)}). ` +
       `Rows with a played week lacking a gamelogs row: ${coverage.rowsWithOppMissingWeeks}.`, '',
     ...tbl(['S', 'candidates', 'arm P', 'X-rookie0', 'X-rookie1p', 'X-short', 'rows', 'movers (all / arm P)', 'attach drops'], coverage.seasons.map(s => [String(s.S), String(s.candidates), String(s.byArm.P ?? 0), String(s.byArm['X-rookie0'] ?? 0), String(s.byArm['X-rookie1p'] ?? 0), String(s.byArm['X-short'] ?? 0), String(s.rows), `${s.movers} / ${s.armPMovers}`, JSON.stringify(s.attachDrops)])), '');
+
+  if (coverage.qbStart) {
+    const qs = coverage.qbStart;
+    lines.push('### QB start share (report-only) and primary-passer coverage', '',
+      'Per season: the primary-passer coverage that gates the QB prior (stop below 0.99), and the preseason start share rebuilt from the S week-1 chart with the pinned chain (`reconstructQbPreseasonShares`; half-PPR S−1 PPG for the incumbent prior). A veteran backup with `depthStale` counts as `stale`, as the app does.', '',
+      ...tbl(['S', 'team-games with primary', 'rate', 'teams', 'incumbent', 'chain', 'stale', 'no chart', 'median chain share'],
+        qs.seasons.map(x => [String(x.S), `${x.primaryCoverage.withPrimary} / ${x.primaryCoverage.teamGames}`, f(x.primaryCoverage.rate, 4), String(x.teams), String(x.incumbent), String(x.chain), String(x.stale), String(x.noChart), f(x.medianChainShare, 4)])),
+      `Totals: ${qs.totals.teams} team-seasons, ${qs.totals.incumbent} incumbent, ${qs.totals.chain} chain, ${qs.totals.stale} stale, ${qs.totals.noChart} no chart.`, '');
+  }
 
   lines.push('## Excluded-population report', '', excluded.definition, '');
   const catNames = {
@@ -1567,6 +1806,7 @@ export function buildInSeasonVerdictMarkdown(result) {
     '- **Basis is half_ppr.** A dimensionless k fitted on the half-PPR panel is acceptable here; a league-basis refit belongs to the existing custom-basis backlog item.',
     '- **The prior is the reconstruction, not the app\'s live number.** It is faithful in 9 of 13 steps, with the divergences documented in `grading/2026-09-06-fullpipeline-verdict.md`. The depth factor uses the S week-1 chart as a stand-in for a pre-season capture; qbQuality is a flat 50.',
     '- **The rookie prior has no KTC multiplier historically** (KTC history starts 2026-05-18).',
+    ...(meta.qbPrior === 'starter' ? ['- **The QB prior is the app\'s starter level, not the share-weighted projection.** QB rows blend the share-free starter level (depth model `qb-takeover`); a first-year QB with draft capital who was not his team\'s game-1 primary passer blends the pinned rookie starter level, a game-1 starter keeps the ceiled rookie-path level (the app\'s injured-original edge case is not reproducible from history), and the next-season horizon keeps the ceiled rookie-path level for rookies. The start share is mirrored and reported (`coverage.qbStart`) but never enters a fitted prior.'] : []),
     `- **Season-totals S \`team\` is the season's dominant team.** It reaches teamOffense's current-team resolution and the forward-mover neutralization (\`classifyAttributionCohort\` reads \`teamsByYear[S]\`), so a player traded after W leaks future information into the prior. Accepted, not fixed: ${coverage.armP.movers} of ${coverage.armP.playerSeasons} arm-P player-seasons are movers (${f(coverage.armP.moverShare, 3)}).`,
     '- **Team-target denominators omit gamelogs `unmapped` rows** (per-season counts above), so target shares are slightly overstated in those seasons.',
     '- **No injury-severity model.** `missedInWindow` is schedule-based and says only that a game was missed, not why; the Q1(c) diagnostic reports how much k moves when those rows are dropped.',

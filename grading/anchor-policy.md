@@ -114,6 +114,9 @@ app push of boundary 5 reflects it, and every earlier capture is legacy on this 
 Boundary 6 was pushed 12 h 39 min later, before the next capture, so no capture reflects boundary 5
 without boundary 6.
 
+Executable check: `test/qb-mirror.test.mjs` T-QB-2 (depth factor, both sides of the boundary, 58 veteran QB rows
+each) and T-QB-3 (the 54 `chain` shares to 4 dp on `snapshots/2026-10-04.json`).
+
 ### Rookie QB rows — boundary 6
 
 `factors.qbStarterBasis` present → captured under the rookie-starter-level model; every row carries it from
@@ -128,6 +131,8 @@ boundary 6 on (`null` on non-QBs). On a rookie-path QB row (`projection.confiden
 - Absent on a rookie-path QB row → pre-boundary: `qbStarterPPG` is the rookie-path level.
 
 Veteran-path rows carry `'projection'`/`null` only; nothing on that path moved.
+
+Executable check: `test/qb-mirror.test.mjs` T-QB-4 (`QB_ROOKIE_STARTER_PPG` equals the pinned file; the 17 `rookie:<group>` rows of `snapshots/2026-10-04.json` carry the level × `rookieBasisScale`).
 
 **Expected segments — rookie QB rows**, a rule and not a date: the first capture whose `capturedAt` is after the
 app push of boundary 6 reflects it; every earlier capture is pre-boundary on this axis.

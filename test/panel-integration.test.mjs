@@ -535,6 +535,10 @@ describe('T-F12: R3-FIT full pipeline (synthetic multi-year, multi-position data
     assert.equal(fitReport.meta.regressionModel, 'step4-upside');
     assert.equal(panel.meta.regressionModel, 'step4-upside');
     assert.equal(panel.coverage.fitCoverage.regressionModel, 'step4-upside');
+    // qb-inseason-refit — the Step 8 depth-model stamp threads the same way.
+    assert.equal(fitReport.meta.depthModel, 'qb-takeover');
+    assert.equal(panel.meta.depthModel, 'qb-takeover');
+    assert.equal(panel.coverage.fitCoverage.depthModel, 'qb-takeover');
 
     for (const position of PANEL_POSITIONS) {
       const r = fitReport.perPosition[position];
@@ -605,6 +609,19 @@ describe('T-F12: R3-FIT full pipeline (synthetic multi-year, multi-position data
     });
     assert.equal(legacyPanel.meta.regressionModel, 'legacy');
     assert.equal(legacyPanel.coverage.fitCoverage.regressionModel, 'legacy');
+  });
+
+  test('assemblePanel stamps an explicit depthModel (legacy) into meta and fitCoverage; an unknown one throws', () => {
+    const legacyPanel = assemblePanel({
+      fromYear: 2020, toYear: 2024, attribution: 'per-season-team', basis: 'half_ppr', load,
+      withFactorMultipliers: true, historyFloor: 2012, depthModel: 'legacy',
+    });
+    assert.equal(legacyPanel.meta.depthModel, 'legacy');
+    assert.equal(legacyPanel.coverage.fitCoverage.depthModel, 'legacy');
+    assert.throws(() => assemblePanel({
+      fromYear: 2020, toYear: 2024, attribution: 'per-season-team', basis: 'half_ppr', load,
+      withFactorMultipliers: true, historyFloor: 2012, depthModel: 'x',
+    }), /unknown depth model/);
   });
 });
 
