@@ -1,0 +1,2468 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-07T12:08:50.623Z",
+    "basis": "half_ppr",
+    "seasons": {
+      "from": 2014,
+      "to": 2024
+    },
+    "runtimeMs": 21160,
+    "routeMismatchRate": 0,
+    "qbPrior": "starter",
+    "inSeasonConstants": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+  },
+  "reconciliation": {
+    "population": 7033,
+    "pass": 7032,
+    "rate": 0.9998578131665008,
+    "minRate": 0.99,
+    "ok": true,
+    "failures": [
+      {
+        "season": 2012,
+        "sleeperId": "133",
+        "position": "RB",
+        "gamelogs": 19,
+        "seasonTotals": 0,
+        "diff": 19
+      }
+    ],
+    "absentFromGamelogs": {
+      "2012": 12,
+      "2013": 16,
+      "2014": 14,
+      "2015": 14,
+      "2016": 4,
+      "2017": 2,
+      "2018": 6,
+      "2019": 7,
+      "2020": 7,
+      "2021": 6,
+      "2022": 6,
+      "2023": 2,
+      "2024": 5,
+      "2025": 9
+    },
+    "unmapped": {
+      "2012": 165,
+      "2013": 82,
+      "2014": 15,
+      "2015": 0,
+      "2016": 4,
+      "2017": 5,
+      "2018": 2,
+      "2019": 1,
+      "2020": 0,
+      "2021": 0,
+      "2022": 0,
+      "2023": 1,
+      "2024": 1,
+      "2025": 12
+    },
+    "tolerance": "max(2, 3%) of season-totals opportunities, REG games only"
+  },
+  "coverage": {
+    "rowsTotal": 45913,
+    "q1Rows": 14994,
+    "q2PrimaryRows": 2133,
+    "q2StaleRows": 574,
+    "routeMismatchRows": 0
+  },
+  "excluded": {
+    "q1": {
+      "ye01": {
+        "rows": 20928,
+        "playerSeasons": 2046,
+        "players": 1310,
+        "meanN": 4.7683,
+        "priors": {
+          "prospectPrior": {
+            "meanPrior": 7.2804,
+            "meanObsMinusPrior": -3.1286
+          },
+          "projPrior": {
+            "meanPrior": 4.8523,
+            "meanObsMinusPrior": -0.7005
+          }
+        }
+      },
+      "noOutcomeAbsent": {
+        "rows": 3310,
+        "playerSeasons": 390,
+        "players": 390,
+        "meanN": 3.5906,
+        "priors": {
+          "prospectPrior": {
+            "meanPrior": 6.5146,
+            "meanObsMinusPrior": -4.9299
+          },
+          "projPrior": {
+            "meanPrior": 3.7156,
+            "meanObsMinusPrior": -2.1309
+          }
+        }
+      },
+      "noOutcomeGpUnder6": {
+        "rows": 2624,
+        "playerSeasons": 274,
+        "players": 248,
+        "meanN": 3.9768,
+        "priors": {
+          "prospectPrior": {
+            "meanPrior": 7.0552,
+            "meanObsMinusPrior": -4.1619
+          },
+          "projPrior": {
+            "meanPrior": 4.6066,
+            "meanObsMinusPrior": -1.7133
+          }
+        }
+      },
+      "draftYearUnusable": {
+        "rows": 54,
+        "playerSeasons": 5,
+        "players": 5,
+        "meanN": 2.8889,
+        "priors": {
+          "prospectPrior": {
+            "meanPrior": 5.7784,
+            "meanObsMinusPrior": -5.3775
+          },
+          "projPrior": {
+            "meanPrior": 4.1074,
+            "meanObsMinusPrior": -3.7065
+          }
+        }
+      },
+      "routeMismatch": {
+        "rows": 0,
+        "playerSeasons": 0,
+        "players": 0,
+        "meanN": null,
+        "priors": {}
+      },
+      "ye1InRookie0": {
+        "rows": 511,
+        "playerSeasons": 50,
+        "players": 50,
+        "meanN": 4.7789,
+        "priors": {
+          "prospectPrior": {
+            "meanPrior": 6.1561,
+            "meanObsMinusPrior": -4.5078
+          },
+          "projPrior": {
+            "meanPrior": 2.4022,
+            "meanObsMinusPrior": -0.7538
+          }
+        }
+      },
+      "ye23NoQualifyingSeason": {
+        "rows": 3211,
+        "playerSeasons": 344,
+        "players": 299,
+        "meanN": 3.9601,
+        "priors": {
+          "prospectPrior": {
+            "meanPrior": 4.9151,
+            "meanObsMinusPrior": -3.2237
+          },
+          "projPrior": {
+            "meanPrior": 3.3312,
+            "meanObsMinusPrior": -1.6398
+          }
+        }
+      }
+    },
+    "q2": {
+      "recent": {
+        "rows": 2133,
+        "playerSeasons": 195,
+        "players": 182,
+        "meanN": 5.0422,
+        "priors": {
+          "histPrior": {
+            "meanPrior": 6.912,
+            "meanObsMinusPrior": -1.1009
+          },
+          "projPrior": {
+            "meanPrior": 6.5632,
+            "meanObsMinusPrior": -0.7521
+          }
+        }
+      },
+      "stale": {
+        "rows": 574,
+        "playerSeasons": 59,
+        "players": 53,
+        "meanN": 4.5418,
+        "priors": {
+          "histPrior": {
+            "meanPrior": 9.0423,
+            "meanObsMinusPrior": -2.7869
+          },
+          "projPrior": {
+            "meanPrior": 8.9813,
+            "meanObsMinusPrior": -2.7259
+          }
+        }
+      },
+      "noL": {
+        "rows": 0,
+        "playerSeasons": 0,
+        "players": 0,
+        "meanN": null,
+        "priors": {}
+      },
+      "noOutcomeAbsent": {
+        "rows": 2484,
+        "playerSeasons": 262,
+        "players": 248,
+        "meanN": 3.5624,
+        "priors": {
+          "histPrior": {
+            "meanPrior": 5.3782,
+            "meanObsMinusPrior": -2.8658
+          },
+          "projPrior": {
+            "meanPrior": 5.5485,
+            "meanObsMinusPrior": -2.9774
+          }
+        }
+      },
+      "noOutcomeGpUnder6": {
+        "rows": 1131,
+        "playerSeasons": 123,
+        "players": 90,
+        "meanN": 3.603,
+        "priors": {
+          "histPrior": {
+            "meanPrior": 7.302,
+            "meanObsMinusPrior": -3.2672
+          },
+          "projPrior": {
+            "meanPrior": 7.7427,
+            "meanObsMinusPrior": -3.6806
+          }
+        }
+      },
+      "noProjPrior": {
+        "rows": 93,
+        "playerSeasons": 9,
+        "players": 9,
+        "meanN": 5.6237,
+        "priors": {
+          "histPrior": {
+            "meanPrior": -0.0812,
+            "meanObsMinusPrior": 0.3881
+          }
+        }
+      }
+    }
+  },
+  "q1": {
+    "subgroups": {
+      "YE0": {
+        "pooled": {
+          "A": {
+            "rows": 7411,
+            "players": 698,
+            "verdict": "OK",
+            "kFit": 2.4,
+            "maePriorOnly": 4.2416
+          },
+          "B": {
+            "rows": 7411,
+            "players": 698,
+            "verdict": "OK",
+            "kFit": 6.3,
+            "maePriorOnly": 2.9613,
+            "delta": {
+              "mean": 0.004,
+              "ci95": [
+                -0.0003,
+                0.0084
+              ],
+              "label": "NO-GAIN"
+            }
+          },
+          "deltaAB": {
+            "mean": -0.1369,
+            "ci95": [
+              -0.2389,
+              -0.0393
+            ],
+            "label": "BEATS"
+          }
+        },
+        "byPosition": {
+          "QB": {
+            "A": {
+              "rows": 494,
+              "players": 48,
+              "verdict": "INSUFFICIENT",
+              "kFit": null,
+              "maePriorOnly": null
+            },
+            "B": {
+              "rows": 494,
+              "players": 48,
+              "verdict": "INSUFFICIENT",
+              "kFit": null,
+              "maePriorOnly": null,
+              "delta": null
+            },
+            "deltaAB": null
+          },
+          "RB": {
+            "A": {
+              "rows": 2326,
+              "players": 218,
+              "verdict": "OK",
+              "kFit": 2.1,
+              "maePriorOnly": 5.2447
+            },
+            "B": {
+              "rows": 2326,
+              "players": 218,
+              "verdict": "OK",
+              "kFit": 6.4,
+              "maePriorOnly": 3.3958,
+              "delta": {
+                "mean": 0.0124,
+                "ci95": [
+                  0.0021,
+                  0.023
+                ],
+                "label": "WORSE"
+              }
+            },
+            "deltaAB": {
+              "mean": -0.286,
+              "ci95": [
+                -0.4818,
+                -0.0931
+              ],
+              "label": "BEATS"
+            }
+          },
+          "WR": {
+            "A": {
+              "rows": 3109,
+              "players": 286,
+              "verdict": "OK",
+              "kFit": 2.1,
+              "maePriorOnly": 3.909
+            },
+            "B": {
+              "rows": 3109,
+              "players": 286,
+              "verdict": "OK",
+              "kFit": 4.2,
+              "maePriorOnly": 2.8805,
+              "delta": {
+                "mean": -0.0276,
+                "ci95": [
+                  -0.0634,
+                  0.0071
+                ],
+                "label": "NO-GAIN"
+              }
+            },
+            "deltaAB": {
+              "mean": -0.0397,
+              "ci95": [
+                -0.1618,
+                0.087
+              ],
+              "label": "NO-GAIN"
+            }
+          },
+          "TE": {
+            "A": {
+              "rows": 1482,
+              "players": 146,
+              "verdict": "OK",
+              "kFit": 1.5,
+              "maePriorOnly": 3.286
+            },
+            "B": {
+              "rows": 1482,
+              "players": 146,
+              "verdict": "OK",
+              "kFit": 5,
+              "maePriorOnly": 1.9523,
+              "delta": {
+                "mean": -0.0046,
+                "ci95": [
+                  -0.0287,
+                  0.0183
+                ],
+                "label": "NO-GAIN"
+              }
+            },
+            "deltaAB": {
+              "mean": -0.075,
+              "ci95": [
+                -0.1999,
+                0.0591
+              ],
+              "label": "NO-GAIN"
+            }
+          }
+        },
+        "diagnostics": {
+          "nullpick": {
+            "kFit": 2.1,
+            "mae": 2.7941,
+            "maeA": 2.7148,
+            "delta": {
+              "mean": 0.0793,
+              "ci95": [
+                0.025,
+                0.1332
+              ],
+              "label": "WORSE"
+            }
+          },
+          "ye1WithPick": null,
+          "ckA": {
+            "c": 0.88,
+            "k": 3.3,
+            "boundary": false
+          },
+          "ckB": {
+            "c": 1.32,
+            "k": 5.1,
+            "boundary": false
+          },
+          "byDraftTier": {
+            "none": {
+              "rows": 2253,
+              "A": {
+                "verdict": "OK",
+                "kFit": 0.8
+              },
+              "B": {
+                "verdict": "OK",
+                "kFit": 3.6
+              },
+              "deltaAB": {
+                "mean": -0.1031,
+                "ci95": [
+                  -0.2153,
+                  0.007
+                ],
+                "label": "NO-GAIN"
+              }
+            },
+            "late": {
+              "rows": 2691,
+              "A": {
+                "verdict": "OK",
+                "kFit": 2.7
+              },
+              "B": {
+                "verdict": "OK",
+                "kFit": 4.7
+              },
+              "deltaAB": {
+                "mean": -0.0937,
+                "ci95": [
+                  -0.2239,
+                  0.0326
+                ],
+                "label": "NO-GAIN"
+              }
+            },
+            "premium": {
+              "rows": 2467,
+              "A": {
+                "verdict": "OK",
+                "kFit": 6.5
+              },
+              "B": {
+                "verdict": "OK",
+                "kFit": 10.7
+              },
+              "deltaAB": {
+                "mean": 0.1179,
+                "ci95": [
+                  -0.1268,
+                  0.3473
+                ],
+                "label": "NO-GAIN"
+              }
+            }
+          }
+        }
+      },
+      "YE1": {
+        "pooled": {
+          "A": {
+            "rows": 7583,
+            "players": 684,
+            "verdict": "OK",
+            "kFit": 3.6,
+            "maePriorOnly": 3.2919
+          },
+          "B": {
+            "rows": 7583,
+            "players": 684,
+            "verdict": "OK",
+            "kFit": 3.7,
+            "maePriorOnly": 3.1581,
+            "delta": {
+              "mean": 0.0044,
+              "ci95": [
+                -0.003,
+                0.0116
+              ],
+              "label": "NO-GAIN"
+            }
+          },
+          "deltaAB": {
+            "mean": -0.1224,
+            "ci95": [
+              -0.2023,
+              -0.0408
+            ],
+            "label": "BEATS"
+          }
+        },
+        "byPosition": {
+          "QB": {
+            "A": {
+              "rows": 417,
+              "players": 37,
+              "verdict": "INSUFFICIENT",
+              "kFit": null,
+              "maePriorOnly": null
+            },
+            "B": {
+              "rows": 417,
+              "players": 37,
+              "verdict": "INSUFFICIENT",
+              "kFit": null,
+              "maePriorOnly": null,
+              "delta": null
+            },
+            "deltaAB": null
+          },
+          "RB": {
+            "A": {
+              "rows": 2381,
+              "players": 214,
+              "verdict": "OK",
+              "kFit": 3.4,
+              "maePriorOnly": 3.7402
+            },
+            "B": {
+              "rows": 2381,
+              "players": 214,
+              "verdict": "OK",
+              "kFit": 4.5,
+              "maePriorOnly": 3.4996,
+              "delta": {
+                "mean": 0.006,
+                "ci95": [
+                  -0.0247,
+                  0.0373
+                ],
+                "label": "NO-GAIN"
+              }
+            },
+            "deltaAB": {
+              "mean": -0.2429,
+              "ci95": [
+                -0.4118,
+                -0.0724
+              ],
+              "label": "BEATS"
+            }
+          },
+          "WR": {
+            "A": {
+              "rows": 2997,
+              "players": 268,
+              "verdict": "OK",
+              "kFit": 4.3,
+              "maePriorOnly": 3.1467
+            },
+            "B": {
+              "rows": 2997,
+              "players": 268,
+              "verdict": "OK",
+              "kFit": 2.8,
+              "maePriorOnly": 3.3041,
+              "delta": {
+                "mean": 0.0015,
+                "ci95": [
+                  -0.0251,
+                  0.0274
+                ],
+                "label": "NO-GAIN"
+              }
+            },
+            "deltaAB": {
+              "mean": -0.0198,
+              "ci95": [
+                -0.138,
+                0.0945
+              ],
+              "label": "NO-GAIN"
+            }
+          },
+          "TE": {
+            "A": {
+              "rows": 1788,
+              "players": 165,
+              "verdict": "OK",
+              "kFit": 3.9,
+              "maePriorOnly": 2.5454
+            },
+            "B": {
+              "rows": 1788,
+              "players": 165,
+              "verdict": "OK",
+              "kFit": 5.2,
+              "maePriorOnly": 2.0944,
+              "delta": {
+                "mean": 0.0151,
+                "ci95": [
+                  -0.0184,
+                  0.05
+                ],
+                "label": "NO-GAIN"
+              }
+            },
+            "deltaAB": {
+              "mean": -0.1622,
+              "ci95": [
+                -0.2942,
+                -0.0308
+              ],
+              "label": "BEATS"
+            }
+          }
+        },
+        "diagnostics": {
+          "nullpick": {
+            "kFit": 3.6,
+            "mae": 2.656,
+            "maeA": 2.656,
+            "delta": {
+              "mean": 0,
+              "ci95": [
+                0,
+                0
+              ],
+              "label": "NO-GAIN"
+            }
+          },
+          "ye1WithPick": {
+            "kFit": 4.1,
+            "mae": 2.6436,
+            "maeA": 2.656,
+            "delta": {
+              "mean": -0.0124,
+              "ci95": [
+                -0.043,
+                0.0175
+              ],
+              "label": "NO-GAIN"
+            }
+          },
+          "ckA": {
+            "c": 1,
+            "k": 3.6,
+            "boundary": false
+          },
+          "ckB": {
+            "c": 1.16,
+            "k": 3.9,
+            "boundary": false
+          },
+          "byDraftTier": {
+            "none": {
+              "rows": 2706,
+              "A": {
+                "verdict": "OK",
+                "kFit": 1.2
+              },
+              "B": {
+                "verdict": "OK",
+                "kFit": 2.9
+              },
+              "deltaAB": {
+                "mean": -0.1459,
+                "ci95": [
+                  -0.2521,
+                  -0.0385
+                ],
+                "label": "BEATS"
+              }
+            },
+            "late": {
+              "rows": 2440,
+              "A": {
+                "verdict": "OK",
+                "kFit": 6.4
+              },
+              "B": {
+                "verdict": "OK",
+                "kFit": 4.1
+              },
+              "deltaAB": {
+                "mean": 0.0407,
+                "ci95": [
+                  -0.1066,
+                  0.1871
+                ],
+                "label": "NO-GAIN"
+              }
+            },
+            "premium": {
+              "rows": 2437,
+              "A": {
+                "verdict": "OK",
+                "kFit": 4.4
+              },
+              "B": {
+                "verdict": "OK",
+                "kFit": 3.8
+              },
+              "deltaAB": {
+                "mean": 0.0155,
+                "ci95": [
+                  -0.1244,
+                  0.1503
+                ],
+                "label": "NO-GAIN"
+              }
+            }
+          }
+        }
+      }
+    },
+    "decisions": {
+      "YE0": {
+        "arm": "B",
+        "deltaAB": {
+          "mean": -0.1369,
+          "ci95": [
+            -0.2389,
+            -0.0393
+          ],
+          "label": "BEATS"
+        },
+        "ladderName": "K_DYN_PROSPECT_B_YE0",
+        "ladders": {
+          "QB": {
+            "id": "fixed",
+            "steps": [
+              {
+                "from": "fixed",
+                "to": "pooled",
+                "mean": 0.0040382706265979906,
+                "ci95": [
+                  -0.00033358742930741583,
+                  0.008419339962207874
+                ],
+                "label": "NO-GAIN"
+              }
+            ]
+          },
+          "RB": {
+            "id": "fixed",
+            "steps": [
+              {
+                "from": "fixed",
+                "to": "pooled",
+                "mean": 0.007801626953079502,
+                "ci95": [
+                  -0.0008493528519428482,
+                  0.01516064622500704
+                ],
+                "label": "NO-GAIN"
+              },
+              {
+                "from": "fixed",
+                "to": "own",
+                "mean": 0.012371140152137207,
+                "ci95": [
+                  0.0020904246481048376,
+                  0.02304629626996528
+                ],
+                "label": "WORSE"
+              }
+            ]
+          },
+          "WR": {
+            "id": "fixed",
+            "steps": [
+              {
+                "from": "fixed",
+                "to": "pooled",
+                "mean": 0.0012914498861110303,
+                "ci95": [
+                  -0.004281889782434485,
+                  0.007231016178771748
+                ],
+                "label": "NO-GAIN"
+              },
+              {
+                "from": "fixed",
+                "to": "own",
+                "mean": -0.027601653516480074,
+                "ci95": [
+                  -0.06337773667083496,
+                  0.007054279464716957
+                ],
+                "label": "NO-GAIN"
+              }
+            ]
+          },
+          "TE": {
+            "id": "fixed",
+            "steps": [
+              {
+                "from": "fixed",
+                "to": "pooled",
+                "mean": -0.002740003726994523,
+                "ci95": [
+                  -0.009514584890726364,
+                  0.0033573836252529907
+                ],
+                "label": "NO-GAIN"
+              },
+              {
+                "from": "fixed",
+                "to": "own",
+                "mean": -0.004552321003600238,
+                "ci95": [
+                  -0.028663528517024892,
+                  0.01833012844734141
+                ],
+                "label": "NO-GAIN"
+              }
+            ]
+          }
+        }
+      },
+      "YE1": {
+        "arm": "B",
+        "deltaAB": {
+          "mean": -0.1224,
+          "ci95": [
+            -0.2023,
+            -0.0408
+          ],
+          "label": "BEATS"
+        },
+        "ladderName": "K_DYN_PROSPECT_B_YE1",
+        "ladders": {
+          "QB": {
+            "id": "fixed",
+            "steps": [
+              {
+                "from": "fixed",
+                "to": "pooled",
+                "mean": 0.004439752539949998,
+                "ci95": [
+                  -0.002975429022831189,
+                  0.011645654940232172
+                ],
+                "label": "NO-GAIN"
+              }
+            ]
+          },
+          "RB": {
+            "id": "fixed",
+            "steps": [
+              {
+                "from": "fixed",
+                "to": "pooled",
+                "mean": 0.000300159181199222,
+                "ci95": [
+                  -0.011454188492485034,
+                  0.012338203718149553
+                ],
+                "label": "NO-GAIN"
+              },
+              {
+                "from": "fixed",
+                "to": "own",
+                "mean": 0.006025617956517631,
+                "ci95": [
+                  -0.024653413025375253,
+                  0.03733662125308996
+                ],
+                "label": "NO-GAIN"
+              }
+            ]
+          },
+          "WR": {
+            "id": "fixed",
+            "steps": [
+              {
+                "from": "fixed",
+                "to": "pooled",
+                "mean": 0.010809252966954399,
+                "ci95": [
+                  -0.003832598714433863,
+                  0.02484048714854841
+                ],
+                "label": "NO-GAIN"
+              },
+              {
+                "from": "fixed",
+                "to": "own",
+                "mean": 0.0014583493159951975,
+                "ci95": [
+                  -0.025104326225799438,
+                  0.027380782057479854
+                ],
+                "label": "NO-GAIN"
+              }
+            ]
+          },
+          "TE": {
+            "id": "fixed",
+            "steps": [
+              {
+                "from": "fixed",
+                "to": "pooled",
+                "mean": 0.0029123606047700592,
+                "ci95": [
+                  -0.008163766544566874,
+                  0.013672507632125
+                ],
+                "label": "NO-GAIN"
+              },
+              {
+                "from": "fixed",
+                "to": "own",
+                "mean": 0.015119238983454573,
+                "ci95": [
+                  -0.01844244840654594,
+                  0.04995210480526398
+                ],
+                "label": "NO-GAIN"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "constants": {},
+    "fixture": {},
+    "pinnedFrom": {},
+    "reuse": {
+      "K_DYN_PROSPECT_B_YE0|QB": {
+        "reuses": [
+          "K_DYN_POINTS_ROOKIE0"
+        ],
+        "k": [
+          6.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_PROSPECT_B_YE0|RB": {
+        "reuses": [
+          "K_DYN_POINTS_ROOKIE0"
+        ],
+        "k": [
+          6.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_PROSPECT_B_YE0|WR": {
+        "reuses": [
+          "K_DYN_POINTS_ROOKIE0"
+        ],
+        "k": [
+          6.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_PROSPECT_B_YE0|TE": {
+        "reuses": [
+          "K_DYN_POINTS_ROOKIE0"
+        ],
+        "k": [
+          6.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_PROSPECT_B_YE1|QB": {
+        "reuses": [
+          "K_DYN_POINTS_ROOKIE1P"
+        ],
+        "k": [
+          3.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_PROSPECT_B_YE1|RB": {
+        "reuses": [
+          "K_DYN_POINTS_ROOKIE1P",
+          "K_DYN_POINTS_ROOKIE0"
+        ],
+        "k": [
+          3.5,
+          6.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_PROSPECT_B_YE1|WR": {
+        "reuses": [
+          "K_DYN_POINTS_ROOKIE1P",
+          "K_DYN_POINTS_ROOKIE0"
+        ],
+        "k": [
+          3.5,
+          6.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_PROSPECT_B_YE1|TE": {
+        "reuses": [
+          "K_DYN_POINTS_ROOKIE1P",
+          "K_DYN_POINTS_ROOKIE0"
+        ],
+        "k": [
+          3.5,
+          6.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      }
+    }
+  },
+  "q2": {
+    "pooled": {
+      "Hist": {
+        "rows": 2133,
+        "players": 182,
+        "verdict": "OK",
+        "kFit": 3.9,
+        "delta": {
+          "mean": 0.0258,
+          "ci95": [
+            -0.0227,
+            0.0805
+          ],
+          "label": "NO-GAIN"
+        }
+      },
+      "Proj": {
+        "rows": 2133,
+        "players": 182,
+        "verdict": "OK",
+        "kFit": 3.6,
+        "delta": {
+          "mean": 0.023,
+          "ci95": [
+            -0.0237,
+            0.0722
+          ],
+          "label": "NO-GAIN"
+        }
+      },
+      "deltaHP": {
+        "mean": -0.0833,
+        "ci95": [
+          -0.1946,
+          0.0241
+        ],
+        "label": "NO-GAIN"
+      }
+    },
+    "byPosition": {
+      "QB": {
+        "Hist": {
+          "rows": 241,
+          "players": 20,
+          "verdict": "INSUFFICIENT",
+          "kFit": null,
+          "delta": null
+        },
+        "Proj": {
+          "rows": 241,
+          "players": 20,
+          "verdict": "INSUFFICIENT",
+          "kFit": null,
+          "delta": null
+        },
+        "deltaHP": null
+      },
+      "RB": {
+        "Hist": {
+          "rows": 614,
+          "players": 53,
+          "verdict": "INSUFFICIENT",
+          "kFit": null,
+          "delta": null
+        },
+        "Proj": {
+          "rows": 614,
+          "players": 53,
+          "verdict": "INSUFFICIENT",
+          "kFit": null,
+          "delta": null
+        },
+        "deltaHP": null
+      },
+      "WR": {
+        "Hist": {
+          "rows": 731,
+          "players": 62,
+          "verdict": "OK",
+          "kFit": 1.4,
+          "delta": {
+            "mean": -0.0752,
+            "ci95": [
+              -0.278,
+              0.1243
+            ],
+            "label": "NO-GAIN"
+          }
+        },
+        "Proj": {
+          "rows": 731,
+          "players": 62,
+          "verdict": "OK",
+          "kFit": 1.2,
+          "delta": {
+            "mean": 0.0395,
+            "ci95": [
+              -0.0564,
+              0.1394
+            ],
+            "label": "NO-GAIN"
+          }
+        },
+        "deltaHP": {
+          "mean": -0.0549,
+          "ci95": [
+            -0.127,
+            0.022
+          ],
+          "label": "NO-GAIN"
+        }
+      },
+      "TE": {
+        "Hist": {
+          "rows": 547,
+          "players": 47,
+          "verdict": "INSUFFICIENT",
+          "kFit": null,
+          "delta": null
+        },
+        "Proj": {
+          "rows": 547,
+          "players": 47,
+          "verdict": "INSUFFICIENT",
+          "kFit": null,
+          "delta": null
+        },
+        "deltaHP": null
+      }
+    },
+    "decision": {
+      "chooseHist": true,
+      "deltaHP": {
+        "mean": -0.0833,
+        "ci95": [
+          -0.1946,
+          0.0241
+        ],
+        "label": "NO-GAIN"
+      },
+      "ladderName": "K_DYN_POINTS_SHORT_HISTORY",
+      "ladders": {
+        "QB": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.025762166079118406,
+              "ci95": [
+                -0.022652886465322902,
+                0.08048021370702592
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        },
+        "RB": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.025762166079118406,
+              "ci95": [
+                -0.022652886465322902,
+                0.08048021370702592
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        },
+        "WR": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": -0.04896113965925773,
+              "ci95": [
+                -0.10920347305210328,
+                0.012604017570027897
+              ],
+              "label": "NO-GAIN"
+            },
+            {
+              "from": "fixed",
+              "to": "own",
+              "mean": -0.07523922640475607,
+              "ci95": [
+                -0.27801889326958773,
+                0.12432347460972905
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        },
+        "TE": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.025762166079118406,
+              "ci95": [
+                -0.022652886465322902,
+                0.08048021370702592
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        }
+      }
+    },
+    "diagnostics": {
+      "recencyPrior": {
+        "kFit": 4.5,
+        "mae": 2.6757
+      },
+      "staleHist": {
+        "rows": 574,
+        "players": 53,
+        "verdict": "INSUFFICIENT",
+        "kFit": null
+      },
+      "staleProj": {
+        "rows": 574,
+        "players": 53,
+        "verdict": "INSUFFICIENT",
+        "kFit": null
+      },
+      "ckHist": {
+        "c": 0.72,
+        "k": 8.8,
+        "boundary": false
+      },
+      "ckProj": {
+        "c": 0.72,
+        "k": 7.2,
+        "boundary": false
+      }
+    },
+    "constants": {},
+    "fixture": {},
+    "pinnedFrom": {},
+    "reuse": {
+      "K_DYN_POINTS_SHORT_HISTORY|QB": {
+        "reuses": [
+          "K_DYN_POINTS_HISTORY"
+        ],
+        "k": [
+          7.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_POINTS_SHORT_HISTORY|RB": {
+        "reuses": [
+          "K_DYN_POINTS_HISTORY"
+        ],
+        "k": [
+          4
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_POINTS_SHORT_HISTORY|WR": {
+        "reuses": [
+          "K_DYN_POINTS_HISTORY"
+        ],
+        "k": [
+          6
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      },
+      "K_DYN_POINTS_SHORT_HISTORY|TE": {
+        "reuses": [
+          "K_DYN_POINTS_HISTORY"
+        ],
+        "k": [
+          5.5
+        ],
+        "source": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477"
+      }
+    }
+  },
+  "q3": {
+    "pooled": {
+      "rows": 14994,
+      "realisedMovement": 24.5392,
+      "updateModelShare": 12.9417,
+      "updateUnderAnchor": 5.1767,
+      "leftOnTable": 7.765,
+      "leftOnTableShare": 0.3164,
+      "capturedShare": 0.1921,
+      "rankAgreement": 0.475,
+      "clampShareXn": 0.3984,
+      "clampShareY": 0.4642,
+      "peakClampExcess": 51.2222,
+      "capOf35": {
+        "rowShare": 0.8355,
+        "shareOver35": 0.8356,
+        "meanExcessXn": 36.2462,
+        "meanExcessY": 35.3562
+      }
+    },
+    "bySubgroup": {
+      "YE0": {
+        "arm": "B",
+        "rows": 7411,
+        "realisedMovement": 23.6827,
+        "updateModelShare": 11.2146,
+        "updateUnderAnchor": 4.4858,
+        "leftOnTable": 6.7288,
+        "leftOnTableShare": 0.2841,
+        "capturedShare": 0.1773,
+        "rankAgreement": 0.4577,
+        "clampShareXn": 0.3688,
+        "clampShareY": 0.4619,
+        "peakClampExcess": 49.856,
+        "capOf35": {
+          "rowShare": 0.6671,
+          "shareOver35": 0.8068,
+          "meanExcessXn": 29.3621,
+          "meanExcessY": 30.3382
+        }
+      },
+      "YE1": {
+        "arm": "B",
+        "rows": 7583,
+        "realisedMovement": 25.3762,
+        "updateModelShare": 14.6297,
+        "updateUnderAnchor": 5.8519,
+        "leftOnTable": 8.7778,
+        "leftOnTableShare": 0.3459,
+        "capturedShare": 0.2056,
+        "rankAgreement": 0.4968,
+        "clampShareXn": 0.4273,
+        "clampShareY": 0.4664,
+        "peakClampExcess": 52.5575,
+        "capOf35": {
+          "rowShare": 1,
+          "shareOver35": 0.8544,
+          "meanExcessXn": 40.7346,
+          "meanExcessY": 38.6278
+        }
+      }
+    },
+    "byBand": [
+      {
+        "band": "1-4",
+        "rows": 6975,
+        "realisedMovement": 25.9902,
+        "updateModelShare": 10.0383,
+        "updateUnderAnchor": 4.0153,
+        "leftOnTable": 6.023,
+        "leftOnTableShare": 0.2317,
+        "capturedShare": 0.1245,
+        "rankAgreement": 0.3501,
+        "clampShareXn": 0.3591,
+        "clampShareY": 0.4182,
+        "peakClampExcess": 45.7956,
+        "capOf35": {
+          "rowShare": 0.8482,
+          "shareOver35": 0.8572,
+          "meanExcessXn": 35.1467,
+          "meanExcessY": 33.093
+        }
+      },
+      {
+        "band": "5-8",
+        "rows": 5416,
+        "realisedMovement": 23.8231,
+        "updateModelShare": 15.2726,
+        "updateUnderAnchor": 6.1091,
+        "leftOnTable": 9.1636,
+        "leftOnTableShare": 0.3847,
+        "capturedShare": 0.236,
+        "rankAgreement": 0.5469,
+        "clampShareXn": 0.4112,
+        "clampShareY": 0.4828,
+        "peakClampExcess": 52.7298,
+        "capOf35": {
+          "rowShare": 0.8272,
+          "shareOver35": 0.8078,
+          "meanExcessXn": 36.1617,
+          "meanExcessY": 36.4555
+        }
+      },
+      {
+        "band": "9-40",
+        "rows": 2603,
+        "realisedMovement": 22.1411,
+        "updateModelShare": 15.872,
+        "updateUnderAnchor": 6.3488,
+        "leftOnTable": 9.5232,
+        "leftOnTableShare": 0.4301,
+        "capturedShare": 0.3064,
+        "rankAgreement": 0.6387,
+        "clampShareXn": 0.4768,
+        "clampShareY": 0.5486,
+        "peakClampExcess": 62.6268,
+        "capOf35": {
+          "rowShare": 0.8187,
+          "shareOver35": 0.8344,
+          "meanExcessXn": 39.4765,
+          "meanExcessY": 39.328
+        }
+      }
+    ],
+    "bySubgroupBand": {
+      "YE0": [
+        {
+          "band": "1-4",
+          "rows": 3552,
+          "realisedMovement": 25.7728,
+          "updateModelShare": 8.4737,
+          "updateUnderAnchor": 3.3895,
+          "leftOnTable": 5.0842,
+          "leftOnTableShare": 0.1973,
+          "capturedShare": 0.1072,
+          "rankAgreement": 0.3233,
+          "clampShareXn": 0.3291,
+          "clampShareY": 0.4085,
+          "peakClampExcess": 42.8638,
+          "capOf35": {
+            "rowShare": 0.7019,
+            "shareOver35": 0.8468,
+            "meanExcessXn": 28.8083,
+            "meanExcessY": 28.6372
+          }
+        },
+        {
+          "band": "5-8",
+          "rows": 2655,
+          "realisedMovement": 22.6812,
+          "updateModelShare": 13.4717,
+          "updateUnderAnchor": 5.3887,
+          "leftOnTable": 8.083,
+          "leftOnTableShare": 0.3564,
+          "capturedShare": 0.2302,
+          "rankAgreement": 0.5498,
+          "clampShareXn": 0.3766,
+          "clampShareY": 0.4802,
+          "peakClampExcess": 51.1398,
+          "capOf35": {
+            "rowShare": 0.6475,
+            "shareOver35": 0.7539,
+            "meanExcessXn": 28.5956,
+            "meanExcessY": 31.2997
+          }
+        },
+        {
+          "band": "9-40",
+          "rows": 1204,
+          "realisedMovement": 19.7251,
+          "updateModelShare": 14.3234,
+          "updateUnderAnchor": 5.7294,
+          "leftOnTable": 8.5941,
+          "leftOnTableShare": 0.4357,
+          "capturedShare": 0.313,
+          "rankAgreement": 0.6419,
+          "clampShareXn": 0.4684,
+          "clampShareY": 0.5789,
+          "peakClampExcess": 67.6533,
+          "capOf35": {
+            "rowShare": 0.608,
+            "shareOver35": 0.7951,
+            "meanExcessXn": 33.0484,
+            "meanExcessY": 33.8738
+          }
+        }
+      ],
+      "YE1": [
+        {
+          "band": "1-4",
+          "rows": 3423,
+          "realisedMovement": 26.2157,
+          "updateModelShare": 11.6617,
+          "updateUnderAnchor": 4.6647,
+          "leftOnTable": 6.997,
+          "leftOnTableShare": 0.2669,
+          "capturedShare": 0.1422,
+          "rankAgreement": 0.385,
+          "clampShareXn": 0.3903,
+          "clampShareY": 0.4283,
+          "peakClampExcess": 48.8379,
+          "capOf35": {
+            "rowShare": 1,
+            "shareOver35": 0.8647,
+            "meanExcessXn": 39.763,
+            "meanExcessY": 36.3381
+          }
+        },
+        {
+          "band": "5-8",
+          "rows": 2761,
+          "realisedMovement": 24.9212,
+          "updateModelShare": 17.0044,
+          "updateUnderAnchor": 6.8018,
+          "leftOnTable": 10.2026,
+          "leftOnTableShare": 0.4094,
+          "capturedShare": 0.2411,
+          "rankAgreement": 0.55,
+          "clampShareXn": 0.4444,
+          "clampShareY": 0.4853,
+          "peakClampExcess": 54.2587,
+          "capOf35": {
+            "rowShare": 1,
+            "shareOver35": 0.8414,
+            "meanExcessXn": 40.8723,
+            "meanExcessY": 39.6655
+          }
+        },
+        {
+          "band": "9-40",
+          "rows": 1399,
+          "realisedMovement": 24.2203,
+          "updateModelShare": 17.2047,
+          "updateUnderAnchor": 6.8819,
+          "leftOnTable": 10.3228,
+          "leftOnTableShare": 0.4262,
+          "capturedShare": 0.3017,
+          "rankAgreement": 0.634,
+          "clampShareXn": 0.4839,
+          "clampShareY": 0.5225,
+          "peakClampExcess": 58.3009,
+          "capOf35": {
+            "rowShare": 1,
+            "shareOver35": 0.8549,
+            "meanExcessXn": 42.8399,
+            "meanExcessY": 42.1818
+          }
+        }
+      ]
+    }
+  },
+  "d64": {
+    "changed": [],
+    "equal": true
+  },
+  "q4": {
+    "decision": "keep",
+    "chosen": null,
+    "eligible": [],
+    "gateFailed": [],
+    "populations": {
+      "rookies": 188,
+      "excluded": {
+        "noGroup": 0,
+        "noPrior": 0
+      },
+      "byGroup": {
+        "top12": {
+          "rookies": 30,
+          "y0": 26,
+          "y1": 29,
+          "y2": 21
+        },
+        "r1": {
+          "rookies": 8,
+          "y0": 5,
+          "y1": 7,
+          "y2": 2
+        },
+        "day2": {
+          "rookies": 22,
+          "y0": 9,
+          "y1": 9,
+          "y2": 7
+        },
+        "day3+": {
+          "rookies": 128,
+          "y0": 11,
+          "y1": 17,
+          "y2": 8
+        }
+      },
+      "y0Players": 51,
+      "y1Players": 62,
+      "y2Players": 38
+    },
+    "priorOnly": {
+      "y1": {
+        "mae": {
+          "B0": 4.455,
+          "GS": 3.96,
+          "GC": 4.1084,
+          "RC": 4.3183
+        },
+        "deltas": {
+          "GS": {
+            "mean": -0.495,
+            "ci95": [
+              -1.113,
+              0.1546
+            ],
+            "label": "NO-GAIN"
+          },
+          "GC": {
+            "mean": -0.3466,
+            "ci95": [
+              -0.8924,
+              0.226
+            ],
+            "label": "NO-GAIN"
+          },
+          "RC": {
+            "mean": -0.1368,
+            "ci95": [
+              -0.617,
+              0.3632
+            ],
+            "label": "NO-GAIN"
+          }
+        },
+        "meanRatio": {
+          "GS": 1.198975795388067,
+          "GC": 1.1912651650410322,
+          "RC": 1.1711090464612228
+        },
+        "fallbacks": {
+          "GC": 0,
+          "RC": 0
+        }
+      },
+      "y2": {
+        "mae": {
+          "B0": 4.5955,
+          "GS": 4.48,
+          "GC": 4.5799,
+          "RC": 5.0331
+        },
+        "deltas": {
+          "GS": {
+            "mean": -0.1154,
+            "ci95": [
+              -0.921,
+              0.6669
+            ],
+            "label": "NO-GAIN"
+          },
+          "GC": {
+            "mean": -0.0156,
+            "ci95": [
+              -0.7483,
+              0.7055
+            ],
+            "label": "NO-GAIN"
+          },
+          "RC": {
+            "mean": 0.4376,
+            "ci95": [
+              -0.2731,
+              1.1221
+            ],
+            "label": "NO-GAIN"
+          }
+        },
+        "meanRatio": {
+          "GS": 1.1451023084523968,
+          "GC": 1.138626532495347,
+          "RC": 1.155924100757154
+        },
+        "fallbacks": {
+          "GC": 0,
+          "RC": 0
+        }
+      }
+    },
+    "posterior": {
+      "k": 6.5,
+      "rows": 494,
+      "players": 48,
+      "mae": {
+        "B0": 4.0249,
+        "GS": 3.7088,
+        "GC": 3.6754,
+        "RC": 3.9186
+      },
+      "deltas": {
+        "GS": {
+          "mean": -0.3161,
+          "ci95": [
+            -0.7335,
+            0.1205
+          ],
+          "label": "NO-GAIN"
+        },
+        "GC": {
+          "mean": -0.3496,
+          "ci95": [
+            -0.7717,
+            0.0957
+          ],
+          "label": "NO-GAIN"
+        },
+        "RC": {
+          "mean": -0.1063,
+          "ci95": [
+            -0.4469,
+            0.2405
+          ],
+          "label": "NO-GAIN"
+        }
+      }
+    },
+    "positionControl": {
+      "byPosition": {
+        "QB": {
+          "players": 62,
+          "ratio": 1.124
+        },
+        "RB": {
+          "players": 240,
+          "ratio": 1.1354
+        },
+        "WR": {
+          "players": 342,
+          "ratio": 1.0886
+        },
+        "TE": {
+          "players": 188,
+          "ratio": 1.053
+        }
+      },
+      "gate": {
+        "qbRatio": 1.124,
+        "otherRatio": 1.101,
+        "diff": 0.023,
+        "ci95": [
+          -0.0922,
+          0.1431
+        ],
+        "direction": "none"
+      }
+    },
+    "kCheck": null,
+    "q4c": {
+      "note": "report-only; per-cell means, cells under 3 players suppressed",
+      "cells": {
+        "top12": {
+          "backup": {
+            "players": 13,
+            "meanY0": 14.49,
+            "meanB0": 16.43,
+            "meanGS": 15.8
+          },
+          "incumbent": {
+            "players": 13,
+            "meanY0": 15.93,
+            "meanB0": 16.45,
+            "meanGS": 15.8
+          },
+          "no-chart": {
+            "players": 0,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          },
+          "not-on-chart": {
+            "players": 0,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          }
+        },
+        "r1": {
+          "backup": {
+            "players": 4,
+            "meanY0": 11.18,
+            "meanB0": 13.75,
+            "meanGS": 14.36
+          },
+          "incumbent": {
+            "players": 1,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          },
+          "no-chart": {
+            "players": 0,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          },
+          "not-on-chart": {
+            "players": 0,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          }
+        },
+        "day2": {
+          "backup": {
+            "players": 7,
+            "meanY0": 8.22,
+            "meanB0": 10.4,
+            "meanGS": 13.3
+          },
+          "incumbent": {
+            "players": 2,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          },
+          "no-chart": {
+            "players": 0,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          },
+          "not-on-chart": {
+            "players": 0,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          }
+        },
+        "day3+": {
+          "backup": {
+            "players": 7,
+            "meanY0": 8.3,
+            "meanB0": 7.23,
+            "meanGS": 12.34
+          },
+          "incumbent": {
+            "players": 1,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          },
+          "no-chart": {
+            "players": 1,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          },
+          "not-on-chart": {
+            "players": 2,
+            "meanY0": null,
+            "meanB0": null,
+            "meanGS": null
+          }
+        }
+      },
+      "incumbent": {
+        "players": 17,
+        "maeB0": 3.3478,
+        "maeGS": 2.6509,
+        "deltaGS": {
+          "mean": -0.6969,
+          "ci95": [
+            -1.626,
+            0.1878
+          ],
+          "label": "NO-GAIN"
+        }
+      }
+    },
+    "levels": null,
+    "starterLevels": {
+      "top12": 15.801,
+      "r1": 14.355,
+      "day2": 13.303,
+      "day3+": 12.341
+    }
+  },
+  "q5": {
+    "k": 6.5,
+    "band": 1,
+    "shippedDiscount": 0.9,
+    "excluded": {
+      "noSchedule": 0
+    },
+    "populations": {
+      "backups": 89,
+      "flaggedEver": 31,
+      "flaggedAtEnd": 25,
+      "roleCounts": {
+        "backup": 89,
+        "incumbent": 18,
+        "no-chart": 1,
+        "other": 0
+      },
+      "flaggedWithY1": 13,
+      "flaggedCheckpointRowsWithY1": 66,
+      "flaggedAtEndWithY2": 6
+    },
+    "q5a": {
+      "decision": "insufficient",
+      "discount": 0.9,
+      "players": 13,
+      "rows": 66,
+      "dFull": 1.09,
+      "mae": {
+        "d100": 5.787027748551063,
+        "d090": 6.331946634241273,
+        "loso": 6.627289288919507
+      },
+      "labels": {
+        "vsShipped": "NO-GAIN",
+        "noneVsShipped": "BEATS",
+        "noneVsLoso": "WORSE"
+      },
+      "deltas": {
+        "vsShipped": {
+          "mean": 0.2953426546782293,
+          "ci95": [
+            -0.6881475380490022,
+            1.379902583500014
+          ],
+          "label": "NO-GAIN"
+        },
+        "noneVsShipped": {
+          "mean": -0.5449188856902155,
+          "ci95": [
+            -0.9309859864223748,
+            -0.08474937788880703
+          ],
+          "label": "BEATS"
+        },
+        "noneVsLoso": {
+          "mean": 0.8402615403684448,
+          "ci95": [
+            0.10651743326218142,
+            1.6411524140164477
+          ],
+          "label": "WORSE"
+        }
+      }
+    },
+    "q5b": {
+      "decision": "insufficient",
+      "players": 6,
+      "dFull": 1.1,
+      "label": "NO-GAIN"
+    },
+    "q5c": {
+      "flaggedEver": {
+        "players": 31,
+        "withY1": 13,
+        "y1OverPrior": 1.180022021494728,
+        "startShareY1": 0.2702798861480076
+      },
+      "neverFlagged": {
+        "players": 58,
+        "withY1": 25,
+        "y1OverPrior": 1.1596913601561878,
+        "startShareY1": 0.30248478701825554
+      }
+    }
+  },
+  "diagnostics": {
+    "q1": {
+      "YE0": {
+        "nullpick": {
+          "kFit": 2.1,
+          "mae": 2.7941,
+          "maeA": 2.7148,
+          "delta": {
+            "mean": 0.0793,
+            "ci95": [
+              0.025,
+              0.1332
+            ],
+            "label": "WORSE"
+          }
+        },
+        "ye1WithPick": null,
+        "ckA": {
+          "c": 0.88,
+          "k": 3.3,
+          "boundary": false
+        },
+        "ckB": {
+          "c": 1.32,
+          "k": 5.1,
+          "boundary": false
+        },
+        "byDraftTier": {
+          "none": {
+            "rows": 2253,
+            "A": {
+              "verdict": "OK",
+              "kFit": 0.8
+            },
+            "B": {
+              "verdict": "OK",
+              "kFit": 3.6
+            },
+            "deltaAB": {
+              "mean": -0.1031,
+              "ci95": [
+                -0.2153,
+                0.007
+              ],
+              "label": "NO-GAIN"
+            }
+          },
+          "late": {
+            "rows": 2691,
+            "A": {
+              "verdict": "OK",
+              "kFit": 2.7
+            },
+            "B": {
+              "verdict": "OK",
+              "kFit": 4.7
+            },
+            "deltaAB": {
+              "mean": -0.0937,
+              "ci95": [
+                -0.2239,
+                0.0326
+              ],
+              "label": "NO-GAIN"
+            }
+          },
+          "premium": {
+            "rows": 2467,
+            "A": {
+              "verdict": "OK",
+              "kFit": 6.5
+            },
+            "B": {
+              "verdict": "OK",
+              "kFit": 10.7
+            },
+            "deltaAB": {
+              "mean": 0.1179,
+              "ci95": [
+                -0.1268,
+                0.3473
+              ],
+              "label": "NO-GAIN"
+            }
+          }
+        }
+      },
+      "YE1": {
+        "nullpick": {
+          "kFit": 3.6,
+          "mae": 2.656,
+          "maeA": 2.656,
+          "delta": {
+            "mean": 0,
+            "ci95": [
+              0,
+              0
+            ],
+            "label": "NO-GAIN"
+          }
+        },
+        "ye1WithPick": {
+          "kFit": 4.1,
+          "mae": 2.6436,
+          "maeA": 2.656,
+          "delta": {
+            "mean": -0.0124,
+            "ci95": [
+              -0.043,
+              0.0175
+            ],
+            "label": "NO-GAIN"
+          }
+        },
+        "ckA": {
+          "c": 1,
+          "k": 3.6,
+          "boundary": false
+        },
+        "ckB": {
+          "c": 1.16,
+          "k": 3.9,
+          "boundary": false
+        },
+        "byDraftTier": {
+          "none": {
+            "rows": 2706,
+            "A": {
+              "verdict": "OK",
+              "kFit": 1.2
+            },
+            "B": {
+              "verdict": "OK",
+              "kFit": 2.9
+            },
+            "deltaAB": {
+              "mean": -0.1459,
+              "ci95": [
+                -0.2521,
+                -0.0385
+              ],
+              "label": "BEATS"
+            }
+          },
+          "late": {
+            "rows": 2440,
+            "A": {
+              "verdict": "OK",
+              "kFit": 6.4
+            },
+            "B": {
+              "verdict": "OK",
+              "kFit": 4.1
+            },
+            "deltaAB": {
+              "mean": 0.0407,
+              "ci95": [
+                -0.1066,
+                0.1871
+              ],
+              "label": "NO-GAIN"
+            }
+          },
+          "premium": {
+            "rows": 2437,
+            "A": {
+              "verdict": "OK",
+              "kFit": 4.4
+            },
+            "B": {
+              "verdict": "OK",
+              "kFit": 3.8
+            },
+            "deltaAB": {
+              "mean": 0.0155,
+              "ci95": [
+                -0.1244,
+                0.1503
+              ],
+              "label": "NO-GAIN"
+            }
+          }
+        }
+      }
+    },
+    "q2": {
+      "recencyPrior": {
+        "kFit": 4.5,
+        "mae": 2.6757
+      },
+      "staleHist": {
+        "rows": 574,
+        "players": 53,
+        "verdict": "INSUFFICIENT",
+        "kFit": null
+      },
+      "staleProj": {
+        "rows": 574,
+        "players": 53,
+        "verdict": "INSUFFICIENT",
+        "kFit": null
+      },
+      "ckHist": {
+        "c": 0.72,
+        "k": 8.8,
+        "boundary": false
+      },
+      "ckProj": {
+        "c": 0.72,
+        "k": 7.2,
+        "boundary": false
+      }
+    }
+  },
+  "ladders": {
+    "q1": {
+      "YE0": {
+        "QB": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.0040382706265979906,
+              "ci95": [
+                -0.00033358742930741583,
+                0.008419339962207874
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        },
+        "RB": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.007801626953079502,
+              "ci95": [
+                -0.0008493528519428482,
+                0.01516064622500704
+              ],
+              "label": "NO-GAIN"
+            },
+            {
+              "from": "fixed",
+              "to": "own",
+              "mean": 0.012371140152137207,
+              "ci95": [
+                0.0020904246481048376,
+                0.02304629626996528
+              ],
+              "label": "WORSE"
+            }
+          ]
+        },
+        "WR": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.0012914498861110303,
+              "ci95": [
+                -0.004281889782434485,
+                0.007231016178771748
+              ],
+              "label": "NO-GAIN"
+            },
+            {
+              "from": "fixed",
+              "to": "own",
+              "mean": -0.027601653516480074,
+              "ci95": [
+                -0.06337773667083496,
+                0.007054279464716957
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        },
+        "TE": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": -0.002740003726994523,
+              "ci95": [
+                -0.009514584890726364,
+                0.0033573836252529907
+              ],
+              "label": "NO-GAIN"
+            },
+            {
+              "from": "fixed",
+              "to": "own",
+              "mean": -0.004552321003600238,
+              "ci95": [
+                -0.028663528517024892,
+                0.01833012844734141
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        }
+      },
+      "YE1": {
+        "QB": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.004439752539949998,
+              "ci95": [
+                -0.002975429022831189,
+                0.011645654940232172
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        },
+        "RB": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.000300159181199222,
+              "ci95": [
+                -0.011454188492485034,
+                0.012338203718149553
+              ],
+              "label": "NO-GAIN"
+            },
+            {
+              "from": "fixed",
+              "to": "own",
+              "mean": 0.006025617956517631,
+              "ci95": [
+                -0.024653413025375253,
+                0.03733662125308996
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        },
+        "WR": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.010809252966954399,
+              "ci95": [
+                -0.003832598714433863,
+                0.02484048714854841
+              ],
+              "label": "NO-GAIN"
+            },
+            {
+              "from": "fixed",
+              "to": "own",
+              "mean": 0.0014583493159951975,
+              "ci95": [
+                -0.025104326225799438,
+                0.027380782057479854
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        },
+        "TE": {
+          "id": "fixed",
+          "steps": [
+            {
+              "from": "fixed",
+              "to": "pooled",
+              "mean": 0.0029123606047700592,
+              "ci95": [
+                -0.008163766544566874,
+                0.013672507632125
+              ],
+              "label": "NO-GAIN"
+            },
+            {
+              "from": "fixed",
+              "to": "own",
+              "mean": 0.015119238983454573,
+              "ci95": [
+                -0.01844244840654594,
+                0.04995210480526398
+              ],
+              "label": "NO-GAIN"
+            }
+          ]
+        }
+      }
+    },
+    "q2": {
+      "QB": {
+        "id": "fixed",
+        "steps": [
+          {
+            "from": "fixed",
+            "to": "pooled",
+            "mean": 0.025762166079118406,
+            "ci95": [
+              -0.022652886465322902,
+              0.08048021370702592
+            ],
+            "label": "NO-GAIN"
+          }
+        ]
+      },
+      "RB": {
+        "id": "fixed",
+        "steps": [
+          {
+            "from": "fixed",
+            "to": "pooled",
+            "mean": 0.025762166079118406,
+            "ci95": [
+              -0.022652886465322902,
+              0.08048021370702592
+            ],
+            "label": "NO-GAIN"
+          }
+        ]
+      },
+      "WR": {
+        "id": "fixed",
+        "steps": [
+          {
+            "from": "fixed",
+            "to": "pooled",
+            "mean": -0.04896113965925773,
+            "ci95": [
+              -0.10920347305210328,
+              0.012604017570027897
+            ],
+            "label": "NO-GAIN"
+          },
+          {
+            "from": "fixed",
+            "to": "own",
+            "mean": -0.07523922640475607,
+            "ci95": [
+              -0.27801889326958773,
+              0.12432347460972905
+            ],
+            "label": "NO-GAIN"
+          }
+        ]
+      },
+      "TE": {
+        "id": "fixed",
+        "steps": [
+          {
+            "from": "fixed",
+            "to": "pooled",
+            "mean": 0.025762166079118406,
+            "ci95": [
+              -0.022652886465322902,
+              0.08048021370702592
+            ],
+            "label": "NO-GAIN"
+          }
+        ]
+      }
+    }
+  },
+  "pinnedFrom": {}
+}
