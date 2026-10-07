@@ -512,3 +512,9 @@ in-season seams' defaults reproduce every committed artifact byte-for-byte; `dep
 
 Gates: `npm test` green (count +the new cases); `npm run smoke` green; V-1 still true. Commit as one commit
 ("qb-inseason-refit Fix pass 1: …"). Do not push.
+
+**Fix pass 1 verified (2026-10-07):** `f2c3b83`; implementation-reviewer re-run on `e7b4255..f2c3b83`: no flags.
+Constants sha1 now `f2e2f41e5752cbc9f7084307cbf37fa83d5fa29a` (only `generatedAt` differs from `e7b4255`).
+`npm test` 1365 (0 fail), smoke green, V-1 true. Applier deviation (`primaries ? isGame1Primary(pid) : false`)
+accepted: legacy never yields a `rookie:` basis. Stage A cleared for push; Stage B pins the pushed SHA of
+`f2c3b83`'s artifacts (the commit that last wrote `backtests/2026-10-07-inseason-constants.json`).
