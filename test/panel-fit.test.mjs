@@ -2590,7 +2590,11 @@ describe('D6b — assembleRookiePanel', () => {
 describe('rookie-outcome-panels §6 test 1 — reproduction pin (the gate on this whole slice)', () => {
   test('assembleRookiePanel with default options reproduces backtests/2026-09-06-fullpipeline-panel.json\'s rookiePanel exactly', () => {
     const fromYear = 2013, toYear = 2024;
-    const playerIds = DEFAULT_LOAD.loadPlayerIds();
+    // The crosswalk is pinned to the rev the artifact was built against, not the live
+    // nflverse/playerids.json the weekly cron rewrites — a refresh that newly resolves a position
+    // for an id already in 2013–2024 season totals changes `assembled` without touching the
+    // artifact (cde2d06 added 12079: 2563 → 2564). See test/fixtures/build-rookie-pin-crosswalk.mjs.
+    const playerIds = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'test/fixtures/rookie-pin-crosswalk-2026-09-06.json'), 'utf8'));
     const crosswalk = {};
     const birthdateBySleeper = {};
     const draftInfoBySleeper = {};
