@@ -45,6 +45,12 @@
  *                applied, vs next-season games played. Takes only --json / --write. --write persists
  *                backtests/<date>-absence-panel.json + grading/<date>-absence-verdict.md.
  *                Exit 1 if DM-1 parity falls below 99% or the snapshot is missing (nothing written).
+ *   --games-calibration  projected-games over-projection (L6, offline analysis only): decomposes the +3.4-game
+ *                bias of the mirrored veteran rule into composition / role / injury list / schedule, and tests
+ *                held-out multiplicative-scale calibrations by position, age and S-row state. Takes only
+ *                --json / --write. --write persists backtests/<date>-games-calibration-{panel,constants}.json +
+ *                grading/<date>-games-calibration-verdict.md. Exit 1 if DM-1 parity falls below 99% or the
+ *                snapshot is missing (nothing written).
  *   --dynasty    (with --inseason) dynasty-side (rookies + SHORT veterans) k-fit (Phase 2c, offline
  *                analysis only): the prospect prior (arm A vs arm B), the SHORT-veteran history prior,
  *                and the KTC-anchor report, plus the rookie QB level in the dynasty prior (Q4) and the
@@ -71,6 +77,7 @@ import { inSeasonDynMain } from '../scripts/inseason-dyn-run.mjs';
 import { qbTakeoverMain } from '../scripts/qb-takeover-run.mjs';
 import { qbRookieLevelMain } from '../scripts/qb-rookie-level-run.mjs';
 import { absenceMain } from '../scripts/absence-run.mjs';
+import { gamesCalibrationMain } from '../scripts/games-calibration-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -189,6 +196,18 @@ if (isMain) {
       const asJson    = flag('--json');
       const write     = flag('--write');
       const bySeason  = flag('--by-season');
+
+      if (flag('--games-calibration')) {
+        const rejected = args.filter(a => a.startsWith('--') && !['--games-calibration', '--json', '--write'].includes(a));
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --games-calibration rejects ${rejected.join(', ')} — the seasons, folds, candidates and basis are pinned ` +
+            'by the task file, not knobs; it takes only --json and --write'
+          );
+          process.exit(1);
+        }
+        process.exit(gamesCalibrationMain({ write, asJson }));
+      }
 
       if (flag('--absence')) {
         const rejected = args.filter(a => a.startsWith('--') && !['--absence', '--json', '--write'].includes(a));

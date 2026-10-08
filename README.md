@@ -1310,7 +1310,7 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
 `--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
 rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`),
-`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`).
+`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--games-calibration` (takes only `--json`/`--write`).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1323,8 +1323,8 @@ the app's live default, load-bearing for the reconstruction.
 
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
 `<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
-`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`).
+`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`, `<date>-games-calibration-{panel,constants}.json`) and `grading/`
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`).
 Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
@@ -1414,6 +1414,27 @@ through), not its header comment. `test/durability-mirror.test.mjs` pins parity 
 `test/fixtures/build-durability-parity.mjs`): ≥ 99% of the 2026-10-04 snapshot's veteran rows must
 match on `projectedGames`, `injurySeasons` and `absenceShapeFactor` (compared at the app's own
 `Math.round(x·1000)/1000`). A change to those four app sites stales the mirror silently.
+`projectedGamesFor` also returns `avgGames`, the value just before `Math.round(clamp(…, 8, 17))`
+(DM-4 pins that); `--games-calibration` calibrates it.
+
+#### `lib/gamesCalibration.mjs` — projected-games decomposition and held-out calibration
+
+Pure, no I/O; the fit core of `bin/backtest.mjs --games-calibration`
+(`scripts/games-calibration-run.mjs`, L6). Offline analysis only: no served file, no manifest entry,
+no registry entry. It answers two questions about the mirrored veteran `projectedGames` rule on
+Stage B's panel (`buildPanel`, before = after = the post-correction store). **Q-A:** `accountWeeks`
+classifies each team-game week of S+1 (the week sits in the S+1 `TEAM_*` rows' played set) as played
+or by the player's rosterweekly status — reserve, inactive, active-not-playing, practice squad, other
+status, off roster — so `pred − outcome` splits exactly into schedule, composition, role, injury list
+and a reconciliation term. **Q-B:** multiplicative-scale candidates `round(clamp(avgGames × k, floor, 17))`,
+k fitted per cell (position; × age bucket; × S-row state; both; floor 8 or 0) on training SSE over an
+integer-hundredths grid, forward-chained over predictor season, compared to the app rule on pooled
+out-of-sample rows with a player-clustered paired bootstrap. `decide` applies the pre-registered
+rule under both squared error and MAE and prints W / N / S per rule; the choice stays with Anton, and
+a wiring slice (an app `seasonProjection.js` Step 6 change, CR-28) is planned separately.
+`--write` persists `backtests/<date>-games-calibration-{panel,constants}.json` and
+`grading/<date>-games-calibration-verdict.md`. Exit 1 if DM-1 parity falls below 99% or the snapshot
+is missing (nothing written).
 
 #### `lib/nflverse.mjs` — floors vs. bands
 

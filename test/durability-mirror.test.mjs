@@ -39,6 +39,18 @@ test('DM-2: bounce-back agreement is reported, not asserted', () => {
   assert.ok(r.bounceBack.rows > 0);
 });
 
+test('DM-4: avgGames is the exact pre-round value — Math.round(clamp(avgGames, 8, 17)) reproduces projectedGames on every fixture row', () => {
+  let checked = 0;
+  for (const id of Object.keys(FIXTURE.snapshotRows)) {
+    const r = projectedGamesFor(FIXTURE.seasons, id, FIXTURE.positions[id], { throughSeason: 2025 });
+    if (!r) continue;
+    assert.ok(Number.isFinite(r.avgGames), `${id}: avgGames not finite`);
+    assert.equal(Math.round(Math.min(17, Math.max(8, r.avgGames))), r.projectedGames, `${id}: avgGames ${r.avgGames}`);
+    checked++;
+  }
+  assert.ok(checked >= 400, `only ${checked} rows checked`);
+});
+
 // ─── DM-3 units ──────────────────────────────────────────────────────────────
 
 test('DM-3 wasContributorSeason: below-floor snap share falls through to starts, then volume (the code, not the app comment)', () => {
