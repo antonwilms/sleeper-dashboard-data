@@ -25,7 +25,7 @@ npm run smoke               # all dry-runs + validate:enrichment + grade --self-
 npm test                    # node --test — unit validators under test/
 ```
 
-Other shortcuts: `update:{nfl,cfbd,ktc}`, `import:snapshot`, `enrich`, `grade`, `backtest`, `backtest:{inseason,qb-takeover,qb-rookie-level,absence}`, `panel`, `panel:{flip,fit}`, `validate:enrichment`.
+Other shortcuts: `update:{nfl,cfbd,ktc}`, `import:snapshot`, `enrich`, `grade`, `backtest`, `backtest:{inseason,qb-takeover,qb-rookie-level,absence,games-calibration}`, `panel`, `panel:{flip,fit}`, `validate:enrichment`.
 
 `bin/backtest.mjs` and `bin/panel.mjs` are **offline analysis, not the snapshot grader** (`bin/grade.mjs`). `--fit` pins `--basis half_ppr` and `--attribution per-season-team` and rejects an explicit `--attribution`.
 

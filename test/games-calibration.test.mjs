@@ -41,7 +41,9 @@ test('GC-1 accountWeeks: one slot of each kind, a bye, a traded week and a P out
     7: [['KC', 'SUS']],                                  // slot 6: other status
     8: [['KC', 'CUT']],                                  // slot 7: CUT → offRoster
     // week 9 (slot 8): no listing → falls back to the S+1 row's team (KC played) → offRoster
-    10: [['KC', 'CUT'], ['CHI', 'ACT']],                 // slot 9: traded; only CHI played → classified by CHI's ACT
+    // slot 9: traded; only CHI played → classified by CHI's ACT. Classifying by all pairs would give `reserve`
+    // (KC's RES outranks CHI's ACT), so this slot discriminates the played-teams-only rule.
+    10: [['KC', 'RES'], ['CHI', 'ACT']],
     11: [['KC', 'ACT']],                                 // slot 10: 'P' while KC was idle → not a team game, recon −1
   };
   const w = accountWeeks({ s1Row, s0Row: undefined, rwPlayer: rw, played });
@@ -62,6 +64,20 @@ test('GC-1 accountWeeks: one slot of each kind, a bye, a traded week and a P out
   assert.deepEqual([d.schedule, d.composition, d.role, d.injuryList, d.recon], [3, 4, 3, 1, -1]);
   assert.equal(d.sum, d.bias);
   assert.equal(d.bias, 10);
+});
+
+test('GC-1 accountWeeks: fallback step 3 (S row team, no pairs, no S+1 row) is a team game classified offRoster only if that team played', () => {
+  const s0Row = { team: 'KC' };
+  const played = new Map([['KC', new Set([3])], ['CHI', new Set([0])]]);
+  // The S row's team played slot 3 and nothing lists the player: counted, classified offRoster.
+  const a = accountWeeks({ s1Row: undefined, s0Row, rwPlayer: undefined, played });
+  assert.equal(a.skipped, false);
+  assert.equal(a.G, 1);
+  assert.deepEqual(a.counts, { played: 0, reserve: 0, inactive: 0, activeNoPlay: 0, practiceSquad: 0, otherStatus: 0, offRoster: 1 });
+  // The S row's team is idle in every slot (only CHI plays): not a team game.
+  const b = accountWeeks({ s1Row: undefined, s0Row, rwPlayer: undefined, played: new Map([['CHI', new Set([0])]]) });
+  assert.equal(b.G, 0);
+  assert.equal(b.counts.offRoster, 0);
 });
 
 test('GC-1 accountWeeks: a player with no team in any week is skipped', () => {
@@ -122,6 +138,16 @@ test('GC-3 fitK: a tie returns the value closest to 1.00', () => {
   assert.equal(fitK([{ avgGames: 5, outcome: 9 }], 8), 1);
 });
 
+test('GC-3 fitK: second tie-break — two grid values equidistant from 1.00 tie on minimal SSE, the lower wins', () => {
+  // Row a is exact for k ≤ 0.95, row b is exact for k ≥ 1.05; everything between costs 2, the far tails cost more.
+  const rows = [{ avgGames: 9.9476, outcome: 9 }, { avgGames: 10.0478, outcome: 11 }];
+  const sse = (k) => rows.reduce((acc, r) => acc + (candidatePred(r.avgGames, k, 0) - r.outcome) ** 2, 0);
+  assert.equal(sse(0.95), 1);
+  assert.equal(sse(1.05), 1);
+  for (const k of [0.96, 0.98, 1.00, 1.02, 1.04]) assert.ok(sse(k) > 1, `k=${k} is worse`);
+  assert.equal(fitK(rows, 0), 0.95);
+});
+
 test('GC-3 fitK: the floor-8 clamp is applied before the SSE', () => {
   const rows = [{ avgGames: 5, outcome: 4 }];
   assert.equal(fitK(rows, 8), 1, 'at floor 8 the prediction is 8 for every k, so nothing separates the grid values');
@@ -168,6 +194,37 @@ test('GC-5: a cell with fewer than minCellTrainPlayers training players takes it
   const own = kFor(model, row('y', 'qual', 17));
   assert.equal(own.fallback, false);
   assert.equal(own.k, 1);
+});
+
+test('GC-5: the C4 chain pos|age|s → pos|s → pos, and an unk-age row goes straight to pos', () => {
+  const row = (id, ageBucket, sState, outcome) => ({ id, position: 'WR', ageBucket, sState, avgGames: 17, outcome });
+  const train = [
+    row('s0', '25-27', 'short', 14),                                                    // 25-27|short: 1 player → thin
+    ...['s1', 's2', 's3'].map((id) => row(id, '28-30', 'short', 14)),                   // pos|s WR|short: 4 players → k 0.85
+    ...Array.from({ length: 10 }, (_, i) => row(`q${i}`, '28-30', 'qual', 17)),
+    row('n0', '25-27', 'none', 17),                                                     // WR|none: 1 player → thin at pos|s too
+  ];
+  const model = fitCandidate(train, 'C4', { minCellTrainPlayers: 3 });
+  assert.equal(model.cells['pos|age|s']['WR|25-27|short'], undefined);
+  assert.equal(model.cells['pos|s']['WR|short'].k, 0.85);
+  assert.equal(model.cells['pos|s']['WR|none'], undefined);
+  const posK = model.cells.pos.WR.k;
+  assert.equal(posK, 0.97, 'the pooled pos fit differs from the pos|s k');
+
+  const mid = kFor(model, row('x', '25-27', 'short', 0));
+  assert.equal(mid.used, 'WR|short', 'thin pos|age|s, fitted pos|s → the pos|s k');
+  assert.equal(mid.k, 0.85);
+  assert.equal(mid.fallback, true);
+  const root = kFor(model, row('y', '25-27', 'none', 0));
+  assert.equal(root.used, 'WR', 'both thin → the pos k');
+  assert.equal(root.k, posK);
+  const unk = kFor(model, row('z', 'unk', 'short', 0));
+  assert.equal(unk.used, 'WR', 'unk age → the position cell even though pos|s is fitted');
+  assert.equal(unk.k, posK);
+  assert.notEqual(unk.k, model.cells['pos|s']['WR|short'].k);
+  // C3 has no age level: an unk row keeps its pos|s cell.
+  const c3 = fitCandidate(train, 'C3', { minCellTrainPlayers: 3 });
+  assert.equal(kFor(c3, row('z', 'unk', 'short', 0)).used, 'WR|short');
 });
 
 // ─── GC-6 decision ───────────────────────────────────────────────────────────
@@ -323,6 +380,24 @@ test('GC-7: gamesCalibrationMain runs end to end; --write hands one result and v
   assert.deepEqual(Object.keys(r.constants.candidates), CANDIDATE_IDS);
   assert.match(writes[0].verdictMd, /## 6\. Decision/);
   assert.match(logs.join('\n'), /## 3\. Q-A decomposition/);
+});
+
+test('GC-7: --write end to end with the real writer under a tmp root writes the three dated files', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gamescal-e2e-'));
+  let written = null;
+  const code = gamesCalibrationMain({
+    load: syntheticLoad(), defaults: smallDefaults, write: true,
+    writeArtifacts: (a) => (written = writeGamesCalibrationArtifacts({ ...a, root })),
+    log: () => {}, logErr: () => {},
+  });
+  assert.equal(code, 0);
+  for (const p of [written.panelPath, written.constantsPath, written.verdictPath]) {
+    assert.ok(fs.existsSync(path.join(root, p)), `${p} exists`);
+  }
+  assert.match(fs.readFileSync(path.join(root, written.verdictPath), 'utf8'), /## 6\. Decision/);
+  const panel = JSON.parse(fs.readFileSync(path.join(root, written.panelPath), 'utf8'));
+  const d = panel.qb.tables.pooled.C1.dMse;
+  assert.equal(d.mean, Math.round(d.mean * 1000) / 1000, 'persisted delta stats are 3 dp');
 });
 
 test('GC-7: parity below 99% stops with exit 1 and writes nothing', () => {

@@ -589,3 +589,93 @@ All 15 are applied.
 | 13 | panelEligibility copies unnamed pieces | Applied: pieces named with source lines |
 | 14 | CR-28 quote partial; W boundary is required | Applied: full Mirror text; boundary stated as required (CR-01) |
 | 15 | CR-28 Triggers miss rosterweekly readers | Queued as proposed D-66 for the next registry sync |
+
+## Verification record (Session 1, 2026-10-08, `58a0830..aac3d49`)
+
+The implementation-reviewer ran at full depth. It found no blocking flags. Independently checked:
+- `--games-calibration --json` reproduces both committed artifacts exactly (ignoring
+  `generatedAt`/`panelRev`).
+- The squared-error pick W C3f0 and the MAE pick N were recomputed in-process from the
+  out-of-sample rows:
+  - C3 is the incumbent;
+  - C3f0 vs C3 CI [−1.285, −0.496] → upgrade;
+  - C4 vs C3f0 CI [0.471, 1.284] → no upgrade;
+  - C4f0 vs C3f0 CI [−0.179, 0.205] → no upgrade.
+- The §3.1 identity holds on all 4,362 rows. Recon is 0 everywhere and 0 rows are skipped.
+- No fold leakage.
+- `npm test`: 1403 pass / 1 known fail (panel-fit) / 4 skipped. Smoke is green.
+- CLAUDE.md edits are byte-exact (24,941 bytes). No change outside the touch list.
+
+Session 2's deviations are all accepted:
+- the task file is committed in commit 1;
+- the README CLI-flag and write-list lines (they sit under Module notes);
+- the DM-1 count of 431 is `parityReport`'s normal count;
+- per-slot team fallback;
+- the `ctx` memo;
+- `relevant` = true rows for condition 4;
+- display rounding.
+
+`panelRev` in the committed artifacts reads `8e61ecb` (the run was from an uncommitted tree).
+Fix pass 1 regenerates the artifacts, so the rev names a commit containing the harness.
+
+| # | Flag | Decision |
+|---|---|---|
+| 1 | (low-med) CLAUDE.md:28 "Other shortcuts" omits `backtest:games-calibration` | Fix pass 1 item 1 (a plan gap) |
+| 2 | (low) eligibility reads 3-dp-rounded mean/CI | Fix pass 1 item 2 |
+| 3 | (low) `unk` age rows fall to `pos\|s` in C4, not `pos` as §1.4 says | Fix pass 1 item 3 |
+| 4 | (low) `panelRev` = base commit | Fix pass 1 item 5 (regenerate) |
+| 5 | (low-med) GC-1 traded week does not discriminate | Fix pass 1 item 4a |
+| 6 | (low) four behaviours untested | Fix pass 1 items 4b–4e |
+
+## Fix pass 1
+
+**Scope:**
+- `CLAUDE.md`;
+- `lib/gamesCalibration.mjs`;
+- `test/games-calibration.test.mjs`;
+- the three dated artifacts (regenerated in place: same date `2026-10-08`).
+
+Touch nothing else.
+
+1. **CLAUDE.md:28.** Replace `backtest:{inseason,qb-takeover,qb-rookie-level,absence}` with
+   `backtest:{inseason,qb-takeover,qb-rookie-level,absence,games-calibration}`.
+   - Report the final byte count; it is expected at 24,959.
+   - `test/claudeMdSize.test.mjs` must pass.
+2. **Raw values for decisions.** `deltaStats` (`lib/gamesCalibration.mjs:~285-295`) must return the
+   unrounded `mean` and `ci95`. Round to 3 dp only where tables and artifacts are rendered.
+   `eligibility()` and the paired-upgrade test in the pick walk must read the unrounded values.
+   - Any persisted JSON keeps 3-dp values: round at serialisation.
+3. **`unk` age routing.** In `kFor`, when `r.ageBucket === 'unk'` and the candidate's levels include
+   an age level (`pos|age` or `pos|age|s`), use only the `pos` level. This is §1.4: "routes them to
+   the position cell". C2/C2f0 behaviour is unchanged by construction. Leave `cellKey` otherwise as is.
+4. **Tests** (`test/games-calibration.test.mjs`):
+   - **(a)** GC-1 traded week: change slot 9's pairs to `[['KC', 'RES'], ['CHI', 'ACT']]`. The
+     expected classification stays `activeNoPlay`, and the expected counts are unchanged. Add a
+     comment saying that classifying by all pairs would give `reserve`.
+   - **(b)** Fallback step 3: a slot with no pairs and no S+1 row, where the S row's team played,
+     is counted as a team game classified `offRoster`. A second case has the S row's team idle:
+     not a team game.
+   - **(c)** `fitK` second tie-break: a fixture where two grid values equidistant from 1.00 (e.g.
+     0.95 and 1.05) tie on minimal SSE, and nothing nearer 1.00 does. Assert 0.95.
+   - **(d)** C4 three-level chain:
+     - a row whose `pos|age|s` cell is thin but whose `pos|s` cell is fitted gets the `pos|s` k;
+     - a row where both are thin gets the `pos` k;
+     - a row with `ageBucket 'unk'` gets the `pos` k even when `pos|s` is fitted (item 3).
+   - **(e)** `--write` end to end: call `gamesCalibrationMain` with the GC-7 synthetic load,
+     `write: true` and the real writer under a tmp root. Assert that the three dated files exist and
+     that the verdict contains "## 6. Decision".
+5. **Commit, then regenerate.**
+   1. Commit items 1–4 first as
+      `Fix pass 1: L6 — raw decision values, unk age routing, CLAUDE.md shortcut, tests`.
+   2. Then run `node bin/backtest.mjs --games-calibration --write`. It overwrites the three
+      2026-10-08 artifacts. If the run date is no longer 2026-10-08, stop and report rather than
+      writing new dated files.
+   3. Confirm with `git diff` that only `generatedAt` and `panelRev` change, and that `panelRev`
+      now names the fix commit. If any number or decision changes, stop and report.
+   4. Commit as `grading: games-calibration verdict 2026-10-08 regenerated (fix pass 1 rev)`.
+
+**Done-definition:**
+- `npm test`: no new failures; GC-1 … GC-7, the new tests and DM-1 … DM-4 green.
+- `npm run smoke` green.
+
+Use the attribution trailer. Do not push.
