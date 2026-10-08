@@ -679,3 +679,20 @@ Touch nothing else.
 - `npm run smoke` green.
 
 Use the attribution trailer. Do not push.
+
+Re-review of `aac3d49..1c4320f` (fix pass 1): clean.
+- All six items are confirmed.
+- Each new test fails on the wrong implementation.
+- The artifact JSON changes only `generatedAt`/`panelRev` (now `3bbc4fa`).
+- The verdict changes 59 table cells by ≤ 0.01: the double rounding was removed. No decision line moved.
+- `npm test`: 1407 pass / 1 known fail / 4 skipped.
+
+Two low flags survive. Per the convention they go to Anton, with no third round. Session 1
+recommends deferring both, since neither moves this run:
+1. no test pins that the decisions read unrounded values (a `deltaStats` mean of 0.0004 case);
+2. the within-tier sort still reads 3-dp pooled MSE (C3f0 29.905 vs C2f0 32.991 here).
+
+Fold both into the wiring slice if one is planned.
+
+**L6 research is verified.** It is unpushed (`58a0830`, `aac3d49`, `3bbc4fa`, `1c4320f`, plus this record),
+awaiting Anton's D1 choice and push sign-off.
