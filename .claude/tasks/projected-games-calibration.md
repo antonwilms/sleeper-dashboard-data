@@ -696,3 +696,9 @@ Fold both into the wiring slice if one is planned.
 
 **L6 research is verified.** It is unpushed (`58a0830`, `aac3d49`, `3bbc4fa`, `1c4320f`, plus this record),
 awaiting Anton's D1 choice and push sign-off.
+
+**Decision (Anton, 2026-10-08): no change for now.** The app's `projectedGames` rule stays as it is.
+- The optional follow-up (L6b) is not scheduled: split `short` into injury vs benched/cut using the
+  L5 data, judged on fantasy-relevant players.
+- The research commits were pushed on Anton's sign-off.
+- The two deferred low flags lapse unless a wiring slice is planned.
