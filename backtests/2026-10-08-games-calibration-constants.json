@@ -1,0 +1,1113 @@
+{
+  "generatedAt": "2026-10-08T17:47:19.591Z",
+  "panelRev": "8e61ecba3424c5130956c33a1631a8faeef61861",
+  "candidates": {
+    "C1": {
+      "floor": 8,
+      "k": {
+        "QB": 0.72,
+        "TE": 0.8,
+        "RB": 0.78,
+        "WR": 0.73
+      },
+      "thinCells": []
+    },
+    "C2": {
+      "floor": 8,
+      "k": {
+        "QB|27-31": 0.71,
+        "TE|31+": 0.8,
+        "RB|28-30": 0.74,
+        "RB|31+": 0.68,
+        "TE|28-30": 0.82,
+        "WR|31+": 0.69,
+        "QB|32-35": 0.71,
+        "WR|28-30": 0.72,
+        "TE|25-27": 0.8,
+        "WR|25-27": 0.73,
+        "RB|25-27": 0.78,
+        "QB|<=26": 0.72,
+        "RB|<=24": 0.83,
+        "WR|<=24": 0.83,
+        "TE|<=24": 0.89,
+        "QB": 0.72,
+        "TE": 0.8,
+        "RB": 0.78,
+        "WR": 0.73
+      },
+      "thinCells": [
+        {
+          "cell": "QB|36+",
+          "players": 26
+        }
+      ]
+    },
+    "C3": {
+      "floor": 8,
+      "k": {
+        "QB|qual": 0.86,
+        "TE|qual": 0.87,
+        "RB|qual": 0.81,
+        "RB|short": 0.53,
+        "WR|qual": 0.8,
+        "QB|short": 0.53,
+        "TE|none": 0.55,
+        "WR|short": 0.5,
+        "WR|none": 0.53,
+        "TE|short": 0.53,
+        "QB": 0.72,
+        "TE": 0.8,
+        "RB": 0.78,
+        "WR": 0.73
+      },
+      "thinCells": [
+        {
+          "cell": "RB|none",
+          "players": 31
+        },
+        {
+          "cell": "QB|none",
+          "players": 8
+        }
+      ]
+    },
+    "C4": {
+      "floor": 8,
+      "k": {
+        "QB|27-31|qual": 0.86,
+        "TE|31+|qual": 0.8,
+        "RB|28-30|qual": 0.85,
+        "TE|28-30|qual": 0.9,
+        "WR|31+|qual": 0.75,
+        "QB|27-31|short": 0.53,
+        "WR|28-30|qual": 0.79,
+        "WR|25-27|qual": 0.8,
+        "WR|28-30|short": 0.5,
+        "TE|25-27|qual": 0.87,
+        "TE|25-27|short": 0.53,
+        "RB|25-27|short": 0.53,
+        "RB|25-27|qual": 0.81,
+        "QB|<=26|qual": 0.79,
+        "WR|25-27|short": 0.5,
+        "RB|<=24|qual": 0.87,
+        "WR|<=24|qual": 0.83,
+        "TE|<=24|qual": 0.89,
+        "QB|qual": 0.86,
+        "TE|qual": 0.87,
+        "RB|qual": 0.81,
+        "RB|short": 0.53,
+        "WR|qual": 0.8,
+        "QB|short": 0.53,
+        "TE|none": 0.55,
+        "WR|short": 0.5,
+        "WR|none": 0.53,
+        "TE|short": 0.53,
+        "QB": 0.72,
+        "TE": 0.8,
+        "RB": 0.78,
+        "WR": 0.73
+      },
+      "thinCells": [
+        {
+          "cell": "RB|31+|short",
+          "players": 12
+        },
+        {
+          "cell": "RB|31+|qual",
+          "players": 38
+        },
+        {
+          "cell": "RB|28-30|short",
+          "players": 34
+        },
+        {
+          "cell": "QB|36+|qual",
+          "players": 15
+        },
+        {
+          "cell": "QB|32-35|qual",
+          "players": 29
+        },
+        {
+          "cell": "QB|36+|short",
+          "players": 14
+        },
+        {
+          "cell": "TE|25-27|none",
+          "players": 25
+        },
+        {
+          "cell": "WR|31+|short",
+          "players": 18
+        },
+        {
+          "cell": "WR|31+|none",
+          "players": 6
+        },
+        {
+          "cell": "QB|32-35|short",
+          "players": 20
+        },
+        {
+          "cell": "TE|31+|short",
+          "players": 16
+        },
+        {
+          "cell": "TE|28-30|short",
+          "players": 36
+        },
+        {
+          "cell": "WR|28-30|none",
+          "players": 23
+        },
+        {
+          "cell": "TE|31+|none",
+          "players": 7
+        },
+        {
+          "cell": "TE|28-30|none",
+          "players": 11
+        },
+        {
+          "cell": "WR|25-27|none",
+          "players": 38
+        },
+        {
+          "cell": "RB|28-30|none",
+          "players": 8
+        },
+        {
+          "cell": "QB|<=26|short",
+          "players": 25
+        },
+        {
+          "cell": "RB|25-27|none",
+          "players": 18
+        },
+        {
+          "cell": "RB|<=24|short",
+          "players": 31
+        },
+        {
+          "cell": "TE|<=24|none",
+          "players": 2
+        },
+        {
+          "cell": "WR|<=24|none",
+          "players": 10
+        },
+        {
+          "cell": "RB|<=24|none",
+          "players": 5
+        },
+        {
+          "cell": "TE|<=24|short",
+          "players": 11
+        },
+        {
+          "cell": "WR|<=24|short",
+          "players": 20
+        },
+        {
+          "cell": "RB|31+|none",
+          "players": 2
+        },
+        {
+          "cell": "QB|<=26|none",
+          "players": 3
+        },
+        {
+          "cell": "QB|27-31|none",
+          "players": 2
+        },
+        {
+          "cell": "QB|36+|none",
+          "players": 2
+        },
+        {
+          "cell": "QB|32-35|none",
+          "players": 2
+        }
+      ]
+    },
+    "C1f0": {
+      "floor": 0,
+      "k": {
+        "QB": 0.71,
+        "TE": 0.8,
+        "RB": 0.78,
+        "WR": 0.72
+      },
+      "thinCells": []
+    },
+    "C2f0": {
+      "floor": 0,
+      "k": {
+        "QB|27-31": 0.65,
+        "TE|31+": 0.8,
+        "RB|28-30": 0.76,
+        "RB|31+": 0.74,
+        "TE|28-30": 0.82,
+        "WR|31+": 0.69,
+        "QB|32-35": 0.7,
+        "WR|28-30": 0.72,
+        "TE|25-27": 0.8,
+        "WR|25-27": 0.72,
+        "RB|25-27": 0.78,
+        "QB|<=26": 0.72,
+        "RB|<=24": 0.84,
+        "WR|<=24": 0.78,
+        "TE|<=24": 0.89,
+        "QB": 0.71,
+        "TE": 0.8,
+        "RB": 0.78,
+        "WR": 0.72
+      },
+      "thinCells": [
+        {
+          "cell": "QB|36+",
+          "players": 26
+        }
+      ]
+    },
+    "C3f0": {
+      "floor": 0,
+      "k": {
+        "QB|qual": 0.86,
+        "TE|qual": 0.87,
+        "RB|qual": 0.85,
+        "RB|short": 0.51,
+        "WR|qual": 0.8,
+        "QB|short": 0.5,
+        "TE|none": 0.55,
+        "WR|short": 0.52,
+        "WR|none": 0.5,
+        "TE|short": 0.53,
+        "QB": 0.71,
+        "TE": 0.8,
+        "RB": 0.78,
+        "WR": 0.72
+      },
+      "thinCells": [
+        {
+          "cell": "RB|none",
+          "players": 31
+        },
+        {
+          "cell": "QB|none",
+          "players": 8
+        }
+      ]
+    },
+    "C4f0": {
+      "floor": 0,
+      "k": {
+        "QB|27-31|qual": 0.86,
+        "TE|31+|qual": 0.8,
+        "RB|28-30|qual": 0.85,
+        "TE|28-30|qual": 0.9,
+        "WR|31+|qual": 0.75,
+        "QB|27-31|short": 0.5,
+        "WR|28-30|qual": 0.79,
+        "WR|25-27|qual": 0.8,
+        "WR|28-30|short": 0.52,
+        "TE|25-27|qual": 0.87,
+        "TE|25-27|short": 0.53,
+        "RB|25-27|short": 0.51,
+        "RB|25-27|qual": 0.81,
+        "QB|<=26|qual": 0.79,
+        "WR|25-27|short": 0.51,
+        "RB|<=24|qual": 0.87,
+        "WR|<=24|qual": 0.83,
+        "TE|<=24|qual": 0.89,
+        "QB|qual": 0.86,
+        "TE|qual": 0.87,
+        "RB|qual": 0.85,
+        "RB|short": 0.51,
+        "WR|qual": 0.8,
+        "QB|short": 0.5,
+        "TE|none": 0.55,
+        "WR|short": 0.52,
+        "WR|none": 0.5,
+        "TE|short": 0.53,
+        "QB": 0.71,
+        "TE": 0.8,
+        "RB": 0.78,
+        "WR": 0.72
+      },
+      "thinCells": [
+        {
+          "cell": "RB|31+|short",
+          "players": 12
+        },
+        {
+          "cell": "RB|31+|qual",
+          "players": 38
+        },
+        {
+          "cell": "RB|28-30|short",
+          "players": 34
+        },
+        {
+          "cell": "QB|36+|qual",
+          "players": 15
+        },
+        {
+          "cell": "QB|32-35|qual",
+          "players": 29
+        },
+        {
+          "cell": "QB|36+|short",
+          "players": 14
+        },
+        {
+          "cell": "TE|25-27|none",
+          "players": 25
+        },
+        {
+          "cell": "WR|31+|short",
+          "players": 18
+        },
+        {
+          "cell": "WR|31+|none",
+          "players": 6
+        },
+        {
+          "cell": "QB|32-35|short",
+          "players": 20
+        },
+        {
+          "cell": "TE|31+|short",
+          "players": 16
+        },
+        {
+          "cell": "TE|28-30|short",
+          "players": 36
+        },
+        {
+          "cell": "WR|28-30|none",
+          "players": 23
+        },
+        {
+          "cell": "TE|31+|none",
+          "players": 7
+        },
+        {
+          "cell": "TE|28-30|none",
+          "players": 11
+        },
+        {
+          "cell": "WR|25-27|none",
+          "players": 38
+        },
+        {
+          "cell": "RB|28-30|none",
+          "players": 8
+        },
+        {
+          "cell": "QB|<=26|short",
+          "players": 25
+        },
+        {
+          "cell": "RB|25-27|none",
+          "players": 18
+        },
+        {
+          "cell": "RB|<=24|short",
+          "players": 31
+        },
+        {
+          "cell": "TE|<=24|none",
+          "players": 2
+        },
+        {
+          "cell": "WR|<=24|none",
+          "players": 10
+        },
+        {
+          "cell": "RB|<=24|none",
+          "players": 5
+        },
+        {
+          "cell": "TE|<=24|short",
+          "players": 11
+        },
+        {
+          "cell": "WR|<=24|short",
+          "players": 20
+        },
+        {
+          "cell": "RB|31+|none",
+          "players": 2
+        },
+        {
+          "cell": "QB|<=26|none",
+          "players": 3
+        },
+        {
+          "cell": "QB|27-31|none",
+          "players": 2
+        },
+        {
+          "cell": "QB|36+|none",
+          "players": 2
+        },
+        {
+          "cell": "QB|32-35|none",
+          "players": 2
+        }
+      ]
+    }
+  },
+  "fallbacks": [
+    {
+      "evalYear": 2018,
+      "rows": {
+        "C2": 102,
+        "C4": 157,
+        "C2f0": 102,
+        "C4f0": 157,
+        "C3": 66,
+        "C3f0": 66
+      },
+      "cells": {
+        "C2": {
+          "QB|32-35->QB": 9,
+          "TE|31+->TE": 20,
+          "QB|36+->QB": 9,
+          "WR|31+->WR": 15,
+          "RB|31+->RB": 7,
+          "QB|27-31->QB": 16,
+          "QB|<=26->QB": 15,
+          "TE|<=24->TE": 11
+        },
+        "C4": {
+          "QB|32-35|qual->QB|qual": 5,
+          "TE|31+|none->TE": 1,
+          "TE|31+|qual->TE|qual": 17,
+          "QB|32-35|short->QB": 4,
+          "QB|36+|qual->QB|qual": 7,
+          "WR|31+|qual->WR|qual": 13,
+          "QB|36+|short->QB": 2,
+          "RB|31+|qual->RB|qual": 4,
+          "TE|31+|short->TE": 2,
+          "RB|31+|short->RB|short": 3,
+          "QB|27-31|qual->QB|qual": 10,
+          "WR|31+|short->WR": 1,
+          "RB|28-30|short->RB|short": 2,
+          "QB|27-31|short->QB": 6,
+          "TE|28-30|short->TE": 3,
+          "RB|25-27|none->RB": 5,
+          "WR|28-30|none->WR": 1,
+          "WR|28-30|short->WR": 3,
+          "WR|31+|none->WR": 1,
+          "RB|25-27|short->RB|short": 7,
+          "WR|25-27|none->WR": 6,
+          "WR|25-27|short->WR": 11,
+          "TE|25-27|short->TE": 6,
+          "QB|<=26|short->QB": 5,
+          "QB|<=26|qual->QB|qual": 10,
+          "TE|28-30|none->TE": 1,
+          "TE|25-27|none->TE": 4,
+          "TE|<=24|qual->TE|qual": 10,
+          "RB|<=24|none->RB": 1,
+          "TE|<=24|none->TE": 1,
+          "WR|<=24|short->WR": 2,
+          "RB|<=24|short->RB|short": 3
+        },
+        "C2f0": {
+          "QB|32-35->QB": 9,
+          "TE|31+->TE": 20,
+          "QB|36+->QB": 9,
+          "WR|31+->WR": 15,
+          "RB|31+->RB": 7,
+          "QB|27-31->QB": 16,
+          "QB|<=26->QB": 15,
+          "TE|<=24->TE": 11
+        },
+        "C4f0": {
+          "QB|32-35|qual->QB|qual": 5,
+          "TE|31+|none->TE": 1,
+          "TE|31+|qual->TE|qual": 17,
+          "QB|32-35|short->QB": 4,
+          "QB|36+|qual->QB|qual": 7,
+          "WR|31+|qual->WR|qual": 13,
+          "QB|36+|short->QB": 2,
+          "RB|31+|qual->RB|qual": 4,
+          "TE|31+|short->TE": 2,
+          "RB|31+|short->RB|short": 3,
+          "QB|27-31|qual->QB|qual": 10,
+          "WR|31+|short->WR": 1,
+          "RB|28-30|short->RB|short": 2,
+          "QB|27-31|short->QB": 6,
+          "TE|28-30|short->TE": 3,
+          "RB|25-27|none->RB": 5,
+          "WR|28-30|none->WR": 1,
+          "WR|28-30|short->WR": 3,
+          "WR|31+|none->WR": 1,
+          "RB|25-27|short->RB|short": 7,
+          "WR|25-27|none->WR": 6,
+          "WR|25-27|short->WR": 11,
+          "TE|25-27|short->TE": 6,
+          "QB|<=26|short->QB": 5,
+          "QB|<=26|qual->QB|qual": 10,
+          "TE|28-30|none->TE": 1,
+          "TE|25-27|none->TE": 4,
+          "TE|<=24|qual->TE|qual": 10,
+          "RB|<=24|none->RB": 1,
+          "TE|<=24|none->TE": 1,
+          "WR|<=24|short->WR": 2,
+          "RB|<=24|short->RB|short": 3
+        },
+        "C3": {
+          "TE|none->TE": 7,
+          "QB|short->QB": 17,
+          "TE|short->TE": 11,
+          "WR|short->WR": 17,
+          "RB|none->RB": 6,
+          "WR|none->WR": 8
+        },
+        "C3f0": {
+          "TE|none->TE": 7,
+          "QB|short->QB": 17,
+          "TE|short->TE": 11,
+          "WR|short->WR": 17,
+          "RB|none->RB": 6,
+          "WR|none->WR": 8
+        }
+      }
+    },
+    {
+      "evalYear": 2019,
+      "rows": {
+        "C2": 102,
+        "C4": 150,
+        "C2f0": 102,
+        "C4f0": 150,
+        "C3": 54,
+        "C3f0": 54
+      },
+      "cells": {
+        "C2": {
+          "QB|32-35->QB": 11,
+          "TE|31+->TE": 15,
+          "QB|36+->QB": 10,
+          "WR|31+->WR": 18,
+          "RB|31+->RB": 8,
+          "QB|27-31->QB": 18,
+          "QB|<=26->QB": 14,
+          "TE|<=24->TE": 8
+        },
+        "C4": {
+          "QB|32-35|qual->QB|qual": 7,
+          "TE|31+|qual->TE|qual": 13,
+          "QB|32-35|short->QB": 3,
+          "QB|36+|qual->QB|qual": 6,
+          "QB|36+|short->QB": 3,
+          "WR|31+|short->WR|short": 6,
+          "RB|31+|qual->RB|qual": 7,
+          "WR|31+|qual->WR|qual": 11,
+          "QB|36+|none->QB": 1,
+          "TE|31+|none->TE": 2,
+          "WR|31+|none->WR": 1,
+          "QB|32-35|none->QB": 1,
+          "QB|27-31|qual->QB|qual": 8,
+          "QB|27-31|short->QB": 10,
+          "RB|28-30|none->RB": 3,
+          "WR|28-30|short->WR|short": 2,
+          "RB|31+|short->RB|short": 1,
+          "TE|28-30|short->TE": 4,
+          "QB|<=26|qual->QB|qual": 11,
+          "QB|<=26|short->QB": 3,
+          "WR|28-30|none->WR": 1,
+          "RB|25-27|short->RB|short": 6,
+          "TE|25-27|short->TE": 8,
+          "WR|25-27|short->WR|short": 7,
+          "RB|25-27|none->RB": 1,
+          "TE|25-27|none->TE": 2,
+          "WR|25-27|none->WR": 4,
+          "TE|<=24|short->TE": 3,
+          "RB|<=24|none->RB": 1,
+          "RB|<=24|short->RB|short": 3,
+          "WR|<=24|short->WR|short": 3,
+          "WR|<=24|none->WR": 3,
+          "TE|<=24|qual->TE|qual": 5
+        },
+        "C2f0": {
+          "QB|32-35->QB": 11,
+          "TE|31+->TE": 15,
+          "QB|36+->QB": 10,
+          "WR|31+->WR": 18,
+          "RB|31+->RB": 8,
+          "QB|27-31->QB": 18,
+          "QB|<=26->QB": 14,
+          "TE|<=24->TE": 8
+        },
+        "C4f0": {
+          "QB|32-35|qual->QB|qual": 7,
+          "TE|31+|qual->TE|qual": 13,
+          "QB|32-35|short->QB": 3,
+          "QB|36+|qual->QB|qual": 6,
+          "QB|36+|short->QB": 3,
+          "WR|31+|short->WR|short": 6,
+          "RB|31+|qual->RB|qual": 7,
+          "WR|31+|qual->WR|qual": 11,
+          "QB|36+|none->QB": 1,
+          "TE|31+|none->TE": 2,
+          "WR|31+|none->WR": 1,
+          "QB|32-35|none->QB": 1,
+          "QB|27-31|qual->QB|qual": 8,
+          "QB|27-31|short->QB": 10,
+          "RB|28-30|none->RB": 3,
+          "WR|28-30|short->WR|short": 2,
+          "RB|31+|short->RB|short": 1,
+          "TE|28-30|short->TE": 4,
+          "QB|<=26|qual->QB|qual": 11,
+          "QB|<=26|short->QB": 3,
+          "WR|28-30|none->WR": 1,
+          "RB|25-27|short->RB|short": 6,
+          "TE|25-27|short->TE": 8,
+          "WR|25-27|short->WR|short": 7,
+          "RB|25-27|none->RB": 1,
+          "TE|25-27|none->TE": 2,
+          "WR|25-27|none->WR": 4,
+          "TE|<=24|short->TE": 3,
+          "RB|<=24|none->RB": 1,
+          "RB|<=24|short->RB|short": 3,
+          "WR|<=24|short->WR|short": 3,
+          "WR|<=24|none->WR": 3,
+          "TE|<=24|qual->TE|qual": 5
+        },
+        "C3": {
+          "QB|short->QB": 19,
+          "QB|none->QB": 2,
+          "TE|none->TE": 4,
+          "WR|none->WR": 9,
+          "RB|none->RB": 5,
+          "TE|short->TE": 15
+        },
+        "C3f0": {
+          "QB|short->QB": 19,
+          "QB|none->QB": 2,
+          "TE|none->TE": 4,
+          "WR|none->WR": 9,
+          "RB|none->RB": 5,
+          "TE|short->TE": 15
+        }
+      }
+    },
+    {
+      "evalYear": 2020,
+      "rows": {
+        "C2": 62,
+        "C4": 171,
+        "C2f0": 62,
+        "C4f0": 171,
+        "C3": 10,
+        "C3f0": 10
+      },
+      "cells": {
+        "C2": {
+          "QB|36+->QB": 8,
+          "TE|31+->TE": 18,
+          "RB|31+->RB": 7,
+          "QB|32-35->QB": 11,
+          "QB|<=26->QB": 18
+        },
+        "C4": {
+          "QB|36+|short->QB|short": 2,
+          "QB|36+|qual->QB|qual": 6,
+          "TE|31+|qual->TE|qual": 16,
+          "WR|31+|short->WR|short": 2,
+          "RB|31+|qual->RB|qual": 5,
+          "WR|31+|qual->WR|qual": 15,
+          "QB|32-35|short->QB|short": 4,
+          "QB|32-35|qual->QB|qual": 7,
+          "QB|27-31|short->QB|short": 11,
+          "RB|31+|none->RB": 1,
+          "RB|28-30|short->RB|short": 3,
+          "WR|31+|none->WR|none": 1,
+          "WR|28-30|none->WR|none": 8,
+          "TE|31+|short->TE|short": 2,
+          "RB|31+|short->RB|short": 1,
+          "WR|28-30|short->WR|short": 9,
+          "TE|28-30|short->TE|short": 4,
+          "RB|28-30|none->RB": 2,
+          "QB|27-31|qual->QB|qual": 5,
+          "TE|25-27|none->TE": 1,
+          "TE|28-30|none->TE": 2,
+          "QB|<=26|qual->QB|qual": 13,
+          "RB|25-27|short->RB|short": 15,
+          "WR|25-27|none->WR|none": 7,
+          "QB|<=26|none->QB": 1,
+          "TE|25-27|short->TE|short": 6,
+          "QB|<=26|short->QB|short": 4,
+          "RB|<=24|short->RB|short": 2,
+          "RB|25-27|none->RB": 2,
+          "TE|<=24|qual->TE|qual": 10,
+          "WR|<=24|none->WR|none": 2,
+          "RB|<=24|none->RB": 1,
+          "WR|<=24|short->WR|short": 1
+        },
+        "C2f0": {
+          "QB|36+->QB": 8,
+          "TE|31+->TE": 18,
+          "RB|31+->RB": 7,
+          "QB|32-35->QB": 11,
+          "QB|<=26->QB": 18
+        },
+        "C4f0": {
+          "QB|36+|short->QB|short": 2,
+          "QB|36+|qual->QB|qual": 6,
+          "TE|31+|qual->TE|qual": 16,
+          "WR|31+|short->WR|short": 2,
+          "RB|31+|qual->RB|qual": 5,
+          "WR|31+|qual->WR|qual": 15,
+          "QB|32-35|short->QB|short": 4,
+          "QB|32-35|qual->QB|qual": 7,
+          "QB|27-31|short->QB|short": 11,
+          "RB|31+|none->RB": 1,
+          "RB|28-30|short->RB|short": 3,
+          "WR|31+|none->WR|none": 1,
+          "WR|28-30|none->WR|none": 8,
+          "TE|31+|short->TE|short": 2,
+          "RB|31+|short->RB|short": 1,
+          "WR|28-30|short->WR|short": 9,
+          "TE|28-30|short->TE|short": 4,
+          "RB|28-30|none->RB": 2,
+          "QB|27-31|qual->QB|qual": 5,
+          "TE|25-27|none->TE": 1,
+          "TE|28-30|none->TE": 2,
+          "QB|<=26|qual->QB|qual": 13,
+          "RB|25-27|short->RB|short": 15,
+          "WR|25-27|none->WR|none": 7,
+          "QB|<=26|none->QB": 1,
+          "TE|25-27|short->TE|short": 6,
+          "QB|<=26|short->QB|short": 4,
+          "RB|<=24|short->RB|short": 2,
+          "RB|25-27|none->RB": 2,
+          "TE|<=24|qual->TE|qual": 10,
+          "WR|<=24|none->WR|none": 2,
+          "RB|<=24|none->RB": 1,
+          "WR|<=24|short->WR|short": 1
+        },
+        "C3": {
+          "RB|none->RB": 6,
+          "TE|none->TE": 3,
+          "QB|none->QB": 1
+        },
+        "C3f0": {
+          "RB|none->RB": 6,
+          "TE|none->TE": 3,
+          "QB|none->QB": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2021,
+      "rows": {
+        "C2": 42,
+        "C4": 121,
+        "C2f0": 42,
+        "C4f0": 121,
+        "C3": 2,
+        "C3f0": 2
+      },
+      "cells": {
+        "C2": {
+          "QB|36+->QB": 7,
+          "QB|32-35->QB": 12,
+          "RB|31+->RB": 8,
+          "QB|<=26->QB": 15
+        },
+        "C4": {
+          "QB|36+|short->QB|short": 3,
+          "QB|36+|qual->QB|qual": 4,
+          "TE|31+|qual->TE|qual": 11,
+          "QB|32-35|qual->QB|qual": 6,
+          "QB|32-35|short->QB|short": 6,
+          "RB|31+|qual->RB|qual": 7,
+          "TE|31+|short->TE|short": 3,
+          "QB|27-31|short->QB|short": 9,
+          "RB|31+|short->RB|short": 1,
+          "TE|28-30|short->TE|short": 7,
+          "QB|27-31|qual->QB|qual": 10,
+          "WR|31+|short->WR|short": 1,
+          "WR|28-30|short->WR|short": 10,
+          "RB|28-30|short->RB|short": 5,
+          "WR|28-30|none->WR|none": 1,
+          "QB|<=26|short->QB|short": 5,
+          "QB|<=26|qual->QB|qual": 10,
+          "TE|25-27|short->TE|short": 5,
+          "WR|25-27|none->WR|none": 1,
+          "RB|<=24|short->RB|short": 8,
+          "TE|<=24|short->TE|short": 1,
+          "TE|25-27|none->TE": 1,
+          "WR|<=24|short->WR|short": 5,
+          "RB|25-27|none->RB": 1
+        },
+        "C2f0": {
+          "QB|36+->QB": 7,
+          "QB|32-35->QB": 12,
+          "RB|31+->RB": 8,
+          "QB|<=26->QB": 15
+        },
+        "C4f0": {
+          "QB|36+|short->QB|short": 3,
+          "QB|36+|qual->QB|qual": 4,
+          "TE|31+|qual->TE|qual": 11,
+          "QB|32-35|qual->QB|qual": 6,
+          "QB|32-35|short->QB|short": 6,
+          "RB|31+|qual->RB|qual": 7,
+          "TE|31+|short->TE|short": 3,
+          "QB|27-31|short->QB|short": 9,
+          "RB|31+|short->RB|short": 1,
+          "TE|28-30|short->TE|short": 7,
+          "QB|27-31|qual->QB|qual": 10,
+          "WR|31+|short->WR|short": 1,
+          "WR|28-30|short->WR|short": 10,
+          "RB|28-30|short->RB|short": 5,
+          "WR|28-30|none->WR|none": 1,
+          "QB|<=26|short->QB|short": 5,
+          "QB|<=26|qual->QB|qual": 10,
+          "TE|25-27|short->TE|short": 5,
+          "WR|25-27|none->WR|none": 1,
+          "RB|<=24|short->RB|short": 8,
+          "TE|<=24|short->TE|short": 1,
+          "TE|25-27|none->TE": 1,
+          "WR|<=24|short->WR|short": 5,
+          "RB|25-27|none->RB": 1
+        },
+        "C3": {
+          "TE|none->TE": 1,
+          "RB|none->RB": 1
+        },
+        "C3f0": {
+          "TE|none->TE": 1,
+          "RB|none->RB": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2022,
+      "rows": {
+        "C2": 24,
+        "C4": 114,
+        "C2f0": 24,
+        "C4f0": 114,
+        "C3": 7,
+        "C3f0": 7
+      },
+      "cells": {
+        "C2": {
+          "QB|36+->QB": 4,
+          "QB|32-35->QB": 10,
+          "RB|31+->RB": 10
+        },
+        "C4": {
+          "QB|36+|short->QB|short": 2,
+          "QB|36+|qual->QB|qual": 2,
+          "QB|32-35|qual->QB|qual": 7,
+          "TE|31+|none->TE": 1,
+          "QB|32-35|short->QB|short": 3,
+          "RB|31+|qual->RB|qual": 9,
+          "WR|31+|short->WR|short": 1,
+          "TE|31+|short->TE|short": 2,
+          "RB|31+|short->RB|short": 1,
+          "QB|27-31|qual->QB|qual": 11,
+          "WR|28-30|short->WR|short": 14,
+          "WR|31+|none->WR|none": 1,
+          "WR|28-30|none->WR|none": 2,
+          "QB|27-31|short->QB|short": 11,
+          "RB|28-30|short->RB|short": 6,
+          "TE|28-30|short->TE|short": 5,
+          "RB|28-30|none->RB": 1,
+          "WR|25-27|none->WR|none": 2,
+          "TE|28-30|none->TE": 1,
+          "QB|<=26|qual->QB|qual": 12,
+          "QB|<=26|short->QB|short": 2,
+          "TE|25-27|none->TE": 4,
+          "TE|25-27|short->TE|short": 5,
+          "WR|<=24|short->WR|short": 4,
+          "RB|<=24|short->RB|short": 5
+        },
+        "C2f0": {
+          "QB|36+->QB": 4,
+          "QB|32-35->QB": 10,
+          "RB|31+->RB": 10
+        },
+        "C4f0": {
+          "QB|36+|short->QB|short": 2,
+          "QB|36+|qual->QB|qual": 2,
+          "QB|32-35|qual->QB|qual": 7,
+          "TE|31+|none->TE": 1,
+          "QB|32-35|short->QB|short": 3,
+          "RB|31+|qual->RB|qual": 9,
+          "WR|31+|short->WR|short": 1,
+          "TE|31+|short->TE|short": 2,
+          "RB|31+|short->RB|short": 1,
+          "QB|27-31|qual->QB|qual": 11,
+          "WR|28-30|short->WR|short": 14,
+          "WR|31+|none->WR|none": 1,
+          "WR|28-30|none->WR|none": 2,
+          "QB|27-31|short->QB|short": 11,
+          "RB|28-30|short->RB|short": 6,
+          "TE|28-30|short->TE|short": 5,
+          "RB|28-30|none->RB": 1,
+          "WR|25-27|none->WR|none": 2,
+          "TE|28-30|none->TE": 1,
+          "QB|<=26|qual->QB|qual": 12,
+          "QB|<=26|short->QB|short": 2,
+          "TE|25-27|none->TE": 4,
+          "TE|25-27|short->TE|short": 5,
+          "WR|<=24|short->WR|short": 4,
+          "RB|<=24|short->RB|short": 5
+        },
+        "C3": {
+          "TE|none->TE": 6,
+          "RB|none->RB": 1
+        },
+        "C3f0": {
+          "TE|none->TE": 6,
+          "RB|none->RB": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2023,
+      "rows": {
+        "C2": 19,
+        "C4": 99,
+        "C2f0": 19,
+        "C4f0": 99
+      },
+      "cells": {
+        "C2": {
+          "QB|36+->QB": 7,
+          "QB|32-35->QB": 6,
+          "RB|31+->RB": 6
+        },
+        "C4": {
+          "QB|36+|short->QB|short": 4,
+          "QB|36+|qual->QB|qual": 3,
+          "QB|32-35|qual->QB|qual": 4,
+          "TE|31+|short->TE|short": 3,
+          "RB|31+|qual->RB|qual": 6,
+          "QB|32-35|short->QB|short": 2,
+          "QB|27-31|short->QB|short": 16,
+          "WR|31+|short->WR|short": 1,
+          "WR|28-30|short->WR|short": 12,
+          "QB|27-31|qual->QB|qual": 12,
+          "WR|28-30|none->WR|none": 4,
+          "RB|28-30|short->RB|short": 2,
+          "TE|28-30|short->TE|short": 5,
+          "WR|25-27|none->WR|none": 2,
+          "QB|<=26|qual->QB|qual": 13,
+          "TE|25-27|none->TE|none": 1,
+          "WR|<=24|short->WR|short": 2,
+          "RB|<=24|short->RB|short": 2,
+          "QB|<=26|short->QB|short": 2,
+          "TE|28-30|none->TE|none": 1,
+          "TE|<=24|short->TE|short": 2
+        },
+        "C2f0": {
+          "QB|36+->QB": 7,
+          "QB|32-35->QB": 6,
+          "RB|31+->RB": 6
+        },
+        "C4f0": {
+          "QB|36+|short->QB|short": 4,
+          "QB|36+|qual->QB|qual": 3,
+          "QB|32-35|qual->QB|qual": 4,
+          "TE|31+|short->TE|short": 3,
+          "RB|31+|qual->RB|qual": 6,
+          "QB|32-35|short->QB|short": 2,
+          "QB|27-31|short->QB|short": 16,
+          "WR|31+|short->WR|short": 1,
+          "WR|28-30|short->WR|short": 12,
+          "QB|27-31|qual->QB|qual": 12,
+          "WR|28-30|none->WR|none": 4,
+          "RB|28-30|short->RB|short": 2,
+          "TE|28-30|short->TE|short": 5,
+          "WR|25-27|none->WR|none": 2,
+          "QB|<=26|qual->QB|qual": 13,
+          "TE|25-27|none->TE|none": 1,
+          "WR|<=24|short->WR|short": 2,
+          "RB|<=24|short->RB|short": 2,
+          "QB|<=26|short->QB|short": 2,
+          "TE|28-30|none->TE|none": 1,
+          "TE|<=24|short->TE|short": 2
+        }
+      }
+    },
+    {
+      "evalYear": 2024,
+      "rows": {
+        "C2": 18,
+        "C4": 60,
+        "C2f0": 18,
+        "C4f0": 60,
+        "C3": 3,
+        "C3f0": 3
+      },
+      "cells": {
+        "C2": {
+          "QB|36+->QB": 10,
+          "QB|32-35->QB": 8
+        },
+        "C4": {
+          "QB|36+|qual->QB|qual": 6,
+          "QB|36+|none->QB": 1,
+          "QB|36+|short->QB|short": 3,
+          "QB|32-35|qual->QB|qual": 3,
+          "RB|31+|qual->RB|qual": 8,
+          "QB|32-35|short->QB|short": 4,
+          "QB|32-35|none->QB": 1,
+          "WR|31+|short->WR|short": 5,
+          "TE|31+|none->TE|none": 1,
+          "TE|31+|short->TE|short": 2,
+          "RB|28-30|short->RB|short": 7,
+          "TE|28-30|short->TE|short": 6,
+          "WR|28-30|none->WR|none": 1,
+          "TE|28-30|none->TE|none": 1,
+          "QB|<=26|none->QB": 1,
+          "QB|<=26|short->QB|short": 5,
+          "WR|<=24|short->WR|short": 2,
+          "TE|<=24|short->TE|short": 1,
+          "RB|<=24|short->RB|short": 2
+        },
+        "C2f0": {
+          "QB|36+->QB": 10,
+          "QB|32-35->QB": 8
+        },
+        "C4f0": {
+          "QB|36+|qual->QB|qual": 6,
+          "QB|36+|none->QB": 1,
+          "QB|36+|short->QB|short": 3,
+          "QB|32-35|qual->QB|qual": 3,
+          "RB|31+|qual->RB|qual": 8,
+          "QB|32-35|short->QB|short": 4,
+          "QB|32-35|none->QB": 1,
+          "WR|31+|short->WR|short": 5,
+          "TE|31+|none->TE|none": 1,
+          "TE|31+|short->TE|short": 2,
+          "RB|28-30|short->RB|short": 7,
+          "TE|28-30|short->TE|short": 6,
+          "WR|28-30|none->WR|none": 1,
+          "TE|28-30|none->TE|none": 1,
+          "QB|<=26|none->QB": 1,
+          "QB|<=26|short->QB|short": 5,
+          "WR|<=24|short->WR|short": 2,
+          "TE|<=24|short->TE|short": 1,
+          "RB|<=24|short->RB|short": 2
+        },
+        "C3": {
+          "QB|none->QB": 3
+        },
+        "C3f0": {
+          "QB|none->QB": 3
+        }
+      }
+    }
+  ]
+}
