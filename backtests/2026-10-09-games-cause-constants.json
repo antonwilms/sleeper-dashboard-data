@@ -1,0 +1,3572 @@
+{
+  "generatedAt": "2026-10-09T10:34:28.675Z",
+  "panelRev": "f67b26150cf600f1c534183aabcb48410b973979",
+  "candidates": {
+    "C3f0": {
+      "floor": 0,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short": 0.51,
+          "WR|qual": 0.8,
+          "QB|short": 0.5,
+          "TE|none": 0.55,
+          "WR|short": 0.52,
+          "WR|none": 0.5,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "RB|none",
+          "players": 31
+        },
+        {
+          "cell": "QB|none",
+          "players": 8
+        }
+      ]
+    },
+    "K1f0": {
+      "floor": 0,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|k1": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short-oth": 0.5,
+          "WR|qual": 0.8,
+          "QB|short-inj": 0.5,
+          "TE|none": 0.55,
+          "WR|short-oth": 0.5,
+          "WR|none": 0.5,
+          "RB|short-inj": 0.59,
+          "TE|short-oth": 0.53,
+          "WR|short-inj": 0.52,
+          "TE|short-inj": 0.73
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "QB|short-oth",
+          "players": 25
+        },
+        {
+          "cell": "RB|none",
+          "players": 31
+        },
+        {
+          "cell": "QB|none",
+          "players": 8
+        }
+      ]
+    },
+    "R0f0": {
+      "floor": 0,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|rel|s": {
+          "QB|rel|qual": 0.86,
+          "TE|rel|qual": 0.87,
+          "RB|oth|qual": 0.79,
+          "RB|rel|short": 0.54,
+          "WR|rel|qual": 0.87,
+          "RB|rel|qual": 0.85,
+          "QB|rel|short": 0.54,
+          "WR|oth|qual": 0.66,
+          "WR|rel|short": 0.55,
+          "QB|oth|short": 0.5,
+          "TE|oth|qual": 0.83,
+          "TE|oth|short": 0.53,
+          "WR|oth|short": 0.52,
+          "WR|oth|none": 0.5,
+          "RB|oth|short": 0.5
+        },
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short": 0.51,
+          "WR|qual": 0.8,
+          "QB|short": 0.5,
+          "TE|none": 0.55,
+          "WR|short": 0.52,
+          "WR|none": 0.5,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "TE|oth|none",
+          "players": 34
+        },
+        {
+          "cell": "WR|rel|none",
+          "players": 17
+        },
+        {
+          "cell": "QB|oth|qual",
+          "players": 21
+        },
+        {
+          "cell": "TE|rel|short",
+          "players": 30
+        },
+        {
+          "cell": "RB|rel|none",
+          "players": 13
+        },
+        {
+          "cell": "TE|rel|none",
+          "players": 10
+        },
+        {
+          "cell": "RB|oth|none",
+          "players": 18
+        },
+        {
+          "cell": "QB|rel|none",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|none",
+          "players": 5
+        }
+      ]
+    },
+    "RK1": {
+      "floor": 8,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|rel|k1": {
+          "QB|rel|qual": 0.86,
+          "TE|rel|qual": 0.87,
+          "RB|oth|qual": 0.79,
+          "WR|rel|qual": 0.87,
+          "RB|rel|qual": 0.85,
+          "QB|rel|short-inj": 0.55,
+          "WR|oth|qual": 0.66,
+          "RB|rel|short-inj": 0.61,
+          "TE|oth|qual": 0.83,
+          "TE|oth|short-oth": 0.53,
+          "WR|rel|short-inj": 0.6,
+          "WR|oth|short-oth": 0.51,
+          "WR|oth|none": 0.53,
+          "RB|oth|short-oth": 0.53,
+          "WR|oth|short-inj": 0.52
+        },
+        "pos|k1": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.81,
+          "RB|short-oth": 0.53,
+          "WR|qual": 0.8,
+          "QB|short-inj": 0.54,
+          "TE|none": 0.55,
+          "WR|short-oth": 0.5,
+          "WR|none": 0.53,
+          "RB|short-inj": 0.61,
+          "TE|short-oth": 0.53,
+          "WR|short-inj": 0.5,
+          "TE|short-inj": 0.68
+        },
+        "pos": {
+          "QB": 0.72,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.73
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "RB|rel|short-oth",
+          "players": 29
+        },
+        {
+          "cell": "TE|oth|none",
+          "players": 34
+        },
+        {
+          "cell": "WR|rel|short-oth",
+          "players": 22
+        },
+        {
+          "cell": "WR|rel|none",
+          "players": 17
+        },
+        {
+          "cell": "QB|oth|short-oth",
+          "players": 21
+        },
+        {
+          "cell": "QB|oth|qual",
+          "players": 21
+        },
+        {
+          "cell": "TE|oth|short-inj",
+          "players": 28
+        },
+        {
+          "cell": "QB|oth|short-inj",
+          "players": 31
+        },
+        {
+          "cell": "TE|rel|short-oth",
+          "players": 6
+        },
+        {
+          "cell": "RB|rel|none",
+          "players": 13
+        },
+        {
+          "cell": "TE|rel|none",
+          "players": 10
+        },
+        {
+          "cell": "RB|oth|none",
+          "players": 18
+        },
+        {
+          "cell": "TE|rel|short-inj",
+          "players": 24
+        },
+        {
+          "cell": "QB|rel|short-oth",
+          "players": 7
+        },
+        {
+          "cell": "QB|rel|none",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|none",
+          "players": 5
+        },
+        {
+          "cell": "RB|oth|short-inj",
+          "players": 8
+        }
+      ]
+    },
+    "RK1f0": {
+      "floor": 0,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|rel|k1": {
+          "QB|rel|qual": 0.86,
+          "TE|rel|qual": 0.87,
+          "RB|oth|qual": 0.79,
+          "WR|rel|qual": 0.87,
+          "RB|rel|qual": 0.85,
+          "QB|rel|short-inj": 0.54,
+          "WR|oth|qual": 0.66,
+          "RB|rel|short-inj": 0.61,
+          "TE|oth|qual": 0.83,
+          "TE|oth|short-oth": 0.53,
+          "WR|rel|short-inj": 0.65,
+          "WR|oth|short-oth": 0.5,
+          "WR|oth|none": 0.5,
+          "RB|oth|short-oth": 0.5,
+          "WR|oth|short-inj": 0.52
+        },
+        "pos|k1": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short-oth": 0.5,
+          "WR|qual": 0.8,
+          "QB|short-inj": 0.5,
+          "TE|none": 0.55,
+          "WR|short-oth": 0.5,
+          "WR|none": 0.5,
+          "RB|short-inj": 0.59,
+          "TE|short-oth": 0.53,
+          "WR|short-inj": 0.52,
+          "TE|short-inj": 0.73
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "RB|rel|short-oth",
+          "players": 29
+        },
+        {
+          "cell": "TE|oth|none",
+          "players": 34
+        },
+        {
+          "cell": "WR|rel|short-oth",
+          "players": 22
+        },
+        {
+          "cell": "WR|rel|none",
+          "players": 17
+        },
+        {
+          "cell": "QB|oth|short-oth",
+          "players": 21
+        },
+        {
+          "cell": "QB|oth|qual",
+          "players": 21
+        },
+        {
+          "cell": "TE|oth|short-inj",
+          "players": 28
+        },
+        {
+          "cell": "QB|oth|short-inj",
+          "players": 31
+        },
+        {
+          "cell": "TE|rel|short-oth",
+          "players": 6
+        },
+        {
+          "cell": "RB|rel|none",
+          "players": 13
+        },
+        {
+          "cell": "TE|rel|none",
+          "players": 10
+        },
+        {
+          "cell": "RB|oth|none",
+          "players": 18
+        },
+        {
+          "cell": "TE|rel|short-inj",
+          "players": 24
+        },
+        {
+          "cell": "QB|rel|short-oth",
+          "players": 7
+        },
+        {
+          "cell": "QB|rel|none",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|none",
+          "players": 5
+        },
+        {
+          "cell": "RB|oth|short-inj",
+          "players": 8
+        }
+      ]
+    },
+    "K2f0": {
+      "floor": 0,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|k2": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "WR|qual": 0.8,
+          "QB|short-bench": 0.5,
+          "RB|short-inj": 0.65,
+          "RB|short-cut": 0.5,
+          "WR|short-inj": 0.64,
+          "TE|short-cut": 0.5,
+          "TE|short-inj": 0.63,
+          "WR|short-cut": 0.5
+        },
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short": 0.51,
+          "WR|qual": 0.8,
+          "QB|short": 0.5,
+          "TE|none": 0.55,
+          "WR|short": 0.52,
+          "WR|none": 0.5,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "RB|short-bench",
+          "players": 22
+        },
+        {
+          "cell": "QB|short-inj",
+          "players": 22
+        },
+        {
+          "cell": "WR|none-inj",
+          "players": 26
+        },
+        {
+          "cell": "TE|none-inj",
+          "players": 15
+        },
+        {
+          "cell": "RB|none-cut",
+          "players": 14
+        },
+        {
+          "cell": "WR|none-cut",
+          "players": 36
+        },
+        {
+          "cell": "WR|none-bench",
+          "players": 2
+        },
+        {
+          "cell": "WR|short-bench",
+          "players": 22
+        },
+        {
+          "cell": "TE|short-bench",
+          "players": 11
+        },
+        {
+          "cell": "RB|none-inj",
+          "players": 12
+        },
+        {
+          "cell": "RB|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "QB|none-inj",
+          "players": 4
+        },
+        {
+          "cell": "QB|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|none-cut",
+          "players": 21
+        },
+        {
+          "cell": "QB|short-cut",
+          "players": 10
+        },
+        {
+          "cell": "QB|none-bench",
+          "players": 1
+        }
+      ]
+    },
+    "K3f0": {
+      "floor": 0,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|k3": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "WR|qual": 0.8,
+          "QB|short-inj": 0.51,
+          "RB|short-inj": 0.65,
+          "RB|short-cut": 0.5,
+          "WR|short-inj": 0.64,
+          "TE|short-cut": 0.5,
+          "TE|short-inj": 0.63,
+          "WR|short-cut": 0.5
+        },
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short": 0.51,
+          "WR|qual": 0.8,
+          "QB|short": 0.5,
+          "TE|none": 0.55,
+          "WR|short": 0.52,
+          "WR|none": 0.5,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "QB|short-bench",
+          "players": 19
+        },
+        {
+          "cell": "WR|none-inj",
+          "players": 27
+        },
+        {
+          "cell": "TE|none-inj",
+          "players": 15
+        },
+        {
+          "cell": "RB|none-cut",
+          "players": 14
+        },
+        {
+          "cell": "WR|none-cut",
+          "players": 36
+        },
+        {
+          "cell": "WR|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "RB|none-inj",
+          "players": 12
+        },
+        {
+          "cell": "RB|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "QB|none-inj",
+          "players": 5
+        },
+        {
+          "cell": "TE|short-bench",
+          "players": 8
+        },
+        {
+          "cell": "RB|short-bench",
+          "players": 13
+        },
+        {
+          "cell": "QB|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|none-cut",
+          "players": 21
+        },
+        {
+          "cell": "WR|short-bench",
+          "players": 6
+        },
+        {
+          "cell": "QB|short-cut",
+          "players": 10
+        }
+      ]
+    },
+    "RK2": {
+      "floor": 8,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|rel|k2": {
+          "QB|rel|qual": 0.86,
+          "TE|rel|qual": 0.87,
+          "RB|oth|qual": 0.79,
+          "WR|rel|qual": 0.87,
+          "RB|rel|qual": 0.85,
+          "WR|oth|qual": 0.66,
+          "TE|oth|qual": 0.83,
+          "RB|rel|short-inj": 0.68,
+          "RB|oth|short-cut": 0.53,
+          "WR|rel|short-inj": 0.71,
+          "TE|oth|short-cut": 0.53,
+          "WR|oth|short-inj": 0.52,
+          "WR|oth|short-cut": 0.51
+        },
+        "pos|k2": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.81,
+          "WR|qual": 0.8,
+          "QB|short-bench": 0.53,
+          "RB|short-inj": 0.66,
+          "RB|short-cut": 0.53,
+          "WR|short-inj": 0.64,
+          "TE|short-cut": 0.53,
+          "TE|short-inj": 0.63,
+          "WR|short-cut": 0.5
+        },
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.81,
+          "RB|short": 0.53,
+          "WR|qual": 0.8,
+          "QB|short": 0.53,
+          "TE|none": 0.55,
+          "WR|short": 0.5,
+          "WR|none": 0.53,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "QB": 0.72,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.73
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "QB|oth|qual",
+          "players": 21
+        },
+        {
+          "cell": "QB|oth|short-bench",
+          "players": 37
+        },
+        {
+          "cell": "QB|rel|short-bench",
+          "players": 35
+        },
+        {
+          "cell": "RB|rel|short-bench",
+          "players": 10
+        },
+        {
+          "cell": "QB|rel|short-inj",
+          "players": 16
+        },
+        {
+          "cell": "WR|oth|none-inj",
+          "players": 17
+        },
+        {
+          "cell": "TE|oth|none-inj",
+          "players": 12
+        },
+        {
+          "cell": "RB|oth|short-inj",
+          "players": 22
+        },
+        {
+          "cell": "TE|rel|none-inj",
+          "players": 3
+        },
+        {
+          "cell": "RB|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|short-inj",
+          "players": 36
+        },
+        {
+          "cell": "WR|oth|none-cut",
+          "players": 31
+        },
+        {
+          "cell": "WR|rel|none-cut",
+          "players": 5
+        },
+        {
+          "cell": "WR|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-cut",
+          "players": 10
+        },
+        {
+          "cell": "WR|oth|short-bench",
+          "players": 10
+        },
+        {
+          "cell": "TE|rel|short-bench",
+          "players": 5
+        },
+        {
+          "cell": "WR|rel|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "RB|rel|short-cut",
+          "players": 14
+        },
+        {
+          "cell": "RB|rel|none-inj",
+          "players": 8
+        },
+        {
+          "cell": "RB|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "QB|rel|none-inj",
+          "players": 3
+        },
+        {
+          "cell": "TE|oth|short-bench",
+          "players": 6
+        },
+        {
+          "cell": "RB|oth|short-bench",
+          "players": 12
+        },
+        {
+          "cell": "TE|rel|short-inj",
+          "players": 20
+        },
+        {
+          "cell": "WR|rel|none-inj",
+          "players": 9
+        },
+        {
+          "cell": "QB|oth|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|none-cut",
+          "players": 18
+        },
+        {
+          "cell": "TE|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "WR|rel|short-bench",
+          "players": 12
+        },
+        {
+          "cell": "TE|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|short-inj",
+          "players": 8
+        },
+        {
+          "cell": "WR|rel|short-cut",
+          "players": 20
+        },
+        {
+          "cell": "QB|oth|none-inj",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-inj",
+          "players": 4
+        },
+        {
+          "cell": "QB|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|short-cut",
+          "players": 6
+        },
+        {
+          "cell": "QB|rel|none-bench",
+          "players": 1
+        }
+      ]
+    },
+    "RK3": {
+      "floor": 8,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|rel|k3": {
+          "QB|rel|qual": 0.86,
+          "TE|rel|qual": 0.87,
+          "RB|oth|qual": 0.79,
+          "WR|rel|qual": 0.87,
+          "RB|rel|qual": 0.85,
+          "WR|oth|qual": 0.66,
+          "TE|oth|qual": 0.83,
+          "RB|rel|short-inj": 0.61,
+          "QB|rel|short-inj": 0.55,
+          "RB|oth|short-cut": 0.53,
+          "WR|rel|short-inj": 0.71,
+          "TE|oth|short-cut": 0.53,
+          "WR|oth|short-inj": 0.52,
+          "WR|oth|short-cut": 0.51
+        },
+        "pos|k3": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.81,
+          "WR|qual": 0.8,
+          "QB|short-inj": 0.54,
+          "RB|short-inj": 0.61,
+          "RB|short-cut": 0.53,
+          "WR|short-inj": 0.64,
+          "TE|short-cut": 0.53,
+          "TE|short-inj": 0.63,
+          "WR|short-cut": 0.5
+        },
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.81,
+          "RB|short": 0.53,
+          "WR|qual": 0.8,
+          "QB|short": 0.53,
+          "TE|none": 0.55,
+          "WR|short": 0.5,
+          "WR|none": 0.53,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "QB": 0.72,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.73
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "QB|oth|qual",
+          "players": 21
+        },
+        {
+          "cell": "QB|oth|short-bench",
+          "players": 17
+        },
+        {
+          "cell": "QB|oth|short-inj",
+          "players": 31
+        },
+        {
+          "cell": "QB|rel|short-bench",
+          "players": 4
+        },
+        {
+          "cell": "WR|oth|none-inj",
+          "players": 17
+        },
+        {
+          "cell": "TE|oth|none-inj",
+          "players": 12
+        },
+        {
+          "cell": "RB|oth|short-inj",
+          "players": 23
+        },
+        {
+          "cell": "TE|rel|none-inj",
+          "players": 3
+        },
+        {
+          "cell": "RB|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|short-inj",
+          "players": 36
+        },
+        {
+          "cell": "WR|oth|none-cut",
+          "players": 31
+        },
+        {
+          "cell": "WR|rel|none-cut",
+          "players": 5
+        },
+        {
+          "cell": "WR|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-cut",
+          "players": 10
+        },
+        {
+          "cell": "TE|rel|short-inj",
+          "players": 22
+        },
+        {
+          "cell": "WR|rel|none-inj",
+          "players": 10
+        },
+        {
+          "cell": "RB|rel|short-cut",
+          "players": 14
+        },
+        {
+          "cell": "RB|rel|none-inj",
+          "players": 8
+        },
+        {
+          "cell": "RB|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "QB|rel|none-inj",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|short-bench",
+          "players": 6
+        },
+        {
+          "cell": "RB|oth|short-bench",
+          "players": 11
+        },
+        {
+          "cell": "QB|oth|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|none-cut",
+          "players": 18
+        },
+        {
+          "cell": "WR|oth|short-bench",
+          "players": 5
+        },
+        {
+          "cell": "TE|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "RB|rel|short-bench",
+          "players": 2
+        },
+        {
+          "cell": "TE|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "WR|rel|short-cut",
+          "players": 20
+        },
+        {
+          "cell": "QB|oth|none-inj",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-inj",
+          "players": 4
+        },
+        {
+          "cell": "QB|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|short-cut",
+          "players": 6
+        },
+        {
+          "cell": "WR|rel|short-bench",
+          "players": 1
+        },
+        {
+          "cell": "TE|rel|short-bench",
+          "players": 2
+        }
+      ]
+    },
+    "RK2f0": {
+      "floor": 0,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|rel|k2": {
+          "QB|rel|qual": 0.86,
+          "TE|rel|qual": 0.87,
+          "RB|oth|qual": 0.79,
+          "WR|rel|qual": 0.87,
+          "RB|rel|qual": 0.85,
+          "WR|oth|qual": 0.66,
+          "TE|oth|qual": 0.83,
+          "RB|rel|short-inj": 0.74,
+          "RB|oth|short-cut": 0.5,
+          "WR|rel|short-inj": 0.71,
+          "TE|oth|short-cut": 0.5,
+          "WR|oth|short-inj": 0.64,
+          "WR|oth|short-cut": 0.5
+        },
+        "pos|k2": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "WR|qual": 0.8,
+          "QB|short-bench": 0.5,
+          "RB|short-inj": 0.65,
+          "RB|short-cut": 0.5,
+          "WR|short-inj": 0.64,
+          "TE|short-cut": 0.5,
+          "TE|short-inj": 0.63,
+          "WR|short-cut": 0.5
+        },
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short": 0.51,
+          "WR|qual": 0.8,
+          "QB|short": 0.5,
+          "TE|none": 0.55,
+          "WR|short": 0.52,
+          "WR|none": 0.5,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "QB|oth|qual",
+          "players": 21
+        },
+        {
+          "cell": "QB|oth|short-bench",
+          "players": 37
+        },
+        {
+          "cell": "QB|rel|short-bench",
+          "players": 35
+        },
+        {
+          "cell": "RB|rel|short-bench",
+          "players": 10
+        },
+        {
+          "cell": "QB|rel|short-inj",
+          "players": 16
+        },
+        {
+          "cell": "WR|oth|none-inj",
+          "players": 17
+        },
+        {
+          "cell": "TE|oth|none-inj",
+          "players": 12
+        },
+        {
+          "cell": "RB|oth|short-inj",
+          "players": 22
+        },
+        {
+          "cell": "TE|rel|none-inj",
+          "players": 3
+        },
+        {
+          "cell": "RB|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|short-inj",
+          "players": 36
+        },
+        {
+          "cell": "WR|oth|none-cut",
+          "players": 31
+        },
+        {
+          "cell": "WR|rel|none-cut",
+          "players": 5
+        },
+        {
+          "cell": "WR|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-cut",
+          "players": 10
+        },
+        {
+          "cell": "WR|oth|short-bench",
+          "players": 10
+        },
+        {
+          "cell": "TE|rel|short-bench",
+          "players": 5
+        },
+        {
+          "cell": "WR|rel|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "RB|rel|short-cut",
+          "players": 14
+        },
+        {
+          "cell": "RB|rel|none-inj",
+          "players": 8
+        },
+        {
+          "cell": "RB|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "QB|rel|none-inj",
+          "players": 3
+        },
+        {
+          "cell": "TE|oth|short-bench",
+          "players": 6
+        },
+        {
+          "cell": "RB|oth|short-bench",
+          "players": 12
+        },
+        {
+          "cell": "TE|rel|short-inj",
+          "players": 20
+        },
+        {
+          "cell": "WR|rel|none-inj",
+          "players": 9
+        },
+        {
+          "cell": "QB|oth|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|none-cut",
+          "players": 18
+        },
+        {
+          "cell": "TE|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "WR|rel|short-bench",
+          "players": 12
+        },
+        {
+          "cell": "TE|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|short-inj",
+          "players": 8
+        },
+        {
+          "cell": "WR|rel|short-cut",
+          "players": 20
+        },
+        {
+          "cell": "QB|oth|none-inj",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-inj",
+          "players": 4
+        },
+        {
+          "cell": "QB|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|short-cut",
+          "players": 6
+        },
+        {
+          "cell": "QB|rel|none-bench",
+          "players": 1
+        }
+      ]
+    },
+    "RK3f0": {
+      "floor": 0,
+      "avgKey": "avgGames",
+      "k": {
+        "pos|rel|k3": {
+          "QB|rel|qual": 0.86,
+          "TE|rel|qual": 0.87,
+          "RB|oth|qual": 0.79,
+          "WR|rel|qual": 0.87,
+          "RB|rel|qual": 0.85,
+          "WR|oth|qual": 0.66,
+          "TE|oth|qual": 0.83,
+          "RB|rel|short-inj": 0.61,
+          "QB|rel|short-inj": 0.54,
+          "RB|oth|short-cut": 0.5,
+          "WR|rel|short-inj": 0.71,
+          "TE|oth|short-cut": 0.5,
+          "WR|oth|short-inj": 0.52,
+          "WR|oth|short-cut": 0.5
+        },
+        "pos|k3": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "WR|qual": 0.8,
+          "QB|short-inj": 0.51,
+          "RB|short-inj": 0.65,
+          "RB|short-cut": 0.5,
+          "WR|short-inj": 0.64,
+          "TE|short-cut": 0.5,
+          "TE|short-inj": 0.63,
+          "WR|short-cut": 0.5
+        },
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short": 0.51,
+          "WR|qual": 0.8,
+          "QB|short": 0.5,
+          "TE|none": 0.55,
+          "WR|short": 0.52,
+          "WR|none": 0.5,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "QB|oth|qual",
+          "players": 21
+        },
+        {
+          "cell": "QB|oth|short-bench",
+          "players": 17
+        },
+        {
+          "cell": "QB|oth|short-inj",
+          "players": 31
+        },
+        {
+          "cell": "QB|rel|short-bench",
+          "players": 4
+        },
+        {
+          "cell": "WR|oth|none-inj",
+          "players": 17
+        },
+        {
+          "cell": "TE|oth|none-inj",
+          "players": 12
+        },
+        {
+          "cell": "RB|oth|short-inj",
+          "players": 23
+        },
+        {
+          "cell": "TE|rel|none-inj",
+          "players": 3
+        },
+        {
+          "cell": "RB|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|short-inj",
+          "players": 36
+        },
+        {
+          "cell": "WR|oth|none-cut",
+          "players": 31
+        },
+        {
+          "cell": "WR|rel|none-cut",
+          "players": 5
+        },
+        {
+          "cell": "WR|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-cut",
+          "players": 10
+        },
+        {
+          "cell": "TE|rel|short-inj",
+          "players": 22
+        },
+        {
+          "cell": "WR|rel|none-inj",
+          "players": 10
+        },
+        {
+          "cell": "RB|rel|short-cut",
+          "players": 14
+        },
+        {
+          "cell": "RB|rel|none-inj",
+          "players": 8
+        },
+        {
+          "cell": "RB|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "QB|rel|none-inj",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|short-bench",
+          "players": 6
+        },
+        {
+          "cell": "RB|oth|short-bench",
+          "players": 11
+        },
+        {
+          "cell": "QB|oth|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|none-cut",
+          "players": 18
+        },
+        {
+          "cell": "WR|oth|short-bench",
+          "players": 5
+        },
+        {
+          "cell": "TE|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "RB|rel|short-bench",
+          "players": 2
+        },
+        {
+          "cell": "TE|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "WR|rel|short-cut",
+          "players": 20
+        },
+        {
+          "cell": "QB|oth|none-inj",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-inj",
+          "players": 4
+        },
+        {
+          "cell": "QB|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|short-cut",
+          "players": 6
+        },
+        {
+          "cell": "WR|rel|short-bench",
+          "players": 1
+        },
+        {
+          "cell": "TE|rel|short-bench",
+          "players": 2
+        }
+      ]
+    },
+    "RK1f0L": {
+      "floor": 0,
+      "avgKey": "avgGamesL",
+      "k": {
+        "pos|rel|k1": {
+          "QB|rel|qual": 0.86,
+          "TE|rel|qual": 0.87,
+          "RB|oth|qual": 0.8,
+          "WR|rel|qual": 0.85,
+          "RB|rel|qual": 0.84,
+          "QB|rel|short-inj": 0.51,
+          "WR|oth|qual": 0.69,
+          "RB|rel|short-inj": 0.59,
+          "TE|oth|qual": 0.81,
+          "TE|oth|short-oth": 0.5,
+          "WR|rel|short-inj": 0.61,
+          "WR|oth|short-oth": 0.5,
+          "WR|oth|none": 0.5,
+          "RB|oth|short-oth": 0.5,
+          "WR|oth|short-inj": 0.51
+        },
+        "pos|k1": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.86,
+          "RB|qual": 0.81,
+          "RB|short-oth": 0.5,
+          "WR|qual": 0.79,
+          "QB|short-inj": 0.5,
+          "TE|none": 0.55,
+          "WR|short-oth": 0.5,
+          "WR|none": 0.5,
+          "RB|short-inj": 0.59,
+          "TE|short-oth": 0.5,
+          "WR|short-inj": 0.54,
+          "TE|short-inj": 0.72
+        },
+        "pos": {
+          "QB": 0.68,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "RB|rel|short-oth",
+          "players": 29
+        },
+        {
+          "cell": "TE|oth|none",
+          "players": 34
+        },
+        {
+          "cell": "WR|rel|short-oth",
+          "players": 22
+        },
+        {
+          "cell": "WR|rel|none",
+          "players": 17
+        },
+        {
+          "cell": "QB|oth|short-oth",
+          "players": 21
+        },
+        {
+          "cell": "QB|oth|qual",
+          "players": 21
+        },
+        {
+          "cell": "TE|oth|short-inj",
+          "players": 28
+        },
+        {
+          "cell": "QB|oth|short-inj",
+          "players": 31
+        },
+        {
+          "cell": "TE|rel|short-oth",
+          "players": 6
+        },
+        {
+          "cell": "RB|rel|none",
+          "players": 13
+        },
+        {
+          "cell": "TE|rel|none",
+          "players": 10
+        },
+        {
+          "cell": "RB|oth|none",
+          "players": 18
+        },
+        {
+          "cell": "TE|rel|short-inj",
+          "players": 24
+        },
+        {
+          "cell": "QB|rel|short-oth",
+          "players": 7
+        },
+        {
+          "cell": "QB|rel|none",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|none",
+          "players": 5
+        },
+        {
+          "cell": "RB|oth|short-inj",
+          "players": 8
+        }
+      ]
+    },
+    "RK3f0L": {
+      "floor": 0,
+      "avgKey": "avgGamesL",
+      "k": {
+        "pos|rel|k3": {
+          "QB|rel|qual": 0.86,
+          "TE|rel|qual": 0.87,
+          "RB|oth|qual": 0.8,
+          "WR|rel|qual": 0.85,
+          "RB|rel|qual": 0.84,
+          "WR|oth|qual": 0.69,
+          "TE|oth|qual": 0.81,
+          "RB|rel|short-inj": 0.61,
+          "QB|rel|short-inj": 0.51,
+          "RB|oth|short-cut": 0.5,
+          "WR|rel|short-inj": 0.67,
+          "TE|oth|short-cut": 0.5,
+          "WR|oth|short-inj": 0.56,
+          "WR|oth|short-cut": 0.5
+        },
+        "pos|k3": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.86,
+          "RB|qual": 0.81,
+          "WR|qual": 0.79,
+          "QB|short-inj": 0.5,
+          "RB|short-inj": 0.61,
+          "RB|short-cut": 0.5,
+          "WR|short-inj": 0.61,
+          "TE|short-cut": 0.5,
+          "TE|short-inj": 0.64,
+          "WR|short-cut": 0.5
+        },
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.86,
+          "RB|qual": 0.81,
+          "RB|short": 0.53,
+          "WR|qual": 0.79,
+          "QB|short": 0.5,
+          "TE|none": 0.55,
+          "WR|short": 0.5,
+          "WR|none": 0.5,
+          "TE|short": 0.55
+        },
+        "pos": {
+          "QB": 0.68,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "QB|oth|qual",
+          "players": 21
+        },
+        {
+          "cell": "QB|oth|short-bench",
+          "players": 17
+        },
+        {
+          "cell": "QB|oth|short-inj",
+          "players": 31
+        },
+        {
+          "cell": "QB|rel|short-bench",
+          "players": 4
+        },
+        {
+          "cell": "WR|oth|none-inj",
+          "players": 17
+        },
+        {
+          "cell": "TE|oth|none-inj",
+          "players": 12
+        },
+        {
+          "cell": "RB|oth|short-inj",
+          "players": 23
+        },
+        {
+          "cell": "TE|rel|none-inj",
+          "players": 3
+        },
+        {
+          "cell": "RB|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|short-inj",
+          "players": 36
+        },
+        {
+          "cell": "WR|oth|none-cut",
+          "players": 31
+        },
+        {
+          "cell": "WR|rel|none-cut",
+          "players": 5
+        },
+        {
+          "cell": "WR|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-cut",
+          "players": 10
+        },
+        {
+          "cell": "TE|rel|short-inj",
+          "players": 22
+        },
+        {
+          "cell": "WR|rel|none-inj",
+          "players": 10
+        },
+        {
+          "cell": "RB|rel|short-cut",
+          "players": 14
+        },
+        {
+          "cell": "RB|rel|none-inj",
+          "players": 8
+        },
+        {
+          "cell": "RB|oth|none-bench",
+          "players": 1
+        },
+        {
+          "cell": "QB|rel|none-inj",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|short-bench",
+          "players": 6
+        },
+        {
+          "cell": "RB|oth|short-bench",
+          "players": 11
+        },
+        {
+          "cell": "QB|oth|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "TE|oth|none-cut",
+          "players": 18
+        },
+        {
+          "cell": "WR|oth|short-bench",
+          "players": 5
+        },
+        {
+          "cell": "TE|rel|none-cut",
+          "players": 4
+        },
+        {
+          "cell": "RB|rel|short-bench",
+          "players": 2
+        },
+        {
+          "cell": "TE|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "WR|rel|short-cut",
+          "players": 20
+        },
+        {
+          "cell": "QB|oth|none-inj",
+          "players": 1
+        },
+        {
+          "cell": "RB|oth|none-inj",
+          "players": 4
+        },
+        {
+          "cell": "QB|rel|short-cut",
+          "players": 4
+        },
+        {
+          "cell": "QB|oth|short-cut",
+          "players": 6
+        },
+        {
+          "cell": "WR|rel|short-bench",
+          "players": 1
+        },
+        {
+          "cell": "TE|rel|short-bench",
+          "players": 2
+        }
+      ]
+    }
+  },
+  "fallbacks": [
+    {
+      "evalYear": 2018,
+      "rows": {
+        "C3f0": 66,
+        "K1f0": 81,
+        "R0f0": 85,
+        "RK1": 85,
+        "RK1f0": 85,
+        "K2f0": 81,
+        "K3f0": 81,
+        "RK2": 85,
+        "RK3": 85,
+        "RK2f0": 85,
+        "RK3f0": 85,
+        "RK1f0L": 85,
+        "RK3f0L": 85
+      },
+      "cells": {
+        "C3f0": {
+          "TE|none->TE": 7,
+          "QB|short->QB": 17,
+          "TE|short->TE": 11,
+          "WR|short->WR": 17,
+          "RB|none->RB": 6,
+          "WR|none->WR": 8
+        },
+        "K1f0": {
+          "TE|none->TE": 7,
+          "QB|short-oth->QB": 4,
+          "QB|short-inj->QB": 13,
+          "TE|short-inj->TE": 6,
+          "RB|short-oth->RB": 8,
+          "WR|short-inj->WR": 7,
+          "RB|short-inj->RB": 7,
+          "RB|none->RB": 6,
+          "WR|none->WR": 8,
+          "WR|short-oth->WR": 10,
+          "TE|short-oth->TE": 5
+        },
+        "R0f0": {
+          "TE|rel|none->TE": 2,
+          "QB|oth|short->QB": 11,
+          "TE|oth|short->TE": 6,
+          "QB|rel|short->QB": 6,
+          "RB|rel|short->RB|short": 9,
+          "TE|rel|short->TE": 5,
+          "QB|oth|qual->QB|qual": 4,
+          "WR|rel|short->WR": 6,
+          "RB|oth|short->RB|short": 6,
+          "RB|rel|none->RB": 2,
+          "WR|oth|none->WR": 7,
+          "WR|oth|short->WR": 11,
+          "WR|rel|none->WR": 1,
+          "TE|oth|none->TE": 5,
+          "RB|oth|none->RB": 4
+        },
+        "RK1": {
+          "TE|rel|none->TE": 2,
+          "QB|oth|short-oth->QB": 4,
+          "QB|oth|short-inj->QB": 7,
+          "TE|oth|short-inj->TE": 2,
+          "QB|rel|short-inj->QB": 6,
+          "RB|rel|short-oth->RB": 3,
+          "TE|rel|short-inj->TE": 4,
+          "QB|oth|qual->QB|qual": 4,
+          "WR|rel|short-inj->WR": 5,
+          "RB|rel|short-inj->RB": 6,
+          "RB|oth|short-oth->RB": 5,
+          "RB|rel|none->RB": 2,
+          "WR|oth|none->WR": 7,
+          "WR|oth|short-inj->WR": 2,
+          "WR|rel|none->WR": 1,
+          "WR|oth|short-oth->WR": 9,
+          "TE|oth|short-oth->TE": 4,
+          "TE|rel|short-oth->TE": 1,
+          "TE|oth|none->TE": 5,
+          "RB|oth|none->RB": 4,
+          "WR|rel|short-oth->WR": 1,
+          "RB|oth|short-inj->RB": 1
+        },
+        "RK1f0": {
+          "TE|rel|none->TE": 2,
+          "QB|oth|short-oth->QB": 4,
+          "QB|oth|short-inj->QB": 7,
+          "TE|oth|short-inj->TE": 2,
+          "QB|rel|short-inj->QB": 6,
+          "RB|rel|short-oth->RB": 3,
+          "TE|rel|short-inj->TE": 4,
+          "QB|oth|qual->QB|qual": 4,
+          "WR|rel|short-inj->WR": 5,
+          "RB|rel|short-inj->RB": 6,
+          "RB|oth|short-oth->RB": 5,
+          "RB|rel|none->RB": 2,
+          "WR|oth|none->WR": 7,
+          "WR|oth|short-inj->WR": 2,
+          "WR|rel|none->WR": 1,
+          "WR|oth|short-oth->WR": 9,
+          "TE|oth|short-oth->TE": 4,
+          "TE|rel|short-oth->TE": 1,
+          "TE|oth|none->TE": 5,
+          "RB|oth|none->RB": 4,
+          "WR|rel|short-oth->WR": 1,
+          "RB|oth|short-inj->RB": 1
+        },
+        "K2f0": {
+          "TE|none-cut->TE": 4,
+          "QB|short-bench->QB": 17,
+          "TE|short-inj->TE": 7,
+          "RB|short-bench->RB|short": 3,
+          "WR|short-inj->WR": 14,
+          "RB|short-inj->RB|short": 7,
+          "RB|short-cut->RB|short": 5,
+          "RB|none-cut->RB": 5,
+          "WR|none-cut->WR": 4,
+          "WR|short-bench->WR": 1,
+          "WR|short-cut->WR": 2,
+          "WR|none-inj->WR": 4,
+          "RB|none-inj->RB": 1,
+          "TE|short-cut->TE": 4,
+          "TE|none-inj->TE": 3
+        },
+        "K3f0": {
+          "TE|none-cut->TE": 4,
+          "QB|short-bench->QB": 4,
+          "QB|short-inj->QB": 13,
+          "TE|short-inj->TE": 7,
+          "RB|short-bench->RB|short": 2,
+          "WR|short-inj->WR": 15,
+          "RB|short-inj->RB|short": 8,
+          "RB|short-cut->RB|short": 5,
+          "RB|none-cut->RB": 5,
+          "WR|none-cut->WR": 4,
+          "WR|short-cut->WR": 2,
+          "WR|none-inj->WR": 4,
+          "RB|none-inj->RB": 1,
+          "TE|short-cut->TE": 4,
+          "TE|none-inj->TE": 3
+        },
+        "RK2": {
+          "TE|rel|none-cut->TE": 1,
+          "QB|oth|short-bench->QB": 11,
+          "TE|oth|short-inj->TE": 3,
+          "QB|rel|short-bench->QB": 6,
+          "RB|rel|short-bench->RB|short": 2,
+          "TE|rel|short-inj->TE": 4,
+          "QB|oth|qual->QB|qual": 4,
+          "WR|rel|short-inj->WR": 5,
+          "RB|rel|short-inj->RB|short": 6,
+          "RB|oth|short-inj->RB|short": 1,
+          "RB|rel|short-cut->RB|short": 1,
+          "RB|rel|none-cut->RB": 1,
+          "WR|oth|none-cut->WR": 4,
+          "WR|rel|short-bench->WR": 1,
+          "WR|oth|short-cut->WR": 2,
+          "RB|oth|short-bench->RB|short": 1,
+          "WR|rel|none-inj->WR": 1,
+          "WR|oth|short-inj->WR": 9,
+          "RB|rel|none-inj->RB": 1,
+          "TE|oth|short-cut->TE": 3,
+          "TE|rel|short-cut->TE": 1,
+          "TE|oth|none-cut->TE": 3,
+          "RB|oth|none-cut->RB": 4,
+          "TE|oth|none-inj->TE": 2,
+          "TE|rel|none-inj->TE": 1,
+          "WR|oth|none-inj->WR": 3,
+          "RB|oth|short-cut->RB|short": 4
+        },
+        "RK3": {
+          "TE|rel|none-cut->TE": 1,
+          "QB|oth|short-bench->QB": 4,
+          "QB|oth|short-inj->QB": 7,
+          "TE|oth|short-inj->TE": 3,
+          "QB|rel|short-inj->QB": 6,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|rel|short-inj->TE": 4,
+          "QB|oth|qual->QB|qual": 4,
+          "WR|rel|short-inj->WR": 6,
+          "RB|rel|short-inj->RB|short": 7,
+          "RB|oth|short-inj->RB|short": 1,
+          "RB|rel|short-cut->RB|short": 1,
+          "RB|rel|none-cut->RB": 1,
+          "WR|oth|none-cut->WR": 4,
+          "WR|oth|short-cut->WR": 2,
+          "RB|oth|short-bench->RB|short": 1,
+          "WR|rel|none-inj->WR": 1,
+          "WR|oth|short-inj->WR": 9,
+          "RB|rel|none-inj->RB": 1,
+          "TE|oth|short-cut->TE": 3,
+          "TE|rel|short-cut->TE": 1,
+          "TE|oth|none-cut->TE": 3,
+          "RB|oth|none-cut->RB": 4,
+          "TE|oth|none-inj->TE": 2,
+          "TE|rel|none-inj->TE": 1,
+          "WR|oth|none-inj->WR": 3,
+          "RB|oth|short-cut->RB|short": 4
+        },
+        "RK2f0": {
+          "TE|rel|none-cut->TE": 1,
+          "QB|oth|short-bench->QB": 11,
+          "TE|oth|short-inj->TE": 3,
+          "QB|rel|short-bench->QB": 6,
+          "RB|rel|short-bench->RB|short": 2,
+          "TE|rel|short-inj->TE": 4,
+          "QB|oth|qual->QB|qual": 4,
+          "WR|rel|short-inj->WR": 5,
+          "RB|rel|short-inj->RB|short": 6,
+          "RB|oth|short-inj->RB|short": 1,
+          "RB|rel|short-cut->RB|short": 1,
+          "RB|rel|none-cut->RB": 1,
+          "WR|oth|none-cut->WR": 4,
+          "WR|rel|short-bench->WR": 1,
+          "WR|oth|short-cut->WR": 2,
+          "RB|oth|short-bench->RB|short": 1,
+          "WR|rel|none-inj->WR": 1,
+          "WR|oth|short-inj->WR": 9,
+          "RB|rel|none-inj->RB": 1,
+          "TE|oth|short-cut->TE": 3,
+          "TE|rel|short-cut->TE": 1,
+          "TE|oth|none-cut->TE": 3,
+          "RB|oth|none-cut->RB": 4,
+          "TE|oth|none-inj->TE": 2,
+          "TE|rel|none-inj->TE": 1,
+          "WR|oth|none-inj->WR": 3,
+          "RB|oth|short-cut->RB|short": 4
+        },
+        "RK3f0": {
+          "TE|rel|none-cut->TE": 1,
+          "QB|oth|short-bench->QB": 4,
+          "QB|oth|short-inj->QB": 7,
+          "TE|oth|short-inj->TE": 3,
+          "QB|rel|short-inj->QB": 6,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|rel|short-inj->TE": 4,
+          "QB|oth|qual->QB|qual": 4,
+          "WR|rel|short-inj->WR": 6,
+          "RB|rel|short-inj->RB|short": 7,
+          "RB|oth|short-inj->RB|short": 1,
+          "RB|rel|short-cut->RB|short": 1,
+          "RB|rel|none-cut->RB": 1,
+          "WR|oth|none-cut->WR": 4,
+          "WR|oth|short-cut->WR": 2,
+          "RB|oth|short-bench->RB|short": 1,
+          "WR|rel|none-inj->WR": 1,
+          "WR|oth|short-inj->WR": 9,
+          "RB|rel|none-inj->RB": 1,
+          "TE|oth|short-cut->TE": 3,
+          "TE|rel|short-cut->TE": 1,
+          "TE|oth|none-cut->TE": 3,
+          "RB|oth|none-cut->RB": 4,
+          "TE|oth|none-inj->TE": 2,
+          "TE|rel|none-inj->TE": 1,
+          "WR|oth|none-inj->WR": 3,
+          "RB|oth|short-cut->RB|short": 4
+        },
+        "RK1f0L": {
+          "TE|rel|none->TE": 2,
+          "QB|oth|short-oth->QB": 4,
+          "QB|oth|short-inj->QB": 7,
+          "TE|oth|short-inj->TE": 2,
+          "QB|rel|short-inj->QB": 6,
+          "RB|rel|short-oth->RB": 3,
+          "TE|rel|short-inj->TE": 4,
+          "QB|oth|qual->QB|qual": 4,
+          "WR|rel|short-inj->WR": 5,
+          "RB|rel|short-inj->RB": 6,
+          "RB|oth|short-oth->RB": 5,
+          "RB|rel|none->RB": 2,
+          "WR|oth|none->WR": 7,
+          "WR|oth|short-inj->WR": 2,
+          "WR|rel|none->WR": 1,
+          "WR|oth|short-oth->WR": 9,
+          "TE|oth|short-oth->TE": 4,
+          "TE|rel|short-oth->TE": 1,
+          "TE|oth|none->TE": 5,
+          "RB|oth|none->RB": 4,
+          "WR|rel|short-oth->WR": 1,
+          "RB|oth|short-inj->RB": 1
+        },
+        "RK3f0L": {
+          "TE|rel|none-cut->TE": 1,
+          "QB|oth|short-bench->QB": 4,
+          "QB|oth|short-inj->QB": 7,
+          "TE|oth|short-inj->TE": 3,
+          "QB|rel|short-inj->QB": 6,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|rel|short-inj->TE": 4,
+          "QB|oth|qual->QB|qual": 4,
+          "WR|rel|short-inj->WR": 6,
+          "RB|rel|short-inj->RB|short": 7,
+          "RB|oth|short-inj->RB|short": 1,
+          "RB|rel|short-cut->RB|short": 1,
+          "RB|rel|none-cut->RB": 1,
+          "WR|oth|none-cut->WR": 4,
+          "WR|oth|short-cut->WR": 2,
+          "RB|oth|short-bench->RB|short": 1,
+          "WR|rel|none-inj->WR": 1,
+          "WR|oth|short-inj->WR": 9,
+          "RB|rel|none-inj->RB": 1,
+          "TE|oth|short-cut->TE": 3,
+          "TE|rel|short-cut->TE": 1,
+          "TE|oth|none-cut->TE": 3,
+          "RB|oth|none-cut->RB": 4,
+          "TE|oth|none-inj->TE": 2,
+          "TE|rel|none-inj->TE": 1,
+          "WR|oth|none-inj->WR": 3,
+          "RB|oth|short-cut->RB|short": 4
+        }
+      }
+    },
+    {
+      "evalYear": 2019,
+      "rows": {
+        "C3f0": 54,
+        "K1f0": 75,
+        "R0f0": 83,
+        "RK1": 83,
+        "RK1f0": 83,
+        "K2f0": 82,
+        "K3f0": 82,
+        "RK2": 83,
+        "RK3": 83,
+        "RK2f0": 83,
+        "RK3f0": 83,
+        "RK1f0L": 83,
+        "RK3f0L": 83
+      },
+      "cells": {
+        "C3f0": {
+          "QB|short->QB": 19,
+          "QB|none->QB": 2,
+          "TE|none->TE": 4,
+          "WR|none->WR": 9,
+          "RB|none->RB": 5,
+          "TE|short->TE": 15
+        },
+        "K1f0": {
+          "QB|short-oth->QB": 7,
+          "QB|short-inj->QB": 12,
+          "WR|short-inj->WR": 7,
+          "QB|none->QB": 2,
+          "TE|none->TE": 4,
+          "WR|short-oth->WR": 11,
+          "WR|none->WR": 9,
+          "RB|none->RB": 5,
+          "TE|short-inj->TE": 9,
+          "TE|short-oth->TE": 6,
+          "RB|short-inj->RB": 3
+        },
+        "R0f0": {
+          "QB|oth|short->QB": 12,
+          "QB|rel|short->QB": 7,
+          "WR|rel|short->WR|short": 10,
+          "QB|rel|none->QB": 1,
+          "TE|rel|none->TE": 1,
+          "WR|rel|none->WR": 1,
+          "QB|oth|none->QB": 1,
+          "WR|oth|short->WR|short": 8,
+          "TE|oth|none->TE": 3,
+          "RB|rel|none->RB": 4,
+          "RB|rel|short->RB|short": 7,
+          "QB|oth|qual->QB|qual": 1,
+          "TE|rel|short->TE": 4,
+          "TE|oth|short->TE": 11,
+          "WR|oth|none->WR": 8,
+          "RB|oth|short->RB|short": 3,
+          "RB|oth|none->RB": 1
+        },
+        "RK1": {
+          "QB|oth|short-oth->QB": 6,
+          "QB|rel|short-inj->QB": 6,
+          "WR|rel|short-inj->WR": 5,
+          "QB|rel|none->QB": 1,
+          "QB|oth|short-inj->QB": 6,
+          "TE|rel|none->TE": 1,
+          "WR|rel|short-oth->WR": 5,
+          "WR|rel|none->WR": 1,
+          "QB|oth|none->QB": 1,
+          "WR|oth|short-oth->WR": 6,
+          "TE|oth|none->TE": 3,
+          "RB|rel|none->RB": 4,
+          "RB|rel|short-oth->RB|short-oth": 5,
+          "QB|oth|qual->QB|qual": 1,
+          "TE|rel|short-inj->TE": 4,
+          "TE|oth|short-inj->TE": 5,
+          "TE|oth|short-oth->TE": 6,
+          "WR|oth|short-inj->WR": 2,
+          "WR|oth|none->WR": 8,
+          "RB|rel|short-inj->RB": 2,
+          "QB|rel|short-oth->QB": 1,
+          "RB|oth|short-inj->RB": 1,
+          "RB|oth|none->RB": 1,
+          "RB|oth|short-oth->RB|short-oth": 2
+        },
+        "RK1f0": {
+          "QB|oth|short-oth->QB": 6,
+          "QB|rel|short-inj->QB": 6,
+          "WR|rel|short-inj->WR": 5,
+          "QB|rel|none->QB": 1,
+          "QB|oth|short-inj->QB": 6,
+          "TE|rel|none->TE": 1,
+          "WR|rel|short-oth->WR": 5,
+          "WR|rel|none->WR": 1,
+          "QB|oth|none->QB": 1,
+          "WR|oth|short-oth->WR": 6,
+          "TE|oth|none->TE": 3,
+          "RB|rel|none->RB": 4,
+          "RB|rel|short-oth->RB|short-oth": 5,
+          "QB|oth|qual->QB|qual": 1,
+          "TE|rel|short-inj->TE": 4,
+          "TE|oth|short-inj->TE": 5,
+          "TE|oth|short-oth->TE": 6,
+          "WR|oth|short-inj->WR": 2,
+          "WR|oth|none->WR": 8,
+          "RB|rel|short-inj->RB": 2,
+          "QB|rel|short-oth->QB": 1,
+          "RB|oth|short-inj->RB": 1,
+          "RB|oth|none->RB": 1,
+          "RB|oth|short-oth->RB|short-oth": 2
+        },
+        "K2f0": {
+          "QB|short-inj->QB": 6,
+          "WR|short-inj->WR|short": 9,
+          "QB|short-bench->QB": 13,
+          "QB|none-inj->QB": 2,
+          "TE|none-cut->TE": 3,
+          "WR|short-cut->WR|short": 6,
+          "WR|none-cut->WR": 5,
+          "WR|short-bench->WR|short": 3,
+          "RB|none-inj->RB": 3,
+          "RB|short-cut->RB|short": 4,
+          "TE|short-inj->TE": 8,
+          "TE|short-cut->TE": 7,
+          "RB|short-bench->RB|short": 2,
+          "RB|none-cut->RB": 2,
+          "RB|short-inj->RB|short": 4,
+          "WR|none-inj->WR": 4,
+          "TE|none-inj->TE": 1
+        },
+        "K3f0": {
+          "QB|short-inj->QB": 14,
+          "WR|short-inj->WR|short": 11,
+          "QB|short-bench->QB": 5,
+          "QB|none-inj->QB": 2,
+          "TE|none-cut->TE": 3,
+          "WR|short-cut->WR|short": 6,
+          "WR|none-cut->WR": 5,
+          "WR|short-bench->WR|short": 1,
+          "RB|none-inj->RB": 3,
+          "RB|short-cut->RB|short": 4,
+          "TE|short-inj->TE": 8,
+          "TE|short-cut->TE": 7,
+          "RB|short-inj->RB|short": 5,
+          "RB|none-cut->RB": 2,
+          "WR|none-inj->WR": 4,
+          "TE|none-inj->TE": 1,
+          "RB|short-bench->RB|short": 1
+        },
+        "RK2": {
+          "QB|oth|short-inj->QB": 3,
+          "QB|rel|short-inj->QB": 3,
+          "WR|rel|short-inj->WR|short": 6,
+          "QB|oth|short-bench->QB": 9,
+          "QB|rel|short-bench->QB": 4,
+          "QB|rel|none-inj->QB": 1,
+          "TE|rel|none-cut->TE": 1,
+          "WR|rel|short-cut->WR|short": 2,
+          "WR|rel|none-cut->WR": 1,
+          "QB|oth|none-inj->QB": 1,
+          "WR|rel|short-bench->WR|short": 2,
+          "WR|oth|short-bench->WR|short": 1,
+          "TE|oth|none-cut->TE": 2,
+          "RB|rel|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 4,
+          "QB|oth|qual->QB|qual": 1,
+          "TE|rel|short-inj->TE": 4,
+          "TE|oth|short-cut->TE": 7,
+          "WR|oth|short-inj->WR|short": 3,
+          "WR|oth|none-cut->WR": 4,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|oth|short-inj->TE": 4,
+          "RB|rel|none-cut->RB": 1,
+          "RB|oth|short-inj->RB|short": 2,
+          "WR|oth|short-cut->WR|short": 4,
+          "RB|oth|none-cut->RB": 1,
+          "WR|oth|none-inj->WR": 4,
+          "TE|oth|none-inj->TE": 1,
+          "RB|rel|short-inj->RB|short": 2,
+          "RB|oth|short-bench->RB|short": 1
+        },
+        "RK3": {
+          "QB|oth|short-inj->QB": 8,
+          "QB|rel|short-inj->QB": 6,
+          "WR|rel|short-inj->WR|short": 8,
+          "QB|oth|short-bench->QB": 4,
+          "QB|rel|none-inj->QB": 1,
+          "TE|rel|none-cut->TE": 1,
+          "WR|rel|short-cut->WR|short": 2,
+          "WR|rel|none-cut->WR": 1,
+          "QB|oth|none-inj->QB": 1,
+          "WR|oth|short-bench->WR|short": 1,
+          "TE|oth|none-cut->TE": 2,
+          "RB|rel|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 4,
+          "QB|oth|qual->QB|qual": 1,
+          "TE|rel|short-inj->TE": 4,
+          "TE|oth|short-cut->TE": 7,
+          "WR|oth|short-inj->WR|short": 3,
+          "WR|oth|none-cut->WR": 4,
+          "RB|rel|short-inj->RB|short": 3,
+          "QB|rel|short-bench->QB": 1,
+          "TE|oth|short-inj->TE": 4,
+          "RB|rel|none-cut->RB": 1,
+          "RB|oth|short-inj->RB|short": 2,
+          "WR|oth|short-cut->WR|short": 4,
+          "RB|oth|none-cut->RB": 1,
+          "WR|oth|none-inj->WR": 4,
+          "TE|oth|none-inj->TE": 1,
+          "RB|oth|short-bench->RB|short": 1
+        },
+        "RK2f0": {
+          "QB|oth|short-inj->QB": 3,
+          "QB|rel|short-inj->QB": 3,
+          "WR|rel|short-inj->WR|short": 6,
+          "QB|oth|short-bench->QB": 9,
+          "QB|rel|short-bench->QB": 4,
+          "QB|rel|none-inj->QB": 1,
+          "TE|rel|none-cut->TE": 1,
+          "WR|rel|short-cut->WR|short": 2,
+          "WR|rel|none-cut->WR": 1,
+          "QB|oth|none-inj->QB": 1,
+          "WR|rel|short-bench->WR|short": 2,
+          "WR|oth|short-bench->WR|short": 1,
+          "TE|oth|none-cut->TE": 2,
+          "RB|rel|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 4,
+          "QB|oth|qual->QB|qual": 1,
+          "TE|rel|short-inj->TE": 4,
+          "TE|oth|short-cut->TE": 7,
+          "WR|oth|short-inj->WR|short": 3,
+          "WR|oth|none-cut->WR": 4,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|oth|short-inj->TE": 4,
+          "RB|rel|none-cut->RB": 1,
+          "RB|oth|short-inj->RB|short": 2,
+          "WR|oth|short-cut->WR|short": 4,
+          "RB|oth|none-cut->RB": 1,
+          "WR|oth|none-inj->WR": 4,
+          "TE|oth|none-inj->TE": 1,
+          "RB|rel|short-inj->RB|short": 2,
+          "RB|oth|short-bench->RB|short": 1
+        },
+        "RK3f0": {
+          "QB|oth|short-inj->QB": 8,
+          "QB|rel|short-inj->QB": 6,
+          "WR|rel|short-inj->WR|short": 8,
+          "QB|oth|short-bench->QB": 4,
+          "QB|rel|none-inj->QB": 1,
+          "TE|rel|none-cut->TE": 1,
+          "WR|rel|short-cut->WR|short": 2,
+          "WR|rel|none-cut->WR": 1,
+          "QB|oth|none-inj->QB": 1,
+          "WR|oth|short-bench->WR|short": 1,
+          "TE|oth|none-cut->TE": 2,
+          "RB|rel|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 4,
+          "QB|oth|qual->QB|qual": 1,
+          "TE|rel|short-inj->TE": 4,
+          "TE|oth|short-cut->TE": 7,
+          "WR|oth|short-inj->WR|short": 3,
+          "WR|oth|none-cut->WR": 4,
+          "RB|rel|short-inj->RB|short": 3,
+          "QB|rel|short-bench->QB": 1,
+          "TE|oth|short-inj->TE": 4,
+          "RB|rel|none-cut->RB": 1,
+          "RB|oth|short-inj->RB|short": 2,
+          "WR|oth|short-cut->WR|short": 4,
+          "RB|oth|none-cut->RB": 1,
+          "WR|oth|none-inj->WR": 4,
+          "TE|oth|none-inj->TE": 1,
+          "RB|oth|short-bench->RB|short": 1
+        },
+        "RK1f0L": {
+          "QB|oth|short-oth->QB": 6,
+          "QB|rel|short-inj->QB": 6,
+          "WR|rel|short-inj->WR": 5,
+          "QB|rel|none->QB": 1,
+          "QB|oth|short-inj->QB": 6,
+          "TE|rel|none->TE": 1,
+          "WR|rel|short-oth->WR": 5,
+          "WR|rel|none->WR": 1,
+          "QB|oth|none->QB": 1,
+          "WR|oth|short-oth->WR": 6,
+          "TE|oth|none->TE": 3,
+          "RB|rel|none->RB": 4,
+          "RB|rel|short-oth->RB|short-oth": 5,
+          "QB|oth|qual->QB|qual": 1,
+          "TE|rel|short-inj->TE": 4,
+          "TE|oth|short-inj->TE": 5,
+          "TE|oth|short-oth->TE": 6,
+          "WR|oth|short-inj->WR": 2,
+          "WR|oth|none->WR": 8,
+          "RB|rel|short-inj->RB": 2,
+          "QB|rel|short-oth->QB": 1,
+          "RB|oth|short-inj->RB": 1,
+          "RB|oth|none->RB": 1,
+          "RB|oth|short-oth->RB|short-oth": 2
+        },
+        "RK3f0L": {
+          "QB|oth|short-inj->QB": 8,
+          "QB|rel|short-inj->QB": 6,
+          "WR|rel|short-inj->WR|short": 8,
+          "QB|oth|short-bench->QB": 4,
+          "QB|rel|none-inj->QB": 1,
+          "TE|rel|none-cut->TE": 1,
+          "WR|rel|short-cut->WR|short": 2,
+          "WR|rel|none-cut->WR": 1,
+          "QB|oth|none-inj->QB": 1,
+          "WR|oth|short-bench->WR|short": 1,
+          "TE|oth|none-cut->TE": 2,
+          "RB|rel|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 4,
+          "QB|oth|qual->QB|qual": 1,
+          "TE|rel|short-inj->TE": 4,
+          "TE|oth|short-cut->TE": 7,
+          "WR|oth|short-inj->WR|short": 3,
+          "WR|oth|none-cut->WR": 4,
+          "RB|rel|short-inj->RB|short": 3,
+          "QB|rel|short-bench->QB": 1,
+          "TE|oth|short-inj->TE": 4,
+          "RB|rel|none-cut->RB": 1,
+          "RB|oth|short-inj->RB|short": 2,
+          "WR|oth|short-cut->WR|short": 4,
+          "RB|oth|none-cut->RB": 1,
+          "WR|oth|none-inj->WR": 4,
+          "TE|oth|none-inj->TE": 1,
+          "RB|oth|short-bench->RB|short": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2020,
+      "rows": {
+        "R0f0": 106,
+        "RK1": 118,
+        "RK1f0": 118,
+        "K2f0": 114,
+        "K3f0": 95,
+        "RK2": 118,
+        "RK3": 118,
+        "RK2f0": 118,
+        "RK3f0": 118,
+        "RK1f0L": 118,
+        "RK3f0L": 118,
+        "K1f0": 51,
+        "C3f0": 10
+      },
+      "cells": {
+        "R0f0": {
+          "QB|rel|short->QB|short": 9,
+          "QB|oth|short->QB|short": 12,
+          "WR|rel|short->WR|short": 15,
+          "QB|oth|qual->QB|qual": 4,
+          "RB|oth|none->RB": 5,
+          "WR|oth|none->WR|none": 12,
+          "WR|rel|none->WR|none": 6,
+          "TE|oth|short->TE|short": 8,
+          "RB|oth|short->RB|short": 9,
+          "WR|oth|short->WR|short": 17,
+          "RB|rel|none->RB": 1,
+          "TE|rel|none->TE": 1,
+          "TE|rel|short->TE|short": 4,
+          "TE|oth|none->TE": 2,
+          "QB|oth|none->QB": 1
+        },
+        "RK1": {
+          "QB|rel|short-inj->QB|short-inj": 8,
+          "QB|oth|short-oth->QB": 5,
+          "WR|rel|short-inj->WR": 14,
+          "QB|oth|short-inj->QB|short-inj": 7,
+          "QB|oth|qual->QB|qual": 4,
+          "RB|oth|none->RB": 5,
+          "RB|rel|short-oth->RB|short-oth": 5,
+          "WR|oth|none->WR|none": 12,
+          "WR|rel|none->WR|none": 6,
+          "TE|oth|short-oth->TE": 8,
+          "RB|oth|short-oth->RB|short-oth": 9,
+          "WR|oth|short-oth->WR|short-oth": 15,
+          "RB|rel|none->RB": 1,
+          "QB|rel|short-oth->QB": 1,
+          "RB|rel|short-inj->RB": 7,
+          "TE|rel|none->TE": 1,
+          "TE|rel|short-inj->TE": 3,
+          "TE|oth|none->TE": 2,
+          "QB|oth|none->QB": 1,
+          "WR|rel|short-oth->WR|short-oth": 1,
+          "TE|rel|short-oth->TE": 1,
+          "WR|oth|short-inj->WR": 2
+        },
+        "RK1f0": {
+          "QB|rel|short-inj->QB|short-inj": 8,
+          "QB|oth|short-oth->QB": 5,
+          "WR|rel|short-inj->WR": 14,
+          "QB|oth|short-inj->QB|short-inj": 7,
+          "QB|oth|qual->QB|qual": 4,
+          "RB|oth|none->RB": 5,
+          "RB|rel|short-oth->RB|short-oth": 5,
+          "WR|oth|none->WR|none": 12,
+          "WR|rel|none->WR|none": 6,
+          "TE|oth|short-oth->TE": 8,
+          "RB|oth|short-oth->RB|short-oth": 9,
+          "WR|oth|short-oth->WR|short-oth": 15,
+          "RB|rel|none->RB": 1,
+          "QB|rel|short-oth->QB": 1,
+          "RB|rel|short-inj->RB": 7,
+          "TE|rel|none->TE": 1,
+          "TE|rel|short-inj->TE": 3,
+          "TE|oth|none->TE": 2,
+          "QB|oth|none->QB": 1,
+          "WR|rel|short-oth->WR|short-oth": 1,
+          "TE|rel|short-oth->TE": 1,
+          "WR|oth|short-inj->WR": 2
+        },
+        "K2f0": {
+          "QB|short-bench->QB|short": 15,
+          "WR|short-inj->WR|short": 13,
+          "RB|none-inj->RB": 4,
+          "RB|short-cut->RB|short": 9,
+          "WR|none-inj->WR|none": 9,
+          "WR|none-cut->WR|none": 9,
+          "TE|short-cut->TE|short": 6,
+          "QB|short-inj->QB|short": 3,
+          "QB|short-cut->QB|short": 3,
+          "RB|short-inj->RB|short": 9,
+          "WR|short-cut->WR|short": 11,
+          "TE|none-inj->TE": 3,
+          "RB|short-bench->RB|short": 3,
+          "TE|short-inj->TE|short": 3,
+          "TE|short-bench->TE|short": 3,
+          "RB|none-cut->RB": 2,
+          "WR|short-bench->WR|short": 8,
+          "QB|none-cut->QB": 1
+        },
+        "K3f0": {
+          "QB|short-inj->QB|short": 14,
+          "QB|short-bench->QB|short": 4,
+          "RB|none-inj->RB": 4,
+          "RB|short-cut->RB|short": 9,
+          "WR|none-inj->WR|none": 9,
+          "WR|none-cut->WR|none": 9,
+          "TE|short-cut->TE|short": 6,
+          "QB|short-cut->QB|short": 3,
+          "RB|short-inj->RB|short": 10,
+          "WR|short-cut->WR|short": 11,
+          "TE|none-inj->TE": 3,
+          "RB|short-bench->RB|short": 2,
+          "TE|short-inj->TE|short": 3,
+          "TE|short-bench->TE|short": 3,
+          "RB|none-cut->RB": 2,
+          "QB|none-cut->QB": 1,
+          "WR|short-bench->WR|short": 2
+        },
+        "RK2": {
+          "QB|rel|short-bench->QB|short": 5,
+          "QB|oth|short-bench->QB|short": 10,
+          "WR|rel|short-inj->WR|short": 8,
+          "QB|oth|qual->QB|qual": 4,
+          "RB|oth|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 5,
+          "WR|oth|none-inj->WR|none": 5,
+          "WR|rel|none-cut->WR|none": 2,
+          "TE|oth|short-cut->TE|short": 6,
+          "WR|rel|none-inj->WR|none": 4,
+          "RB|oth|short-cut->RB|short": 4,
+          "WR|oth|short-inj->WR|short": 5,
+          "RB|rel|none-inj->RB": 1,
+          "QB|rel|short-inj->QB|short": 3,
+          "QB|rel|short-cut->QB|short": 1,
+          "RB|rel|short-inj->RB|short": 6,
+          "WR|oth|short-cut->WR|short": 11,
+          "WR|oth|none-cut->WR|none": 7,
+          "TE|rel|none-inj->TE": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-bench->TE|short": 2,
+          "RB|oth|none-cut->RB": 2,
+          "TE|oth|none-inj->TE": 2,
+          "WR|rel|short-bench->WR|short": 7,
+          "QB|oth|none-cut->QB": 1,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-inj->RB|short": 3,
+          "WR|oth|short-bench->WR|short": 1
+        },
+        "RK3": {
+          "QB|rel|short-inj->QB|short": 8,
+          "QB|oth|short-bench->QB|short": 4,
+          "WR|rel|short-inj->WR|short-inj": 14,
+          "QB|oth|short-inj->QB|short": 6,
+          "QB|oth|qual->QB|qual": 4,
+          "RB|oth|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 5,
+          "WR|oth|none-inj->WR|none": 5,
+          "WR|rel|none-cut->WR|none": 2,
+          "TE|oth|short-cut->TE|short": 6,
+          "WR|rel|none-inj->WR|none": 4,
+          "RB|oth|short-cut->RB|short": 4,
+          "WR|oth|short-inj->WR|short-inj": 5,
+          "RB|rel|none-inj->RB": 1,
+          "QB|rel|short-cut->QB|short": 1,
+          "RB|rel|short-inj->RB|short": 7,
+          "WR|oth|short-cut->WR|short": 11,
+          "WR|oth|none-cut->WR|none": 7,
+          "TE|rel|none-inj->TE": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-bench->TE|short": 2,
+          "RB|oth|none-cut->RB": 2,
+          "TE|oth|none-inj->TE": 2,
+          "QB|oth|none-cut->QB": 1,
+          "WR|rel|short-bench->WR|short": 1,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-inj->RB|short": 3,
+          "WR|oth|short-bench->WR|short": 1
+        },
+        "RK2f0": {
+          "QB|rel|short-bench->QB|short": 5,
+          "QB|oth|short-bench->QB|short": 10,
+          "WR|rel|short-inj->WR|short": 8,
+          "QB|oth|qual->QB|qual": 4,
+          "RB|oth|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 5,
+          "WR|oth|none-inj->WR|none": 5,
+          "WR|rel|none-cut->WR|none": 2,
+          "TE|oth|short-cut->TE|short": 6,
+          "WR|rel|none-inj->WR|none": 4,
+          "RB|oth|short-cut->RB|short": 4,
+          "WR|oth|short-inj->WR|short": 5,
+          "RB|rel|none-inj->RB": 1,
+          "QB|rel|short-inj->QB|short": 3,
+          "QB|rel|short-cut->QB|short": 1,
+          "RB|rel|short-inj->RB|short": 6,
+          "WR|oth|short-cut->WR|short": 11,
+          "WR|oth|none-cut->WR|none": 7,
+          "TE|rel|none-inj->TE": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-bench->TE|short": 2,
+          "RB|oth|none-cut->RB": 2,
+          "TE|oth|none-inj->TE": 2,
+          "WR|rel|short-bench->WR|short": 7,
+          "QB|oth|none-cut->QB": 1,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-inj->RB|short": 3,
+          "WR|oth|short-bench->WR|short": 1
+        },
+        "RK3f0": {
+          "QB|rel|short-inj->QB|short": 8,
+          "QB|oth|short-bench->QB|short": 4,
+          "WR|rel|short-inj->WR|short-inj": 14,
+          "QB|oth|short-inj->QB|short": 6,
+          "QB|oth|qual->QB|qual": 4,
+          "RB|oth|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 5,
+          "WR|oth|none-inj->WR|none": 5,
+          "WR|rel|none-cut->WR|none": 2,
+          "TE|oth|short-cut->TE|short": 6,
+          "WR|rel|none-inj->WR|none": 4,
+          "RB|oth|short-cut->RB|short": 4,
+          "WR|oth|short-inj->WR|short-inj": 5,
+          "RB|rel|none-inj->RB": 1,
+          "QB|rel|short-cut->QB|short": 1,
+          "RB|rel|short-inj->RB|short": 7,
+          "WR|oth|short-cut->WR|short": 11,
+          "WR|oth|none-cut->WR|none": 7,
+          "TE|rel|none-inj->TE": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-bench->TE|short": 2,
+          "RB|oth|none-cut->RB": 2,
+          "TE|oth|none-inj->TE": 2,
+          "QB|oth|none-cut->QB": 1,
+          "WR|rel|short-bench->WR|short": 1,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-inj->RB|short": 3,
+          "WR|oth|short-bench->WR|short": 1
+        },
+        "RK1f0L": {
+          "QB|rel|short-inj->QB|short-inj": 8,
+          "QB|oth|short-oth->QB": 5,
+          "WR|rel|short-inj->WR": 14,
+          "QB|oth|short-inj->QB|short-inj": 7,
+          "QB|oth|qual->QB|qual": 4,
+          "RB|oth|none->RB": 5,
+          "RB|rel|short-oth->RB|short-oth": 5,
+          "WR|oth|none->WR|none": 12,
+          "WR|rel|none->WR|none": 6,
+          "TE|oth|short-oth->TE": 8,
+          "RB|oth|short-oth->RB|short-oth": 9,
+          "WR|oth|short-oth->WR|short-oth": 15,
+          "RB|rel|none->RB": 1,
+          "QB|rel|short-oth->QB": 1,
+          "RB|rel|short-inj->RB": 7,
+          "TE|rel|none->TE": 1,
+          "TE|rel|short-inj->TE": 3,
+          "TE|oth|none->TE": 2,
+          "QB|oth|none->QB": 1,
+          "WR|rel|short-oth->WR|short-oth": 1,
+          "TE|rel|short-oth->TE": 1,
+          "WR|oth|short-inj->WR": 2
+        },
+        "RK3f0L": {
+          "QB|rel|short-inj->QB|short": 8,
+          "QB|oth|short-bench->QB|short": 4,
+          "WR|rel|short-inj->WR|short-inj": 14,
+          "QB|oth|short-inj->QB|short": 6,
+          "QB|oth|qual->QB|qual": 4,
+          "RB|oth|none-inj->RB": 3,
+          "RB|rel|short-cut->RB|short": 5,
+          "WR|oth|none-inj->WR|none": 5,
+          "WR|rel|none-cut->WR|none": 2,
+          "TE|oth|short-cut->TE|short": 6,
+          "WR|rel|none-inj->WR|none": 4,
+          "RB|oth|short-cut->RB|short": 4,
+          "WR|oth|short-inj->WR|short-inj": 5,
+          "RB|rel|none-inj->RB": 1,
+          "QB|rel|short-cut->QB|short": 1,
+          "RB|rel|short-inj->RB|short": 7,
+          "WR|oth|short-cut->WR|short": 11,
+          "WR|oth|none-cut->WR|none": 7,
+          "TE|rel|none-inj->TE": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-bench->TE|short": 2,
+          "RB|oth|none-cut->RB": 2,
+          "TE|oth|none-inj->TE": 2,
+          "QB|oth|none-cut->QB": 1,
+          "WR|rel|short-bench->WR|short": 1,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-inj->RB|short": 3,
+          "WR|oth|short-bench->WR|short": 1
+        },
+        "K1f0": {
+          "QB|short-oth->QB": 6,
+          "WR|short-inj->WR": 16,
+          "RB|none->RB": 6,
+          "TE|short-oth->TE": 9,
+          "RB|short-inj->RB": 7,
+          "TE|none->TE": 3,
+          "TE|short-inj->TE": 3,
+          "QB|none->QB": 1
+        },
+        "C3f0": {
+          "RB|none->RB": 6,
+          "TE|none->TE": 3,
+          "QB|none->QB": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2021,
+      "rows": {
+        "R0f0": 45,
+        "RK1": 94,
+        "RK1f0": 94,
+        "K2f0": 95,
+        "RK2": 114,
+        "RK3": 114,
+        "RK2f0": 114,
+        "RK3f0": 114,
+        "RK1f0L": 94,
+        "RK3f0L": 114,
+        "K1f0": 33,
+        "K3f0": 65,
+        "C3f0": 2
+      },
+      "cells": {
+        "R0f0": {
+          "QB|oth|short->QB|short": 15,
+          "QB|oth|qual->QB|qual": 3,
+          "RB|oth|short->RB|short": 14,
+          "QB|rel|short->QB|short": 8,
+          "TE|rel|short->TE|short": 3,
+          "TE|oth|none->TE": 1,
+          "RB|oth|none->RB": 1
+        },
+        "RK1": {
+          "QB|oth|short-inj->QB|short-inj": 10,
+          "QB|oth|short-oth->QB": 5,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|oth|short-oth->TE": 9,
+          "RB|oth|short-oth->RB|short-oth": 14,
+          "QB|rel|short-oth->QB": 1,
+          "TE|oth|short-inj->TE": 4,
+          "WR|rel|short-oth->WR|short-oth": 3,
+          "TE|rel|short-inj->TE": 3,
+          "QB|rel|short-inj->QB|short-inj": 7,
+          "WR|rel|short-inj->WR|short-inj": 11,
+          "RB|rel|short-inj->RB": 9,
+          "WR|oth|short-inj->WR|short-inj": 13,
+          "TE|oth|none->TE": 1,
+          "RB|oth|none->RB": 1
+        },
+        "RK1f0": {
+          "QB|oth|short-inj->QB|short-inj": 10,
+          "QB|oth|short-oth->QB": 5,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|oth|short-oth->TE": 9,
+          "RB|oth|short-oth->RB|short-oth": 14,
+          "QB|rel|short-oth->QB": 1,
+          "TE|oth|short-inj->TE": 4,
+          "WR|rel|short-oth->WR|short-oth": 3,
+          "TE|rel|short-inj->TE": 3,
+          "QB|rel|short-inj->QB|short-inj": 7,
+          "WR|rel|short-inj->WR|short-inj": 11,
+          "RB|rel|short-inj->RB": 9,
+          "WR|oth|short-inj->WR|short-inj": 13,
+          "TE|oth|none->TE": 1,
+          "RB|oth|none->RB": 1
+        },
+        "K2f0": {
+          "QB|short-bench->QB|short": 18,
+          "QB|short-inj->QB|short": 3,
+          "TE|short-cut->TE|short": 6,
+          "RB|short-cut->RB|short": 11,
+          "WR|short-cut->WR|short": 26,
+          "TE|short-inj->TE|short": 8,
+          "WR|short-bench->WR|short": 3,
+          "QB|short-cut->QB|short": 2,
+          "RB|short-inj->RB|short": 10,
+          "WR|none-cut->WR|none": 2,
+          "RB|short-bench->RB|short": 2,
+          "TE|short-bench->TE|short": 2,
+          "TE|none-cut->TE": 1,
+          "RB|none-inj->RB": 1
+        },
+        "RK2": {
+          "QB|oth|short-bench->QB|short": 11,
+          "QB|oth|qual->QB|qual": 3,
+          "QB|oth|short-inj->QB|short": 2,
+          "TE|oth|short-cut->TE|short": 6,
+          "RB|oth|short-cut->RB|short": 9,
+          "QB|rel|short-bench->QB|short": 7,
+          "WR|rel|short-cut->WR|short": 6,
+          "TE|rel|short-inj->TE|short": 2,
+          "QB|rel|short-inj->QB|short": 1,
+          "WR|oth|short-cut->WR|short": 20,
+          "WR|rel|short-bench->WR|short": 3,
+          "TE|oth|short-inj->TE|short": 6,
+          "RB|rel|short-cut->RB|short": 2,
+          "QB|oth|short-cut->QB|short": 2,
+          "RB|rel|short-inj->RB|short": 6,
+          "WR|oth|none-cut->WR|none": 2,
+          "WR|rel|short-inj->WR|short-inj": 5,
+          "WR|oth|short-inj->WR|short-inj": 11,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-inj->RB|short": 4,
+          "TE|oth|none-cut->TE": 1,
+          "RB|oth|short-bench->RB|short": 1,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|none-inj->RB": 1
+        },
+        "RK3": {
+          "QB|oth|short-inj->QB|short-inj": 9,
+          "QB|oth|short-bench->QB|short": 4,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|oth|short-cut->TE|short": 6,
+          "RB|oth|short-cut->RB|short": 9,
+          "QB|rel|short-bench->QB|short": 1,
+          "WR|rel|short-cut->WR|short": 6,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|rel|short-inj->QB|short-inj": 7,
+          "WR|oth|short-cut->WR|short": 20,
+          "WR|rel|short-inj->WR|short-inj": 8,
+          "TE|oth|short-inj->TE|short": 6,
+          "RB|rel|short-cut->RB|short": 2,
+          "QB|oth|short-cut->QB|short": 2,
+          "RB|rel|short-inj->RB|short-inj": 7,
+          "WR|oth|none-cut->WR|none": 2,
+          "WR|oth|short-inj->WR|short-inj": 11,
+          "RB|oth|short-inj->RB|short-inj": 4,
+          "TE|oth|none-cut->TE": 1,
+          "RB|oth|short-bench->RB|short": 1,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|none-inj->RB": 1
+        },
+        "RK2f0": {
+          "QB|oth|short-bench->QB|short": 11,
+          "QB|oth|qual->QB|qual": 3,
+          "QB|oth|short-inj->QB|short": 2,
+          "TE|oth|short-cut->TE|short": 6,
+          "RB|oth|short-cut->RB|short": 9,
+          "QB|rel|short-bench->QB|short": 7,
+          "WR|rel|short-cut->WR|short": 6,
+          "TE|rel|short-inj->TE|short": 2,
+          "QB|rel|short-inj->QB|short": 1,
+          "WR|oth|short-cut->WR|short": 20,
+          "WR|rel|short-bench->WR|short": 3,
+          "TE|oth|short-inj->TE|short": 6,
+          "RB|rel|short-cut->RB|short": 2,
+          "QB|oth|short-cut->QB|short": 2,
+          "RB|rel|short-inj->RB|short": 6,
+          "WR|oth|none-cut->WR|none": 2,
+          "WR|rel|short-inj->WR|short-inj": 5,
+          "WR|oth|short-inj->WR|short-inj": 11,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-inj->RB|short": 4,
+          "TE|oth|none-cut->TE": 1,
+          "RB|oth|short-bench->RB|short": 1,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|none-inj->RB": 1
+        },
+        "RK3f0": {
+          "QB|oth|short-inj->QB|short-inj": 9,
+          "QB|oth|short-bench->QB|short": 4,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|oth|short-cut->TE|short": 6,
+          "RB|oth|short-cut->RB|short": 9,
+          "QB|rel|short-bench->QB|short": 1,
+          "WR|rel|short-cut->WR|short": 6,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|rel|short-inj->QB|short-inj": 7,
+          "WR|oth|short-cut->WR|short": 20,
+          "WR|rel|short-inj->WR|short-inj": 8,
+          "TE|oth|short-inj->TE|short": 6,
+          "RB|rel|short-cut->RB|short": 2,
+          "QB|oth|short-cut->QB|short": 2,
+          "RB|rel|short-inj->RB|short-inj": 7,
+          "WR|oth|none-cut->WR|none": 2,
+          "WR|oth|short-inj->WR|short-inj": 11,
+          "RB|oth|short-inj->RB|short-inj": 4,
+          "TE|oth|none-cut->TE": 1,
+          "RB|oth|short-bench->RB|short": 1,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|none-inj->RB": 1
+        },
+        "RK1f0L": {
+          "QB|oth|short-inj->QB|short-inj": 10,
+          "QB|oth|short-oth->QB": 5,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|oth|short-oth->TE": 9,
+          "RB|oth|short-oth->RB|short-oth": 14,
+          "QB|rel|short-oth->QB": 1,
+          "TE|oth|short-inj->TE": 4,
+          "WR|rel|short-oth->WR|short-oth": 3,
+          "TE|rel|short-inj->TE": 3,
+          "QB|rel|short-inj->QB|short-inj": 7,
+          "WR|rel|short-inj->WR|short-inj": 11,
+          "RB|rel|short-inj->RB": 9,
+          "WR|oth|short-inj->WR|short-inj": 13,
+          "TE|oth|none->TE": 1,
+          "RB|oth|none->RB": 1
+        },
+        "RK3f0L": {
+          "QB|oth|short-inj->QB|short-inj": 9,
+          "QB|oth|short-bench->QB|short": 4,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|oth|short-cut->TE|short": 6,
+          "RB|oth|short-cut->RB|short": 9,
+          "QB|rel|short-bench->QB|short": 1,
+          "WR|rel|short-cut->WR|short": 6,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|rel|short-inj->QB|short-inj": 7,
+          "WR|oth|short-cut->WR|short": 20,
+          "WR|rel|short-inj->WR|short-inj": 8,
+          "TE|oth|short-inj->TE|short": 6,
+          "RB|rel|short-cut->RB|short": 2,
+          "QB|oth|short-cut->QB|short": 2,
+          "RB|rel|short-inj->RB|short-inj": 7,
+          "WR|oth|none-cut->WR|none": 2,
+          "WR|oth|short-inj->WR|short-inj": 11,
+          "RB|oth|short-inj->RB|short-inj": 4,
+          "TE|oth|none-cut->TE": 1,
+          "RB|oth|short-bench->RB|short": 1,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|none-inj->RB": 1
+        },
+        "K1f0": {
+          "QB|short-oth->QB": 6,
+          "TE|short-oth->TE": 9,
+          "TE|short-inj->TE": 7,
+          "RB|short-inj->RB": 9,
+          "TE|none->TE": 1,
+          "RB|none->RB": 1
+        },
+        "K3f0": {
+          "QB|short-bench->QB|short": 5,
+          "TE|short-cut->TE|short": 6,
+          "RB|short-cut->RB|short": 11,
+          "WR|short-cut->WR|short": 26,
+          "TE|short-inj->TE|short": 9,
+          "QB|short-cut->QB|short": 2,
+          "WR|none-cut->WR|none": 2,
+          "TE|none-cut->TE": 1,
+          "RB|short-bench->RB|short": 1,
+          "TE|short-bench->TE|short": 1,
+          "RB|none-inj->RB": 1
+        },
+        "C3f0": {
+          "TE|none->TE": 1,
+          "RB|none->RB": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2022,
+      "rows": {
+        "R0f0": 21,
+        "RK1": 55,
+        "RK1f0": 55,
+        "RK2": 109,
+        "RK3": 101,
+        "RK2f0": 109,
+        "RK3f0": 101,
+        "RK1f0L": 55,
+        "RK3f0L": 101,
+        "K2f0": 46,
+        "C3f0": 7,
+        "K1f0": 15,
+        "K3f0": 43
+      },
+      "cells": {
+        "R0f0": {
+          "QB|oth|short->QB|short": 11,
+          "TE|rel|none->TE": 1,
+          "QB|oth|qual->QB|qual": 2,
+          "WR|rel|none->WR|none": 1,
+          "RB|oth|none->RB": 1,
+          "TE|oth|none->TE": 5
+        },
+        "RK1": {
+          "QB|oth|short-inj->QB|short-inj": 8,
+          "TE|rel|none->TE": 1,
+          "QB|oth|short-oth->QB": 3,
+          "WR|rel|short-oth->WR|short-oth": 4,
+          "QB|oth|qual->QB|qual": 2,
+          "TE|oth|short-oth->TE|short-oth": 7,
+          "RB|oth|short-inj->RB|short-inj": 3,
+          "WR|rel|none->WR|none": 1,
+          "TE|oth|short-inj->TE": 5,
+          "WR|oth|short-inj->WR|short-inj": 10,
+          "RB|oth|none->RB": 1,
+          "TE|oth|none->TE": 5,
+          "RB|rel|short-inj->RB|short-inj": 4,
+          "RB|rel|short-oth->RB|short-oth": 1
+        },
+        "RK1f0": {
+          "QB|oth|short-inj->QB|short-inj": 8,
+          "TE|rel|none->TE": 1,
+          "QB|oth|short-oth->QB": 3,
+          "WR|rel|short-oth->WR|short-oth": 4,
+          "QB|oth|qual->QB|qual": 2,
+          "TE|oth|short-oth->TE|short-oth": 7,
+          "RB|oth|short-inj->RB|short-inj": 3,
+          "WR|rel|none->WR|none": 1,
+          "TE|oth|short-inj->TE": 5,
+          "WR|oth|short-inj->WR|short-inj": 10,
+          "RB|oth|none->RB": 1,
+          "TE|oth|none->TE": 5,
+          "RB|rel|short-inj->RB|short-inj": 4,
+          "RB|rel|short-oth->RB|short-oth": 1
+        },
+        "RK2": {
+          "QB|oth|short-bench->QB|short-bench": 8,
+          "QB|oth|short-inj->QB|short": 1,
+          "TE|rel|none-cut->TE": 1,
+          "WR|rel|short-cut->WR|short-cut": 5,
+          "QB|oth|qual->QB|qual": 2,
+          "TE|oth|short-inj->TE|short": 7,
+          "RB|oth|short-inj->RB|short-inj": 5,
+          "WR|oth|none-cut->WR|none": 4,
+          "WR|rel|none-cut->WR|none": 1,
+          "QB|rel|short-bench->QB|short-bench": 5,
+          "WR|rel|short-inj->WR|short-inj": 8,
+          "WR|oth|short-cut->WR|short-cut": 22,
+          "WR|oth|short-inj->WR|short-inj": 5,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-cut->TE|short": 4,
+          "QB|rel|short-inj->QB|short": 2,
+          "RB|oth|none-cut->RB": 1,
+          "RB|oth|short-cut->RB|short": 13,
+          "TE|oth|none-cut->TE": 5,
+          "RB|rel|short-inj->RB|short-inj": 3,
+          "RB|rel|short-bench->RB|short": 2,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 2
+        },
+        "RK3": {
+          "QB|oth|short-inj->QB|short-inj": 7,
+          "TE|rel|none-cut->TE": 1,
+          "QB|oth|short-bench->QB|short": 2,
+          "WR|rel|short-cut->WR|short-cut": 5,
+          "QB|oth|qual->QB|qual": 2,
+          "TE|oth|short-inj->TE|short": 7,
+          "RB|oth|short-inj->RB|short-inj": 6,
+          "WR|oth|none-cut->WR|none": 4,
+          "WR|rel|none-cut->WR|none": 1,
+          "QB|rel|short-inj->QB|short-inj": 7,
+          "WR|oth|short-cut->WR|short-cut": 22,
+          "WR|oth|short-inj->WR|short-inj": 5,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-cut->TE|short": 4,
+          "RB|oth|none-cut->RB": 1,
+          "RB|oth|short-cut->RB|short": 13,
+          "TE|oth|none-cut->TE": 5,
+          "RB|rel|short-inj->RB|short-inj": 4,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 1
+        },
+        "RK2f0": {
+          "QB|oth|short-bench->QB|short-bench": 8,
+          "QB|oth|short-inj->QB|short": 1,
+          "TE|rel|none-cut->TE": 1,
+          "WR|rel|short-cut->WR|short-cut": 5,
+          "QB|oth|qual->QB|qual": 2,
+          "TE|oth|short-inj->TE|short": 7,
+          "RB|oth|short-inj->RB|short-inj": 5,
+          "WR|oth|none-cut->WR|none": 4,
+          "WR|rel|none-cut->WR|none": 1,
+          "QB|rel|short-bench->QB|short-bench": 5,
+          "WR|rel|short-inj->WR|short-inj": 8,
+          "WR|oth|short-cut->WR|short-cut": 22,
+          "WR|oth|short-inj->WR|short-inj": 5,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-cut->TE|short": 4,
+          "QB|rel|short-inj->QB|short": 2,
+          "RB|oth|none-cut->RB": 1,
+          "RB|oth|short-cut->RB|short": 13,
+          "TE|oth|none-cut->TE": 5,
+          "RB|rel|short-inj->RB|short-inj": 3,
+          "RB|rel|short-bench->RB|short": 2,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 2
+        },
+        "RK3f0": {
+          "QB|oth|short-inj->QB|short-inj": 7,
+          "TE|rel|none-cut->TE": 1,
+          "QB|oth|short-bench->QB|short": 2,
+          "WR|rel|short-cut->WR|short-cut": 5,
+          "QB|oth|qual->QB|qual": 2,
+          "TE|oth|short-inj->TE|short": 7,
+          "RB|oth|short-inj->RB|short-inj": 6,
+          "WR|oth|none-cut->WR|none": 4,
+          "WR|rel|none-cut->WR|none": 1,
+          "QB|rel|short-inj->QB|short-inj": 7,
+          "WR|oth|short-cut->WR|short-cut": 22,
+          "WR|oth|short-inj->WR|short-inj": 5,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-cut->TE|short": 4,
+          "RB|oth|none-cut->RB": 1,
+          "RB|oth|short-cut->RB|short": 13,
+          "TE|oth|none-cut->TE": 5,
+          "RB|rel|short-inj->RB|short-inj": 4,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 1
+        },
+        "RK1f0L": {
+          "QB|oth|short-inj->QB|short-inj": 8,
+          "TE|rel|none->TE": 1,
+          "QB|oth|short-oth->QB": 3,
+          "WR|rel|short-oth->WR|short-oth": 4,
+          "QB|oth|qual->QB|qual": 2,
+          "TE|oth|short-oth->TE|short-oth": 7,
+          "RB|oth|short-inj->RB|short-inj": 3,
+          "WR|rel|none->WR|none": 1,
+          "TE|oth|short-inj->TE": 5,
+          "WR|oth|short-inj->WR|short-inj": 10,
+          "RB|oth|none->RB": 1,
+          "TE|oth|none->TE": 5,
+          "RB|rel|short-inj->RB|short-inj": 4,
+          "RB|rel|short-oth->RB|short-oth": 1
+        },
+        "RK3f0L": {
+          "QB|oth|short-inj->QB|short-inj": 7,
+          "TE|rel|none-cut->TE": 1,
+          "QB|oth|short-bench->QB|short": 2,
+          "WR|rel|short-cut->WR|short-cut": 5,
+          "QB|oth|qual->QB|qual": 2,
+          "TE|oth|short-inj->TE|short": 7,
+          "RB|oth|short-inj->RB|short-inj": 6,
+          "WR|oth|none-cut->WR|none": 4,
+          "WR|rel|none-cut->WR|none": 1,
+          "QB|rel|short-inj->QB|short-inj": 7,
+          "WR|oth|short-cut->WR|short-cut": 22,
+          "WR|oth|short-inj->WR|short-inj": 5,
+          "QB|oth|short-cut->QB|short": 2,
+          "TE|oth|short-cut->TE|short": 4,
+          "RB|oth|none-cut->RB": 1,
+          "RB|oth|short-cut->RB|short": 13,
+          "TE|oth|none-cut->TE": 5,
+          "RB|rel|short-inj->RB|short-inj": 4,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|oth|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 1
+        },
+        "K2f0": {
+          "QB|short-inj->QB|short": 3,
+          "TE|none-cut->TE": 6,
+          "TE|short-inj->TE|short": 7,
+          "WR|none-cut->WR|none": 5,
+          "QB|short-cut->QB|short": 2,
+          "TE|short-cut->TE|short": 4,
+          "RB|none-cut->RB": 1,
+          "RB|short-cut->RB|short": 13,
+          "RB|short-bench->RB|short": 4,
+          "TE|short-bench->TE|short": 1
+        },
+        "C3f0": {
+          "TE|none->TE": 6,
+          "RB|none->RB": 1
+        },
+        "K1f0": {
+          "TE|none->TE": 6,
+          "QB|short-oth->QB": 3,
+          "TE|short-inj->TE": 5,
+          "RB|none->RB": 1
+        },
+        "K3f0": {
+          "TE|none-cut->TE": 6,
+          "QB|short-bench->QB|short": 2,
+          "TE|short-inj->TE|short": 7,
+          "WR|none-cut->WR|none": 5,
+          "QB|short-cut->QB|short": 2,
+          "TE|short-cut->TE|short": 4,
+          "RB|none-cut->RB": 1,
+          "RB|short-cut->RB|short": 13,
+          "RB|short-bench->RB|short": 2,
+          "TE|short-bench->TE|short": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2023,
+      "rows": {
+        "K1f0": 9,
+        "RK1": 39,
+        "RK1f0": 39,
+        "K2f0": 41,
+        "K3f0": 37,
+        "RK2": 91,
+        "RK3": 84,
+        "RK2f0": 91,
+        "RK3f0": 84,
+        "RK1f0L": 39,
+        "RK3f0L": 84,
+        "R0f0": 22
+      },
+      "cells": {
+        "K1f0": {
+          "QB|short-oth->QB": 1,
+          "TE|short-inj->TE": 8
+        },
+        "RK1": {
+          "QB|rel|short-oth->QB": 1,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|rel|short-inj->TE": 2,
+          "QB|oth|short-inj->QB|short-inj": 12,
+          "WR|oth|short-inj->WR|short-inj": 7,
+          "TE|oth|short-inj->TE": 6,
+          "WR|rel|short-oth->WR|short-oth": 1,
+          "TE|rel|short-oth->TE|short-oth": 3,
+          "RB|rel|short-oth->RB|short-oth": 1,
+          "TE|oth|none->TE|none": 2,
+          "RB|oth|short-inj->RB|short-inj": 1
+        },
+        "RK1f0": {
+          "QB|rel|short-oth->QB": 1,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|rel|short-inj->TE": 2,
+          "QB|oth|short-inj->QB|short-inj": 12,
+          "WR|oth|short-inj->WR|short-inj": 7,
+          "TE|oth|short-inj->TE": 6,
+          "WR|rel|short-oth->WR|short-oth": 1,
+          "TE|rel|short-oth->TE|short-oth": 3,
+          "RB|rel|short-oth->RB|short-oth": 1,
+          "TE|oth|none->TE|none": 2,
+          "RB|oth|short-inj->RB|short-inj": 1
+        },
+        "K2f0": {
+          "QB|short-cut->QB|short": 4,
+          "QB|short-inj->QB|short": 3,
+          "TE|short-inj->TE|short": 13,
+          "TE|short-cut->TE|short": 8,
+          "WR|none-cut->WR|none": 6,
+          "WR|short-bench->WR|short": 1,
+          "TE|short-bench->TE|short": 2,
+          "RB|short-bench->RB|short": 2,
+          "TE|none-cut->TE|none": 2
+        },
+        "K3f0": {
+          "QB|short-cut->QB|short": 4,
+          "TE|short-inj->TE|short": 13,
+          "TE|short-cut->TE|short": 8,
+          "WR|none-cut->WR|none": 6,
+          "TE|short-bench->TE|short": 2,
+          "RB|short-bench->RB|short": 2,
+          "TE|none-cut->TE|none": 2
+        },
+        "RK2": {
+          "QB|rel|short-cut->QB|short": 2,
+          "QB|rel|short-inj->QB|short": 2,
+          "QB|oth|qual->QB|qual": 3,
+          "QB|rel|short-bench->QB|short-bench": 8,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-bench->QB|short-bench": 9,
+          "TE|oth|short-cut->TE|short": 7,
+          "QB|oth|short-cut->QB|short": 2,
+          "QB|oth|short-inj->QB|short": 1,
+          "WR|oth|none-cut->WR|none": 6,
+          "WR|rel|short-inj->WR|short-inj": 3,
+          "RB|oth|short-cut->RB|short-cut": 8,
+          "TE|rel|short-cut->TE|short": 1,
+          "RB|rel|short-inj->RB|short-inj": 4,
+          "WR|rel|short-cut->WR|short-cut": 2,
+          "WR|oth|short-bench->WR|short": 1,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "TE|oth|short-inj->TE|short": 10,
+          "WR|oth|short-inj->WR|short-inj": 8,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|oth|none-cut->TE|none": 2,
+          "RB|oth|short-inj->RB|short-inj": 4,
+          "TE|oth|short-bench->TE|short": 1
+        },
+        "RK3": {
+          "QB|rel|short-cut->QB|short": 2,
+          "QB|rel|short-inj->QB|short-inj": 10,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-inj->QB|short-inj": 10,
+          "TE|oth|short-cut->TE|short": 7,
+          "QB|oth|short-cut->QB|short": 2,
+          "WR|oth|none-cut->WR|none": 6,
+          "RB|oth|short-cut->RB|short-cut": 8,
+          "TE|rel|short-cut->TE|short": 1,
+          "WR|rel|short-cut->WR|short-cut": 2,
+          "WR|oth|short-inj->WR|short-inj": 9,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "TE|oth|short-inj->TE|short": 10,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|oth|none-cut->TE|none": 2,
+          "RB|oth|short-inj->RB|short-inj": 4,
+          "TE|oth|short-bench->TE|short": 1
+        },
+        "RK2f0": {
+          "QB|rel|short-cut->QB|short": 2,
+          "QB|rel|short-inj->QB|short": 2,
+          "QB|oth|qual->QB|qual": 3,
+          "QB|rel|short-bench->QB|short-bench": 8,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-bench->QB|short-bench": 9,
+          "TE|oth|short-cut->TE|short": 7,
+          "QB|oth|short-cut->QB|short": 2,
+          "QB|oth|short-inj->QB|short": 1,
+          "WR|oth|none-cut->WR|none": 6,
+          "WR|rel|short-inj->WR|short-inj": 3,
+          "RB|oth|short-cut->RB|short-cut": 8,
+          "TE|rel|short-cut->TE|short": 1,
+          "RB|rel|short-inj->RB|short-inj": 4,
+          "WR|rel|short-cut->WR|short-cut": 2,
+          "WR|oth|short-bench->WR|short": 1,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "TE|oth|short-inj->TE|short": 10,
+          "WR|oth|short-inj->WR|short-inj": 8,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|oth|none-cut->TE|none": 2,
+          "RB|oth|short-inj->RB|short-inj": 4,
+          "TE|oth|short-bench->TE|short": 1
+        },
+        "RK3f0": {
+          "QB|rel|short-cut->QB|short": 2,
+          "QB|rel|short-inj->QB|short-inj": 10,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-inj->QB|short-inj": 10,
+          "TE|oth|short-cut->TE|short": 7,
+          "QB|oth|short-cut->QB|short": 2,
+          "WR|oth|none-cut->WR|none": 6,
+          "RB|oth|short-cut->RB|short-cut": 8,
+          "TE|rel|short-cut->TE|short": 1,
+          "WR|rel|short-cut->WR|short-cut": 2,
+          "WR|oth|short-inj->WR|short-inj": 9,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "TE|oth|short-inj->TE|short": 10,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|oth|none-cut->TE|none": 2,
+          "RB|oth|short-inj->RB|short-inj": 4,
+          "TE|oth|short-bench->TE|short": 1
+        },
+        "RK1f0L": {
+          "QB|rel|short-oth->QB": 1,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|rel|short-inj->TE": 2,
+          "QB|oth|short-inj->QB|short-inj": 12,
+          "WR|oth|short-inj->WR|short-inj": 7,
+          "TE|oth|short-inj->TE": 6,
+          "WR|rel|short-oth->WR|short-oth": 1,
+          "TE|rel|short-oth->TE|short-oth": 3,
+          "RB|rel|short-oth->RB|short-oth": 1,
+          "TE|oth|none->TE|none": 2,
+          "RB|oth|short-inj->RB|short-inj": 1
+        },
+        "RK3f0L": {
+          "QB|rel|short-cut->QB|short": 2,
+          "QB|rel|short-inj->QB|short-inj": 10,
+          "QB|oth|qual->QB|qual": 3,
+          "TE|rel|short-inj->TE|short": 3,
+          "QB|oth|short-inj->QB|short-inj": 10,
+          "TE|oth|short-cut->TE|short": 7,
+          "QB|oth|short-cut->QB|short": 2,
+          "WR|oth|none-cut->WR|none": 6,
+          "RB|oth|short-cut->RB|short-cut": 8,
+          "TE|rel|short-cut->TE|short": 1,
+          "WR|rel|short-cut->WR|short-cut": 2,
+          "WR|oth|short-inj->WR|short-inj": 9,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "TE|oth|short-inj->TE|short": 10,
+          "TE|rel|short-bench->TE|short": 1,
+          "RB|oth|short-bench->RB|short": 2,
+          "TE|oth|none-cut->TE|none": 2,
+          "RB|oth|short-inj->RB|short-inj": 4,
+          "TE|oth|short-bench->TE|short": 1
+        },
+        "R0f0": {
+          "QB|oth|qual->QB|qual": 3,
+          "TE|rel|short->TE|short": 5,
+          "QB|oth|short->QB|short": 12,
+          "TE|oth|none->TE|none": 2
+        }
+      }
+    },
+    {
+      "evalYear": 2024,
+      "rows": {
+        "C3f0": 3,
+        "K1f0": 5,
+        "R0f0": 16,
+        "RK1": 48,
+        "RK1f0": 48,
+        "K2f0": 25,
+        "K3f0": 23,
+        "RK2": 87,
+        "RK3": 73,
+        "RK2f0": 87,
+        "RK3f0": 73,
+        "RK1f0L": 48,
+        "RK3f0L": 73
+      },
+      "cells": {
+        "C3f0": {
+          "QB|none->QB": 3
+        },
+        "K1f0": {
+          "QB|none->QB": 3,
+          "QB|short-oth->QB": 2
+        },
+        "R0f0": {
+          "QB|oth|none->QB": 2,
+          "QB|oth|qual->QB|qual": 6,
+          "TE|rel|none->TE|none": 1,
+          "TE|rel|short->TE|short": 5,
+          "TE|oth|none->TE|none": 1,
+          "QB|rel|none->QB": 1
+        },
+        "RK1": {
+          "QB|oth|none->QB": 2,
+          "QB|oth|short-inj->QB|short-inj": 9,
+          "QB|oth|qual->QB|qual": 6,
+          "WR|oth|short-inj->WR|short-inj": 10,
+          "TE|rel|none->TE|none": 1,
+          "TE|rel|short-inj->TE|short-inj": 4,
+          "TE|oth|short-inj->TE|short-inj": 5,
+          "RB|rel|short-oth->RB|short-oth": 3,
+          "WR|rel|short-oth->WR|short-oth": 1,
+          "QB|oth|short-oth->QB": 1,
+          "RB|oth|short-inj->RB|short-inj": 2,
+          "TE|oth|none->TE|none": 1,
+          "QB|rel|none->QB": 1,
+          "QB|rel|short-oth->QB": 1,
+          "TE|rel|short-oth->TE|short-oth": 1
+        },
+        "RK1f0": {
+          "QB|oth|none->QB": 2,
+          "QB|oth|short-inj->QB|short-inj": 9,
+          "QB|oth|qual->QB|qual": 6,
+          "WR|oth|short-inj->WR|short-inj": 10,
+          "TE|rel|none->TE|none": 1,
+          "TE|rel|short-inj->TE|short-inj": 4,
+          "TE|oth|short-inj->TE|short-inj": 5,
+          "RB|rel|short-oth->RB|short-oth": 3,
+          "WR|rel|short-oth->WR|short-oth": 1,
+          "QB|oth|short-oth->QB": 1,
+          "RB|oth|short-inj->RB|short-inj": 2,
+          "TE|oth|none->TE|none": 1,
+          "QB|rel|none->QB": 1,
+          "QB|rel|short-oth->QB": 1,
+          "TE|rel|short-oth->TE|short-oth": 1
+        },
+        "K2f0": {
+          "QB|none-cut->QB": 2,
+          "QB|short-inj->QB|short": 2,
+          "TE|none-cut->TE|none": 2,
+          "QB|short-cut->QB|short": 2,
+          "TE|short-cut->TE|short": 11,
+          "WR|none-cut->WR|none": 1,
+          "WR|short-bench->WR|short": 3,
+          "RB|short-bench->RB|short": 1,
+          "QB|none-bench->QB": 1
+        },
+        "K3f0": {
+          "QB|none-cut->QB": 2,
+          "TE|none-cut->TE|none": 2,
+          "QB|short-cut->QB|short": 2,
+          "TE|short-cut->TE|short": 11,
+          "QB|short-bench->QB|short": 2,
+          "WR|none-cut->WR|none": 1,
+          "QB|none-inj->QB": 1,
+          "WR|short-bench->WR|short": 2
+        },
+        "RK2": {
+          "QB|oth|none-cut->QB": 2,
+          "QB|oth|short-bench->QB|short-bench": 7,
+          "QB|rel|short-bench->QB|short-bench": 9,
+          "QB|oth|qual->QB|qual": 6,
+          "QB|oth|short-inj->QB|short": 2,
+          "TE|rel|none-cut->TE|none": 1,
+          "QB|oth|short-cut->QB|short": 1,
+          "WR|rel|short-cut->WR|short-cut": 6,
+          "TE|rel|short-inj->TE|short-inj": 3,
+          "RB|rel|short-inj->RB|short-inj": 6,
+          "WR|rel|short-inj->WR|short-inj": 6,
+          "TE|oth|short-cut->TE|short": 9,
+          "TE|rel|short-cut->TE|short": 2,
+          "TE|oth|short-inj->TE|short-inj": 5,
+          "RB|oth|short-cut->RB|short-cut": 11,
+          "WR|oth|none-cut->WR|none": 1,
+          "WR|oth|short-bench->WR|short": 3,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|oth|none-cut->TE|none": 1,
+          "QB|rel|none-bench->QB": 1,
+          "RB|oth|short-inj->RB|short-inj": 2,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "QB|rel|short-cut->QB|short": 1
+        },
+        "RK3": {
+          "QB|oth|none-cut->QB": 2,
+          "QB|oth|short-inj->QB|short-inj": 8,
+          "QB|rel|short-inj->QB|short-inj": 8,
+          "QB|oth|qual->QB|qual": 6,
+          "TE|rel|none-cut->TE|none": 1,
+          "QB|oth|short-cut->QB|short": 1,
+          "WR|rel|short-cut->WR|short-cut": 6,
+          "TE|rel|short-inj->TE|short-inj": 3,
+          "TE|oth|short-cut->TE|short": 9,
+          "TE|rel|short-cut->TE|short": 2,
+          "TE|oth|short-inj->TE|short-inj": 5,
+          "RB|oth|short-cut->RB|short-cut": 11,
+          "QB|oth|short-bench->QB|short": 1,
+          "WR|oth|none-cut->WR|none": 1,
+          "TE|oth|none-cut->TE|none": 1,
+          "QB|rel|none-inj->QB": 1,
+          "RB|oth|short-inj->RB|short-inj": 2,
+          "QB|rel|short-bench->QB|short": 1,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "WR|oth|short-bench->WR|short": 2,
+          "QB|rel|short-cut->QB|short": 1
+        },
+        "RK2f0": {
+          "QB|oth|none-cut->QB": 2,
+          "QB|oth|short-bench->QB|short-bench": 7,
+          "QB|rel|short-bench->QB|short-bench": 9,
+          "QB|oth|qual->QB|qual": 6,
+          "QB|oth|short-inj->QB|short": 2,
+          "TE|rel|none-cut->TE|none": 1,
+          "QB|oth|short-cut->QB|short": 1,
+          "WR|rel|short-cut->WR|short-cut": 6,
+          "TE|rel|short-inj->TE|short-inj": 3,
+          "RB|rel|short-inj->RB|short-inj": 6,
+          "WR|rel|short-inj->WR|short-inj": 6,
+          "TE|oth|short-cut->TE|short": 9,
+          "TE|rel|short-cut->TE|short": 2,
+          "TE|oth|short-inj->TE|short-inj": 5,
+          "RB|oth|short-cut->RB|short-cut": 11,
+          "WR|oth|none-cut->WR|none": 1,
+          "WR|oth|short-bench->WR|short": 3,
+          "RB|rel|short-bench->RB|short": 1,
+          "TE|oth|none-cut->TE|none": 1,
+          "QB|rel|none-bench->QB": 1,
+          "RB|oth|short-inj->RB|short-inj": 2,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "QB|rel|short-cut->QB|short": 1
+        },
+        "RK3f0": {
+          "QB|oth|none-cut->QB": 2,
+          "QB|oth|short-inj->QB|short-inj": 8,
+          "QB|rel|short-inj->QB|short-inj": 8,
+          "QB|oth|qual->QB|qual": 6,
+          "TE|rel|none-cut->TE|none": 1,
+          "QB|oth|short-cut->QB|short": 1,
+          "WR|rel|short-cut->WR|short-cut": 6,
+          "TE|rel|short-inj->TE|short-inj": 3,
+          "TE|oth|short-cut->TE|short": 9,
+          "TE|rel|short-cut->TE|short": 2,
+          "TE|oth|short-inj->TE|short-inj": 5,
+          "RB|oth|short-cut->RB|short-cut": 11,
+          "QB|oth|short-bench->QB|short": 1,
+          "WR|oth|none-cut->WR|none": 1,
+          "TE|oth|none-cut->TE|none": 1,
+          "QB|rel|none-inj->QB": 1,
+          "RB|oth|short-inj->RB|short-inj": 2,
+          "QB|rel|short-bench->QB|short": 1,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "WR|oth|short-bench->WR|short": 2,
+          "QB|rel|short-cut->QB|short": 1
+        },
+        "RK1f0L": {
+          "QB|oth|none->QB": 2,
+          "QB|oth|short-inj->QB|short-inj": 9,
+          "QB|oth|qual->QB|qual": 6,
+          "WR|oth|short-inj->WR|short-inj": 10,
+          "TE|rel|none->TE|none": 1,
+          "TE|rel|short-inj->TE|short-inj": 4,
+          "TE|oth|short-inj->TE|short-inj": 5,
+          "RB|rel|short-oth->RB|short-oth": 3,
+          "WR|rel|short-oth->WR|short-oth": 1,
+          "QB|oth|short-oth->QB": 1,
+          "RB|oth|short-inj->RB|short-inj": 2,
+          "TE|oth|none->TE|none": 1,
+          "QB|rel|none->QB": 1,
+          "QB|rel|short-oth->QB": 1,
+          "TE|rel|short-oth->TE|short-oth": 1
+        },
+        "RK3f0L": {
+          "QB|oth|none-cut->QB": 2,
+          "QB|oth|short-inj->QB|short-inj": 8,
+          "QB|rel|short-inj->QB|short-inj": 8,
+          "QB|oth|qual->QB|qual": 6,
+          "TE|rel|none-cut->TE|none": 1,
+          "QB|oth|short-cut->QB|short": 1,
+          "WR|rel|short-cut->WR|short-cut": 6,
+          "TE|rel|short-inj->TE|short-inj": 3,
+          "TE|oth|short-cut->TE|short": 9,
+          "TE|rel|short-cut->TE|short": 2,
+          "TE|oth|short-inj->TE|short-inj": 5,
+          "RB|oth|short-cut->RB|short-cut": 11,
+          "QB|oth|short-bench->QB|short": 1,
+          "WR|oth|none-cut->WR|none": 1,
+          "TE|oth|none-cut->TE|none": 1,
+          "QB|rel|none-inj->QB": 1,
+          "RB|oth|short-inj->RB|short-inj": 2,
+          "QB|rel|short-bench->QB|short": 1,
+          "RB|rel|short-cut->RB|short-cut": 1,
+          "WR|oth|short-bench->WR|short": 2,
+          "QB|rel|short-cut->QB|short": 1
+        }
+      }
+    }
+  ]
+}
