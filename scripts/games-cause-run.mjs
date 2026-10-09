@@ -524,10 +524,13 @@ export function buildGamesCauseVerdictMarkdown(r) {
     '- INA mixes healthy scratches with injuries (the injury report is not ingested): K2 counts it as bench; K3 counts it as injury only for contributors.',
     '- K3 counts a benched contributor (e.g. a QB benched for performance) as injured.',
     '- RES includes non-injury reserve (NFI; COVID 2020–21).',
+    '- Era caveat: see §3.',
     '- S = 2015 rows are `unk` for K2/K3 and fit through `pos|s`.',
     '- `rel3` and `relevant` rank on served half-PPR `fantasyPoints`; the app ranks on league scoring. The rel3 three-season window is pre-registered, not tuned.',
     '- Floor 0 needs an app clamp change.',
-    '- `chain` QB totals do not read `projectedGames`; rookies are out of scope.',
+    '- `chain` QB totals do not read `projectedGames`; historical rows cannot be routed to `chain`.',
+    '- §8\'s rank impact uses the snapshot\'s league-scored `projectedPPG` (`scoringBasis: "custom league"`).',
+    '- Rookies are out of scope: the rookie games ladder reads no history.',
     '- **Wireability:** K1 and rel use app data (`classifyInjurySeason` is CR-28-mirrored; season ranks exist app-side). K2/K3 need a new served signal, a new coupling, and a registry entry before any wiring (the app never reads rosterweekly).');
   return out.join('\n');
 }

@@ -644,3 +644,40 @@ Session 2 hands back:
 | 13 | `impactFor` anchor; stale README:1405; header Exports | Applied |
 | 14 | CR-25/27/28 Triggers fire; Mirror text not quoted | Applied: CR-28 verbatim, as L6 did. CR-25/27 by opening sentence plus a pointer to the registry field, because they fire only through the whole-file `bin/backtest.mjs` trigger and quoting both in full would add about 7 KB (the 40 KB threshold) for branches this slice does not touch |
 | 15 | CR-28 Triggers omit rosterweekly readers | Folded into the D-66 list (names `statusClass`/`accountWeeks`) |
+
+## Verification record (Session 1, 2026-10-09, `924461b..b05a57f`)
+
+- implementation-reviewer ran at full depth and found no blocking flags. It reported four low flags; the decisions are in Fix pass 1.
+- Session 1 re-ran `--games-calibration --cause --json` independently. It reproduces (N) at δ 0.10/0.25/0.50:
+  - every fitted candidate fails G1, with relevant ΔMAE +0.40…+0.53 and CI upper bounds 0.525–0.664;
+  - at δ 0.50 the relevance-split candidates fail only G1;
+  - L0 fails G2/G4 (and G3 at the lower δ), not G1.
+- The reviewer independently confirmed four things:
+  - the L6 regression (`--games-calibration --json` equals the committed 2026-10-08 artifacts);
+  - C3f0 table-level equivalence, including the bootstrap CIs;
+  - no S+1 reads;
+  - tiers, gates and constants exactly as specified.
+- Deviations 1–3 accepted. The task file was committed in f67b261 although it was not on the touch list; that is normal, no action.
+
+## Fix pass 1
+
+Scope: exactly the three items below. Change nothing else.
+
+1. **`test/games-calibration.test.mjs` GCC-7 (≈:709).** Delete `assert.match(r.cause.kStateAssertion, /^held for all \d+ rows$/);`. It is tautological: `causeDescriptives` always returns that string (`scripts/games-cause-run.mjs:114`). The closed-set throws (`:330`, `:334-337`) are unreachable by construction (`rosterCause` returns only inj/bench/cut), so they get no test. Leave the throws and the `kStateAssertion` field in place.
+2. **GCC-5 bucket coverage (≈:574-582).** Replace the `R({ ageBucket: '36+', sState: 'none' })` case (36+ is QB-only) with cases that cover every real bucket. Each case asserts all four L6 levels the same way the existing cases do:
+   - QB: `27-31`, `32-35`, `36+`;
+   - non-QB (WR): `<=24`, `28-30`, `31+`.
+   Keep the `<=26` QB, `25-27` WR and `unk` cases.
+3. **`scripts/games-cause-run.mjs` `## 9. Limits` (≈:523-531).**
+   - Replace the line ``'- `chain` QB totals do not read `projectedGames`; rookies are out of scope.'`` with three lines:
+     - ``'- `chain` QB totals do not read `projectedGames`; historical rows cannot be routed to `chain`.'``
+     - ``'- §8\'s rank impact uses the snapshot\'s league-scored `projectedPPG` (`scoringBasis: "custom league"`).'``
+     - ``'- Rookies are out of scope: the rookie games ladder reads no history.'``
+   - Add ``'- Era caveat: see §3.'`` after the RES line.
+   - Then regenerate with `node bin/backtest.mjs --games-calibration --cause --write`. The output is deterministic (bootstrap seed 12345), so only `generatedAt`/`panelRev` and §9 may change in the three 2026-10-09 artifacts. Check this with `git diff --stat` and a diff of the verdict, which must show only the §9 lines and the date/rev text.
+
+Run `npm test`. Commit as two commits:
+- `Fix pass 1: L6b — honest GCC-7, full bucket coverage, L6 limits in verdict §9` (code and tests);
+- `grading: games-cause verdict 2026-10-09 regenerated (fix pass 1)` (artifacts).
+
+Pull with rebase, then push. Hand back the SHAs and the verdict diff.

@@ -576,7 +576,12 @@ test('GCC-5 generalised cells: L6 keys are unchanged; unk causes route to pos|s;
   const cases = [
     [R({}), { pos: 'WR', 'pos|s': 'WR|short', 'pos|age': 'WR|25-27', 'pos|age|s': 'WR|25-27|short' }],
     [R({ position: 'QB', ageBucket: '<=26', sState: 'qual' }), { pos: 'QB', 'pos|s': 'QB|qual', 'pos|age': 'QB|<=26', 'pos|age|s': 'QB|<=26|qual' }],
-    [R({ ageBucket: '36+', sState: 'none' }), { pos: 'WR', 'pos|s': 'WR|none', 'pos|age': 'WR|36+', 'pos|age|s': 'WR|36+|none' }],
+    [R({ position: 'QB', ageBucket: '27-31' }), { pos: 'QB', 'pos|s': 'QB|short', 'pos|age': 'QB|27-31', 'pos|age|s': 'QB|27-31|short' }],
+    [R({ position: 'QB', ageBucket: '32-35' }), { pos: 'QB', 'pos|s': 'QB|short', 'pos|age': 'QB|32-35', 'pos|age|s': 'QB|32-35|short' }],
+    [R({ position: 'QB', ageBucket: '36+', sState: 'none' }), { pos: 'QB', 'pos|s': 'QB|none', 'pos|age': 'QB|36+', 'pos|age|s': 'QB|36+|none' }],
+    [R({ ageBucket: '<=24' }), { pos: 'WR', 'pos|s': 'WR|short', 'pos|age': 'WR|<=24', 'pos|age|s': 'WR|<=24|short' }],
+    [R({ ageBucket: '28-30' }), { pos: 'WR', 'pos|s': 'WR|short', 'pos|age': 'WR|28-30', 'pos|age|s': 'WR|28-30|short' }],
+    [R({ ageBucket: '31+', sState: 'none' }), { pos: 'WR', 'pos|s': 'WR|none', 'pos|age': 'WR|31+', 'pos|age|s': 'WR|31+|none' }],
     [R({ ageBucket: 'unk' }), { pos: 'WR', 'pos|s': 'WR|short', 'pos|age': null, 'pos|age|s': null }],
   ];
   for (const [row, expected] of cases) for (const [level, key] of Object.entries(expected)) assert.equal(cellKey(level, row), key, `${level} ${JSON.stringify(row.ageBucket)}`);
@@ -706,7 +711,6 @@ test('GCC-7: end to end with the cause fixture — every scenario row carries th
   assert.match(writes[0].verdictMd, /## 7\. Decision/);
   assert.match(writes[0].verdictMd, /## 8\. 2026 impact/);
   assert.match(logs.join('\n'), /## 3\. Cause split/);
-  assert.match(r.cause.kStateAssertion, /^held for all \d+ rows$/);
   assert.equal(r.recon.nonZero, 0);
   assert.equal(r.meta.primaryDelta, 0.25);
   const expected = [['short-inj', 'short-inj', 'short-inj'], ['short-inj', 'short-bench', 'short-inj'], ['short-oth', 'short-bench', 'short-bench'], ['short-oth', 'short-cut', 'short-cut']];
