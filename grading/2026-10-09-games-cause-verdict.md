@@ -2,7 +2,7 @@
 
 ## 1. What was compared
 
-Panel: Stage B's (`buildPanel`, unchanged), before = after = the committed post-correction store (data `f67b261`): 4362 player-seasons, predictor seasons S = 2015–2024, outcome S+1 `gamesPlayed`. Prediction = the mirrored veteran projected-games rule (`lib/durabilityMirror.mjs`, app `d627562`). Basis: half_ppr (served fantasyPoints).
+Panel: Stage B's (`buildPanel`, unchanged), before = after = the committed post-correction store (data `ec69174`): 4362 player-seasons, predictor seasons S = 2015–2024, outcome S+1 `gamesPlayed`. Prediction = the mirrored veteran projected-games rule (`lib/durabilityMirror.mjs`, app `d627562`). Basis: half_ppr (served fantasyPoints).
 
 Folds: forward-chaining over predictor season, ≥ 3 training seasons — eval S = 2018, 2019, 2020, 2021, 2022, 2023, 2024. **D1 — fit objective:** each cell's k minimises training SSE (totals are expectations); only the decision changed (§7).
 
@@ -733,8 +733,11 @@ Veterans in the 2026-10-07 snapshot: 437. Games change vs C0; rank change = proj
 - INA mixes healthy scratches with injuries (the injury report is not ingested): K2 counts it as bench; K3 counts it as injury only for contributors.
 - K3 counts a benched contributor (e.g. a QB benched for performance) as injured.
 - RES includes non-injury reserve (NFI; COVID 2020–21).
+- Era caveat: see §3.
 - S = 2015 rows are `unk` for K2/K3 and fit through `pos|s`.
 - `rel3` and `relevant` rank on served half-PPR `fantasyPoints`; the app ranks on league scoring. The rel3 three-season window is pre-registered, not tuned.
 - Floor 0 needs an app clamp change.
-- `chain` QB totals do not read `projectedGames`; rookies are out of scope.
+- `chain` QB totals do not read `projectedGames`; historical rows cannot be routed to `chain`.
+- §8's rank impact uses the snapshot's league-scored `projectedPPG` (`scoringBasis: "custom league"`).
+- Rookies are out of scope: the rookie games ladder reads no history.
 - **Wireability:** K1 and rel use app data (`classifyInjurySeason` is CR-28-mirrored; season ranks exist app-side). K2/K3 need a new served signal, a new coupling, and a registry entry before any wiring (the app never reads rosterweekly).
