@@ -11,16 +11,19 @@ import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
-import { projectedGamesFor } from '../lib/durabilityMirror.mjs';
+import { projectedGamesFor, classifyInjurySeason, seasonView } from '../lib/durabilityMirror.mjs';
 import { forwardChainFolds } from '../lib/panel.mjs';
 import { buildPanel, ABSENCE_DEFAULTS } from '../scripts/absence-run.mjs';
 import {
   GAMES_CAL_DEFAULTS, CANDIDATE_IDS, accountWeeks, decompose, fitK, fitCandidate, kFor, foldTrainRows,
   decide, candidatePred,
+  rosterCause, causeStates, rel3Of, avgGamesSeasonLength, cellKey, CAUSE_CANDIDATES, CAUSE_CANDIDATE_IDS,
+  causeEligibility, decideCause,
 } from '../lib/gamesCalibration.mjs';
 import {
   panelEligibility, gamesCalibrationMain, writeGamesCalibrationArtifacts,
 } from '../scripts/games-calibration-run.mjs';
+import { gamesCauseMain, writeGamesCauseArtifacts } from '../scripts/games-cause-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -321,14 +324,29 @@ test('GC-6: the MAE rule drops the bias gate and judges by ΔMAE', () => {
 // ─── GC-7 CLI and end to end ─────────────────────────────────────────────────
 
 /** 60 WR/RB players over 2016–2024 on one team; the parity fixture is generated from the mirror itself. */
-function syntheticLoad({ breakParity = false } = {}) {
+function syntheticLoad({ breakParity = false, withCause = false } = {}) {
   const store = {};
+  const rosterWeekly = {};
   for (let y = 2016; y <= 2024; y++) {
     store[y] = { TEAM_KC: { team: 'KC', weeklyStatus: Array(17).fill('P') } };
+    rosterWeekly[y] = { players: {} };
     for (let i = 0; i < 60; i++) {
       const gp = 8 + ((i * 7 + y * 3) % 10);
       store[y][`P${i}`] = { team: 'KC', gamesPlayed: gp, gamesStarted: gp, fantasyPoints: gp * 10, dnpWeeks: 0,
         weeklyStatus: [...Array(gp).fill('P'), ...Array(17 - gp).fill('X')], stats: {} };
+    }
+  }
+  if (withCause) {
+    // P0–P11: a short S season in 2019 and 2021 (gp 4, then 13 slots 'D' — or 'X' for scenario d). Scenario = i % 4.
+    for (const y of [2019, 2021]) {
+      for (let i = 0; i < 12; i++) {
+        const sc = i % 4, id = `P${i}`;
+        store[y][id] = { ...store[y][id], gamesPlayed: 4, gamesStarted: sc === 2 ? 0 : 4, fantasyPoints: 40, dnpWeeks: sc === 3 ? 0 : 13,
+          weeklyStatus: [...Array(4).fill('P'), ...Array(13).fill(sc === 3 ? 'X' : 'D')], stats: {} };
+        if (sc === 2) store[y - 1][id] = { ...store[y - 1][id], gamesStarted: 0, stats: {} };   // S−1 still gp ≥ 8, but not a contributor
+        const status = ['RES', 'INA', 'INA', 'DEV'][sc];
+        rosterWeekly[y].players[id] = Object.fromEntries(Array.from({ length: 13 }, (_, j) => [String(5 + j), [['KC', status]]]));
+      }
     }
   }
   const careerStats = Object.fromEntries(Object.entries(store).map(([y, t]) => [y, Object.fromEntries(Object.entries(t).filter(([id]) => id === 'P0'))]));
@@ -349,7 +367,7 @@ function syntheticLoad({ breakParity = false } = {}) {
     gitRev: () => 'abc1234def',
     loadManifest: () => ({ files: {} }),
     loadSeasonTotals: (y) => store[y] ?? null,
-    loadRosterWeekly: (y) => (store[y] ? { players: {} } : null),
+    loadRosterWeekly: (y) => rosterWeekly[y] ?? null,
     loadPlayerIds: () => ({ ids, bySleeper }),
     loadSnapshot: () => ({ players: snapPlayers }),
     loadPlayersRaw: () => names,
@@ -427,4 +445,317 @@ test('GC-7: the CLI rejects an unknown flag with exit 1 and a message naming it'
   const r = spawnSync(process.execPath, ['bin/backtest.mjs', '--games-calibration', '--bogus'], { cwd: REPO_ROOT, encoding: 'utf8' });
   assert.equal(r.status, 1);
   assert.match(r.stderr, /--games-calibration rejects --bogus/);
+});
+
+// ─── L6b (.claude/tasks/games-calibration-cause-split.md §6) ─────────────────
+
+const cnt = (o = {}) => ({ played: 0, reserve: 0, inactive: 0, activeNoPlay: 0, practiceSquad: 0, otherStatus: 0, offRoster: 0, ...o });
+
+test('GCC-1 rosterCause: RES → inj; Daniels-shaped INA differs by K2/K3; DEV → cut; tie order inj ≥ bench ≥ cut; all zero → cut', () => {
+  assert.equal(rosterCause(cnt({ reserve: 8, inactive: 2, practiceSquad: 3 }), {}), 'inj');
+  // Daniels: played 7, INA 10, a contributor
+  const daniels = cnt({ played: 7, inactive: 10 });
+  assert.equal(rosterCause(daniels, { contributor: true, contributorAbsence: false }), 'bench', 'K2: INA is bench');
+  assert.equal(rosterCause(daniels, { contributor: true, contributorAbsence: true }), 'inj', 'K3: a contributor\'s INA is injury');
+  // a non-contributor with INA is bench under both
+  assert.equal(rosterCause(daniels, { contributor: false, contributorAbsence: false }), 'bench');
+  assert.equal(rosterCause(daniels, { contributor: false, contributorAbsence: true }), 'bench');
+  // K3 moves ACT-not-playing slots as well
+  assert.equal(rosterCause(cnt({ activeNoPlay: 9, practiceSquad: 1 }), { contributor: true, contributorAbsence: true }), 'inj');
+  assert.equal(rosterCause(cnt({ practiceSquad: 6, offRoster: 2, activeNoPlay: 3 }), {}), 'cut', 'DEV + off roster outweigh bench');
+  assert.equal(rosterCause(cnt({ otherStatus: 5, inactive: 1 }), {}), 'cut', 'other status counts as cut');
+  // ties
+  assert.equal(rosterCause(cnt({ reserve: 4, inactive: 4, offRoster: 4 }), {}), 'inj', 'equal counts → inj');
+  assert.equal(rosterCause(cnt({ inactive: 3, offRoster: 3 }), {}), 'bench', 'bench = cut → bench');
+  assert.equal(rosterCause(cnt({ reserve: 2, inactive: 3 }), {}), 'bench', 'bench > inj → bench');
+  assert.equal(rosterCause(cnt(), {}), 'cut', 'all zero → cut');
+});
+
+/** A mini store for GCC-2: KC plays every slot of 2017–2021; player A is a short non-contributor; B is a contributor. */
+function miniStore() {
+  const store = {};
+  for (let y = 2015; y <= 2021; y++) store[y] = { TEAM_KC: { team: 'KC', weeklyStatus: Array(17).fill('P') } };
+  const full = (over = {}) => ({ team: 'KC', gamesPlayed: 16, gamesStarted: 0, fantasyPoints: 100, dnpWeeks: 0, stats: {}, weeklyStatus: Array(16).fill('P').concat(['X']), ...over });
+  const short = (over = {}) => full({ gamesPlayed: 4, dnpWeeks: 13, weeklyStatus: [...Array(4).fill('P'), ...Array(13).fill('D')], ...over });
+  store[2018].A = full(); store[2019].A = short();                    // non-contributor in S and S−1
+  store[2018].B = full({ gamesStarted: 16 }); store[2019].B = short({ gamesStarted: 4 });
+  store[2018].N = full(); store[2020].N = full();                     // N has no 2019 row (a `none` S row)
+  store[2015].Z = short({ gamesStarted: 4 });                         // S = 2015
+  const rosterByYear = {};
+  for (let y = 2015; y <= 2021; y++) rosterByYear[y] = { players: {} };
+  const ina = Object.fromEntries(Array.from({ length: 13 }, (_, j) => [String(5 + j), [['KC', 'INA']]]));
+  rosterByYear[2019].players.A = ina; rosterByYear[2019].players.B = ina;
+  return { store, rosterByYear };
+}
+
+test('GCC-2 causeStates: S = 2015 → unk for K2/K3 only; a none row with no listing → none-cut; K1 = classifyInjurySeason; no S+1 leak', () => {
+  const { store, rosterByYear } = miniStore();
+  const ctx = { store, rosterByYear };
+  const z = causeStates({ id: 'Z', S: 2015, position: 'WR', sState: 'short' }, ctx);
+  assert.deepEqual([z.k2, z.k3, z.sCounts], ['unk', 'unk', null]);
+  assert.equal(z.k1, 'short-inj', 'K1 is still computed for S = 2015');
+
+  const n = causeStates({ id: 'N', S: 2019, position: 'WR', sState: 'none' }, ctx);
+  assert.deepEqual([n.k1, n.k2, n.k3], ['none', 'none-cut', 'none-cut']);
+  assert.equal(n.sCounts.offRoster, 17, 'S−1 team fallback: all 17 KC games off roster');
+
+  const q = causeStates({ id: 'A', S: 2018, position: 'WR', sState: 'qual' }, ctx);
+  assert.deepEqual([q.k1, q.k2, q.k3, q.sCounts], ['qual', 'qual', 'qual', null]);
+
+  // K1 equals the app flag read through seasonView(store, S)
+  for (const id of ['A', 'B']) {
+    const k = causeStates({ id, S: 2019, position: 'WR', sState: 'short' }, ctx);
+    assert.equal(k.k1, classifyInjurySeason(seasonView(store, 2019), id, 'WR', 2019) ? 'short-inj' : 'short-oth');
+  }
+  const a = causeStates({ id: 'A', S: 2019, position: 'WR', sState: 'short' }, ctx);
+  const b = causeStates({ id: 'B', S: 2019, position: 'WR', sState: 'short' }, ctx);
+  assert.deepEqual([a.k1, a.k2, a.k3], ['short-oth', 'short-bench', 'short-bench']);
+  assert.deepEqual([b.k1, b.k2, b.k3], ['short-inj', 'short-bench', 'short-inj']);
+
+  // no leak: a contributor S+1 row for A must change nothing (the app flag would turn A short-inj on the full store)
+  assert.equal(classifyInjurySeason(store, 'A', 'WR', 2019), false);
+  store[2020].A = { team: 'KC', gamesPlayed: 16, gamesStarted: 16, fantasyPoints: 200, dnpWeeks: 0, stats: {}, weeklyStatus: Array(16).fill('P').concat(['X']) };
+  assert.equal(classifyInjurySeason(store, 'A', 'WR', 2019), true, 'the S+1 row would flip the unrestricted flag');
+  const a2 = causeStates({ id: 'A', S: 2019, position: 'WR', sState: 'short' }, { store, rosterByYear });
+  assert.deepEqual([a2.k1, a2.k2, a2.k3], [a.k1, a.k2, a.k3]);
+});
+
+test('GCC-3 rel3Of: top-N in S−2 → true; only S−3 → false; only S+1 → false; a relevant row is always rel3', () => {
+  const rows = new Map([['2017|x', 5], ['2016|y', 3], ['2021|z', 2], ['2019|w', 33], ['2019|v', 32]]);
+  const N = { QB: 32, RB: 60, WR: 84, TE: 32 };
+  const d = { relevantTopN: N };
+  assert.equal(rel3Of({ id: 'x', S: 2019, position: 'QB' }, rows, d), true, 'top-N in S−2 only');
+  assert.equal(rel3Of({ id: 'y', S: 2019, position: 'QB' }, rows, d), false, 'top-N in S−3 only');
+  assert.equal(rel3Of({ id: 'z', S: 2020, position: 'QB' }, rows, d), false, 'top-N in S+1 only (no leak)');
+  assert.equal(rel3Of({ id: 'w', S: 2019, position: 'QB' }, rows, d), false, 'rank 33 > 32');
+  assert.equal(rel3Of({ id: 'v', S: 2019, position: 'QB' }, rows, d), true, 'rank 32 ≤ 32, in S itself');
+  assert.equal(rel3Of({ id: 'nobody', S: 2019, position: 'QB' }, rows, d), false);
+  // relevant (rank ≤ N in S) ⇒ rel3, for every position's boundary
+  for (const [p, n] of Object.entries(N)) {
+    assert.equal(rel3Of({ id: 'q', S: 2019, position: p }, new Map([['2019|q', n]]), d), true);
+    assert.equal(rel3Of({ id: 'q', S: 2019, position: p }, new Map([['2019|q', n + 1]]), d), false);
+  }
+});
+
+function careerOf(seasons, over = {}) {
+  return Object.fromEntries(Object.entries(seasons).map(([y, gp]) => [y, { P: { gamesPlayed: gp, gamesStarted: gp, fantasyPoints: gp * 10, dnpWeeks: 0, stats: {}, ...over } }]));
+}
+
+test('GCC-4 avgGamesSeasonLength: 16→17 scales by 17/16; mixed history hand-computed; same length returns avgGames exactly; recent weights sum to 1', () => {
+  const r16 = projectedGamesFor(careerOf({ 2018: 16, 2019: 16, 2020: 16 }), 'P', 'WR', { throughSeason: 2020 });
+  assert.ok(Math.abs(avgGamesSeasonLength(r16, 2021) - r16.avgGames * 17 / 16) < 1e-12);
+  assert.ok(Math.abs(avgGamesSeasonLength(r16, 2021) - 17) < 1e-12);
+
+  // mixed: 2019 (16-game) 14, 2020 (16-game) 15, 2021 (17-game) 16 → outcome 2022 (17); weights .2/.3/.5; absence-shape ×0.90 carries
+  const avail = { availability: { absenceSegments: [{ length: 3 }, { length: 3 }], longestAbsence: 0 } };
+  const mixed = projectedGamesFor(careerOf({ 2019: 14, 2020: 15, 2021: 16 }, avail), 'P', 'WR', { throughSeason: 2021 });
+  assert.ok(Math.abs(mixed.absenceShapeFactor - 0.9) < 1e-12);
+  const baseL = 0.2 * 14 * 17 / 16 + 0.3 * 15 * 17 / 16 + 0.5 * 16;
+  assert.ok(Math.abs(avgGamesSeasonLength(mixed, 2022) - 0.9 * baseL) < 1e-9, `${avgGamesSeasonLength(mixed, 2022)} vs ${0.9 * baseL}`);
+  // the same history projected into a 16-game outcome season (hypothetical 2020) scales the 17-game season down
+  assert.ok(Math.abs(avgGamesSeasonLength(mixed, 2020) - 0.9 * (0.2 * 14 + 0.3 * 15 + 0.5 * 16 * 16 / 17)) < 1e-9);
+
+  // equal lengths: exactly avgGames (===), no float round-trip
+  const odd = projectedGamesFor(careerOf({ 2016: 13, 2017: 11, 2018: 15 }, avail), 'P', 'WR', { throughSeason: 2018 });
+  assert.equal(avgGamesSeasonLength(odd, 2019), odd.avgGames);
+  assert.equal(avgGamesSeasonLength(odd, 2020), odd.avgGames);
+  const r17 = projectedGamesFor(careerOf({ 2021: 13, 2022: 11, 2023: 15 }, avail), 'P', 'WR', { throughSeason: 2023 });
+  assert.equal(avgGamesSeasonLength(r17, 2024), r17.avgGames);
+
+  // the additive `recent` field
+  assert.deepEqual(mixed.recent.map((x) => [x.season, x.gamesPlayed]), [[2019, 14], [2020, 15], [2021, 16]]);
+  assert.ok(Math.abs(mixed.recent.reduce((a, x) => a + x.w, 0) - 1) < 1e-12);
+  assert.deepEqual(mixed.recent.map((x) => x.w), [0.2, 0.3, 0.5]);
+  const plain = projectedGamesFor(careerOf({ 2018: 14, 2019: 15, 2020: 16 }), 'P', 'WR', { throughSeason: 2020 });
+  assert.equal(plain.projectedGames, 15, 'projectedGames is unchanged by the additive field');
+  assert.equal(projectedGamesFor(careerOf({ 2020: 12 }), 'P', 'WR', { throughSeason: 2020 }).recent.length, 1);
+});
+
+test('GCC-5 generalised cells: L6 keys are unchanged; unk causes route to pos|s; thin cells fall back; unknown dimensions throw; avgKey selects the input', () => {
+  const R = (over) => ({ position: 'WR', ageBucket: '25-27', sState: 'short', rel3: false, k1: 'short-oth', k2: 'short-bench', k3: 'short-bench', ...over });
+  const cases = [
+    [R({}), { pos: 'WR', 'pos|s': 'WR|short', 'pos|age': 'WR|25-27', 'pos|age|s': 'WR|25-27|short' }],
+    [R({ position: 'QB', ageBucket: '<=26', sState: 'qual' }), { pos: 'QB', 'pos|s': 'QB|qual', 'pos|age': 'QB|<=26', 'pos|age|s': 'QB|<=26|qual' }],
+    [R({ ageBucket: '36+', sState: 'none' }), { pos: 'WR', 'pos|s': 'WR|none', 'pos|age': 'WR|36+', 'pos|age|s': 'WR|36+|none' }],
+    [R({ ageBucket: 'unk' }), { pos: 'WR', 'pos|s': 'WR|short', 'pos|age': null, 'pos|age|s': null }],
+  ];
+  for (const [row, expected] of cases) for (const [level, key] of Object.entries(expected)) assert.equal(cellKey(level, row), key, `${level} ${JSON.stringify(row.ageBucket)}`);
+  // new dimensions
+  assert.equal(cellKey('pos|rel|k3', R({ rel3: true })), 'WR|rel|short-bench');
+  assert.equal(cellKey('pos|rel|k1', R({})), 'WR|oth|short-oth');
+  assert.equal(cellKey('pos|k2', R({ k2: 'unk' })), null);
+  assert.equal(cellKey('pos|rel|k3', R({ k3: 'unk', rel3: true })), null);
+  assert.throws(() => cellKey('pos|bogus', R({})), /unknown cell dimension 'bogus' in level 'pos\|bogus'/);
+
+  // an unk k2 row lands on pos|s in pos|rel|k2 → pos|k2 → pos|s → pos
+  const train = [];
+  for (let i = 0; i < 6; i++) {
+    train.push({ id: `a${i}`, position: 'WR', ageBucket: '25-27', sState: 'short', rel3: i < 2, k1: 'short-oth', k2: 'short-cut', k3: 'short-cut', avgGames: 14, avgGamesL: 14, outcome: 8 });
+    train.push({ id: `b${i}`, position: 'WR', ageBucket: '25-27', sState: 'short', rel3: false, k1: 'short-oth', k2: 'unk', k3: 'unk', avgGames: 14, avgGamesL: 14, outcome: 10 });
+  }
+  const opts = { minCellTrainPlayers: 3, candidates: CAUSE_CANDIDATES };
+  const m2 = fitCandidate(train, 'RK2f0', opts);
+  assert.deepEqual(m2.levels, ['pos|rel|k2', 'pos|k2', 'pos|s', 'pos']);
+  const unk = kFor(m2, R({ k2: 'unk', rel3: true }));
+  assert.equal(unk.used, 'WR|short', 'unk k2 skips both k2 levels');
+  assert.equal(unk.fallback, false, 'pos|s was the first level it could request');
+  // a thin pos|rel|k3 cell (2 players < 3) falls back to pos|k3
+  const m3 = fitCandidate(train, 'RK3f0', opts);
+  const thin = kFor(m3, R({ k3: 'short-cut', rel3: true }));
+  assert.equal(thin.requested, 'WR|rel|short-cut');
+  assert.equal(thin.used, 'WR|short-cut');
+  assert.equal(thin.fallback, true);
+  assert.deepEqual(m3.thin.map((t) => t.cell), ['WR|rel|short-cut']);
+  // an unknown dimension in a candidate throws at fit time
+  assert.throws(() => fitCandidate(train, 'X', { candidates: { X: { levels: ['pos|nope', 'pos'], floor: 0 } } }), /unknown cell dimension/);
+
+  // avgKey: avgGamesL = 12 equals the outcome, avgGames = 16 does not
+  const rows = Array.from({ length: 5 }, (_, i) => ({ id: `r${i}`, position: 'WR', avgGames: 16, avgGamesL: 12, outcome: 12 }));
+  const byL = fitCandidate(rows, 'X', { candidates: { X: { levels: ['pos'], floor: 0, avgKey: 'avgGamesL' } } });
+  const byG = fitCandidate(rows, 'X', { candidates: { X: { levels: ['pos'], floor: 0 } } });
+  assert.equal(byL.avgKey, 'avgGamesL');
+  assert.equal(byL.cells.pos.WR.k, 1);
+  assert.ok(byG.cells.pos.WR.k < 0.8 && byG.cells.pos.WR.k !== byL.cells.pos.WR.k, 'the default input needs a cut (0.75–0.78 all round to 12)');
+});
+
+const GATE_IDS = ['L0', ...CAUSE_CANDIDATE_IDS];
+const cpos = (dMae) => Object.fromEntries(['QB', 'RB', 'WR', 'TE'].map((p) => [p, { dMae }]));
+/** An eligible summary at every δ ≥ 0.10 unless overridden. */
+function csum(over = {}) {
+  return {
+    relevant: { dMae: ci(-0.2, 0.05), bias: 0.3, c0Bias: 1.8, ...over.relevant },
+    star: { dMae: ci(-1.2, 0.05), ...over.star },
+    pooled: { dMse: ci(-3, -1), ...over.pooled },
+    rStar: { mae: 5, ...over.rStar },
+    relevantByPosition: over.relevantByPosition ?? cpos(ci(-0.3, 0.05)),
+  };
+}
+const csums = (eligible = {}) => Object.fromEntries(GATE_IDS.map((id) => [id, id in eligible ? csum(eligible[id]) : csum({ pooled: { dMse: ci(0.1, 1) } })]));
+
+test('GCC-6 causeEligibility: each gate fails alone and is named; null cis fail G1/G3/G4 but not G5', () => {
+  assert.deepEqual(causeEligibility(csum(), 0.25), { eligible: true, failed: [] });
+  assert.deepEqual(causeEligibility(csum({ relevant: { dMae: ci(0, 0.4) } }), 0.25).failed, ['G1']);
+  assert.deepEqual(causeEligibility(csum({ relevant: { dMae: ci(0, 0.25) } }), 0.25).failed, [], 'ci upper bound exactly δ passes (≤)');
+  assert.deepEqual(causeEligibility(csum({ relevant: { bias: 1.2 } }), 0.25).failed, ['G2'], '|bias| > 1.0');
+  assert.deepEqual(causeEligibility(csum({ relevant: { bias: -0.9, c0Bias: 0.5 } }), 0.25).failed, ['G2'], 'not smaller in size than C0');
+  assert.deepEqual(causeEligibility(csum({ star: { dMae: ci(0, 0.6) } }), 0.25).failed, ['G3']);
+  assert.deepEqual(causeEligibility(csum({ pooled: { dMse: ci(-1, 0.2) } }), 0.25).failed, ['G4']);
+  assert.deepEqual(causeEligibility(csum({ relevantByPosition: { ...cpos(ci(-0.3, 0.05)), QB: { dMae: ci(0.3, 0.9) } } }), 0.25).failed, ['G5'], 'QB lower bound 0.3 > δ');
+  assert.deepEqual(causeEligibility(csum({ relevant: { dMae: { mean: 0, ci95: null } } }), 0.25).failed, ['G1'], 'null ci fails G1');
+  assert.deepEqual(causeEligibility(csum({ star: { dMae: { mean: 0, ci95: null } } }), 0.25).failed, ['G3']);
+  assert.deepEqual(causeEligibility(csum({ pooled: { dMse: { mean: 0, ci95: null } } }), 0.25).failed, ['G4']);
+  assert.deepEqual(causeEligibility(csum({ relevantByPosition: { ...cpos(ci(-0.3, 0.05)), TE: { dMae: { n: 0, mean: null, ci95: null } } } }), 0.25).failed, [], 'a null ci at a position does not fail G5');
+  assert.deepEqual(causeEligibility(csum({ relevant: { dMae: ci(0, 0.4), bias: 2 } }), 0.25).failed, ['G1', 'G2']);
+});
+
+test('GCC-6 decideCause: parsimony walk, C3f0 never picked, in-tier ties by tier order, K3 text, three deltas, recon stop', () => {
+  const recon0 = { mean: 0 };
+  // K2f0 tied with K1f0 (paired CI crosses 0) → K1f0; a null paired CI also keeps K1f0
+  const s = csums({ K1f0: {}, K2f0: { rStar: { mae: 4.5 } } });
+  const seen = [];
+  const tied = decideCause({ summaries: s, paired: (hi, lo) => { seen.push([hi, lo]); return [-0.4, 0.1]; }, delta: 0.25, recon: recon0 });
+  assert.equal(tied.outcome, 'W');
+  assert.equal(tied.pick, 'K1f0');
+  assert.deepEqual(seen, [['K2f0', 'K1f0']]);
+  assert.doesNotMatch(tied.text, /served/);
+  assert.equal(decideCause({ summaries: s, paired: () => null, delta: 0.25, recon: recon0 }).pick, 'K1f0');
+  // an eligible C3f0 with the best R* MAE is never picked, and alone it gives (N)
+  const c3Best = csums({ C3f0: { rStar: { mae: 1 } }, K1f0: { rStar: { mae: 6 } } });
+  assert.equal(decideCause({ summaries: c3Best, paired: () => [-9, -8], delta: 0.25, recon: recon0 }).pick, 'K1f0');
+  const c3Only = decideCause({ summaries: csums({ C3f0: {} }), paired: () => [-9, -8], delta: 0.25, recon: recon0 });
+  assert.equal(c3Only.outcome, 'N');
+  assert.equal(c3Only.pick, null);
+  assert.equal(c3Only.eligibility.C3f0.eligible, true, 'still tabled as eligible');
+  assert.equal(c3Only.text, '(N) no change at δ = 0.25 — no candidate is eligible.');
+  // equal R* MAE inside a tier → CAUSE_TIERS array order (K2f0 before K3f0); a lower K3 MAE wins
+  const eq = decideCause({ summaries: csums({ K3f0: {}, K2f0: {} }), paired: noPaired, delta: 0.25, recon: recon0 });
+  assert.equal(eq.pick, 'K2f0');
+  const k3Lower = decideCause({ summaries: csums({ K3f0: { rStar: { mae: 4 } }, K2f0: {} }), paired: noPaired, delta: 0.25, recon: recon0 });
+  assert.equal(k3Lower.pick, 'K3f0');
+  // a K3 candidate with a paired CI below 0 replaces K1f0, and the text names the served-signal need
+  const up = decideCause({ summaries: csums({ K1f0: {}, K3f0: {} }), paired: () => [-0.5, -0.1], delta: 0.25, recon: recon0 });
+  assert.equal(up.pick, 'K3f0');
+  assert.match(up.text, /^\(W\) wire K3f0 at δ = 0\.25 /);
+  assert.match(up.text, /needs a new served roster-cause signal \(the app does not read rosterweekly\)/);
+  // a later app-native tier needs the CI win as well (RK1 over K1f0)
+  assert.equal(decideCause({ summaries: csums({ K1f0: {}, RK1: {} }), paired: () => [-0.5, 0.1], delta: 0.25, recon: recon0 }).pick, 'K1f0');
+  // three deltas: eligible at 0.50 but not at 0.10 / 0.25
+  const wide = csums({ K1f0: { relevant: { dMae: ci(0, 0.4) } } });
+  const byDelta = Object.fromEntries([0.10, 0.25, 0.50].map((d) => [d, decideCause({ summaries: wide, paired: noPaired, delta: d, recon: recon0 })]));
+  assert.deepEqual(Object.values(byDelta).map((d) => d.outcome), ['N', 'N', 'W']);
+  assert.equal(byDelta[0.5].pick, 'K1f0');
+  assert.deepEqual(byDelta[0.1].eligibility.K1f0.failed, ['G1']);
+  // (S) on a recon breach
+  const stop = decideCause({ summaries: s, paired: noPaired, delta: 0.25, recon: { mean: 0.2 }, tolerance: 0.05 });
+  assert.equal(stop.outcome, 'S');
+  assert.equal(stop.pick, null);
+});
+
+test('GCC-7: end to end with the cause fixture — every scenario row carries the pre-stated K1/K2/K3; one write; three decisions; closed-set assertion', () => {
+  const logs = [], errs = [], writes = [];
+  const code = gamesCauseMain({
+    load: syntheticLoad({ withCause: true }), defaults: smallDefaults, write: true,
+    writeArtifacts: (a) => { writes.push(a); return { panelPath: 'p', constantsPath: 'c', verdictPath: 'v', panelBytes: 1 }; },
+    log: (m) => logs.push(m), logErr: (m) => errs.push(m),
+  });
+  assert.equal(code, 0);
+  assert.equal(writes.length, 1);
+  const r = writes[0].result;
+  assert.deepEqual(Object.keys(r.decisions).sort(), ['0.1', '0.25', '0.5']);
+  assert.deepEqual(Object.keys(r.constants.candidates), CAUSE_CANDIDATE_IDS);
+  assert.match(writes[0].verdictMd, /## 7\. Decision/);
+  assert.match(writes[0].verdictMd, /## 8\. 2026 impact/);
+  assert.match(logs.join('\n'), /## 3\. Cause split/);
+  assert.match(r.cause.kStateAssertion, /^held for all \d+ rows$/);
+  assert.equal(r.recon.nonZero, 0);
+  assert.equal(r.meta.primaryDelta, 0.25);
+  const expected = [['short-inj', 'short-inj', 'short-inj'], ['short-inj', 'short-bench', 'short-inj'], ['short-oth', 'short-bench', 'short-bench'], ['short-oth', 'short-cut', 'short-cut']];
+  for (const S of [2019, 2021]) {
+    for (let i = 0; i < 12; i++) {
+      const row = r.rows.find((x) => x.id === `P${i}` && x.S === S);
+      assert.ok(row, `panel row P${i} S=${S}`);
+      assert.equal(row.sState, 'short');
+      assert.deepEqual([row.k1, row.k2, row.k3], expected[i % 4], `P${i} S=${S} scenario ${'abcd'[i % 4]}`);
+    }
+  }
+  assert.ok(r.rows.filter((x) => x.sState === 'qual').every((x) => x.k1 === 'qual' && x.k2 === 'qual' && x.k3 === 'qual'));
+  assert.ok(r.rows.every((x) => x.rel3 || !x.relevant), 'relevant ⇒ rel3');
+});
+
+test('GCC-7: the real writer under a tmp root writes the three games-cause paths; a parity break exits 1 with nothing written', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gamescause-e2e-'));
+  let written = null;
+  const code = gamesCauseMain({
+    load: syntheticLoad({ withCause: true }), defaults: smallDefaults, write: true,
+    writeArtifacts: (a) => (written = writeGamesCauseArtifacts({ ...a, root })),
+    log: () => {}, logErr: () => {},
+  });
+  assert.equal(code, 0);
+  const date = new Date().toISOString().slice(0, 10);
+  assert.equal(written.panelPath, `backtests/${date}-games-cause-panel.json`);
+  assert.equal(written.constantsPath, `backtests/${date}-games-cause-constants.json`);
+  assert.equal(written.verdictPath, `grading/${date}-games-cause-verdict.md`);
+  for (const p of [written.panelPath, written.constantsPath, written.verdictPath]) assert.ok(fs.existsSync(path.join(root, p)), `${p} exists`);
+  const panel = JSON.parse(fs.readFileSync(path.join(root, written.panelPath), 'utf8'));
+  assert.equal(panel.constants, undefined, 'constants live in their own file');
+  assert.deepEqual(Object.keys(JSON.parse(fs.readFileSync(path.join(root, written.constantsPath), 'utf8')).candidates), CAUSE_CANDIDATE_IDS);
+
+  const writes = [], errs = [];
+  const bad = gamesCauseMain({
+    load: syntheticLoad({ withCause: true, breakParity: true }), defaults: smallDefaults, write: true,
+    writeArtifacts: (a) => { writes.push(a); return {}; }, log: () => {}, logErr: (m) => errs.push(m),
+  });
+  assert.equal(bad, 1);
+  assert.equal(writes.length, 0);
+  assert.match(errs.join('\n'), /parity .* below 99%/);
+});
+
+test('GCC-8 CLI: --cause alone and --cause with an unknown flag both exit 1 with the named message', () => {
+  const alone = spawnSync(process.execPath, ['bin/backtest.mjs', '--cause'], { cwd: REPO_ROOT, encoding: 'utf8' });
+  assert.equal(alone.status, 1);
+  assert.match(alone.stderr, /--cause requires --games-calibration/);
+  const bogus = spawnSync(process.execPath, ['bin/backtest.mjs', '--games-calibration', '--cause', '--bogus'], { cwd: REPO_ROOT, encoding: 'utf8' });
+  assert.equal(bogus.status, 1);
+  assert.match(bogus.stderr, /rejects --bogus/);
+  assert.match(bogus.stderr, /takes only --cause, --json and --write/);
 });

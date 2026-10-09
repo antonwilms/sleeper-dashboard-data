@@ -1310,7 +1310,7 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
 `--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
 rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`),
-`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--games-calibration` (takes only `--json`/`--write`).
+`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--games-calibration [--cause]` (takes only `--cause`/`--json`/`--write`; `--cause` alone is rejected).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1323,8 +1323,8 @@ the app's live default, load-bearing for the reconstruction.
 
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
 `<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
-`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`, `<date>-games-calibration-{panel,constants}.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`).
+`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`, `<date>-games-calibration-{panel,constants}.json`, `<date>-games-cause-{panel,constants}.json`) and `grading/`
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`, `<date>-games-cause-verdict.md`).
 Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
@@ -1402,7 +1402,7 @@ what an absent file means.
 
 #### `lib/durabilityMirror.mjs` — offline mirror of the app's durability rules
 
-Pure, no I/O; used only by `bin/backtest.mjs --absence` (`scripts/absence-run.mjs`). It mirrors, at
+Pure, no I/O; used only by `bin/backtest.mjs --absence` (`scripts/absence-run.mjs`), `--games-calibration` and `--games-calibration --cause`. It mirrors, at
 app `d627562` (CR-28), the veteran projected-games rule (`src/utils/durabilitySignals.js`;
 `seasonProjection.js` Step 1 qualifying seasons/weights and Step 6), the bounce-back predicate
 (`projectionSignals.js` `computeBounceBackFlag`) and the dynasty `injurySeasonCount`
@@ -1415,7 +1415,9 @@ through), not its header comment. `test/durability-mirror.test.mjs` pins parity 
 match on `projectedGames`, `injurySeasons` and `absenceShapeFactor` (compared at the app's own
 `Math.round(x·1000)/1000`). A change to those four app sites stales the mirror silently.
 `projectedGamesFor` also returns `avgGames`, the value just before `Math.round(clamp(…, 8, 17))`
-(DM-4 pins that); `--games-calibration` calibrates it.
+(DM-4 pins that); `--games-calibration` calibrates it. It also returns `recent` — the qualifying seasons
+behind the weighted base (`{ season, gamesPlayed, w }`) — an offline-only additive field the L6b season-length
+factor reads; `projectedGames`, `avgGamesBase` and `avgGames` are unchanged by it.
 
 #### `lib/gamesCalibration.mjs` — projected-games decomposition and held-out calibration
 
@@ -1435,6 +1437,22 @@ a wiring slice (an app `seasonProjection.js` Step 6 change, CR-28) is planned se
 `--write` persists `backtests/<date>-games-calibration-{panel,constants}.json` and
 `grading/<date>-games-calibration-verdict.md`. Exit 1 if DM-1 parity falls below 99% or the snapshot
 is missing (nothing written).
+
+**L6b — `--games-calibration --cause`** (`scripts/games-cause-run.mjs`; offline, no served file).
+L6's winner (C3f0) cut injured starters, so L6b splits the short S season by *cause* and adds relevance and
+season length as fit dimensions. `causeStates` gives three pre-registered definitions: **K1** app-native
+(`short-inj` = the mirrored `classifyInjurySeason` as of S, else `short-oth`), **K2** roster-only (S-season
+slots by rosterweekly status: injured = RES/PUP, bench = INA + ACT-not-playing, cut = DEV + off roster +
+other) and **K3** (K2, but a contributor's INA/ACT-not-playing slots count as injury); K2/K3 are `unk` for
+S < 2016. `rel3Of` marks top-N in any of S, S−1, S−2; the judged cohorts are `relevant`, `star` (rel3 and
+S-state ≠ qual) and R\* (their union). `avgGamesSeasonLength` rescales each recent qualifying season to the
+outcome season's length (16 vs 17 games). `CAUSE_CANDIDATES` (K1f0 … RK3f0L, plus the no-fit L0 and L6's
+C3f0 as a reference) share the generalised `cellKey` chain machinery; `causeEligibility` applies gates
+G1–G5 at δ ∈ {0.10, 0.25, 0.50} of relevant-MAE non-inferiority and `decideCause` walks `CAUSE_TIERS`
+(app-native before roster-cause; a later tier needs a paired R\* ΔMAE CI below 0; C3f0 is never picked).
+`--write` persists `backtests/<date>-games-cause-{panel,constants}.json` (constants nested by level) and
+`grading/<date>-games-cause-verdict.md`. A K2/K3 pick would need a new served roster-cause signal (the app
+never reads rosterweekly); the choice stays with Anton.
 
 #### `lib/nflverse.mjs` — floors vs. bands
 

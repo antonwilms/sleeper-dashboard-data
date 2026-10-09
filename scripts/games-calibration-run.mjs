@@ -94,7 +94,7 @@ export function panelEligibility({ store, rosterByYear, positionOf, draftYearOf,
 const GROUPS = ['schedule', 'composition', 'role', 'injuryList', 'recon'];
 const CATS = ['offRoster', 'practiceSquad', 'otherStatus', 'activeNoPlay', 'inactive', 'reserve'];
 
-function decompCell(rows) {
+export function decompCell(rows) {
   if (!rows.length) return { n: 0 };
   const out = { n: rows.length, players: new Set(rows.map((r) => r.id)).size, bias: round3(mean(rows.map((r) => r.dec.bias))) };
   for (const g of GROUPS) out[g] = round3(mean(rows.map((r) => r.dec[g])));
