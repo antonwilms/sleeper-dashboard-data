@@ -2593,7 +2593,7 @@ describe('rookie-outcome-panels §6 test 1 — reproduction pin (the gate on thi
     // The crosswalk is pinned to the rev the artifact was built against, not the live
     // nflverse/playerids.json the weekly cron rewrites — a refresh that newly resolves a position
     // for an id already in 2013–2024 season totals changes `assembled` without touching the
-    // artifact (cde2d06 added 12079: 2563 → 2564). See test/fixtures/build-rookie-pin-crosswalk.mjs.
+    // artifact (cde2d06 added 12079: 2563 → 2564). See scripts/fixtures/build-rookie-pin-crosswalk.mjs.
     const playerIds = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'test/fixtures/rookie-pin-crosswalk-2026-09-06.json'), 'utf8'));
     const crosswalk = {};
     const birthdateBySleeper = {};

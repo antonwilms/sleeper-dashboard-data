@@ -1,5 +1,5 @@
 /**
- * test/fixtures/build-rookie-pin-crosswalk.mjs — builds rookie-pin-crosswalk-2026-09-06.json, the
+ * scripts/fixtures/build-rookie-pin-crosswalk.mjs — builds rookie-pin-crosswalk-2026-09-06.json, the
  * crosswalk input to panel-fit.test.mjs's rookie-outcome-panels §6 test 1 reproduction pin.
  *
  * backtests/2026-09-06-fullpipeline-panel.json was generated (282546a) against the crosswalk as of
@@ -12,7 +12,7 @@
  * (the only ids positionOf / draftInfoOf / birthdateOf are ever asked about) and to the fields the
  * test reads.
  *
- * Run: node test/fixtures/build-rookie-pin-crosswalk.mjs
+ * Run: node scripts/fixtures/build-rookie-pin-crosswalk.mjs
  */
 import { execFileSync } from 'child_process';
 import fs from 'fs';
@@ -46,11 +46,8 @@ export function buildFixture() {
   return { sourceRev: SOURCE_REV, artifact: ARTIFACT_DATE, bySleeper, ids };
 }
 
-// Bare `node --test` matches every .mjs under test/, so it runs this file too: skip the write
-// there (NODE_TEST_CONTEXT is set by the runner) — a test run must not rewrite fixtures, and a
-// shallow CI checkout has no SOURCE_REV for `git show` to read.
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isMain && !process.env.NODE_TEST_CONTEXT) {
+if (isMain) {
   const fx = buildFixture();
   const out = path.join(ROOT, 'test', 'fixtures', `rookie-pin-crosswalk-${ARTIFACT_DATE}.json`);
   fs.writeFileSync(out, JSON.stringify(fx) + '\n');

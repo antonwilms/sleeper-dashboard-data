@@ -1411,7 +1411,7 @@ app `d627562` (CR-28), the veteran projected-games rule (`src/utils/durabilitySi
 the app **code** (any one of snap share, starts, volume suffices — a below-floor snap share falls
 through), not its header comment. `test/durability-mirror.test.mjs` pins parity against
 `test/fixtures/durability-parity-2026-10-04.json` (pre-correction inputs at data `4f469cc`, built by
-`test/fixtures/build-durability-parity.mjs`): ≥ 99% of the 2026-10-04 snapshot's veteran rows must
+`scripts/fixtures/build-durability-parity.mjs`): ≥ 99% of the 2026-10-04 snapshot's veteran rows must
 match on `projectedGames`, `injurySeasons` and `absenceShapeFactor` (compared at the app's own
 `Math.round(x·1000)/1000`). A change to those four app sites stales the mirror silently.
 `projectedGamesFor` also returns `avgGames`, the value just before `Math.round(clamp(…, 8, 17))`
@@ -1509,6 +1509,8 @@ npm run smoke
 ```
 
 Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/gamelogs/teamcontext/playerstate/oline (no writes), validates enrichment, and runs the grade self-test. The smoke-test CI workflow runs a subset on pull requests (`npm test` + nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs + enrichment validation), not `npm run smoke` itself.
+
+**Only test files live under `test/`.** `npm test` is bare `node --test`, which executes every `.mjs` under `test/` as a test file, not just `*.test.mjs`. Test helpers go in `test-support/`; fixture builders go in `scripts/fixtures/` (they read `git show <rev>`, which a shallow CI checkout cannot serve) and write their output into `test/fixtures/`. `test/test-layout.test.mjs` enforces this.
 
 ### GitHub Actions
 

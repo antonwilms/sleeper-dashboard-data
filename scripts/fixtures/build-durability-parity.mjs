@@ -1,11 +1,11 @@
 /**
- * test/fixtures/build-durability-parity.mjs — builds durability-parity-2026-10-04.json (DM-0,
+ * scripts/fixtures/build-durability-parity.mjs — builds durability-parity-2026-10-04.json (DM-0,
  * absence-classification-b.md §3). Reads ONLY through `git show <SOURCE_REV>:<path>` for the
  * season totals and the crosswalk, so the fixture holds the PRE-correction inputs even after the
  * served files are rewritten (absence-classification-c). The snapshot is read from the working
  * tree: it is immutable and date-keyed.
  *
- * Run: node test/fixtures/build-durability-parity.mjs
+ * Run: node scripts/fixtures/build-durability-parity.mjs
  */
 import { execFileSync } from 'child_process';
 import fs from 'fs';
