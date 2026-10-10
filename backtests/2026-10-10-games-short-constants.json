@@ -1,0 +1,328 @@
+{
+  "generatedAt": "2026-10-10T08:14:04.019Z",
+  "panelRev": "feae0537d8917f582c9d3d6dbe035bb62d723a94",
+  "candidates": {
+    "C3f0": {
+      "floor": 0,
+      "fitRows": "all",
+      "k": {
+        "pos|s": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short": 0.51,
+          "WR|qual": 0.8,
+          "QB|short": 0.5,
+          "TE|none": 0.55,
+          "WR|short": 0.52,
+          "WR|none": 0.5,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "RB|none",
+          "players": 31
+        },
+        {
+          "cell": "QB|none",
+          "players": 8
+        }
+      ],
+      "boundaryCells": [
+        "pos|s|QB|short",
+        "pos|s|WR|none"
+      ]
+    },
+    "K1f0": {
+      "floor": 0,
+      "fitRows": "all",
+      "k": {
+        "pos|k1": {
+          "QB|qual": 0.86,
+          "TE|qual": 0.87,
+          "RB|qual": 0.85,
+          "RB|short-oth": 0.5,
+          "WR|qual": 0.8,
+          "QB|short-inj": 0.5,
+          "TE|none": 0.55,
+          "WR|short-oth": 0.5,
+          "WR|none": 0.5,
+          "RB|short-inj": 0.59,
+          "TE|short-oth": 0.53,
+          "WR|short-inj": 0.52,
+          "TE|short-inj": 0.73
+        },
+        "pos": {
+          "QB": 0.71,
+          "TE": 0.8,
+          "RB": 0.78,
+          "WR": 0.72
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "QB|short-oth",
+          "players": 25
+        },
+        {
+          "cell": "RB|none",
+          "players": 31
+        },
+        {
+          "cell": "QB|none",
+          "players": 8
+        }
+      ],
+      "boundaryCells": [
+        "pos|k1|RB|short-oth",
+        "pos|k1|QB|short-inj",
+        "pos|k1|WR|short-oth",
+        "pos|k1|WR|none"
+      ]
+    },
+    "SOf0": {
+      "floor": 0,
+      "fitRows": "non-qual",
+      "k": {
+        "pos|s": {
+          "RB|short": 0.51,
+          "QB|short": 0.5,
+          "TE|none": 0.55,
+          "WR|short": 0.52,
+          "WR|none": 0.5,
+          "TE|short": 0.53
+        },
+        "pos": {
+          "RB": 0.5,
+          "QB": 0.5,
+          "TE": 0.53,
+          "WR": 0.5
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "RB|none",
+          "players": 31
+        },
+        {
+          "cell": "QB|none",
+          "players": 8
+        }
+      ],
+      "boundaryCells": [
+        "pos|s|QB|short",
+        "pos|s|WR|none",
+        "pos|RB",
+        "pos|QB",
+        "pos|WR"
+      ]
+    },
+    "SOK1f0": {
+      "floor": 0,
+      "fitRows": "non-qual",
+      "k": {
+        "pos|k1": {
+          "RB|short-oth": 0.5,
+          "QB|short-inj": 0.5,
+          "TE|none": 0.55,
+          "WR|short-oth": 0.5,
+          "WR|none": 0.5,
+          "RB|short-inj": 0.59,
+          "TE|short-oth": 0.53,
+          "WR|short-inj": 0.52,
+          "TE|short-inj": 0.73
+        },
+        "pos": {
+          "RB": 0.5,
+          "QB": 0.5,
+          "TE": 0.53,
+          "WR": 0.5
+        }
+      },
+      "thinCells": [
+        {
+          "cell": "QB|short-oth",
+          "players": 25
+        },
+        {
+          "cell": "RB|none",
+          "players": 31
+        },
+        {
+          "cell": "QB|none",
+          "players": 8
+        }
+      ],
+      "boundaryCells": [
+        "pos|k1|RB|short-oth",
+        "pos|k1|QB|short-inj",
+        "pos|k1|WR|short-oth",
+        "pos|k1|WR|none",
+        "pos|RB",
+        "pos|QB",
+        "pos|WR"
+      ]
+    }
+  },
+  "fallbacks": [
+    {
+      "evalYear": 2018,
+      "rows": {
+        "SOf0": 66,
+        "SOK1f0": 81
+      },
+      "cells": {
+        "SOf0": {
+          "TE|none->TE": 7,
+          "QB|short->QB": 17,
+          "TE|short->TE": 11,
+          "WR|short->WR": 17,
+          "RB|none->RB": 6,
+          "WR|none->WR": 8
+        },
+        "SOK1f0": {
+          "TE|none->TE": 7,
+          "QB|short-oth->QB": 4,
+          "QB|short-inj->QB": 13,
+          "TE|short-inj->TE": 6,
+          "RB|short-oth->RB": 8,
+          "WR|short-inj->WR": 7,
+          "RB|short-inj->RB": 7,
+          "RB|none->RB": 6,
+          "WR|none->WR": 8,
+          "WR|short-oth->WR": 10,
+          "TE|short-oth->TE": 5
+        }
+      }
+    },
+    {
+      "evalYear": 2019,
+      "rows": {
+        "SOf0": 54,
+        "SOK1f0": 75
+      },
+      "cells": {
+        "SOf0": {
+          "QB|short->QB": 19,
+          "QB|none->QB": 2,
+          "TE|none->TE": 4,
+          "WR|none->WR": 9,
+          "RB|none->RB": 5,
+          "TE|short->TE": 15
+        },
+        "SOK1f0": {
+          "QB|short-oth->QB": 7,
+          "QB|short-inj->QB": 12,
+          "WR|short-inj->WR": 7,
+          "QB|none->QB": 2,
+          "TE|none->TE": 4,
+          "WR|short-oth->WR": 11,
+          "WR|none->WR": 9,
+          "RB|none->RB": 5,
+          "TE|short-inj->TE": 9,
+          "TE|short-oth->TE": 6,
+          "RB|short-inj->RB": 3
+        }
+      }
+    },
+    {
+      "evalYear": 2020,
+      "rows": {
+        "SOK1f0": 51,
+        "SOf0": 10
+      },
+      "cells": {
+        "SOK1f0": {
+          "QB|short-oth->QB": 6,
+          "WR|short-inj->WR": 16,
+          "RB|none->RB": 6,
+          "TE|short-oth->TE": 9,
+          "RB|short-inj->RB": 7,
+          "TE|none->TE": 3,
+          "TE|short-inj->TE": 3,
+          "QB|none->QB": 1
+        },
+        "SOf0": {
+          "RB|none->RB": 6,
+          "TE|none->TE": 3,
+          "QB|none->QB": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2021,
+      "rows": {
+        "SOK1f0": 33,
+        "SOf0": 2
+      },
+      "cells": {
+        "SOK1f0": {
+          "QB|short-oth->QB": 6,
+          "TE|short-oth->TE": 9,
+          "TE|short-inj->TE": 7,
+          "RB|short-inj->RB": 9,
+          "TE|none->TE": 1,
+          "RB|none->RB": 1
+        },
+        "SOf0": {
+          "TE|none->TE": 1,
+          "RB|none->RB": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2022,
+      "rows": {
+        "SOf0": 7,
+        "SOK1f0": 15
+      },
+      "cells": {
+        "SOf0": {
+          "TE|none->TE": 6,
+          "RB|none->RB": 1
+        },
+        "SOK1f0": {
+          "TE|none->TE": 6,
+          "QB|short-oth->QB": 3,
+          "TE|short-inj->TE": 5,
+          "RB|none->RB": 1
+        }
+      }
+    },
+    {
+      "evalYear": 2023,
+      "rows": {
+        "SOK1f0": 9
+      },
+      "cells": {
+        "SOK1f0": {
+          "QB|short-oth->QB": 1,
+          "TE|short-inj->TE": 8
+        }
+      }
+    },
+    {
+      "evalYear": 2024,
+      "rows": {
+        "SOf0": 3,
+        "SOK1f0": 5
+      },
+      "cells": {
+        "SOf0": {
+          "QB|none->QB": 3
+        },
+        "SOK1f0": {
+          "QB|none->QB": 3,
+          "QB|short-oth->QB": 2
+        }
+      }
+    }
+  ]
+}
