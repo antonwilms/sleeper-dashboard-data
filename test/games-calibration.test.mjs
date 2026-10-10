@@ -790,8 +790,10 @@ test('GCS-2 shortPred: qualifying rows keep r.pred; short rows take the fitted k
   const rows = [
     ...Array.from({ length: 45 }, (_, i) => WR_ROW(`i${i}`, 'short', 10, 6, { k1: 'short-inj' })),
     ...Array.from({ length: 45 }, (_, i) => WR_ROW(`o${i}`, 'short', 10, 8, { k1: 'short-oth' })),
+    ...Array.from({ length: 5 }, (_, i) => WR_ROW(`n${i}`, 'none', 10, 6, { k1: 'none' })),
   ];
   const so = fitShortCandidate(rows, 'SOf0');
+  assert.deepEqual(so.thin.find((t) => t.cell === 'WR|none'), { cell: 'WR|none', players: 5 }, 'WR|none is an observed thin cell');
   assert.ok(so.cells.pos.WR.k < 1, 'the root k is below 1');
   const q1 = shortPred(so, WR_ROW('a', 'qual', 7.4, 0, { pred: 8, k1: 'qual' }));
   assert.equal(q1.p, 8, 'floor-8 prediction kept');
@@ -802,7 +804,7 @@ test('GCS-2 shortPred: qualifying rows keep r.pred; short rows take the fitted k
   assert.equal(sh.p, candidatePred(10, so.cells['pos|s']['WR|short'].k, 0));
   assert.equal(sh.fallback, false);
   const none = shortPred(so, WR_ROW('d', 'none', 10, 0, { pred: 10, k1: 'none' }));
-  assert.equal(none.fallback, true, 'no none-state training rows → thin cell');
+  assert.equal(none.fallback, true, 'observed thin cell (5 players) → pos');
   assert.equal(none.requested, 'WR|none');
   assert.equal(none.used, 'WR');
   assert.equal(none.p, candidatePred(10, so.cells.pos.WR.k, 0));

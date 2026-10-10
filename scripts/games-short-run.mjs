@@ -177,7 +177,7 @@ function fullSample(rows, defaults) {
 
 // ─── 2026 impact (step 8) ────────────────────────────────────────────────────
 
-function impactAll({ full, people0, causeDefaults }) {
+function impactAll({ full, people0, causeDefaults, names }) {
   const people = people0.map((x) => {
     const games = { C0: x.projectedGames };
     for (const id of SHORT_REFERENCE_IDS) games[id] = candidatePred(x.avgGames, kFor(full[id], x).k, CAUSE_CANDIDATES[id].floor);
@@ -205,10 +205,9 @@ function impactAll({ full, people0, causeDefaults }) {
     };
   }
   const rowOf = (x) => ({ id: x.id, name: x.name, position: x.position, sState: x.sState, k1: x.k1, rel3: x.rel3, games: x.games });
-  const names = Object.fromEntries(people0.map((x) => [x.id, x.name]));
   const pinned = causeDefaults.pinned.map((id) => {
     const x = people.find((q) => q.id === id);
-    return x ? rowOf(x) : { id, name: names[id] ?? id, notVeteran: true };
+    return x ? rowOf(x) : { id, name: names[id]?.full_name ?? id, notVeteran: true };
   });
   const maxAbs = (x) => Math.max(...SHORT_CANDIDATE_IDS.map((c) => Math.abs(x.games[c] - x.games.C0)));
   const autoAll = people.filter((x) => x.rel3 && !causeDefaults.pinned.includes(x.id) && maxAbs(x) >= causeDefaults.autoStarMinDelta)
@@ -267,7 +266,7 @@ export function runGamesShort({ load = GAMES_CAL_LOAD, defaults = GAMES_CAL_DEFA
   // step 8 — 2026 impact
   const names = c.g.loadPlayersRaw?.() ?? {};
   const people0 = causeVeterans({ store: c.store, rosterByYear: c.rosterByYear, snapshot: c.snapshot, positionOf: c.positionOf, bySleeper: c.bySleeper, names, defaults, rankIndex: c.rankIndex, to: c.to });
-  const impact = impactAll({ full, people0, causeDefaults });
+  const impact = impactAll({ full, people0, causeDefaults, names });
 
   const panelRev = c.g.gitRev?.() ?? null;
   const generatedAt = new Date().toISOString();
@@ -360,7 +359,7 @@ export function buildGamesShortVerdictMarkdown(r) {
     '**G2 (relevant bias) is reported, not gated** — the candidates leave qualifying rows, and therefore the relevant bias, unchanged. ' +
     'Tier order: SOf0 < SOK1f0; SOK1f0 replaces SOf0 only when its paired R\\* ΔMAE CI upper bound is below 0. The references are scored and never picked.', '',
     `| candidate | ${deltas.map((x) => `δ = ${x}`).join(' | ')} |`, `|---|${deltas.map(() => '---').join('|')}|`);
-  for (const id of REF_AND_CAND) {
+  for (const id of [...SHORT_CANDIDATE_IDS, ...SHORT_REFERENCE_IDS]) {
     const label = SHORT_REFERENCE_IDS.includes(id) ? `${id} (reference)` : id;
     w(`| ${label} | ${deltas.map((x) => { const e = decisions[x].eligibility[id]; return !e ? 'n/a' : e.eligible ? 'eligible' : `fails ${e.failed.join(', ')}`; }).join(' | ')} |`);
   }
