@@ -2,7 +2,7 @@
 
 ## 1. What was compared
 
-Panel: L6b's (`buildCauseRows`, unchanged), data `feae053`: 4362 player-seasons, predictor seasons S = 2015–2024, outcome S+1 `gamesPlayed`. Folds: forward-chaining, ≥ 3 training seasons — eval S = 2018, 2019, 2020, 2021, 2022, 2023, 2024. **D1:** each cell's k minimises training SSE. **Qualifying S-seasons keep the app prediction (`r.pred`); k is fitted and applied only to non-qualifying ones (floor 0).**
+Panel: L6b's (`buildCauseRows`, unchanged), data `5e09939`: 4362 player-seasons, predictor seasons S = 2015–2024, outcome S+1 `gamesPlayed`. Folds: forward-chaining, ≥ 3 training seasons — eval S = 2018, 2019, 2020, 2021, 2022, 2023, 2024. **D1:** each cell's k minimises training SSE. **Qualifying S-seasons keep the app prediction (`r.pred`); k is fitted and applied only to non-qualifying ones (floor 0).**
 
 - **SOf0:** k by position × S-state (`short` / `none`), floor 0, fitted on non-qualifying training rows.
 - **SOK1f0:** the same with L6b's app-native K1 cause split (`short-inj` / `short-oth` / `none`).
@@ -276,10 +276,10 @@ Eligible when: **G1** relevant ΔMAE CI upper bound ≤ δ; **G3** star ΔMAE CI
 
 | candidate | δ = 0.1 | δ = 0.25 | δ = 0.5 |
 |---|---|---|---|
-| C3f0 (reference) | fails G1, G5 | fails G1, G5 | fails G1, G5 |
-| K1f0 (reference) | fails G1, G5 | fails G1, G5 | fails G1, G5 |
 | SOf0 | eligible | eligible | eligible |
 | SOK1f0 | eligible | eligible | eligible |
+| C3f0 (reference) | fails G1, G5 | fails G1, G5 | fails G1, G5 |
+| K1f0 (reference) | fails G1, G5 | fails G1, G5 | fails G1, G5 |
 
 Relevant bias (raw mean pred − outcome): C0 +1.62, C3f0 -1.00, K1f0 -0.99, SOf0 +1.56, SOK1f0 +1.57.
 
