@@ -164,7 +164,7 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
   already present unparsed in the source file — `birthdate` is the precondition for age-curve grading. (Fix pass 1
   item 1: `espn_id`/`college`/`team` were dropped from the first D2 implementation and are restored in `bySleeper`;
   Audit B6's espn map is unaffected — this is the crosswalk's own `espnId`, not a separate map.)
-- **D-10 (rookie-mirror.md §1.1, §9.1b):** `bySleeper.undrafted` (derived `draftRound === null`, `lib/nflverse.mjs:548`,
+- **D-10 (rookie-mirror.md §1.1, §9.1b):** `bySleeper.undrafted` (derived `draftRound === null`, `parsePlayerIdsCsv` in `lib/nflverse.mjs` (`:573`),
   ceiling-gated by `MAX_UNDRAFTED_RATE = 0.75` in `lib/validate.mjs`) is the population the app's shipped rookie
   realisation-calibration constants (undrafted: QB 0.67 · RB 0.33 · WR 0.36 · TE 0.28) were **fitted** on. No code
   on the live path reads the flag — `lib/rookieMirror.mjs`'s mirror takes `draftCapitalStatus` as a parameter and
