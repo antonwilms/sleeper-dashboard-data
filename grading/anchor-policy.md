@@ -143,16 +143,6 @@ app push of boundary 6 reflects it; every earlier capture is pre-boundary on thi
 | `< first capture after the app push` | rookie-path level — no row carries `qbStarterBasis` — confirmed on `snapshots/2026-10-03.json` (19:20:24 UTC; 737 rows, none carry it) |
 | `>= first capture after the app push` | pinned group level — confirmed: every row in `snapshots/2026-10-04.json` carries `qbStarterBasis` (`'projection'` 89 · `'rookie:day3+'` 13 · `'rookie:day2'` 2 · `'rookie:r1'` 1 · `'rookie:top12'` 1 · `null` 632), and each `'rookie:*'` row's `qbStarterPPG` equals the pinned level × `rookieBasisScale` to 3 dp (17 rows) |
 
-### Veteran rows — boundary 8 (short-season rule)
-
-Row-detectable through `factors.shortSeasonState`. Absent means pre-boundary.
-
-- `'qual'` rows are unchanged.
-- On `'short'`/`'none'` rows, `projectedGames` moves (by about half), and `projectedTotalPts` moves with it except on QB `chain` rows (whose total is `qbStarterPPG × qbStartShare × 17`, independent of games). `projectedPPG` does not move.
-- `factors.projectedGamesBase` is the pre-boundary value on post-boundary rows, so one capture grades both rules.
-- The in-season healthy override lives only in the app's displayed copy, never in a snapshot `projection`.
-- **Cross-check (to be confirmed, D-67):** the first post-push capture's `'short'`/`'none'` veteran rows equal the mirror's `rule: 'l6c'` (`lib/durabilityMirror.mjs`).
-
 ### Veteran rows — boundary 7 (input correction)
 
 Unlike boundaries 1–6, this one is a **served-data correction**, not an app-code change: the app reads
@@ -167,6 +157,20 @@ Unlike boundaries 1–6, this one is a **served-data correction**, not an app-co
   (`grading/2026-10-06-absence-verdict.md`), the first post-push capture's `projection.projectedGames` and
   `factors.injurySeasons` must equal the verdict's "after" values. To be confirmed once that capture exists,
   as boundaries 5 and 6 were.
+
+### Veteran rows — boundary 8 (short-season rule)
+
+Row-detectable through `factors.shortSeasonState`. Absent means pre-boundary.
+
+- `'qual'` rows are unchanged.
+- On `'short'`/`'none'` rows, `projectedGames` moves (by about half), and `projectedTotalPts` moves with it except on QB `chain` rows (whose total is `qbStarterPPG × qbStartShare × 17`, independent of games). `projectedPPG` does not move.
+- `factors.projectedGamesBase` is the pre-boundary value on post-boundary rows, so one capture grades both rules.
+- The in-season healthy override lives only in the app's displayed copy, never in a snapshot `projection`.
+- **Post-push display fix, not a boundary:** app `59fc51d` (pushed 2026-10-10 13:06:03 UTC, 20 min after the
+  boundary push) extends the healthy override to the QB start-chain branch of `applyInSeasonProjection`
+  (displayed `projectedGames` only; the chain total never reads games). `writeProjectionSnapshot` reads the raw
+  `seasonProjections`, so no capture differs on it and nothing segments on it.
+- **Cross-check (to be confirmed, D-67):** the first post-push capture's `'short'`/`'none'` veteran rows equal the mirror's `rule: 'l6c'` (`lib/durabilityMirror.mjs`).
 
 ## Boundaries by path
 
