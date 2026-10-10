@@ -1767,6 +1767,71 @@ const APP_AVAILABILITY_RECONCILE = {
   undrafted: { total: 2217, byBucket: { 0: 1036, 1: 785, '2+': 396 } },
 };
 
+// The app's 74 shipped ROOKIE_GAMES_* cells (values: app src/utils/seasonProjection.js @ c318487; n: from the
+// app fixture's rows, equal to the app's own `// n=` comments for rungs 1-3 and docs/projection.md for rung 4).
+// A HARDCODED COPY, not an import: this file is a fit-path entry point and must never resolve
+// lib/rookieMirror.mjs (T-RM1). test/rookie-mirror.test.mjs checks these values against the mirror tables.
+export const APP_ROOKIE_GAMES_SOURCE = 'app src/utils/seasonProjection.js ROOKIE_GAMES_* @ c318487 (values); n from src/__fixtures__/rookie-games-panel-2026-09-09.json (3,848 rows)';
+export const APP_ROOKIE_GAMES_CELLS = Object.freeze({
+  // rung 1
+  'r1|QB|0': { value: 11.5, n: 41 }, 'r1|WR|0': { value: 13.1, n: 54 },
+  'day2|RB|0': { value: 12.3, n: 71 }, 'day2|TE|0': { value: 12.6, n: 61 }, 'day2|WR|0': { value: 13.5, n: 117 },
+  'day3|QB|0': { value: 1.9, n: 77 }, 'day3|QB|1': { value: 2.2, n: 64 }, 'day3|QB|2+': { value: 2.0, n: 103 },
+  'day3|RB|0': { value: 9.9, n: 204 }, 'day3|RB|1': { value: 3.5, n: 65 }, 'day3|RB|2+': { value: 4.0, n: 34 },
+  'day3|TE|0': { value: 8.6, n: 117 }, 'day3|TE|1': { value: 5.8, n: 47 },
+  'day3|WR|0': { value: 8.2, n: 234 }, 'day3|WR|1': { value: 4.7, n: 98 }, 'day3|WR|2+': { value: 3.8, n: 53 },
+  'undrafted|QB|0': { value: 0.9, n: 73 }, 'undrafted|QB|1': { value: 0.7, n: 66 }, 'undrafted|QB|2+': { value: 2.8, n: 52 },
+  'undrafted|RB|0': { value: 4.4, n: 290 }, 'undrafted|RB|1': { value: 2.6, n: 205 }, 'undrafted|RB|2+': { value: 4.9, n: 69 },
+  'undrafted|TE|0': { value: 3.9, n: 204 }, 'undrafted|TE|1': { value: 3.8, n: 151 }, 'undrafted|TE|2+': { value: 4.7, n: 101 },
+  'undrafted|WR|0': { value: 2.8, n: 469 }, 'undrafted|WR|1': { value: 2.3, n: 363 }, 'undrafted|WR|2+': { value: 4.1, n: 174 },
+  // rung 2
+  'r1|0': { value: 12.8, n: 127 }, 'day2|0': { value: 12.3, n: 276 }, 'day2|1': { value: 6.9, n: 44 }, 'day2|2+': { value: 4.0, n: 40 },
+  'day3|0': { value: 8.0, n: 632 }, 'day3|1': { value: 4.0, n: 274 }, 'day3|2+': { value: 3.4, n: 213 },
+  'undrafted|0': { value: 3.3, n: 1036 }, 'undrafted|1': { value: 2.5, n: 785 }, 'undrafted|2+': { value: 4.2, n: 396 },
+  // rung 3
+  'r1|QB': { value: 10.5, n: 57 }, 'r1|RB': { value: 13.8, n: 18 }, 'r1|WR': { value: 12.8, n: 61 }, 'r1|TE': { value: 14.6, n: 16 },
+  'day2|QB': { value: 4.7, n: 65 }, 'day2|RB': { value: 10.8, n: 91 }, 'day2|WR': { value: 13.1, n: 127 }, 'day2|TE': { value: 11.5, n: 77 },
+  'day3|QB': { value: 2.1, n: 244 }, 'day3|RB': { value: 7.9, n: 303 }, 'day3|WR': { value: 6.7, n: 385 }, 'day3|TE': { value: 7.7, n: 187 },
+  'undrafted|QB': { value: 1.3, n: 191 }, 'undrafted|RB': { value: 3.8, n: 564 }, 'undrafted|WR': { value: 2.9, n: 1006 }, 'undrafted|TE': { value: 4.0, n: 456 },
+  // rung 4
+  'r1': { value: 12.2, n: 152 }, 'day2': { value: 10.7, n: 360 }, 'day3': { value: 6.2, n: 1119 }, 'undrafted': { value: 3.2, n: 2217 },
+  // rung U (position x experience over all four groups; `U|<pos>` = pooled)
+  'U|QB|0': { value: 3.9, n: 218 }, 'U|QB|1': { value: 2.3, n: 155 }, 'U|QB|2+': { value: 2.5, n: 184 }, 'U|QB': { value: 3.0, n: 557 },
+  'U|RB|0': { value: 7.6, n: 582 }, 'U|RB|1': { value: 3.0, n: 282 }, 'U|RB|2+': { value: 4.5, n: 112 }, 'U|RB': { value: 5.9, n: 976 },
+  'U|WR|0': { value: 6.3, n: 874 }, 'U|WR|1': { value: 3.0, n: 474 }, 'U|WR|2+': { value: 4.1, n: 231 }, 'U|WR': { value: 5.0, n: 1579 },
+  'U|TE|0': { value: 7.0, n: 397 }, 'U|TE|1': { value: 4.5, n: 209 }, 'U|TE|2+': { value: 5.2, n: 130 }, 'U|TE': { value: 6.0, n: 736 },
+});
+
+// Full-ladder comparison against the app's cells. The app stores each cell at one decimal and then rounds to
+// whole games, so the consequential comparison is round(round(mean*10)/10) against round(appValue).
+// Pure. A cell absent from byRungCell counts in summary.missing/moved only, never in nMismatch/valueMismatch.
+export function compareRookieGamesCells(byRungCell, appCells = APP_ROOKIE_GAMES_CELLS) {
+  const cells = {};
+  const summary = { cells: 0, nMismatch: 0, valueMismatch: 0, moved: 0, missing: 0 };
+  for (const [key, app] of Object.entries(appCells)) {
+    summary.cells++;
+    const obs = byRungCell?.[key];
+    const wholeApp = Math.round(app.value);
+    if (!obs) {
+      cells[key] = { appValue: app.value, appN: app.n, n: 0, mean: null, value: null, nDelta: -app.n,
+        valueMatch: false, wholeApp, whole: null, moved: true, missing: true };
+      summary.missing++; summary.moved++;
+      continue;
+    }
+    const mean = obs.meanOutcomeGames;
+    const value = Math.round(mean * 10) / 10;
+    const whole = Math.round(value);
+    const nDelta = obs.n - app.n;
+    const valueMatch = value === app.value;
+    const moved = whole !== wholeApp;
+    cells[key] = { appValue: app.value, appN: app.n, n: obs.n, mean, value, nDelta, valueMatch, wholeApp, whole, moved, missing: false };
+    if (nDelta !== 0) summary.nMismatch++;
+    if (!valueMatch) summary.valueMismatch++;
+    if (moved) summary.moved++;
+  }
+  return { cells, summary };
+}
+
 // §5 / D-14 — the app's shipped rookie-ceiling constants (41f277e), quoted
 // as a HARDCODED COPY rather than imported: this file is a fit-path entry
 // point per test/rookie-mirror.test.mjs's import-graph guard, which must
@@ -1940,7 +2005,7 @@ export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
   const residual = computeTotalPointsResidual(legacyUngated.rows);
 
   // §D — availability reconciliation against the app's own 3,848-row count.
-  const availability = computeAvailabilityReconciliation(rookiePathAll.rows);
+  const availability = computeAvailabilityReconciliation(rookiePathAll.rows, rookiePathAll.coverage.byRungCell);
 
   // §G / D-14 — ceiling-quantile re-derivation, from the debut assembly's
   // own rows (rookie-mirror.md §5).
@@ -2051,7 +2116,7 @@ function computeTotalPointsResidual(rows) {
 // §D / §5 risk 1 — reconcile the entry-cohort availability panel's row count
 // against the app's 3,848, per group x experienceBucket, and report which
 // rung-4 (group-pooled) rounded value, if any, would differ from the app's.
-function computeAvailabilityReconciliation(rookiePathAllRows) {
+function computeAvailabilityReconciliation(rookiePathAllRows, byRungCell) {
   const observed = {};
   for (const group of ['r1', 'day2', 'day3', 'undrafted']) {
     observed[group] = { total: 0, byBucket: { 0: 0, 1: 0, '2+': 0 } };
@@ -2087,6 +2152,7 @@ function computeAvailabilityReconciliation(rookiePathAllRows) {
   return {
     observed, expected: APP_AVAILABILITY_RECONCILE,
     totalObserved, totalExpected, perBucketDelta, rung4Moved,
+    ladder: compareRookieGamesCells(byRungCell),
   };
 }
 
@@ -2176,7 +2242,8 @@ export function buildRookieVerdictMarkdown(result) {
     '## §D — D-12: availability panel (entry-cohort, ungated)',
     '',
     `Assembled: ${rookiePathAll.coverage.assembled} (invalidEntryYear excluded: ${rookiePathAll.coverage.invalidEntryYear}) ` +
-      `against the app's ${availability.totalExpected} (self-derived predicate, not tuned to match — §5 risk 1).`,
+      `against the app's ${availability.totalExpected} (the app's recipe — \`rookie-games-panel-2026-09-09.json\` \`source.predicate\`: ` +
+      'at years_exp ≥ 2 skip a row with zero games in the target season and the one before, and keep walking).',
     '',
     '| group | observed 0/1/2+ (total) | app 0/1/2+ (total) | delta 0/1/2+ |',
     '|---|---|---|---|',
@@ -2188,7 +2255,7 @@ export function buildRookieVerdictMarkdown(result) {
   }
   lines.push(
     '',
-    '**Rung-4 (group-pooled) rounded-value check** — the consequential quantity per §5 risk 1:',
+    '**Rung-4 (group-pooled) rounded-value check** (raw-mean rounding; superseded by the full-ladder table below) — per §5 risk 1:',
     '',
     '| group | observed mean games | rounded | app value | rounded | moved? |',
     '|---|---|---|---|---|---|',
@@ -2197,14 +2264,23 @@ export function buildRookieVerdictMarkdown(result) {
     lines.push(`| ${group} | ${rfFmt(r.observed, 3)} | ${r.roundedObserved} | ${r.appValue} | ${r.roundedApp} | ${r.moved ? '**YES**' : 'no'} |`);
   }
   lines.push('', 'Full `byRungCell` (all six keyed levels, n / mean / rounded) is in the committed JSON artifact, not reproduced here.', '');
+  const ladder = availability.ladder;
   lines.push(
-    'This comparison is computable for rung 4 (group-pooled) alone: the app\'s rung 1, 2, 3 and U cell values ' +
-      'are not in this repo — §0 restates the ladder\'s shape, floors and rung-4 pooled values only, not its 74 ' +
-      'cells. This panel\'s own values for every rung are in `coverage.byRungCell` in the committed JSON artifact, ' +
-      'awaiting a later slice that restates the app\'s tables; silence on rungs 1-3 and U is not evidence that no ' +
-      'rung moved.',
+    `**Full ladder** (all ${ladder.summary.cells} app cells, rungs 1–4 and U; ${APP_ROOKIE_GAMES_SOURCE.split(' (values')[0]}): ` +
+      `${ladder.summary.nMismatch} cells differ in n, ${ladder.summary.valueMismatch} at one decimal, ` +
+      `**${ladder.summary.moved} move in whole games** (the app's rounding: one decimal, then \`Math.round\`).`,
     '',
   );
+  const offCells = Object.entries(ladder.cells).filter(([, c]) => c.nDelta !== 0 || !c.valueMatch || c.moved);
+  if (offCells.length === 0) {
+    lines.push('All 74 cells match.', '');
+  } else {
+    lines.push('| cell | app n | n | app value | value | whole app → whole | moved? |', '|---|---|---|---|---|---|---|');
+    for (const [key, c] of offCells) {
+      lines.push(`| ${key.replace(/\|/g, '\\|')} | ${c.appN} | ${c.n} | ${c.appValue} | ${c.value ?? 'n/a'} | ${c.wholeApp} → ${c.whole ?? 'n/a'} | ${c.moved ? '**YES**' : 'no'} |`);
+    }
+    lines.push('', 'Cells not listed match on n and one-decimal value.', '');
+  }
 
   lines.push(
     '## §E — D-13: total-points residual (Q2(d), on the legacy/shipped population)',

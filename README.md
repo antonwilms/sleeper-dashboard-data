@@ -2037,6 +2037,8 @@ node bin/panel.mjs --rookie --write        # persist both artifacts above
 
 §A pins the reproduction on the crosswalk frozen at `f27bc71` (`test/fixtures/rookie-pin-crosswalk-2026-09-06.json`, via `pinCrosswalkMaps`), exactly as `test/panel-fit.test.mjs` §6 test 1 does: the weekly crosswalk refresh `cde2d06` added `12079`, which moves the live legacy `assembled` 2563 → 2564 without touching the 2026-09-06 artifact. §B–§G and the written artifact still read the live crosswalk.
 
+**D-12 reproduces the app's games ladder (provenance-records-w2).** The entry-cohort walk now follows the app fixture's recipe (`rookie-games-panel-2026-09-09.json` `source.predicate`): at `years_exp ≥ 2` a row with zero games in the target season `T` and in `T−1` is skipped and the walk keeps going (it previously stopped on a `T−1`/`T−2` window). Rung U is accumulated over the four known groups, as the app's U ladder is; an unknown-group row feeds no rung. §D compares all 74 of the app's cells (`APP_ROOKIE_GAMES_CELLS`, `compareRookieGamesCells`) under the app's own rounding — one decimal, then `Math.round` — and lists only the non-matching cells. The weekly crosswalk refresh `cde2d06` (added `12079`, dropped `13001`) shows as n differences against the 2026-09-09 fixture, not as moves in whole games.
+
 Reproduce: `node bin/panel.mjs --rookie --write`.
 
 ### In-season evidence k-fit (`bin/backtest.mjs --inseason`)

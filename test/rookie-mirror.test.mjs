@@ -37,10 +37,11 @@ import {
   resolveRookieGames,
   applyRookieCeiling,
   reconstructShippedRookieProjection,
+  ROOKIE_GAMES_GPE, ROOKIE_GAMES_GE, ROOKIE_GAMES_GP, ROOKIE_GAMES_G, ROOKIE_GAMES_U,
 } from '../lib/rookieMirror.mjs';
 import { assembleRookiePanel, PANEL_POSITIONS } from '../lib/panel.mjs';
 import { ROOKIE_BASELINE_PPG } from '../lib/projectionFactors.mjs';
-import { runRookiePanels, buildRookieVerdictMarkdown } from '../scripts/panel-run.mjs';
+import { runRookiePanels, buildRookieVerdictMarkdown, APP_ROOKIE_GAMES_CELLS } from '../scripts/panel-run.mjs';
 import { runSelfTest } from '../scripts/grade-snapshot.mjs';
 import { shouldSkipSnapshot } from '../scripts/register-snapshots.mjs';
 import { readJson } from '../lib/io.mjs';
@@ -775,5 +776,24 @@ describe('T-RM13: D-6\'s v3 fixture is wired in', () => {
     assert.equal(shouldSkipSnapshot({ recordCount: 5, schemaVersion: 3 }, 5, 3), true);
     assert.equal(shouldSkipSnapshot({ recordCount: 5, schemaVersion: 2 }, 5, 3), false);
     assert.equal(shouldSkipSnapshot(null, 5, 3), false);
+  });
+});
+
+describe('APP_ROOKIE_GAMES_CELLS parity with the mirror tables (D-12, provenance-records-w2 A3)', () => {
+  test('every one of the 74 cells maps to the same value in the exported mirror tables', () => {
+    const keys = Object.keys(APP_ROOKIE_GAMES_CELLS);
+    assert.equal(keys.length, 74);
+    for (const key of keys) {
+      const parts = key.split('|');
+      let mirror;
+      if (parts[0] === 'U') mirror = parts.length === 3 ? ROOKIE_GAMES_U[parts[1]][parts[2]] : ROOKIE_GAMES_U[parts[1]].pooled;
+      else if (parts.length === 3) mirror = ROOKIE_GAMES_GPE[key];
+      else if (parts.length === 1) mirror = ROOKIE_GAMES_G[key];
+      else if (['QB', 'RB', 'WR', 'TE'].includes(parts[1])) mirror = ROOKIE_GAMES_GP[parts[0]][parts[1]];
+      else mirror = ROOKIE_GAMES_GE[key];
+      assert.equal(APP_ROOKIE_GAMES_CELLS[key].value, mirror, `cell ${key}`);
+    }
+    const rung4N = ['r1', 'day2', 'day3', 'undrafted'].reduce((a, g) => a + APP_ROOKIE_GAMES_CELLS[g].n, 0);
+    assert.equal(rung4N, 3848);
   });
 });

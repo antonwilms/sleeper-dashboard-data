@@ -52,7 +52,7 @@ import {
   resolveRegressionBucket, REGRESSION_MODELS, CURRENT_REGRESSION_MODEL, REGRESSION_UPSIDE_POSITIONS,
 } from '../lib/projectionFactors.mjs';
 import { reconstructShippedRookieProjection } from '../lib/rookieMirror.mjs';
-import { runFit, buildFitVerdictReport, buildFitVerdictMarkdown, assemblePanel, DEFAULT_LOAD, buildOutcomeMaps, pinCrosswalkMaps, runRookiePanels } from '../scripts/panel-run.mjs';
+import { runFit, buildFitVerdictReport, buildFitVerdictMarkdown, assemblePanel, DEFAULT_LOAD, buildOutcomeMaps, pinCrosswalkMaps, runRookiePanels, compareRookieGamesCells } from '../scripts/panel-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -2849,33 +2849,32 @@ describe('rookie-outcome-panels §6 test 7 — enumerateEntryCohortRows, four ca
     assert.deepEqual(rows.map(r => r.targetSeason), [2020, 2021]);
   });
 
-  test('(b) zero games in two consecutive PRESENT seasons stops at the second and emits nothing after', () => {
+  test('(b) at years_exp >= 2 a row with zero games in T and T-1 is SKIPPED and the walk continues (never skips ye0/ye1)', () => {
     const entrantsBySleeper = { p1: { draftYear: 2020, position: 'WR' } };
-    const totalsByYear = { 2020: { p1: rec(0) }, 2021: { p1: rec(0) }, 2022: { p1: rec(10) } };
+    const totalsByYear = { 2020: { p1: rec(0) }, 2021: { p1: rec(0) }, 2022: { p1: rec(0) }, 2023: { p1: rec(5) } };
+    const zero = { actualPPG: null, actualGames: 0, actualTotalPts: 0 };
     const ppgByYear = {
-      2020: new Map([['p1', { actualPPG: null, actualGames: 0, actualTotalPts: 0 }]]),
-      2021: new Map([['p1', { actualPPG: null, actualGames: 0, actualTotalPts: 0 }]]),
-      2022: new Map([['p1', { actualPPG: 9, actualGames: 10, actualTotalPts: 90 }]]),
+      2020: new Map([['p1', zero]]), 2021: new Map([['p1', zero]]), 2022: new Map([['p1', zero]]),
+      2023: new Map([['p1', { actualPPG: 4, actualGames: 5, actualTotalPts: 20 }]]),
     };
     const rows = enumerateEntryCohortRows({
       entrantsBySleeper, totalsByYear, ppgByYear,
-      fromEntryYear: 2020, toEntryYear: 2020, fromTarget: 2020, toTarget: 2023,
+      fromEntryYear: 2020, toEntryYear: 2020, fromTarget: 2020, toTarget: 2024,
     });
-    assert.deepEqual(rows.map(r => r.targetSeason), [2020, 2021]);
+    // 2022 skipped (zero in 2022 and 2021); 2023 emitted after the skip; 2024 emitted with 0 games because 2023 > 0.
+    assert.deepEqual(rows.map(r => r.targetSeason), [2020, 2021, 2023, 2024]);
   });
 
-  test('(c) ABSENT from two consecutive seasons stops identically (games-with-absence-as-zero)', () => {
+  test('(c) ABSENT seasons count as zero games: the same skip-and-continue result (games-with-absence-as-zero)', () => {
     const entrantsBySleeper = { p1: { draftYear: 2020, position: 'WR' } };
-    // p1 has no entry at all in totalsByYear[2020] or [2021] -- absent, not present-zero.
-    const totalsByYear = { 2022: { p1: rec(10) } };
-    const ppgByYear = {
-      2022: new Map([['p1', { actualPPG: 9, actualGames: 10, actualTotalPts: 90 }]]),
-    };
+    // Only 2023 is present in totalsByYear; 2020-2022 and 2024 are absent, not present-zero.
+    const totalsByYear = { 2023: { p1: rec(5) } };
+    const ppgByYear = { 2023: new Map([['p1', { actualPPG: 4, actualGames: 5, actualTotalPts: 20 }]]) };
     const rows = enumerateEntryCohortRows({
       entrantsBySleeper, totalsByYear, ppgByYear,
-      fromEntryYear: 2020, toEntryYear: 2020, fromTarget: 2020, toTarget: 2023,
+      fromEntryYear: 2020, toEntryYear: 2020, fromTarget: 2020, toTarget: 2024,
     });
-    assert.deepEqual(rows.map(r => r.targetSeason), [2020, 2021]);
+    assert.deepEqual(rows.map(r => r.targetSeason), [2020, 2021, 2023, 2024]);
   });
 
   test('(d) debutOnly: assembleRookiePanel with enumerator entry-cohort, debutOnly true, over three entrants with different entry years and different multi-season histories, emits exactly one row per entrant', () => {
@@ -3146,6 +3145,31 @@ describe('rookie-outcome-panels §6 test 12 — invalidEntryYear is counted, not
 // Fix pass 1 item 4 — coverage.byRungCell has no test anywhere (§2.2f calls
 // it D-12's actual deliverable). Synthetic population small enough to
 // compute by hand for both the drafted-group and the 'unknown'-group ladder.
+describe('compareRookieGamesCells (D-12, provenance-records-w2 A3)', () => {
+  test('synthetic: whole-game moves, n/value deltas and missing cells are classified by the app rounding rule', () => {
+    const byRungCell = {
+      a: { n: 41, meanOutcomeGames: 11.49 },
+      b: { n: 468, meanOutcomeGames: 2.8504 },
+      c: { n: 469, meanOutcomeGames: 2.04 },
+    };
+    const app = {
+      a: { value: 11.5, n: 41 }, b: { value: 2.8, n: 469 }, c: { value: 4.2, n: 396 }, d: { value: 3.0, n: 50 },
+    };
+    const { cells, summary } = compareRookieGamesCells(byRungCell, app);
+    // a: 11.49 -> 11.5 at one decimal, equals the app; round(11.5) = 12 both sides, not moved.
+    assert.equal(cells.a.value, 11.5); assert.equal(cells.a.valueMatch, true); assert.equal(cells.a.moved, false);
+    // b: n differs by one, 2.85 -> 2.9 against 2.8, but whole 3 against 3.
+    assert.equal(cells.b.nDelta, -1); assert.equal(cells.b.value, 2.9); assert.equal(cells.b.valueMatch, false);
+    assert.equal(cells.b.whole, 3); assert.equal(cells.b.wholeApp, 3); assert.equal(cells.b.moved, false);
+    // c: 2.0 against 4.2 moves in whole games.
+    assert.equal(cells.c.moved, true);
+    // d: absent from byRungCell.
+    assert.equal(cells.d.missing, true); assert.equal(cells.d.moved, true); assert.equal(cells.d.nDelta, -50);
+    assert.equal(cells.d.mean, null);
+    assert.deepEqual(summary, { cells: 4, nMismatch: 2, valueMismatch: 2, moved: 2, missing: 1 });
+  });
+});
+
 describe('rookie-outcome-panels §6 test 15 — byRungCell and byExperience', () => {
   function rec(gp) { return { gamesPlayed: gp, stats: {} }; }
   function outcome(gp) { return { actualPPG: gp > 0 ? 10 : null, actualGames: gp, actualTotalPts: gp * 10 }; }
@@ -3183,13 +3207,12 @@ describe('rookie-outcome-panels §6 test 15 — byRungCell and byExperience', ()
     // Hand computation: p1 emits rows at experience 0 (games 5) and 1 (games
     // 12), then leaves the rookie path (gp>=8 at experience 1). p2 never
     // qualifies and emits experience 0/1/2+ (games 3 each). p3 (unknown
-    // group) emits experience 0/1 (games 4 each).
+    // group) emits experience 0/1 (games 4 each) but feeds NO rung: the app's
+    // U ladder is pooled over the four known groups (position x experience),
+    // so U|QB|0 = (p1 5, p2 3), U|QB|1 = (p1 12, p2 3), U|QB|2+ = (p2 3).
     const rc = coverage.byRungCell;
     for (const key of ['r1|QB|0', 'r1|0', 'r1|QB', 'r1']) {
       assert.ok(rc[key], `byRungCell missing drafted-group level '${key}'`);
-    }
-    for (const key of ['U|RB|0', 'U|RB']) {
-      assert.ok(rc[key], `byRungCell missing unknown-group level '${key}'`);
     }
 
     assert.equal(rc['r1|QB|0'].n, 2);
@@ -3200,13 +3223,19 @@ describe('rookie-outcome-panels §6 test 15 — byRungCell and byExperience', ()
     assert.equal(rc['r1|QB'].meanOutcomeGames, 5.2);
     assert.equal(rc['r1|QB'].meanOutcomeGamesRounded, 5);
 
-    assert.equal(rc['U|RB|0'].n, 1);
-    assert.equal(rc['U|RB|0'].meanOutcomeGames, 4);
-    assert.equal(rc['U|RB|0'].meanOutcomeGamesRounded, 4);
+    assert.equal(rc['U|QB|0'].n, 2);
+    assert.equal(rc['U|QB|0'].meanOutcomeGames, 4);
+    assert.equal(rc['U|QB|0'].meanOutcomeGamesRounded, 4);
+    assert.equal(rc['U|QB|1'].n, 2);
+    assert.equal(rc['U|QB|1'].meanOutcomeGames, 7.5);
+    assert.equal(rc['U|QB|1'].meanOutcomeGamesRounded, 8);
+    assert.equal(rc['U|QB|2+'].n, 1);
+    assert.equal(rc['U|QB|2+'].meanOutcomeGames, 3);
+    assert.equal(rc['U|QB'].n, 5);
+    assert.equal(rc['U|QB'].meanOutcomeGames, 5.2);
 
-    assert.equal(rc['U|RB'].n, 2);
-    assert.equal(rc['U|RB'].meanOutcomeGames, 4);
-    assert.equal(rc['U|RB'].meanOutcomeGamesRounded, 4);
+    assert.equal(rc['U|RB'], undefined, 'an unknown-group row feeds no rung');
+    assert.equal(rc['U|RB|0'], undefined, 'an unknown-group row feeds no rung');
   });
 
   test('byExperience: a season-presence assembly buckets correctly, including negative and noYear, summing to assembled', () => {
