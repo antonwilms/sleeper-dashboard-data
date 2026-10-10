@@ -2,7 +2,7 @@
 
 ## 1. What was compared
 
-Panel: L6b's (`buildCauseRows`, unchanged), data `5e09939`: 4362 player-seasons, predictor seasons S = 2015–2024, outcome S+1 `gamesPlayed`. Folds: forward-chaining, ≥ 3 training seasons — eval S = 2018, 2019, 2020, 2021, 2022, 2023, 2024. **D1:** each cell's k minimises training SSE. **Qualifying S-seasons keep the app prediction (`r.pred`); k is fitted and applied only to non-qualifying ones (floor 0).**
+Panel: L6b's (`buildCauseRows`, unchanged), data `98f07e6`: 4362 player-seasons, predictor seasons S = 2015–2024, outcome S+1 `gamesPlayed`. Folds: forward-chaining, ≥ 3 training seasons — eval S = 2018, 2019, 2020, 2021, 2022, 2023, 2024. **D1:** each cell's k minimises training SSE. **Qualifying S-seasons keep the app prediction (`r.pred`); k is fitted and applied only to non-qualifying ones (floor 0).**
 
 - **SOf0:** k by position × S-state (`short` / `none`), floor 0, fitted on non-qualifying training rows.
 - **SOK1f0:** the same with L6b's app-native K1 cause split (`short-inj` / `short-oth` / `none`).
@@ -347,7 +347,63 @@ Veterans in the 2026-10-07 snapshot: 437. Games change vs C0; rank change = proj
 | K.J. Osborn | WR | short | short-inj | yes | 10 | 5 | 5 | 5 | 5 |
 | Aidan O'Connell | QB | short | short-inj | yes | 9 | 5 | 5 | 5 | 5 |
 
-## 8. Limits
+## 8. In-season override check
+
+Population: the non-qualifying out-of-sample rows with an S+1 `weeklyStatus` (31 without one are skipped). At week w, remaining games played = P slots after w; `cut` = max(0, SOf0 − n) − rem and `base` = max(0, C0 − n) − rem, where n = P slots in weeks 1..w. healthy = no D and n ≥ 1 (the app's test); missed = D ≥ 1 and n ≥ 1; notPlayed = n = 0; healthyStar = healthy ∧ star. A checkpoint is evaluable for a group at n ≥ 30.
+
+**healthy**
+
+| w | n | actual remaining | cut MAE / bias | base MAE / bias |
+|---|---|---|---|---|
+| 1 | 224 | 10.95 | 5.74 / -4.61 | 3.92 / +1.35 |
+| 2 | 192 | 10.72 | 6.09 / -5.28 | 3.62 / +0.64 |
+| 4 | 166 | 9.39 | 6.43 / -5.83 | 3.45 / +0.14 |
+| 6 | 146 | 8.20 | 6.70 / -6.03 | 3.51 / -0.12 |
+| 8 | 132 | 7.04 | 6.48 / -5.84 | 3.38 / -0.39 |
+| 10 | 124 | 5.74 | 5.78 / -4.82 | 3.60 / -0.23 |
+| 12 | 109 | 4.33 | 4.51 / -3.67 | 3.38 / -0.40 |
+
+**missed**
+
+| w | n | actual remaining | cut MAE / bias | base MAE / bias |
+|---|---|---|---|---|
+| 1 | 0 | — | — | — |
+| 2 | 65 | 6.49 | 3.60 / -0.95 | 5.29 / +4.92 |
+| 4 | 146 | 5.73 | 3.56 / -0.81 | 5.41 / +4.82 |
+| 6 | 210 | 4.74 | 3.61 / -0.68 | 5.50 / +4.94 |
+| 8 | 266 | 3.90 | 3.52 / -0.49 | 5.71 / +5.15 |
+| 10 | 314 | 3.12 | 3.41 / -0.12 | 5.89 / +5.35 |
+| 12 | 348 | 2.44 | 3.17 / +0.20 | 5.94 / +5.37 |
+
+**notPlayed**
+
+| w | n | actual remaining | cut MAE / bias | base MAE / bias |
+|---|---|---|---|---|
+| 1 | 468 | 3.13 | 4.88 / +3.65 | 9.39 / +9.23 |
+| 2 | 435 | 2.79 | 4.98 / +4.03 | 9.73 / +9.61 |
+| 4 | 380 | 2.20 | 5.22 / +4.64 | 10.29 / +10.25 |
+| 6 | 336 | 1.79 | 5.43 / +5.08 | 10.73 / +10.72 |
+| 8 | 294 | 1.26 | 5.79 / +5.63 | 11.24 / +11.24 |
+| 10 | 254 | 0.84 | 6.09 / +6.08 | 11.70 / +11.70 |
+| 12 | 235 | 0.59 | 6.35 / +6.34 | 11.98 / +11.98 |
+
+**healthyStar**
+
+| w | n | actual remaining | cut MAE / bias | base MAE / bias |
+|---|---|---|---|---|
+| 1 | 106 | 11.28 | 5.74 / -4.60 | 3.72 / +1.58 |
+| 2 | 89 | 10.92 | 6.09 / -5.15 | 3.53 / +1.03 |
+| 4 | 78 | 9.58 | 6.31 / -5.74 | 3.26 / +0.54 |
+| 6 | 64 | 8.41 | 6.67 / -6.20 | 3.22 / +0.00 |
+| 8 | 54 | 7.07 | 6.48 / -6.11 | 3.13 / -0.32 |
+| 10 | 52 | 5.85 | 5.71 / -5.06 | 3.29 / -0.25 |
+| 12 | 44 | 4.39 | 4.50 / -3.77 | 3.21 / -0.25 |
+
+Rule (pre-registered): `override` iff healthy is evaluable at ≥ 4 checkpoints, base MAE < cut MAE at every evaluable healthy checkpoint, and cut MAE < base MAE at every evaluable missed checkpoint; otherwise `preseason-only`.
+
+**inSeasonRule: `override`**
+
+## 9. Limits
 
 - The 0.50 grid floor binds for the cells marked in §5. The fitted cuts are therefore conservative; the grid is pre-registered and was not widened.
 - **This is not an independent confirmation.** The candidates were chosen from L6b §5's out-of-sample breakdown. The gates were set after a Session 1 probe of this exact run: G2 was dropped and G3 tightened. These held-out CIs re-score the same panel, folds and seed that suggested the candidates, so a (W) carries that selection effect. The first clean test is forward grading (2026 outcomes).
@@ -356,4 +412,5 @@ Veterans in the 2026-10-07 snapshot: 437. Games change vs C0; rank change = proj
 - Ranks use half-PPR; the app uses league scoring. §7's rank impact uses the snapshot's league-scored `projectedPPG`.
 - Floor 0 applies to non-qualifying rows only, and needs an app clamp change for those rows.
 - L6b's limits carry over: `chain` QB totals do not read `projectedGames`; historical rows cannot be routed to `chain`; snapshot scoring; rookies are out of scope.
+- 'D' reaches the live file one season-totals run after the games (CR-28), so the app's healthy test lags by up to one run.
 - **Wireability:** SOf0 needs only last-season gp and position. SOK1f0 also needs `classifyInjurySeason`, which is CR-28-mirrored and app-native. Both would wire as an app `seasonProjection.js` Step 6 change under CR-28, with a `grading/anchor-policy.md` boundary.
