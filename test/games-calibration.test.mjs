@@ -25,7 +25,7 @@ import {
   panelEligibility, gamesCalibrationMain, writeGamesCalibrationArtifacts,
 } from '../scripts/games-calibration-run.mjs';
 import { gamesCauseMain, writeGamesCauseArtifacts, buildCauseRows } from '../scripts/games-cause-run.mjs';
-import { gamesShortMain, writeGamesShortArtifacts } from '../scripts/games-short-run.mjs';
+import { gamesShortMain, writeGamesShortArtifacts, inSeasonCheck } from '../scripts/games-short-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -882,6 +882,9 @@ test('GCS-5 end to end: one write, three decisions, constants keys, qualifying r
   assert.equal(r.constants.candidates.C3f0.fitRows, 'all');
   assert.match(writes[0].verdictMd, /## 6\. Decision/);
   assert.match(writes[0].verdictMd, /## 7\. 2026 impact/);
+  assert.match(writes[0].verdictMd, /## 8\. In-season override check/);
+  assert.match(writes[0].verdictMd, /## 9\. Limits/);
+  assert.ok(['override', 'preseason-only'].includes(r.inSeasonCheck.inSeasonRule));
   const qual = r.rows.filter((x) => x.sState === 'qual');
   assert.ok(qual.length > 0);
   assert.ok(qual.every((x) => x.p.SOf0 === x.p.C0 && x.p.SOK1f0 === x.p.C0), 'qualifying rows keep the app prediction');
@@ -926,4 +929,50 @@ test('GCS-6 CLI: --short alone, --cause with --short, and an unknown flag all ex
   assert.equal(bogus.status, 1);
   assert.match(bogus.stderr, /rejects --bogus/);
   assert.match(bogus.stderr, /takes only --cause, --short, --json and --write/);
+});
+
+test('GCS-7 inSeasonCheck: hand-computed healthy / missed / not-played cells; override, flip to preseason-only, thin group ignored', () => {
+  const ws = (...slots) => [...slots, ...Array(18 - slots.length).fill('X')];
+  const P = (k) => Array(k).fill('P');
+  const store = { 2021: {} };
+  const rows = [];
+  const add = (id, status, p, extra = {}) => { store[2021][id] = { weeklyStatus: status }; rows.push({ id, S: 2020, sState: 'short', star: false, p, ...extra }); };
+  const healthyWs = ws(...P(10));                       // n = w, rem = 10 − w
+  const missedWs = ws('P', 'D', 'P', 'P', 'P', 'P');    // w = 2: n 1, d 1, rem 4
+  for (let i = 0; i < 30; i++) add(`h${i}`, healthyWs, { SOf0: 5, C0: 10 }, { star: i < 10 });
+  for (let i = 0; i < 30; i++) add(`m${i}`, missedWs, { SOf0: 5, C0: 12 });
+  add('np', ws('X', 'X', 'P', 'P', 'P', 'P'), { SOf0: 5, C0: 12 });   // w = 2: n 0, rem 4
+  add('q', healthyWs, { SOf0: 9, C0: 9 }, { sState: 'qual' });          // qualifying rows are not scored
+  rows.push({ id: 'ghost', S: 2020, sState: 'none', star: false, p: { SOf0: 5, C0: 10 } });   // no S+1 row
+  const cps = [2, 3, 4, 5];
+  const r = inSeasonCheck(rows, store, cps);
+  assert.equal(r.noRow, 1);
+  const h2 = r.groups.healthy[2];
+  assert.equal(h2.n, 30);
+  assert.equal(h2.meanRem, 8);
+  assert.deepEqual(h2.cut, { mae: 5, bias: -5 });   // max(0, 5 − 2) − 8
+  assert.deepEqual(h2.base, { mae: 0, bias: 0 });   // max(0, 10 − 2) − 8
+  assert.equal(r.groups.healthyStar[2].n, 10);
+  const m2 = r.groups.missed[2];
+  assert.equal(m2.n, 30);
+  assert.equal(m2.meanRem, 4);
+  assert.deepEqual(m2.cut, { mae: 0, bias: 0 });    // max(0, 5 − 1) − 4
+  assert.deepEqual(m2.base, { mae: 7, bias: 7 });   // max(0, 12 − 1) − 4
+  assert.equal(r.groups.notPlayed[2].n, 1);
+  assert.deepEqual(r.groups.notPlayed[2].cut, { mae: 1, bias: 1 });   // 5 − 4
+  assert.equal(r.groups.healthy[5].n, 31, 'the not-played row has played 3 games by week 5 and joins healthy');
+  assert.equal(r.inSeasonRule, 'override');
+
+  // flip the missed group so the cut is worse than the base → preseason-only
+  const flipped = rows.map((x) => (x.id.startsWith('m') ? { ...x, p: { SOf0: 12, C0: 5 } } : x));
+  assert.equal(inSeasonCheck(flipped, store, cps).inSeasonRule, 'preseason-only');
+
+  // a missed group with n < 30 is ignored: the same flip on 29 rows leaves 'override'
+  const thin = rows.filter((x) => x.id !== 'm0').map((x) => (x.id.startsWith('m') ? { ...x, p: { SOf0: 12, C0: 5 } } : x));
+  const t = inSeasonCheck(thin, store, cps);
+  assert.equal(t.groups.missed[2].n, 29);
+  assert.equal(t.inSeasonRule, 'override');
+
+  // fewer than 4 evaluable healthy checkpoints → preseason-only
+  assert.equal(inSeasonCheck(rows, store, [2, 3, 4]).inSeasonRule, 'preseason-only');
 });

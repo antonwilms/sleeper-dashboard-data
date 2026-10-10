@@ -10,7 +10,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 import {
-  wasContributorSeason, classifyInjurySeason, projectedGamesFor, dynastyInjurySeasonCount, DURABILITY_CONSTANTS,
+  wasContributorSeason, classifyInjurySeason, projectedGamesFor, dynastyInjurySeasonCount, DURABILITY_CONSTANTS, SHORT_SEASON_K,
 } from '../lib/durabilityMirror.mjs';
 import { parityReport, ABSENCE_DEFAULTS } from '../scripts/absence-run.mjs';
 
@@ -64,6 +64,7 @@ test('DM-3 wasContributorSeason: below-floor snap share falls through to starts,
   assert.equal(DURABILITY_CONSTANTS.SNAP_CONTRIB_FLOOR, 0.40);
 });
 
+const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 const row = (gp, dnp, gs, extra = {}) => ({ gamesPlayed: gp, dnpWeeks: dnp, gamesStarted: gs, fantasyPoints: gp * 10, stats: {}, ...extra });
 
 test('DM-3 classifyInjurySeason: the ±1 adjacent rescue respects throughSeason', () => {
@@ -91,4 +92,51 @@ test('DM-3 projectedGamesFor / dynastyInjurySeasonCount: weights, multipliers, n
   assert.equal(dynastyInjurySeasonCount(inj, 'P', 'WR', { throughSeason: 2019 }), 2);
   assert.equal(dynastyInjurySeasonCount(inj, 'P', 'WR', { throughSeason: 2017 }), 1);
   assert.equal(dynastyInjurySeasonCount({ 2019: { P: row(0, 17, 0) } }, 'P', 'WR', { throughSeason: 2019 }), 0, 'no gp>0 season → 0');
+});
+
+// ─── DM-5 / DM-6: rule 'l6c' (short-season-wiring Stage A) ───────────────────
+
+test('DM-5: SHORT_SEASON_K equals the SOf0 derivation; an unknown rule throws; pre-l6c is unchanged and carries no shortSeason keys', () => {
+  const sof0 = JSON.parse(fs.readFileSync(fileURLToPath(new URL('../backtests/2026-10-10-games-short-constants.json', import.meta.url)), 'utf8')).candidates.SOf0;
+  for (const state of ['short', 'none']) {
+    for (const pos of ['QB', 'RB', 'WR', 'TE']) {
+      const want = sof0.k['pos|s'][`${pos}|${state}`] ?? sof0.k.pos[pos];
+      assert.equal(SHORT_SEASON_K[state][pos], want, `${state} ${pos}`);
+    }
+  }
+  assert.throws(() => projectedGamesFor({ 2019: { P: row(16, 0, 16) } }, 'P', 'WR', { throughSeason: 2019, rule: 'nope' }), /unknown projectedGamesFor rule/);
+  const seasons = FIXTURE.seasons;
+  let checked = 0;
+  for (const [id, position] of Object.entries(FIXTURE.positions)) {
+    const a = projectedGamesFor(seasons, id, position, { throughSeason: 2025 });
+    const b = projectedGamesFor(seasons, id, position, { throughSeason: 2025, rule: 'pre-l6c' });
+    assert.deepEqual(b, a, `${id} pre-l6c equals the default`);
+    if (a) { assert.ok(!Object.keys(a).some((k) => k.startsWith('shortSeason') || k === 'projectedGamesBase'), 'no new keys'); checked++; }
+  }
+  assert.ok(checked > 0);
+});
+
+test("DM-6 rule 'l6c': qualifying last season unchanged; short and none cut at floor 0; null state on an absent or empty last season", () => {
+  const hist = { 2017: { P: row(9, 0, 9) }, 2018: { P: row(9, 0, 9) } };
+  const run = (cs, pos = 'WR', through = 2019) => projectedGamesFor(cs, 'P', pos, { throughSeason: through, rule: 'l6c' });
+  const qual = run({ ...hist, 2019: { P: row(12, 0, 12) } });
+  assert.equal(qual.shortSeasonState, 'qual');
+  assert.equal(qual.shortSeasonK, null);
+  assert.equal(qual.projectedGames, qual.projectedGamesBase);
+  const short = run({ ...hist, 2019: { P: row(4, 6, 4) } });
+  assert.equal(short.shortSeasonState, 'short');
+  assert.equal(short.shortSeasonK, 0.52);
+  assert.equal(short.projectedGames, Math.round(clamp(short.avgGames * 0.52, 0, 17)));
+  assert.ok(short.projectedGames < 8, 'floor 0 holds below 8');
+  assert.equal(short.projectedGamesBase, Math.round(clamp(short.avgGames, 8, 17)));
+  const none = run({ ...hist, 2019: { Q: row(16, 0, 16) } }, 'TE');
+  assert.equal(none.shortSeasonState, 'none');
+  assert.equal(none.shortSeasonK, 0.55);
+  assert.equal(none.projectedGames, Math.round(clamp(none.avgGames * 0.55, 0, 17)));
+  for (const cs of [hist, { ...hist, 2019: {} }]) {
+    const r = run(cs);
+    assert.equal(r.shortSeasonState, null, 'absent or empty throughSeason row-set');
+    assert.equal(r.shortSeasonK, null);
+    assert.equal(r.projectedGames, r.projectedGamesBase);
+  }
 });

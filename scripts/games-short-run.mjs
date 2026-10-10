@@ -218,6 +218,51 @@ function impactAll({ full, people0, causeDefaults, names }) {
   };
 }
 
+// ─── in-season override check (step 9, pre-registered) ───────────────────────
+
+export const IN_SEASON_CHECKPOINTS = Object.freeze([1, 2, 4, 6, 8, 10, 12]);
+const IN_SEASON_MIN_N = 30, IN_SEASON_MIN_HEALTHY_CHECKPOINTS = 4;
+const count = (xs, v) => xs.reduce((a, x) => a + (x === v ? 1 : 0), 0);
+
+/**
+ * Does a cut row that is healthy so far in S+1 (no 'D', at least one 'P' — the app's test) do better with the
+ * uncut games? `rows` are out-of-sample rows ({ id, S, sState, star, p }); `store[S + 1][id].weeklyStatus` slot i is week i+1.
+ * Only non-qualifying rows are scored. → { checkpoints, groups: { [group]: { [w]: cell } }, noRow, inSeasonRule }.
+ */
+export function inSeasonCheck(rows, store, checkpoints = IN_SEASON_CHECKPOINTS) {
+  const groups = { healthy: {}, missed: {}, notPlayed: {}, healthyStar: {} };
+  const acc = Object.fromEntries(Object.keys(groups).map((g) => [g, Object.fromEntries(checkpoints.map((w) => [w, []]))]));
+  let noRow = 0;
+  for (const r of rows) {
+    if (r.sState === 'qual') continue;
+    const ws = store[r.S + 1]?.[r.id]?.weeklyStatus;
+    if (!Array.isArray(ws)) { noRow++; continue; }
+    for (const w of checkpoints) {
+      const head = ws.slice(0, w);
+      const n = count(head, 'P'), d = count(head, 'D'), rem = count(ws.slice(w), 'P');
+      const rec = { rem, cut: Math.max(0, r.p.SOf0 - n) - rem, base: Math.max(0, r.p.C0 - n) - rem };
+      const hit = [];
+      if (d === 0 && n >= 1) { hit.push('healthy'); if (r.star) hit.push('healthyStar'); }
+      else if (d >= 1 && n >= 1) hit.push('missed');
+      if (n === 0) hit.push('notPlayed');
+      for (const g of hit) acc[g][w].push(rec);
+    }
+  }
+  const stat = (rs, key) => ({ mae: round3(mean(rs.map((x) => Math.abs(x[key])))), bias: round3(mean(rs.map((x) => x[key]))) });
+  for (const g of Object.keys(groups)) {
+    for (const w of checkpoints) {
+      const rs = acc[g][w];
+      groups[g][w] = rs.length ? { n: rs.length, meanRem: round3(mean(rs.map((x) => x.rem))), cut: stat(rs, 'cut'), base: stat(rs, 'base') } : { n: 0 };
+    }
+  }
+  const evaluable = (g) => checkpoints.filter((w) => groups[g][w].n >= IN_SEASON_MIN_N);
+  const hw = evaluable('healthy'), mw = evaluable('missed');
+  const override = hw.length >= IN_SEASON_MIN_HEALTHY_CHECKPOINTS
+    && hw.every((w) => groups.healthy[w].base.mae < groups.healthy[w].cut.mae)
+    && mw.every((w) => groups.missed[w].cut.mae < groups.missed[w].base.mae);
+  return { checkpoints: [...checkpoints], groups, noRow, inSeasonRule: override ? 'override' : 'preseason-only' };
+}
+
 // ─── runGamesShort ───────────────────────────────────────────────────────────
 
 export function runGamesShort({ load = GAMES_CAL_LOAD, defaults = GAMES_CAL_DEFAULTS, causeDefaults = CAUSE_DEFAULTS, log = () => {} } = {}) {
@@ -268,6 +313,9 @@ export function runGamesShort({ load = GAMES_CAL_LOAD, defaults = GAMES_CAL_DEFA
   const people0 = causeVeterans({ store: c.store, rosterByYear: c.rosterByYear, snapshot: c.snapshot, positionOf: c.positionOf, bySleeper: c.bySleeper, names, defaults, rankIndex: c.rankIndex, to: c.to });
   const impact = impactAll({ full, people0, causeDefaults, names });
 
+  // step 9 — in-season override check
+  const inSeason = inSeasonCheck(fit.oos, c.store);
+
   const panelRev = c.g.gitRev?.() ?? null;
   const generatedAt = new Date().toISOString();
   return {
@@ -280,7 +328,7 @@ export function runGamesShort({ load = GAMES_CAL_LOAD, defaults = GAMES_CAL_DEFA
     qb: { folds: fit.folds, tables: fit.tables },
     outcomes,
     constants: { generatedAt, panelRev, candidates: constants, fallbacks: fit.folds.map((f) => ({ evalYear: f.evalYear, rows: f.fallbackRows, cells: f.fallbackCells })) },
-    decisions, relevantBias, impact,
+    decisions, relevantBias, impact, inSeasonCheck: inSeason,
     rows: fit.oos,
   };
 }
@@ -383,7 +431,23 @@ export function buildGamesShortVerdictMarkdown(r) {
   if (impact.namedStars.autoOverflow) w('', `(${impact.namedStars.autoOverflow} further auto-selected veterans omitted by the cap.)`);
   w('');
 
-  w('## 8. Limits', '',
+  const ic = r.inSeasonCheck;
+  const g2 = (x) => (x == null ? 'n/a' : Number(x).toFixed(2));
+  w('## 8. In-season override check', '',
+    `Population: the non-qualifying out-of-sample rows with an S+1 \`weeklyStatus\` (${ic.noRow} without one are skipped). At week w, remaining games played = P slots after w; \`cut\` = max(0, SOf0 − n) − rem and \`base\` = max(0, C0 − n) − rem, where n = P slots in weeks 1..w. ` +
+    'healthy = no D and n ≥ 1 (the app\'s test); missed = D ≥ 1 and n ≥ 1; notPlayed = n = 0; healthyStar = healthy ∧ star. A checkpoint is evaluable for a group at n ≥ 30.', '');
+  for (const [name, cells] of Object.entries(ic.groups)) {
+    w(`**${name}**`, '', '| w | n | actual remaining | cut MAE / bias | base MAE / bias |', '|---|---|---|---|---|');
+    for (const wk of ic.checkpoints) {
+      const c = cells[wk];
+      w(c.n ? `| ${wk} | ${c.n} | ${g2(c.meanRem)} | ${g2(c.cut.mae)} / ${sgn(c.cut.bias)} | ${g2(c.base.mae)} / ${sgn(c.base.bias)} |` : `| ${wk} | 0 | — | — | — |`);
+    }
+    w('');
+  }
+  w('Rule (pre-registered): `override` iff healthy is evaluable at ≥ 4 checkpoints, base MAE < cut MAE at every evaluable healthy checkpoint, and cut MAE < base MAE at every evaluable missed checkpoint; otherwise `preseason-only`.', '',
+    `**inSeasonRule: \`${ic.inSeasonRule}\`**`, '');
+
+  w('## 9. Limits', '',
     `- The ${meta.kGrid.from.toFixed(2)} grid floor binds for the cells marked in §5. The fitted cuts are therefore conservative; the grid is pre-registered and was not widened.`,
     '- **This is not an independent confirmation.** The candidates were chosen from L6b §5\'s out-of-sample breakdown. The gates were set after a Session 1 probe of this exact run: G2 was dropped and G3 tightened. These held-out CIs re-score the same panel, folds and seed that suggested the candidates, so a (W) carries that selection effect. The first clean test is forward grading (2026 outcomes).',
     `- \`relevant\` has few non-qualifying out-of-sample rows (${d.relevantNonQual.oos}); see §1.`,
@@ -391,6 +455,7 @@ export function buildGamesShortVerdictMarkdown(r) {
     '- Ranks use half-PPR; the app uses league scoring. §7\'s rank impact uses the snapshot\'s league-scored `projectedPPG`.',
     '- Floor 0 applies to non-qualifying rows only, and needs an app clamp change for those rows.',
     '- L6b\'s limits carry over: `chain` QB totals do not read `projectedGames`; historical rows cannot be routed to `chain`; snapshot scoring; rookies are out of scope.',
+    '- \'D\' reaches the live file one season-totals run after the games (CR-28), so the app\'s healthy test lags by up to one run.',
     '- **Wireability:** SOf0 needs only last-season gp and position. SOK1f0 also needs `classifyInjurySeason`, which is CR-28-mirrored and app-native. Both would wire as an app `seasonProjection.js` Step 6 change under CR-28, with a `grading/anchor-policy.md` boundary.');
   return out.join('\n');
 }
