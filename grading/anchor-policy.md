@@ -2,10 +2,10 @@
 
 **Not to be confused with `.claude/tasks/anchor-policy.md`**, which is the registry
 line-anchor policy. This file is about which captured snapshot rows are safe to compare
-against which grading run, given that the app's projection mechanism has changed seven times on the axes this file
+against which grading run, given that the app's projection mechanism has changed eight times on the axes this file
 tracks — three on the rookie path, one on the veteran path (the Step 4 up-side), one on QB rows of both paths (the
 start share), one on rookie QB rows
-(the rookie starter level), and once through a data correction rather than app code (the absence classification of served `weeklyStatus`). Earlier
+(the rookie starter level), once through a data correction rather than app code (the absence classification of served `weeklyStatus`), and once on the veteran path (the short-season games rule). Earlier
 snapshot-schema and factor-set changes (`schemaVersion` 1→2→3; the veteran factor set
 widening on 2026-06-06) are out of this file's scope.
 
@@ -56,7 +56,7 @@ captures either side of boundary 4.
 
 ## The date table is the cross-check, not the rule
 
-Seven changes on the five tracked axes, verified against the actually-committed app files (row 7: the data commit):
+Eight changes on six tracked axes, verified against the actually-committed app files (row 7: the data commit):
 
 | # | commit | date (UTC) | path | mechanism |
 |---|---|---|---|---|
@@ -67,6 +67,7 @@ Seven changes on the five tracked axes, verified against the actually-committed 
 | 5 | `c7a5d84` (Stage A; the model is live only once the Stage B commits ship with it) | 2026-10-04 01:04 (the **app push**, `00c0946..c53db19`); captures check out app `main`, and the push follows commits 2–3, so the Stage A commit time would be too early | both (QB rows) | qb-takeover start share |
 | 6 | `f97080a` (the model is live once the push lands; captures check out app `main`) | 2026-10-04 13:43 (the **app push**, `422fcfb..cec846d`, which also carried P11's seam fix `c804ada` — no projection-output change) | rookie (QB rows, yearsExp 0) | rookie QB starter level |
 | 7 | data `c7cfcc7` (an input correction — no app commit; was `8b95519` before the push-time rebase) | 2026-10-07 06:50 (the **data push**, `0b41c62..3097397`; CDN purge of all eleven files verified 12/12 immediately after) | veteran (QB/RB/WR/TE) | absence classification (served 'D', CR-28) |
+| 8 | `e3de164` (B1, the model commit; the model is live once the push lands; captures check out app `main`) | 2026-10-10 12:45:38 (the **app push**, `ac26e0b..98a8a69`) | veteran (QB/RB/WR/TE) | short-season games rule (L6c) |
 
 Scheduled captures (`daily-snapshot.yml`) trigger at 16:29 UTC against app `main` but can
 start hours late — `snapshots/2026-09-12.json` has `capturedAt` 18:34:49 UTC. Cross-check a
@@ -142,6 +143,16 @@ app push of boundary 6 reflects it; every earlier capture is pre-boundary on thi
 | `< first capture after the app push` | rookie-path level — no row carries `qbStarterBasis` — confirmed on `snapshots/2026-10-03.json` (19:20:24 UTC; 737 rows, none carry it) |
 | `>= first capture after the app push` | pinned group level — confirmed: every row in `snapshots/2026-10-04.json` carries `qbStarterBasis` (`'projection'` 89 · `'rookie:day3+'` 13 · `'rookie:day2'` 2 · `'rookie:r1'` 1 · `'rookie:top12'` 1 · `null` 632), and each `'rookie:*'` row's `qbStarterPPG` equals the pinned level × `rookieBasisScale` to 3 dp (17 rows) |
 
+### Veteran rows — boundary 8 (short-season rule)
+
+Row-detectable through `factors.shortSeasonState`. Absent means pre-boundary.
+
+- `'qual'` rows are unchanged.
+- On `'short'`/`'none'` rows, `projectedGames` moves (by about half), and `projectedTotalPts` moves with it except on QB `chain` rows (whose total is `qbStarterPPG × qbStartShare × 17`, independent of games). `projectedPPG` does not move.
+- `factors.projectedGamesBase` is the pre-boundary value on post-boundary rows, so one capture grades both rules.
+- The in-season healthy override lives only in the app's displayed copy, never in a snapshot `projection`.
+- **Cross-check (to be confirmed, D-67):** the first post-push capture's `'short'`/`'none'` veteran rows equal the mirror's `rule: 'l6c'` (`lib/durabilityMirror.mjs`).
+
 ### Veteran rows — boundary 7 (input correction)
 
 Unlike boundaries 1–6, this one is a **served-data correction**, not an app-code change: the app reads
@@ -166,7 +177,9 @@ is not `incumbent`/`stale`, and a pooled QB grade spanning it measures the mecha
 `qbStarterPPG` on those rows and `projectedPPG`/`projectedTotalPts` only on their `chain` rows, and a pooled rookie QB
 grade spanning it measures the mechanism change. Boundary 7 moves veteran rows' `projectedGames`,
 `projectedTotalPts`, `injurySeasons` and `absenceShapeFactor`, and `projectedPPG` only on bounce-back flips; a pooled
-veteran games grade spanning it measures the correction.
+veteran games grade spanning it measures the correction. Boundary 8 is veteran-only and row-detectable through
+`factors.shortSeasonState`; it moves `projectedGames` on `'short'`/`'none'` rows (and `projectedTotalPts` except on QB
+`chain` rows), and a pooled veteran games grade spanning it measures the rule.
 
 ## Why this is written now, not at the first forward grade
 
@@ -174,4 +187,4 @@ Writing this policy with a stale date list is worse than not writing it at all (
 reader would trust a table quietly missing a boundary. Boundary 4 exists as of `7b5b055`,
 boundary 5 as of the qb-takeover-wiring push and boundary 6 as of the rookie-qb-starter-level push, so the table above is complete,
 for the rookie mechanisms, the Step 4 up-side axis, the QB start-share axis and the rookie QB starter level, as of
-rookie-qb-starter-level, plus boundary 7 as of absence-classification.
+rookie-qb-starter-level, plus boundary 7 as of absence-classification and boundary 8 as of short-season-wiring.
