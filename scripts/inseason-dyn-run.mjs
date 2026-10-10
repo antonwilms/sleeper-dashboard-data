@@ -516,7 +516,7 @@ export function capStartPPG(startPPG, peak) {
   return Math.min(startPPG, PROSPECT_MIRROR.noMarketCap / 100 * Math.max(peak, 1));
 }
 
-function buildQ3Items(q1Rows, q1Decisions, resultsByPos) {
+export function buildQ3Items(q1Rows, q1Decisions, resultsByPos) {
   const items = [];
   for (const g of [0, 1]) {
     const label = `YE${g}`;

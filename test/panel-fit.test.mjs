@@ -3142,9 +3142,6 @@ describe('rookie-outcome-panels §6 test 12 — invalidEntryYear is counted, not
   });
 });
 
-// Fix pass 1 item 4 — coverage.byRungCell has no test anywhere (§2.2f calls
-// it D-12's actual deliverable). Synthetic population small enough to
-// compute by hand for both the drafted-group and the 'unknown'-group ladder.
 describe('compareRookieGamesCells (D-12, provenance-records-w2 A3)', () => {
   test('synthetic: whole-game moves, n/value deltas and missing cells are classified by the app rounding rule', () => {
     const byRungCell = {
@@ -3170,6 +3167,9 @@ describe('compareRookieGamesCells (D-12, provenance-records-w2 A3)', () => {
   });
 });
 
+// Fix pass 1 item 4 — coverage.byRungCell has no test anywhere (§2.2f calls
+// it D-12's actual deliverable). Synthetic population small enough to
+// compute by hand for both the drafted-group and the 'unknown'-group ladder.
 describe('rookie-outcome-panels §6 test 15 — byRungCell and byExperience', () => {
   function rec(gp) { return { gamesPlayed: gp, stats: {} }; }
   function outcome(gp) { return { actualPPG: gp > 0 ? 10 : null, actualGames: gp, actualTotalPts: gp * 10 }; }

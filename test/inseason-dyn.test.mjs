@@ -19,7 +19,7 @@ import {
 } from '../lib/inSeasonEvidence.mjs';
 import {
   runInSeasonDyn, inSeasonDynMain, INSEASON_DYN_LOAD, pinnedSourceOf, DYN_2A_PIN,
-  predictorFor, capStartPPG, q3Metrics, capPlacementComparison,
+  predictorFor, capStartPPG, q3Metrics, capPlacementComparison, buildQ3Items,
 } from '../scripts/inseason-dyn-run.mjs';
 import { verifyConstants, formatConstantsJson, makePut, pinDecision, addFoldK, ReconciliationStop, INSEASON_LOAD } from '../scripts/inseason-run.mjs';
 import {
@@ -869,6 +869,33 @@ describe('19: D-54 — Q3 caps the starting value; cap-placement comparison', ()
     assert.notEqual(pred(row, 7), blend(99, 10, 4, 4));
   });
 
+  test('predictorFor fixed: blends from the SUPPLIED prior with the row\'s k', () => {
+    const res = { ladder: { id: 'fixed' } };
+    const pred = predictorFor(res, SPEC_B_LIKE, r => r.k2a);
+    const frow = { obsPPG: 10, n: 4, k2a: 4 };
+    assert.equal(pred(frow, 14), blend(14, 10, 4, 4));
+    assert.equal(pred(frow, 14), 12);
+    assert.notEqual(pred(frow, 14), blend(99, 10, 4, 4));
+  });
+
+  test('buildQ3Items caps the start of a no-market row and exempts a premium row', () => {
+    const base = { S: 2020, W: 4, ye: 0, position: 'WR', peak: 40, obsPPG: 10, n: 4, k2a: 4, nextPPG: 18 };
+    const q1Rows = [
+      { ...base, sleeperId: 'a', projPrior: 20, draftTier: 'none' },
+      { ...base, sleeperId: 'b', projPrior: 30, draftTier: 'premium' },
+    ];
+    const items = buildQ3Items(
+      q1Rows,
+      { YE0: { arm: 'B' }, YE1: { arm: 'B' } },
+      { YE0: { WR: { ladder: { id: 'fixed' } } }, YE1: {} },
+    );
+    assert.equal(items.length, 2);
+    const [a, b] = items;
+    assert.equal(a.x0raw, 20); assert.equal(a.x0, 14); assert.equal(a.startCapBinds, true); assert.equal(a.xn, 12);
+    assert.equal(b.x0raw, 30); assert.equal(b.x0, 30); assert.equal(b.startCapBinds, false); assert.equal(b.xn, 20);
+    assert.equal(b.xn, blend(30, 10, 4, 4));
+  });
+
   function ownRes({ tamper = 0 } = {}) {
     const orderedRows = [row];
     return {
@@ -895,7 +922,8 @@ describe('19: D-54 — Q3 caps the starting value; cap-placement comparison', ()
 
   test('q3Metrics on two hand items: capped start-bind and premium exemption', () => {
     // Scores at peak 40 (modelScore = 100 × ppg/40): item1 x0raw 50, x0 35, xn 40, y 45; item2 x0 75, xn 77.5, y 70.
-    // du = (5, 2.5), dr = (10, -5); mDu 3.75, mDr 7.5. captured = 1 - mean(|dr-du| = 5, 7.5)/7.5 = 1/6.
+    // du = (5, 2.5), dr = (10, -5); mDu 3.75, mDr 7.5. captured = 1 − mean(|dr − du|) / mDr = 1 − 6.25 / 7.5 = 1/6.
+    // y (18, 28) is below p 40, so clampShareY and the peak excess are 0.
     // Cap rows = item1 only: xn score 40 > 35 (share 1, excess 5), y 45 (excess 10), start cut 50 - 35 = 15.
     const items = [
       { x0raw: 20, x0: 14, p: 40, xn: 16, y: 18, draftTier: 'none', startCapBinds: true, n: 4 },
@@ -909,7 +937,10 @@ describe('19: D-54 — Q3 caps the starting value; cap-placement comparison', ()
     assert.equal(m.leftOnTableShare, 0.3);
     assert.equal(m.capturedShare, 0.1667);
     assert.equal(m.rankAgreement, null); // spearman needs >= 3 rows
+    assert.equal(m.updateUnderAnchor, 1.5);
     assert.equal(m.clampShareXn, 0);
+    assert.equal(m.clampShareY, 0);
+    assert.equal(m.peakClampExcess, 0);
     assert.equal(m.capOf35.rowShare, 0.5);
     assert.equal(m.capOf35.shareOver35, 1);
     assert.equal(m.capOf35.meanExcessXn, 5);

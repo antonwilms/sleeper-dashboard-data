@@ -795,5 +795,21 @@ describe('APP_ROOKIE_GAMES_CELLS parity with the mirror tables (D-12, provenance
     }
     const rung4N = ['r1', 'day2', 'day3', 'undrafted'].reduce((a, g) => a + APP_ROOKIE_GAMES_CELLS[g].n, 0);
     assert.equal(rung4N, 3848);
+
+    // Reverse direction: the mirror tables hold exactly 74 leaves and every one is an app cell key.
+    const mirrorKeys = [
+      ...Object.keys(ROOKIE_GAMES_GPE),
+      ...Object.keys(ROOKIE_GAMES_GE),
+      ...Object.entries(ROOKIE_GAMES_GP).flatMap(([g, byPos]) => Object.keys(byPos).map(pos => `${g}|${pos}`)),
+      ...Object.keys(ROOKIE_GAMES_G),
+      ...Object.entries(ROOKIE_GAMES_U).flatMap(([pos, byExp]) =>
+        Object.keys(byExp).map(e => (e === 'pooled' ? `U|${pos}` : `U|${pos}|${e}`))),
+    ];
+    assert.equal(Object.keys(ROOKIE_GAMES_GPE).length, 28);
+    assert.equal(Object.keys(ROOKIE_GAMES_GE).length, 10);
+    assert.equal(Object.keys(ROOKIE_GAMES_G).length, 4);
+    assert.equal(mirrorKeys.length, 74);
+    assert.equal(new Set(mirrorKeys).size, 74);
+    for (const key of mirrorKeys) assert.ok(key in APP_ROOKIE_GAMES_CELLS, `mirror leaf ${key} missing from app cells`);
   });
 });
