@@ -197,3 +197,27 @@ There were 11 flags (1 high, 4 medium, 6 low). Session 1 checked each one and ap
 | 9 | Anchor text: `chain` exception; row 8 should cite B1 | Applied |
 | 10 | CR-28 Triggers omit `enrichRow`/`accountWeeks`/`causeVeterans` | Applied in the app §4.1 item 9 (same line, count unchanged) |
 | 11 | CR-28 Mirror not quoted in full | Applied: quoted verbatim |
+
+## Stage A verification record (Session 1, 2026-10-10, `b788678`, `8f54db1`)
+
+- **implementation-reviewer** found no blocking flags and two low test flags; the fix is below.
+- **Independently confirmed:**
+  - `'pre-l6c'` is byte-identical: L6, L6b JSON and markdown, `--absence` and `--short` (minus `inSeasonCheck`);
+  - the committed artifacts equal a fresh run;
+  - `inSeasonRule` is `override`, with `noRow` 31;
+  - the step-4 count is 98 = SOf0, with 0 state mismatches;
+  - the constants-file diff from `4fa7689` is `generatedAt`/`panelRev` only.
+- **Session 1 also re-ran `--short --json` itself:** the week-4 numbers match app §0 D3.
+
+## Fix pass A-1 (tests only)
+
+Scope: `test/durability-mirror.test.mjs` and `test/games-calibration.test.mjs`. Change no source and no artifacts.
+
+1. **DM-6 `short` / `none` cases.** Replace the expected `projectedGames` that is computed from the function's own `avgGames` with a **hand-computed literal**. Write the arithmetic as a comment: the fixture's weighted gp × multipliers × k, then the round. Keep the existing k/state/`< 8` assertions.
+2. **DM-5.** Delete the tautological "`'pre-l6c'` deep-equals a call without `rule`" assertion; the default makes it always pass. In its place, assert on the DM-1 fixture rows that an explicit `rule: 'pre-l6c'` returns exactly the key set `['projectedGames','injurySeasons','absenceShapeFactor','avgGamesBase','avgGames','recent']`, sorted. Keep the no-`shortSeason*`-keys assertion.
+3. **GCS-7.** Add three cases:
+   - **(a)** a healthy group with n < 30 at one checkpoint is skipped, rather than compared. Build a fixture where that checkpoint's healthy base would *lose*, and assert the result is still `override` when the other ≥ 4 checkpoints pass;
+   - **(b)** a row present in S+1 **without** `weeklyStatus` counts toward `noRow`;
+   - **(c)** at w = 1, `missed.n` is 0 and that checkpoint does not affect the decision.
+
+Run `npm test`. Commit `short-season-wiring A1 fix pass: honest DM-5/DM-6 expectations, GCS-7 skip/noRow/w=1 cases`, then pull with rebase and push. Hand back the SHA and what each changed test asserts.

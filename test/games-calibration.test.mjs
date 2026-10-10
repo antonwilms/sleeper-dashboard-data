@@ -975,4 +975,47 @@ test('GCS-7 inSeasonCheck: hand-computed healthy / missed / not-played cells; ov
 
   // fewer than 4 evaluable healthy checkpoints → preseason-only
   assert.equal(inSeasonCheck(rows, store, [2, 3, 4]).inSeasonRule, 'preseason-only');
+
+  const build = (specs) => {
+    const st = { 2021: {} }, rs = [];
+    for (const [id, status, p] of specs) { if (status !== undefined) st[2021][id] = status === null ? {} : { weeklyStatus: status }; rs.push({ id, S: 2020, sState: 'short', star: false, p }); }
+    return { st, rs };
+  };
+  const many = (prefix, n, status, p) => Array.from({ length: n }, (_, i) => [`${prefix}${i}`, status, p]);
+
+  // (a) a healthy group with n < 30 at one checkpoint is skipped, not compared
+  //   R1 (30): X,X then 8 P: not healthy at w = 2 (n 0); healthy at w = 3..6. p {SOf0 5, C0 10}.
+  //     w = 3: n 1, rem 7: cut |4 − 7| = 3, base |9 − 7| = 2; w = 4: n 2, rem 6: cut |3 − 6| = 3, base |8 − 6| = 2;
+  //     w = 5: n 3, rem 5: 3 vs |7 − 5| = 2; w = 6: n 4, rem 4: 3 vs |6 − 4| = 2 → base wins at all four.
+  //   R2 (29): P,P,D then X: healthy at w = 2 only (n 2, rem 0), missed from w = 3. p {SOf0 2, C0 10}.
+  //     w = 2: cut |0 − 0| = 0, base |8 − 0| = 8 → the base would LOSE at w = 2, but n = 29 < 30.
+  const R1 = many('r', 30, ws('X', 'X', ...P(8)), { SOf0: 5, C0: 10 });
+  const R2 = many('s', 29, ws('P', 'P', 'D'), { SOf0: 2, C0: 10 });
+  const a = build([...R1, ...R2]);
+  const ra = inSeasonCheck(a.rs, a.st, [2, 3, 4, 5, 6]);
+  assert.equal(ra.groups.healthy[2].n, 29);
+  assert.ok(ra.groups.healthy[2].base.mae > ra.groups.healthy[2].cut.mae, 'the skipped checkpoint has the base losing');
+  assert.equal(ra.groups.missed[3].n, 29, 'the thin missed group is skipped too');
+  assert.equal(ra.inSeasonRule, 'override', 'w = 2 is skipped; the other four healthy checkpoints pass');
+  // control: a 30th R2 row makes w = 2 evaluable, and the losing base flips the decision
+  const a30 = build([...R1, ...R2, ['s29', ws('P', 'P', 'D'), { SOf0: 2, C0: 10 }]]);
+  assert.equal(inSeasonCheck(a30.rs, a30.st, [2, 3, 4, 5, 6]).inSeasonRule, 'preseason-only');
+
+  // (b) a row present in S+1 but without weeklyStatus counts toward noRow (as does an absent row)
+  const b = build([...many('h', 30, ws(...P(10)), { SOf0: 5, C0: 10 }), ['nows', null, { SOf0: 5, C0: 10 }], ['gone', undefined, { SOf0: 5, C0: 10 }]]);
+  assert.ok(b.st[2021].nows && !('weeklyStatus' in b.st[2021].nows));
+  const rb = inSeasonCheck(b.rs, b.st, [2, 3]);
+  assert.equal(rb.noRow, 2);
+  assert.equal(rb.groups.healthy[2].n, 30, 'neither no-row case is scored');
+
+  // (c) at w = 1 no one can have both a played and a missed week: missed.n is 0 and the decision is unchanged
+  //   90 healthy rows (cut |4 − 9| = 5, base 0) plus the 30 missed rows, who at w = 1 pool into healthy with cut 0 / base 7;
+  //   pooled healthy w = 1: cut 450 / 120, base 210 / 120 → the base still wins.
+  const c = build([...many('h', 90, ws(...P(10)), { SOf0: 5, C0: 10 }), ...many('m', 30, missedWs, { SOf0: 5, C0: 12 })]);
+  const rc1 = inSeasonCheck(c.rs, c.st, [1, 2, 3, 4, 5]);
+  assert.deepEqual(rc1.groups.missed[1], { n: 0 });
+  assert.equal(rc1.inSeasonRule, inSeasonCheck(c.rs, c.st, [2, 3, 4, 5]).inSeasonRule);
+  assert.equal(rc1.inSeasonRule, 'override');
+  const cFlip = build([...many('h', 90, ws(...P(10)), { SOf0: 5, C0: 10 }), ...many('m', 30, missedWs, { SOf0: 12, C0: 5 })]);
+  assert.equal(inSeasonCheck(cFlip.rs, cFlip.st, [1, 2, 3, 4, 5]).inSeasonRule, 'preseason-only', 'the missed decision comes from w >= 2 only');
 });

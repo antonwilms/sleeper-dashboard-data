@@ -108,10 +108,12 @@ test('DM-5: SHORT_SEASON_K equals the SOf0 derivation; an unknown rule throws; p
   const seasons = FIXTURE.seasons;
   let checked = 0;
   for (const [id, position] of Object.entries(FIXTURE.positions)) {
-    const a = projectedGamesFor(seasons, id, position, { throughSeason: 2025 });
-    const b = projectedGamesFor(seasons, id, position, { throughSeason: 2025, rule: 'pre-l6c' });
-    assert.deepEqual(b, a, `${id} pre-l6c equals the default`);
-    if (a) { assert.ok(!Object.keys(a).some((k) => k.startsWith('shortSeason') || k === 'projectedGamesBase'), 'no new keys'); checked++; }
+    const a = projectedGamesFor(seasons, id, position, { throughSeason: 2025, rule: 'pre-l6c' });
+    if (a) {
+      assert.deepEqual(Object.keys(a).sort(), ['projectedGames', 'injurySeasons', 'absenceShapeFactor', 'avgGamesBase', 'avgGames', 'recent'].sort(), `${id} pre-l6c key set`);
+      assert.ok(!Object.keys(a).some((k) => k.startsWith('shortSeason') || k === 'projectedGamesBase'), 'no new keys');
+      checked++;
+    }
   }
   assert.ok(checked > 0);
 });
@@ -126,13 +128,16 @@ test("DM-6 rule 'l6c': qualifying last season unchanged; short and none cut at f
   const short = run({ ...hist, 2019: { P: row(4, 6, 4) } });
   assert.equal(short.shortSeasonState, 'short');
   assert.equal(short.shortSeasonK, 0.52);
-  assert.equal(short.projectedGames, Math.round(clamp(short.avgGames * 0.52, 0, 17)));
+  // hand-computed: qualifying seasons 2017 and 2018 (gp 9 each; the 2019 gp-4 row is sub-8), weights [0.3, 0.7]
+  // → avgGames 9 × 0.3 + 9 × 0.7 = 9; no injury seasons, no availability → factor 1; WR short k 0.52 → 9 × 0.52 = 4.68 → round 5
+  assert.equal(short.projectedGames, 5);
   assert.ok(short.projectedGames < 8, 'floor 0 holds below 8');
   assert.equal(short.projectedGamesBase, Math.round(clamp(short.avgGames, 8, 17)));
   const none = run({ ...hist, 2019: { Q: row(16, 0, 16) } }, 'TE');
   assert.equal(none.shortSeasonState, 'none');
   assert.equal(none.shortSeasonK, 0.55);
-  assert.equal(none.projectedGames, Math.round(clamp(none.avgGames * 0.55, 0, 17)));
+  // hand-computed: same history, avgGames 9; TE none k 0.55 → 9 × 0.55 = 4.95 → round 5
+  assert.equal(none.projectedGames, 5);
   for (const cs of [hist, { ...hist, 2019: {} }]) {
     const r = run(cs);
     assert.equal(r.shortSeasonState, null, 'absent or empty throughSeason row-set');
