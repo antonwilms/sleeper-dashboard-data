@@ -93,7 +93,29 @@ export const DEFAULT_LOAD = {
   // D-8/D-9/D-12/D-13 (rookie-outcome-panels.md §6 test 1) — the reproduction
   // pin's reference artifact, injectable like every other loader here.
   loadRookiePinArtifact: () => readJson('backtests/2026-09-06-fullpipeline-panel.json'),
+  // The pin's crosswalk, frozen at the rev the artifact was built against (cde2d06 drift;
+  // scripts/fixtures/build-rookie-pin-crosswalk.mjs). Precedent: scripts/absence-run.mjs reads test/fixtures/.
+  loadRookiePinCrosswalk: () => readJson('test/fixtures/rookie-pin-crosswalk-2026-09-06.json'),
 };
+
+// Maps a playerids-shaped fixture into the three lookups assembleRookiePanel needs. Shared by the
+// CLI's frozen-crosswalk pin and test/panel-fit.test.mjs §6 test 1, so the two never diverge.
+export function pinCrosswalkMaps(fx) {
+  const crosswalk = {};
+  const birthdateBySleeper = {};
+  const draftInfoBySleeper = {};
+  for (const [sleeperId, entry] of Object.entries(fx?.bySleeper ?? {})) {
+    if (entry?.birthdate) birthdateBySleeper[sleeperId] = entry.birthdate;
+    draftInfoBySleeper[sleeperId] = {
+      draftYear: entry?.draftYear ?? null, draftRound: entry?.draftRound ?? null, draftPick: entry?.draftPick ?? null,
+      undrafted: entry?.undrafted ?? false,
+    };
+  }
+  for (const entry of Object.values(fx?.ids ?? {})) {
+    if (entry?.sleeperId && entry?.position) crosswalk[entry.sleeperId] = entry.position;
+  }
+  return { crosswalk, birthdateBySleeper, draftInfoBySleeper };
+}
 
 // ─── Scoring-basis resolution ──────────────────────────────────────────────────
 
@@ -1887,7 +1909,22 @@ export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
   // §A — the reproduction pin, checked here so both --json and the markdown
   // verdict read the same computed pass/fail.
   const pinArtifact = typeof load.loadRookiePinArtifact === 'function' ? load.loadRookiePinArtifact() : null;
-  const pin = checkReproductionPin(legacyGated, pinArtifact);
+  // The pin alone reads the crosswalk frozen at the artifact's rev (cde2d06 drift); §B–§G and the
+  // artifact keep the live legacyGated/legacyUngated. Injected loads without the loader pin live.
+  let pinGated = legacyGated;
+  let pinCrosswalkKind = 'live';
+  if (typeof load.loadRookiePinCrosswalk === 'function') {
+    const pinMaps = pinCrosswalkMaps(load.loadRookiePinCrosswalk());
+    pinGated = assembleRookiePanel({
+      totalsByYear, ppgByYear,
+      positionOf: (pid, y) => resolvePosition(pid, advstatsByYear[y], rosterByYear[y], pinMaps.crosswalk),
+      birthdateOf: (pid) => pinMaps.birthdateBySleeper[pid] ?? null,
+      draftInfoOf: (pid) => pinMaps.draftInfoBySleeper[pid] ?? null,
+      fromYear: legacyFromYear, toYear: legacyToYear, minOutcomeGames: 6, rosterByYear,
+    });
+    pinCrosswalkKind = 'frozen';
+  }
+  const pin = { ...checkReproductionPin(pinGated, pinArtifact), crosswalk: pinCrosswalkKind };
 
   // §2.3a / §9 — position-resolution asymmetry: how many legacy (ungated)
   // rows would resolve to a DIFFERENT position under crosswalk-only
@@ -2080,7 +2117,10 @@ export function buildRookieVerdictMarkdown(result) {
     lines.push(`**NOT CHECKED** — ${pin.reason}.`, '');
   } else {
     lines.push(
-      `**${pin.pass ? 'PASS' : 'FAIL'}** against \`backtests/2026-09-06-fullpipeline-panel.json\`'s rookiePanel.`,
+      `**${pin.pass ? 'PASS' : 'FAIL'}** against \`backtests/2026-09-06-fullpipeline-panel.json\`'s rookiePanel` +
+        (pin.crosswalk === 'frozen'
+          ? ' on the crosswalk frozen at `f27bc71` (`test/fixtures/rookie-pin-crosswalk-2026-09-06.json`); §B–§G read the live crosswalk.'
+          : '.'),
       '',
       '| | assembled | surviving | drops.noOutcome | hitCapCount |',
       '|---|---|---|---|---|',

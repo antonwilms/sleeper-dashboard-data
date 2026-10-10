@@ -52,7 +52,7 @@ import {
   resolveRegressionBucket, REGRESSION_MODELS, CURRENT_REGRESSION_MODEL, REGRESSION_UPSIDE_POSITIONS,
 } from '../lib/projectionFactors.mjs';
 import { reconstructShippedRookieProjection } from '../lib/rookieMirror.mjs';
-import { runFit, buildFitVerdictReport, buildFitVerdictMarkdown, assemblePanel, DEFAULT_LOAD, buildOutcomeMaps } from '../scripts/panel-run.mjs';
+import { runFit, buildFitVerdictReport, buildFitVerdictMarkdown, assemblePanel, DEFAULT_LOAD, buildOutcomeMaps, pinCrosswalkMaps, runRookiePanels } from '../scripts/panel-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -2595,19 +2595,7 @@ describe('rookie-outcome-panels §6 test 1 — reproduction pin (the gate on thi
     // for an id already in 2013–2024 season totals changes `assembled` without touching the
     // artifact (cde2d06 added 12079: 2563 → 2564). See scripts/fixtures/build-rookie-pin-crosswalk.mjs.
     const playerIds = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'test/fixtures/rookie-pin-crosswalk-2026-09-06.json'), 'utf8'));
-    const crosswalk = {};
-    const birthdateBySleeper = {};
-    const draftInfoBySleeper = {};
-    for (const [sleeperId, entry] of Object.entries(playerIds?.bySleeper ?? {})) {
-      if (entry?.birthdate) birthdateBySleeper[sleeperId] = entry.birthdate;
-      draftInfoBySleeper[sleeperId] = {
-        draftYear: entry?.draftYear ?? null, draftRound: entry?.draftRound ?? null, draftPick: entry?.draftPick ?? null,
-        undrafted: entry?.undrafted ?? false,
-      };
-    }
-    for (const entry of Object.values(playerIds?.ids ?? {})) {
-      if (entry?.sleeperId && entry?.position) crosswalk[entry.sleeperId] = entry.position;
-    }
+    const { crosswalk, birthdateBySleeper, draftInfoBySleeper } = pinCrosswalkMaps(playerIds);
 
     const years = [];
     for (let y = HISTORY_FLOOR; y <= toYear + 1; y++) years.push(y);
@@ -2654,6 +2642,20 @@ describe('rookie-outcome-panels §6 test 1 — reproduction pin (the gate on thi
     assert.equal(coverage.drops.noOutcome, 1507);
     assert.equal(coverage.hitCapCount, expectedCoverage.hitCapCount);
     assert.equal(coverage.hitCapCount, 0);
+  });
+});
+
+describe('rookie-outcome-panels §6 test 1b — the CLI pin reads the frozen crosswalk (provenance-records-w2 A2)', () => {
+  test('runRookiePanels() on DEFAULT_LOAD passes §A on the frozen crosswalk', () => {
+    const out = runRookiePanels();
+    assert.equal(out.pin.pass, true);
+    assert.equal(out.pin.crosswalk, 'frozen');
+    // legacy.gated.coverage.assembled deliberately not asserted: it tracks the live crosswalk.
+  });
+  test('a load without loadRookiePinCrosswalk pins on the live legacyGated', () => {
+    const load = { ...DEFAULT_LOAD };
+    delete load.loadRookiePinCrosswalk;
+    assert.equal(runRookiePanels({ load }).pin.crosswalk, 'live');
   });
 });
 

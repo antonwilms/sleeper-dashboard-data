@@ -2035,6 +2035,8 @@ node bin/panel.mjs --rookie --write        # persist both artifacts above
 
 `--rookie` also renders **§G**, an independent re-derivation of the app's eight shipped rookie-ceiling quantiles (knee = p90, asymptote = p99 of realised debut PPG) from this repo's own `debut` assembly — a reproduction pin against the app's constants (`41f277e`), not out-of-sample validation, since both sides consume the same rows.
 
+§A pins the reproduction on the crosswalk frozen at `f27bc71` (`test/fixtures/rookie-pin-crosswalk-2026-09-06.json`, via `pinCrosswalkMaps`), exactly as `test/panel-fit.test.mjs` §6 test 1 does: the weekly crosswalk refresh `cde2d06` added `12079`, which moves the live legacy `assembled` 2563 → 2564 without touching the 2026-09-06 artifact. §B–§G and the written artifact still read the live crosswalk.
+
 Reproduce: `node bin/panel.mjs --rookie --write`.
 
 ### In-season evidence k-fit (`bin/backtest.mjs --inseason`)
