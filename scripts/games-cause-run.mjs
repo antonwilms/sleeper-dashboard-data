@@ -55,9 +55,9 @@ const CAUSE_DEFINITIONS = Object.freeze({
 
 // ─── cell metrics (copied from L6, generalised to CAUSE_ALL_IDS) ─────────────
 
-function cellMetrics(rows, bootstrap) {
+export function cellMetrics(rows, bootstrap, ids = CAUSE_ALL_IDS) {
   const out = {};
-  for (const id of CAUSE_ALL_IDS) {
+  for (const id of ids) {
     const p = (r) => r.p[id];
     const base = pooledStats(rows, p);
     if (id !== 'C0') {
@@ -225,8 +225,8 @@ function summariesFor(fit) {
 
 // ─── 2026 impact (step 10) ───────────────────────────────────────────────────
 
-function impactAll({ fit, store, rosterByYear, snapshot, positionOf, bySleeper, names, defaults, causeDefaults, rankIndex, to }) {
-  const ids = ['C0', 'L0', ...CAUSE_CANDIDATE_IDS];
+/** L6c: impactAll's per-veteran loop, minus the games computation. → people: { ...row, avgGames, avgGamesL, projectedGames, name, ppg }. */
+export function causeVeterans({ store, rosterByYear, snapshot, positionOf, bySleeper, names, defaults, rankIndex, to }) {
   const ctx = { store, rosterByYear };
   const people = [];
   for (const [id, p] of Object.entries(snapshot.players ?? {})) {
@@ -241,13 +241,21 @@ function impactAll({ fit, store, rosterByYear, snapshot, positionOf, bySleeper, 
     Object.assign(row, causeStates(row, ctx));
     row.avgGamesL = avgGamesSeasonLength(r, to + 1);
     row.avgGames = r.avgGames;
-    const games = { C0: r.projectedGames, L0: candidatePred(row.avgGamesL, 1, 8) };
+    people.push({ ...row, projectedGames: r.projectedGames, name: names[id]?.full_name ?? names[id]?.last_name ?? id, ppg: p.projection.projectedPPG });
+  }
+  return people;
+}
+
+function impactAll({ fit, store, rosterByYear, snapshot, positionOf, bySleeper, names, defaults, causeDefaults, rankIndex, to }) {
+  const ids = ['C0', 'L0', ...CAUSE_CANDIDATE_IDS];
+  const people = causeVeterans({ store, rosterByYear, snapshot, positionOf, bySleeper, names, defaults, rankIndex, to }).map((x) => {
+    const games = { C0: x.projectedGames, L0: candidatePred(x.avgGamesL, 1, 8) };
     for (const cid of CAUSE_CANDIDATE_IDS) {
       const spec = CAUSE_CANDIDATES[cid];
-      games[cid] = candidatePred(row[spec.avgKey ?? 'avgGames'], kFor(fit.full[cid], row).k, spec.floor);
+      games[cid] = candidatePred(x[spec.avgKey ?? 'avgGames'], kFor(fit.full[cid], x).k, spec.floor);
     }
-    people.push({ ...row, name: names[id]?.full_name ?? names[id]?.last_name ?? id, games, ppg: p.projection.projectedPPG });
-  }
+    return { ...x, games };
+  });
   const byCandidate = {};
   for (const cid of ids.filter((x) => x !== 'C0')) {
     const meanChange = Object.fromEntries(POSITIONS.map((p) => [p, round3(mean(people.filter((x) => x.position === p).map((x) => x.games[cid] - x.games.C0)))]));
@@ -283,7 +291,8 @@ function impactAll({ fit, store, rosterByYear, snapshot, positionOf, bySleeper, 
 
 // ─── runGamesCause ───────────────────────────────────────────────────────────
 
-export function runGamesCause({ load = GAMES_CAL_LOAD, defaults = GAMES_CAL_DEFAULTS, causeDefaults = CAUSE_DEFAULTS, log = () => {} } = {}) {
+/** L6c: steps 1–3 of runGamesCause, extracted unchanged (load, gate, panel, enrich, cause states, reconciliation). */
+export function buildCauseRows({ load = GAMES_CAL_LOAD, defaults = GAMES_CAL_DEFAULTS, log = () => {} } = {}) {
   // step 1 — load, gate, panel (copied from runGamesCalibration)
   const g = guardLoad(load, { maxLoadSeason: defaults.seasons.to });
   const { from, to } = defaults.seasons;
@@ -348,6 +357,13 @@ export function runGamesCause({ load = GAMES_CAL_LOAD, defaults = GAMES_CAL_DEFA
     accountingSkipped: rows.filter((r) => r.weeks.skipped).length,
   };
 
+  return { g, from, to, fixture, parity, snapshot, positionOf, bySleeper, store, rosterByYear, panelCounts, rankIndex, rows, reconMean, reconInfo };
+}
+
+export function runGamesCause({ load = GAMES_CAL_LOAD, defaults = GAMES_CAL_DEFAULTS, causeDefaults = CAUSE_DEFAULTS, log = () => {} } = {}) {
+  const { g, to, fixture, parity, snapshot, positionOf, bySleeper, store, rosterByYear, panelCounts, rankIndex, rows, reconMean, reconInfo } =
+    buildCauseRows({ load, defaults, log });
+
   // steps 4, 5 — descriptives
   const cause = causeDescriptives(rows);
   const seasonLength = seasonLengthDescriptives(rows);
@@ -399,9 +415,9 @@ const f2 = (x) => (x == null ? 'n/a' : Number(x).toFixed(2));
 const fCi = (c) => (c ? `[${f2(c[0])}, ${f2(c[1])}]` : 'n/a');
 const sgn = (x) => (x == null ? 'n/a' : `${x >= 0 ? '+' : ''}${Number(x).toFixed(2)}`);
 
-function cellTable(t) {
+export function cellTable(t, ids = CAUSE_ALL_IDS) {
   const lines = ['| cand | n | bias | MAE | RMSE | ρ | ρ within pos | ΔMSE [95% CI] | ΔMAE [95% CI] |', '|---|---|---|---|---|---|---|---|---|'];
-  for (const id of CAUSE_ALL_IDS) {
+  for (const id of ids) {
     const c = t[id];
     if (!c.n) { lines.push(`| ${id} | 0 | n/a | n/a | n/a | n/a | n/a | n/a | n/a |`); continue; }
     lines.push(`| ${id} | ${c.n} | ${sgn(c.bias)} | ${f2(c.mae)} | ${f2(c.rmse)} | ${f2(c.rho)} | ${f2(c.rhoWithinPos)} | ` +

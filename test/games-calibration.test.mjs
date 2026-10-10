@@ -19,11 +19,13 @@ import {
   decide, candidatePred,
   rosterCause, causeStates, rel3Of, avgGamesSeasonLength, cellKey, CAUSE_CANDIDATES, CAUSE_CANDIDATE_IDS,
   causeEligibility, decideCause,
+  fitShortCandidate, shortPred, shortEligibility, decideShort, SHORT_CANDIDATES,
 } from '../lib/gamesCalibration.mjs';
 import {
   panelEligibility, gamesCalibrationMain, writeGamesCalibrationArtifacts,
 } from '../scripts/games-calibration-run.mjs';
-import { gamesCauseMain, writeGamesCauseArtifacts } from '../scripts/games-cause-run.mjs';
+import { gamesCauseMain, writeGamesCauseArtifacts, buildCauseRows } from '../scripts/games-cause-run.mjs';
+import { gamesShortMain, writeGamesShortArtifacts } from '../scripts/games-short-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -761,5 +763,165 @@ test('GCC-8 CLI: --cause alone and --cause with an unknown flag both exit 1 with
   const bogus = spawnSync(process.execPath, ['bin/backtest.mjs', '--games-calibration', '--cause', '--bogus'], { cwd: REPO_ROOT, encoding: 'utf8' });
   assert.equal(bogus.status, 1);
   assert.match(bogus.stderr, /rejects --bogus/);
-  assert.match(bogus.stderr, /takes only --cause, --json and --write/);
+  assert.match(bogus.stderr, /takes only --cause, --short, --json and --write/);
+});
+
+// ─── L6c short-season-only (GCS-) ────────────────────────────────────────────
+
+const WR_ROW = (id, sState, avgGames, outcome, extra = {}) => ({ id, position: 'WR', ageBucket: '25-27', sState, avgGames, outcome, ...extra });
+
+test('GCS-1 fitShortCandidate: fits on non-qualifying rows only; the root is the pooled non-qualifying k; no qual cell exists', () => {
+  const rows = [
+    ...Array.from({ length: 45 }, (_, i) => WR_ROW(`q${i}`, 'qual', 15, 15)),   // k = 1 would be optimal
+    // avgGames/outcome 10→6, 14→8, 15→9: SSE is 0 exactly on k ∈ [0.57, 0.60], and the tie goes to the value nearest 1.00 → 0.60
+    ...Array.from({ length: 45 }, (_, i) => WR_ROW(`s${i}`, 'short', [10, 14, 15][i % 3], [6, 8, 9][i % 3])),
+  ];
+  const model = fitShortCandidate(rows, 'SOf0');
+  assert.equal(model.cells['pos|s']['WR|short'].k, 0.6);
+  const shortOnly = fitK(rows.filter((r) => r.sState === 'short'), 0);
+  assert.equal(model.cells.pos.WR.k, shortOnly);
+  assert.notEqual(model.cells.pos.WR.k, fitK(rows, 0), 'pooling the qualifying rows would give a different root');
+  for (const level of Object.keys(model.cells)) {
+    assert.ok(!Object.keys(model.cells[level]).some((k) => k.endsWith('|qual')), `no qual key in ${level}`);
+  }
+});
+
+test('GCS-2 shortPred: qualifying rows keep r.pred; short rows take the fitted k at floor 0; a thin cell falls back; K1 states take their own k', () => {
+  const rows = [
+    ...Array.from({ length: 45 }, (_, i) => WR_ROW(`i${i}`, 'short', 10, 6, { k1: 'short-inj' })),
+    ...Array.from({ length: 45 }, (_, i) => WR_ROW(`o${i}`, 'short', 10, 8, { k1: 'short-oth' })),
+  ];
+  const so = fitShortCandidate(rows, 'SOf0');
+  assert.ok(so.cells.pos.WR.k < 1, 'the root k is below 1');
+  const q1 = shortPred(so, WR_ROW('a', 'qual', 7.4, 0, { pred: 8, k1: 'qual' }));
+  assert.equal(q1.p, 8, 'floor-8 prediction kept');
+  assert.equal(q1.used, 'qual');
+  const q2 = shortPred(so, WR_ROW('b', 'qual', 15.6, 0, { pred: 16, k1: 'qual' }));
+  assert.equal(q2.p, 16, 'p === r.pred even though the root k is below 1');
+  const sh = shortPred(so, WR_ROW('c', 'short', 10, 0, { pred: 10, k1: 'short-inj' }));
+  assert.equal(sh.p, candidatePred(10, so.cells['pos|s']['WR|short'].k, 0));
+  assert.equal(sh.fallback, false);
+  const none = shortPred(so, WR_ROW('d', 'none', 10, 0, { pred: 10, k1: 'none' }));
+  assert.equal(none.fallback, true, 'no none-state training rows → thin cell');
+  assert.equal(none.requested, 'WR|none');
+  assert.equal(none.used, 'WR');
+  assert.equal(none.p, candidatePred(10, so.cells.pos.WR.k, 0));
+  const k1 = fitShortCandidate(rows, 'SOK1f0');
+  const inj = shortPred(k1, WR_ROW('e', 'short', 10, 0, { pred: 10, k1: 'short-inj' }));
+  const oth = shortPred(k1, WR_ROW('f', 'short', 10, 0, { pred: 10, k1: 'short-oth' }));
+  assert.equal(inj.used, 'WR|short-inj');
+  assert.equal(oth.used, 'WR|short-oth');
+  assert.ok(inj.k < oth.k, 'short-inj (0.60) takes a harder cut than short-oth (0.80)');
+  assert.deepEqual(Object.keys(SHORT_CANDIDATES), ['SOf0', 'SOK1f0']);
+});
+
+const SHORT_IDS = ['C3f0', 'K1f0', 'SOf0', 'SOK1f0'];
+function ssum(over = {}) {
+  return {
+    relevant: { dMae: ci(-0.2, 0.05), bias: 1.6, c0Bias: 1.6, ...over.relevant },
+    star: { dMae: ci(-1.8, -0.5), ...over.star },
+    pooled: { dMse: ci(-3, -1), ...over.pooled },
+    rStar: { mae: 5, ...over.rStar },
+    relevantByPosition: over.relevantByPosition ?? cpos(ci(-0.3, 0.05)),
+  };
+}
+const ssums = (eligible = {}) => Object.fromEntries(SHORT_IDS.map((id) => [id, id in eligible ? ssum(eligible[id]) : ssum({ pooled: { dMse: ci(0.1, 1) } })]));
+
+test('GCS-3 shortEligibility: G1/G3/G4/G5 each fail alone; G3 is strict; relevant bias is not gated; null cis', () => {
+  assert.deepEqual(shortEligibility(ssum(), 0.25), { eligible: true, failed: [] });
+  assert.deepEqual(shortEligibility(ssum({ relevant: { dMae: ci(0, 0.4) } }), 0.25).failed, ['G1']);
+  assert.deepEqual(shortEligibility(ssum({ star: { dMae: ci(-1, 0.1) } }), 0.25).failed, ['G3']);
+  assert.deepEqual(shortEligibility(ssum({ star: { dMae: ci(-0.5, 0) } }), 0.25).failed, ['G3'], 'upper bound exactly 0 fails (strict <)');
+  assert.deepEqual(shortEligibility(ssum({ pooled: { dMse: ci(-1, 0.2) } }), 0.25).failed, ['G4']);
+  assert.deepEqual(shortEligibility(ssum({ relevantByPosition: { ...cpos(ci(-0.3, 0.05)), QB: { dMae: ci(0.3, 0.9) } } }), 0.25).failed, ['G5']);
+  assert.deepEqual(shortEligibility(ssum({ relevant: { bias: 1.6, c0Bias: 1.6 } }), 0.25), { eligible: true, failed: [] }, 'bias equal to C0\'s +1.6 is eligible');
+  const nul = { mean: 0, ci95: null };
+  const allNull = ssum({ relevant: { dMae: nul }, star: { dMae: nul }, pooled: { dMse: nul }, relevantByPosition: cpos(nul) });
+  assert.deepEqual(shortEligibility(allNull, 0.25).failed, ['G1', 'G3', 'G4'], 'null ci fails G1, G3, G4 but not G5');
+  assert.deepEqual(shortEligibility(ssum({ relevant: { dMae: ci(0, 0.4) }, star: { dMae: ci(-1, 0.1) } }), 0.25).failed, ['G1', 'G3'], 'failing ids in G order');
+});
+
+test('GCS-4 decideShort: SOf0 incumbent, SOK1f0 replaces only on a paired CI below 0, references never picked, N and S texts', () => {
+  const recon0 = { mean: 0 };
+  const only = decideShort({ summaries: ssums({ SOf0: {} }), paired: noPaired, delta: 0.25, recon: recon0 });
+  assert.equal(only.outcome, 'W');
+  assert.equal(only.pick, 'SOf0');
+  assert.match(only.text, /^\(W\) wire SOf0 at δ = 0\.25 /);
+  const both = ssums({ SOf0: {}, SOK1f0: {} });
+  assert.equal(decideShort({ summaries: both, paired: () => [-0.03, 0.001], delta: 0.25, recon: recon0 }).pick, 'SOf0');
+  assert.equal(decideShort({ summaries: both, paired: () => [-0.03, -0.001], delta: 0.25, recon: recon0 }).pick, 'SOK1f0');
+  assert.equal(decideShort({ summaries: both, paired: noPaired, delta: 0.25, recon: recon0 }).pick, 'SOf0', 'null paired keeps the incumbent');
+  assert.equal(decideShort({ summaries: ssums({ SOK1f0: {} }), paired: noPaired, delta: 0.25, recon: recon0 }).pick, 'SOK1f0');
+  const c3 = decideShort({ summaries: ssums({ C3f0: { rStar: { mae: 1 } }, SOf0: { rStar: { mae: 6 } } }), paired: () => [-9, -8], delta: 0.25, recon: recon0 });
+  assert.equal(c3.pick, 'SOf0', 'an eligible reference with the best R* MAE is never picked');
+  const none = decideShort({ summaries: ssums({ C3f0: {} }), paired: noPaired, delta: 0.25, recon: recon0 });
+  assert.equal(none.outcome, 'N');
+  assert.equal(none.pick, null);
+  assert.equal(none.eligibility.C3f0.eligible, true, 'still tabled');
+  assert.match(none.text, /recommend closing L6 with no change/);
+  const stop = decideShort({ summaries: both, paired: noPaired, delta: 0.25, recon: { mean: 0.2 }, tolerance: 0.05 });
+  assert.equal(stop.outcome, 'S');
+  assert.equal(stop.pick, null);
+});
+
+test('GCS-5 end to end: one write, three decisions, constants keys, qualifying rows unchanged, independent k check, real writer, parity break', () => {
+  const logs = [], errs = [], writes = [];
+  const code = gamesShortMain({
+    load: syntheticLoad({ withCause: true }), defaults: smallDefaults, write: true,
+    writeArtifacts: (a) => { writes.push(a); return { panelPath: 'p', constantsPath: 'c', verdictPath: 'v', panelBytes: 1 }; },
+    log: (m) => logs.push(m), logErr: (m) => errs.push(m),
+  });
+  assert.equal(code, 0);
+  assert.equal(writes.length, 1);
+  const r = writes[0].result;
+  assert.deepEqual(Object.keys(r.decisions).sort(), ['0.1', '0.25', '0.5']);
+  assert.deepEqual(Object.keys(r.constants.candidates), ['C3f0', 'K1f0', 'SOf0', 'SOK1f0']);
+  assert.equal(r.constants.candidates.SOf0.fitRows, 'non-qual');
+  assert.equal(r.constants.candidates.C3f0.fitRows, 'all');
+  assert.match(writes[0].verdictMd, /## 6\. Decision/);
+  assert.match(writes[0].verdictMd, /## 7\. 2026 impact/);
+  const qual = r.rows.filter((x) => x.sState === 'qual');
+  assert.ok(qual.length > 0);
+  assert.ok(qual.every((x) => x.p.SOf0 === x.p.C0 && x.p.SOK1f0 === x.p.C0), 'qualifying rows keep the app prediction');
+  assert.ok(r.rows.some((x) => x.sState !== 'qual'), 'the fixture has non-qualifying out-of-sample rows');
+
+  const c = buildCauseRows({ load: syntheticLoad({ withCause: true }), defaults: smallDefaults });
+  const wr = c.rows.filter((x) => x.sState !== 'qual' && x.position === 'WR').map((x) => ({ avgGames: x.avgGames, outcome: x.outcome }));
+  assert.ok(wr.length > 0);
+  assert.equal(r.constants.candidates.SOf0.k.pos.WR, fitK(wr, 0, smallDefaults.kGrid));
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gamesshort-e2e-'));
+  let written = null;
+  const ok = gamesShortMain({
+    load: syntheticLoad({ withCause: true }), defaults: smallDefaults, write: true,
+    writeArtifacts: (a) => (written = writeGamesShortArtifacts({ ...a, root })), log: () => {}, logErr: () => {},
+  });
+  assert.equal(ok, 0);
+  const date = new Date().toISOString().slice(0, 10);
+  assert.equal(written.panelPath, `backtests/${date}-games-short-panel.json`);
+  assert.equal(written.constantsPath, `backtests/${date}-games-short-constants.json`);
+  assert.equal(written.verdictPath, `grading/${date}-games-short-verdict.md`);
+  for (const p of [written.panelPath, written.constantsPath, written.verdictPath]) assert.ok(fs.existsSync(path.join(root, p)), `${p} exists`);
+
+  const bw = [], be = [];
+  const bad = gamesShortMain({
+    load: syntheticLoad({ withCause: true, breakParity: true }), defaults: smallDefaults, write: true,
+    writeArtifacts: (a) => { bw.push(a); return {}; }, log: () => {}, logErr: (m) => be.push(m),
+  });
+  assert.equal(bad, 1);
+  assert.equal(bw.length, 0);
+  assert.match(be.join('\n'), /parity .* below 99%/);
+});
+
+test('GCS-6 CLI: --short alone, --cause with --short, and an unknown flag all exit 1 with the named message', () => {
+  const alone = spawnSync(process.execPath, ['bin/backtest.mjs', '--short'], { cwd: REPO_ROOT, encoding: 'utf8' });
+  assert.equal(alone.status, 1);
+  assert.match(alone.stderr, /--short requires --games-calibration/);
+  const both = spawnSync(process.execPath, ['bin/backtest.mjs', '--games-calibration', '--cause', '--short'], { cwd: REPO_ROOT, encoding: 'utf8' });
+  assert.equal(both.status, 1);
+  assert.match(both.stderr, /mutually exclusive/);
+  const bogus = spawnSync(process.execPath, ['bin/backtest.mjs', '--games-calibration', '--short', '--bogus'], { cwd: REPO_ROOT, encoding: 'utf8' });
+  assert.equal(bogus.status, 1);
+  assert.match(bogus.stderr, /rejects --bogus/);
+  assert.match(bogus.stderr, /takes only --cause, --short, --json and --write/);
 });

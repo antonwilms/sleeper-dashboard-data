@@ -48,12 +48,15 @@
  *   --games-calibration  projected-games over-projection (L6, offline analysis only): decomposes the +3.4-game
  *                bias of the mirrored veteran rule into composition / role / injury list / schedule, and tests
  *                held-out multiplicative-scale calibrations by position, age and S-row state. Takes only
- *                --cause / --json / --write. --write persists backtests/<date>-games-calibration-{panel,constants}.json +
+ *                --cause / --short / --json / --write. --write persists backtests/<date>-games-calibration-{panel,constants}.json +
  *                grading/<date>-games-calibration-verdict.md. Exit 1 if DM-1 parity falls below 99% or the
  *                snapshot is missing (nothing written).
  *                --cause (L6b) splits short S seasons by cause (K1 app-native / K2 roster-only / K3 roster +
  *                contributor), adds relevance and a season-length factor, and decides per δ; --write persists
  *                backtests/<date>-games-cause-{panel,constants}.json + grading/<date>-games-cause-verdict.md.
+ *                --short (L6c) keeps the app prediction on qualifying S seasons and fits k only on non-qualifying
+ *                ones (SOf0, SOK1f0); --write persists backtests/<date>-games-short-{panel,constants}.json +
+ *                grading/<date>-games-short-verdict.md. Mutually exclusive with --cause.
  *   --dynasty    (with --inseason) dynasty-side (rookies + SHORT veterans) k-fit (Phase 2c, offline
  *                analysis only): the prospect prior (arm A vs arm B), the SHORT-veteran history prior,
  *                and the KTC-anchor report, plus the rookie QB level in the dynasty prior (Q4) and the
@@ -82,6 +85,7 @@ import { qbRookieLevelMain } from '../scripts/qb-rookie-level-run.mjs';
 import { absenceMain } from '../scripts/absence-run.mjs';
 import { gamesCalibrationMain } from '../scripts/games-calibration-run.mjs';
 import { gamesCauseMain } from '../scripts/games-cause-run.mjs';
+import { gamesShortMain } from '../scripts/games-short-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -205,15 +209,24 @@ if (isMain) {
         console.error('[backtest] Error: --cause requires --games-calibration');
         process.exit(1);
       }
+      if (flag('--short') && !flag('--games-calibration')) {
+        console.error('[backtest] Error: --short requires --games-calibration');
+        process.exit(1);
+      }
       if (flag('--games-calibration')) {
-        const rejected = args.filter(a => a.startsWith('--') && !['--games-calibration', '--cause', '--json', '--write'].includes(a));
+        const rejected = args.filter(a => a.startsWith('--') && !['--games-calibration', '--cause', '--short', '--json', '--write'].includes(a));
         if (rejected.length) {
           console.error(
             `[backtest] Error: --games-calibration rejects ${rejected.join(', ')} — the seasons, folds, candidates and basis are pinned ` +
-            'by the task file, not knobs; it takes only --cause, --json and --write'
+            'by the task file, not knobs; it takes only --cause, --short, --json and --write'
           );
           process.exit(1);
         }
+        if (flag('--cause') && flag('--short')) {
+          console.error('[backtest] Error: --cause and --short are mutually exclusive');
+          process.exit(1);
+        }
+        if (flag('--short')) process.exit(gamesShortMain({ write, asJson }));
         process.exit(flag('--cause') ? gamesCauseMain({ write, asJson }) : gamesCalibrationMain({ write, asJson }));
       }
 

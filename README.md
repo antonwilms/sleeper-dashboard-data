@@ -1310,7 +1310,7 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
 `--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
 rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`),
-`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--games-calibration [--cause]` (takes only `--cause`/`--json`/`--write`; `--cause` alone is rejected).
+`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--games-calibration [--cause | --short]` (takes only `--cause`/`--short`/`--json`/`--write`; `--cause` or `--short` alone is rejected; `--cause` and `--short` are mutually exclusive).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1323,8 +1323,8 @@ the app's live default, load-bearing for the reconstruction.
 
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
 `<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
-`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`, `<date>-games-calibration-{panel,constants}.json`, `<date>-games-cause-{panel,constants}.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`, `<date>-games-cause-verdict.md`).
+`<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`, `<date>-games-calibration-{panel,constants}.json`, `<date>-games-cause-{panel,constants}.json`, `<date>-games-short-{panel,constants}.json`) and `grading/`
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`, `<date>-games-cause-verdict.md`, `<date>-games-short-verdict.md`).
 Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
@@ -1402,7 +1402,7 @@ what an absent file means.
 
 #### `lib/durabilityMirror.mjs` — offline mirror of the app's durability rules
 
-Pure, no I/O; used only by `bin/backtest.mjs --absence` (`scripts/absence-run.mjs`), `--games-calibration` and `--games-calibration --cause`. It mirrors, at
+Pure, no I/O; used only by `bin/backtest.mjs --absence` (`scripts/absence-run.mjs`), `--games-calibration`, `--games-calibration --cause` and `--games-calibration --short`. It mirrors, at
 app `d627562` (CR-28), the veteran projected-games rule (`src/utils/durabilitySignals.js`;
 `seasonProjection.js` Step 1 qualifying seasons/weights and Step 6), the bounce-back predicate
 (`projectionSignals.js` `computeBounceBackFlag`) and the dynasty `injurySeasonCount`
@@ -1453,6 +1453,21 @@ G1–G5 at δ ∈ {0.10, 0.25, 0.50} of relevant-MAE non-inferiority and `decide
 `--write` persists `backtests/<date>-games-cause-{panel,constants}.json` (constants nested by level) and
 `grading/<date>-games-cause-verdict.md`. A K2/K3 pick would need a new served roster-cause signal (the app
 never reads rosterweekly); the choice stays with Anton.
+
+**L6c — `--games-calibration --short`** (`scripts/games-short-run.mjs`; offline, no served file). L6b showed
+the fitted candidates' gain sits on short-season rows (star MAE 7.00 → ~5.3) and their loss on qualifying ones
+(relevant ΔMAE +0.40…+0.53). L6c keeps the **app prediction (`r.pred`) on every qualifying S-season** and fits k
+only on **non-qualifying** rows, at floor 0: `SOf0` (position × S-state `short`/`none`) and `SOK1f0` (the same with
+L6b's K1 `short-inj`/`short-oth`/`none`). The chain's root `pos` is the pooled non-qualifying k, so thin cells never
+fall back to an all-rows k. Rows, folds, cohorts, δ ∈ {0.10, 0.25, 0.50} and the bootstrap are L6b's
+(`buildCauseRows`, `causeVeterans`); C3f0 and K1f0 are refitted on all rows in the same folds as tabled references
+and never picked. Gates: **G1** relevant ΔMAE CI upper bound ≤ δ, **G3** star ΔMAE CI upper bound **< 0**
+(strict), **G4** all-veteran ΔMSE CI upper bound < 0, **G5** no position whose relevant ΔMAE CI lower bound > δ;
+**G2 (relevant bias) is reported, not gated** (qualifying rows are untouched by construction). `decideShort`
+walks SOf0 < SOK1f0 (K1 replaces SOf0 only on a paired R\* ΔMAE CI below 0); (W) recommends a wiring slice, (N)
+recommends closing L6 with no change. `--write` persists `backtests/<date>-games-short-{panel,constants}.json`
+and `grading/<date>-games-short-verdict.md`. Not an independent confirmation: the candidates and gates came from
+L6b's breakdown of the same panel; the first clean test is forward grading.
 
 #### `lib/nflverse.mjs` — floors vs. bands
 
