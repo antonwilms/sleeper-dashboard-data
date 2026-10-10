@@ -419,3 +419,45 @@ There were 8 flags (2 medium, 6 low). Session 1 checked each one against live so
 | 6 | `[games-cause]` prefixes surface under `--short` | Applied: accepted as a known deviation; GCS-5 uses a prefix-neutral regex |
 | 7 | CR-01 Triggers omit the other snapshot readers | Applied: added to D-66 |
 | 8 | CR-28 data-side text names only `--absence` as a mirror consumer | Applied: added to D-66 |
+
+## Verification record (Session 1, 2026-10-10, `4b826ad`, `6621679`)
+
+- **implementation-reviewer** ran at full depth and found no blocking flags, only three low ones. It re-ran the tests and smoke itself, so the "no re-run after rebase" deviation is covered.
+- **The reviewer independently confirmed:**
+  - the L6 and L6b regressions, both the JSON and the verdict markdown, against the committed 2026-10-09 artifacts;
+  - that the committed L6c artifacts equal a fresh run;
+  - reference equivalence;
+  - D5/D6, the gates and the walk;
+  - the CLI messages, the docs and the invariants.
+- **Session 1 re-ran `--short --json` independently.** The result matches the committed panel exactly: (W) SOf0 at every δ, and the qualifying invariant holds on all 2,407 rows.
+- **2026 impact:** 98 of 437 veterans change, all of them non-qualifying, and 33 `rel3` veterans are cut by ≥ 4 games.
+- **Deviations 1–4 accepted.**
+
+## Fix pass 1
+
+Scope: exactly the three items below. Change nothing else.
+
+1. **`scripts/games-short-run.mjs` §6 decision table (`:363`).** Iterate over `[...SHORT_CANDIDATE_IDS, ...SHORT_REFERENCE_IDS]` instead of `REF_AND_CAND`, so the candidates come first and then the `(reference)` rows, as §4.6 specifies. Leave every other `REF_AND_CAND` use (`:144`, `:164`, `:188`, `:351`) as it is.
+2. **The name of a pinned non-veteran (`:208-211`).**
+   - Pass the raw players map into `impactAll`: `impactAll({ full, people0, causeDefaults, names })` at `:270`, with `names` added to its parameter list.
+   - Replace the `people0`-derived `names` map at `:208` with L6b's lookup: `{ id, name: names[id]?.full_name ?? id, notVeteran: true }`.
+   - No output changes today, because every pinned id is a veteran.
+3. **`test/games-calibration.test.mjs` GCS-2 (`:789-805`).**
+   - Add 5 rows to the GCS-2 fixture: `WR_ROW(\`n${i}\`, 'none', 10, 6, { k1: 'none' })` for i = 0..4.
+   - That makes `WR|none` an *observed* thin cell (5 < 40 players).
+   - Assert `so.thin` deep-includes `{ cell: 'WR|none', players: 5 }`, and change the `none.fallback` message to `'observed thin cell (5 players) → pos'`.
+   - Keep every other GCS-2 assertion as is. The root k is read dynamically, so the new rows do not invalidate it.
+
+Then run `npm test` and regenerate with `node bin/backtest.mjs --games-calibration --short --write`. Today's date is 2026-10-10, the same as the committed artifacts, so the same paths are overwritten.
+
+Check the result against the committed versions:
+- in the panel and constants JSON, only `generatedAt` / `panelRev` may change (use the `jq del` from done-step 3);
+- the verdict diff may show only the §6 table row order and the panelRev text.
+
+Paste both diffs into the hand-back.
+
+**Commits:**
+- `Fix pass 1: L6c — candidates-first decision table, non-veteran name lookup, observed thin cell in GCS-2` (code and tests);
+- `grading: games-short verdict 2026-10-10 regenerated (fix pass 1)` (artifacts).
+
+Pull with rebase, then push. Hand back the SHAs and both diffs.
