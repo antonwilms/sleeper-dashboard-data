@@ -221,3 +221,17 @@ Scope: `test/durability-mirror.test.mjs` and `test/games-calibration.test.mjs`. 
    - **(c)** at w = 1, `missed.n` is 0 and that checkpoint does not affect the decision.
 
 Run `npm test`. Commit `short-season-wiring A1 fix pass: honest DM-5/DM-6 expectations, GCS-7 skip/noRow/w=1 cases`, then pull with rebase and push. Hand back the SHA and what each changed test asserts.
+
+## Stage C verification record (Session 1, 2026-10-10, `9927921`)
+
+- **implementation-reviewer** found no blocking issues.
+- **Confirmed independently:**
+  - the span is byte-identical to app `origin/main` (`59fc51d`; fix pass B-1 made no registry change). Session 1 also checked it;
+  - the gate is 10 `<` / 11 `>` against the parent commit;
+  - `REGISTRY_MIRROR=1` registry tests pass 23/23, and `npm test` is green;
+  - anchor-policy boundary 8 is complete, and the extra top-summary edit is accurate;
+  - the mirror header names `e3de164`, and the only token difference from app Step 6 is the accepted `?.`.
+- **Two low notes, left as is:**
+  - the boundary-8 section sits above the boundary-7 section (cosmetic);
+  - row 8 does not mention app fix pass `59fc51d`. That is defensible: it changes only the displayed in-season copy, never `seasonProjection.js` or a snapshot.
+- **Slice complete.** Open: D-67 (DM-1 parity and the boundary-8 cross-check on the first capture from 2026-10-11), and the D-52 first independent check on 2026 actual games.
