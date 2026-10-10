@@ -19,6 +19,7 @@ import {
 } from '../lib/inSeasonEvidence.mjs';
 import {
   runInSeasonDyn, inSeasonDynMain, INSEASON_DYN_LOAD, pinnedSourceOf, DYN_2A_PIN,
+  predictorFor, capStartPPG, q3Metrics, capPlacementComparison,
 } from '../scripts/inseason-dyn-run.mjs';
 import { verifyConstants, formatConstantsJson, makePut, pinDecision, addFoldK, ReconciliationStop, INSEASON_LOAD } from '../scripts/inseason-run.mjs';
 import {
@@ -854,5 +855,89 @@ describe('18: satLongerAggregates — aggregates only', () => {
     assert.equal(small.q5c.neverFlagged.y1OverPrior, null, 'a pair is suppressed together');
     assert.equal(small.q5c.neverFlagged.players, 4);
     assert.equal(QB_DYN_RESEARCH.minCellPlayers, 3);
+  });
+});
+
+describe('19: D-54 — Q3 caps the starting value; cap-placement comparison', () => {
+  const SPEC_B_LIKE = { prior: 'projPrior', obs: 'obsPPG' };
+  const row = { sleeperId: 'a', S: 2020, W: 3, projPrior: 99, obsPPG: 10, n: 4 };
+
+  test('predictorFor blends from the SUPPLIED prior, not the row\'s own: pooled', () => {
+    const res = { ladder: { id: 'pooled' }, refitPooled: { folds: [{ S: 2020, k: 4 }] } };
+    const pred = predictorFor(res, SPEC_B_LIKE, () => 0);
+    assert.equal(pred(row, 7), blend(7, 10, 4, 4));
+    assert.notEqual(pred(row, 7), blend(99, 10, 4, 4));
+  });
+
+  function ownRes({ tamper = 0 } = {}) {
+    const orderedRows = [row];
+    return {
+      ladder: { id: 'own' },
+      own: { folds: [{ S: 2020, k: 3 }], orderedRows, heldOut: [{ pred: blend(row.projPrior, row.obsPPG, row.n, 3) + tamper, actual: 8 }] },
+    };
+  }
+
+  test('predictorFor own: rebuilds the fold k and blends from the supplied prior', () => {
+    const pred = predictorFor(ownRes(), SPEC_B_LIKE, () => 0);
+    assert.equal(pred(row, 7), blend(7, 10, 4, 3));
+  });
+
+  test('predictorFor own: a tampered held-out prediction trips the self-check', () => {
+    const pred = predictorFor(ownRes({ tamper: 1 }), SPEC_B_LIKE, () => 0);
+    assert.throws(() => pred(row, 7), /Q3 own-rung fold-k reconstruction mismatch/);
+  });
+
+  test('capStartPPG caps at 0.35 × max(peak, 1)', () => {
+    assert.equal(capStartPPG(20, 40), 14);
+    assert.equal(capStartPPG(10, 40), 10);
+    assert.equal(capStartPPG(5, 0.5), 0.35);
+  });
+
+  test('q3Metrics on two hand items: capped start-bind and premium exemption', () => {
+    // Scores at peak 40 (modelScore = 100 × ppg/40): item1 x0raw 50, x0 35, xn 40, y 45; item2 x0 75, xn 77.5, y 70.
+    // du = (5, 2.5), dr = (10, -5); mDu 3.75, mDr 7.5. captured = 1 - mean(|dr-du| = 5, 7.5)/7.5 = 1/6.
+    // Cap rows = item1 only: xn score 40 > 35 (share 1, excess 5), y 45 (excess 10), start cut 50 - 35 = 15.
+    const items = [
+      { x0raw: 20, x0: 14, p: 40, xn: 16, y: 18, draftTier: 'none', startCapBinds: true, n: 4 },
+      { x0raw: 30, x0: 30, p: 40, xn: 31, y: 28, draftTier: 'premium', startCapBinds: false, n: 4 },
+    ];
+    const m = q3Metrics(items);
+    assert.equal(m.rows, 2);
+    assert.equal(m.realisedMovement, 7.5);
+    assert.equal(m.updateModelShare, 3.75);
+    assert.equal(m.leftOnTable, 2.25);
+    assert.equal(m.leftOnTableShare, 0.3);
+    assert.equal(m.capturedShare, 0.1667);
+    assert.equal(m.rankAgreement, null); // spearman needs >= 3 rows
+    assert.equal(m.clampShareXn, 0);
+    assert.equal(m.capOf35.rowShare, 0.5);
+    assert.equal(m.capOf35.shareOver35, 1);
+    assert.equal(m.capOf35.meanExcessXn, 5);
+    assert.equal(m.capOf35.meanExcessY, 10);
+    assert.equal(m.capOf35.startBindShare, 1);
+    assert.equal(m.capOf35.meanStartCutScore, 15);
+  });
+
+  test('capPlacementComparison: capped start beats cap-after; premium and no-k rows are excluded', () => {
+    // Cap rows: peak 20, projPrior 14 (cap 7), obs 6, n 4, k 4, next 6 -> target 30.
+    // before: blend(7,6,4,4) = 6.5 -> 32.5 (err 2.5); after: blend(14,..) = 10 -> 50 -> min 35 (err 5); noCap: 50 (err 20).
+    const base = { peak: 20, projPrior: 14, obsPPG: 6, n: 4, k2a: 4, nextPPG: 6, draftTier: 'none' };
+    const rows = [];
+    for (let i = 0; i < 30; i++) for (const ye of [0, 1]) rows.push({ ...base, sleeperId: `p${i}`, ye });
+    for (let i = 0; i < 5; i++) rows.push({ ...base, sleeperId: `pr${i}`, ye: 0, draftTier: 'premium' });
+    rows.push({ ...base, sleeperId: 'nok', ye: 0, k2a: null });
+    const out = capPlacementComparison(rows);
+    assert.equal(out.rows, 60);
+    assert.equal(out.players, 30);
+    assert.equal(out.excludedNoK, 1);
+    assert.deepEqual(Object.keys(out.slices), ['pooled', 'YE0', 'YE1', 'n1-4', 'n5-8', 'n9-40']);
+    assert.equal(out.slices.pooled.rows, 60);
+    assert.equal(out.slices.pooled.maeAfter, 5);
+    assert.equal(out.slices.pooled.maeBefore, 2.5);
+    assert.equal(out.slices.pooled.maeNoCap, 20);
+    assert.equal(out.slices.pooled.beforeVsAfter.label, 'BEATS');
+    assert.equal(out.slices.n5_8, undefined);
+    assert.equal(out.slices['n5-8'].rows, 0);
+    assert.equal(out.slices['n5-8'].beforeVsAfter, null);
   });
 });

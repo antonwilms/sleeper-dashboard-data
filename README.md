@@ -2128,6 +2128,8 @@ node bin/backtest.mjs --inseason --dynasty --json    # the result object
 node bin/backtest.mjs --inseason --dynasty --write   # persist the three artifacts above
 ```
 
+Q3 mirrors the app's cap placement (app `8ab6a5e`): the no-market cap bounds the *starting* value and the live evidence enters after it, uncapped (`capStartPPG`); `q3.capOf35` therefore also reports `startBindShare` and `meanStartCutScore`. `q3.capPlacement` is the committed cap-after / cap-before / no-cap comparison on the Q1 cap rows (D-54), with the paired-bootstrap deltas.
+
 Reproduce: `node bin/backtest.mjs --inseason --dynasty --write`.
 
 ### QB takeover fit (`bin/backtest.mjs --qb-takeover`)

@@ -482,20 +482,38 @@ function runQ2(q2PrimaryRows, q2StaleRows, pinnedSource) {
 
 // ─── Q3 — the KTC anchor (report only, §5.3, fix pass 1 item 4) ───────────────
 
-/** Builds a per-row predictor from a Q1 ladder result: xn = the chosen rung's held-out prediction. */
-function predictorFor(res, spec, kFixedOf) {
+/**
+ * Builds a per-row predictor from a Q1 ladder result: (row, prior) → xn = the chosen rung's blend of the
+ * SUPPLIED prior with the row's evidence. Q3 supplies the capped starting value (app 8ab6a5e: the no-market
+ * cap bounds the start, the live evidence enters after it, uncapped).
+ */
+export function predictorFor(res, spec, kFixedOf) {
   if (!res || res.insufficient || res.reuseOnly || !res.ladder) return null;
   const id = res.ladder.id;
-  if (id === 'fixed') return (row) => blend(row[spec.prior], row.obsPPG, row.n, kFixedOf(row));
+  if (id === 'fixed') return (row, prior) => blend(prior, row.obsPPG, row.n, kFixedOf(row));
   if (id === 'pooled') {
     const pooledCell = res.refitPooled ?? res.pooled;
     const foldKOf = new Map(pooledCell.folds.map(f => [f.S, f.k]));
-    return (row) => blend(row[spec.prior], row.obsPPG, row.n, foldKOf.get(row.S));
+    return (row, prior) => blend(prior, row.obsPPG, row.n, foldKOf.get(row.S));
   }
-  // 'own'
+  // 'own': analyzeKCell's held-out prediction is blend(prior, obs, n, fold k), so rebuild the fold k and blend
+  // from the supplied prior. The held-out prediction (uncapped prior) is kept as a self-check.
   const own = res.own;
+  const ownFoldKOf = new Map(own.folds.map(f => [f.S, f.k]));
   const byKey = new Map(own.orderedRows.map((r, i) => [`${r.sleeperId}|${r.S}|${r.W}`, own.heldOut[i].pred]));
-  return (row) => byKey.get(`${row.sleeperId}|${row.S}|${row.W}`) ?? null;
+  return (row, prior) => {
+    const held = byKey.get(`${row.sleeperId}|${row.S}|${row.W}`);
+    if (held == null) return null;
+    if (Math.abs(blend(row[spec.prior], row.obsPPG, row.n, ownFoldKOf.get(row.S)) - held) > 1e-9) {
+      throw new Error('[inseason-dyn] Q3 own-rung fold-k reconstruction mismatch');
+    }
+    return blend(prior, row.obsPPG, row.n, ownFoldKOf.get(row.S));
+  };
+}
+
+/** The app's no-market cap on the STARTING value: min(start, noMarketCap/100 × max(peak, 1)). Mirror of NO_MARKET_CAP's placement (CR-25, D-54). */
+export function capStartPPG(startPPG, peak) {
+  return Math.min(startPPG, PROSPECT_MIRROR.noMarketCap / 100 * Math.max(peak, 1));
 }
 
 function buildQ3Items(q1Rows, q1Decisions, resultsByPos) {
@@ -509,9 +527,15 @@ function buildQ3Items(q1Rows, q1Decisions, resultsByPos) {
     for (const pos of POSITIONS) predictors[pos] = predictorFor(resPos[pos], spec, r => r.k2a);
     const rows = q1Rows.filter(r => r.ye === g && Number.isFinite(r.peak) && predictors[r.position]);
     for (const row of rows) {
-      const xn = predictors[row.position](row);
+      const x0raw = row[spec.prior];
+      const capped = row.draftTier !== 'premium';
+      const x0 = capped ? capStartPPG(x0raw, row.peak) : x0raw;
+      const xn = predictors[row.position](row, x0);
       if (!Number.isFinite(xn)) continue;
-      items.push({ g, label, arm, position: row.position, n: row.n, x0: row[spec.prior], xn, y: row.nextPPG, p: row.peak, draftTier: row.draftTier });
+      items.push({
+        g, label, arm, position: row.position, n: row.n, x0raw, x0, xn, y: row.nextPPG, p: row.peak, draftTier: row.draftTier,
+        startCapBinds: capped && x0raw > PROSPECT_MIRROR.noMarketCap / 100 * Math.max(row.peak, 1),
+      });
     }
   }
   return items;
@@ -520,11 +544,11 @@ function buildQ3Items(q1Rows, q1Decisions, resultsByPos) {
 const EMPTY_Q3_METRICS = {
   rows: 0, realisedMovement: null, updateModelShare: null, updateUnderAnchor: null, leftOnTable: null,
   leftOnTableShare: null, capturedShare: null, rankAgreement: null, clampShareXn: null, clampShareY: null,
-  peakClampExcess: null, capOf35: { rowShare: null, shareOver35: null, meanExcessXn: null, meanExcessY: null },
+  peakClampExcess: null, capOf35: { rowShare: null, shareOver35: null, meanExcessXn: null, meanExcessY: null, startBindShare: null, meanStartCutScore: null },
 };
 
 /** Full §5.3 metric set on one slice of Q3 items ({ x0, xn, y, p, draftTier, n }). */
-function q3Metrics(items) {
+export function q3Metrics(items) {
   if (!items.length) return { ...EMPTY_Q3_METRICS, capOf35: { ...EMPTY_Q3_METRICS.capOf35 } };
   const du = [], dr = [], clampXn = [], clampY = [], excess = [];
   for (const it of items) {
@@ -557,14 +581,48 @@ function q3Metrics(items) {
       shareOver35: capRows.length ? r4(mean(capXn.map(v => v > 35 ? 1 : 0))) : null,
       meanExcessXn: capRows.length ? r4(mean(capXn.map(v => Math.max(v - 35, 0)))) : null,
       meanExcessY: capRows.length ? r4(mean(capY.map(v => Math.max(v - 35, 0)))) : null,
+      startBindShare: capRows.length ? r4(mean(capRows.map(it => (it.startCapBinds ? 1 : 0)))) : null,
+      meanStartCutScore: capRows.length ? r4(mean(capRows.map(it => modelScore(it.x0raw, it.p) - modelScore(it.x0, it.p)))) : null,
     },
   };
+}
+
+/**
+ * D-54 (e): the cap-placement comparison on the Q1 cap rows (draftTier !== 'premium'), every row at arm B with
+ * the 2a k (k2a). Target = modelScore(nextPPG, peak). after = cap on the posterior score (the pre-8ab6a5e
+ * placement), before = cap on the starting value (shipped), noCap = neither. Pure.
+ */
+export function capPlacementComparison(q1Rows) {
+  const definition = 'target = modelScore(nextPPG, peak); after = min(modelScore(blend(projPrior, obsPPG, n, k2a), peak), 35); ' +
+    'before = modelScore(blend(capStartPPG(projPrior, peak), obsPPG, n, k2a), peak); noCap = modelScore(blend(projPrior, obsPPG, n, k2a), peak).';
+  const base = q1Rows.filter(r => r.draftTier !== 'premium' && Number.isFinite(r.peak) && Number.isFinite(r.projPrior) &&
+    Number.isFinite(r.obsPPG) && Number.isFinite(r.nextPPG));
+  const excludedNoK = base.filter(r => !Number.isFinite(r.k2a)).length;
+  const rows = base.filter(r => Number.isFinite(r.k2a));
+  const slice = (rs) => {
+    if (!rs.length) return { rows: 0, players: 0, maeAfter: null, maeBefore: null, maeNoCap: null, beforeVsAfter: null, noCapVsBefore: null };
+    const target = rs.map(r => modelScore(r.nextPPG, r.peak));
+    const mk = (fn) => rs.map((r, i) => ({ pred: fn(r), actual: target[i] }));
+    const after = mk(r => Math.min(modelScore(blend(r.projPrior, r.obsPPG, r.n, r.k2a), r.peak), 35));
+    const before = mk(r => modelScore(blend(capStartPPG(r.projPrior, r.peak), r.obsPPG, r.n, r.k2a), r.peak));
+    const noCap = mk(r => modelScore(blend(r.projPrior, r.obsPPG, r.n, r.k2a), r.peak));
+    const mae = (ps) => r4(mean(ps.map(p => Math.abs(p.pred - p.actual))));
+    return {
+      rows: rs.length, players: new Set(rs.map(r => r.sleeperId)).size,
+      maeAfter: mae(after), maeBefore: mae(before), maeNoCap: mae(noCap),
+      beforeVsAfter: deltaOut(pairedDelta(rs, after, before)),
+      noCapVsBefore: deltaOut(pairedDelta(rs, before, noCap)),
+    };
+  };
+  const slices = { pooled: slice(rows), YE0: slice(rows.filter(r => r.ye === 0)), YE1: slice(rows.filter(r => r.ye === 1)) };
+  for (const [lo, hi] of DYN_DEFAULTS.nBands) slices[`n${lo}-${hi}`] = slice(rows.filter(r => r.n >= lo && r.n <= hi));
+  return { definition, rows: rows.length, players: new Set(rows.map(r => r.sleeperId)).size, excludedNoK, slices };
 }
 
 function runQ3(q1Rows, q1Decisions, resultsByPos) {
   const items = buildQ3Items(q1Rows, q1Decisions, resultsByPos);
   const bands = DYN_DEFAULTS.nBands;
-  const out = { pooled: q3Metrics(items), bySubgroup: {}, byBand: [], bySubgroupBand: {} };
+  const out = { pooled: q3Metrics(items), bySubgroup: {}, byBand: [], bySubgroupBand: {}, capPlacement: capPlacementComparison(q1Rows) };
   for (const g of [0, 1]) {
     const label = `YE${g}`;
     const its = items.filter(it => it.g === g);
@@ -1053,7 +1111,7 @@ function priorCalibrationTable(pc, q1, q2) {
 
 function q3Line(m) {
   if (!m || !m.rows) return 'INSUFFICIENT (0 rows).';
-  return `rows=${m.rows}, model-share update=${f(m.updateModelShare, 2)}, left on table=${f(m.leftOnTable, 2)} (${f((m.leftOnTableShare ?? 0) * 100, 1)}% of realised movement), captured share=${f(m.capturedShare, 3)}, rank agreement=${f(m.rankAgreement, 3)}, peak-clamp share (xn/y)=${f(m.clampShareXn, 3)}/${f(m.clampShareY, 3)}, cap-of-35 row share=${f(m.capOf35.rowShare, 3)} [upper bound: KTC unknown historically].`;
+  return `rows=${m.rows}, model-share update=${f(m.updateModelShare, 2)}, left on table=${f(m.leftOnTable, 2)} (${f((m.leftOnTableShare ?? 0) * 100, 1)}% of realised movement), captured share=${f(m.capturedShare, 3)}, rank agreement=${f(m.rankAgreement, 3)}, peak-clamp share (xn/y)=${f(m.clampShareXn, 3)}/${f(m.clampShareY, 3)}, cap-of-35 row share=${f(m.capOf35.rowShare, 3)} [upper bound: KTC unknown historically], start cap binds on ${pct(m.capOf35.startBindShare)} of cap rows (mean cut ${f(m.capOf35.meanStartCutScore, 1)} score points).`;
 }
 
 const pct = (v) => (v == null ? '—' : `${f(v * 100, 1)}%`);
@@ -1144,6 +1202,19 @@ export function buildInSeasonDynVerdictMarkdown(result) {
     lines.push(`${label}: ${q3Line(q3.bySubgroup[label])}`);
   }
   for (const b of q3.byBand) lines.push(`n∈${b.band}: ${q3Line(b)}`);
+  const cp = q3.capPlacement;
+  lines.push('', '### Cap placement (D-54; app in-season-evidence-2c-wiring §1)', '');
+  lines.push(cp.definition, '');
+  lines.push('| slice | rows | MAE cap-after | MAE cap-before | Δ before − after | MAE no cap | Δ no-cap − before |', '|---|---|---|---|---|---|---|');
+  const dCell = (d) => (d ? `${d.label} ${f(d.mean, 2)} [${f(d.ci95[0], 2)}, ${f(d.ci95[1], 2)}]` : '—');
+  for (const [name, sl] of Object.entries(cp.slices)) {
+    lines.push(`| ${name} | ${sl.rows} | ${f(sl.maeAfter, 2)} | ${f(sl.maeBefore, 2)} | ${dCell(sl.beforeVsAfter)} | ${f(sl.maeNoCap, 2)} | ${dCell(sl.noCapVsBefore)} |`);
+  }
+  lines.push('',
+    '- Survivors only (rows with an S+1 outcome), which favours looser caps.',
+    '- The cap population is an upper bound, because KTC is unknown historically.',
+    '- Every row starts from arm B at the 2a k, as the wiring decision measured. Second-year WRs, which the app starts from arm A, are not measured separately.',
+    '', 'No cap at all also beats cap-before (§10.1 of the wiring file). Reported, not acted on.', '');
   lines.push(...qbResearchMarkdown(result));
   lines.push('', '## Excluded population', '');
   lines.push(`Q1: YE<=1 player-seasons ${excluded.q1.ye01.playerSeasons} (rows ${excluded.q1.ye01.rows}, players ${excluded.q1.ye01.players}). No S+1 outcome — absent: player-seasons ${excluded.q1.noOutcomeAbsent.playerSeasons} (rows ${excluded.q1.noOutcomeAbsent.rows}); gp<6: player-seasons ${excluded.q1.noOutcomeGpUnder6.playerSeasons} (rows ${excluded.q1.noOutcomeGpUnder6.rows}). draftYear unusable: player-seasons ${excluded.q1.draftYearUnusable.playerSeasons} (rows ${excluded.q1.draftYearUnusable.rows}). routeMismatch: player-seasons ${excluded.q1.routeMismatch.playerSeasons} (rows ${excluded.q1.routeMismatch.rows}, rate ${f(meta.routeMismatchRate * 100, 2)}%). YE1-in-rookie0: player-seasons ${excluded.q1.ye1InRookie0.playerSeasons} (rows ${excluded.q1.ye1InRookie0.rows}). YE2-3 no qualifying season: player-seasons ${excluded.q1.ye23NoQualifyingSeason.playerSeasons} (rows ${excluded.q1.ye23NoQualifyingSeason.rows}).`);
@@ -1155,7 +1226,7 @@ export function buildInSeasonDynVerdictMarkdown(result) {
   lines.push('- **D6 age date:** whole years on `${S}-09-01` from `birthdate`; `player.age ?? 23` is the app default when null.');
   lines.push('- **Survivorship:** more than half of SHORT player-seasons and a large share of rookie-path player-seasons have no S+1 outcome (busts vanish from every fitted number).');
   lines.push('- **KTC unmeasurable:** KTC snapshot history starts 2026-05-18; whether KTC itself reacts to in-season evidence is untestable until ~Jan 2027 (rest-of-season) / ~Jan 2028 (S+1 graded).');
-  lines.push('- The prospect score\'s other inputs (the KTC anchor at 60%, the peak clamp, the cap of 35) are reported (§Q3), not fitted.');
+  lines.push('- The prospect score\'s other inputs (the KTC anchor at 60%, the peak clamp, the cap of 35 on the starting value) are reported (§Q3), not fitted.');
   lines.push('- **Fixed-rung leakage:** a ladder rung that reuses a 2a-pinned or `K_DYN_POINTS_HISTORY` k was fitted on other rows, including rows from the held-out season — this favours the fixed rung, the conservative direction.');
   lines.push('', '**Reproduce:** `node bin/backtest.mjs --inseason --dynasty --write`', '');
   return lines.join('\n');
