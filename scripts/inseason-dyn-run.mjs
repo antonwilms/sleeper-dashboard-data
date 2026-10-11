@@ -28,7 +28,7 @@ import {
 } from './inseason-run.mjs';
 import {
   IN_SEASON_DEFAULTS, analyzeKCell, pairedDelta, blend, fitCK, spearman, assertAligned,
-  DYN_DEFAULTS, DYN_OPTIMISM_C, PROSPECT_MIRROR, prospectPriorPPG, modelScore,
+  DYN_DEFAULTS, DYN_OPTIMISM_C, PROSPECT_MIRROR, SHIPPED_PROSPECT_PRIOR_KIND, prospectPriorPPG, modelScore,
   ageOnDate, dynastyPickProxy, historyPriorOf, ladderPick,
   QB_DYN_RESEARCH, satLongerAt, calibrateGroup, fullCalibration, ratioDiffBootstrap, decideQ4, satLongerAggregates, diffDynConstants,
 } from '../lib/inSeasonEvidence.mjs';
@@ -120,7 +120,7 @@ function augmentRow(row, ctx) {
   const pid = row.sleeperId, S = row.S;
   const projected = {
     sleeperId: pid, S, W: row.W, n: row.n, position: row.position, arm: row.arm,
-    obsPPG: row.obsPPG, nextPPG: row.nextPPG, projPrior: row.pointsPriorNext,
+    obsPPG: row.obsPPG, nextPPG: row.nextPPG, nextPPG2: row.nextPPG2, projPrior: row.pointsPriorNext,
   };
 
   const b = playerIds?.bySleeper?.[pid];
@@ -478,6 +478,55 @@ function runQ2(q2PrimaryRows, q2StaleRows, pinnedSource) {
     },
     constants: P.constants, fixture: P.fixture, pinnedFrom: P.pinnedFrom, reuse, resultsByPos,
   };
+}
+
+// ─── D-55 — S+2 arm comparison (research-arms-w3 §3) ─────────────────────────────
+
+export const S2_RULE = 'A cell starts from the position baseline iff its admitted prior Δ (B − A, MAE against the S+2 outcome) is WORSE; otherwise from the projection. A cell with no Δ is undecided (null) and never counts as a flip.';
+
+/**
+ * Arm A (position baseline, `prospectPrior`) vs arm B (neutral projection, `projPrior`) against the S+2 outcome
+ * (`nextPPG2`). `rows` = the admitted rows (Q1 rows with a finite nextPPG2, with or without an S+1 outcome).
+ * `kA` = { 0: kFit, 1: kFit } — arm A's pooled subgroup k (unrounded); arm B blends at its row's k2a.
+ */
+export function runS2ArmComparison(rows, { kA }) {
+  const bad = rows.find(r => r.S > IN_SEASON_DEFAULTS.plus2To);
+  if (bad) throw new Error(`[inseason-dyn] D-55: row S=${bad.S} > plus2To ${IN_SEASON_DEFAULTS.plus2To} (no S+2 outcome exists)`);
+  const mae = (preds) => mean(preds.map(p => Math.abs(p.pred - p.actual)));
+  const cellOf = (cellRows) => {
+    if (!cellRows.length) return { rows: 0, playerSeasons: null, players: null, maePriorA: null, maePriorB: null, deltaPrior: null, maeUpdA: null, maeUpdB: null, deltaUpd: null };
+    const mk = (f) => cellRows.map(r => ({ pred: f(r), actual: r.nextPPG2 }));
+    const priorA = mk(r => r.prospectPrior), priorB = mk(r => r.projPrior);
+    const updA = mk(r => blend(r.prospectPrior, r.obsPPG, r.n, kA[r.ye])), updB = mk(r => blend(r.projPrior, r.obsPPG, r.n, r.k2a));
+    return {
+      rows: cellRows.length,
+      playerSeasons: new Set(cellRows.map(r => `${r.sleeperId}|${r.S}`)).size,
+      players: new Set(cellRows.map(r => r.sleeperId)).size,
+      maePriorA: r4(mae(priorA)), maePriorB: r4(mae(priorB)), deltaPrior: deltaOut(pairedDelta(cellRows, priorA, priorB)),
+      maeUpdA: r4(mae(updA)), maeUpdB: r4(mae(updB)), deltaUpd: deltaOut(pairedDelta(cellRows, updA, updB)),
+    };
+  };
+  const cellsOf = (pop) => {
+    const cells = { ALL: cellOf(pop) };
+    for (const pos of POSITIONS) {
+      cells[pos] = cellOf(pop.filter(r => r.position === pos));
+      for (const g of [0, 1]) cells[`${pos}|YE${g}`] = cellOf(pop.filter(r => r.position === pos && r.ye === g));
+    }
+    return cells;
+  };
+  const admitted = cellsOf(rows);
+  const survivors = cellsOf(rows.filter(r => Number.isFinite(r.nextPPG)));
+  const kind = {}, flips = [];
+  for (const g of [0, 1]) {
+    kind[g] = {};
+    for (const pos of POSITIONS) {
+      const d = admitted[`${pos}|YE${g}`].deltaPrior;
+      kind[g][pos] = d == null ? null : (d.label === 'WORSE' ? 'position' : 'projection');
+      const shipped = SHIPPED_PROSPECT_PRIOR_KIND[g][pos];
+      if (kind[g][pos] != null && kind[g][pos] !== shipped) flips.push({ ye: g, pos, shipped, measured: kind[g][pos] });
+    }
+  }
+  return { rule: S2_RULE, kA, populations: { admitted: { cells: admitted }, survivors: { cells: survivors } }, kind, flips };
 }
 
 // ─── Q3 — the KTC anchor (report only, §5.3, fix pass 1 item 4) ───────────────
@@ -978,6 +1027,9 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
 
   const q1Full = runQ1(q1Rows, pinnedSource);
   const { resultsByPos: q1ResultsByPos, ...q1 } = q1Full;
+  // D-55: admitted = Q1 rows with an S+2 outcome, with or without an S+1 outcome (preFilterRows, not allRows).
+  const s2Rows = preFilterRows.filter(r => classifyRow(r).q1 && Number.isFinite(r.nextPPG2));
+  const d55 = runS2ArmComparison(s2Rows, { kA: { 0: q1.subgroups.YE0.pooled.A.kFit, 1: q1.subgroups.YE1.pooled.A.kFit } });
   const q2 = runQ2(q2PrimaryRows, q2StaleRows, pinnedSource);
   const { resultsByPos: q2ResultsByPos, ...q2Public } = q2;
   const q3 = runQ3(q1Rows, q1.decisions, q1ResultsByPos);
@@ -1028,6 +1080,7 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
     decisions: { q1: { YE0: q1.decisions.YE0.arm, YE1: q1.decisions.YE1.arm }, q2: q2Public.decision.chooseHist ? 'history' : 'no-recommendation' },
     constants, fixture, reuse,
   };
+  constantsFile.prospectPriorKind = { rule: d55.rule, population: 'admitted', kind: d55.kind, flips: d55.flips, shipped: 'app src/utils/inSeasonConstants.js PROSPECT_PRIOR_KIND @ cbd17c8' };
   constantsFile.fit.qbPrior = qbPrior;
   constantsFile.fit.inSeasonConstants = pinnedSource;
   if (qbResearch) {
@@ -1076,7 +1129,7 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
 
   const d64 = qbPrior === 'starter' && typeof load.loadDynBaseline === 'function' ? diffDynConstants(constantsFile, load.loadDynBaseline()) : null;
 
-  return { meta, reconciliation, coverage, excluded, q1, q2: q2Public, q3, d64, q4, q5, diagnostics, ladders, pinnedFrom, constants: constantsFile };
+  return { meta, reconciliation, coverage, excluded, q1, q2: q2Public, q3, d55, d64, q4, q5, diagnostics, ladders, pinnedFrom, constants: constantsFile };
 }
 
 // ─── Verdict markdown (§7) ──────────────────────────────────────────────────────
@@ -1116,6 +1169,27 @@ function q3Line(m) {
 
 const pct = (v) => (v == null ? '—' : `${f(v * 100, 1)}%`);
 const lab = (d) => (d ? `${d.label} (mean ${f(d.mean, 4)}, CI ${ciStr4(d.ci95)})` : '—');
+
+function s2Markdown(result) {
+  const { d55 } = result;
+  const dC = (d) => (d ? `${d.label} ${f(d.mean, 3)} [${f(d.ci95[0], 3)}, ${f(d.ci95[1], 3)}]` : '—');
+  const L = ['', '## D-55 — two-season (S+2) arm comparison', ''];
+  const adm = d55.populations.admitted.cells.ALL, sur = d55.populations.survivors.cells.ALL;
+  L.push(`Arm A (position baseline) vs arm B (neutral projection) against the S+2 outcome (\`nextPPG2\`, S ≤ ${IN_SEASON_DEFAULTS.plus2To}, gp ≥ ${IN_SEASON_DEFAULTS.nextMinGames}). **Admitted** = the Q1 rows with an S+2 outcome, with or without an S+1 outcome (${adm.rows} rows); **survivors** = those that also have one (${sur.rows} rows, app 2c-wiring §1b's population). Updated: arm A blended at its subgroup's pooled arm-A kFit (YE0 ${f(d55.kA[0], 2)}, YE1 ${f(d55.kA[1], 2)}); arm B at the 2a k. Δ = B − A in MAE (PPG), player-clustered.`, '');
+  L.push('| population | cell | rows | player-seasons | players | MAE prior A → B | Δ prior | MAE updated A → B | Δ updated |', '|---|---|---|---|---|---|---|---|---|');
+  for (const pop of ['survivors', 'admitted']) {
+    for (const [name, c] of Object.entries(d55.populations[pop].cells)) {
+      L.push(`| ${pop} | ${name} | ${c.rows} | ${c.playerSeasons ?? '—'} | ${c.players ?? '—'} | ${f(c.maePriorA, 3)} → ${f(c.maePriorB, 3)} | ${dC(c.deltaPrior)} | ${f(c.maeUpdA, 3)} → ${f(c.maeUpdB, 3)} | ${dC(c.deltaUpd)} |`);
+    }
+  }
+  L.push('', `**Rule:** ${d55.rule}`, '');
+  for (const g of [0, 1]) L.push(`- YE${g} kind: ${POSITIONS.map(pos => `${pos} ${d55.kind[g][pos] ?? 'undecided'}`).join(', ')}`);
+  L.push('');
+  if (d55.flips.length) L.push(`**Flip(s) — a recommendation for Anton, not a change:** ${d55.flips.map(x => `YE${x.ye} ${x.pos}: ${x.shipped} → ${x.measured}`).join('; ')}.`);
+  else L.push('No flip — equals the shipped PROSPECT_PRIOR_KIND.');
+  L.push('');
+  return L;
+}
 
 function qbResearchMarkdown(result) {
   const { d64, q2, q4, q5 } = result;
@@ -1215,6 +1289,7 @@ export function buildInSeasonDynVerdictMarkdown(result) {
     '- The cap population is an upper bound, because KTC is unknown historically.',
     '- Every row starts from arm B at the 2a k, as the wiring decision measured. Second-year WRs, which the app starts from arm A, are not measured separately.',
     '', 'No cap at all also beats cap-before (§10.1 of the wiring file). Reported, not acted on.', '');
+  lines.push(...s2Markdown(result));
   lines.push(...qbResearchMarkdown(result));
   lines.push('', '## Excluded population', '');
   lines.push(`Q1: YE<=1 player-seasons ${excluded.q1.ye01.playerSeasons} (rows ${excluded.q1.ye01.rows}, players ${excluded.q1.ye01.players}). No S+1 outcome — absent: player-seasons ${excluded.q1.noOutcomeAbsent.playerSeasons} (rows ${excluded.q1.noOutcomeAbsent.rows}); gp<6: player-seasons ${excluded.q1.noOutcomeGpUnder6.playerSeasons} (rows ${excluded.q1.noOutcomeGpUnder6.rows}). draftYear unusable: player-seasons ${excluded.q1.draftYearUnusable.playerSeasons} (rows ${excluded.q1.draftYearUnusable.rows}). routeMismatch: player-seasons ${excluded.q1.routeMismatch.playerSeasons} (rows ${excluded.q1.routeMismatch.rows}, rate ${f(meta.routeMismatchRate * 100, 2)}%). YE1-in-rookie0: player-seasons ${excluded.q1.ye1InRookie0.playerSeasons} (rows ${excluded.q1.ye1InRookie0.rows}). YE2-3 no qualifying season: player-seasons ${excluded.q1.ye23NoQualifyingSeason.playerSeasons} (rows ${excluded.q1.ye23NoQualifyingSeason.rows}).`);

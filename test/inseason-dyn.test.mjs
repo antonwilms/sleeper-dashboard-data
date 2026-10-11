@@ -19,12 +19,12 @@ import {
 } from '../lib/inSeasonEvidence.mjs';
 import {
   runInSeasonDyn, inSeasonDynMain, INSEASON_DYN_LOAD, pinnedSourceOf, DYN_2A_PIN,
-  predictorFor, capStartPPG, q3Metrics, capPlacementComparison, buildQ3Items,
+  predictorFor, capStartPPG, q3Metrics, capPlacementComparison, buildQ3Items, runS2ArmComparison,
 } from '../scripts/inseason-dyn-run.mjs';
 import { verifyConstants, formatConstantsJson, makePut, pinDecision, addFoldK, ReconciliationStop, INSEASON_LOAD } from '../scripts/inseason-run.mjs';
 import {
   QB_DYN_RESEARCH, satLongerAt, fitDiscount, discountLoso, calibrateGroup, fullCalibration, ratioDiffBootstrap,
-  decideQ4, decideQ5a, decideQ5b, diffDynConstants, satLongerAggregates,
+  decideQ4, decideQ5a, decideQ5b, diffDynConstants, satLongerAggregates, SHIPPED_PROSPECT_PRIOR_KIND,
 } from '../lib/inSeasonEvidence.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -970,5 +970,77 @@ describe('19: D-54 — Q3 caps the starting value; cap-placement comparison', ()
     assert.equal(out.slices.n5_8, undefined);
     assert.equal(out.slices['n5-8'].rows, 0);
     assert.equal(out.slices['n5-8'].beforeVsAfter, null);
+  });
+});
+
+describe('20: D-55 — S+2 arm comparison', () => {
+  // A's prior is the outcome; B's is offset by `bOff`, so B is worse on every row iff bOff ≠ 0 (and A worse iff aOff ≠ 0).
+  function cellRows({ pos = 'WR', ye = 1, aOff = 0, bOff = 3, players = 12 } = {}) {
+    const rows = [];
+    for (let i = 0; i < players; i++) {
+      const actual = 8 + (i % 5);
+      rows.push({
+        sleeperId: `${pos}${ye}-${i}`, S: 2018 + (i % 4), position: pos, ye, n: 4, obsPPG: actual, k2a: 4,
+        nextPPG2: actual, nextPPG: actual, prospectPrior: actual + aOff, projPrior: actual + bOff,
+      });
+    }
+    return rows;
+  }
+  const kA = { 0: 2.4, 1: 3.6 };
+
+  test('(a) kind rule: WORSE → position, B better → projection, empty → null and never a flip', () => {
+    const worse = runS2ArmComparison(cellRows({ bOff: 3 }), { kA });
+    assert.equal(worse.populations.admitted.cells['WR|YE1'].deltaPrior.label, 'WORSE');
+    assert.equal(worse.kind[1].WR, 'position');
+    assert.equal(worse.kind[0].WR, null);
+    assert.equal(worse.populations.admitted.cells['WR|YE0'].rows, 0);
+    assert.deepEqual(worse.flips, [], 'WR YE1 position equals the shipped kind; empty cells are never flips');
+
+    const better = runS2ArmComparison(cellRows({ aOff: 3, bOff: 0 }), { kA });
+    assert.equal(better.kind[1].WR, 'projection');
+    assert.deepEqual(better.flips, [{ ye: 1, pos: 'WR', shipped: 'position', measured: 'projection' }]);
+    assert.equal(better.kind[1].QB, null);
+  });
+
+  test('(a) cell shape: counts, MAE and the 13 cells per population', () => {
+    const out = runS2ArmComparison(cellRows({ bOff: 3 }), { kA });
+    const c = out.populations.admitted.cells.ALL;
+    assert.equal(c.rows, 12);
+    assert.equal(c.players, 12);
+    assert.equal(c.maePriorA, 0);
+    assert.equal(c.maePriorB, 3);
+    assert.equal(Object.keys(out.populations.survivors.cells).length, 13);
+    assert.deepEqual(Object.keys(out.populations.admitted.cells).slice(0, 4), ['ALL', 'QB', 'QB|YE0', 'QB|YE1']);
+    assert.deepEqual(out.populations.admitted.cells['QB|YE0'], { rows: 0, playerSeasons: null, players: null, maePriorA: null, maePriorB: null, deltaPrior: null, maeUpdA: null, maeUpdB: null, deltaUpd: null });
+  });
+
+  test('(b) a row with S past plus2To throws', () => {
+    const rows = cellRows();
+    rows[0] = { ...rows[0], S: 2024 };
+    assert.throws(() => runS2ArmComparison(rows, { kA }), /plus2To/);
+  });
+
+  test('(c) through runInSeasonDyn: rows without an S+1 outcome are admitted; q1Rows counts only the survivor', () => {
+    const load = dynLoadFixture();
+    const mk = (sleeperId, nextPPG) => ({
+      sleeperId, S: 2020, W: 4, n: 4, position: 'WR', arm: 'X-rookie0', obsPPG: 10, nextPPG, nextPPG2: 9,
+      pointsPrior: 10, pointsPriorNext: 10,
+    });
+    const rowsBySeason = { 2020: [mk('p0', null), mk('p1', 11)] };
+    const result = runInSeasonDyn({ qbPrior: 'legacy', load, assemble: (S) => ({ rows: rowsBySeason[S] ?? [] }) });
+    assert.equal(result.d55.populations.admitted.cells.ALL.rows, 2);
+    assert.equal(result.d55.populations.survivors.cells.ALL.rows, 1);
+    assert.equal(result.coverage.q1Rows, 1);
+    assert.equal(result.constants.prospectPriorKind.population, 'admitted');
+    assert.deepEqual(result.constants.prospectPriorKind.flips, result.d55.flips);
+    assert.ok(!('prospectPriorKind' in result.constants.decisions));
+  });
+
+  test('(d) SHIPPED_PROSPECT_PRIOR_KIND is the app literal', () => {
+    assert.deepEqual(SHIPPED_PROSPECT_PRIOR_KIND, {
+      0: { QB: 'projection', RB: 'projection', WR: 'projection', TE: 'projection' },
+      1: { QB: 'projection', RB: 'projection', WR: 'position', TE: 'projection' },
+    });
+    assert.ok(Object.isFrozen(SHIPPED_PROSPECT_PRIOR_KIND) && Object.isFrozen(SHIPPED_PROSPECT_PRIOR_KIND[1]));
   });
 });
