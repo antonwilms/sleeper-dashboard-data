@@ -57,6 +57,11 @@
  *                --short (L6c) keeps the app prediction on qualifying S seasons and fits k only on non-qualifying
  *                ones (SOf0, SOK1f0); --write persists backtests/<date>-games-short-{panel,constants}.json +
  *                grading/<date>-games-short-verdict.md. Mutually exclusive with --cause.
+ *   --rookie-total  composed rookie total points (D-13, offline analysis only): the shipped per-row rookie
+ *                projection (calibrated PPG × availability games) against realised total points on W2's committed
+ *                availability panel — bias by group, a leave-one-season-out multiplier, a pre-registered verdict.
+ *                Takes only --json / --write. --write persists backtests/<date>-rookie-total-panel.json +
+ *                grading/<date>-rookie-total-verdict.md. Changes no score.
  *   --dynasty    (with --inseason) dynasty-side (rookies + SHORT veterans) k-fit (Phase 2c, offline
  *                analysis only): the prospect prior (arm A vs arm B), the SHORT-veteran history prior,
  *                and the KTC-anchor report, plus the rookie QB level in the dynasty prior (Q4) and the
@@ -86,6 +91,7 @@ import { absenceMain } from '../scripts/absence-run.mjs';
 import { gamesCalibrationMain } from '../scripts/games-calibration-run.mjs';
 import { gamesCauseMain } from '../scripts/games-cause-run.mjs';
 import { gamesShortMain } from '../scripts/games-short-run.mjs';
+import { rookieTotalMain } from '../scripts/rookie-total-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -228,6 +234,18 @@ if (isMain) {
         }
         if (flag('--short')) process.exit(gamesShortMain({ write, asJson }));
         process.exit(flag('--cause') ? gamesCauseMain({ write, asJson }) : gamesCalibrationMain({ write, asJson }));
+      }
+
+      if (flag('--rookie-total')) {
+        const rejected = args.filter(a => a.startsWith('--') && !['--rookie-total', '--json', '--write'].includes(a));
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --rookie-total rejects ${rejected.join(', ')} — the panel, seasons, groups and rule are pinned ` +
+            'by the task file, not knobs; it takes only --json and --write'
+          );
+          process.exit(1);
+        }
+        process.exit(rookieTotalMain({ write, asJson }));
       }
 
       if (flag('--absence')) {

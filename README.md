@@ -2053,6 +2053,8 @@ node bin/panel.mjs --rookie --write        # persist both artifacts above
 
 **D-12 reproduces the app's games ladder (provenance-records-w2).** The entry-cohort walk now follows the app fixture's recipe (`rookie-games-panel-2026-09-09.json` `source.predicate`): at `years_exp ≥ 2` a row with zero games in the target season `T` and in `T−1` is skipped and the walk keeps going (it previously stopped on a `T−1`/`T−2` window). Rung U is accumulated over the four known groups, as the app's U ladder is; an unknown-group row feeds no rung. §D compares all 74 of the app's cells (`APP_ROOKIE_GAMES_CELLS`, `compareRookieGamesCells`) under the app's own rounding — one decimal, then `Math.round` — and lists only the non-matching cells. The weekly crosswalk refresh `cde2d06` (added `12079`, dropped `13001`) shows as n differences against the 2026-09-09 fixture, not as moves in whole games.
 
+§E's cell-mean residual is not the shipped composition; `--rookie-total` measures that (research-arms-w3).
+
 Reproduce: `node bin/panel.mjs --rookie --write`.
 
 ### In-season evidence k-fit (`bin/backtest.mjs --inseason`)
@@ -2189,6 +2191,20 @@ node bin/backtest.mjs --qb-rookie-level --write   # persist the three artifacts 
 ```
 
 Reproduce: `node bin/backtest.mjs --qb-rookie-level --write`.
+
+### D-13 composed rookie total points (`bin/backtest.mjs --rookie-total`)
+
+research-arms-w3 (`.claude/tasks/research-arms-w3-d13.md`). Offline analysis only: no ingest, no served family, no manifest entry, no score moves. The population is W2's committed availability panel (`backtests/2026-10-10-rookie-panel.json` `rookiePathAll.rows` @ `7e900fc`, 3,848 rows, pinned in `ROOKIE_TOTAL_PIN`); each row gets the **shipped** composition — `reconstructShippedRookieProjection(...).projectedTotalPts`, the calibrated, ceiled PPG × the games ladder, with `ageAtDraft` from `nflverse/playerids.json` — and is compared with `outcomeTotalPts` (absent rows count as zero). The run stops if the row count differs from the pin, a birthdate is missing, or the uncorrected reconstruction does not reproduce a row's own `projectedPPG` (parity). The module `lib/rookieTotalPoints.mjs` and its adapter `scripts/rookie-total-run.mjs` sit **outside `bin/panel.mjs`'s closure** because they reach `lib/rookieMirror.mjs` (T-RM1). Rule (pre-registered, §7.2 of the task file): on the non-QB RB/WR/TE rows of `day3` and `undrafted`, a group is `correct` when Σpred / Σreal is ≥ 1.05 with the player-clustered CI above 1 (or ≤ 0.95 with the CI below 1) **and** a leave-one-target-season-out per-group multiplier gives a `BEATS` ΔMAE; the verdict is `recommend` when either group is `correct`, else `close`. Bias is the primary metric; MAE only confirms the correction does not hurt out of sample.
+
+**Artifacts** (`--write`, unregistered — the Invariant 3 analysis-output exception): `backtests/<date>-rookie-total-panel.json` (aggregate tables, no per-row data), `grading/<date>-rookie-total-verdict.md`.
+
+```sh
+node bin/backtest.mjs --rookie-total           # verdict markdown to stdout
+node bin/backtest.mjs --rookie-total --json    # the result object
+node bin/backtest.mjs --rookie-total --write   # persist the two artifacts above
+```
+
+Reproduce: `node bin/backtest.mjs --rookie-total --write`.
 
 ---
 

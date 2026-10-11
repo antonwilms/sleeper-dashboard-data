@@ -1,0 +1,767 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-11T23:45:26.470Z",
+    "panel": "backtests/2026-10-10-rookie-panel.json @ 7e900fc5c45ca223cfb8eeb4892f8c53b1195c03",
+    "rows": 3848,
+    "basis": "half_ppr"
+  },
+  "bias": {
+    "all": {
+      "n": 3848,
+      "players": 2071,
+      "meanPred": 23.993,
+      "meanReal": 20.562,
+      "ratio": 1.167,
+      "ci95": [
+        1.102,
+        1.243
+      ],
+      "gamesHeldRatio": 1.133,
+      "ppgRealOverPred": {
+        "gp6": 0.927,
+        "gp1to5": 0.467
+      }
+    },
+    "byGroup": {
+      "r1": {
+        "n": 152,
+        "players": 127,
+        "meanPred": 134.709,
+        "meanReal": 133.825,
+        "ratio": 1.007,
+        "ci95": [
+          0.882,
+          1.162
+        ],
+        "gamesHeldRatio": 0.96,
+        "ppgRealOverPred": {
+          "gp6": 1.061,
+          "gp1to5": 0.455
+        }
+      },
+      "day2": {
+        "n": 360,
+        "players": 276,
+        "meanPred": 76.228,
+        "meanReal": 62.24,
+        "ratio": 1.225,
+        "ci95": [
+          1.107,
+          1.367
+        ],
+        "gamesHeldRatio": 1.127,
+        "ppgRealOverPred": {
+          "gp6": 0.908,
+          "gp1to5": 0.405
+        }
+      },
+      "day3": {
+        "n": 1119,
+        "players": 632,
+        "meanPred": 24.194,
+        "meanReal": 19.744,
+        "ratio": 1.225,
+        "ci95": [
+          1.1,
+          1.365
+        ],
+        "gamesHeldRatio": 1.252,
+        "ppgRealOverPred": {
+          "gp6": 0.842,
+          "gp1to5": 0.491
+        }
+      },
+      "undrafted": {
+        "n": 2217,
+        "players": 1036,
+        "meanPred": 7.818,
+        "meanReal": 6.442,
+        "ratio": 1.214,
+        "ci95": [
+          1.071,
+          1.384
+        ],
+        "gamesHeldRatio": 1.202,
+        "ppgRealOverPred": {
+          "gp6": 0.926,
+          "gp1to5": 0.462
+        }
+      }
+    },
+    "byGroupNonQB": {
+      "r1": {
+        "n": 95,
+        "players": 86,
+        "meanPred": 104.895,
+        "meanReal": 121.477,
+        "ratio": 0.863,
+        "ci95": [
+          0.76,
+          0.995
+        ],
+        "gamesHeldRatio": 0.882,
+        "ppgRealOverPred": {
+          "gp6": 1.139,
+          "gp1to5": 0.486
+        }
+      },
+      "day2": {
+        "n": 295,
+        "players": 249,
+        "meanPred": 74.74,
+        "meanReal": 65.78,
+        "ratio": 1.136,
+        "ci95": [
+          1.032,
+          1.262
+        ],
+        "gamesHeldRatio": 1.135,
+        "ppgRealOverPred": {
+          "gp6": 0.889,
+          "gp1to5": 0.459
+        }
+      },
+      "day3": {
+        "n": 875,
+        "players": 555,
+        "meanPred": 26.634,
+        "meanReal": 21.193,
+        "ratio": 1.257,
+        "ci95": [
+          1.127,
+          1.409
+        ],
+        "gamesHeldRatio": 1.278,
+        "ppgRealOverPred": {
+          "gp6": 0.809,
+          "gp1to5": 0.41
+        }
+      },
+      "undrafted": {
+        "n": 2026,
+        "players": 963,
+        "meanPred": 7.39,
+        "meanReal": 6.172,
+        "ratio": 1.197,
+        "ci95": [
+          1.051,
+          1.374
+        ],
+        "gamesHeldRatio": 1.206,
+        "ppgRealOverPred": {
+          "gp6": 0.909,
+          "gp1to5": 0.424
+        }
+      }
+    },
+    "byGroupPosition": {
+      "r1|QB": {
+        "n": 57,
+        "players": 41,
+        "meanPred": 184.398,
+        "meanReal": 154.405,
+        "ratio": 1.194,
+        "ci95": [
+          0.963,
+          1.533
+        ],
+        "gamesHeldRatio": 1.063,
+        "ppgRealOverPred": {
+          "gp6": 0.971,
+          "gp1to5": 0.451
+        }
+      },
+      "r1|RB": {
+        "n": 18,
+        "players": 17,
+        "meanPred": 139.306,
+        "meanReal": 179.028,
+        "ratio": 0.778,
+        "ci95": [
+          0.663,
+          0.929
+        ],
+        "gamesHeldRatio": 0.83,
+        "ppgRealOverPred": {
+          "gp6": 1.205,
+          "gp1to5": null
+        }
+      },
+      "r1|WR": {
+        "n": 61,
+        "players": 54,
+        "meanPred": 103.693,
+        "meanReal": 109.537,
+        "ratio": 0.947,
+        "ci95": [
+          0.794,
+          1.162
+        ],
+        "gamesHeldRatio": 0.934,
+        "ppgRealOverPred": {
+          "gp6": 1.078,
+          "gp1to5": 0.486
+        }
+      },
+      "r1|TE": {
+        "n": 16,
+        "players": 15,
+        "meanPred": 70.763,
+        "meanReal": 102.256,
+        "ratio": 0.692,
+        "ci95": [
+          0.532,
+          0.925
+        ],
+        "gamesHeldRatio": 0.77,
+        "ppgRealOverPred": {
+          "gp6": 1.299,
+          "gp1to5": null
+        }
+      },
+      "day2|QB": {
+        "n": 65,
+        "players": 27,
+        "meanPred": 82.983,
+        "meanReal": 46.176,
+        "ratio": 1.797,
+        "ci95": [
+          1.266,
+          2.871
+        ],
+        "gamesHeldRatio": 1.072,
+        "ppgRealOverPred": {
+          "gp6": 1.063,
+          "gp1to5": 0.369
+        }
+      },
+      "day2|RB": {
+        "n": 91,
+        "players": 71,
+        "meanPred": 85.656,
+        "meanReal": 86.213,
+        "ratio": 0.994,
+        "ci95": [
+          0.842,
+          1.196
+        ],
+        "gamesHeldRatio": 1.008,
+        "ppgRealOverPred": {
+          "gp6": 1.014,
+          "gp1to5": 0.493
+        }
+      },
+      "day2|WR": {
+        "n": 127,
+        "players": 117,
+        "meanPred": 82.078,
+        "meanReal": 68.002,
+        "ratio": 1.207,
+        "ci95": [
+          1.064,
+          1.39
+        ],
+        "gamesHeldRatio": 1.189,
+        "ppgRealOverPred": {
+          "gp6": 0.842,
+          "gp1to5": 0.613
+        }
+      },
+      "day2|TE": {
+        "n": 77,
+        "players": 61,
+        "meanPred": 49.736,
+        "meanReal": 37.966,
+        "ratio": 1.31,
+        "ci95": [
+          1.049,
+          1.701
+        ],
+        "gamesHeldRatio": 1.319,
+        "ppgRealOverPred": {
+          "gp6": 0.765,
+          "gp1to5": 0.113
+        }
+      },
+      "day3|QB": {
+        "n": 244,
+        "players": 77,
+        "meanPred": 15.444,
+        "meanReal": 14.548,
+        "ratio": 1.062,
+        "ci95": [
+          0.775,
+          1.52
+        ],
+        "gamesHeldRatio": 1.121,
+        "ppgRealOverPred": {
+          "gp6": 1.188,
+          "gp1to5": 0.56
+        }
+      },
+      "day3|RB": {
+        "n": 303,
+        "players": 204,
+        "meanPred": 37.263,
+        "meanReal": 29.234,
+        "ratio": 1.275,
+        "ci95": [
+          1.085,
+          1.516
+        ],
+        "gamesHeldRatio": 1.275,
+        "ppgRealOverPred": {
+          "gp6": 0.802,
+          "gp1to5": 0.501
+        }
+      },
+      "day3|WR": {
+        "n": 385,
+        "players": 234,
+        "meanPred": 23.146,
+        "meanReal": 17.963,
+        "ratio": 1.289,
+        "ci95": [
+          1.08,
+          1.562
+        ],
+        "gamesHeldRatio": 1.31,
+        "ppgRealOverPred": {
+          "gp6": 0.804,
+          "gp1to5": 0.284
+        }
+      },
+      "day3|TE": {
+        "n": 187,
+        "players": 117,
+        "meanPred": 16.594,
+        "meanReal": 14.814,
+        "ratio": 1.12,
+        "ci95": [
+          0.92,
+          1.417
+        ],
+        "gamesHeldRatio": 1.203,
+        "ppgRealOverPred": {
+          "gp6": 0.847,
+          "gp1to5": 0.57
+        }
+      },
+      "undrafted|QB": {
+        "n": 191,
+        "players": 73,
+        "meanPred": 12.363,
+        "meanReal": 9.308,
+        "ratio": 1.328,
+        "ci95": [
+          0.906,
+          2.349
+        ],
+        "gamesHeldRatio": 1.175,
+        "ppgRealOverPred": {
+          "gp6": 1.115,
+          "gp1to5": 0.558
+        }
+      },
+      "undrafted|RB": {
+        "n": 564,
+        "players": 290,
+        "meanPred": 10.508,
+        "meanReal": 8.908,
+        "ratio": 1.18,
+        "ci95": [
+          0.942,
+          1.498
+        ],
+        "gamesHeldRatio": 1.188,
+        "ppgRealOverPred": {
+          "gp6": 0.913,
+          "gp1to5": 0.441
+        }
+      },
+      "undrafted|WR": {
+        "n": 1005,
+        "players": 468,
+        "meanPred": 6.574,
+        "meanReal": 5.633,
+        "ratio": 1.167,
+        "ci95": [
+          0.967,
+          1.425
+        ],
+        "gamesHeldRatio": 1.207,
+        "ppgRealOverPred": {
+          "gp6": 0.909,
+          "gp1to5": 0.456
+        }
+      },
+      "undrafted|TE": {
+        "n": 457,
+        "players": 205,
+        "meanPred": 5.337,
+        "meanReal": 3.98,
+        "ratio": 1.341,
+        "ci95": [
+          1.046,
+          1.782
+        ],
+        "gamesHeldRatio": 1.253,
+        "ppgRealOverPred": {
+          "gp6": 0.902,
+          "gp1to5": 0.28
+        }
+      }
+    },
+    "byExperience": {
+      "0": {
+        "n": 2071,
+        "players": 2071,
+        "meanPred": 32.915,
+        "meanReal": 29.127,
+        "ratio": 1.13,
+        "ci95": [
+          1.068,
+          1.198
+        ],
+        "gamesHeldRatio": 1.108,
+        "ppgRealOverPred": {
+          "gp6": 0.926,
+          "gp1to5": 0.492
+        }
+      },
+      "1": {
+        "n": 1120,
+        "players": 1120,
+        "meanPred": 12.346,
+        "meanReal": 10.874,
+        "ratio": 1.135,
+        "ci95": [
+          0.977,
+          1.332
+        ],
+        "gamesHeldRatio": 1.081,
+        "ppgRealOverPred": {
+          "gp6": 1.014,
+          "gp1to5": 0.431
+        }
+      },
+      "2+": {
+        "n": 657,
+        "players": 362,
+        "meanPred": 15.722,
+        "meanReal": 10.082,
+        "ratio": 1.56,
+        "ci95": [
+          1.26,
+          1.982
+        ],
+        "gamesHeldRatio": 1.451,
+        "ppgRealOverPred": {
+          "gp6": 0.792,
+          "gp1to5": 0.46
+        }
+      }
+    },
+    "qb": {
+      "n": 557,
+      "players": 218,
+      "meanPred": 39.559,
+      "meanReal": 30.754,
+      "ratio": 1.286,
+      "ci95": [
+        1.098,
+        1.529
+      ],
+      "gamesHeldRatio": 1.088,
+      "ppgRealOverPred": {
+        "gp6": 1.029,
+        "gp1to5": 0.516
+      }
+    },
+    "target2025": {
+      "label": "in-sample (the games ladder and the PPG calibration were fitted on overlapping rows, target seasons <= 2025)",
+      "all": {
+        "n": 293,
+        "players": 293,
+        "meanPred": 25.259,
+        "meanReal": 20.8,
+        "ratio": 1.214,
+        "ci95": [
+          1.036,
+          1.468
+        ],
+        "gamesHeldRatio": 1.221,
+        "ppgRealOverPred": {
+          "gp6": 0.854,
+          "gp1to5": 0.499
+        }
+      },
+      "byGroupNonQB": {
+        "r1": {
+          "n": 8,
+          "players": 8,
+          "meanPred": 105.375,
+          "meanReal": 133.725,
+          "ratio": 0.788,
+          "ci95": [
+            0.597,
+            1.123
+          ],
+          "gamesHeldRatio": 0.843,
+          "ppgRealOverPred": {
+            "gp6": 1.186,
+            "gp1to5": null
+          }
+        },
+        "day2": {
+          "n": 24,
+          "players": 24,
+          "meanPred": 69.492,
+          "meanReal": 58.929,
+          "ratio": 1.179,
+          "ci95": [
+            0.881,
+            1.778
+          ],
+          "gamesHeldRatio": 1.265,
+          "ppgRealOverPred": {
+            "gp6": 0.79,
+            "gp1to5": null
+          }
+        },
+        "day3": {
+          "n": 72,
+          "players": 72,
+          "meanPred": 27.954,
+          "meanReal": 24.157,
+          "ratio": 1.157,
+          "ci95": [
+            0.856,
+            1.7
+          ],
+          "gamesHeldRatio": 1.254,
+          "ppgRealOverPred": {
+            "gp6": 0.822,
+            "gp1to5": 0.465
+          }
+        },
+        "undrafted": {
+          "n": 141,
+          "players": 141,
+          "meanPred": 7.471,
+          "meanReal": 3.699,
+          "ratio": 2.02,
+          "ci95": [
+            1.375,
+            3.318
+          ],
+          "gamesHeldRatio": 1.949,
+          "ppgRealOverPred": {
+            "gp6": 0.5,
+            "gp1to5": 0.585
+          }
+        }
+      }
+    }
+  },
+  "loso": {
+    "byGroupAll": {
+      "r1": {
+        "maeShipped": 70.574,
+        "maeCorrected": 70.811,
+        "mean": 0.236,
+        "ci95": [
+          -0.177,
+          0.644
+        ],
+        "label": "NO-GAIN",
+        "fullSample": 0.993
+      },
+      "day2": {
+        "maeShipped": 49.609,
+        "maeCorrected": 46.538,
+        "mean": -3.071,
+        "ci95": [
+          -4.513,
+          -1.55
+        ],
+        "label": "BEATS",
+        "fullSample": 0.816
+      },
+      "day3": {
+        "maeShipped": 24.661,
+        "maeCorrected": 22.747,
+        "mean": -1.914,
+        "ci95": [
+          -2.177,
+          -1.636
+        ],
+        "label": "BEATS",
+        "fullSample": 0.816
+      },
+      "undrafted": {
+        "maeShipped": 10.521,
+        "maeCorrected": 9.662,
+        "mean": -0.859,
+        "ci95": [
+          -0.916,
+          -0.8
+        ],
+        "label": "BEATS",
+        "fullSample": 0.824
+      }
+    },
+    "decision": {
+      "day3": {
+        "maeShipped": 25.558,
+        "maeCorrected": 23.349,
+        "mean": -2.209,
+        "ci95": [
+          -2.57,
+          -1.831
+        ],
+        "label": "BEATS",
+        "rows": 875,
+        "fullSample": 0.796,
+        "folds": [
+          {
+            "S": 2013,
+            "m": 0.803
+          },
+          {
+            "S": 2014,
+            "m": 0.805
+          },
+          {
+            "S": 2015,
+            "m": 0.794
+          },
+          {
+            "S": 2016,
+            "m": 0.794
+          },
+          {
+            "S": 2017,
+            "m": 0.814
+          },
+          {
+            "S": 2018,
+            "m": 0.785
+          },
+          {
+            "S": 2019,
+            "m": 0.796
+          },
+          {
+            "S": 2020,
+            "m": 0.796
+          },
+          {
+            "S": 2021,
+            "m": 0.792
+          },
+          {
+            "S": 2022,
+            "m": 0.799
+          },
+          {
+            "S": 2023,
+            "m": 0.788
+          },
+          {
+            "S": 2024,
+            "m": 0.79
+          },
+          {
+            "S": 2025,
+            "m": 0.789
+          }
+        ]
+      },
+      "undrafted": {
+        "maeShipped": 10.039,
+        "maeCorrected": 9.285,
+        "mean": -0.754,
+        "ci95": [
+          -0.802,
+          -0.704
+        ],
+        "label": "BEATS",
+        "rows": 2026,
+        "fullSample": 0.835,
+        "folds": [
+          {
+            "S": 2013,
+            "m": 0.817
+          },
+          {
+            "S": 2014,
+            "m": 0.801
+          },
+          {
+            "S": 2015,
+            "m": 0.791
+          },
+          {
+            "S": 2016,
+            "m": 0.804
+          },
+          {
+            "S": 2017,
+            "m": 0.841
+          },
+          {
+            "S": 2018,
+            "m": 0.826
+          },
+          {
+            "S": 2019,
+            "m": 0.85
+          },
+          {
+            "S": 2020,
+            "m": 0.843
+          },
+          {
+            "S": 2021,
+            "m": 0.854
+          },
+          {
+            "S": 2022,
+            "m": 0.854
+          },
+          {
+            "S": 2023,
+            "m": 0.856
+          },
+          {
+            "S": 2024,
+            "m": 0.863
+          },
+          {
+            "S": 2025,
+            "m": 0.861
+          }
+        ]
+      }
+    }
+  },
+  "decision": {
+    "rule": "§7.2",
+    "population": "non-QB (RB/WR/TE) rows of day3 and undrafted",
+    "perGroup": {
+      "day3": "correct",
+      "undrafted": "correct"
+    },
+    "verdict": "recommend"
+  },
+  "candidateMultipliers": {
+    "note": "not pinned anywhere",
+    "byGroup": {
+      "r1": 1.158,
+      "day2": 0.88,
+      "day3": 0.796,
+      "undrafted": 0.835
+    }
+  }
+}

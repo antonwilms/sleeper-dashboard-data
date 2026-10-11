@@ -13,7 +13,7 @@ Script-driven longitudinal data store consumed by the sleeper-dashboard React ap
 | Update | `bin/update.mjs` | `nfl`, `cfbd`, `ktc`, `snapshots`, `roster`, `draft`, `playerids`, `advstats`, `schedule`, `gamelogs`, `playerstats`, `teamcontext`, `playerstate`, `oline`, `snaps`, `depth`, `rosterweekly` |
 | Enrichment | `bin/enrich.mjs` | `coaching`/`scheme`/`injuries`/`notes` `add`, `validate`, `list`, `remove` |
 | Grading | `bin/grade.mjs` | `<snapshotDate>`, `--self-test` |
-| Backtest | `bin/backtest.mjs` | offline analysis over advstats + season-totals; `--inseason [--dynasty]`, `--qb-takeover`, `--qb-rookie-level`, `--absence`, `--games-calibration [--cause/--short]` |
+| Backtest | `bin/backtest.mjs` | offline analysis over advstats + season-totals; `--inseason [--dynasty]`, `--qb-takeover`, `--qb-rookie-level`, `--absence`, `--games-calibration [--cause/--short]`, `--rookie-total` |
 | Panel | `bin/panel.mjs` | E-0a baseline, `--flip-gate` (R2), `--fit` (R3-FIT) |
 | Dead-man | `bin/deadman.mjs` | monitoring only; needs `GITHUB_REPOSITORY` + `GITHUB_TOKEN` |
 | Purge | `bin/purge-cdn.mjs` | `<path>…` — jsDelivr purge + verify, manifest last; exit 1 if stale |
@@ -51,7 +51,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `lib/io.mjs` | JSON I/O, step output, hashing, key-sort helpers (exports: README → Module notes) |
 | `lib/{enrichment,ktc,manifest,sleeper}.mjs` | Helpers — enrichment validation, KTC scraping, manifest I/O, Sleeper fetch |
 | `lib/seasonIngest.mjs` | `runSeasonKeyedIngest` — shared manifest-registration adapter for the eight season-keyed family ingests (`schedule`, `teamcontext`, `oline`, `gamelogs`, `advstats`, `snaps`, `depth`, `rosterweekly`); hard-codes `inProgress: false`, `schemaVersion: 1` (CR-04 data-side trigger) |
-| `lib/registry.mjs`, `scripts/registry-audit.mjs` | Field-block parser + read-only CLI for the mirrored registry region in `cross-repo-registry.md`; reports per-entry cache-field anchor counts, no writes |
+| `lib/registry.mjs`, `scripts/registry-audit.mjs` | Field-block parser + read-only CLI for the mirrored registry region in `cross-repo-registry.md` |
 | `scripts/update-nfl.mjs` | NFL season-totals ingest. `--year` omitted resolves via `fetchCurrentNflSeason()` + `setStepOutput('season', …)`. Guards `hasNoData` / `isOpeningWeekPartial` / `shouldSkipCompletedSeason`; `DEFAULT_DEPS` is the injectable I/O+fetch seam |
 | `scripts/migrate-*.mjs` | One-shot historical rewrites, `--dry-run` capable — the Invariant 1 exceptions: `migrate-f24-prune.mjs`, `migrate-college-pivot.mjs`, `migrate-absence-roster.mjs` |
 | `scripts/update-cfbd.mjs` | CFBD ingest — fetch long-form, pivot, validate, write the pivoted envelope; dedup hashes the pivoted form on both sides |
@@ -61,7 +61,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `scripts/update-playerstats.mjs` | Single-fetch orchestrator — one `stats_player_week_<year>.csv` drives `updateAdvStats` + `updateGameLogs` under per-family throw isolation; emits `advstats_ok`/`gamelogs_ok` |
 | `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers. **Coverage floors** (CR-18 trigger sites): `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS`, `MIN_ADVSTATS_ROWS`, `MIN_SCHEDULE_SEASON`, `MIN_SCHEDULE_GAMES`, `MIN_PLAYERGAME_ROWS`, `MIN_GAMELOG_SEASON`, `MIN_TEAMCONTEXT_ROWS`, `MIN_TEAMCONTEXT_SEASON`, `MIN_OLINE_ROWS`, `MIN_OLINE_SEASON`, `MIN_SNAPS_ROWS`, `MIN_SNAPS_SEASON` (2013 — the 2012 upstream file is header-only), `MIN_DEPTH_ROWS`, `MIN_DEPTH_SEASON`, `DEPTH_ESPN_FROM_SEASON` (2025 — legacy/ESPN schema split), `DEPTH_JOIN_RATE_MIN`, `MIN_DEPTH_QB1_TEAMS`, `MIN_ROSTERWEEKLY_SEASON`, `MIN_ROSTERWEEKLY_WEEK_ROWS`, `MIN_ROSTERWEEKLY_WEEK_TEAMS`, `ROSTERWEEKLY_JOIN_RATE_MIN`. `AY_PER_TARGET_MIN`/`MAX` is a plausibility **band**, not a floor |
 | `scripts/grade-snapshot.mjs` | Grading adapter — loads snapshot + outcomes, builds GradeInput, orchestrates `lib/grade.mjs` |
-| `scripts/backtest-run.mjs` | Backtest adapters (injectable loaders): this file (advstats), `qb-takeover-run.mjs` (`--qb-takeover`); `scripts/inseason-run.mjs` (`--inseason`), `inseason-dyn-run.mjs` (`--dynasty`), `qb-rookie-level-run.mjs` (`--qb-rookie-level`) reach `lib/rookieMirror.mjs` outside `bin/panel.mjs`'s closure |
+| `scripts/backtest-run.mjs` | Backtest adapters (injectable loaders): this file (advstats), `qb-takeover-run.mjs` (`--qb-takeover`); `scripts/inseason-run.mjs` (`--inseason`), `inseason-dyn-run.mjs` (`--dynasty`), `qb-rookie-level-run.mjs` (`--qb-rookie-level`), `rookie-total-run.mjs` reach `lib/rookieMirror.mjs` outside `bin/panel.mjs`'s closure |
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
 | `lib/grade.mjs` | Pure scorer — `scoreProjections(GradeInput) → GradeReport`; no I/O |
 | `lib/backtest.mjs` | Pure backtest stats; no I/O. `isTeamAggregateId` is the `TEAM_*` pseudo-row filter; `lib/inSeasonEvidence.mjs` is `--inseason`'s pure k-fit; `lib/qbTakeover.mjs` is `--qb-takeover`'s pure fit, `lib/qbRookieLevel.mjs` `--qb-rookie-level`'s; `lib/durabilityMirror.mjs` `--absence`'s mirror of the app's durability rules (CR-28); `lib/gamesCalibration.mjs` `--games-calibration`'s pure fit |
