@@ -1,6 +1,6 @@
 # W2 — Provenance and record items: D-9, D-10, D-12, D-14, D-54
 
-**Session 1, 2026-10-10 (opus), parent-folder read of both repos.** Baselines: data `b4472ad`, app `c318487`. Both
+**Session 1, 2026-10-10 (opus), parent-folder read of both repos.** Baselines: data `629f29f`, app `c318487`. Both
 are W1's commits. They are **unpushed** and await Anton's sign-off. W2 stacks on them, so nothing in W2 is pushed
 before W1 is. Source: `../future_plans/in-season-notes-plan.md` → "Close-out programme (2026-10-10)" → W2. Input list:
 `../sleeper-dashboard/.claude/tasks/data-repo-backlog.md`. D-50 is planned separately in
@@ -41,7 +41,7 @@ the rookie mirror (D-14, D-10). What is actually left:
 
 ## 2. D-12: why the committed availability panel does not reproduce the app
 
-### 2.1 Measured (Session 1, read-only scratch runs at data `b4472ad`)
+### 2.1 Measured (Session 1, read-only scratch runs at data `629f29f`)
 
 The app ladder has 74 cells (`seasonProjection.js` `ROOKIE_GAMES_GPE/GE/GP/G/U` at app `c318487`). Compared with
 the committed `backtests/2026-09-12-rookie-panel.json` `rookiePathAll.coverage.byRungCell`:
@@ -134,7 +134,7 @@ the CLI.
 | n 5–8 | 4480 | 42.04 | 22.64 | BEATS −19.41 [−21.57, −17.23] | BEATS −2.33 [−3.43, −1.19] |
 | n 9–40 | 2131 | 44.33 | 18.74 | BEATS −25.59 [−28.34, −22.78] | BEATS −1.27 [−2.24, −0.26] |
 
-**Reproducibility gate (measured):** `node bin/backtest.mjs --inseason --dynasty --json` at `b4472ad` reproduces
+**Reproducibility gate (measured):** `node bin/backtest.mjs --inseason --dynasty --json` at `629f29f` reproduces
 `backtests/2026-10-07-inseason-dyn-panel.json` and `-constants.json` exactly. The only differences are
 `meta.generatedAt`/`runtimeMs` and the constants' `source`/`generatedAt`. A4 must keep that true for every key
 except `q3`.
@@ -153,7 +153,7 @@ except `q3`.
 
 ## 4. Stage A — data repo (sonnet). Four commits, in this order
 
-Start from `b4472ad`. Run `npm test` before you start; the baseline is 1431 tests, 4 skipped, 0 failures.
+Start from `629f29f`. Run `npm test` before you start; the baseline is 1431 tests, 4 skipped, 0 failures.
 
 ### 4.1 A1 — D-10 anchor (`data-catalog.md` only)
 
@@ -529,7 +529,7 @@ All verified; all applied, with 14 and 15 filed rather than queued.**
 
 ## Verification record (Session 1, 2026-10-11)
 
-**Stage A** (`b4472ad..589c0ca`). Session 1 re-ran every gate from the committed artifacts and did not rely on the
+**Stage A** (`629f29f..d6abbbe`). Session 1 re-ran every gate from the committed artifacts and did not rely on the
 hand-back:
 - `2026-10-10-inseason-dyn-*` against the 2026-10-07 pair: the constants are equal, and no non-`q3` panel key
   differs.
@@ -586,13 +586,17 @@ cites `4534898`, while projection.md cites the 2026-09-12 verdict. Both carry th
 - `npm run smoke` is green.
 - One commit: `Fix pass 1: W2 Stage A tests — fixed predictor + buildQ3Items cap, reverse mirror parity, q3Metrics fields (provenance-records-w2)`.
 
-**Fix pass 1 applied:** data `10ba2cc` (fix-applier). `npm test` 1443 (1439 pass, 4 skipped), smoke green.
-implementation-reviewer was re-run once on `589c0ca..10ba2cc`. All four items are exact. All new tests go red on
+**Fix pass 1 applied:** data `baff73f` (fix-applier). `npm test` 1443 (1439 pass, 4 skipped), smoke green.
+implementation-reviewer was re-run once on `d6abbbe..baff73f`. All four items are exact. All new tests go red on
 the failure they target: cap removed, premium exemption removed, supplied prior ignored, extra mirror cell. One low
 flag survives and goes to Anton: the reverse parity check asserts the GPE/GE/G counts but not GP (16) and U (16)
 individually. Detection is unaffected (the total of 74 plus the per-key lookup); only the failure message is less
 specific. Recommendation: leave it.
 
-**Status:** Stage A data `e6c1122..10ba2cc` and Stage B app `c318487..c537d72` are verified and awaiting Anton's
+**Status:** Stage A data `e2224ca..baff73f` and Stage B app `c318487..c537d72` are verified and awaiting Anton's
 sign-off. Push order: W1 (app, then data), then W2 data, then W2 app. Commit this task file and its `-app`
 companion with the data push.
+
+**Commit IDs (2026-10-11 push).** The data push rebased onto four overnight bot commits, so every data ID in this
+file is the post-rebase one. Old → new: `b4472ad`→`629f29f`, `e6c1122`→`e2224ca`, `eedbf44`→`e5b8bea`,
+`6907c4d`→`7e900fc`, `589c0ca`→`d6abbbe`, `10ba2cc`→`baff73f`, task files `6b87e7d`→`8092943`.

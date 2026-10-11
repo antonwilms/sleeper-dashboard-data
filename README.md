@@ -1302,6 +1302,14 @@ node bin/update.mjs snaps --year 2016 --force
 Per-file behaviour that a session needs only when editing that file. The one-line index is
 [CLAUDE.md → Navigation map](CLAUDE.md#navigation-map).
 
+#### Ingest re-keying and `lib/io.mjs`
+
+- **Re-keying.** `teamcontext`, `oline` and `playerstate` are TEAM- or date-keyed and read no crosswalk. The other
+  uniform family ingests re-key to `sleeper_id`: `snaps` via `pfrId`, `depth` via `gsisId` primary with an `espnId`
+  fallback on ESPN-era seasons, and the rest via `gsisId`.
+- **`lib/io.mjs` exports:** `readJson`, `writeJsonStable`, `setStepOutput`, `repoPath`, `stableHash`,
+  `sortObjectKeys` (shallow) / `deepSortKeys` (recursive).
+
 #### Analysis CLI flags
 
 Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot grader.

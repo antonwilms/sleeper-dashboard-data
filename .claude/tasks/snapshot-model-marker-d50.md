@@ -4,7 +4,7 @@
 (`../future_plans/in-season-notes-plan.md`), split out of `provenance-records-w2.md` because the app's capture
 changes first.
 
-**Baselines:** app HEAD after W2 Stage B (`c318487` + B1–B5), and data HEAD after W2 Stage A (`b4472ad` + A1–A4).
+**Baselines:** app HEAD after W2 Stage B (`c318487` + B1–B5), and data HEAD after W2 Stage A (`629f29f` + A1–A4).
 W2 touches none of D-50's source files; only the backlog file is shared, at different entries.
 
 **Route** (memory: the two-session registry route, CR-24). This is planned from the parent folder. The parent
@@ -303,3 +303,6 @@ an unanchored range: it also matches lines that mention the markers inline.
   Counts are now 7/7 in both stages.
 - 12 (quotes): CR-01 is marked truncated; CR-22 is noted as comment-only.
 - 13 (anchors): fixed.
+
+**Commit IDs.** The data baseline above is post-rebase: W1's task-file commit `b4472ad` became `629f29f` at the
+2026-10-11 push (data rebased onto bot commits).
