@@ -322,6 +322,12 @@ year's draft class exists. v3 is additive — every v2 field keeps its name, typ
 register at all (see [GitHub Actions](#github-actions) and `lib/snapshot-capture.mjs`); the
 manual import path does not run that gate.
 
+**`projectionModelFrom` (D-50, still v3 — additive, no bump).** The app's `PRIOR_MODEL_FROM` at capture: a
+`YYYY-MM-DD` string naming the projection model the capture ran on. The app's frozen-prior gate compares it
+(CR-26). Absent on captures made by code that predates D-50. A grader may segment app-model boundaries by
+it; served-data corrections and row-detectable axes are segmented as `grading/anchor-policy.md` says.
+Importers and the commit gate pass it through untouched.
+
 **`players[id].inSeason` (in-season-evidence-2b-1, still v3 — additive, no bump).** The in-season posterior at capture:
 `{ season, n, population, frozen, priorSource, notFrozenReason, ros: { prior, k, weight, value }, next: { priorKind, prior, k, weight, value } }`.
 Absent when there is no usable live season or the player is ineligible. `projection` stays the unmodified prior (never a
