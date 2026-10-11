@@ -153,10 +153,12 @@ Unlike boundaries 1–6, this one is a **served-data correction**, not an app-co
   per-season provenance, not `lastModified`.
 - **Segment by capture.** Captures with `capturedAt` before the data push are legacy on this axis. Captures
   from the first daily capture after the push **and** its CDN purge are corrected.
-- **Cross-check (to be confirmed).** For Stage B's 2026 impact movers
-  (`grading/2026-10-06-absence-verdict.md`), the first post-push capture's `projection.projectedGames` and
-  `factors.injurySeasons` must equal the verdict's "after" values. To be confirmed once that capture exists,
-  as boundaries 5 and 6 were.
+- **Cross-check — confirmed (D-68).** `snapshots/2026-10-06.json` (21:07:01 UTC, before the 2026-10-07 06:50 UTC push)
+  carries the "before" `projectedGames` and `factors.injurySeasons` of all 15 movers in
+  `grading/2026-10-06-absence-verdict.md` §5; `snapshots/2026-10-07.json` (21:39:01 UTC, the first capture after the
+  push and its purge) carries their "after" values on all 15. Between the two, exactly 35 rows change `projectedGames`
+  (the verdict's 35, none rookie-path), 19 change `injurySeasons`, 63 change `absenceShapeFactor`, and one flips
+  `isBounceBack` off→on (`4972`, the verdict's one flip). The 2026-10-08 and 2026-10-09 captures hold the same values.
 
 ### Veteran rows — boundary 8 (short-season rule)
 
