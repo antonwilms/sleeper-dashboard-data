@@ -1199,14 +1199,14 @@ const lab = (d) => (d ? `${d.label} (mean ${f(d.mean, 4)}, CI ${ciStr4(d.ci95)})
 
 function s2Markdown(result) {
   const { d55 } = result;
-  const dC = (d) => (d ? `${d.label} ${f(d.mean, 3)} [${f(d.ci95[0], 3)}, ${f(d.ci95[1], 3)}]` : '—');
+  const dC = (d) => (d ? `${d.label} ${f(d.mean, 4)} [${f(d.ci95[0], 4)}, ${f(d.ci95[1], 4)}]` : '—');
   const L = ['', '## D-55 — two-season (S+2) arm comparison', ''];
   const adm = d55.populations.admitted.cells.ALL, sur = d55.populations.survivors.cells.ALL;
   L.push(`Arm A (position baseline) vs arm B (neutral projection) against the S+2 outcome (\`nextPPG2\`, S ≤ ${IN_SEASON_DEFAULTS.plus2To}, gp ≥ ${IN_SEASON_DEFAULTS.nextMinGames}). **Admitted** = the Q1 rows with an S+2 outcome, with or without an S+1 outcome (${adm.rows} rows); **survivors** = those that also have one (${sur.rows} rows, app 2c-wiring §1b's population). Updated: arm A blended at its subgroup's pooled arm-A kFit (YE0 ${f(d55.kA[0], 2)}, YE1 ${f(d55.kA[1], 2)}); arm B at the 2a k. Δ = B − A in MAE (PPG), player-clustered.`, '');
   L.push('| population | cell | rows | player-seasons | players | MAE prior A → B | Δ prior | MAE updated A → B | Δ updated |', '|---|---|---|---|---|---|---|---|---|');
   for (const pop of ['survivors', 'admitted']) {
     for (const [name, c] of Object.entries(d55.populations[pop].cells)) {
-      L.push(`| ${pop} | ${name} | ${c.rows} | ${c.playerSeasons ?? '—'} | ${c.players ?? '—'} | ${f(c.maePriorA, 3)} → ${f(c.maePriorB, 3)} | ${dC(c.deltaPrior)} | ${f(c.maeUpdA, 3)} → ${f(c.maeUpdB, 3)} | ${dC(c.deltaUpd)} |`);
+      L.push(`| ${pop} | ${name.replace('|', '\\|')} | ${c.rows} | ${c.playerSeasons ?? '—'} | ${c.players ?? '—'} | ${f(c.maePriorA, 3)} → ${f(c.maePriorB, 3)} | ${dC(c.deltaPrior)} | ${f(c.maeUpdA, 3)} → ${f(c.maeUpdB, 3)} | ${dC(c.deltaUpd)} |`);
     }
   }
   L.push('', `**Rule:** ${d55.rule}`, '');
@@ -1214,7 +1214,6 @@ function s2Markdown(result) {
   L.push('');
   if (d55.flips.length) L.push(`**Flip(s) — a recommendation for Anton, not a change:** ${d55.flips.map(x => `YE${x.ye} ${x.pos}: ${x.shipped} → ${x.measured}`).join('; ')}.`);
   else L.push('No flip — equals the shipped PROSPECT_PRIOR_KIND.');
-  L.push('');
   return L;
 }
 
