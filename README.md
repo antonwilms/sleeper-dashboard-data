@@ -2146,6 +2146,15 @@ Q3 mirrors the app's cap placement (app `8ab6a5e`): the no-market cap bounds the
 
 Reproduce: `node bin/backtest.mjs --inseason --dynasty --write`.
 
+**D-55 / D-56 (research-arms-w3).** `runS2ArmComparison` reports the two-season arm comparison on every Q1
+row with an S+2 outcome, admitted with or without an S+1 outcome; its `kind` (WORSE → position baseline) is
+what the app's `PROSPECT_PRIOR_KIND` must equal, recorded as `prospectPriorKind` in the constants file. When
+YE1 chooses arm B, `runQ1` also runs arm A's two-rung ladder and emits `K_DYN_PROSPECT_A_YE1`, which D-64's
+diff excludes (its 2026-09-27 baseline predates the name). `lib/rookieCapturedLevel.mjs` re-composes a
+capture's rookie level from its own factors; its neutral `dynastyPrior` (the ceiled level, never the QB chain)
+is the app's dynasty-side rookie prior, so no snapshot field carries it. It imports only
+`lib/projectionFactors.mjs`, so the grader can reach it (`test/rookie-captured-level.test.mjs`).
+
 ### QB takeover fit (`bin/backtest.mjs --qb-takeover`)
 
 P6a (`.claude/tasks/qb-takeover-research.md`). Offline analysis only: no ingest, no served family, no manifest entry. For a QB who is not his team's starter it fits the chance he is the starter in each remaining game, as a two-state weekly Markov chain over the team's game sequence — a **hazard** `pUp` (a non-starter is the primary passer in game g) and a **stickiness** `pStay` (a backup-origin starter stays) — then composes them into an expected remaining-start fraction (an exact recursion over 54 states). **Primary passer** = max `attempts + sacksSuffered` per team-game (REG; ties on attempts, then pid) from `nflverse/gamelogs`; gamelogs `team` is mapped to the schedule/depth era codes with `eraTeam` (STL/SD/OAK). **Checkpoint timing:** the chart known before game g — legacy seasons read chart(week of g), ESPN-era seasons (≥ `DEPTH_ESPN_FROM_SEASON`) read chart(week of g − 1), else the previous team game's chart. Both models are ridge-logistic (λ = 1) over **categorical** features, so the per-pattern (trials, events) table is the exact set of sufficient statistics and every pinned coefficient re-derives from the constants file's fixture. Features are chosen by a pre-registered forward ladder on leave-one-season-out log-loss; a candidate is adopted only when the paired team-season cluster bootstrap (4000 resamples, seed 12345, `mulberry32`) labels it BEATS. The run stops (exit 1, nothing written) if any season's primary-passer coverage is below 0.99 of REG team-games. No gamelogs points are read — weekly points come from season-totals `weeklyPoints`. The pure logic is `lib/qbTakeover.mjs`; the adapter is `scripts/qb-takeover-run.mjs`.

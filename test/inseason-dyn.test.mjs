@@ -24,7 +24,7 @@ import {
 import { verifyConstants, formatConstantsJson, makePut, pinDecision, addFoldK, ReconciliationStop, INSEASON_LOAD } from '../scripts/inseason-run.mjs';
 import {
   QB_DYN_RESEARCH, satLongerAt, fitDiscount, discountLoso, calibrateGroup, fullCalibration, ratioDiffBootstrap,
-  decideQ4, decideQ5a, decideQ5b, diffDynConstants, satLongerAggregates, SHIPPED_PROSPECT_PRIOR_KIND,
+  decideQ4, decideQ5a, decideQ5b, diffDynConstants, satLongerAggregates, SHIPPED_PROSPECT_PRIOR_KIND, SHIPPED_K_DYN_PROSPECT_A_YE1,
 } from '../lib/inSeasonEvidence.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -1036,11 +1036,27 @@ describe('20: D-55 — S+2 arm comparison', () => {
     assert.ok(!('prospectPriorKind' in result.constants.decisions));
   });
 
+  test('D-56(a): when YE1 does not choose arm B the arm-A ladder is skipped and no K_DYN_PROSPECT_A_YE1 is emitted', () => {
+    const load = dynLoadFixture();
+    const rowsBySeason = { 2020: [{ sleeperId: 'p0', S: 2020, W: 4, n: 4, position: 'WR', arm: 'X-rookie0', obsPPG: 10, nextPPG: 11, nextPPG2: 9, pointsPrior: 10, pointsPriorNext: 10 }] };
+    const result = runInSeasonDyn({ qbPrior: 'legacy', load, assemble: (S) => ({ rows: rowsBySeason[S] ?? [] }) });
+    assert.deepEqual(result.d56a, { skipped: 'YE1 chose arm A' });
+    assert.ok(!('K_DYN_PROSPECT_A_YE1' in result.constants.constants));
+    assert.ok(!('d56a' in result.q1));
+  });
+
   test('(d) SHIPPED_PROSPECT_PRIOR_KIND is the app literal', () => {
     assert.deepEqual(SHIPPED_PROSPECT_PRIOR_KIND, {
       0: { QB: 'projection', RB: 'projection', WR: 'projection', TE: 'projection' },
       1: { QB: 'projection', RB: 'projection', WR: 'position', TE: 'projection' },
     });
     assert.ok(Object.isFrozen(SHIPPED_PROSPECT_PRIOR_KIND) && Object.isFrozen(SHIPPED_PROSPECT_PRIOR_KIND[1]));
+  });
+});
+
+describe('20b: SHIPPED_K_DYN_PROSPECT_A_YE1', () => {
+  test('is the app literal (3.5 in every cell)', () => {
+    assert.deepEqual(SHIPPED_K_DYN_PROSPECT_A_YE1, { QB: 3.5, RB: 3.5, WR: 3.5, TE: 3.5 });
+    assert.ok(Object.isFrozen(SHIPPED_K_DYN_PROSPECT_A_YE1));
   });
 });

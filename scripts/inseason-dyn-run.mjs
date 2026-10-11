@@ -28,7 +28,7 @@ import {
 } from './inseason-run.mjs';
 import {
   IN_SEASON_DEFAULTS, analyzeKCell, pairedDelta, blend, fitCK, spearman, assertAligned,
-  DYN_DEFAULTS, DYN_OPTIMISM_C, PROSPECT_MIRROR, SHIPPED_PROSPECT_PRIOR_KIND, prospectPriorPPG, modelScore,
+  DYN_DEFAULTS, DYN_OPTIMISM_C, PROSPECT_MIRROR, SHIPPED_PROSPECT_PRIOR_KIND, SHIPPED_K_DYN_PROSPECT_A_YE1, prospectPriorPPG, modelScore,
   ageOnDate, dynastyPickProxy, historyPriorOf, ladderPick,
   QB_DYN_RESEARCH, satLongerAt, calibrateGroup, fullCalibration, ratioDiffBootstrap, decideQ4, satLongerAggregates, diffDynConstants,
 } from '../lib/inSeasonEvidence.mjs';
@@ -299,6 +299,23 @@ function writeTwoRungEntry(P, name, pos, res) {
   P.put(name, pos, pinDecision(res.own, null), res.own, `${name}|${pos} (ladder: own rung)`);
 }
 
+// D-56(a): a ladder cell as the verdict shows it — INSUFFICIENT / absent → zeros.
+function cellOf(c) {
+  if (!c || c.verdict === 'INSUFFICIENT') return { rows: 0, players: 0, kFit: null, ci95: null };
+  return { rows: c.rows, players: c.players, kFit: c.kFit?.k ?? null, ci95: c.ci95 ?? null };
+}
+
+function d56aRow(res, P, pos) {
+  const step = res.ladder?.steps?.[0] ?? null;
+  return {
+    source: res.insufficient ? 'insufficient' : res.pooledFallback ? 'pooledFallback' : 'own',
+    own: cellOf(res.own),
+    step: step ? { from: step.from, to: step.to, mean: r4(step.mean), ci95: step.ci95 ? step.ci95.map(r4) : null, label: step.label } : null,
+    chosen: res.ladder?.id ?? null,
+    pinnedK: P.constants.K_DYN_PROSPECT_A_YE1?.[pos]?.k ?? null,
+  };
+}
+
 // ─── Q1 — prospect prior: arm A vs arm B (§5.1, §6) ────────────────────────────
 
 function runQ1(q1Rows, pinnedSource) {
@@ -397,7 +414,14 @@ function runQ1(q1Rows, pinnedSource) {
       out.decisions[label].ladderName = name;
       out.decisions[label].ladders = Object.fromEntries(POSITIONS.map(pos => [pos, results[pos]?.ladder ?? null]));
       resultsByPos[label] = results;
+      // D-56(a): the app routes second-year WRs through arm A; YE1 choosing B never runs that ladder, so run it here.
+      if (g === 1) {
+        const armA = twoRungLadder({ rowsPooled, positions: POSITIONS, spec: SPEC_A });
+        for (const pos of POSITIONS) writeTwoRungEntry(P, 'K_DYN_PROSPECT_A_YE1', pos, armA.results[pos] ?? { insufficient: true });
+        out.d56a = { decisionCell: 'WR', pooled: cellOf(armA.pooled), byPosition: Object.fromEntries(POSITIONS.map(pos => [pos, d56aRow(armA.results[pos] ?? { insufficient: true }, P, pos)])) };
+      }
     } else {
+      if (g === 1) out.d56a = { skipped: 'YE1 chose arm A' };
       const name = `K_DYN_PROSPECT_YE${g}`;
       const { results } = twoRungLadder({ rowsPooled, positions: POSITIONS, spec: SPEC_A });
       for (const pos of POSITIONS) writeTwoRungEntry(P, name, pos, results[pos] ?? { insufficient: true });
@@ -1026,7 +1050,7 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
   const routeMismatchRate = q1Rows.length + routeMismatchRows.length > 0 ? routeMismatchRows.length / (q1Rows.length + routeMismatchRows.length) : 0;
 
   const q1Full = runQ1(q1Rows, pinnedSource);
-  const { resultsByPos: q1ResultsByPos, ...q1 } = q1Full;
+  const { resultsByPos: q1ResultsByPos, d56a, ...q1 } = q1Full;
   // D-55: admitted = Q1 rows with an S+2 outcome, with or without an S+1 outcome (preFilterRows, not allRows).
   const s2Rows = preFilterRows.filter(r => classifyRow(r).q1 && Number.isFinite(r.nextPPG2));
   const d55 = runS2ArmComparison(s2Rows, { kA: { 0: q1.subgroups.YE0.pooled.A.kFit, 1: q1.subgroups.YE1.pooled.A.kFit } });
@@ -1127,9 +1151,12 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
     q2: q2Public.decision.ladders ?? null,
   };
 
-  const d64 = qbPrior === 'starter' && typeof load.loadDynBaseline === 'function' ? diffDynConstants(constantsFile, load.loadDynBaseline()) : null;
+  // D-64 compares the 2c set only: the 2026-09-27 baseline predates K_DYN_PROSPECT_A_YE1 (D-56a), so that name is left out.
+  const { K_DYN_PROSPECT_A_YE1: _armA, ...constantsWithoutArmA } = constantsFile.constants;
+  const d64 = qbPrior === 'starter' && typeof load.loadDynBaseline === 'function'
+    ? diffDynConstants({ ...constantsFile, constants: constantsWithoutArmA }, load.loadDynBaseline()) : null;
 
-  return { meta, reconciliation, coverage, excluded, q1, q2: q2Public, q3, d55, d64, q4, q5, diagnostics, ladders, pinnedFrom, constants: constantsFile };
+  return { meta, reconciliation, coverage, excluded, q1, q2: q2Public, q3, d55, d56a: d56a ?? null, d64, q4, q5, diagnostics, ladders, pinnedFrom, constants: constantsFile };
 }
 
 // ─── Verdict markdown (§7) ──────────────────────────────────────────────────────
@@ -1187,6 +1214,26 @@ function s2Markdown(result) {
   L.push('');
   if (d55.flips.length) L.push(`**Flip(s) — a recommendation for Anton, not a change:** ${d55.flips.map(x => `YE${x.ye} ${x.pos}: ${x.shipped} → ${x.measured}`).join('; ')}.`);
   else L.push('No flip — equals the shipped PROSPECT_PRIOR_KIND.');
+  L.push('');
+  return L;
+}
+
+function d56aMarkdown(result) {
+  const { d56a } = result;
+  const L = ['', '## D-56(a) — arm-A k for second-year WRs', ''];
+  if (!d56a || d56a.skipped) { L.push(d56a?.skipped ? `${d56a.skipped} — the existing K_DYN_PROSPECT_YE1 ladder covers it.` : 'Not run.', ''); return L; }
+  const kc = (c) => (c && c.rows ? `${f(c.kFit, 1)} ${ciStr(c.ci95)}` : '—');
+  L.push('Pre-registered ladder [YE1 pooled, own position] on arm A against S+1 (app 2c-wiring §9); the app routes only WR|YE1 here.', '');
+  L.push(`Pooled YE1 arm A: ${d56a.pooled.rows} rows, ${d56a.pooled.players} players, kFit ${kc(d56a.pooled)}.`, '');
+  L.push('| pos | rows | players | own kFit [CI] | own vs pooled | chosen | pinned k | shipped |', '|---|---|---|---|---|---|---|---|');
+  for (const [pos, r] of Object.entries(d56a.byPosition)) {
+    const fb = r.source !== 'own';
+    const step = r.step ? `${r.step.label} ${f(r.step.mean, 4)} ${ciStr4(r.step.ci95)}` : '—';
+    L.push(`| ${pos} | ${fb ? '—' : r.own.rows} | ${fb ? '—' : r.own.players} | ${fb ? '—' : kc(r.own)} | ${fb ? 'own INSUFFICIENT' : step} | ${r.chosen ?? '—'} | ${f(r.pinnedK, 1)} | ${f(SHIPPED_K_DYN_PROSPECT_A_YE1[pos], 1)} |`);
+  }
+  L.push('');
+  if (d56a.byPosition.WR.pinnedK === SHIPPED_K_DYN_PROSPECT_A_YE1.WR) L.push('Equals the shipped pin — an app re-pin to this constants file is provenance only.');
+  else L.push('**Differs from the shipped pin — a recommendation for Anton, not a change.**');
   L.push('');
   return L;
 }
@@ -1289,7 +1336,7 @@ export function buildInSeasonDynVerdictMarkdown(result) {
     '- The cap population is an upper bound, because KTC is unknown historically.',
     '- Every row starts from arm B at the 2a k, as the wiring decision measured. Second-year WRs, which the app starts from arm A, are not measured separately.',
     '', 'No cap at all also beats cap-before (§10.1 of the wiring file). Reported, not acted on.', '');
-  lines.push(...s2Markdown(result));
+  lines.push(...s2Markdown(result), ...d56aMarkdown(result));
   lines.push(...qbResearchMarkdown(result));
   lines.push('', '## Excluded population', '');
   lines.push(`Q1: YE<=1 player-seasons ${excluded.q1.ye01.playerSeasons} (rows ${excluded.q1.ye01.rows}, players ${excluded.q1.ye01.players}). No S+1 outcome — absent: player-seasons ${excluded.q1.noOutcomeAbsent.playerSeasons} (rows ${excluded.q1.noOutcomeAbsent.rows}); gp<6: player-seasons ${excluded.q1.noOutcomeGpUnder6.playerSeasons} (rows ${excluded.q1.noOutcomeGpUnder6.rows}). draftYear unusable: player-seasons ${excluded.q1.draftYearUnusable.playerSeasons} (rows ${excluded.q1.draftYearUnusable.rows}). routeMismatch: player-seasons ${excluded.q1.routeMismatch.playerSeasons} (rows ${excluded.q1.routeMismatch.rows}, rate ${f(meta.routeMismatchRate * 100, 2)}%). YE1-in-rookie0: player-seasons ${excluded.q1.ye1InRookie0.playerSeasons} (rows ${excluded.q1.ye1InRookie0.rows}). YE2-3 no qualifying season: player-seasons ${excluded.q1.ye23NoQualifyingSeason.playerSeasons} (rows ${excluded.q1.ye23NoQualifyingSeason.rows}).`);
