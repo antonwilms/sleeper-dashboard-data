@@ -20,6 +20,7 @@ import {
 import {
   runInSeasonDyn, inSeasonDynMain, INSEASON_DYN_LOAD, pinnedSourceOf, DYN_2A_PIN,
   predictorFor, capStartPPG, q3Metrics, capPlacementComparison, buildQ3Items, runS2ArmComparison,
+  constantsForD64, d56aMarkdown,
 } from '../scripts/inseason-dyn-run.mjs';
 import { verifyConstants, formatConstantsJson, makePut, pinDecision, addFoldK, ReconciliationStop, INSEASON_LOAD } from '../scripts/inseason-run.mjs';
 import {
@@ -1058,5 +1059,66 @@ describe('20b: SHIPPED_K_DYN_PROSPECT_A_YE1', () => {
   test('is the app literal (3.5 in every cell)', () => {
     assert.deepEqual(SHIPPED_K_DYN_PROSPECT_A_YE1, { QB: 3.5, RB: 3.5, WR: 3.5, TE: 3.5 });
     assert.ok(Object.isFrozen(SHIPPED_K_DYN_PROSPECT_A_YE1));
+  });
+});
+
+describe('20c: D-56(a) — arm-A ladder when YE1 chooses B', () => {
+  test('constantsForD64 drops only K_DYN_PROSPECT_A_YE1, keeps every other key, does not mutate its input', () => {
+    const input = { K_DYN_PROSPECT_A_YE1: { WR: { k: 3.5 } }, K_DYN_PROSPECT_YE1: { WR: { k: 2 } }, K_DYN_POINTS_SHORT: { WR: { k: 1 } } };
+    const copy = JSON.parse(JSON.stringify(input));
+    const out = constantsForD64(input);
+    assert.deepEqual(Object.keys(out), ['K_DYN_PROSPECT_YE1', 'K_DYN_POINTS_SHORT']);
+    assert.deepEqual(input, copy);
+    assert.ok('K_DYN_PROSPECT_A_YE1' in input);
+  });
+
+  test('YE1 -> B: WR own ladder, QB/RB/TE pooledFallback, constants verify, D-64 view excludes the arm-A name', () => {
+    const load = dynLoadFixture();
+    load.loadInSeasonConstants = () => ({ constants: { K_DYN_POINTS_ROOKIE0: { WR: { k: 6.5 } }, K_DYN_POINTS_ROOKIE1P: { WR: { k: 3.5 } } } });
+    const bySleeper = {};
+    const rowsBySeason = {};
+    let idx = 0;
+    for (const S of [2014, 2015, 2016, 2017, 2018]) {
+      rowsBySeason[S] = [];
+      for (let i = 0; i < 14; i++) {
+        const pid = `y${idx++}`;
+        bySleeper[pid] = { draftYear: S - 1, draftRound: null, draftPick: null, draftOvr: null, undrafted: true, birthdate: '1998-01-01' };
+        const nextPPG = 8 + (i % 5);
+        for (const W of [2, 4, 6, 8, 10]) {
+          rowsBySeason[S].push({
+            sleeperId: pid, S, W, n: W, position: 'WR', arm: 'X-rookie1p',
+            obsPPG: nextPPG + ((i % 3) - 1) * 2, nextPPG, pointsPrior: nextPPG, pointsPriorNext: nextPPG,
+          });
+        }
+      }
+    }
+    const baseIds = load.loadPlayerIds().ids;
+    load.loadPlayerIds = () => ({ ids: baseIds, bySleeper });
+    const result = runInSeasonDyn({ qbPrior: 'legacy', load, assemble: (S) => ({ rows: rowsBySeason[S] ?? [] }) });
+    assert.equal(result.q1.decisions.YE1.arm, 'B');
+    assert.deepEqual(Object.keys(result.constants.constants.K_DYN_PROSPECT_A_YE1).sort(), ['QB', 'RB', 'TE', 'WR']);
+    const wr = result.d56a.byPosition.WR;
+    assert.equal(wr.source, 'own');
+    assert.ok(Number.isFinite(wr.own.kFit));
+    assert.notEqual(wr.chosen, null);
+    for (const pos of ['QB', 'RB', 'TE']) assert.equal(result.d56a.byPosition[pos].source, 'pooledFallback', pos);
+    assert.ok(result.d56a.pooled.rows > 0);
+    assert.ok(!('K_DYN_PROSPECT_A_YE1' in constantsForD64(result.constants.constants)));
+    assert.deepEqual(verifyConstants(result.constants), []);
+  });
+});
+
+describe('20d: d56aMarkdown — insufficient label', () => {
+  test('an insufficient row prints "insufficient" in both columns; only pooledFallback prints "own INSUFFICIENT"', () => {
+    const cell = { rows: 0, players: 0, kFit: null, ci95: null };
+    const mk = (source) => ({ source, own: cell, step: null, chosen: null, pinnedK: 3.5 });
+    const md = d56aMarkdown({ d56a: {
+      pooled: { rows: 10, players: 4, kFit: 3.5, ci95: [1, 5] },
+      byPosition: { QB: mk('insufficient'), RB: mk('pooledFallback'), TE: mk('pooledFallback'), WR: mk('pooledFallback') },
+    } }).join('\n');
+    const row = (pos) => md.split('\n').find(l => l.startsWith(`| ${pos} |`));
+    assert.match(row('QB'), /\| insufficient \| insufficient \|/);
+    assert.ok(!/own INSUFFICIENT/.test(row('QB')));
+    assert.match(row('RB'), /own INSUFFICIENT/);
   });
 });

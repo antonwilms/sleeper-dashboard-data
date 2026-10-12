@@ -51,13 +51,13 @@ describe('rookieCapturedLevel against captures', () => {
             assert.equal(rookieCapturedLevel(f).dynastyPrior, rookieCapturedLevel(f, { neutral: true }).dynastyPrior);
           }
         }
-        assert.ok(n >= 1);
+        if (expected != null) assert.ok(n >= 1);   // existence is asserted on the two fixed files only
       });
 
       test('(v) the neutral dynastyPrior differs from the captured projectedPPG on at least one non-chain row', () => {
         const differs = rows.filter(({ p }) => p.projection.factors.qbTakeoverBasis !== 'chain'
           && rookieCapturedLevel(p.projection.factors, { neutral: true }).dynastyPrior !== p.projection.projectedPPG);
-        assert.ok(differs.length >= 1);
+        if (expected != null) assert.ok(differs.length >= 1);   // fixed files only
       });
 
       test('(vi) on a chain row the dynasty prior is the ceiled level, not the share-scaled projectedPPG', () => {
@@ -67,7 +67,7 @@ describe('rookieCapturedLevel against captures', () => {
           const r = rookieCapturedLevel(p.projection.factors, { neutral: true });
           assert.equal(r.dynastyPrior, Math.round(r.ceiledPPG * 10) / 10, id);
         }
-        assert.ok(chain.some(({ p }) => rookieCapturedLevel(p.projection.factors, { neutral: true }).dynastyPrior !== p.projection.projectedPPG), 'share scaling must separate the two on some chain row');
+        if (expected != null) assert.ok(chain.some(({ p }) => rookieCapturedLevel(p.projection.factors, { neutral: true }).dynastyPrior !== p.projection.projectedPPG), 'share scaling must separate the two on some chain row');
       });
     });
   }

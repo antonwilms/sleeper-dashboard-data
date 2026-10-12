@@ -488,3 +488,67 @@ plan-reviewer (full depth) raised 13 flags. Every flag was checked against live 
   Anton's wire-or-close call".
 - **Precondition met.** D-50 was pushed with its IDs unchanged (app `cbd17c8` on `origin/main`, data `fe324e6`), so
   `<APP>` = `cbd17c8`. Re-check at A2 anyway (§6 precondition).
+
+---
+
+## Verification record (Session 1, 2026-10-12)
+
+Stage A is data `c3d8637..1828637` (A0–A5), unpushed. Session 1 re-checked it independently:
+- **Re-runs.** It re-ran `--inseason --dynasty --json` and `--rookie-total --json` at HEAD. Every result key equals
+  the committed `backtests/2026-10-11-*` panels (`runtimeMs`/`generatedAt` aside).
+- **Gates.** G2 holds by deep-equality after the specified deletions. G1 holds: 0 removed verdict lines. G3/G4/G5
+  and D3 hold.
+- **Hand-back slip.** The hand-back's admitted WR|YE1 figure, 0.4160 [0.1426, 0.6988], is wrong. The committed
+  value is **0.4161 [0.1429, 0.6987]**, and Stage B cites the committed files.
+
+implementation-reviewer found nothing blocking and accepted all six declared deviations. Triage of its flags:
+1. **MED, the arm-B path is untested.** Fixed in Fix pass 1, items 1–2.
+2. **LOW, (vi) is self-referential.** Left as is. Parity (ii) plus the added `chain.some(dynastyPrior !==
+   projectedPPG)` carry the guarantee.
+3. **LOW, the newest-capture block over-asserts and would false-red.** Fixed in Fix pass 1, item 3.
+4. **LOW, the D-55 Δ cells use 4 dp, not `dCell`.** Accepted, as a disclosed deviation; the artifacts reproduce.
+5. **LOW, a fully insufficient D-56(a) row prints "own INSUFFICIENT".** Fixed in Fix pass 1, item 4. The committed
+   run does not hit this, so no artifact changes.
+
+## Fix pass 1 (tests plus one latent label; no behaviour change on the committed run, no artifact re-run)
+
+1. **`scripts/inseason-dyn-run.mjs`: make the D-64 exclusion testable.**
+   - Replace the inline destructure at `runInSeasonDyn` (`const { K_DYN_PROSPECT_A_YE1: _armA,
+     ...constantsWithoutArmA } = constantsFile.constants;`) with a call to a new export,
+     `export function constantsForD64(constants) { const { K_DYN_PROSPECT_A_YE1: _armA, ...rest } = constants;
+     return rest; }`. Keep the existing comment.
+   - Nothing else in the function changes.
+2. **`test/inseason-dyn.test.mjs`: the arm-B path.** Add `describe('20c: D-56(a) — arm-A ladder when YE1 chooses
+   B')`.
+   - **(a) `constantsForD64`.** It drops only `K_DYN_PROSPECT_A_YE1`, keeps every other key, and does not mutate
+     its input.
+   - **(b) Through `runInSeasonDyn`** (`qbPrior: 'legacy'`, stub `assemble`):
+     - Build the population like test 11's "throws when a reuse would name…" fixture, but YE1. That means
+       `bySleeper[pid].draftYear = S - 1`, `arm: 'X-rookie1p'`, 5 seasons × 14 WR players × 5 checkpoints, and
+       `pointsPriorNext === nextPPG` (B exact, so YE1 chooses B).
+     - Set `load.loadInSeasonConstants = () => ({ constants: { K_DYN_POINTS_ROOKIE0: { WR: { k: 6.5 } },
+       K_DYN_POINTS_ROOKIE1P: { WR: { k: 3.5 } } } })`.
+     - Assert:
+       - `result.q1.decisions.YE1.arm === 'B'`;
+       - `result.constants.constants.K_DYN_PROSPECT_A_YE1` has all four positions;
+       - `result.d56a.byPosition.WR.source === 'own'` with finite `own.kFit` and non-null `chosen`;
+       - QB/RB/TE are `source: 'pooledFallback'`;
+       - `result.d56a.pooled.rows > 0`;
+       - `constantsForD64(result.constants.constants)` has no `K_DYN_PROSPECT_A_YE1`;
+       - `verifyConstants(result.constants)` is `[]`.
+   - If the fixture does not drive YE1 to B, stop and report. Do not loosen the assertion.
+3. **`test/rookie-captured-level.test.mjs`: the newest-capture block asserts only what the spec does.**
+   - On `newest`, keep (i) (≥ 1 rookie row), (ii) parity, (iii) the pre-ceiling tolerance, and (vii).
+   - Apply (iv), (v) and the chain `some(...)` existence checks only to the two fixed files. A conditional
+     existence check on `newest` would false-red on a capture with no chain or no market-neutral rows.
+   - (vi)'s per-row equality on chain rows may stay on every file, because it holds vacuously.
+4. **`scripts/inseason-dyn-run.mjs` `d56aMarkdown`.** A row with `source === 'insufficient'` prints `insufficient`
+   in the "own vs pooled" and "chosen" columns. Only `'pooledFallback'` prints "own INSUFFICIENT".
+   - Add a unit test calling the markdown builder with a synthetic `result.d56a` containing one `insufficient` row.
+     If `d56aMarkdown` is not exported, export it.
+   - The committed 2026-10-11 verdict must stay byte-identical when rebuilt in memory. Check this; do not rewrite
+     the artifact.
+
+Done-definition: `npm test` green; `npm run smoke` green; one commit, `Fix pass 1: arm-B D-56(a) test,
+constantsForD64, newest-capture test scope, insufficient label (research-arms-w3)`. Hand back the SHA, the diff stat,
+and confirmation that the in-memory verdict rebuild is byte-identical.

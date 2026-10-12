@@ -996,6 +996,11 @@ function runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesB
 
 // ─── runInSeasonDyn (§4) ────────────────────────────────────────────────────────
 
+export function constantsForD64(constants) {
+  const { K_DYN_PROSPECT_A_YE1: _armA, ...rest } = constants;
+  return rest;
+}
+
 export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assemble = assembleSeason, onRows = null, qbPrior, qbResearch = qbPrior === 'starter' } = {}) {
   if (!QB_PRIOR_MODELS.includes(qbPrior)) throw new Error('[inseason-dyn] runInSeasonDyn needs qbPrior legacy|starter');
   if (qbResearch && qbPrior !== 'starter') throw new Error("[inseason-dyn] Q4/Q5 run on the starter QB prior only (qbResearch needs qbPrior 'starter')");
@@ -1152,7 +1157,7 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
   };
 
   // D-64 compares the 2c set only: the 2026-09-27 baseline predates K_DYN_PROSPECT_A_YE1 (D-56a), so that name is left out.
-  const { K_DYN_PROSPECT_A_YE1: _armA, ...constantsWithoutArmA } = constantsFile.constants;
+  const constantsWithoutArmA = constantsForD64(constantsFile.constants);
   const d64 = qbPrior === 'starter' && typeof load.loadDynBaseline === 'function'
     ? diffDynConstants({ ...constantsFile, constants: constantsWithoutArmA }, load.loadDynBaseline()) : null;
 
@@ -1217,7 +1222,7 @@ function s2Markdown(result) {
   return L;
 }
 
-function d56aMarkdown(result) {
+export function d56aMarkdown(result) {
   const { d56a } = result;
   const L = ['', '## D-56(a) — arm-A k for second-year WRs', ''];
   if (!d56a || d56a.skipped) { L.push(d56a?.skipped ? `${d56a.skipped} — the existing K_DYN_PROSPECT_YE1 ladder covers it.` : 'Not run.', ''); return L; }
@@ -1228,7 +1233,7 @@ function d56aMarkdown(result) {
   for (const [pos, r] of Object.entries(d56a.byPosition)) {
     const fb = r.source !== 'own';
     const step = r.step ? `${r.step.label} ${f(r.step.mean, 4)} ${ciStr4(r.step.ci95)}` : '—';
-    L.push(`| ${pos} | ${fb ? '—' : r.own.rows} | ${fb ? '—' : r.own.players} | ${fb ? '—' : kc(r.own)} | ${fb ? 'own INSUFFICIENT' : step} | ${r.chosen ?? '—'} | ${f(r.pinnedK, 1)} | ${f(SHIPPED_K_DYN_PROSPECT_A_YE1[pos], 1)} |`);
+    L.push(`| ${pos} | ${fb ? '—' : r.own.rows} | ${fb ? '—' : r.own.players} | ${fb ? '—' : kc(r.own)} | ${r.source === 'insufficient' ? 'insufficient' : fb ? 'own INSUFFICIENT' : step} | ${r.source === 'insufficient' ? 'insufficient' : (r.chosen ?? '—')} | ${f(r.pinnedK, 1)} | ${f(SHIPPED_K_DYN_PROSPECT_A_YE1[pos], 1)} |`);
   }
   L.push('');
   if (d56a.byPosition.WR.pinnedK === SHIPPED_K_DYN_PROSPECT_A_YE1.WR) L.push('Equals the shipped pin — an app re-pin to this constants file is provenance only.');
