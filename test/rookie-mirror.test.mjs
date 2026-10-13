@@ -33,6 +33,10 @@ import {
   ROOKIE_CALIBRATION,
   ROOKIE_CEILING,
   ROOKIE_CORRECTIONS,
+  ROOKIE_TOTAL_FACTOR,
+  ROOKIE_TOTAL_MODELS,
+  CURRENT_ROOKIE_TOTAL_MODEL,
+  resolveRookieTotalFactor,
   resolveRookieCalibration,
   resolveRookieGames,
   applyRookieCeiling,
@@ -141,7 +145,7 @@ describe('T-RM3: the corrected predictor declares exactly what it applied', () =
       position: 'WR', ageAtDraft: 22, draftRound: null, draftPick: null,
       draftCapitalStatus: 'undrafted', yearsExp: 0,
     });
-    assert.deepEqual(r.appliedCorrections, ['rookieCalibration', 'rookieGames']);
+    assert.deepEqual(r.appliedCorrections, ['rookieCalibration', 'rookieGames', 'rookieTotal']); // rookie-total-wiring: undrafted WR takes the factor
     assert.equal(r.rookieCeilingBasis, 'none');
   });
 
@@ -811,5 +815,65 @@ describe('APP_ROOKIE_GAMES_CELLS parity with the mirror tables (D-12, provenance
     assert.equal(mirrorKeys.length, 74);
     assert.equal(new Set(mirrorKeys).size, 74);
     for (const key of mirrorKeys) assert.ok(key in APP_ROOKIE_GAMES_CELLS, `mirror leaf ${key} missing from app cells`);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-RM15 — rookie total-points factor (D-13, rookie-total-wiring; anchor-policy boundary 9)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('T-RM15: rookie total-points factor', () => {
+  const DRAFT = { ageAtDraft: 22, draftRound: null, draftPick: null, yearsExp: 0 };
+
+  test('ROOKIE_TOTAL_FACTOR equals the committed verdict panel\'s loso.decision.<group>.fullSample', () => {
+    const panel = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'backtests/2026-10-11-rookie-total-panel.json'), 'utf8'));
+    assert.equal(ROOKIE_TOTAL_FACTOR.day3, panel.loso.decision.day3.fullSample);
+    assert.equal(ROOKIE_TOTAL_FACTOR.undrafted, panel.loso.decision.undrafted.fullSample);
+  });
+
+  test('resolver, positive cells: day-3 and undrafted RB/WR/TE', () => {
+    for (const position of ['RB', 'WR', 'TE']) {
+      for (const tier of ['r4', 'r5', 'r6', 'r7']) {
+        assert.deepEqual(resolveRookieTotalFactor({ position, draftCapitalStatus: 'matched', nflDraftTier: tier }),
+          { rookieTotalFactor: 0.796, rookieTotalBasis: `day3:${position}` });
+      }
+      assert.deepEqual(resolveRookieTotalFactor({ position, draftCapitalStatus: 'undrafted', nflDraftTier: null }),
+        { rookieTotalFactor: 0.835, rookieTotalBasis: `undrafted:${position}` });
+    }
+  });
+
+  test('resolver, negative cells: QB, r1, day2, unknown capital', () => {
+    const none = { rookieTotalFactor: 1, rookieTotalBasis: 'none' };
+    assert.deepEqual(resolveRookieTotalFactor({ position: 'QB', draftCapitalStatus: 'matched', nflDraftTier: 'r5' }), none);
+    assert.deepEqual(resolveRookieTotalFactor({ position: 'QB', draftCapitalStatus: 'undrafted', nflDraftTier: null }), none);
+    assert.deepEqual(resolveRookieTotalFactor({ position: 'WR', draftCapitalStatus: 'matched', nflDraftTier: 'r1' }), none);
+    assert.deepEqual(resolveRookieTotalFactor({ position: 'TE', draftCapitalStatus: 'matched', nflDraftTier: 'day2' }), none);
+    assert.deepEqual(resolveRookieTotalFactor({ position: 'WR', draftCapitalStatus: 'unknown', nflDraftTier: null }), none);
+  });
+
+  test('undrafted WR: rookie-total total = round(ceiledPPG x games x 0.835), legacy = without the factor; PPG/games identical', () => {
+    const args = { position: 'WR', ...DRAFT, draftCapitalStatus: 'undrafted' };
+    const rt = reconstructShippedRookieProjection({ ...args, rookieTotalModel: 'rookie-total' });
+    const lg = reconstructShippedRookieProjection({ ...args, rookieTotalModel: 'legacy' });
+    // Unrounded ceiled PPG: recover it from the capture-grade field rookieCeilingPPGPre through the ceiling.
+    const { ceiledPPG } = applyRookieCeiling({ position: 'WR', projectedPPG: rt.rookieCeilingPPGPre });
+    assert.equal(rt.projectedTotalPts, Math.round(ceiledPPG * rt.projectedGames * 0.835 * 10) / 10);
+    assert.equal(lg.projectedTotalPts, Math.round(ceiledPPG * lg.projectedGames * 10) / 10);
+    assert.ok(rt.projectedTotalPts < lg.projectedTotalPts);
+    assert.equal(rt.projectedPPG, lg.projectedPPG);
+    assert.equal(rt.projectedGames, lg.projectedGames);
+    // The factor is reported under both models; only rookie-total declares the correction.
+    assert.equal(lg.rookieTotalFactor, 0.835);
+    assert.equal(lg.rookieTotalBasis, 'undrafted:WR');
+    assert.ok(rt.appliedCorrections.includes('rookieTotal'));
+    assert.ok(!lg.appliedCorrections.includes('rookieTotal'));
+  });
+
+  test('default model is the current one; an unknown model throws', () => {
+    assert.deepEqual([...ROOKIE_TOTAL_MODELS], ['legacy', 'rookie-total']);
+    assert.equal(CURRENT_ROOKIE_TOTAL_MODEL, 'rookie-total');
+    const args = { position: 'WR', ...DRAFT, draftCapitalStatus: 'undrafted' };
+    assert.deepEqual(reconstructShippedRookieProjection(args), reconstructShippedRookieProjection({ ...args, rookieTotalModel: 'rookie-total' }));
+    assert.throws(() => reconstructShippedRookieProjection({ ...args, rookieTotalModel: 'nope' }), /unknown rookie total model 'nope'/);
   });
 });

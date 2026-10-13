@@ -24,7 +24,7 @@ function wrRow(over = {}) {
 describe('composeRookieRow', () => {
   test('equals reconstructShippedRookieProjection on an undrafted WR row; parity breaks when projectedPPG is altered', () => {
     const row = wrRow();
-    const ref = reconstructShippedRookieProjection({ position: 'WR', ageAtDraft: 22, draftRound: null, draftPick: null, draftCapitalStatus: 'undrafted', yearsExp: 0 });
+    const ref = reconstructShippedRookieProjection({ position: 'WR', ageAtDraft: 22, draftRound: null, draftPick: null, draftCapitalStatus: 'undrafted', yearsExp: 0, rookieTotalModel: 'legacy' });
     const c = composeRookieRow(row, 22);
     assert.equal(c.predTotal, ref.projectedTotalPts);
     assert.equal(c.predPPG, ref.projectedPPG);
