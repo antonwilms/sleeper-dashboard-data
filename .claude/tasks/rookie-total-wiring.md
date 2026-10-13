@@ -536,3 +536,32 @@ wording, exact total assertions (rookie-total-wiring)`. Do not push.
   - `<push time>` = `2026-10-13 10:51` (UTC).
   - The registry md5 to match is `fe8cd18487c6c030419f7755090d8f3d`.
 - **CR-24.** `registry-mirror` is red from this push until B3 lands; same day.
+
+## Stage B verification record (Session 1, 2026-10-13)
+
+Stage B is data `a492bc4..c1bd64c` (B1 `a1fbec0`, B2 `b8d4264`, B3 `e262d9e`, B4 `c1bd64c`).
+
+**implementation-reviewer** (full depth): nothing blocking, three LOW flags.
+- The port is token-identical to app `e9414f8`.
+- The `--rookie-total` verdict reproduces byte-identically with `generatedAt` masked.
+- Only T-RM3's `appliedCorrections` changed.
+- The registry region is md5 `fe8cd184…` in both repos. Session 1 re-ran the mirror test independently: 21/21.
+
+**Triage of the flags:**
+- Stale counts: Fix pass 2, item 1.
+- Unfrozen data constant: accepted. It follows `lib/rookieMirror.mjs`'s convention, since `QB_ROOKIE_STARTER_PPG` is unfrozen too.
+- Comment anchors: Fix pass 2, item 2.
+
+## Fix pass 2 (Stage B, data repo; text only, one commit)
+
+1. **`grading/anchor-policy.md`**
+   - `:5`: replace `has changed eight times` with `has changed nine times`.
+   - `:8`: replace `and once on the veteran path (the short-season games rule). Earlier` with
+     `once on the veteran path (the short-season games rule), and once on the rookie path's season total (the
+     total-points factor). Earlier`.
+   - `:60`: replace `Eight changes on six tracked axes` with `Nine changes on seven tracked axes`.
+2. **`lib/rookieMirror.mjs`** comments: replace `seasonProjection.js:257-268` with `seasonProjection.js:257-265`, and
+   `seasonProjection.js:259-268` with `seasonProjection.js:259-265`.
+
+**Done-definition.** `npm test` is green. One commit: `Fix pass 2: anchor-policy counts, mirror line anchors
+(rookie-total-wiring)`. The commit includes this file's two appended sections. Do not push.

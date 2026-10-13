@@ -2,10 +2,10 @@
 
 **Not to be confused with `.claude/tasks/anchor-policy.md`**, which is the registry
 line-anchor policy. This file is about which captured snapshot rows are safe to compare
-against which grading run, given that the app's projection mechanism has changed eight times on the axes this file
+against which grading run, given that the app's projection mechanism has changed nine times on the axes this file
 tracks — three on the rookie path, one on the veteran path (the Step 4 up-side), one on QB rows of both paths (the
 start share), one on rookie QB rows
-(the rookie starter level), once through a data correction rather than app code (the absence classification of served `weeklyStatus`), and once on the veteran path (the short-season games rule). Earlier
+(the rookie starter level), once through a data correction rather than app code (the absence classification of served `weeklyStatus`), once on the veteran path (the short-season games rule), and once on the rookie path's season total (the total-points factor). Earlier
 snapshot-schema and factor-set changes (`schemaVersion` 1→2→3; the veteran factor set
 widening on 2026-06-06) are out of this file's scope.
 
@@ -57,7 +57,7 @@ captures either side of boundary 4.
 
 ## The date table is the cross-check, not the rule
 
-Eight changes on six tracked axes, verified against the actually-committed app files (row 7: the data commit):
+Nine changes on seven tracked axes, verified against the actually-committed app files (row 7: the data commit):
 
 | # | commit | date (UTC) | path | mechanism |
 |---|---|---|---|---|
