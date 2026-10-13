@@ -205,21 +205,21 @@ test('#17 validateKtc: >50% unrecognized positions throws', () => {
   assert.throws(() => validateKtc(players), /unrecognized position/i);
 });
 
-// ─── real-snapshot regression (the incident, as a living test) ───────────────
+// ─── frozen-snapshot regression (the incident, pinned) ───────────────────────
+// Reads test/fixtures/ktc/, never ktc/ — the weekly KTC workflow writes ktc/, so a live read
+// breaks on the next capture (2026-10-12: ρ 0.9867, 3 sentinels). Fixtures are copies of
+// ktc/snapshot-2026-09-{14,21,28}.json.
 
-test('#18 real snapshots: two latest pass ordering guard (ρ > 0.99)', () => {
-  const snapshotFiles = listDir('ktc')
-    .filter(f => f.startsWith('snapshot-') && f.endsWith('.json'))
-    .sort();
+const FIXTURE_DIR = 'test/fixtures/ktc';
+const fixtureSnapshots = () => listDir(FIXTURE_DIR).filter(f => f.startsWith('snapshot-') && f.endsWith('.json')).sort();
 
-  if (snapshotFiles.length < 2) {
-    console.log('[#18] fewer than 2 snapshots in ktc/ — skipping');
-    return;
-  }
+test('#18 frozen snapshots: two latest pass ordering guard (ρ > 0.99)', () => {
+  const snapshotFiles = fixtureSnapshots();
+  assert.ok(snapshotFiles.length >= 2, 'fixture pair missing');
 
   const [olderFile, newerFile] = snapshotFiles.slice(-2);
-  const older = readJson(`ktc/${olderFile}`);
-  const newer = readJson(`ktc/${newerFile}`);
+  const older = readJson(`${FIXTURE_DIR}/${olderFile}`);
+  const newer = readJson(`${FIXTURE_DIR}/${newerFile}`);
 
   const result = ktcOrderingGuard(older, newer);
   assert.equal(result.ok, true, `expected ok:true, got: ${JSON.stringify(result)}`);
@@ -295,18 +295,18 @@ test('#25 validateKtc: a sentinel miss no longer throws (per-row validity only)'
   assert.equal(checkKtcLandscape(baseWithTopQbs([])).ok, false);
 });
 
-test('#26 real snapshots: every committed ktc/ snapshot passes the landscape check', () => {
-  const files = listDir('ktc').filter(f => f.startsWith('snapshot-') && f.endsWith('.json')).sort();
+test('#26 frozen snapshots: every fixture snapshot passes the landscape check', () => {
+  const files = fixtureSnapshots();
   assert.ok(files.length > 0);
   for (const f of files) {
-    const r = checkKtcLandscape(readJson(`ktc/${f}`));
+    const r = checkKtcLandscape(readJson(`${FIXTURE_DIR}/${f}`));
     assert.equal(r.ok, true, `${f}: ${r.reason}`);
   }
 });
 
-test('#27 real snapshots: latest has headroom over the ≥3 floor (not exactly 3)', () => {
-  const files = listDir('ktc').filter(f => f.startsWith('snapshot-') && f.endsWith('.json')).sort();
-  const r = checkKtcLandscape(readJson(`ktc/${files[files.length - 1]}`));
+test('#27 frozen snapshots: latest fixture has headroom over the ≥3 floor (not exactly 3)', () => {
+  const files = fixtureSnapshots();
+  const r = checkKtcLandscape(readJson(`${FIXTURE_DIR}/${files[files.length - 1]}`));
   assert.ok(r.matches.length >= 4, `only ${r.matches.length} sentinels present: ${r.matches.join(', ')}`);
 });
 

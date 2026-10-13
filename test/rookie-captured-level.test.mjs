@@ -14,14 +14,14 @@ import { fileURLToPath } from 'url';
 import { rookieCapturedLevel } from '../lib/rookieCapturedLevel.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const newest = fs.readdirSync(path.join(ROOT, 'snapshots')).filter(n => /^\d{4}-\d{2}-\d{2}\.json$/.test(n)).sort().pop();
 
 const rookieRows = (file) => {
   const snap = JSON.parse(fs.readFileSync(path.join(ROOT, 'snapshots', file), 'utf8'));
   return Object.entries(snap.players).filter(([, p]) => p.projection?.factors?.rookieCalibrationBasis).map(([id, p]) => ({ id, p }));
 };
 
-const SETS = [['2026-10-10.json', 310], ['2026-10-11.json', 307], [newest, null]];
+// Fixed dates only: the newest capture is written daily by a scheduled workflow, so it is never read here.
+const SETS = [['2026-10-10.json', 310], ['2026-10-11.json', 307]];
 
 describe('rookieCapturedLevel against captures', () => {
   for (const [file, expected] of SETS) {
@@ -29,8 +29,7 @@ describe('rookieCapturedLevel against captures', () => {
       const rows = rookieRows(file);
 
       test('(i) rookie-row count', () => {
-        if (expected != null) assert.equal(rows.length, expected);
-        else assert.ok(rows.length >= 1);
+        assert.equal(rows.length, expected);
       });
 
       test('(ii) non-neutral projectedPPG equals the captured value on every row; (iii) pre-ceiling level matches', () => {
@@ -51,23 +50,23 @@ describe('rookieCapturedLevel against captures', () => {
             assert.equal(rookieCapturedLevel(f).dynastyPrior, rookieCapturedLevel(f, { neutral: true }).dynastyPrior);
           }
         }
-        if (expected != null) assert.ok(n >= 1);   // existence is asserted on the two fixed files only
+        assert.ok(n >= 1);
       });
 
       test('(v) the neutral dynastyPrior differs from the captured projectedPPG on at least one non-chain row', () => {
         const differs = rows.filter(({ p }) => p.projection.factors.qbTakeoverBasis !== 'chain'
           && rookieCapturedLevel(p.projection.factors, { neutral: true }).dynastyPrior !== p.projection.projectedPPG);
-        if (expected != null) assert.ok(differs.length >= 1);   // fixed files only
+        assert.ok(differs.length >= 1);
       });
 
       test('(vi) on a chain row the dynasty prior is the ceiled level, not the share-scaled projectedPPG', () => {
         const chain = rows.filter(({ p }) => p.projection.factors.qbTakeoverBasis === 'chain');
-        if (file !== newest) assert.equal(chain.length, file === '2026-10-10.json' ? 44 : 42);
+        assert.equal(chain.length, file === '2026-10-10.json' ? 44 : 42);
         for (const { id, p } of chain) {
           const r = rookieCapturedLevel(p.projection.factors, { neutral: true });
           assert.equal(r.dynastyPrior, Math.round(r.ceiledPPG * 10) / 10, id);
         }
-        if (expected != null) assert.ok(chain.some(({ p }) => rookieCapturedLevel(p.projection.factors, { neutral: true }).dynastyPrior !== p.projection.projectedPPG), 'share scaling must separate the two on some chain row');
+        assert.ok(chain.some(({ p }) => rookieCapturedLevel(p.projection.factors, { neutral: true }).dynastyPrior !== p.projection.projectedPPG), 'share scaling must separate the two on some chain row');
       });
     });
   }

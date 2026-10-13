@@ -32,7 +32,7 @@
     "digest": "f9f7bafb8db77a05d6c2eeeee04c05b4d5e34c2f45d5fe67506bf889444d5cff"
   },
   "picksByYearHash": {
-    "file": "nflverse/draft/draft_picks.json",
+    "file": "test/fixtures/hash-inputs/draft_picks.json",
     "digest": "54a2d76ced22b456ebd3882eff7f73da20f4836cbebbcebc5209aabf0f9ad7c3"
   },
   "gamesHash": {

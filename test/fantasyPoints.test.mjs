@@ -94,9 +94,14 @@ test('RATE_KEYS mechanism, re-parameterised onto a new key: rec_lng scored non-z
   assert.equal(result.outcomes.get('p1').actualTotalPts, 75, 'rec_lng contributed 0');
 });
 
-test('RATE_KEYS recurrence guard: every `_lng` key in the served archive is covered', (t) => {
+test('RATE_KEYS recurrence guard: every `_lng` key in the completed-season archive is covered', (t) => {
   const dir = 'nfl/season-totals';
-  const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.json')) : [];
+  // Completed seasons only: the season-totals workflow rewrites the current-season file, and tests
+  // never read paths a scheduled workflow writes (CLAUDE.md → Invariants).
+  const FROZEN_THROUGH = 2025;
+  const files = fs.existsSync(dir)
+    ? fs.readdirSync(dir).filter(f => /^\d{4}\.json$/.test(f) && Number(f.slice(0, 4)) <= FROZEN_THROUGH)
+    : [];
   if (files.length === 0) {
     t.skip('nfl/season-totals/*.json not present in this checkout (sparse checkout — keeps CI green)');
     return;
