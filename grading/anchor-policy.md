@@ -29,8 +29,9 @@ can carry it.
 - `factors.rookieGamesBasis` present → games-ladder mechanism is live for this row.
 - `factors.rookieCeilingBasis` present, plus `rookieCeilingKnee`/`rookieCeilingAsymptote` →
   ceiling mechanism is live for this row.
+- `factors.rookieTotalBasis` present → the total-points factor is live (boundary 9).
 
-A rookie-path row carrying none of these three predates all three mechanisms.
+A rookie-path row carrying none of these four keys predates all four mechanisms.
 
 ### Veteran path — `projection.confidence !== 'rookie'`
 
@@ -68,6 +69,7 @@ Eight changes on six tracked axes, verified against the actually-committed app f
 | 6 | `f97080a` (the model is live once the push lands; captures check out app `main`) | 2026-10-04 13:43 (the **app push**, `422fcfb..cec846d`, which also carried P11's seam fix `c804ada` — no projection-output change) | rookie (QB rows, yearsExp 0) | rookie QB starter level |
 | 7 | data `c7cfcc7` (an input correction — no app commit; was `8b95519` before the push-time rebase) | 2026-10-07 06:50 (the **data push**, `0b41c62..3097397`; CDN purge of all eleven files verified 12/12 immediately after) | veteran (QB/RB/WR/TE) | absence classification (served 'D', CR-28) |
 | 8 | `e3de164` (B1, the model commit; the model is live once the push lands; captures check out app `main`) | 2026-10-10 12:45:38 (the **app push**, `ac26e0b..98a8a69`) | veteran (QB/RB/WR/TE) | short-season games rule (L6c) |
+| 9 | `26de86c` (the model is live once the push lands; captures check out app `main`) | 2026-10-13 10:51 (the **app push**, `6b725e6..e9414f8`) | rookie (RB/WR/TE, day-3/undrafted) | total-points factor (D-13) |
 
 Scheduled captures (`daily-snapshot.yml`) trigger at 16:29 UTC against app `main` but can
 start hours late — `snapshots/2026-09-12.json` has `capturedAt` 18:34:49 UTC. Cross-check a
@@ -83,6 +85,7 @@ the 2026-09-12 capture, so the first capture reflecting it is a later one.
 | `2026-09-09` – `2026-09-10` | calibration only — confirmed: `rookieCalibrationBasis` present across both files' rookie rows (287 / 291), `rookieGamesBasis`/`rookieCeilingBasis` absent from all of them, `projectedGames` still flat 14 everywhere |
 | `2026-09-11` | calibration + games — confirmed: `rookieCalibrationBasis` and `rookieGamesBasis` both present (291 rookie rows), `projectedGames` no longer flat 14 on every row, `rookieCeilingBasis` still absent from all of them |
 | `>= 2026-09-12` | all three — confirmed: all 291 rookie-path rows in `snapshots/2026-09-12.json` carry `rookieCalibrationBasis`, `rookieGamesBasis` and `rookieCeilingBasis` |
+| `>= first capture after the app push` | + total-points factor — to be confirmed (D-70): every rookie-path row carries `rookieTotalBasis`; `projectedTotalPts` moves on `day3:*`/`undrafted:*` rows only |
 
 **Expected segments — veteran path**, verified against the committed snapshot files:
 
@@ -185,7 +188,7 @@ grade spanning it measures the mechanism change. Boundary 7 moves veteran rows' 
 `projectedTotalPts`, `injurySeasons` and `absenceShapeFactor`, and `projectedPPG` only on bounce-back flips; a pooled
 veteran games grade spanning it measures the correction. Boundary 8 is veteran-only and row-detectable through
 `factors.shortSeasonState`; it moves `projectedGames` on `'short'`/`'none'` rows (and `projectedTotalPts` except on QB
-`chain` rows), and a pooled veteran games grade spanning it measures the rule.
+`chain` rows), and a pooled veteran games grade spanning it measures the rule. Boundary 9 is rookie-only (RB/WR/TE, day-3 and undrafted) and row-detectable through `factors.rookieTotalBasis`; it moves `projectedTotalPts` only, so a pooled rookie total-points grade spanning it measures the factor, and a PPG or games grade does not see it.
 
 ## Why this is written now, not at the first forward grade
 
@@ -193,4 +196,4 @@ Writing this policy with a stale date list is worse than not writing it at all (
 reader would trust a table quietly missing a boundary. Boundary 4 exists as of `7b5b055`,
 boundary 5 as of the qb-takeover-wiring push and boundary 6 as of the rookie-qb-starter-level push, so the table above is complete,
 for the rookie mechanisms, the Step 4 up-side axis, the QB start-share axis and the rookie QB starter level, as of
-rookie-qb-starter-level, plus boundary 7 as of absence-classification and boundary 8 as of short-season-wiring.
+rookie-qb-starter-level, plus boundary 7 as of absence-classification, boundary 8 as of short-season-wiring and boundary 9 as of rookie-total-wiring.
