@@ -16,8 +16,6 @@ import { readManifest } from '../lib/manifest.mjs';
 export const PURGE_ATTEMPTS = 5;
 export const VERIFY_DELAYS_MS = [15_000, 30_000, 60_000, 90_000, 120_000];
 export const FETCH_TIMEOUT_MS = 60_000;
-// Longest we sit out a jsDelivr purge throttle (its `throttlingReset`, ~25 min seen) before re-purging.
-export const THROTTLE_WAIT_CAP_MS = 3_600_000;
 export const purgeUrl = (repo, path) => `https://purge.jsdelivr.net/gh/${repo}@main/${path}`;
 export const cdnUrl = (repo, path) => `https://cdn.jsdelivr.net/gh/${repo}@main/${path}`;
 export const purgeKey = (repo, path) => `/gh/${repo}@main/${path}`;
@@ -52,10 +50,7 @@ export function checkPurgeResponse(httpStatus, body, repo, path) {
   const key = purgeKey(repo, path);
   const entry = body.paths?.[key];
   if (!entry) return { ok: false, reason: `paths[${key}] missing` };
-  if (entry.throttled === true) {
-    const resetMs = Number.isFinite(entry.throttlingReset) ? entry.throttlingReset * 1000 : null;
-    return { ok: false, reason: 'throttled=true', throttled: true, resetMs };
-  }
+  if (entry.throttled === true) return { ok: false, reason: 'throttled=true', throttled: true };
   if (entry.providers === null || typeof entry.providers !== 'object' || Object.keys(entry.providers).length === 0) {
     return { ok: false, reason: 'providers missing' };
   }
@@ -194,23 +189,12 @@ export async function purgeAndVerify({ repo, paths, deps = {} }) {
 
   async function runPhase(phasePaths) {
     let pending = [...phasePaths];
-    const waitMs = new Map(); // path → throttle window still to sit out before its next purge
-    const waited = new Set(); // each path sits a window out at most once, so a stuck throttle cannot hold the job for hours
     for (let i = 0; i < PURGE_ATTEMPTS && pending.length; i++) {
       const attempt = i + 1;
       const purged = [];
       for (const p of pending) {
         res(p).attempts = attempt;
-        // Re-purging inside a throttle window only burns attempts; wait it out first.
-        if (waitMs.has(p)) {
-          const w = Math.min(waitMs.get(p), THROTTLE_WAIT_CAP_MS);
-          waitMs.delete(p);
-          waited.add(p);
-          d.log(`purge ${p}: throttled, waiting ${Math.round(w / 1000)}s before attempt ${attempt}`);
-          await d.sleep(w);
-        }
         const r = await purgeOne(p, `attempt ${attempt}`);
-        if (r.throttled && r.resetMs > 0 && !waited.has(p)) waitMs.set(p, r.resetMs);
         // A throttled purge is still verified: the rate limit means a recent purge exists, so the
         // CDN is often already fresh. Only a verify that stays stale fails the path.
         if (r.ok || r.throttled) purged.push(p);

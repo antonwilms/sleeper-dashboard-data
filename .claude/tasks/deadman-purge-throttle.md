@@ -20,11 +20,20 @@ different cause (row-count validation), already past. Rosterweekly 10-10 also sh
 
 - `checkPurgeResponse` throttled result carries `throttled: true` and `resetMs`.
 - `runPhase` verifies a throttled path anyway (fresh ⇒ verified); stale after all attempts still fails.
-- On a throttle with `throttlingReset`, sit the window out once per path (cap `THROTTLE_WAIT_CAP_MS`
-  = 60 min) before the next purge instead of re-purging immediately.
-- 3 tests added (throttled+fresh, throttled+stale, wait-then-repurge).
+- 2 tests added (throttled+fresh, throttled+stale).
+- A throttle wait (sit out `throttlingReset`, cap 60 min) was tried in 654b9d1 and REVERTED: the
+  dispatched depth run waited 59 min, the next purge was "finished", and the CDN still served an old
+  manifest.
+
+## Finding 2 (2026-10-13 16:12 UTC)
+
+jsDelivr's `@main/manifest.json` can stay stale for hours across edges (14:05 and 14:24 copies served
+while 15:07 was pushed) regardless of purge success; query strings are ignored. Pinned-SHA URLs,
+`raw.githubusercontent.com` and the no-ref `/gh/user/repo/manifest.json` path were fresh. Other data
+files verify fresh first time. So the purge script cannot fix manifest staleness.
 
 ## Open
 
-jsDelivr's limit is undocumented; the 60 min cap and wait-once rule are estimates. Watch the next
-colliding run's `purge … throttled, waiting` log line.
+Decision (Anton): serve the manifest from a source that stays fresh, scoped to manifest.json only.
+That is an app change (`src/api/dataStore.js` manifest URL) plus registry/two-session route; not
+done here. Until then manifest.json verify failures keep the three captures red.

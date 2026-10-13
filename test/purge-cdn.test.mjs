@@ -147,19 +147,6 @@ test('throttled purge and CDN stale on every verify: fails, reason is the stale 
   assert.equal(calls.logs.filter((l) => l.startsWith('::error::')).length, 1);
 });
 
-test('throttled with throttlingReset: sits out the window, re-purges once, verified', async () => {
-  const { deps, calls } = harness({
-    cdn: (p, n) => manifestResp(n === 1 ? OLD_GEN : LOCAL_GEN),
-    purge: (p, n) => (n === 1 ? jsonResp(200, bodyWith(p, { throttled: true, throttlingReset: 1500 })) : undefined),
-  });
-  const r = await purgeAndVerify({ repo: REPO, paths: [], deps });
-  assert.equal(r.ok, true);
-  assert.equal(r.results[0].attempts, 2);
-  // attempt 1 verify delay, then the 1500 s throttle window, then attempt 2 verify delay
-  assert.deepEqual(calls.sleeps.slice(0, 3), [15_000, 1_500_000, 30_000]);
-  assert.equal(calls.purges.filter((x) => x === 'manifest.json').length, 3); // 2 phase + sweep
-});
-
 test('stale then fresh: manifest re-purged once more; only still-stale family file is re-purged', async () => {
   let h = harness({ cdn: (p, n) => manifestResp(n === 1 ? OLD_GEN : LOCAL_GEN) });
   let r = await purgeAndVerify({ repo: REPO, paths: [], deps: h.deps });
