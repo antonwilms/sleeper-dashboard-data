@@ -106,3 +106,41 @@ Do not move D-69. Append to its body:
 ## Hand-back (Stage B)
 
 Give back the SHAs B1–B5, the data SHAs as cited (after the pull), and any deviation.
+
+---
+
+## Stage B resolution (Session 1, 2026-10-13): use these values, not the placeholders
+
+Data was pushed 2026-10-13 (`1dd73f5..bc2666e`). The push rebase renamed every Stage A commit, so these are the
+**pushed** IDs. Re-check them with `git -C ../sleeper-dashboard-data pull --rebase` and
+`git -C ../sleeper-dashboard-data branch -r --contains <sha>` before writing them.
+
+| placeholder | value |
+|---|---|
+| `<A0>` | `0f59a00` (task files) |
+| `<A1>` | `c2a8344` (D-68) |
+| `<A2>` | `63b785a` (D-55) |
+| `<A3>` | `e3c54e7` (D-56) |
+| `<A4>` | `0370478` (re-run) |
+| `<A5>` | `52d1001` (D-13) |
+| fix pass | `bc2666e` |
+| `<dynDate>`, `<rtDate>` | `2026-10-11` (the run date, not the commit date) |
+| `<date>` in resolved lines | `2026-10-13` (B1's "2026-10-12" also becomes 2026-10-13) |
+
+**D-55 (B2).** Cite the committed figures exactly as written. They supersede both the hand-back and this file's
+earlier rounding:
+- admitted: 11,887 rows, 1,096 player-seasons, WR|YE1 **+0.4161 [0.1429, 0.6987]**;
+- survivors WR|YE1: +0.5475 [0.2450, 0.8511].
+
+**D-13 (B4)**, from `grading/2026-10-11-rookie-total-verdict.md`:
+- Status line: day3 RB/WR/TE **×1.257 [1.127, 1.409]**, undrafted **×1.197 [1.051, 1.374]**.
+- The multiplier wording becomes "per-group multipliers (day3 0.796, undrafted 0.835 on the decision rows) beat it
+  out of sample (ΔMAE −2.21 / −0.75)". Use these figures, not "≈0.82": the decision-population multipliers are what
+  the wiring slice will pin.
+- `docs/projection.md` uses the same two ρ values.
+
+**Fix-pass ID.** Add `bc2666e` to B3's data list (`<A3>`/`<A4>` → `` `e3c54e7`/`0370478` (fix pass `bc2666e`) ``).
+
+**Gate.** The backlog heading count stays **64**.
+
+**Commit messages** end `(research-arms-w3)`. Do not push; Session 1 verifies first.
