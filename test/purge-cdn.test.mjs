@@ -120,6 +120,46 @@ test('throttled:true and providers.FY:false each fail with a reason naming the f
   assert.deepEqual(checkPurgeResponse(200, okBody(p), REPO, p), { ok: true });
 });
 
+test('throttled purge on every attempt, CDN already fresh: verified, ok, no ::error::', async () => {
+  const p = 'manifest.json';
+  const { deps, calls } = harness({
+    cdn: fresh({}),
+    purge: (path) => jsonResp(200, bodyWith(path, { throttled: true, providers: undefined })),
+  });
+  const r = await purgeAndVerify({ repo: REPO, paths: [], deps });
+  assert.equal(r.ok, true);
+  assert.equal(r.results[0].verified, true);
+  assert.equal(r.results[0].attempts, 1);
+  assert.ok(calls.logs.some((l) => l.startsWith('::warning::') && l.includes('throttled=true')));
+  assert.equal(calls.logs.filter((l) => l.startsWith('::error::')).length, 0);
+  assert.equal(checkPurgeResponse(200, bodyWith(p, { throttled: true }), REPO, p).throttled, true);
+});
+
+test('throttled purge and CDN stale on every verify: fails, reason is the stale verify', async () => {
+  const { deps, calls } = harness({
+    cdn: () => manifestResp(OLD_GEN),
+    purge: (path) => jsonResp(200, bodyWith(path, { throttled: true })),
+  });
+  const r = await purgeAndVerify({ repo: REPO, paths: [], deps });
+  assert.equal(r.ok, false);
+  assert.equal(calls.verifies.length, PURGE_ATTEMPTS);
+  assert.match(r.results[0].lastReason, /^stale/);
+  assert.equal(calls.logs.filter((l) => l.startsWith('::error::')).length, 1);
+});
+
+test('throttled with throttlingReset: sits out the window, re-purges once, verified', async () => {
+  const { deps, calls } = harness({
+    cdn: (p, n) => manifestResp(n === 1 ? OLD_GEN : LOCAL_GEN),
+    purge: (p, n) => (n === 1 ? jsonResp(200, bodyWith(p, { throttled: true, throttlingReset: 1500 })) : undefined),
+  });
+  const r = await purgeAndVerify({ repo: REPO, paths: [], deps });
+  assert.equal(r.ok, true);
+  assert.equal(r.results[0].attempts, 2);
+  // attempt 1 verify delay, then the 1500 s throttle window, then attempt 2 verify delay
+  assert.deepEqual(calls.sleeps.slice(0, 3), [15_000, 1_500_000, 30_000]);
+  assert.equal(calls.purges.filter((x) => x === 'manifest.json').length, 3); // 2 phase + sweep
+});
+
 test('stale then fresh: manifest re-purged once more; only still-stale family file is re-purged', async () => {
   let h = harness({ cdn: (p, n) => manifestResp(n === 1 ? OLD_GEN : LOCAL_GEN) });
   let r = await purgeAndVerify({ repo: REPO, paths: [], deps: h.deps });
