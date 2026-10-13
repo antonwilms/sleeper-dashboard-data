@@ -1,7 +1,7 @@
 /**
  * test/deadman.test.mjs — Unit tests for the cron dead-man detector
  * (extractCrons / listScheduledWorkflows / cronCadence / evaluateWorkflow /
- * runDeadman). No network — fetchImpl / now are injected.
+ * runDeadman / fileCaptureIssues). No network — fetchImpl / now are injected.
  *
  * Run with: node --test  (or npm test)
  */
@@ -18,6 +18,9 @@ import {
   cronCadence,
   evaluateWorkflow,
   runDeadman,
+  fileCaptureIssues,
+  captureIssueTitle,
+  CAPTURE_ONLY_WORKFLOWS,
   SELF_WORKFLOW_FILE,
 } from '../scripts/check-crons.mjs';
 
@@ -279,4 +282,72 @@ test('runDeadman: end-to-end over the real workflow set, one designated stale', 
   const summary = fs.readFileSync(summaryPath, 'utf8');
   assert.match(summary, new RegExp(staleFile));
   assert.match(summary, /cron-deadman\.yml/);
+});
+
+// ─── fileCaptureIssues (capture-only misses open a GitHub issue) ─────────────
+
+/** Records every call; `openIssues` is the GET response, `postOk` the POST status. */
+function issuesFetch({ openIssues = [], postOk = true } = {}) {
+  const calls = [];
+  const fetchImpl = async (url, init = {}) => {
+    calls.push({ url, method: init.method ?? 'GET', body: init.body ? JSON.parse(init.body) : null });
+    if ((init.method ?? 'GET') === 'GET') return { ok: true, status: 200, json: async () => openIssues };
+    return { ok: postOk, status: postOk ? 201 : 403, json: async () => ({}) };
+  };
+  return { calls, fetchImpl };
+}
+
+const ktcFailure = {
+  file: 'weekly-ktc.yml',
+  status: 'failed',
+  detail: 'Latest run conclusion is "failure"',
+  latestRun: { created_at: '2026-10-05T21:06:19Z', conclusion: 'failure', html_url: 'https://github.com/o/r/actions/runs/37373816902' },
+};
+const depthFailure = { file: 'nflverse-depth.yml', status: 'failed', detail: 'x', latestRun: null };
+
+test('fileCaptureIssues: weekly-ktc.yml is the capture-only set (the real workflow file exists)', () => {
+  assert.deepEqual([...CAPTURE_ONLY_WORKFLOWS], ['weekly-ktc.yml']);
+  const files = listScheduledWorkflows().map((w) => w.file);
+  for (const f of CAPTURE_ONLY_WORKFLOWS) assert.ok(files.includes(f), `${f} is not a scheduled workflow`);
+});
+
+test('fileCaptureIssues: a failed capture-only workflow opens one issue naming the run', async () => {
+  const { calls, fetchImpl } = issuesFetch();
+  const r = await fileCaptureIssues({ failures: [ktcFailure, depthFailure], repoFullName: 'o/r', token: 't', fetchImpl });
+  assert.deepEqual(r, { opened: ['weekly-ktc.yml'], alreadyOpen: [] });
+  const posts = calls.filter((c) => c.method === 'POST');
+  assert.equal(posts.length, 1);
+  assert.equal(posts[0].url, 'https://api.github.com/repos/o/r/issues');
+  assert.equal(posts[0].body.title, captureIssueTitle('weekly-ktc.yml'));
+  assert.match(posts[0].body.body, /actions\/runs\/37373816902/);
+  assert.match(posts[0].body.body, /failed/);
+});
+
+test('fileCaptureIssues: an open issue with the same title suppresses a duplicate', async () => {
+  const { calls, fetchImpl } = issuesFetch({ openIssues: [{ title: 'Capture missed: weekly-ktc.yml' }] });
+  const r = await fileCaptureIssues({ failures: [ktcFailure], repoFullName: 'o/r', token: 't', fetchImpl });
+  assert.deepEqual(r, { opened: [], alreadyOpen: ['weekly-ktc.yml'] });
+  assert.equal(calls.filter((c) => c.method === 'POST').length, 0);
+});
+
+test('fileCaptureIssues: non-capture failures make no API call at all', async () => {
+  const { calls, fetchImpl } = issuesFetch();
+  const r = await fileCaptureIssues({ failures: [depthFailure], repoFullName: 'o/r', token: 't', fetchImpl });
+  assert.deepEqual(r, { opened: [], alreadyOpen: [] });
+  assert.equal(calls.length, 0);
+});
+
+test('fileCaptureIssues: a stale (never-ran) capture-only workflow also opens an issue', async () => {
+  const { fetchImpl } = issuesFetch();
+  const stale = { file: 'weekly-ktc.yml', status: 'stale', detail: 'Latest run is 9d old (max 8d)', latestRun: null };
+  const r = await fileCaptureIssues({ failures: [stale], repoFullName: 'o/r', token: 't', fetchImpl });
+  assert.deepEqual(r.opened, ['weekly-ktc.yml']);
+});
+
+test('fileCaptureIssues: a refused POST throws (a broken alarm is loud)', async () => {
+  const { fetchImpl } = issuesFetch({ postOk: false });
+  await assert.rejects(
+    () => fileCaptureIssues({ failures: [ktcFailure], repoFullName: 'o/r', token: 't', fetchImpl }),
+    /HTTP 403/
+  );
 });

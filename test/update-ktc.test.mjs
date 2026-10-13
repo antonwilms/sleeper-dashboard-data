@@ -1,6 +1,6 @@
 /**
  * test/update-ktc.test.mjs — Unit tests for spearmanRho, ktcOrderingGuard,
- * and the strengthened validateKtc.
+ * the strengthened validateKtc, checkKtcLandscape and the retry-week check.
  *
  * Run with: node --test  (or npm test)
  */
@@ -12,10 +12,13 @@ import {
   spearmanRho,
   ktcOrderingGuard,
   updateKtc,
+  weekStartUtc,
+  ktcCapturedThisWeek,
+  ktcWeekStep,
   KTC_ORDERING_THRESHOLD,
   KTC_MIN_OVERLAP,
 } from '../scripts/update-ktc.mjs';
-import { validateKtc, checkKtcLandscape } from '../lib/validate.mjs';
+import { validateKtc, checkKtcLandscape, KTC_LANDSCAPE_TOP_N, KTC_MIN_TOP_QBS } from '../lib/validate.mjs';
 import { readJson, listDir } from '../lib/io.mjs';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -44,8 +47,10 @@ function validBase() {
     players.push(mk(`RB${i}`, 9999 - 5 - i, 'RB'));
   for (let i = 0; i < 5; i++)
     players.push(mk(`TE${i}`, 9999 - 10 - i, 'TE'));
+  // Five more QBs at ranks 16–20: a superflex-shaped top 50 (10 QBs) so the landscape
+  // check passes on the base board.
   for (let i = 15; i < 300; i++)
-    players.push(mk(`WR${i}`, 9999 - i));
+    players.push(i < 20 ? mk(`QB${i}`, 9999 - i, 'QB') : mk(`WR${i}`, 9999 - i));
   players.push(...mkPickRows());
   return players;
 }
@@ -198,7 +203,8 @@ test('#16 validateKtc: empty name throws', () => {
 
 test('#17 validateKtc: >50% unrecognized positions throws', () => {
   const players = validBase();
-  // Change WR-only slots (indices 15+) so QB/RB/TE minimums remain intact.
+  // Change slots 15+ (the five extra QBs, then WRs) so the first 15 rows keep the
+  // QB/RB/TE ≥5 minimums intact.
   // validBase() is now 336 rows (300 skill + 36 picks); need > 168 unrecognized
   // to cross the 50% threshold — 169/336 ≈ 50.3%.
   for (let i = 15; i < 15 + 169; i++) players[i].position = 'XYZ';
@@ -254,45 +260,67 @@ test('#22 validateKtc: a hypothetical 4th draft class (48 pick rows) still passe
   assert.doesNotThrow(() => validateKtc(players));
 });
 
-// ─── checkKtcLandscape (sentinel heuristic — quarantines, never throws) ──────
+// ─── checkKtcLandscape (QB-count heuristic — quarantines, never throws) ──────
 
-const SENTINELS = ['Josh Allen', 'Caleb Williams', 'Drake Maye', 'Lamar Jackson', 'Joe Burrow', 'Jayden Daniels'];
-
-/** validBase() with the top QB slots renamed: `topQbs` occupy the top values, the rest are filler. */
-function baseWithTopQbs(topQbs) {
+/**
+ * validBase() with its QBs replaced: `k` QBs hold the top values (any names — the check
+ * reads position only), the rest of 10 sit at the bottom so validateKtc's ≥5-QB floor holds.
+ */
+function boardWithTopQbs(k) {
   const players = validBase().filter(p => p.position !== 'QB');
-  topQbs.forEach((name, i) => players.push(mk(name, 9999 - i, 'QB')));
-  for (let i = topQbs.length; i < 5; i++) players.push(mk(`Filler QB${i}`, 100 - i, 'QB'));
+  for (let i = 0; i < k; i++) players.push(mk(`Top QB${i}`, 9999 - i, 'QB'));
+  for (let i = k; i < 10; i++) players.push(mk(`Filler QB${i}`, 100 - i, 'QB'));
   return players;
 }
 
-test('#23 checkKtcLandscape: 3 sentinels in the top 15 passes (boundary)', () => {
-  const r = checkKtcLandscape(baseWithTopQbs(SENTINELS.slice(0, 3)));
+test('#23 checkKtcLandscape: base board (10 QBs in the top 50) passes', () => {
+  const r = checkKtcLandscape(validBase());
   assert.equal(r.ok, true);
-  assert.equal(r.matches.length, 3);
+  assert.equal(r.qbCount, 10);
 });
 
-test('#24 checkKtcLandscape: 2 sentinels in the top 15 fails with a reason, does not throw', () => {
-  const r = checkKtcLandscape(baseWithTopQbs(SENTINELS.slice(0, 2)));
+test('#23b checkKtcLandscape: exactly KTC_MIN_TOP_QBS QBs in the top 50 passes (boundary)', () => {
+  assert.equal(KTC_MIN_TOP_QBS, 8);
+  assert.equal(KTC_LANDSCAPE_TOP_N, 50);
+  const r = checkKtcLandscape(boardWithTopQbs(8));
+  assert.equal(r.ok, true);
+  assert.equal(r.qbCount, 8);
+});
+
+test('#24 checkKtcLandscape: 7 QBs in the top 50 fails with a reason, does not throw', () => {
+  const r = checkKtcLandscape(boardWithTopQbs(7));
   assert.equal(r.ok, false);
-  assert.equal(r.matches.length, 2);
-  assert.match(r.reason, /only 2 sentinel QBs in top 15/);
+  assert.equal(r.qbCount, 7);
+  assert.match(r.reason, /only 7 QBs in the top 50/);
 });
 
-test('#24b checkKtcLandscape: window is top 15 — sentinel at rank 15 counts, at rank 16 does not', () => {
-  // 3 sentinels at ranks 13-15 behind 12 non-QB rows vs. ranks 14-16.
+test('#24b checkKtcLandscape: window is top 50 — 8th QB at rank 50 counts, at rank 51 does not', () => {
+  // 7 QBs at the top, 42 (or 43) skill rows, then the 8th QB.
   const rows = (offset) => [
-    ...Array.from({ length: 12 + offset }, (_, i) => mk(`Skill${i}`, 9999 - i, 'WR')),
-    ...SENTINELS.slice(0, 3).map((n, i) => mk(n, 5000 - i, 'QB')),
+    ...Array.from({ length: 7 }, (_, i) => mk(`QB${i}`, 9999 - i, 'QB')),
+    ...Array.from({ length: 42 + offset }, (_, i) => mk(`Skill${i}`, 9000 - i, 'WR')),
+    mk('QB7', 5000, 'QB'),
     ...Array.from({ length: 300 }, (_, i) => mk(`Rest${i}`, 1000 - i, 'WR')),
   ];
   assert.equal(checkKtcLandscape(rows(0)).ok, true);
-  assert.equal(checkKtcLandscape(rows(1)).ok, false);   // last sentinel slides to rank 16
+  assert.equal(checkKtcLandscape(rows(1)).ok, false);   // 8th QB slides to rank 51
 });
 
-test('#25 validateKtc: a sentinel miss no longer throws (per-row validity only)', () => {
-  assert.doesNotThrow(() => validateKtc(baseWithTopQbs([])));
-  assert.equal(checkKtcLandscape(baseWithTopQbs([])).ok, false);
+test('#24c checkKtcLandscape: a 1QB-format board (3 QBs in the top 50, as live format=1 on 2026-10-13) fails', () => {
+  const r = checkKtcLandscape(boardWithTopQbs(3));
+  assert.equal(r.ok, false);
+  assert.match(r.reason, /wrong format \(1QB\)/);
+});
+
+test('#24d checkKtcLandscape: a position-selector break (no QB positions) fails', () => {
+  const r = checkKtcLandscape(validBase().map(p => ({ ...p, position: null })));
+  assert.equal(r.ok, false);
+  assert.equal(r.qbCount, 0);
+});
+
+test('#25 validateKtc: a landscape miss does not throw (per-row validity only)', () => {
+  assert.doesNotThrow(() => validateKtc(boardWithTopQbs(0)));
+  assert.equal(checkKtcLandscape(boardWithTopQbs(0)).ok, false);
 });
 
 test('#26 frozen snapshots: every fixture snapshot passes the landscape check', () => {
@@ -304,10 +332,10 @@ test('#26 frozen snapshots: every fixture snapshot passes the landscape check', 
   }
 });
 
-test('#27 frozen snapshots: latest fixture has headroom over the ≥3 floor (not exactly 3)', () => {
+test('#27 frozen snapshots: latest fixture has headroom (≥ floor + 4 QBs in the top 50)', () => {
   const files = fixtureSnapshots();
   const r = checkKtcLandscape(readJson(`${FIXTURE_DIR}/${files[files.length - 1]}`));
-  assert.ok(r.matches.length >= 4, `only ${r.matches.length} sentinels present: ${r.matches.join(', ')}`);
+  assert.ok(r.qbCount >= KTC_MIN_TOP_QBS + 4, `only ${r.qbCount} QBs in the top 50: ${r.topQbs.join(', ')}`);
 });
 
 // ─── updateKtc: landscape miss routes to quarantine ──────────────────────────
@@ -331,32 +359,33 @@ function fakeDeps({ fresh, prev = validBase(), hasRunBefore = true }) {
 
 const quarantineKeys = w => Object.keys(w).filter(k => k.startsWith('ktc/quarantine/'));
 
-test('#28 updateKtc: sentinel miss → quarantined, CI outputs set, NOT written to ktc/ or manifest', async () => {
-  const fresh = baseWithTopQbs([]);          // row-valid, ordering identical to prev, but no sentinels in top 15
+test('#28 updateKtc: landscape miss → quarantined, CI outputs set, NOT written to ktc/ or manifest', async () => {
+  const fresh = boardWithTopQbs(3);          // row-valid, ordering identical to prev, but a 1QB-shaped top 50
   const { deps, writes, outputs, manifest } = fakeDeps({ fresh, prev: fresh });
   await updateKtc({ dryRun: false, deps });
   assert.equal(outputs.quarantined, 'true');
-  assert.match(outputs.quarantine_reason, /landscape: only 0 sentinel QBs/);
+  assert.match(outputs.quarantine_reason, /landscape: only 3 QBs in the top 50/);
   const q = quarantineKeys(writes);
   assert.equal(q.length, 2);
   assert.ok(q.some(k => /snapshot-\d{4}-\d\d-\d\d\.json$/.test(k)));
   const reasonFile = writes[q.find(k => k.endsWith('.reason.json'))];
   assert.equal(reasonFile.landscape.ok, false);
+  assert.equal(reasonFile.landscape.qbCount, 3);
   assert.equal(reasonFile.recordCount, fresh.length);
   assert.equal(Object.keys(writes).filter(k => /^ktc\/snapshot-/.test(k)).length, 0, 'must not write to ktc/');
   assert.equal(manifest.length, 0, 'must not register in manifest');
   assert.equal(writes['ktc/last-checked.json'].quarantined, true);
 });
 
-test('#29 updateKtc: sentinel miss quarantines even on a first run (no ordering baseline)', async () => {
-  const fresh = baseWithTopQbs([]);
+test('#29 updateKtc: landscape miss quarantines even on a first run (no ordering baseline)', async () => {
+  const fresh = boardWithTopQbs(3);
   const { deps, outputs } = fakeDeps({ fresh, hasRunBefore: false });
   await updateKtc({ dryRun: false, deps });
   assert.equal(outputs.quarantined, 'true');
 });
 
-test('#30 updateKtc: dry-run sentinel miss warns, writes nothing, does not throw', async () => {
-  const fresh = baseWithTopQbs([]);
+test('#30 updateKtc: dry-run landscape miss warns, writes nothing, does not throw', async () => {
+  const fresh = boardWithTopQbs(3);
   const { deps, writes, outputs } = fakeDeps({ fresh, prev: fresh });
   await updateKtc({ dryRun: true, deps });
   assert.deepEqual(writes, {});
@@ -382,11 +411,59 @@ test('#32 updateKtc: per-row validity failure still throws (not routed to quaran
   assert.deepEqual(writes, {});
 });
 
-test('#33 updateKtc: ordering-guard trip and sentinel miss share ONE quarantine with both reasons', async () => {
+test('#33 updateKtc: ordering-guard trip and landscape miss share ONE quarantine with both reasons', async () => {
   const prev = validBase();
-  const fresh = blockShift(baseWithTopQbs([]), Math.floor(prev.length / 2));
+  const fresh = blockShift(boardWithTopQbs(3), Math.floor(prev.length / 2));
   const { deps, outputs, writes } = fakeDeps({ fresh, prev });
   await updateKtc({ dryRun: false, deps });
   assert.match(outputs.quarantine_reason, /landscape:.*\| ordering:/);
   assert.equal(quarantineKeys(writes).length, 2);
+});
+
+// ─── retry week: ktcCapturedThisWeek / ktcWeekStep ───────────────────────────
+// 2026-10-05 was a Monday; 10-07 a Wednesday; 10-04 a Sunday.
+
+const at = iso => new Date(iso);
+
+test('#34 weekStartUtc: Monday maps to itself, Wednesday and Sunday to their Monday', () => {
+  assert.equal(weekStartUtc(at('2026-10-05T13:17:00Z')).toISOString(), '2026-10-05T00:00:00.000Z');
+  assert.equal(weekStartUtc(at('2026-10-07T13:17:00Z')).toISOString(), '2026-10-05T00:00:00.000Z');
+  assert.equal(weekStartUtc(at('2026-10-04T23:59:00Z')).toISOString(), '2026-09-28T00:00:00.000Z');
+});
+
+test('#35 ktcCapturedThisWeek: Tue/Wed retry skips after a clean Monday (new snapshot or identical check)', () => {
+  const wed = at('2026-10-07T13:17:00Z');
+  assert.equal(ktcCapturedThisWeek({ checkedAt: '2026-10-05T21:44:31Z', identical: false, file: 'ktc/snapshot-2026-10-05.json' }, wed), true);
+  assert.equal(ktcCapturedThisWeek({ checkedAt: '2026-10-05T00:00:00Z', identical: true }, wed), true);
+});
+
+test('#36 ktcCapturedThisWeek: retries run when Monday failed, crashed or quarantined', () => {
+  const tue = at('2026-10-06T13:17:00Z');
+  // the 10-05 incident: no step ran, last-checked still from the previous Monday
+  assert.equal(ktcCapturedThisWeek({ checkedAt: '2026-09-28T20:07:40Z', identical: false }, tue), false);
+  assert.equal(ktcCapturedThisWeek({ checkedAt: '2026-10-04T23:59:59Z', identical: true }, tue), false);   // Sunday = last week
+  assert.equal(ktcCapturedThisWeek({ checkedAt: '2026-10-05T14:00:00Z', quarantined: true }, tue), false);
+  assert.equal(ktcCapturedThisWeek(null, tue), false);
+  assert.equal(ktcCapturedThisWeek({ checkedAt: 'not a date' }, tue), false);
+});
+
+test('#37 ktcCapturedThisWeek: the Monday run itself never skips on last week\'s check', () => {
+  assert.equal(ktcCapturedThisWeek({ checkedAt: '2026-09-29T02:00:00Z', identical: false }, at('2026-10-05T13:17:00Z')), false);
+});
+
+test('#38 ktcWeekStep: reads ktc/last-checked.json and sets the captured output', () => {
+  const outputs = {};
+  const reads = [];
+  const captured = ktcWeekStep({
+    read: (p) => { reads.push(p); return { checkedAt: '2026-10-06T13:20:00Z', identical: false }; },
+    setOutput: (k, v) => { outputs[k] = v; },
+    now: at('2026-10-07T13:17:00Z'),
+  });
+  assert.deepEqual(reads, ['ktc/last-checked.json']);
+  assert.equal(captured, true);
+  assert.deepEqual(outputs, { captured: 'true' });
+
+  const outputs2 = {};
+  ktcWeekStep({ read: () => null, setOutput: (k, v) => { outputs2[k] = v; }, now: at('2026-10-07T13:17:00Z') });
+  assert.deepEqual(outputs2, { captured: 'false' });
 });

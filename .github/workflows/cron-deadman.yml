@@ -13,6 +13,7 @@ on:
 permissions:
   contents: read
   actions: read
+  issues: write   # fileCaptureIssues: a missed capture-only run (weekly-ktc) opens an issue
 
 jobs:
   deadman:

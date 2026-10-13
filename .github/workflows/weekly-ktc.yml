@@ -5,6 +5,11 @@ on:
     # Monday 13:17 UTC (~9:17am ET) — off-the-hour to be polite to shared GHA runners.
     # Well after KTC's overnight value updates.
     - cron: "17 13 * * 1"
+    # Retries, Tue + Wed same time: the "Skip if this week is captured" step no-ops them once
+    # Monday (or an earlier retry) captured cleanly. Added after the 2026-10-05 run died with
+    # "job was not acquired by Runner" and the week was lost (.claude/tasks/ktc-capture-hardening.md).
+    - cron: "17 13 * * 2"
+    - cron: "17 13 * * 3"
   workflow_dispatch: {}   # allow manual trigger for testing
 
 permissions:
@@ -37,11 +42,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Scheduled runs only — a manual dispatch always captures.
+      - name: Skip if this week is captured
+        id: week
+        if: github.event_name == 'schedule'
+        run: node -e "import('./scripts/update-ktc.mjs').then(m => m.ktcWeekStep())"
+
       - name: Capture KTC snapshot
         id: capture
+        if: steps.week.outputs.captured != 'true'
         run: node bin/update.mjs ktc
 
       - name: Commit and purge if changed
+        if: steps.week.outputs.captured != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

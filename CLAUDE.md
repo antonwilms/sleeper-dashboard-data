@@ -45,7 +45,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `bin/import-snapshot.mjs` | Projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
 | `lib/args.mjs` | `bin/update.mjs` arg validation. `MIN_CLI_YEAR = 1999` is a typo bound, **not** a coverage floor (CR-18); `ALL_SUBCOMMANDS` = the `--all` families |
 | `lib/absence.mjs` | Pure weekly-roster absence classifier (`classifyAbsences`) for season-totals `weeklyStatus` |
-| `lib/validate.mjs` | Schema validators + `findNonFinite`; holds `NFL_SENTINELS`, `KTC_TOP_QB_SENTINELS` (Invariant 7). |
+| `lib/validate.mjs` | Schema validators + `findNonFinite`; holds `NFL_SENTINELS` (Invariant 7), `checkKtcLandscape`. |
 | `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`, `RATE_KEYS`); drives the grading in-basis path (CR-14) |
 | `lib/cfbd.mjs` | CFBD fetch helpers; `pivotCfbdRows` is the long-form→pivoted-envelope transform, shared by `update-cfbd.mjs` and `migrate-college-pivot.mjs` |
 | `lib/io.mjs` | JSON I/O, step output, hashing, key-sort helpers (exports: README → Module notes) |
@@ -68,10 +68,10 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `scripts/panel-run.mjs` | Panel adapter (injectable loaders); owns the attribution-mode seam — `runFlipGate`, `runFit`, `runFullPipeline` (D6b), `assemblePanel`, `runRookiePanels` (D-8/D-9/D-12/D-13 — debut/ungated/total-points rookie panels) |
 | `lib/panel.mjs` | Pure panel/fit logic — feature builders, forward-chain CV, ridge, spearman; no I/O. `buildTeamTotalsForSeason` **must** exclude `TEAM_<abbr>` pseudo-rows (mirror of app `isTeamAggregateId`), now also accumulates `fantasyPts` (team-offense rank input). D6a dispatch lists: README → Module notes. `predictFullPipeline` (D6b) is the real composed 13-factor product. `assembleRookiePanel` takes two enumerators (`season-presence`, `entry-cohort`) sharing one predicate, `rookiePathStateAt`; the uncorrected-fit-predictor guard (CR-15 re-fit trap) throws on any declared `appliedCorrections` |
 | `lib/projectionFactors.mjs` | Pure app-factor-multiplier reconstruction for R3-FIT — mirrors the app's leaf factor transforms and their input pipelines. **Cross-repo mirror contract (CR-15)**, now thirteen factors (D6a adds age/depth/teamOffense/qbQuality/efficiency/compBlend) |
-| `scripts/check-crons.mjs` | Dead-man detector for the scheduled workflows; monitoring only, no data-file I/O |
+| `scripts/check-crons.mjs` | Dead-man detector for the scheduled workflows; no data-file I/O; a capture-only miss opens an issue |
 | `.github/workflows/` | Eleven uniform ingest jobs (mostly weekly; `nflverse-snaps` yearly, `nflverse-rosterweekly` daily) delegate to the reusable `_ingest.yml` (`workflow_call`) template. Six are deliberately **not** callers (`nflverse-playerstats`, `weekly-ktc`, `cron-deadman`, `smoke-test`, `registry-mirror`, `daily-snapshot` — a browser capture `_ingest.yml` cannot express). Triggers and per-job detail: README → [GitHub Actions](README.md#github-actions). Purge: `bin/purge-cdn.mjs`; URLs: Invariant 8 |
 | `nfl/`, `college/`, `ktc/`, `nflverse/`, `snapshots/` | Served data families — a section each in [data-catalog.md](data-catalog.md), schemas in README → [File schemas](README.md#file-schemas) |
-| `ktc/quarantine/` | Scrapes rejected by the Spearman ordering / sentinel-QB guard — script-produced, **not** manifest-registered, **not** app-read; review and promote manually |
+| `ktc/quarantine/` | Scrapes rejected by the Spearman ordering / QB-count guard — script-produced, **not** manifest-registered, **not** app-read; review and promote manually |
 | `nflverse/playerids.json` | gsis_id→sleeper_id crosswalk — **internal-only**: read server-side by `update-advstats.mjs`/`update-gamelogs.mjs`, never by the app |
 | `enrichment/` | The only hand-authored tree: coaching / scheme / injuries / notes, edited **only** via `bin/enrich.mjs` (Invariant 2) |
 | `backtests/`, `grading/` | Analysis output from `--write`. The `<date>-*-verdict.md` reports are deliberately **unregistered** — a documented Invariant 3 exception |
@@ -93,7 +93,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 
 4. **schemaVersion discipline.** Current versions: NFL season-totals **v4**, CFBD college stats **v2**, projection snapshots **v3** (D1a — adds `inputStatus`; the D1b commit gate rejects anything below v3), KTC snapshots **v1**. Bump `schemaVersion` only on an incompatible layout change, raising the app's `MAX_SUPPORTED_SCHEMA` first. The ceiling covers every family the app reads through `tryDataStore`, snapshots included (CR-26).
 
-5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup — no commit when content is unchanged. A scrape that fails the Spearman ordering or sentinel-QB guard is written to `ktc/quarantine/` (script-produced, unregistered, app-ignored) rather than `ktc/`, so a false trip never loses data; it is not "primary data" under Invariant 2.
+5. **Snapshots are permanent.** Keyed by UTC date; never overwritten within a day (first-league-of-the-day-wins). KTC snapshots are append-only with content-hash dedup — no commit when content is unchanged. A scrape that fails the Spearman ordering or QB-count guard is written to `ktc/quarantine/` (script-produced, unregistered, app-ignored) rather than `ktc/`, so a false trip never loses data; it is not "primary data" under Invariant 2.
 
    `nfl/players-state/<date>.json` is date-keyed, append-only and content-hash-deduped like KTC (dedup excludes the churning `newsUpdated`/`searchRank`), but registers `inProgress: false` — each dated file is a completed, immutable capture. KTC's `inProgress: true` "current-value marker" is legacy; do not propagate it. A same-day re-run against changed upstream overwrites that day's file (dedup is the only check).
 
@@ -101,7 +101,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 
 6. **Enrichment schemas are contracts.** Each file has required fields per entry. `injuries.segmentStartWeek` must match an absence segment in the matching season-totals file. `add` is an upsert keyed by natural key. Orphaned entries (no matching season-totals player/team) are flagged by `validate`; the app silently ignores them.
 
-7. **Yearly maintenance.** At each season start, update `NFL_SENTINELS` and `KTC_TOP_QB_SENTINELS` in `lib/validate.mjs` to reflect the current player landscape.
+7. **Yearly maintenance.** At each season start, update `NFL_SENTINELS` in `lib/validate.mjs` to reflect the current player landscape.
 
 8. **CDN purge URLs for season-keyed files (`nflverse/roster`, `nflverse/advstats`, `nflverse/schedule`, `nflverse/gamelogs`, `nflverse/teamcontext`, `nflverse/oline`, `nflverse/snaps`, `nflverse/depth`, `nflverse/rosterweekly`) must be built from the NFL season surfaced by the node step (`setStepOutput('season', …)` → `${{ steps.fetch.outputs.season }}`), never `date -u +%Y`. Calendar year and resolved season diverge Jan–Feb; KTC is exempt (date-keyed).**
 

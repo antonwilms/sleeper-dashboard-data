@@ -6,7 +6,8 @@
  * Actions API for run evidence. There is no second registry to forget to
  * update — a new scheduled workflow is covered the moment it lands on main.
  *
- * Monitoring only: writes no data file, touches no manifest, serves nothing.
+ * Monitoring only: writes no data file, touches no manifest, serves nothing. Its one
+ * side effect is fileCaptureIssues — a GitHub issue when a capture-only workflow misses.
  */
 
 import fs from 'fs';
@@ -22,6 +23,15 @@ import { repoPath, listDir, appendStepSummary } from '../lib/io.mjs';
 export const SELF_WORKFLOW_FILE = 'cron-deadman.yml';
 
 const OK_STATUSES = new Set(['ok', 'ok-bootstrap']);
+
+// Workflows whose upstream keeps no history: a missed run is a permanently lost capture,
+// not a delay the next run repairs. A finding on one of these opens a GitHub issue
+// (fileCaptureIssues) because the detector's own red run is not a reliable signal — it
+// was red every day 2026-10-03…10-12 for other workflows when weekly-ktc.yml's 10-05 run
+// failed, and the KTC line went unnoticed (.claude/tasks/ktc-capture-hardening.md).
+export const CAPTURE_ONLY_WORKFLOWS = new Set(['weekly-ktc.yml']);
+
+export const captureIssueTitle = (file) => `Capture missed: ${file}`;
 
 const CRON_LINE_RE = /^\s*-\s*cron:\s*(.+?)\s*$/gm;
 const CRON_FIELD_RE = /^[\d*/,-]+$/;
@@ -241,4 +251,62 @@ export async function runDeadman({ repoFullName, token, now = new Date(), fetchI
   appendStepSummary(`## Cron dead-man check\n\n${table}\n`);
 
   return { results, failures };
+}
+
+/**
+ * Opens one GitHub issue per capture-only workflow in `failures`, titled
+ * captureIssueTitle(file). Skips a workflow that already has an open issue with that
+ * title, so a daily detector run does not pile up duplicates; never closes one (a
+ * lost capture needs a human to acknowledge it). fetchImpl injected for tests.
+ *   GET  /repos/{repo}/issues?state=open&per_page=100
+ *   POST /repos/{repo}/issues   (needs `issues: write`)
+ * Throws on a non-OK API response so a broken alarm is itself loud.
+ *
+ * @returns {Promise<{ opened: string[], alreadyOpen: string[] }>}
+ */
+export async function fileCaptureIssues({ failures, repoFullName, token, fetchImpl = fetch }) {
+  const captureFailures = failures.filter((f) => CAPTURE_ONLY_WORKFLOWS.has(f.file));
+  const opened = [];
+  const alreadyOpen = [];
+  if (captureFailures.length === 0) return { opened, alreadyOpen };
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json',
+  };
+  const listRes = await fetchImpl(
+    `https://api.github.com/repos/${repoFullName}/issues?state=open&per_page=100`,
+    { headers }
+  );
+  if (!listRes.ok) throw new Error(`Listing open issues failed: HTTP ${listRes.status}`);
+  const openTitles = new Set((await listRes.json()).map((i) => i.title));
+
+  for (const f of captureFailures) {
+    const title = captureIssueTitle(f.file);
+    if (openTitles.has(title)) {
+      alreadyOpen.push(f.file);
+      continue;
+    }
+    const run = f.latestRun;
+    const body = [
+      `The cron dead-man detector found \`${f.file}\` **${f.status}**: ${f.detail}.`,
+      '',
+      run
+        ? `Latest run: ${run.html_url ?? '(no URL)'} — created ${run.created_at}, conclusion \`${run.conclusion ?? 'in progress'}\`.`
+        : 'No run recorded.',
+      '',
+      'This source is capture-only: a week with no snapshot is lost for good. Check the run, and whether a',
+      'retry run already captured this week, then close this issue. The detector will not open another',
+      'while this one is open.',
+    ].join('\n');
+    const res = await fetchImpl(`https://api.github.com/repos/${repoFullName}/issues`, {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, body }),
+    });
+    if (!res.ok) throw new Error(`Opening issue "${title}" failed: HTTP ${res.status}`);
+    opened.push(f.file);
+    console.log(`::error::Opened issue "${title}"`);
+  }
+  return { opened, alreadyOpen };
 }

@@ -20,9 +20,12 @@
  *     QUARANTINED to ktc/quarantine/ (not committed to ktc/, not registered in the
  *     manifest) and the run signals CI via setStepOutput — data is never lost to a
  *     false trip. See .claude/tasks/ktc-integrity-guard.md.
- *   - Landscape heuristic (checkKtcLandscape, lib/validate.mjs): ≥3 sentinel QBs in
- *     the top 15. A miss is as likely a stale sentinel list as a bad scrape, so it
+ *   - Landscape heuristic (checkKtcLandscape, lib/validate.mjs): ≥ 8 QBs in the top 50
+ *     of the superflex board. Catches a wrong-format (1QB) or position-broken scrape;
  *     takes the same quarantine path as Layer 2 rather than throwing.
+ *
+ * Retries: weekly-ktc.yml also fires Tue/Wed. ktcWeekStep skips those runs once this
+ * week (Monday 00:00 UTC onward) has a non-quarantined check in last-checked.json.
  *
  * @param {object} opts
  * @param {boolean} opts.dryRun  Fetch + validate but don't write files
@@ -33,7 +36,7 @@
 import { fetchKtcSnapshot } from '../lib/ktc.mjs';
 import { readJson, writeJsonStable, listDir, setStepOutput, stableHash } from '../lib/io.mjs';
 import { updateManifestEntry } from '../lib/manifest.mjs';
-import { validateKtc, checkKtcLandscape } from '../lib/validate.mjs';
+import { validateKtc, checkKtcLandscape, KTC_LANDSCAPE_TOP_N } from '../lib/validate.mjs';
 import { pearson } from '../lib/grade.mjs';   // Spearman = Pearson on ranks; reused per CLAUDE.md nav map
 
 function todayDateString() {
@@ -128,6 +131,42 @@ export function ktcOrderingGuard(prevPlayers, newPlayers, { threshold = KTC_ORDE
   return { ok: true, rho, n };
 }
 
+/** Monday 00:00 UTC of the week containing `now` (ISO weeks start Monday). */
+export function weekStartUtc(now) {
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d;
+}
+
+/**
+ * True when last-checked.json records a capture this week that needs no retry: a new
+ * snapshot or an identical-content check since Monday 00:00 UTC. A quarantined check
+ * does not count (a retry may get a clean scrape); a crashed run writes nothing, so it
+ * does not count either. Pure.
+ *
+ * @param {object|null} lastChecked  parsed ktc/last-checked.json
+ * @param {Date} now
+ */
+export function ktcCapturedThisWeek(lastChecked, now) {
+  if (!lastChecked || lastChecked.quarantined || !lastChecked.checkedAt) return false;
+  const checkedAt = new Date(lastChecked.checkedAt);
+  return !Number.isNaN(checkedAt.getTime()) && checkedAt >= weekStartUtc(now);
+}
+
+/**
+ * Workflow pre-step for weekly-ktc.yml's scheduled runs: sets step output
+ * `captured=true|false` so the Tue/Wed retry crons no-op once the week is captured.
+ */
+export function ktcWeekStep({ read = readJson, setOutput = setStepOutput, now = new Date() } = {}) {
+  const lastChecked = read('ktc/last-checked.json');
+  const captured = ktcCapturedThisWeek(lastChecked, now);
+  setOutput('captured', String(captured));
+  console.log(captured
+    ? `[ktc] Already captured this week (last check ${lastChecked.checkedAt}) — skipping this run.`
+    : `[ktc] No clean capture since ${weekStartUtc(now).toISOString().slice(0, 10)} (last check ${lastChecked?.checkedAt ?? 'none'}${lastChecked?.quarantined ? ', quarantined' : ''}) — capturing.`);
+  return captured;
+}
+
 export async function updateKtc({ dryRun, deps = {} }) {
   const {
     fetchSnapshot = fetchKtcSnapshot, readJson: read = readJson,
@@ -177,7 +216,7 @@ export async function updateKtc({ dryRun, deps = {} }) {
       write(`ktc/quarantine/snapshot-${today}.reason.json`, {
         quarantinedAt: new Date().toISOString(),
         reason,
-        landscape: { ok: landscape.ok, matches: landscape.matches, top: landscape.top },
+        landscape: { ok: landscape.ok, qbCount: landscape.qbCount, topQbs: landscape.topQbs },
         rho: guard ? guard.rho : null, n: guard ? guard.n : null, threshold: KTC_ORDERING_THRESHOLD,
         lastGood: lastFile, recordCount: players.length,
       });
@@ -191,7 +230,7 @@ export async function updateKtc({ dryRun, deps = {} }) {
       return;
     }
   }
-  if (landscape.ok) console.log(`[ktc] Landscape check passed (${landscape.matches.length} sentinel QBs in top 15)`);
+  if (landscape.ok) console.log(`[ktc] Landscape check passed (${landscape.qbCount} QBs in top ${KTC_LANDSCAPE_TOP_N})`);
   if (guard) {
     if (guard.skipped) console.warn(`[ktc] Ordering guard skipped: ${guard.reason}`);
     else               console.log(`[ktc] Ordering guard passed (ρ=${guard.rho.toFixed(4)}, n=${guard.n})`);

@@ -239,7 +239,7 @@ Array of dynasty market values scraped from KeepTradeCut at the snapshot date.
 
 Values are KTC's proprietary 0–9999 scale. Matched to Sleeper player IDs at runtime using `src/utils/ktcMatch.js`. Snapshots are append-only — old snapshots are never deleted, enabling trend analysis.
 
-**Integrity guards.** Each scrape is validated per-row (finite integer value in 0–9999, non-empty name, known position or null for rookie picks, count 250–600) and checked for aggregate breakage via a Spearman rank correlation against the last good snapshot (joined on player name). Legitimate market recalibration preserves ordering (ρ ≈ 0.998); a selector/parse break collapses it. A separate landscape check (≥ 3 `KTC_TOP_QB_SENTINELS` QBs in the top 15 — `checkKtcLandscape`, `lib/validate.mjs`) never throws: a miss can mean a stale sentinel list as easily as a bad scrape. Below ρ = 0.90, or on a landscape miss, the snapshot is **quarantined** to `ktc/quarantine/` (committed for review but not registered in the manifest, so the app never reads it) and the weekly workflow fails for manual review — a false trip never permanently loses a day.
+**Integrity guards.** Each scrape is validated per-row (finite integer value in 0–9999, non-empty name, known position or null for rookie picks, count 250–600) and checked for aggregate breakage via a Spearman rank correlation against the last good snapshot (joined on player name). Legitimate market recalibration preserves ordering (ρ ≈ 0.998); a selector/parse break collapses it. A separate landscape check (≥ `KTC_MIN_TOP_QBS` = 8 QBs, by scraped position, in the top `KTC_LANDSCAPE_TOP_N` = 50 — `checkKtcLandscape`, `lib/validate.mjs`) catches a wrong-format scrape: the superflex board holds 13–16 QBs in its top 50, the 1QB board 3. It reads no name list, so normal QB movement cannot trip it, and it never throws. Below ρ = 0.90, or on a landscape miss, the snapshot is **quarantined** to `ktc/quarantine/` (committed for review but not registered in the manifest, so the app never reads it) and the weekly workflow fails for manual review — a false trip never permanently loses a day.
 
 ---
 
@@ -1563,7 +1563,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| `weekly-ktc.yml` | Monday 13:17 UTC + `workflow_dispatch` | Runs `node bin/update.mjs ktc`; per-row + Spearman-ordering + sentinel-QB landscape integrity guards; commits the new snapshot (or a quarantined one under ktc/quarantine/ for review) if changed, purges jsDelivr CDN cache; fails the run if a snapshot was quarantined |
+| `weekly-ktc.yml` | Monday 13:17 UTC, retries Tue + Wed 13:17 + `workflow_dispatch` | A scheduled run first checks `ktc/last-checked.json` (`ktcWeekStep`) and no-ops if this week (Monday 00:00 UTC on) already has a clean, non-quarantined check, so the retries only capture when Monday did not. Runs `node bin/update.mjs ktc`; per-row + Spearman-ordering + QB-count landscape integrity guards; commits the new snapshot (or a quarantined one under ktc/quarantine/ for review) if changed, purges jsDelivr CDN cache; fails the run if a snapshot was quarantined |
 | `weekly-nflverse-roster.yml` | Tuesday 13:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs roster`, commits if content hash changed, purges jsDelivr CDN cache for changed files |
 | `nfl-season-totals.yml` | Fri, Mon, Tue 06:13 UTC + `workflow_dispatch` | Runs `node bin/update.mjs nfl` (no `--year` — the live season is resolved inside the script via `fetchCurrentNflSeason()`), commits if content hash changed, purges jsDelivr CDN cache; delegates to `_ingest.yml`. Each run lands a game window hours after it ends; between Friday and Tuesday the file holds a partly played current week (CR-21); its sparse-checkout cone includes `nflverse/schedule` for D-1's in-season bye inference |
 | `nflverse-draft.yml` | May 1 12:00 UTC + `workflow_dispatch` | Runs `node bin/update.mjs draft`, commits if content changed, purges jsDelivr CDN cache |
@@ -1582,7 +1582,7 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `registry-mirror.yml` | Daily 06:41 UTC + PR/push to `main` touching `cross-repo-registry.md`, `lib/registry.mjs`, `test/registry-mirror.test.mjs` or itself + `workflow_dispatch` | Checks out this repo and `antonwilms/sleeper-dashboard` side by side and runs `test/registry-mirror.test.mjs` with `REGISTRY_MIRROR=1` (CR-24) — the mirrored registry span must be byte-identical and the app's documented drift command must point at both files; read-only, no writes |
 | `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the eleven uniform ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `nflverse-snaps.yml`, `nflverse-depth.yml`, `nflverse-rosterweekly.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
 
-The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard or the sentinel-QB landscape check trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
+The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard or the QB-count landscape check trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
 Every committing workflow purges through `bin/purge-cdn.mjs`, and a CDN that still serves old bytes after ~5 min of retries per phase fails the run (family files are verified before the manifest).
 
@@ -1631,7 +1631,12 @@ day-of-month / month fields:
 | otherwise | daily | 2 days |
 
 A finding surfaces as a non-zero exit (red run), `::error::` annotations per finding, and a
-markdown table in the run's step summary — no auto-issues, no external services.
+markdown table in the run's step summary. **Capture-only workflows also open a GitHub issue**
+(`fileCaptureIssues`, `CAPTURE_ONLY_WORKFLOWS` in `scripts/check-crons.mjs` — today `weekly-ktc.yml`):
+a missed KTC week is lost for good, and a red detector run alone is easy to miss when another
+workflow already keeps it red (2026-10-05's KTC failure sat in seven consecutive red runs unseen).
+One issue per workflow, titled `Capture missed: <file>`; none is opened while one is open, and none
+is closed automatically. The workflow carries `issues: write` for this.
 
 **Limitations:**
 - **Self-monitoring.** The detector runs inside the same system it monitors (GitHub Actions). Mitigated by: daily cadence (a missed scheduler tick self-heals the next day); the `push` trigger on `main`, so any human push re-arms the check even if every cron is dead (note: pushes made with `GITHUB_TOKEN`, like the capture workflows' own commits, do not trigger `push` workflows — this is documented GitHub behavior and desirable here, it avoids recursion); and check 2 catching the auto-disable state directly. A total, silent, multi-day Actions-scheduler outage with no human push in between is the residual, accepted risk.
@@ -1643,7 +1648,8 @@ markdown table in the run's step summary — no auto-issues, no external service
 At the start of each NFL season, update `lib/validate.mjs`:
 
 1. **`NFL_SENTINELS`** — add an entry for the new year with 2–3 high-usage players and their expected `minGames`.
-2. **`KTC_TOP_QB_SENTINELS`** — update if the dynasty QB landscape shifts significantly (the comment in the file explains the current state).
+
+The KTC landscape check needs no yearly update — it counts QBs by position (`KTC_MIN_TOP_QBS`).
 
 ---
 
