@@ -85,7 +85,7 @@ the 2026-09-12 capture, so the first capture reflecting it is a later one.
 | `2026-09-09` – `2026-09-10` | calibration only — confirmed: `rookieCalibrationBasis` present across both files' rookie rows (287 / 291), `rookieGamesBasis`/`rookieCeilingBasis` absent from all of them, `projectedGames` still flat 14 everywhere |
 | `2026-09-11` | calibration + games — confirmed: `rookieCalibrationBasis` and `rookieGamesBasis` both present (291 rookie rows), `projectedGames` no longer flat 14 on every row, `rookieCeilingBasis` still absent from all of them |
 | `>= 2026-09-12` | all three — confirmed: all 291 rookie-path rows in `snapshots/2026-09-12.json` carry `rookieCalibrationBasis`, `rookieGamesBasis` and `rookieCeilingBasis` |
-| `>= first capture after the app push` | + total-points factor — to be confirmed (D-70): every rookie-path row carries `rookieTotalBasis`; `projectedTotalPts` moves on `day3:*`/`undrafted:*` rows only |
+| `>= first capture after the app push` | + total-points factor — confirmed (D-70): all 311 rookie-path rows in `snapshots/2026-10-13.json` (captured 21:24:51 UTC, `projectionModelFrom` `2026-10-14`) carry `rookieTotalFactor`/`rookieTotalBasis` (day3:RB 33 · day3:TE 19 · day3:WR 36 · undrafted:RB 34 · undrafted:TE 25 · undrafted:WR 59 · none 105); every factor < 1 is 0.796 on a day-3 or 0.835 on an undrafted RB/WR/TE, none on a `chain` row, and each such row's `projectedTotalPts` equals `projectedPPG` × `projectedGames` × factor within the PPG rounding; none of the 439 veteran rows carries the keys |
 
 **Expected segments — veteran path**, verified against the committed snapshot files:
 
