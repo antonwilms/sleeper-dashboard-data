@@ -90,6 +90,7 @@ Object keyed by Sleeper `player_id`. Each value is an aggregated per-player seas
     "byeWeeks":      1,
     "dnpWeeks":      0,
     "weeklyPoints":  { "1": 18.4, "2": 22.1, "...": "..." },
+    "weeklyStats":   { "1": { "rec": 7, "rec_yd": 98, "...": 0 }, "...": {} },
     "fantasyPoints": 298.1,
     "scoringBasis":  "half_ppr",
     "weeklyStatus":  ["P","P","P","P","P","P","P","P","B","P","P","P","P","P","P","P","P","X"],
@@ -106,6 +107,8 @@ Object keyed by Sleeper `player_id`. Each value is an aggregated per-player seas
 ```
 
 Source: Sleeper stats/projections API (`api.sleeper.com`). Fields vary by position — skill players include `rec_yd`, `rush_yd`, `pass_yd`; kickers include `fgm_*`; etc. The `gp` (games played) field on each per-week response is the authoritative participation signal.
+
+**`weeklyStats`** (weekly-scoring-keys, D-47; no `schemaVersion` bump) — on every non-`TEAM_*` row with `gamesPlayed > 0`: for each `'P'` week, that week's non-zero stat values, so a consumer can score any week under any league's `scoringSettings`. It is a **denylist** (CR-02 stance): every `stats` key except `idp_*`/`punt*`, `RATE_KEYS`/`*_lng`, `pts_half_ppr`/`pts_ppr`/`pts_std`/`pts_idp`, `pos_rank_*`, `fan_pts_allow*`, `gp`/`gs`/`gms_active`/`snp`, `*_snp` and `rec_ypt` (`lib/sleeper.mjs` `isWeeklyStatsExcluded`; `pts_allow*`/`yds_allow*` are kept — DEF scoring). A played week with no kept value is omitted (zero points); for every kept key the weeks sum to the season `stats` value. `weeklyPoints` stays `pts_half_ppr` and `scoringBasis` stays `'half_ppr'`, so every data-side fit keeps its input. `TEAM_*` rows never carry it. Absent field = not covered. 2012–2025 were backfilled by `scripts/migrate-weekly-stats.mjs` (Invariant-1 rewrite #4, below); `update-nfl.mjs` writes it forward and validates it with `requireWeeklyStats`. The grade that gated wiring is `bin/backtest.mjs --weekly-basis --weeks-cache <dir>` (`scripts/weekly-basis-run.mjs`; verdict `grading/2026-10-15-weekly-basis-verdict.md`).
 
 **`weeklyStatus` codes** (one character per week, 1-indexed by array position):
 
@@ -1514,6 +1517,14 @@ it hashes through `deepSortKeys`. Stated as JSDoc at `lib/cfbd.mjs:63-66`.
   of changed seasons get `schemaVersion: 4`. `--dry-run` reports only; idempotent; skips `inProgress`
   seasons (the next `update-nfl` run classifies those). One-way — the Sleeper-only baseline is gone, so
   narrowing the status set needs a forced re-fetch.
+- `migrate-weekly-stats.mjs` — Invariant-1 rewrite #4 (weekly-scoring-keys, D-47): re-fetches 2012–2025
+  through a required `--weeks-cache <dir>` (outside the repo; the same raw weeks the `--weekly-basis`
+  grade scored) and adds `weeklyStats` **only**. `attachWeeklyStats` attaches a fresh row's field iff it
+  exists, its `'P'` weeks and `weeklyPoints` equal the stored row's and the kept keys sum to the stored
+  `stats`; otherwise the row is left unchanged (reason `missing`/`weeks`/`points`/`sums`). Guards throw
+  on a changed id set, any non-`weeklyStats` field change, > 0.5% omitted rows, a `validateNflSeason`
+  failure, or a non-idempotent re-derivation. `recordCount` and `schemaVersion: 4` unchanged;
+  `--dry-run` reports only. Ran 2026-10-15: 28,151/28,151 rows attached.
 - `migrate-college-pivot.mjs` — rewrites all 27 `college/{passing,receiving,rushing}/<year>.json`
   files from a long-form row array to the pivoted player-keyed envelope via `lib/cfbd.mjs`
   `pivotCfbdRows`, bumping `schemaVersion` to 2 and setting `recordCount` to the player count.
