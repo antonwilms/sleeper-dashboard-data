@@ -47,8 +47,9 @@ on:
         type: string
       season-keyed:
         description: >
-          When true, an empty `season` step output skips the family purge with a WARN instead
-          of purging a malformed URL (Invariant 8) — the manifest purge still runs either way.
+          When true, an empty `season` step output fails the purge step with an ::error:: instead
+          of purging a malformed URL (Invariant 8): the family file is already committed and the
+          raw manifest lists it, so an unpurged family file must not leave the job green (CR-29).
         required: false
         type: boolean
         default: false
@@ -95,7 +96,7 @@ jobs:
             git push || (git pull --rebase && git push)
 
             # Purge jsDelivr via bin/purge-cdn.mjs, which verifies the CDN serves the pushed
-            # bytes (family path first, manifest last) and fails the job if it never does.
+            # bytes of the family path (manifest.json is not purged, CR-29) and fails the job if it never does.
             # SEASON is the NFL season resolved by the node step (Invariant 8) — never the
             # calendar year, which diverges Jan–Feb. <date> is a plain UTC-date token for date-keyed families
             # (e.g. playerstate); it is never empty so it never needs the season-keyed guard.
@@ -106,8 +107,8 @@ jobs:
             PURGE_PATH="${PURGE_PATH//<date>/$DATE}"
 
             if [[ "${{ inputs.season-keyed }}" == "true" && -z "$SEASON" ]]; then
-              echo "WARN: season step-output empty; skipped season-keyed ${{ inputs.subcommand }} purge"
-              node bin/purge-cdn.mjs
+              echo "::error::season step-output empty; cannot name the season-keyed ${{ inputs.subcommand }} path to purge (CR-29)"
+              exit 1
             else
               node bin/purge-cdn.mjs "${PURGE_PATH}"
             fi

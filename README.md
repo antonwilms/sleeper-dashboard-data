@@ -1532,10 +1532,10 @@ the workflow's path-scoped commit. See `.claude/tasks/playerstats-single-fetch.m
 
 #### `scripts/purge-cdn.mjs` — verified jsDelivr purge
 
-`purgeAndVerify` purges `@main/<path>` then checks the CDN serves what was pushed. Freshness:
-`manifest.json` passes when CDN `generatedAt` ≥ the local one (read via `readManifest()`); any other
-path passes when the CDN body's SHA-256 equals the local file's. Schedule: Phase A (family paths)
-then Phase B (`manifest.json`, which runs even if A failed), up to 5 attempts each with sleeps of
+`purgeAndVerify` purges `@main/<path>` then checks the CDN serves what was pushed. Freshness: a path
+passes when the CDN body's SHA-256 equals the local file's. `manifest.json` is **not** purged or
+verified and is rejected as a path (the app reads it from raw GitHub, CR-29); at least one family
+path is required. Schedule: up to 5 attempts with sleeps of
 15/30/60/90/120 s before each verify; later attempts re-purge only still-failing paths. A final
 unconditional re-purge sweep covers any stale fill from the push→purge gap (failure there only
 warns). Missing local family files are skipped with a warning; anything unverified ends the run
@@ -1578,13 +1578,13 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `nflverse-rosterweekly.yml` | Daily 06:23 UTC + `workflow_dispatch` | Runs `node bin/update.mjs rosterweekly` (current season) — daily, after upstream's observed ~06:02 UTC refresh of `roster_weekly_<year>.csv`. Internal-only family (never read by the app); `scripts/update-nfl.mjs` classifies absences against it from absence-classification-c (CR-28), so the 06:13 Mon/Tue/Fri season-totals run reads the previous morning's file. Commits if content hash changed, purges jsDelivr CDN cache; delegates to `_ingest.yml` |
 | `cron-deadman.yml` | Daily 05:19 UTC + push to `main` + `workflow_dispatch` | Runs `node bin/deadman.mjs`; monitoring only — no writes, no manifest touch |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
-| `daily-snapshot.yml` (D1b, phase 1) | `workflow_dispatch` only — **no `cron:` line yet**, see CR-22 below | Checks out this repo plus a pinned ref of `antonwilms/sleeper-dashboard` into `app/`, builds and `vite preview`s the app headlessly, drives it with Playwright (localStorage-seeded, no UI interaction), reads the projection snapshot it wrote to IndexedDB, runs it through the commit gate (`lib/snapshot-capture.mjs`) and writes+registers+commits `snapshots/<date>.json` only on acceptance; purges the jsDelivr manifest cache. Rejects loudly (non-zero exit, no commit) rather than writing a neutral snapshot — see Cross-repo impact CR-01 below and `.claude/tasks/daily-snapshot-capture.md` |
+| `daily-snapshot.yml` (D1b, phase 1) | `workflow_dispatch` only — **no `cron:` line yet**, see CR-22 below | Checks out this repo plus a pinned ref of `antonwilms/sleeper-dashboard` into `app/`, builds and `vite preview`s the app headlessly, drives it with Playwright (localStorage-seeded, no UI interaction), reads the projection snapshot it wrote to IndexedDB, runs it through the commit gate (`lib/snapshot-capture.mjs`) and writes+registers+commits `snapshots/<date>.json` only on acceptance; purges and verifies the new snapshot path on jsDelivr (the capture's `snapshotPath` step output; `manifest.json` is not purged, CR-29). Rejects loudly (non-zero exit, no commit) rather than writing a neutral snapshot — see Cross-repo impact CR-01 below and `.claude/tasks/daily-snapshot-capture.md` |
 | `registry-mirror.yml` | Daily 06:41 UTC + PR/push to `main` touching `cross-repo-registry.md`, `lib/registry.mjs`, `test/registry-mirror.test.mjs` or itself + `workflow_dispatch` | Checks out this repo and `antonwilms/sleeper-dashboard` side by side and runs `test/registry-mirror.test.mjs` with `REGISTRY_MIRROR=1` (CR-24) — the mirrored registry span must be byte-identical and the app's documented drift command must point at both files; read-only, no writes |
 | `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the eleven uniform ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `nflverse-snaps.yml`, `nflverse-depth.yml`, `nflverse-rosterweekly.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard or the QB-count landscape check trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
 
-Every committing workflow purges through `bin/purge-cdn.mjs`, and a CDN that still serves old bytes after ~5 min of retries per phase fails the run (family files are verified before the manifest).
+Every committing workflow purges through `bin/purge-cdn.mjs`, and a CDN that still serves old bytes after ~5 min of retries per phase fails the run (family files only: `manifest.json` is not purged, the app reads it from raw GitHub, CR-29).
 
 *Season-keyed purges (roster, advstats, schedule, gamelogs, teamcontext) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
 
@@ -1667,7 +1667,7 @@ Example — fetch the 2023 NFL season totals:
 https://cdn.jsdelivr.net/gh/<github-username>/sleeper-dashboard-data@main/nfl/season-totals/2023.json
 ```
 
-jsDelivr caches `@main` for 12 h at the edge and tells browsers to cache for 7 days. Workflows purge and verify with `node bin/purge-cdn.mjs <paths>`. Manual sessions use `GITHUB_REPOSITORY=antonwilms/sleeper-dashboard-data node bin/purge-cdn.mjs <paths>`.
+jsDelivr caches `@main` for 12 h at the edge and tells browsers to cache for 7 days. Workflows purge and verify family files with `node bin/purge-cdn.mjs <paths>`; `manifest.json` is not purged (the app reads it from raw GitHub, CR-29). Manual sessions use `GITHUB_REPOSITORY=antonwilms/sleeper-dashboard-data node bin/purge-cdn.mjs <paths>`.
 
 ---
 

@@ -4,10 +4,11 @@
  *
  *   node bin/purge-cdn.mjs [--repo owner/name] <path> [<path> …]
  *
- * Purges each repo-relative path (family files first, manifest.json always last), verifies the
- * CDN serves the pushed bytes, re-purging on a back-off. No paths = manifest only. Repo comes
- * from --repo, else GITHUB_REPOSITORY. Exit 0 if every path verified, 1 if not, 2 on a usage error, an
- * invalid path, or a local read failure (all before any network call).
+ * Purges each repo-relative family path, verifies the CDN serves the pushed bytes, re-purging
+ * on a back-off. At least one path is required; manifest.json is not purged (CR-29). Repo comes
+ * from --repo, else GITHUB_REPOSITORY. Exit 0 if every path verified, 1 if not, 2 on a usage
+ * error (including no paths), an invalid path, or a local read failure (all before any network
+ * call).
  *
  * Local use:
  *   GITHUB_REPOSITORY=antonwilms/sleeper-dashboard-data node bin/purge-cdn.mjs <paths>
@@ -24,7 +25,7 @@ for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
   if (a === '--help' || a === '-h') {
     console.log(USAGE);
-    console.log('  Repo defaults to $GITHUB_REPOSITORY. manifest.json is always purged last.');
+    console.log('  Repo defaults to $GITHUB_REPOSITORY. manifest.json is not purged, CR-29.');
     process.exit(0);
   } else if (a === '--repo') {
     repo = argv[++i];
@@ -34,6 +35,11 @@ for (let i = 0; i < argv.length; i++) {
   } else {
     paths.push(a);
   }
+}
+
+if (!paths.length) {
+  console.error(`no paths given — manifest.json is not purged (CR-29)\n${USAGE}`);
+  process.exit(2);
 }
 
 if (!repo || !/^[^/\s]+\/[^/\s]+$/.test(repo)) {

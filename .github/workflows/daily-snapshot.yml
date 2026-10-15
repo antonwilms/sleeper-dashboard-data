@@ -98,6 +98,10 @@ jobs:
         run: node scripts/capture-snapshot.mjs
 
       - name: Register and commit
+        env:
+          # The path the capture actually wrote (it fixes its date key at capture start), not a
+          # date recomputed here after Playwright — wrong for a run that crosses 00:00 UTC.
+          SNAPSHOT_PATH: ${{ steps.capture.outputs.snapshotPath }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -123,8 +127,12 @@ jobs:
           git commit -m "snapshot: ${SNAPSHOT_DATE} (daily-snapshot.yml)"
           git push || (git pull --rebase && git push)
 
-          # Purge jsDelivr's manifest cache (bin/purge-cdn.mjs verifies it) so the new snapshot
-          # is visible without waiting for TTL. A new dated snapshot path has no cached copy to
-          # purge, so the manifest is the only purge needed; snapshots are read back via
-          # tryDataStore (CR-26), and the app only requests manifest-listed paths.
-          node bin/purge-cdn.mjs
+          # Purge and verify the new snapshot path on jsDelivr (bin/purge-cdn.mjs). The app reads
+          # manifest.json from raw GitHub (CR-29), so it can see this path seconds after the
+          # push, possibly before jsDelivr has resolved the commit; a 404 for it may be cached.
+          # manifest.json itself is not purged.
+          if [[ -n "$SNAPSHOT_PATH" && -f "$SNAPSHOT_PATH" ]]; then
+            node bin/purge-cdn.mjs "$SNAPSHOT_PATH"
+          else
+            echo "::warning::capture step output snapshotPath empty or file missing ('${SNAPSHOT_PATH}') — snapshot not purged on jsDelivr"
+          fi

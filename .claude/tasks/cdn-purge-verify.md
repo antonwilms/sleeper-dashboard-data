@@ -499,3 +499,5 @@ the SHA.
     | quantil | 0 | MISS, MISS | FRA, AMS | – |
     | originfastly | 0 | MISS, MISS | FRA, AMS | – |
   - Caveat: this machine sees only the FRA/AMS/RTM edges, so Cowork should re-check from its own vantage point. The long delay means this shows the settled state, not the state 5 min after the run. Verification steps 3–4 (the `_ingest.yml` path) are still open for Mon 2026-10-05 06:13 UTC.
+
+Superseded in part (2026-10-15): manifest.json is no longer purged or verified — see `.claude/tasks/manifest-raw-source.md` (CR-29).

@@ -64,12 +64,12 @@ jobs:
             git commit -m "ktc: snapshot ${SNAPSHOT_DATE}"
             # Retry with rebase on push rejection (multiple weekly committers on main)
             git push || (git pull --rebase && git push)
-            # Purge jsDelivr via bin/purge-cdn.mjs (verifies, manifest last). A quarantined
+            # Purge jsDelivr via bin/purge-cdn.mjs (verifies; manifest.json is not purged, CR-29). A quarantined
             # capture writes ktc/quarantine/, not ktc/, so the snapshot path may not exist.
             if [[ -f "ktc/snapshot-${SNAPSHOT_DATE}.json" ]]; then
               node bin/purge-cdn.mjs "ktc/snapshot-${SNAPSHOT_DATE}.json"
             else
-              node bin/purge-cdn.mjs
+              echo "Quarantined capture wrote no ktc/snapshot-${SNAPSHOT_DATE}.json — nothing to purge."
             fi
           else
             echo "No changes to commit."

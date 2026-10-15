@@ -1,9 +1,11 @@
 /**
  * scripts/purge-cdn.mjs — jsDelivr purge + verify.
  *
- * Purges `@main/<path>` for each path, then checks the CDN now serves what was pushed,
- * re-purging on a back-off until it does. Family paths run first (Phase A), manifest.json
- * last (Phase B), then one unconditional re-purge sweep. See .claude/tasks/cdn-purge-verify.md.
+ * Purges `@main/<path>` for each family path, then checks the CDN now serves what was pushed,
+ * re-purging on a back-off until it does, then one unconditional re-purge sweep.
+ * manifest.json is NOT purged or verified: the app reads it from raw GitHub (CR-29), and a
+ * `manifest.json` path is rejected. See .claude/tasks/cdn-purge-verify.md and
+ * .claude/tasks/manifest-raw-source.md.
  *
  * `DEFAULT_DEPS` is the injectable I/O seam (same pattern as scripts/update-nfl.mjs).
  */
@@ -11,7 +13,6 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import { repoPath } from '../lib/io.mjs';
-import { readManifest } from '../lib/manifest.mjs';
 
 export const PURGE_ATTEMPTS = 5;
 export const VERIFY_DELAYS_MS = [15_000, 30_000, 60_000, 90_000, 120_000];
@@ -20,13 +21,10 @@ export const purgeUrl = (repo, path) => `https://purge.jsdelivr.net/gh/${repo}@m
 export const cdnUrl = (repo, path) => `https://cdn.jsdelivr.net/gh/${repo}@main/${path}`;
 export const purgeKey = (repo, path) => `/gh/${repo}@main/${path}`;
 
-const MANIFEST = 'manifest.json';
-
 export const DEFAULT_DEPS = {
   fetch: (url) => globalThis.fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) }),
   sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
   readFile: (p) => fs.readFile(repoPath(p)),
-  readManifest,
   log: (...a) => console.log(...a),
 };
 
@@ -40,8 +38,8 @@ function failReason(err) {
 
 /**
  * Pure: classify one purge response. Returns { ok: true } | { ok: false, reason[, throttled: true] }.
- * `throttled` marks jsDelivr's per-path purge rate limit (shared by every workflow that purges
- * manifest.json): the purge was refused, but the CDN may already serve the pushed bytes.
+ * `throttled` marks jsDelivr's per-path purge rate limit: the purge was refused, but the CDN
+ * may already serve the pushed bytes.
  */
 export function checkPurgeResponse(httpStatus, body, repo, path) {
   if (!(httpStatus >= 200 && httpStatus < 300)) return { ok: false, reason: `HTTP ${httpStatus}` };
@@ -61,21 +59,10 @@ export function checkPurgeResponse(httpStatus, body, repo, path) {
 }
 
 /**
- * Pure: freshness of one path. manifest.json → CDN generatedAt >= local generatedAt (string,
- * from readManifest); any other path → SHA-256 of CDN bytes == SHA-256 of local bytes (Buffer).
+ * Pure: freshness of one path — SHA-256 of CDN bytes == SHA-256 of local bytes (Buffer).
  * Returns { fresh, cdnValue, localValue }.
  */
-export function checkFreshness(path, cdnBuf, local) {
-  if (path === MANIFEST) {
-    let cdnValue;
-    try {
-      cdnValue = JSON.parse(Buffer.from(cdnBuf).toString('utf8')).generatedAt;
-    } catch {
-      return { fresh: false, cdnValue: 'unparsable', localValue: local };
-    }
-    const fresh = typeof cdnValue === 'string' && cdnValue >= local;
-    return { fresh, cdnValue, localValue: local };
-  }
+export function checkFreshness(cdnBuf, local) {
   const cdnValue = sha256(cdnBuf);
   const localValue = sha256(local);
   return { fresh: cdnValue === localValue, cdnValue, localValue };
@@ -87,15 +74,17 @@ function normalisePaths(paths) {
     const p = String(raw).replace(/^(\.\/|\/)+/, '');
     if (!p) continue;
     if (p.includes('..') || p.startsWith('http')) throw new Error(`invalid purge path: ${raw}`);
-    if (p !== MANIFEST && !out.includes(p)) out.push(p);
+    if (p === 'manifest.json') throw new Error('invalid purge path: manifest.json is not purged (CR-29)');
+    if (!out.includes(p)) out.push(p);
   }
+  if (!out.length) throw new Error('no paths to purge');
   return out;
 }
 
 /**
  * @param {object} opts
  * @param {string}   opts.repo   owner/name
- * @param {string[]} opts.paths  repo-relative; manifest.json is pulled out and run last (D4)
+ * @param {string[]} opts.paths  repo-relative family paths; at least one, never manifest.json (CR-29)
  * @param {object}  [opts.deps]
  * @returns {Promise<{ ok: boolean, results: Array<{ path, verified, skipped, attempts, lastReason }> }>}
  */
@@ -126,9 +115,6 @@ export async function purgeAndVerify({ repo, paths, deps = {} }) {
       }
     }
   }
-  const manifest = await d.readManifest();
-  if (!manifest || !manifest.generatedAt) throw new Error('local manifest.json has no generatedAt');
-  local.set(MANIFEST, manifest.generatedAt);
 
   async function purgeOne(path, label) {
     let r;
@@ -171,7 +157,7 @@ export async function purgeAndVerify({ repo, paths, deps = {} }) {
         reason = `HTTP ${resp.status}`;
       } else {
         const buf = Buffer.from(await resp.arrayBuffer());
-        ({ fresh, cdnValue, localValue } = checkFreshness(path, buf, local.get(path)));
+        ({ fresh, cdnValue, localValue } = checkFreshness(buf, local.get(path)));
         if (!fresh) reason = `stale cdn=${short(cdnValue)} local=${short(localValue)}`;
       }
     } catch (err) {
@@ -207,13 +193,12 @@ export async function purgeAndVerify({ repo, paths, deps = {} }) {
     }
   }
 
-  await runPhase(live); // Phase A
-  await runPhase([MANIFEST]); // Phase B — runs even if Phase A failed
+  await runPhase(live);
 
   // Final sweep: unconditional re-purge, response checked, no verify, never fatal.
-  for (const p of [...live, MANIFEST]) await purgeOne(p, 'sweep');
+  for (const p of live) await purgeOne(p, 'sweep');
 
-  const out = [...family.map(res), res(MANIFEST)];
+  const out = family.map(res);
   const failed = out.filter((r) => !r.skipped && !r.verified);
   for (const r of failed) {
     d.log(

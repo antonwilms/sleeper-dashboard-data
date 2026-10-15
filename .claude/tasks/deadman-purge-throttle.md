@@ -37,3 +37,5 @@ files verify fresh first time. So the purge script cannot fix manifest staleness
 Decision (Anton): serve the manifest from a source that stays fresh, scoped to manifest.json only.
 That is an app change (`src/api/dataStore.js` manifest URL) plus registry/two-session route; not
 done here. Until then manifest.json verify failures keep the three captures red.
+
+Resolved by `.claude/tasks/manifest-raw-source.md` (2026-10-15): the app reads the manifest from raw GitHub and no workflow purges it (CR-29).

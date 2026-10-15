@@ -56,8 +56,7 @@ This file is the procedure.
    rebase: `git pull --rebase origin main` again and retry. Never force.
 
 5. **Purge the CDN** if this session wrote served data files (anything under `nflverse/`,
-   `ktc/`, `nfl/`, `college/`, `snapshots/`, plus `manifest.json`). Purge exactly the changed
-   files — the data files, then `manifest.json` last (the CLI orders this for you), so the app sees
-   fresh data instead of stale cache and the manifest never advertises a new `lastModified` before
-   the family bytes are fresh. Method:
+   `ktc/`, `nfl/`, `college/`, `snapshots/`). Purge exactly the changed data files, so the app
+   sees fresh data instead of stale cache; `manifest.json` needs no purge (the app reads it from
+   raw GitHub, CR-29, and the CLI rejects it). Method:
    `GITHUB_REPOSITORY=antonwilms/sleeper-dashboard-data node bin/purge-cdn.mjs <paths>`.

@@ -123,6 +123,7 @@ async function main() {
     writeJsonStable(snapshotRelPath, result.snapshot)
     console.log(`[capture] wrote ${snapshotRelPath} (${playerCount} players, ktc.count=${result.snapshot.inputStatus.ktc.count}, depthChart.count=${result.snapshot.inputStatus.depthChart.count})`)
     setStepOutput('wrote', 'true')
+    setStepOutput('snapshotPath', snapshotRelPath)
   } finally {
     await browser.close()
   }

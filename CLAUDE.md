@@ -16,7 +16,7 @@ Script-driven longitudinal data store consumed by the sleeper-dashboard React ap
 | Backtest | `bin/backtest.mjs` | offline analysis over advstats + season-totals; `--inseason [--dynasty]`, `--qb-takeover`, `--qb-rookie-level`, `--absence`, `--games-calibration [--cause/--short]`, `--rookie-total` |
 | Panel | `bin/panel.mjs` | E-0a baseline, `--flip-gate` (R2), `--fit` (R3-FIT) |
 | Dead-man | `bin/deadman.mjs` | monitoring only; needs `GITHUB_REPOSITORY` + `GITHUB_TOKEN` |
-| Purge | `bin/purge-cdn.mjs` | `<path>…` — jsDelivr purge + verify, manifest last; exit 1 if stale |
+| Purge | `bin/purge-cdn.mjs` | `<path>…` — jsDelivr family purge + verify; exit 1 if stale |
 
 Update subcommands: `node bin/update.mjs <subcommand> [--year YYYY]`. Flags: `--dry-run` (fetch + validate, no writes); `--force` (overwrite a completed-season file — nfl/cfbd/roster/advstats/schedule/gamelogs/playerstats/teamcontext/oline/snaps/depth/rosterweekly); `--all` (backfill; schedule/gamelogs/teamcontext/oline/snaps/depth/rosterweekly only). Semantics, analysis-CLI flags, coverage floors: README → [Update scripts](README.md#update-scripts), [Module notes](README.md#module-notes).
 
@@ -117,7 +117,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 reaches the other side. A session started in the *parent folder* holding both repos can write both,
 and that is the one sanctioned way to land a two-sided change: registry-listed contracts and
 genuinely new couplings only, both sides in the same change, the registry entry updated or drafted
-in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 28 `CR-NN` entries — lives in [cross-repo-registry.md](cross-repo-registry.md). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that file and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
+in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 29 `CR-NN` entries — lives in [cross-repo-registry.md](cross-repo-registry.md). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that file and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
 
 **Rule.** Any change touching a listed contract **must emit that entry's `Mirror` text as Session 1 output**, in a `## Cross-repo impact` section of the task file, quoting the `CR-NN` id. Naming the contract in prose is not enough; the mirror instruction itself is the deliverable.
 
