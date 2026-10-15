@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  attachWeeklyStats, migrateSeasonRows, migrateWeeklyStats, isMigrationRow,
+  attachWeeklyStats, assertStructuralGuards, migrateSeasonRows, migrateWeeklyStats, isMigrationRow,
 } from '../scripts/migrate-weekly-stats.mjs';
 
 const ws = (o = {}) => Array.from({ length: 18 }, (_, i) => o[i + 1] ?? 'X');
@@ -120,4 +120,28 @@ test('migrateWeeklyStats — dry-run writes nothing; needs --weeks-cache; failed
   assert.equal(w[0].written, true);
   assert.equal(writes.length, 2);
   assert.deepStrictEqual(writes[1][0], { path: 'nfl/season-totals/2020.json', recordCount: 1, inProgress: false, schemaVersion: 4 });
+});
+
+test('assertStructuralGuards — an extra id in `after` throws "row id set changed"', () => {
+  const before = { a: stored() };
+  const after = { a: stored(), b: stored() };
+  assert.throws(() => assertStructuralGuards(before, after, CTX), /row id set changed/);
+});
+
+test('assertStructuralGuards — a missing id in `after` throws "row id set changed"', () => {
+  const before = { a: stored(), b: stored() };
+  const after = { a: stored() };
+  assert.throws(() => assertStructuralGuards(before, after, CTX), /row id set changed/);
+});
+
+test('assertStructuralGuards — a changed non-weeklyStats field throws naming the field', () => {
+  const before = { a: stored() };
+  const after = { a: stored({ gamesPlayed: 3 }) };
+  assert.throws(() => assertStructuralGuards(before, after, CTX), /a: field "gamesPlayed" changed/);
+});
+
+test('assertStructuralGuards — a difference only in weeklyStats passes', () => {
+  const before = { a: stored() };
+  const after = { a: stored({ weeklyStats: { 1: { rec: 3 } } }) };
+  assert.doesNotThrow(() => assertStructuralGuards(before, after, CTX));
 });

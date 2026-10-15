@@ -97,3 +97,17 @@ test('buildVerdictMarkdown — the pre-registered decision precedes the verdict'
   assert.ok(md.includes(DECISION_TEXT[1]));
   assert.ok(md.includes('same Sleeper API'));
 });
+
+test('runWeeklyBasis — A is computed from the exclusion-filtered weeklyScoringStats, not the raw stats', async () => {
+  // off_snp is an EXCLUDED key (_snp suffix) present and non-zero in raw week 1; scoring settings score it at 1/pt.
+  const wd = [
+    { week: 1, entries: [{ player_id: 'w', team: 'KC', stats: { gp: 1, rec: 5, rec_yd: 50, rec_fd: 2, off_snp: 7, pts_half_ppr: 10 } }] },
+    weekData[1],
+  ];
+  const l = load({ readSnapshot: () => ({ scoringSettings: { ...SS, off_snp: 1 } }), fetchWeeks: async () => wd });
+  const panel = await runWeeklyBasis({ weeksCache: '/x', seasons: [2020], load: l });
+  // T week 1 = 11 + 7 (off_snp counted); A week 1 = 11 (excluded key dropped); week 2 unaffected.
+  assert.equal(panel.overall.A.n, 2);
+  assert.ok(Math.abs(panel.overall.A.absMax - 7) < 1e-9, `A−T on the week must be exactly the excluded key's 7 pts, got ${panel.overall.A.absMax}`);
+  assert.equal(panel.overall.A.shareWithinTol, 0.5);   // week 1 out of the 0.011 tolerance, week 2 within
+});

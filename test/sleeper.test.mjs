@@ -649,8 +649,9 @@ test('fetchSeasonWeeks: a week failing both attempts (non-OK, then thrown) → {
 // ═══════════════════════════════════════════════════════════════════
 
 test('WS-0 — frozen exclusion copy ⊇ RATE_KEYS (a failure here is a deliberate CR-02 change)', () => {
-  for (const k of RATE_KEYS) assert.ok(WEEKLY_STATS_EXCLUDED_EXACT.has(k), `${k} missing from the frozen copy`);
+  for (const k of RATE_KEYS) assert.ok(WEEKLY_STATS_EXCLUDED_EXACT.includes(k), `${k} missing from the frozen copy`);
   assert.ok(Object.isFrozen(WEEKLY_STATS_EXCLUDED_EXACT));
+  assert.throws(() => WEEKLY_STATS_EXCLUDED_EXACT.push('x'), TypeError);
 });
 
 test('WS-a — a played week carries only kept non-zero keys; excluded keys dropped, DEF/bonus keys kept', () => {

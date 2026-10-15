@@ -80,6 +80,25 @@ const byteSize = rows => {
 };
 
 /**
+ * Structural guards on a migrated season: the row id set is unchanged and every field other than
+ * `weeklyStats` is deep-equal. Throws (same message shapes as migrateSeasonRows always did).
+ */
+export function assertStructuralGuards(before, after, { relPath, year }) {
+  const fail = (id, why) => { throw new Error(`[migrate-weekly-stats] ${relPath} (${year}) ${id}: ${why} — refusing to write.`); };
+  const idsBefore = Object.keys(before).sort();
+  const idsAfter = Object.keys(after).sort();
+  if (idsBefore.length !== idsAfter.length || idsBefore.some((id, i) => id !== idsAfter[i])) fail('*', 'row id set changed');
+  for (const id of idsBefore) {
+    const b = before[id];
+    const a = after[id];
+    for (const k of new Set([...Object.keys(b), ...Object.keys(a)])) {
+      if (k === 'weeklyStats') continue;
+      if (!isDeepStrictEqual(b[k], a[k])) fail(id, `field "${k}" changed`);
+    }
+  }
+}
+
+/**
  * Builds the migrated season. Throws on any guard violation.
  * @returns {{ after, attached, omitted: {missing,weeks,points,sums}, played }}
  */
@@ -102,17 +121,7 @@ export function migrateSeasonRows(before, fresh, { relPath, year }, d = DEFAULT_
     if (r.reason === null) attached++; else omitted[r.reason]++;
   }
 
-  const idsBefore = Object.keys(before).sort();
-  const idsAfter = Object.keys(after).sort();
-  if (idsBefore.length !== idsAfter.length || idsBefore.some((id, i) => id !== idsAfter[i])) fail('*', 'row id set changed');
-  for (const id of idsBefore) {
-    const b = before[id];
-    const a = after[id];
-    for (const k of new Set([...Object.keys(b), ...Object.keys(a)])) {
-      if (k === 'weeklyStats') continue;
-      if (!isDeepStrictEqual(b[k], a[k])) fail(id, `field "${k}" changed`);
-    }
-  }
+  assertStructuralGuards(before, after, { relPath, year });
   const omittedTotal = Object.values(omitted).reduce((s, n) => s + n, 0);
   if (played > 0 && omittedTotal / played > MAX_OMITTED_SHARE) {
     fail('*', `omitted ${omittedTotal}/${played} played rows (${(100 * omittedTotal / played).toFixed(2)}%) exceeds ${MAX_OMITTED_SHARE * 100}%`);
