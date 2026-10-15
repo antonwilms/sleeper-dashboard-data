@@ -732,3 +732,41 @@ Scope:
    - Re-wrap the comment block to its surrounding width (about 100 columns). No other wording changes.
 
 Hand back: the SHA, the diff summary and the `npm test` counts.
+
+---
+
+## Fix pass 4 (Stage C blocker: the CR-14 Data-side wording breaks the claim parser)
+
+**Cause.** Fix pass 2 step 2 changed CR-14's Data side to
+"`seasonEmitsFirstDownBonus` and `NON_ADDITIVE_KEYS` (an alias of `RATE_KEYS`) in `lib/fantasyPoints.mjs`"
+and did not re-run the B3 claim check. That wording breaks the parser in two places:
+- `lib/registry.mjs` `SEPARATOR_CHAIN_RE` chains symbols only across `,` or `/`, so the bare " and "
+  breaks the run;
+- the parenthetical puts `RATE_KEYS` between the run and the file.
+
+As a result the four new symbols bind to `scripts/grade-snapshot.mjs`, and
+`test/registry.test.mjs:41` fails on the byte copy.
+
+**Fix (verified by Session 1).** Run `extractSymbolFileClaims` + `symbolResolvesIn` on the edited
+line; there are zero unresolved claims. The replacement text, with the substring occurring once:
+- old: `` `seasonEmitsFirstDownBonus` and `NON_ADDITIVE_KEYS` (an alias of `RATE_KEYS`) in `lib/fantasyPoints.mjs` ``
+- new: `` `seasonEmitsFirstDownBonus`, `NON_ADDITIVE_KEYS` in `lib/fantasyPoints.mjs` (the last an alias of `RATE_KEYS`) ``
+
+**App** (fix-applier). One commit, `docs/cross-repo-registry.md` only, inside the sentinels, message
+ending `(weekly-scoring-keys fix pass 4)`.
+1. Before committing, run the data repo's claim check over the app's edited region against data HEAD,
+   as in B3's gate. It must report zero unresolved claims.
+2. Report the new region md5.
+3. Session 1 pushes the app.
+
+**Data** (Stage C session, after the app push):
+1. Re-copy the app's mirrored region byte-for-byte in a new commit (do not amend `90a3b47`).
+2. Gates:
+   - `REGISTRY_MIRROR=1 node --test test/registry-mirror.test.mjs` is green;
+   - the md5 equals the app's new md5;
+   - `npm test` has 0 failures;
+   - `npm run smoke` is green, re-run after the `52ff5bc` re-pin.
+
+**`52ff5bc` (nflHash re-pin) is accepted.** The `hash-baseline.json` pin covers a completed-season file
+that C1 legitimately rewrote, and stripping `weeklyStats` reproduces the old digest. So only the new
+field moved it. Reading a completed-season file is allowed (Invariant 10).
