@@ -130,9 +130,11 @@ jobs:
           # Purge and verify the new snapshot path on jsDelivr (bin/purge-cdn.mjs). The app reads
           # manifest.json from raw GitHub (CR-29), so it can see this path seconds after the
           # push, possibly before jsDelivr has resolved the commit; a 404 for it may be cached.
-          # manifest.json itself is not purged.
+          # manifest.json itself is not purged. A job that cannot name the path to purge fails
+          # rather than succeeding unpurged (CR-29 Invariant).
           if [[ -n "$SNAPSHOT_PATH" && -f "$SNAPSHOT_PATH" ]]; then
             node bin/purge-cdn.mjs "$SNAPSHOT_PATH"
           else
-            echo "::warning::capture step output snapshotPath empty or file missing ('${SNAPSHOT_PATH}') — snapshot not purged on jsDelivr"
+            echo "::error::capture step output snapshotPath empty or file missing ('${SNAPSHOT_PATH}') — snapshot not purged on jsDelivr"
+            exit 1
           fi

@@ -360,3 +360,7 @@ Data: `scripts/capture-snapshot.mjs` (one step output), `scripts/purge-cdn.mjs`,
 `README.md`, `git-workflow.md`, `cross-repo-registry.md`, `.claude/tasks/{cdn-purge-verify,deadman-purge-throttle}.md`
 (one pointer line each).
 Not touched: `lib/**`, any served data file, `manifest.json`, `cron-deadman.yml`, `check-crons.mjs`.
+
+## Post sign-off (2026-10-15)
+
+- `daily-snapshot.yml` empty/missing `snapshotPath` branch: `::warning::` → `::error::` + `exit 1`, to match the CR-29 Invariant ("a job that cannot name the path to purge fails rather than succeeding unpurged"). Supersedes the B4 table's "print a `::warning::`".
