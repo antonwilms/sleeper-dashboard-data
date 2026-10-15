@@ -1,0 +1,891 @@
+{
+  "generatedBy": "bin/backtest.mjs --weekly-basis",
+  "snapshotDate": "2026-10-14",
+  "seasons": [
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "framing": "T is scored from the same Sleeper API as A: the grade tests the exclusion list and the aggregation, not independent truth.",
+  "decision": {
+    "a_share": 0.999,
+    "a_tol": 0.011,
+    "a_p99": 0.05,
+    "b_median_rel": 0.01,
+    "c_coverage": 0.995,
+    "d_sumcheck": 0.995,
+    "e_gz_kb": 400
+  },
+  "nWeeks": 327599,
+  "bNullWeeks": 6988,
+  "overall": {
+    "B": {
+      "n": 320611,
+      "absMedian": 0,
+      "absP90": 0.5899999999999999,
+      "absP99": 3.37,
+      "absMax": 702.9,
+      "relMedian": 0.04313725490196079,
+      "relP90": 0.1663043478260871,
+      "relN": 50886,
+      "shareWithinTol": 0.7491726734266759
+    },
+    "A": {
+      "n": 327599,
+      "absMedian": 0,
+      "absP90": 0,
+      "absP99": 0,
+      "absMax": 0,
+      "relMedian": 0,
+      "relP90": 0,
+      "relN": 51000,
+      "shareWithinTol": 1
+    }
+  },
+  "byPosition": {
+    "QB": {
+      "B": {
+        "n": 8670,
+        "absMedian": 0.4800000000000004,
+        "absP90": 1.4299999999999997,
+        "absP99": 2.91,
+        "absMax": 32.67,
+        "relMedian": 0.03212290502793289,
+        "relP90": 0.102787456445993,
+        "relN": 7157,
+        "shareWithinTol": 0.10069204152249135
+      },
+      "A": {
+        "n": 8909,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 7157,
+        "shareWithinTol": 1
+      }
+    },
+    "RB": {
+      "B": {
+        "n": 22063,
+        "absMedian": 0.2599999999999998,
+        "absP90": 1.7100000000000009,
+        "absP99": 5.9,
+        "absMax": 154.67,
+        "relMedian": 0.04275862068965512,
+        "relP90": 0.16725146198830415,
+        "relN": 10893,
+        "shareWithinTol": 0.1909078547794951
+      },
+      "A": {
+        "n": 22391,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 10901,
+        "shareWithinTol": 1
+      }
+    },
+    "WR": {
+      "B": {
+        "n": 34422,
+        "absMedian": 0.17999999999999972,
+        "absP90": 1.7000000000000028,
+        "absP99": 7.869999999999997,
+        "absMax": 702.9,
+        "relMedian": 0.037692307692307706,
+        "relP90": 0.1652892561983471,
+        "relN": 15885,
+        "shareWithinTol": 0.2368252861542037
+      },
+      "A": {
+        "n": 35294,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 15963,
+        "shareWithinTol": 1
+      }
+    },
+    "TE": {
+      "B": {
+        "n": 21465,
+        "absMedian": 0.10999999999999943,
+        "absP90": 1.1400000000000006,
+        "absP99": 2.74,
+        "absMax": 7.289999999999999,
+        "relMedian": 0.06996587030716726,
+        "relP90": 0.16038647342995171,
+        "relN": 6747,
+        "shareWithinTol": 0.4237130211972979
+      },
+      "A": {
+        "n": 21563,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 6747,
+        "shareWithinTol": 1
+      }
+    },
+    "K": {
+      "B": {
+        "n": 7134,
+        "absMedian": 0.6200000000000001,
+        "absP90": 3.1999999999999993,
+        "absP99": 6.619999999999999,
+        "absMax": 13.510000000000002,
+        "relMedian": 0.10666666666666676,
+        "relP90": 0.32375,
+        "relN": 4911,
+        "shareWithinTol": 0.22820297168488926
+      },
+      "A": {
+        "n": 7138,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 4911,
+        "shareWithinTol": 1
+      }
+    },
+    "DEF": {
+      "B": {
+        "n": 7106,
+        "absMedian": 0.26000000000000156,
+        "absP90": 0.8300000000000001,
+        "absP99": 1.0700000000000003,
+        "absMax": 7.17,
+        "relMedian": 0.03624999999999989,
+        "relP90": 0.10250000000000004,
+        "relN": 4696,
+        "shareWithinTol": 0.05178722206585984
+      },
+      "A": {
+        "n": 7106,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 4696,
+        "shareWithinTol": 1
+      }
+    },
+    "other": {
+      "B": {
+        "n": 219751,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0.33,
+        "absMax": 52.94,
+        "relMedian": 0.030769230769230795,
+        "relP90": 1,
+        "relN": 597,
+        "shareWithinTol": 0.9823163489585941
+      },
+      "A": {
+        "n": 225198,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 625,
+        "shareWithinTol": 1
+      }
+    }
+  },
+  "bySeason": {
+    "2012": {
+      "B": {
+        "n": 15312,
+        "absMedian": 0,
+        "absP90": 0.7999999999999998,
+        "absP99": 4.210000000000001,
+        "absMax": 101.4,
+        "relMedian": 0.045161290322580705,
+        "relP90": 0.16504854368932048,
+        "relN": 3117,
+        "shareWithinTol": 0.6903082549634274
+      },
+      "A": {
+        "n": 15652,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3123,
+        "shareWithinTol": 1
+      }
+    },
+    "2013": {
+      "B": {
+        "n": 18439,
+        "absMedian": 0,
+        "absP90": 0.7600000000000002,
+        "absP99": 3.9699999999999998,
+        "absMax": 702.9,
+        "relMedian": 0.045056726094003255,
+        "relP90": 0.1724806201550387,
+        "relN": 3459,
+        "shareWithinTol": 0.7076847985248658
+      },
+      "A": {
+        "n": 19114,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3465,
+        "shareWithinTol": 1
+      }
+    },
+    "2014": {
+      "B": {
+        "n": 21413,
+        "absMedian": 0,
+        "absP90": 0.6899999999999977,
+        "absP99": 3.7,
+        "absMax": 331.40000000000003,
+        "relMedian": 0.04530386740331493,
+        "relP90": 0.17922794117647067,
+        "relN": 3638,
+        "shareWithinTol": 0.7277354877877925
+      },
+      "A": {
+        "n": 21962,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3647,
+        "shareWithinTol": 1
+      }
+    },
+    "2015": {
+      "B": {
+        "n": 22798,
+        "absMedian": 0,
+        "absP90": 0.6399999999999999,
+        "absP99": 3.65,
+        "absMax": 154.67,
+        "relMedian": 0.04577114427860705,
+        "relP90": 0.17799999999999994,
+        "relN": 3662,
+        "shareWithinTol": 0.7419949118343714
+      },
+      "A": {
+        "n": 23379,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3671,
+        "shareWithinTol": 1
+      }
+    },
+    "2016": {
+      "B": {
+        "n": 22762,
+        "absMedian": 0,
+        "absP90": 0.6099999999999994,
+        "absP99": 3.130000000000001,
+        "absMax": 122.75,
+        "relMedian": 0.04276729559748415,
+        "relP90": 0.15428571428571422,
+        "relN": 3669,
+        "shareWithinTol": 0.7460240752130745
+      },
+      "A": {
+        "n": 23427,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3676,
+        "shareWithinTol": 1
+      }
+    },
+    "2017": {
+      "B": {
+        "n": 22808,
+        "absMedian": 0,
+        "absP90": 0.5899999999999999,
+        "absP99": 3.2199999999999998,
+        "absMax": 28.470000000000002,
+        "relMedian": 0.04530386740331493,
+        "relP90": 0.17699115044247787,
+        "relN": 3551,
+        "shareWithinTol": 0.7466239915819011
+      },
+      "A": {
+        "n": 23407,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3560,
+        "shareWithinTol": 1
+      }
+    },
+    "2018": {
+      "B": {
+        "n": 22892,
+        "absMedian": 0,
+        "absP90": 0.5899999999999999,
+        "absP99": 3.24,
+        "absMax": 31.56,
+        "relMedian": 0.04420677361853827,
+        "relP90": 0.1573770491803278,
+        "relN": 3645,
+        "shareWithinTol": 0.7449764109732657
+      },
+      "A": {
+        "n": 23424,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3653,
+        "shareWithinTol": 1
+      }
+    },
+    "2019": {
+      "B": {
+        "n": 22981,
+        "absMedian": 0,
+        "absP90": 0.5999999999999979,
+        "absP99": 3.26,
+        "absMax": 49.25,
+        "relMedian": 0.044982698961937746,
+        "relP90": 0.1648854961832061,
+        "relN": 3586,
+        "shareWithinTol": 0.7521430747138941
+      },
+      "A": {
+        "n": 23424,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3590,
+        "shareWithinTol": 1
+      }
+    },
+    "2020": {
+      "B": {
+        "n": 23622,
+        "absMedian": 0,
+        "absP90": 0.5899999999999999,
+        "absP99": 3.15,
+        "absMax": 24.6,
+        "relMedian": 0.04532019704433488,
+        "relP90": 0.15899999999999997,
+        "relN": 3703,
+        "shareWithinTol": 0.7511218355770045
+      },
+      "A": {
+        "n": 24276,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3713,
+        "shareWithinTol": 1
+      }
+    },
+    "2021": {
+      "B": {
+        "n": 25340,
+        "absMedian": 0,
+        "absP90": 0.5600000000000005,
+        "absP99": 3.210000000000001,
+        "absMax": 105.43,
+        "relMedian": 0.04504021447721179,
+        "relP90": 0.17333333333333334,
+        "relN": 3801,
+        "shareWithinTol": 0.7608918705603789
+      },
+      "A": {
+        "n": 25940,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3807,
+        "shareWithinTol": 1
+      }
+    },
+    "2022": {
+      "B": {
+        "n": 25498,
+        "absMedian": 0,
+        "absP90": 0.5200000000000005,
+        "absP99": 3.29,
+        "absMax": 50.48,
+        "relMedian": 0.04399999999999995,
+        "relP90": 0.18876404494382018,
+        "relN": 3746,
+        "shareWithinTol": 0.7595889873715586
+      },
+      "A": {
+        "n": 25826,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3752,
+        "shareWithinTol": 1
+      }
+    },
+    "2023": {
+      "B": {
+        "n": 25641,
+        "absMedian": 0,
+        "absP90": 0.47000000000000064,
+        "absP99": 2.7800000000000002,
+        "absMax": 52.94,
+        "relMedian": 0.040498442367601216,
+        "relP90": 0.165625,
+        "relN": 3688,
+        "shareWithinTol": 0.7627237627237627
+      },
+      "A": {
+        "n": 25878,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3688,
+        "shareWithinTol": 1
+      }
+    },
+    "2024": {
+      "B": {
+        "n": 25582,
+        "absMedian": 0,
+        "absP90": 0.41000000000000014,
+        "absP99": 2.7,
+        "absMax": 28.950000000000003,
+        "relMedian": 0.03373493975903614,
+        "relP90": 0.1273148148148148,
+        "relN": 3754,
+        "shareWithinTol": 0.7800015635994059
+      },
+      "A": {
+        "n": 25944,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3760,
+        "shareWithinTol": 1
+      }
+    },
+    "2025": {
+      "B": {
+        "n": 25523,
+        "absMedian": 0,
+        "absP90": 0.48999999999999844,
+        "absP99": 4.05,
+        "absMax": 103.08000000000001,
+        "relMedian": 0.03734671125975483,
+        "relP90": 0.1845758354755784,
+        "relN": 3867,
+        "shareWithinTol": 0.7766720213141088
+      },
+      "A": {
+        "n": 25946,
+        "absMedian": 0,
+        "absP90": 0,
+        "absP99": 0,
+        "absMax": 0,
+        "relMedian": 0,
+        "relP90": 0,
+        "relN": 3895,
+        "shareWithinTol": 1
+      }
+    }
+  },
+  "seasonSumCheck": {
+    "covered": 28151,
+    "pass": 28151,
+    "share": 1
+  },
+  "coverage": {
+    "2012": {
+      "played": 1214,
+      "covered": 1214,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2013": {
+      "played": 1509,
+      "covered": 1509,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2014": {
+      "played": 1828,
+      "covered": 1828,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2015": {
+      "played": 2002,
+      "covered": 2002,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2016": {
+      "played": 2024,
+      "covered": 2024,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2017": {
+      "played": 2041,
+      "covered": 2041,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2018": {
+      "played": 2053,
+      "covered": 2053,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2019": {
+      "played": 2059,
+      "covered": 2059,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2020": {
+      "played": 2225,
+      "covered": 2225,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2021": {
+      "played": 2352,
+      "covered": 2352,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2022": {
+      "played": 2229,
+      "covered": 2229,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2023": {
+      "played": 2174,
+      "covered": 2174,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2024": {
+      "played": 2221,
+      "covered": 2221,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    },
+    "2025": {
+      "played": 2220,
+      "covered": 2220,
+      "share": 1,
+      "omitted": {
+        "missing": 0,
+        "weeks": 0,
+        "points": 0,
+        "sums": 0
+      }
+    }
+  },
+  "size": {
+    "2012": {
+      "rawBefore": 1025249,
+      "rawAfter": 1929130,
+      "rawAdded": 903881,
+      "gzBefore": 140987,
+      "gzAfter": 282887,
+      "gzAdded": 141900
+    },
+    "2013": {
+      "rawBefore": 1245524,
+      "rawAfter": 2292055,
+      "rawAdded": 1046531,
+      "gzBefore": 168619,
+      "gzAfter": 333055,
+      "gzAdded": 164436
+    },
+    "2014": {
+      "rawBefore": 1462760,
+      "rawAfter": 2603195,
+      "rawAdded": 1140435,
+      "gzBefore": 194473,
+      "gzAfter": 372917,
+      "gzAdded": 178444
+    },
+    "2015": {
+      "rawBefore": 1582669,
+      "rawAfter": 2753086,
+      "rawAdded": 1170417,
+      "gzBefore": 209622,
+      "gzAfter": 393584,
+      "gzAdded": 183962
+    },
+    "2016": {
+      "rawBefore": 1587741,
+      "rawAfter": 2730743,
+      "rawAdded": 1143002,
+      "gzBefore": 209785,
+      "gzAfter": 389523,
+      "gzAdded": 179738
+    },
+    "2017": {
+      "rawBefore": 1595445,
+      "rawAfter": 2736483,
+      "rawAdded": 1141038,
+      "gzBefore": 210403,
+      "gzAfter": 389771,
+      "gzAdded": 179368
+    },
+    "2018": {
+      "rawBefore": 1610432,
+      "rawAfter": 2757184,
+      "rawAdded": 1146752,
+      "gzBefore": 212957,
+      "gzAfter": 393288,
+      "gzAdded": 180331
+    },
+    "2019": {
+      "rawBefore": 1613682,
+      "rawAfter": 2767415,
+      "rawAdded": 1153733,
+      "gzBefore": 214057,
+      "gzAfter": 394278,
+      "gzAdded": 180221
+    },
+    "2020": {
+      "rawBefore": 1748264,
+      "rawAfter": 2903019,
+      "rawAdded": 1154755,
+      "gzBefore": 233878,
+      "gzAfter": 415251,
+      "gzAdded": 181373
+    },
+    "2021": {
+      "rawBefore": 1994800,
+      "rawAfter": 3222168,
+      "rawAdded": 1227368,
+      "gzBefore": 257624,
+      "gzAfter": 448436,
+      "gzAdded": 190812
+    },
+    "2022": {
+      "rawBefore": 2108090,
+      "rawAfter": 3504145,
+      "rawAdded": 1396055,
+      "gzBefore": 269075,
+      "gzAfter": 489131,
+      "gzAdded": 220056
+    },
+    "2023": {
+      "rawBefore": 2089883,
+      "rawAfter": 3506539,
+      "rawAdded": 1416656,
+      "gzBefore": 264218,
+      "gzAfter": 484637,
+      "gzAdded": 220419
+    },
+    "2024": {
+      "rawBefore": 2120588,
+      "rawAfter": 3553049,
+      "rawAdded": 1432461,
+      "gzBefore": 266844,
+      "gzAfter": 488311,
+      "gzAdded": 221467
+    },
+    "2025": {
+      "rawBefore": 2121531,
+      "rawAfter": 3561785,
+      "rawAdded": 1440254,
+      "gzBefore": 263498,
+      "gzAfter": 486435,
+      "gzAdded": 222937
+    }
+  },
+  "sdReportOnly": {
+    "n": 20712,
+    "median": 0,
+    "p90": 0.3153875637230268
+  },
+  "topKeysByAbsErrorContribution": [],
+  "criteria": [
+    {
+      "id": "a",
+      "pass": true,
+      "value": {
+        "shareWithinTol": 1,
+        "absP99": 0
+      },
+      "rule": "≥99.9% within 0.011 and p99 ≤ 0.05"
+    },
+    {
+      "id": "b",
+      "pass": true,
+      "value": {
+        "relMedianB": 0.04313725490196079
+      },
+      "rule": "B median relative error ≥ 1%"
+    },
+    {
+      "id": "c",
+      "pass": true,
+      "value": {
+        "minCoverage": 1,
+        "atSeason": "2012"
+      },
+      "rule": "coverage ≥ 99.5% every season"
+    },
+    {
+      "id": "d",
+      "pass": true,
+      "value": {
+        "share": 1
+      },
+      "rule": "season-sum check ≥ 99.5% of covered rows"
+    },
+    {
+      "id": "e",
+      "pass": true,
+      "value": {
+        "maxGzAddedBytes": 222937,
+        "atSeason": "2025"
+      },
+      "rule": "added gzip ≤ 400 KB every season"
+    }
+  ],
+  "verdict": "wire"
+}

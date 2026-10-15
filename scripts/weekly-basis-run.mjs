@@ -89,7 +89,7 @@ class ErrAcc {
     return {
       n: this.n,
       absMedian: pct(this.abs, 0.5), absP90: pct(this.abs, 0.9), absP99: pct(this.abs, 0.99),
-      absMax: this.abs.length ? Math.max(...this.abs) : null,
+      absMax: this.abs.reduce((m, v) => (v > m ? v : m), this.abs.length ? -Infinity : null),
       relMedian: pct(this.rel, 0.5), relP90: pct(this.rel, 0.9), relN: this.rel.length,
       shareWithinTol: this.n ? this.within / this.n : null,
     };
