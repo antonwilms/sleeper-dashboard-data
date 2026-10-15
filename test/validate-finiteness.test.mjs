@@ -192,3 +192,54 @@ test('§2.1: maxGames=0 (all zero) floors the threshold at 1, not 0 or negative'
     /gamesPlayed ≥ 1/
   );
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// C. weekly-scoring-keys (D-47) — weeklyStats rules
+// ═══════════════════════════════════════════════════════════════════
+
+function withWs(mut) {
+  const t = makeTotals(400);
+  t['0'].weeklyStats = { 1: { rec: 3 } };
+  mut?.(t);
+  return t;
+}
+
+test('validateNflSeason weeklyStats: a valid field passes; requireWeeklyStats absent → rows without it pass', () => {
+  assert.doesNotThrow(() => validateNflSeason(withWs(), { year: 9999 }));
+});
+
+test('validateNflSeason weeklyStats: non-object throws', () => {
+  assert.throws(() => validateNflSeason(withWs(t => { t['0'].weeklyStats = [1]; }), { year: 9999 }), /weeklyStats is not a plain object/);
+});
+
+test('validateNflSeason weeklyStats: a week that is not a P week throws', () => {
+  assert.throws(() => validateNflSeason(withWs(t => { t['0'].weeklyStats = { 17: { rec: 1 } }; }), { year: 9999 }), /not a 'P' week/);
+  assert.throws(() => validateNflSeason(withWs(t => { t['0'].weeklyStats = { x: { rec: 1 } }; }), { year: 9999 }), /not a 'P' week/);
+});
+
+test('validateNflSeason weeklyStats: a week value that is not an object throws', () => {
+  assert.throws(() => validateNflSeason(withWs(t => { t['0'].weeklyStats = { 1: 5 }; }), { year: 9999 }), /weeklyStats\[1\] is not a plain object/);
+});
+
+test('validateNflSeason weeklyStats: zero / non-finite / non-number values throw', () => {
+  for (const bad of [0, NaN, '3', null]) {
+    assert.throws(() => validateNflSeason(withWs(t => { t['0'].weeklyStats = { 1: { rec: bad } }; }), { year: 9999 }), /non-zero number|non-finite/);
+  }
+});
+
+test('validateNflSeason weeklyStats: an excluded key throws', () => {
+  assert.throws(() => validateNflSeason(withWs(t => { t['0'].weeklyStats = { 1: { pts_half_ppr: 4 } }; }), { year: 9999 }), /excluded key "pts_half_ppr"/);
+});
+
+test('validateNflSeason weeklyStats: requireWeeklyStats rejects a played row without the field', () => {
+  assert.throws(() => validateNflSeason(makeTotals(400), { year: 9999, requireWeeklyStats: true }), /missing weeklyStats/);
+  const t = makeTotals(400);
+  for (const r of Object.values(t)) r.weeklyStats = { 1: { rec: 1 } };
+  assert.doesNotThrow(() => validateNflSeason(t, { year: 9999, requireWeeklyStats: true }));
+});
+
+test('validateNflSeason weeklyStats: a TEAM_* row carrying it throws', () => {
+  const t = makeTotals(400);
+  t.TEAM_KC = { ...validRecord(16), weeklyStats: { 1: { pts_allow: 3 } } };
+  assert.throws(() => validateNflSeason(t, { year: 9999 }), /TEAM row TEAM_KC carries weeklyStats/);
+});

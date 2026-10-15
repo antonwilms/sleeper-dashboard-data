@@ -1,8 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { RATE_KEYS } from '../lib/fantasyPoints.mjs';
 import {
   aggregateWeeks, computeAvailability, normalizeTeamForSchedule, SCHEDULE_TEAM_ALIAS,
   computeTeamByeWeeks, prunePlayerStats, fetchSeasonWeeks,
+  WEEKLY_STATS_EXCLUDED_EXACT, isWeeklyStatsExcluded, weeklyScoringStats, firstSeenEntries,
 } from '../lib/sleeper.mjs';
 
 // weeks are 1-indexed; e.g. ws({ 1: 'P', 6: 'D' })
@@ -95,6 +100,7 @@ test('AW1 — single played week: full stat summation (incl. gp/gs/pts_half_ppr)
     team: 'KC',
     gamesPlayed: 1, gamesStarted: 1, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1: 12.5 },
+    weeklyStats: { 1: { rec: 5, rec_yd: 80, rush_yd: 10 } },
     weeklyStatus: ws({ 1: 'P' }),
     fantasyPoints: 12.5,
     scoringBasis: 'half_ppr',
@@ -112,6 +118,7 @@ test('AW2 — gs:0 does not bump gamesStarted; two-week stat accumulation', () =
     team: 'KC',
     gamesPlayed: 2, gamesStarted: 1, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1: 6.25, 2: 9.75 },
+    weeklyStats: { 1: { rec: 3, rec_yd: 40 }, 2: { rec: 4, rec_yd: 55 } },
     weeklyStatus: ws({ 1: 'P', 2: 'P' }),
     fantasyPoints: 16,
     scoringBasis: 'half_ppr',
@@ -137,7 +144,7 @@ test('AW3 — bye: whole team absent (no gp:1) → B; empty stats, fantasyPoints
   assert.deepStrictEqual(totals['kc2'], byeRecord);
   assert.deepStrictEqual(totals['buf1'], {
     stats: { gp: 1, gs: 1, pts_half_ppr: 18 }, team: 'BUF', gamesPlayed: 1, gamesStarted: 1, byeWeeks: 0, dnpWeeks: 0,
-    weeklyPoints: { 9: 18 }, weeklyStatus: ws({ 9: 'P' }),
+    weeklyPoints: { 9: 18 }, weeklyStats: {}, weeklyStatus: ws({ 9: 'P' }),
     fantasyPoints: 18, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: 9, lastWeek: 9, returnedFromAbsence: false, absenceCause: 'unknown' },
   });
@@ -183,6 +190,7 @@ test('AW7 — duplicate-player collapse (first-seen wins per week); no stat infl
     team: 'KC',
     gamesPlayed: 2, gamesStarted: 1, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1: 10, 2: 8 },
+    weeklyStats: { 1: { rec: 5, rec_yd: 60 }, 2: { rec: 4, rec_yd: 30 } },
     weeklyStatus: ws({ 1: 'P', 2: 'P' }),
     fantasyPoints: 18, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: 1, lastWeek: 2, returnedFromAbsence: false, absenceCause: 'unknown' },
@@ -202,6 +210,7 @@ test('AW8 — pre-2021 wk18: empty entries → slot 18 stays X; lastWeek 17', ()
     team: 'KC',
     gamesPlayed: 17, gamesStarted: 17, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1:10,2:10,3:10,4:10,5:10,6:10,7:10,8:10,9:10,10:10,11:10,12:10,13:10,14:10,15:10,16:10,17:10 },
+    weeklyStats: {},
     weeklyStatus: ws({ 1:'P',2:'P',3:'P',4:'P',5:'P',6:'P',7:'P',8:'P',9:'P',10:'P',11:'P',12:'P',13:'P',14:'P',15:'P',16:'P',17:'P' }),
     fantasyPoints: 170, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: 1, lastWeek: 17, returnedFromAbsence: false, absenceCause: 'unknown' },
@@ -219,6 +228,7 @@ test('AW9 — empty mid-season week (failed fetch) → X, not D/B', () => {
     team: 'KC',
     gamesPlayed: 2, gamesStarted: 2, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 1: 10, 3: 12 },
+    weeklyStats: {},
     weeklyStatus: ws({ 1: 'P', 3: 'P' }),
     fantasyPoints: 22, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: 1, lastWeek: 3, returnedFromAbsence: false, absenceCause: 'unknown' },
@@ -259,6 +269,7 @@ test('AW11 — capstone: all four status codes, absence segment, trailing-DNP ex
     team: 'KC',
     gamesPlayed: 5, gamesStarted: 5, byeWeeks: 1, dnpWeeks: 3,
     weeklyPoints: { 1: 10, 2: 10, 5: 10, 7: 10, 9: 10 },
+    weeklyStats: {},
     weeklyStatus: ws({ 1:'P', 2:'P', 3:'D', 4:'D', 5:'P', 6:'B', 7:'P', 9:'P', 10:'D' }),
     fantasyPoints: 50, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 2, absenceSegments: [{ start: 3, end: 4, length: 2 }], firstWeek: 1, lastWeek: 9, returnedFromAbsence: true, absenceCause: 'unknown' },
@@ -268,6 +279,7 @@ test('AW11 — capstone: all four status codes, absence segment, trailing-DNP ex
     team: 'KC',
     gamesPlayed: 3, gamesStarted: 3, byeWeeks: 0, dnpWeeks: 0,
     weeklyPoints: { 3: 5, 4: 5, 10: 5 },
+    weeklyStats: {},
     weeklyStatus: ws({ 3: 'P', 4: 'P', 10: 'P' }),
     fantasyPoints: 15, scoringBasis: 'half_ppr',
     availability: { longestAbsence: 0, absenceSegments: [], firstWeek: 3, lastWeek: 10, returnedFromAbsence: false, absenceCause: 'unknown' },
@@ -630,4 +642,112 @@ test('fetchSeasonWeeks: a week failing both attempts (non-OK, then thrown) → {
   assert.deepStrictEqual(out[2], { week: 3, entries: [], failed: true });
   assert.equal(out.filter(w => w.failed).length, 1);
   assert.equal(out.filter(w => w.week !== 3 && 'failed' in w).length, 0);  assert.equal(week3Calls, 2);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// weekly-scoring-keys (D-47) — weeklyStats producer
+// ═══════════════════════════════════════════════════════════════════
+
+test('WS-0 — frozen exclusion copy ⊇ RATE_KEYS (a failure here is a deliberate CR-02 change)', () => {
+  for (const k of RATE_KEYS) assert.ok(WEEKLY_STATS_EXCLUDED_EXACT.has(k), `${k} missing from the frozen copy`);
+  assert.ok(Object.isFrozen(WEEKLY_STATS_EXCLUDED_EXACT));
+});
+
+test('WS-a — a played week carries only kept non-zero keys; excluded keys dropped, DEF/bonus keys kept', () => {
+  const stats = {
+    gp: 1, gs: 1, snp: 60, off_snp: 55, pts_half_ppr: 20, rec_lng: 31, pass_rtg: 90, idp_tkl: 3, punts: 2,
+    pos_rank_ppr: 4, fan_pts_allow_qb: 12, rec: 7, rec_yd: 99, rec_td: 0, bonus_fd_wr: 3,
+    pts_allow_14_20: 1, rec_ypt: 14,
+  };
+  const out = aggregateWeeks([{ week: 1, entries: [{ player_id: 'p', team: 'KC', stats }] }]);
+  assert.deepStrictEqual(out.p.weeklyStats, {
+    1: { rec: 7, rec_yd: 99, bonus_fd_wr: 3, pts_allow_14_20: 1 },
+  });
+  for (const k of ['pts_half_ppr', 'rec_lng', 'pass_rtg', 'off_snp', 'snp', 'gp', 'idp_tkl', 'punts', 'pos_rank_ppr', 'fan_pts_allow_qb']) {
+    assert.equal(isWeeklyStatsExcluded(k), true, k);
+  }
+  assert.equal(isWeeklyStatsExcluded('pts_allow_14_20'), false);
+  assert.equal(isWeeklyStatsExcluded('bonus_fd_wr'), false);
+  assert.deepStrictEqual(weeklyScoringStats({ a: 0, b: null, c: NaN, d: 2, gp: 1 }), { d: 2 });
+});
+
+test('WS-b — a gp 0 week and a bye add nothing', () => {
+  const out = aggregateWeeks([
+    { week: 1, entries: [{ player_id: 'p', team: 'KC', stats: { gp: 1, rec: 2 } }, { player_id: 'q', team: 'DEN', stats: { gp: 1 } }] },
+    { week: 2, entries: [{ player_id: 'p', team: 'KC', stats: { gp: 0, rec: 9 } }, { player_id: 'q', team: 'DEN', stats: { gp: 1, rec: 1 } }] },
+  ]);
+  assert.deepStrictEqual(Object.keys(out.p.weeklyStats), ['1']);
+  assert.equal(out.p.weeklyStatus[1], 'B');   // KC had nobody playing → bye; still no weeklyStats entry
+});
+
+test('WS-c — a row with no played weeks has no weeklyStats', () => {
+  const out = aggregateWeeks([{ week: 1, entries: [{ player_id: 'p', team: 'KC', stats: { gp: 0, rec: 9 } }] }]);
+  assert.equal('weeklyStats' in out.p, false);
+});
+
+test('WS-d — a TEAM_* row never carries weeklyStats', () => {
+  const out = aggregateWeeks([{ week: 1, entries: [{ player_id: 'TEAM_KC', team: 'KC', stats: { gp: 1, pts_allow: 17 } }] }]);
+  assert.equal('weeklyStats' in out.TEAM_KC, false);
+});
+
+test('WS-e — for every kept key, Σ weeks of weeklyStats === season stats', () => {
+  const mk = (w, stats) => ({ week: w, entries: [{ player_id: 'p', team: 'KC', stats: { gp: 1, ...stats } }] });
+  const out = aggregateWeeks([mk(1, { rec: 3, rec_yd: 40.5, rec_lng: 20 }), mk(2, { rec: 0, rec_yd: 10 }), mk(3, { rec: 5, rush_yd: 2 })]);
+  const keys = new Set(Object.values(out.p.weeklyStats).flatMap(o => Object.keys(o)));
+  for (const k of keys) {
+    const sum = Object.values(out.p.weeklyStats).reduce((a, o) => a + (o[k] ?? 0), 0);
+    assert.equal(sum, out.p.stats[k], k);
+  }
+  assert.deepStrictEqual([...keys].sort(), ['rec', 'rec_yd', 'rush_yd']);
+});
+
+test('WS-f — a duplicate entry in a week is ignored (first-seen); firstSeenEntries agrees', () => {
+  const entries = [
+    { player_id: 'p', team: 'KC', stats: { gp: 1, rec: 2 } },
+    { player_id: 'p', team: 'KC', stats: { gp: 1, rec: 99 } },
+  ];
+  const out = aggregateWeeks([{ week: 1, entries }]);
+  assert.deepStrictEqual(out.p.weeklyStats, { 1: { rec: 2 } });
+  const f = firstSeenEntries(entries);
+  assert.equal(f.uniqueEntries.length, 1);
+  assert.equal(f.uniqueEntries[0].stats.rec, 2);
+  assert.deepStrictEqual(f.dupeIds, ['p']);
+});
+
+test('WS-g — league scoringSettings fixture (2026-10-14) contains no weekly-excluded key', () => {
+  const ss = JSON.parse(fs.readFileSync(new URL('./fixtures/league-scoring-2026-10-14.json', import.meta.url), 'utf8'));
+  assert.ok(Object.keys(ss).length > 40);
+  assert.deepStrictEqual(Object.keys(ss).filter(isWeeklyStatsExcluded), []);
+});
+
+// ─── A2 — raw-week cache ───────────────────────────────────────────────────────
+
+test('A2 — cacheDir: miss fetches + writes raw array; hit does not fetch; failed week never written', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wk-cache-'));
+  const raw = [{ player_id: 'p1', team: 'KC', stats: { gp: 1 }, extra: 'kept-in-raw' }, { player_id: null, stats: {} }];
+  let calls = 0;
+  const fetchImpl = async url => {
+    calls++;
+    if (weekOf(url) === 4) return { ok: false, status: 500 };
+    return weekOf(url) === 3 ? { ok: true, json: async () => raw } : okEmpty;
+  };
+  const opts = { ...FETCH_FAST, fetchImpl, cacheDir: dir };
+  const first = await fetchSeasonWeeks(2026, opts);
+  assert.equal(first[2].entries.length, 1);
+  assert.deepStrictEqual(JSON.parse(fs.readFileSync(path.join(dir, '2026-3.json'), 'utf8')), raw);
+  assert.equal(fs.existsSync(path.join(dir, '2026-4.json')), false);
+  assert.equal(first[3].failed, true);
+
+  const before = calls;
+  const second = await fetchSeasonWeeks(2026, { ...opts, fetchImpl: async url => { calls++; return weekOf(url) === 4 ? okEmpty : (() => { throw new Error('should be cached'); })(); } });
+  assert.deepStrictEqual(second[2], first[2]);
+  assert.equal(calls - before, 1, 'only the uncached week 4 is fetched (once)');
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('A2 — cacheDir inside process.cwd() throws', async () => {
+  await assert.rejects(
+    fetchSeasonWeeks(2026, { ...FETCH_FAST, fetchImpl: async () => okEmpty, cacheDir: path.join(process.cwd(), 'tmp-cache') }),
+    /inside the repo/,
+  );
 });

@@ -170,7 +170,7 @@ export async function updateNfl({ year: yearOpt = null, force, dryRun, deps = {}
   }
 
   // 3. Validate (throws on failure → non-zero exit → red CI)
-  validateNflSeason(classified, { year });
+  validateNflSeason(classified, { year, requireWeeklyStats: true });
   console.log('[nfl] Validation passed');
 
   // 4. Idempotency / dry-run checks
