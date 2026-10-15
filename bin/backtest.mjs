@@ -62,6 +62,12 @@
  *                availability panel — bias by group, a leave-one-season-out multiplier, a pre-registered verdict.
  *                Takes only --json / --write. --write persists backtests/<date>-rookie-total-panel.json +
  *                grading/<date>-rookie-total-verdict.md. Changes no score.
+ *   --weekly-basis  graded before/after of serving per-week scoring keys (weekly-scoring-keys, D-47, offline
+ *                analysis only): ratio-scaled weeks (B) vs weeks scored from per-week `weeklyStats` (A) against
+ *                the full raw week scored under snapshots/2026-10-14.json (T), 2012–2025, with a pre-registered
+ *                wire / do-not-wire decision. Takes only --weeks-cache <dir> (required, outside the repo) /
+ *                --json / --write. --write persists backtests/<date>-weekly-basis-panel.json +
+ *                grading/<date>-weekly-basis-verdict.md. Reads the network (cached) — never a test.
  *   --dynasty    (with --inseason) dynasty-side (rookies + SHORT veterans) k-fit (Phase 2c, offline
  *                analysis only): the prospect prior (arm A vs arm B), the SHORT-veteran history prior,
  *                and the KTC-anchor report, plus the rookie QB level in the dynasty prior (Q4) and the
@@ -92,6 +98,7 @@ import { gamesCalibrationMain } from '../scripts/games-calibration-run.mjs';
 import { gamesCauseMain } from '../scripts/games-cause-run.mjs';
 import { gamesShortMain } from '../scripts/games-short-run.mjs';
 import { rookieTotalMain } from '../scripts/rookie-total-run.mjs';
+import { weeklyBasisMain } from '../scripts/weekly-basis-run.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -204,7 +211,7 @@ const isMain = process.argv[1] &&
   path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
 
 if (isMain) {
-  (() => {
+  (async () => {
     try {
       const validate  = flag('--validate');
       const asJson    = flag('--json');
@@ -246,6 +253,25 @@ if (isMain) {
           process.exit(1);
         }
         process.exit(rookieTotalMain({ write, asJson }));
+      }
+
+      if (flag('--weekly-basis')) {
+        const ok = ['--weekly-basis', '--weeks-cache', '--json', '--write'];
+        const cacheIdx = args.indexOf('--weeks-cache');
+        const rejected = args.filter((a, i) => a.startsWith('--') ? !ok.includes(a) : i !== cacheIdx + 1);
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --weekly-basis rejects ${rejected.join(', ')} — the seasons, league basis and decision are pinned ` +
+            'by the task file, not knobs; it takes only --weeks-cache <dir>, --json and --write'
+          );
+          process.exit(1);
+        }
+        const weeksCache = option('--weeks-cache');
+        if (!weeksCache) {
+          console.error('[backtest] Error: --weekly-basis requires --weeks-cache <dir> (outside the repo)');
+          process.exit(1);
+        }
+        process.exit(await weeklyBasisMain({ weeksCache, write, asJson }));
       }
 
       if (flag('--absence')) {
