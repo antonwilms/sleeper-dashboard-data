@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "season": 2026,
-  "generatedAt": "2026-10-13T17:48:11.747Z",
-  "rowCount": 434,
-  "unmapped": 7,
+  "generatedAt": "2026-10-15T08:56:11.372Z",
+  "rowCount": 436,
+  "unmapped": 5,
   "players": {
     "1339": {
       "gsisId": "00-0030061",
@@ -5122,6 +5122,23 @@
         "weeks": 5
       }
     },
+    "11911": {
+      "gsisId": "00-0039710",
+      "name": "Jeshaun Jones",
+      "position": "WR",
+      "team": "MIN",
+      "targetShare": 0.016,
+      "airYardsShare": 0.094,
+      "wopr": 0.09,
+      "racr": 1.032,
+      "components": {
+        "targets": 1,
+        "airYards": 31,
+        "recYards": 32,
+        "receptions": 1,
+        "weeks": 2
+      }
+    },
     "11942": {
       "gsisId": "00-0039686",
       "name": "Colson Yankoff",
@@ -6309,6 +6326,23 @@
         "airYards": 0,
         "recYards": 0,
         "receptions": 0,
+        "weeks": 1
+      }
+    },
+    "13013": {
+      "gsisId": "00-0040598",
+      "name": "Mark Redman",
+      "position": "TE",
+      "team": "GB",
+      "targetShare": 0.067,
+      "airYardsShare": 0.102,
+      "wopr": 0.172,
+      "racr": 1.318,
+      "components": {
+        "targets": 2,
+        "airYards": 22,
+        "recYards": 29,
+        "receptions": 2,
         "weeks": 1
       }
     },
