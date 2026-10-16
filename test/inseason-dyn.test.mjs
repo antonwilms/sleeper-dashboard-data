@@ -1122,3 +1122,52 @@ describe('20d: d56aMarkdown — insufficient label', () => {
     assert.match(row('RB'), /own INSUFFICIENT/);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// D-46 — the league basis in the dynasty harness
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { leagueBasisLoad, basisScaleOf } from '../lib/leagueBasis.mjs';
+import { dyn2aPinOf, assertQ4bNoDrift } from '../scripts/inseason-dyn-run.mjs';
+import { rookiePriorFor } from '../scripts/inseason-run.mjs';
+
+describe('D-46: prospect prior × basisScale; DYN_2A_PIN keyed by basis', () => {
+  test('prospectPriorPPG multiplies the position prior by basisScale (default 1, byte-identical) and the blend follows', () => {
+    const a = { position: 'RB', age: 23, pick: { round: 1, pick: 10 }, sm1: null };
+    assert.equal(prospectPriorPPG({ ...a, basisScale: 1 }).priorPPG, prospectPriorPPG(a).priorPPG);
+    assert.ok(Math.abs(prospectPriorPPG({ ...a, basisScale: 1.118 }).priorPPG - 12 * 1.118 * ageMultiplier(23) * draftMultiplier(a.pick)) < 1e-12);
+    const sm1 = { gamesPlayed: 8, fantasyPoints: 8 * 15 };
+    const s = prospectPriorPPG({ ...a, sm1, basisScale: 1.118 });
+    assert.ok(Math.abs(s.prospectPPG - (s.priorPPG * 8 + 15 * 8) / 16) < 1e-12, 'the S-1 evidence enters unscaled — it is already league-basis');
+  });
+
+  test('DYN_2A_PIN: half_ppr = the committed files; starter.league has no committed pin; a league run needs --inseason-2a', () => {
+    assert.ok(Object.isFrozen(DYN_2A_PIN) && Object.isFrozen(DYN_2A_PIN.starter) && Object.isFrozen(DYN_2A_PIN.starter.half_ppr));
+    assert.equal(DYN_2A_PIN.starter.league, null);
+    assert.equal(pinnedSourceOf('starter'), 'backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477');
+    assert.throws(() => dyn2aPinOf('starter', 'league'), /needs --inseason-2a/);
+    assert.throws(() => dyn2aPinOf('legacy', 'league', 'x.json'), /starter' QB prior only/);
+    assert.equal(pinnedSourceOf('starter', 'league', 'backtests/2026-10-07-inseason-constants.json'), pinnedSourceOf('starter'), 'the shipped 2a file keeps its commit');
+    assert.equal(pinnedSourceOf('starter', 'league', 'backtests/x-league.json'), 'backtests/x-league.json (uncommitted league 2a file)');
+  });
+
+  test('a league dynasty run without --inseason-2a throws before any loader is read; an unknown basis throws', () => {
+    const explodes = Object.fromEntries(Object.keys(INSEASON_DYN_LOAD).map(k => [k, () => { throw new Error(`loader ${k} was read`); }]));
+    assert.throws(() => runInSeasonDyn({ qbPrior: 'starter', basis: 'league', load: explodes }), /needs --inseason-2a/);
+    assert.throws(() => runInSeasonDyn({ qbPrior: 'starter', basis: 'nope', load: explodes }), /unknown --basis/);
+  });
+
+  test('the Q4b drift check passes with both sides scaled and throws when only one side is', () => {
+    const playerIds = { bySleeper: { q1: { draftYear: 2020, draftRound: 1, draftPick: 3, birthdate: '1998-06-01' } } };
+    const rows = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [`p${i}`, { fantasyPoints: 100, gamesPlayed: 12, scoringBasis: 'half_ppr', stats: { rec: 100 } }]));
+    const g = leagueBasisLoad({ loadSeasonTotals: (y) => (y >= 2012 && y <= 2019 ? rows(30) : null) }, { scoringSettings: { rec: 1.2 }, positionOf: () => 'QB' });
+    const scale = basisScaleOf(g, 2020, 'QB');
+    assert.equal(scale, 1.2);
+    const scaledPrior = rookiePriorFor('q1', 'QB', 2020, playerIds, scale);
+    assert.notEqual(scaledPrior, rookiePriorFor('q1', 'QB', 2020, playerIds), 'the scale moves the prior');
+    assert.doesNotThrow(() => assertQ4bNoDrift([{ sleeperId: 'q1', S: 2020, projPrior: scaledPrior }], playerIds, g));
+    assert.throws(() => assertQ4bNoDrift([{ sleeperId: 'q1', S: 2020, projPrior: rookiePriorFor('q1', 'QB', 2020, playerIds) }], playerIds, g), /Q4b prior drift/);
+    // a half_ppr load (no basisScaleAsOf) compares at scale 1 on both sides
+    assert.doesNotThrow(() => assertQ4bNoDrift([{ sleeperId: 'q1', S: 2020, projPrior: rookiePriorFor('q1', 'QB', 2020, playerIds) }], playerIds, { loadSeasonTotals: () => null }));
+  });
+});

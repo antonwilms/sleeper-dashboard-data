@@ -40,6 +40,7 @@ import {
   resolveRookieCalibration,
   resolveRookieGames,
   applyRookieCeiling,
+  resolveRookieQbStarterLevel,
   reconstructShippedRookieProjection,
   ROOKIE_GAMES_GPE, ROOKIE_GAMES_GE, ROOKIE_GAMES_GP, ROOKIE_GAMES_G, ROOKIE_GAMES_U,
 } from '../lib/rookieMirror.mjs';
@@ -875,5 +876,60 @@ describe('T-RM15: rookie total-points factor', () => {
     const args = { position: 'WR', ...DRAFT, draftCapitalStatus: 'undrafted' };
     assert.deepEqual(reconstructShippedRookieProjection(args), reconstructShippedRookieProjection({ ...args, rookieTotalModel: 'rookie-total' }));
     assert.throws(() => reconstructShippedRookieProjection({ ...args, rookieTotalModel: 'nope' }), /unknown rookie total model 'nope'/);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// D-46 — basisScale (model `league`); 1 is model `half_ppr` and byte-identical
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('D-46: the rookie mirror takes basisScale', () => {
+  const qb = { position: 'QB', ageAtDraft: 22, draftRound: 1, draftPick: 2, draftCapitalStatus: 'matched', yearsExp: 0 };
+
+  test('basisScale 1 (explicit or default) is byte-identical', () => {
+    assert.deepEqual(reconstructShippedRookieProjection({ ...qb, basisScale: 1 }), reconstructShippedRookieProjection(qb));
+    assert.equal(reconstructShippedRookieProjection(qb).rookieBasisScale, 1);
+  });
+
+  test('scale 1.2 multiplies the baseline (via the pre-ceiling level), the knee and the asymptote', () => {
+    const rb = { position: 'RB', ageAtDraft: 21, draftRound: 2, draftPick: 4, draftCapitalStatus: 'matched', yearsExp: 0 };
+    const base = reconstructShippedRookieProjection(rb);
+    const scaled = reconstructShippedRookieProjection({ ...rb, basisScale: 1.2 });
+    assert.equal(scaled.rookieBasisScale, 1.2);
+    // projectedPPGPre = clamp(baseline × cappedProduct × calibration) — scaling the baseline scales the level.
+    assert.ok(Math.abs(scaled.rookieCeilingPPGPre - base.rookieCeilingPPGPre * 1.2) < 1e-9);
+    assert.ok(Math.abs(scaled.rookieCeilingPPGPre - ROOKIE_BASELINE_PPG.RB * 1.2 * scaled.cappedProduct * scaled.rookieCalibrationMult) < 1e-9);
+    assert.equal(scaled.rookieCeilingKnee, ROOKIE_CEILING.RB.knee * 1.2);
+    assert.equal(scaled.rookieCeilingAsymptote, ROOKIE_CEILING.RB.asymptote * 1.2);
+  });
+
+  test('the ceiling closed form at a scaled knee; identity at or below it; homogeneous in the scale', () => {
+    const { knee, asymptote } = ROOKIE_CEILING.QB;
+    const s = 1.114;
+    const k = knee * s, a = asymptote * s;
+    const x = k + 3;
+    const r = applyRookieCeiling({ position: 'QB', projectedPPG: x, basisScale: s });
+    assert.equal(r.rookieCeilingKnee, k);
+    assert.equal(r.rookieCeilingAsymptote, a);
+    assert.equal(r.ceiledPPG, k + (a - k) * (1 - Math.exp(-(x - k) / (a - k))));
+    assert.equal(r.rookieCeilingBasis, 'ceiling:QB');
+    assert.equal(applyRookieCeiling({ position: 'QB', projectedPPG: k, basisScale: s }).ceiledPPG, k, 'identity at the scaled knee');
+    // a level above the half-PPR knee but below the scaled one is untouched under league
+    const between = knee + 0.5;
+    assert.equal(applyRookieCeiling({ position: 'QB', projectedPPG: between, basisScale: s }).rookieCeilingBasis, 'none');
+    // ceil(s·y; s) = s·ceil(y; 1)
+    const y = knee + 4;
+    assert.ok(Math.abs(applyRookieCeiling({ position: 'QB', projectedPPG: y * s, basisScale: s }).ceiledPPG - s * applyRookieCeiling({ position: 'QB', projectedPPG: y }).ceiledPPG) < 1e-9);
+    assert.deepEqual(applyRookieCeiling({ position: 'K', projectedPPG: 5, basisScale: 2 }), { ceiledPPG: 5, rookieCeilingBasis: 'none', rookieCeilingKnee: null, rookieCeilingAsymptote: null });
+  });
+
+  test('the rookie QB starter level is × basisScale, and qbStarterPPG on a rookie row carries it', () => {
+    const lvl = resolveRookieQbStarterLevel({ position: 'QB', yearsExp: 0, draftCapitalStatus: 'matched', draftRound: 1, draftPick: 2, basisScale: 1.114 });
+    assert.equal(lvl.rookieQbGroup, 'top12');
+    assert.equal(lvl.rookieQbLevel, 15.801 * 1.114);
+    assert.equal(resolveRookieQbStarterLevel({ position: 'QB', yearsExp: 0, draftCapitalStatus: 'matched', draftRound: 1, draftPick: 2 }).rookieQbLevel, 15.801);
+    const rec = reconstructShippedRookieProjection({ ...qb, basisScale: 1.114 });
+    assert.equal(rec.qbStarterBasis, 'rookie:top12');
+    assert.equal(rec.qbStarterPPG, 15.801 * 1.114);
   });
 });

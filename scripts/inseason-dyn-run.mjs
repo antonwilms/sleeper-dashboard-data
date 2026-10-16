@@ -24,8 +24,9 @@ import { isTeamAggregateId } from '../lib/backtest.mjs';
 import {
   assembleSeason, makeGamelogsIndex, makeScheduleIndex, guardLoad, runReconciliation, ReconciliationStop,
   INSEASON_LOAD, pinDecision, fixtureFrom, makePut, entryOf, addFoldK, verifyConstants, formatConstantsJson,
-  ARTIFACT_CAPS, SPEC, QB_PRIOR_MODELS, loadQbChainModels, rookiePriorFor, assertPrimaryCoverage,
+  ARTIFACT_CAPS, SPEC, QB_PRIOR_MODELS, loadQbChainModels, rookiePriorFor, assertPrimaryCoverage, basisDetailOf,
 } from './inseason-run.mjs';
+import { leagueBasisLoad, basisScaleOf, SCORING_BASIS_MODELS } from '../lib/leagueBasis.mjs';
 import {
   IN_SEASON_DEFAULTS, analyzeKCell, pairedDelta, blend, fitCK, spearman, assertAligned,
   DYN_DEFAULTS, DYN_OPTIMISM_C, PROSPECT_MIRROR, SHIPPED_PROSPECT_PRIOR_KIND, SHIPPED_K_DYN_PROSPECT_A_YE1, prospectPriorPPG, modelScore,
@@ -36,22 +37,36 @@ import { positionOfFrom } from './qb-rookie-level-run.mjs';
 import { primaryPassers, coverageFor, priorPPG } from '../lib/qbTakeover.mjs';
 import { rookieGroup, GROUPS } from '../lib/qbRookieLevel.mjs';
 import { reconstructQbPreseasonShares } from '../lib/projectionFactors.mjs';
-import { loadFactorInputs } from './panel-run.mjs';
+import { loadFactorInputs, leagueLoadArgs } from './panel-run.mjs';
 import { computeSeasonPoints, HISTORY_FLOOR, PANEL_POSITIONS } from '../lib/panel.mjs';
 import { reconstructAgeCurves } from '../lib/projectionFactors.mjs';
 
 const POSITIONS = PANEL_POSITIONS;
 
 // Each QB prior is paired with the 2a k file that was fitted under it (qb-rookie-dynasty-research D2).
+// D-46: keyed by qbPrior × basis. `half_ppr` = the committed file; `league` has no committed pin — the run names the
+// 2a file it reads (`--inseason-2a <path>`, required with `--dynasty --basis league`), and only the `starter` prior has one.
 export const DYN_2A_PIN = Object.freeze({
-  legacy: Object.freeze({ path: 'backtests/2026-09-26-inseason-constants.json', commit: 'a071bdb324976203ed915e14a57b88fb740fb0b6' }),
-  starter: Object.freeze({ path: 'backtests/2026-10-07-inseason-constants.json', commit: 'f2c3b83b31acc589dac78b6d61a704ac02a57477' }),
+  legacy: Object.freeze({ half_ppr: Object.freeze({ path: 'backtests/2026-09-26-inseason-constants.json', commit: 'a071bdb324976203ed915e14a57b88fb740fb0b6' }) }),
+  starter: Object.freeze({ half_ppr: Object.freeze({ path: 'backtests/2026-10-07-inseason-constants.json', commit: 'f2c3b83b31acc589dac78b6d61a704ac02a57477' }), league: null }),
 });
-export const pinnedSourceOf = (qbPrior) => `${DYN_2A_PIN[qbPrior].path} @ ${DYN_2A_PIN[qbPrior].commit}`;
+
+/** The 2a file a dynasty run is paired with: { path, commit|null }. A league run's path comes from the caller. */
+export function dyn2aPinOf(qbPrior, basis = 'half_ppr', inseason2a = null) {
+  if (basis !== 'league') return DYN_2A_PIN[qbPrior].half_ppr;
+  if (qbPrior !== 'starter') throw new Error("[inseason-dyn] basis league runs on the 'starter' QB prior only");
+  if (typeof inseason2a !== 'string' || inseason2a === '') throw new Error('[inseason-dyn] --dynasty --basis league needs --inseason-2a <path> (the 2a constants file this run is paired with)');
+  const shipped = DYN_2A_PIN.starter.half_ppr;
+  return { path: inseason2a, commit: inseason2a === shipped.path ? shipped.commit : null };
+}
+export const pinnedSourceOf = (qbPrior, basis = 'half_ppr', inseason2a = null) => {
+  const pin = dyn2aPinOf(qbPrior, basis, inseason2a);
+  return pin.commit ? `${pin.path} @ ${pin.commit}` : `${pin.path} (uncommitted league 2a file)`;
+};
 
 export const INSEASON_DYN_LOAD = {
   ...INSEASON_LOAD,
-  loadInSeasonConstants: (qbPrior) => readJson(DYN_2A_PIN[qbPrior].path),
+  loadInSeasonConstants: (qbPrior, basis = 'half_ppr', inseason2a = null) => readJson(dyn2aPinOf(qbPrior, basis, inseason2a).path),
   loadQbRookieLevelConstants: () => readJson('backtests/2026-10-04-qb-rookie-level-constants.json'),
   loadDynBaseline: () => readJson('backtests/2026-09-27-inseason-dyn-constants.json'),
 };
@@ -133,9 +148,11 @@ function augmentRow(row, ctx) {
   const sm1Raw = computeSeasonPoints(pid, inputs.inputsByYear[S - 1]?.outcomes);
   const sm1 = sm1Raw.gamesPlayed > 0 ? { gamesPlayed: sm1Raw.gamesPlayed, fantasyPoints: sm1Raw.totalPts } : null;
 
-  const prospectPrior = prospectPriorPPG({ position: row.position, age, pick: pickForA, sm1 }).prospectPPG;
-  const prospectPriorNullPick = prospectPriorPPG({ position: row.position, age, pick: null, sm1 }).prospectPPG;
-  const prospectPriorYE1Pick = ye === 1 ? prospectPriorPPG({ position: row.position, age, pick: proxy, sm1 }).prospectPPG : null;
+  // D-46: the as-of scale for the position and season S (dynastyScore.js:735/1001 pass positionBasisScale?.[position] ?? 1).
+  const basisScale = basisScaleOf(ctx.load, S, row.position);
+  const prospectPrior = prospectPriorPPG({ position: row.position, age, pick: pickForA, sm1, basisScale }).prospectPPG;
+  const prospectPriorNullPick = prospectPriorPPG({ position: row.position, age, pick: null, sm1, basisScale }).prospectPPG;
+  const prospectPriorYE1Pick = ye === 1 ? prospectPriorPPG({ position: row.position, age, pick: proxy, sm1, basisScale }).prospectPPG : null;
 
   let histPrior = null, recencyPrior = null, L = null, stale = false;
   if (row.arm === 'X-short') {
@@ -832,7 +849,7 @@ function runQbSatLonger({ g, env, playerIds, constants2a, obsBy, rolesBySeason }
       if (q.role !== 'backup') continue;
       const weeks = [...(sched?.get(q.team) ?? [])].sort((a, b) => a - b);
       if (!weeks.length) { excluded.noSchedule++; continue; }
-      const prior = rookiePriorFor(q.pid, 'QB', S, playerIds);
+      const prior = rookiePriorFor(q.pid, 'QB', S, playerIds, basisScaleOf(g, S, 'QB'));
       const y1 = ppgFrom(g, S + 1, q.pid), y2 = ppgFrom(g, S + 2, q.pid);
       const mine = startWeeks.get(q.pid) ?? [];
       let flaggedEver = false, flaggedAtEnd = false;
@@ -847,7 +864,7 @@ function runQbSatLonger({ g, env, playerIds, constants2a, obsBy, rolesBySeason }
         flaggedAtEnd = satLonger;
       }
       playerRows.push({
-        sleeperId: q.pid, S, flaggedEver, flaggedAtEnd, prior, y1, y2, priorY2: rookiePriorFor(q.pid, 'QB', S + 1, playerIds),
+        sleeperId: q.pid, S, flaggedEver, flaggedAtEnd, prior, y1, y2, priorY2: rookiePriorFor(q.pid, 'QB', S + 1, playerIds, basisScaleOf(g, S + 1, 'QB')),   // a season S+1 prior takes S+1's as-of scale
         startShareY1: games1 && maxTeamGames1 > 0 ? (games1.get(q.pid) ?? 0) / maxTeamGames1 : null,
       });
     }
@@ -861,11 +878,24 @@ function runQbSatLonger({ g, env, playerIds, constants2a, obsBy, rolesBySeason }
   };
 }
 
+/**
+ * The Q4b drift check: every row's `projPrior` (assembleSeason's rookie prior, on the load's as-of scale for the row's season)
+ * must equal `rookiePriorFor` at that same scale. Both sides scaled, never one (D-46); scale 1 under model `half_ppr`.
+ */
+export function assertQ4bNoDrift(post, playerIds, g) {
+  for (const r of post) {
+    if (!(Math.abs(r.projPrior - rookiePriorFor(r.sleeperId, 'QB', r.S, playerIds, basisScaleOf(g, r.S, 'QB'))) < 1e-9)) throw new Error('[inseason-dyn] Q4b prior drift');
+  }
+}
+
 function runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesBySeason, levelsFile }) {
   const positionOf = positionOfFrom(playerIds);
   const bySleeper = playerIds?.bySleeper ?? {};
   const levels = Object.fromEntries(GROUP_ORDER.map(gr => [gr, levelsFile?.starterPPG?.[gr]?.value]));
   for (const [gr, v] of Object.entries(levels)) if (!Number.isFinite(v)) throw new Error(`[inseason-dyn] Q4: starterPPG.${gr}.value is absent from the rookie-level constants file`);
+  // D-46: the Q4 GS arm's rookie starter level is × the as-of scale for the row's season under `league`, as the app's
+  // resolveRookieQbStarterLevel does (a half_ppr load has no `basisScaleAsOf`, so the scale is 1 and the level unchanged).
+  const levelOf = (r) => (levels[r.group] == null ? levels[r.group] : levels[r.group] * basisScaleOf(g, r.S, 'QB'));
   const k = constants2a?.constants?.K_DYN_POINTS_ROOKIE0?.QB?.k;
   if (!Number.isFinite(k)) throw new Error('[inseason-dyn] Q4: K_DYN_POINTS_ROOKIE0.QB is absent from the loaded 2a constants file');
 
@@ -875,7 +905,7 @@ function runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesB
   for (let S = DYN_DEFAULTS.seasons.from; S <= DYN_DEFAULTS.seasons.to; S++) {
     for (const [pid, pos] of Object.entries(positionOf)) {
       if (!REG_POSITIONS.includes(pos) || bySleeper[pid]?.draftYear !== S) continue;
-      const prior = rookiePriorFor(pid, pos, S, playerIds);
+      const prior = rookiePriorFor(pid, pos, S, playerIds, basisScaleOf(g, S, pos));
       if (pos !== 'QB') {
         const y1 = ppgFrom(g, S + 1, pid);
         if (Number.isFinite(prior) && Number.isFinite(y1)) others.push({ sleeperId: pid, S, position: pos, prior, y: y1 });
@@ -903,7 +933,7 @@ function runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesB
   const candidateValues = (rows, trainRows) => {
     const gc = calibrateGroup({ train: trainRows, test: rows, kind: 'level' });
     const rc = calibrateGroup({ train: trainRows, test: rows, kind: 'ratio' });
-    return { B0: rows.map(r => r.prior), GS: rows.map(r => levels[r.group]), GC: gc.values, RC: rc.values, fallbacks: { GC: gc.fallbacks, RC: rc.fallbacks } };
+    return { B0: rows.map(r => r.prior), GS: rows.map(r => levelOf(r)), GC: gc.values, RC: rc.values, fallbacks: { GC: gc.fallbacks, RC: rc.fallbacks } };
   };
   const compare = (rows, vals) => {
     const base = predsOf(rows, vals.B0);
@@ -921,12 +951,10 @@ function runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesB
 
   // Q4b: posterior on the Q1 YE0 QB rows at the pinned 2a rookie k.
   const post = q1Rows.filter(r => r.ye === 0 && r.position === 'QB' && Number.isFinite(r.projPrior) && Number.isFinite(r.obsPPG) && Number.isFinite(r.nextPPG));
-  for (const r of post) {
-    if (!(Math.abs(r.projPrior - rookiePriorFor(r.sleeperId, 'QB', r.S, playerIds)) < 1e-9)) throw new Error('[inseason-dyn] Q4b prior drift');
-  }
+  assertQ4bNoDrift(post, playerIds, g);
   const postTest = post.map(r => ({ sleeperId: r.sleeperId, S: r.S, group: rookieGroup(bySleeper[r.sleeperId]), prior: r.projPrior, y: r.nextPPG }));
   const gcP = calibrateGroup({ train: y1Rows, test: postTest, kind: 'level' }), rcP = calibrateGroup({ train: y1Rows, test: postTest, kind: 'ratio' });
-  const postVals = { B0: post.map(r => r.projPrior), GS: postTest.map(r => levels[r.group] ?? r.prior), GC: gcP.values, RC: rcP.values };
+  const postVals = { B0: post.map(r => r.projPrior), GS: postTest.map(r => levelOf(r) ?? r.prior), GC: gcP.values, RC: rcP.values };
   const postBase = post.map((r, i) => ({ pred: blend(postVals.B0[i], r.obsPPG, r.n, k), actual: r.nextPPG }));
   const posterior = { k, rows: post.length, players: new Set(post.map(r => r.sleeperId)).size, mae: { B0: r4(maeOfPreds(postBase)) }, deltas: {} };
   for (const X of ['GS', 'GC', 'RC']) {
@@ -959,11 +987,11 @@ function runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesB
       const rs = y0Roles.filter(r => r.group === gr && r.role === role);
       const players = rs.length;
       const show = players >= QB_DYN_RESEARCH.minCellPlayers;
-      cells[gr][role] = { players, meanY0: show ? r2(mean(rs.map(r => r.y))) : null, meanB0: show ? r2(mean(rs.map(r => r.prior))) : null, meanGS: show ? r2(mean(rs.map(r => levels[r.group]))) : null };
+      cells[gr][role] = { players, meanY0: show ? r2(mean(rs.map(r => r.y))) : null, meanB0: show ? r2(mean(rs.map(r => r.prior))) : null, meanGS: show ? r2(mean(rs.map(r => levelOf(r)))) : null };
     }
   }
   const inc = y0Roles.filter(r => r.role === 'incumbent');
-  const incB0 = predsOf(inc, inc.map(r => r.prior)), incGS = predsOf(inc, inc.map(r => levels[r.group]));
+  const incB0 = predsOf(inc, inc.map(r => r.prior)), incGS = predsOf(inc, inc.map(r => levelOf(r)));
   const q4c = {
     note: 'report-only; per-cell means, cells under 3 players suppressed', cells,
     incumbent: { players: inc.length, maeB0: inc.length >= QB_DYN_RESEARCH.minCellPlayers ? r4(maeOfPreds(incB0)) : null, maeGS: inc.length >= QB_DYN_RESEARCH.minCellPlayers ? r4(maeOfPreds(incGS)) : null, deltaGS: inc.length >= QB_DYN_RESEARCH.minCellPlayers ? deltaOut(pairedDelta(inc, incB0, incGS)) : null },
@@ -982,7 +1010,7 @@ function runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesB
     const X = decision.chosen;
     const pool = allRows.filter(r => r.arm === 'X-rookie0' && r.position === 'QB' && r.ye === 0);
     const testRows = pool.map(r => ({ sleeperId: r.sleeperId, S: r.S, group: rookieGroup(bySleeper[r.sleeperId]), prior: r.projPrior, y: r.nextPPG }));
-    const vals = X === 'GS' ? testRows.map(r => levels[r.group] ?? r.prior) : calibrateGroup({ train: y1Rows, test: testRows, kind: X === 'GC' ? 'level' : 'ratio' }).values;
+    const vals = X === 'GS' ? testRows.map(r => levelOf(r) ?? r.prior) : calibrateGroup({ train: y1Rows, test: testRows, kind: X === 'GC' ? 'level' : 'ratio' }).values;
     const valueOf = new Map(pool.map((r, i) => [`${r.sleeperId}|${r.S}`, vals[i]]));
     const cell = analyzeKCell(allRows.filter(r => r.arm === 'X-rookie0'), {
       prior: (r) => (r.position === 'QB' && r.ye === 0 ? (valueOf.get(`${r.sleeperId}|${r.S}`) ?? r.projPrior) : r.projPrior), obs: 'obsPPG', outcome: 'nextPPG',
@@ -1001,24 +1029,27 @@ export function constantsForD64(constants) {
   return rest;
 }
 
-export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assemble = assembleSeason, onRows = null, qbPrior, qbResearch = qbPrior === 'starter' } = {}) {
+export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assemble = assembleSeason, onRows = null, qbPrior, qbResearch = qbPrior === 'starter', basis = 'half_ppr', inseason2a = null } = {}) {
   if (!QB_PRIOR_MODELS.includes(qbPrior)) throw new Error('[inseason-dyn] runInSeasonDyn needs qbPrior legacy|starter');
+  if (!SCORING_BASIS_MODELS.includes(basis)) throw new Error(`[inseason-dyn] unknown --basis '${basis}' — use ${SCORING_BASIS_MODELS.join('|')}`);
+  const pinnedSource = pinnedSourceOf(qbPrior, basis, inseason2a);   // throws first for a league run without --inseason-2a
   if (qbResearch && qbPrior !== 'starter') throw new Error("[inseason-dyn] Q4/Q5 run on the starter QB prior only (qbResearch needs qbPrior 'starter')");
   const t0 = Date.now();
-  const g = guardLoad(load, { maxLoadSeason: 2025 });
+  // One loader per run (D-46): the factor path (loadFactorInputs, assembleSeason), the evidence path and the priors share it.
+  const guarded = guardLoad(load, { maxLoadSeason: 2025 });
+  const g = basis === 'league' ? leagueBasisLoad(guarded, leagueLoadArgs(guarded)) : guarded;
   const reconciliation = runReconciliation(g, { fromYear: 2012, toYear: 2025 });
   log(`reconciliation ${reconciliation.pass}/${reconciliation.population} (${reconciliation.rate.toFixed(4)})`);
 
-  const inputs = loadFactorInputs({ fromYear: 2013, toYear: 2024, basis: 'half_ppr', withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, load: g });
+  const inputs = loadFactorInputs({ fromYear: 2013, toYear: 2024, basis, withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, load: g });
   const playerIds = g.loadPlayerIds();
   // D-64: 2c ran on the legacy QB prior (flat 0.88/0.68 depth step, ceiled rookie level); `starter` re-runs it on what the app blends from.
-  const env = { load: g, defaults: IN_SEASON_DEFAULTS, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds, qbPrior };
+  const env = { load: g, defaults: IN_SEASON_DEFAULTS, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds, qbPrior, basis };
   if (qbPrior === 'starter') env.qbChainModels = loadQbChainModels(g);   // after the reconciliation stop, so a stub load's earlier error wins
   const peakByS = buildPeakByS(inputs);
   const pickProxy = buildPickProxy(playerIds, inputs);
-  const pinnedSource = pinnedSourceOf(qbPrior);
-  const constants2a = typeof load.loadInSeasonConstants === 'function' ? load.loadInSeasonConstants(qbPrior) : null;
-  const ctx = { inputs, playerIds, peakByS, pickProxy, constants2a };
+  const constants2a = typeof load.loadInSeasonConstants === 'function' ? load.loadInSeasonConstants(qbPrior, basis, inseason2a) : null;
+  const ctx = { inputs, playerIds, peakByS, pickProxy, constants2a, load: g };
 
   // Fix pass 1 item 2: every row is augmented before the nextPPG filter, and carries `nextGp` (S+1 gp
   // from season totals, 0 if absent), so the excluded-population report can be built off the same rows.
@@ -1090,8 +1121,11 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
 
   const generatedAt = new Date().toISOString();
   const constantsFile = {
-    source: `sleeper-dashboard-data backtests/${generatedAt.slice(0, 10)}-inseason-dyn-constants.json (node bin/backtest.mjs --inseason --dynasty --write)`,
-    generatedAt, basis: 'half_ppr',
+    source: basis === 'league'
+      ? `sleeper-dashboard-data backtests/${generatedAt.slice(0, 10)}-inseason-dyn-league-constants.json (node bin/backtest.mjs --inseason --dynasty --basis league --inseason-2a ${inseason2a} --write)`
+      : `sleeper-dashboard-data backtests/${generatedAt.slice(0, 10)}-inseason-dyn-constants.json (node bin/backtest.mjs --inseason --dynasty --write)`,
+    generatedAt, basis,
+    ...(basis === 'league' ? { basisDetail: basisDetailOf(g, DYN_DEFAULTS.seasons) } : {}),
     fit: {
       kTenths: [0, 400], loss: 'sum of squared error, rows equal weight', tie: 'smaller k', pin: 'Math.round(k*2)/2',
       prospectPrior: "App computeProspectScore prior PPG, blended 8:min(gp,12) with the S-1 season (D2). "
@@ -1139,7 +1173,7 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
   if (bad.length) throw new Error(`[inseason-dyn] constants do not re-derive from their fixture: ${JSON.stringify(bad.slice(0, 5))}`);
 
   const meta = {
-    generatedAt, basis: 'half_ppr', seasons: DYN_DEFAULTS.seasons, runtimeMs: Date.now() - t0,
+    generatedAt, basis, seasons: DYN_DEFAULTS.seasons, runtimeMs: Date.now() - t0,
     routeMismatchRate: r4(routeMismatchRate), qbPrior, inSeasonConstants: pinnedSource,
   };
   const coverage = {
@@ -1346,7 +1380,9 @@ export function buildInSeasonDynVerdictMarkdown(result) {
   lines.push(`Q1: YE<=1 player-seasons ${excluded.q1.ye01.playerSeasons} (rows ${excluded.q1.ye01.rows}, players ${excluded.q1.ye01.players}). No S+1 outcome — absent: player-seasons ${excluded.q1.noOutcomeAbsent.playerSeasons} (rows ${excluded.q1.noOutcomeAbsent.rows}); gp<6: player-seasons ${excluded.q1.noOutcomeGpUnder6.playerSeasons} (rows ${excluded.q1.noOutcomeGpUnder6.rows}). draftYear unusable: player-seasons ${excluded.q1.draftYearUnusable.playerSeasons} (rows ${excluded.q1.draftYearUnusable.rows}). routeMismatch: player-seasons ${excluded.q1.routeMismatch.playerSeasons} (rows ${excluded.q1.routeMismatch.rows}, rate ${f(meta.routeMismatchRate * 100, 2)}%). YE1-in-rookie0: player-seasons ${excluded.q1.ye1InRookie0.playerSeasons} (rows ${excluded.q1.ye1InRookie0.rows}). YE2-3 no qualifying season: player-seasons ${excluded.q1.ye23NoQualifyingSeason.playerSeasons} (rows ${excluded.q1.ye23NoQualifyingSeason.rows}).`);
   lines.push(`Q2: SHORT-recent player-seasons ${excluded.q2.recent.playerSeasons} (rows ${excluded.q2.recent.rows}), SHORT-stale player-seasons ${excluded.q2.stale.playerSeasons} (rows ${excluded.q2.stale.rows}), SHORT-noL player-seasons ${excluded.q2.noL.playerSeasons} (rows ${excluded.q2.noL.rows}). No S+1 outcome — absent: player-seasons ${excluded.q2.noOutcomeAbsent.playerSeasons} (rows ${excluded.q2.noOutcomeAbsent.rows}, includes retirements); gp<6: player-seasons ${excluded.q2.noOutcomeGpUnder6.playerSeasons} (rows ${excluded.q2.noOutcomeGpUnder6.rows}). Without a projPrior: player-seasons ${excluded.q2.noProjPrior.playerSeasons} (rows ${excluded.q2.noProjPrior.rows}).`);
   lines.push('', '## Limitations', '');
-  lines.push('- **Basis:** pinned half_ppr — k is dimensionless; a league-basis refit stays with backlog D-45.');
+  lines.push(meta.basis === 'league'
+    ? '- **Basis:** league (D-46) — prior, evidence and outcome on the app\'s load-time rescored basis; the paired 2a file is `' + meta.inSeasonConstants + '`.'
+    : '- **Basis:** pinned half_ppr — k is dimensionless; a league-basis refit stays with backlog D-45.');
   lines.push('- **D4 pick proxy:** a 12-team, 5-round league shape applied to any league; the actual league draft is not reconstructable.');
   lines.push('- **D5 YE1 quirk:** the app\'s `selectRookieDraft` reads only the most recent rookie draft, so every second-year player gets `draftMultiplier(null) = 0.75` and loses the premium-pick exemption. Reported, not fixed here.');
   lines.push('- **D6 age date:** whole years on `${S}-09-01` from `birthdate`; `player.age ?? 23` is the app default when null.');
@@ -1362,9 +1398,10 @@ export function buildInSeasonDynVerdictMarkdown(result) {
 
 export function writeInSeasonDynArtifacts({ result, verdictMd }) {
   const date = result.meta.generatedAt.slice(0, 10);
-  const panelPath = `backtests/${date}-inseason-dyn-panel.json`;
-  const constantsPath = `backtests/${date}-inseason-dyn-constants.json`;
-  const verdictPath = `grading/${date}-inseason-dyn-verdict.md`;
+  const tag = result.meta.basis === 'league' ? 'inseason-dyn-league' : 'inseason-dyn';   // a league run never overwrites a half_ppr file
+  const panelPath = `backtests/${date}-${tag}-panel.json`;
+  const constantsPath = `backtests/${date}-${tag}-constants.json`;
+  const verdictPath = `grading/${date}-${tag}-verdict.md`;
   const { constants, ...panel } = result;
   const panelJson = JSON.stringify({ ...panel, pinnedFrom: result.pinnedFrom }, null, 2) + '\n';
   const constantsJson = formatConstantsJson(constants);
@@ -1382,10 +1419,10 @@ export function writeInSeasonDynArtifacts({ result, verdictMd }) {
 
 export function inSeasonDynMain({
   load = INSEASON_DYN_LOAD, write = false, asJson = false, writeArtifacts = writeInSeasonDynArtifacts,
-  log = console.log, logErr = console.error, qbPrior = 'starter',
+  log = console.log, logErr = console.error, qbPrior = 'starter', basis = 'half_ppr', inseason2a = null,
 } = {}) {
   try {
-    const result = runInSeasonDyn({ load, qbPrior, log: (m) => logErr(`[backtest] ${m}`) });
+    const result = runInSeasonDyn({ load, qbPrior, basis, inseason2a, log: (m) => logErr(`[backtest] ${m}`) });
     const verdictMd = buildInSeasonDynVerdictMarkdown(result);
     if (write) {
       const w = writeArtifacts({ result, verdictMd });

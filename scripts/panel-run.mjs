@@ -145,6 +145,15 @@ export function resolveScoring({ basis = 'in-basis', scoringFrom = DEFAULT_SCORI
   };
 }
 
+/**
+ * Args for `leagueBasisLoad` under basis `league` (plan D2/D3): the pinned scoring fixture and the position source.
+ * Shared by `loadFactorInputs` and the in-season harnesses so one wrapped loader serves the factor and evidence paths.
+ */
+export function leagueLoadArgs(load = DEFAULT_LOAD) {
+  const { scoringSettings } = resolveScoring({ basis: 'league', load });
+  return { scoringSettings, positionOf: (load.loadLeaguePositionOf ?? loadLeaguePositions)() };
+}
+
 // ─── Outcome maps (in-basis or half_ppr) per year ──────────────────────────────
 
 export function buildOutcomeMaps(years, scoring, load = DEFAULT_LOAD) {
@@ -180,7 +189,7 @@ export function loadFactorInputs({
   // returned unchanged) and builds outcomes with the half-PPR outcome builder — which now reads league points.
   // It is deliberately not routed through buildInBasisOutcomes (no first-down derivation for 2012-2021).
   if (basis === 'league') {
-    load = leagueBasisLoad(load, { scoringSettings, positionOf: (load.loadLeaguePositionOf ?? loadLeaguePositions)() });
+    load = leagueBasisLoad(load, leagueLoadArgs(load));
   }
   const scoring = basis === 'half_ppr' || basis === 'league' ? { basis: 'half_ppr' } : { basis: 'in-basis', scoringSettings };
 

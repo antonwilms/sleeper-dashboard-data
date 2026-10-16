@@ -25,7 +25,8 @@
 import fs from 'fs';
 import { readJson, repoPath } from '../lib/io.mjs';
 import { isTeamAggregateId } from '../lib/backtest.mjs';
-import { DEFAULT_LOAD, loadFactorInputs, buildFactorContext } from './panel-run.mjs';
+import { DEFAULT_LOAD, loadFactorInputs, buildFactorContext, leagueLoadArgs, LEAGUE_SCORING_FIXTURE } from './panel-run.mjs';
+import { leagueBasisLoad, basisScaleOf, SCORING_BASIS_MODELS } from '../lib/leagueBasis.mjs';
 import {
   attachFactorMultipliers, predictFullPipeline, rookiePathStateAt, resolvePosition,
   PANEL_POSITIONS, computeSeasonPoints, HISTORY_FLOOR,
@@ -216,7 +217,7 @@ export function enumerateCandidates({ S, totalsByYear, ppgByYear, positionOf }) 
 }
 
 /** The SHIPPED rookie projection (CR-15 mapping note: no entry → unknown, undrafted → undrafted, else matched). */
-export function rookieRecordFor(pid, position, S, playerIds, { rookieQbModel }) {
+export function rookieRecordFor(pid, position, S, playerIds, { rookieQbModel, basisScale = 1 }) {
   const b = playerIds?.bySleeper?.[pid];
   const draftCapitalStatus = !b ? 'unknown' : b.undrafted === true ? 'undrafted' : 'matched';
   const birthYear = typeof b?.birthdate === 'string' ? parseInt(b.birthdate.slice(0, 4), 10) : null;
@@ -224,13 +225,16 @@ export function rookieRecordFor(pid, position, S, playerIds, { rookieQbModel }) 
   const yearsExp = (b?.draftYear != null && b.draftYear > 0) ? S - b.draftYear : null;
   return reconstructShippedRookieProjection({
     position, ageAtDraft, draftRound: b?.draftRound ?? null, draftPick: b?.draftPick ?? null, draftCapitalStatus, yearsExp,
-    rookieQbModel,
+    rookieQbModel, basisScale,
   });
 }
 
-/** Legacy rookie prior (the rounded projectedPPG). Other harnesses (qb-rookie-level-run, inseason-dyn-run) read it. */
-export function rookiePriorFor(pid, position, S, playerIds) {
-  return rookieRecordFor(pid, position, S, playerIds, { rookieQbModel: 'legacy' }).projectedPPG;
+/**
+ * Legacy rookie prior (the rounded projectedPPG). Other harnesses (qb-rookie-level-run, inseason-dyn-run) read it.
+ * `basisScale` (D-46) is the as-of scale of season S's prior — pass `basisScaleOf(load, S, position)`; 1 = model `half_ppr`.
+ */
+export function rookiePriorFor(pid, position, S, playerIds, basisScale = 1) {
+  return rookieRecordFor(pid, position, S, playerIds, { rookieQbModel: 'legacy', basisScale }).projectedPPG;
 }
 
 /**
@@ -361,7 +365,7 @@ export function assembleSeason(S, env) {
   const { load, defaults, gamelogsIdx, scheduleIdx, playerIds, qbPrior } = env;
   const { depthModel, rookieQbModel } = QB_PRIOR_MAP[qbPrior];
   const inputs = loadFactorInputs({
-    fromYear: S - 1, toYear: S - 1, basis: 'half_ppr', withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, load,
+    fromYear: S - 1, toYear: S - 1, basis: env.basis ?? 'half_ppr', withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, load,
   });
   const totalsByYear = {}, ppgByYear = {};
   for (const y of inputs.years) { totalsByYear[y] = inputs.inputsByYear[y].seasonTotals; ppgByYear[y] = inputs.inputsByYear[y].outcomes; }
@@ -456,7 +460,7 @@ export function assembleSeason(S, env) {
       // ROS: a non-game-1 first-year QB with capital blends the pinned group level; a rookie without a group keeps
       // the ROUNDED projectedPPG (the unrounded qbStarterPPG would shift every rookie-path QB row by up to 0.05).
       // Next season: always the ceiled rookie-path level (arm B) — the prior buildProspectLevel blends (D2).
-      const rec = rookieRecordFor(pid, position, S, playerIds, { rookieQbModel });
+      const rec = rookieRecordFor(pid, position, S, playerIds, { rookieQbModel, basisScale: basisScaleOf(load, S, position) });
       ({ pointsPrior, pointsPriorNext } = rookieRosPrior(rec, primaries ? isGame1Primary(pid) : false));   // primaries is null only on the legacy prior, whose rookie basis never takes the group level
     } else {
       const fr = frozenBy.get(pid);
@@ -1422,14 +1426,25 @@ export function rookieRosPrior(rec, isGame1Primary) {
 
 // ─── runInSeason ──────────────────────────────────────────────────────────────
 
-export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULTS, log = () => {}, qbPrior = 'starter' } = {}) {
+/** A league constants file's `basisDetail` (plan §2.3): the scoring fixture, the position file, and the as-of scale per season S. */
+export function basisDetailOf(load, seasons) {
+  const scaleBySeason = {};
+  for (let S = seasons.from; S <= seasons.to; S++) scaleBySeason[S] = load.basisScaleAsOf(S);
+  return { scoringFixture: LEAGUE_SCORING_FIXTURE, positionFile: 'raw/-players-nfl.json', scaleBySeason };
+}
+
+export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULTS, log = () => {}, qbPrior = 'starter', basis = 'half_ppr' } = {}) {
   if (!QB_PRIOR_MODELS.includes(qbPrior)) throw new Error('[inseason] runInSeason needs qbPrior legacy|starter');
+  if (!SCORING_BASIS_MODELS.includes(basis)) throw new Error(`[inseason] unknown --basis '${basis}' — use ${SCORING_BASIS_MODELS.join('|')}`);
   const t0 = Date.now();
-  const g = guardLoad(load, { maxLoadSeason: defaults.maxLoadSeason });
+  // One loader per run (D-46): under `league` every points reader — the factor path, the evidence path, the rookie and
+  // prospect priors — sees the same rescored rows and as-of scales (leagueBasisLoad returns a wrapped load unchanged).
+  const guarded = guardLoad(load, { maxLoadSeason: defaults.maxLoadSeason });
+  const g = basis === 'league' ? leagueBasisLoad(guarded, leagueLoadArgs(guarded)) : guarded;
   const reconciliation = runReconciliation(g, { fromYear: 2012, toYear: defaults.maxLoadSeason });   // throws ReconciliationStop below 0.99
   log(`reconciliation ${reconciliation.pass}/${reconciliation.population} (${reconciliation.rate.toFixed(4)})`);
 
-  const env = { load: g, defaults, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds: g.loadPlayerIds(), qbPrior };
+  const env = { load: g, defaults, gamelogsIdx: makeGamelogsIndex(g), scheduleIdx: makeScheduleIndex(g), playerIds: g.loadPlayerIds(), qbPrior, basis };
   // Loaded after the reconciliation stop so the earlier errors keep winning (stub-load tests).
   if (qbPrior === 'starter') {
     env.qbChainModels = loadQbChainModels(g);
@@ -1475,8 +1490,11 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
     : null;
 
   const constantsFile = {
-    source: `sleeper-dashboard-data backtests/${date}-inseason-constants.json (node bin/backtest.mjs --inseason --write)`,
-    generatedAt, basis: 'half_ppr',
+    source: basis === 'league'
+      ? `sleeper-dashboard-data backtests/${date}-inseason-league-constants.json (node bin/backtest.mjs --inseason --basis league --write)`
+      : `sleeper-dashboard-data backtests/${date}-inseason-constants.json (node bin/backtest.mjs --inseason --write)`,
+    generatedAt, basis,
+    ...(basis === 'league' ? { basisDetail: basisDetailOf(g, defaults.seasons) } : {}),
     fit: {
       kTenths: [0, 400], loss: 'sum of squared error, rows equal weight', tie: 'smaller k', pin: 'Math.round(k*2)/2',
       checkpoints: 'calendar weeks 1-12, n = games played', minRosGames: defaults.minRosGames, nextMinGames: defaults.nextMinGames,
@@ -1484,7 +1502,7 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
       priorOptimism: priorOptimismText,
       ...(qbPrior === 'starter' ? { qbPrior: {
         model: 'starter',
-        ros: 'QB rows blend the starter level — depth model qb-takeover, no start share; a yearsExp-0 rookie QB with draft capital who was not his team\'s game-1 primary passer takes the pinned rookie starter level (half-PPR); a game-1 starter keeps the ceiled rookie-path level',
+        ros: 'QB rows blend the starter level — depth model qb-takeover, no start share; a yearsExp-0 rookie QB with draft capital who was not his team\'s game-1 primary passer takes the pinned rookie starter level (half-PPR' + (basis === 'league' ? ', × the as-of basis scale' : '') + '); a game-1 starter keeps the ceiled rookie-path level',
         next: 'veterans as ros; rookies keep the ceiled rookie-path level (arm B), the prior the dynasty update blends',
       } } : {}),
     },
@@ -1500,7 +1518,7 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
   const coverage = buildCoverage(perSeason, rows, playerSeasons, reconciliation);
   if (qbPrior === 'starter') coverage.qbStart = { seasons: qbStartBySeason, totals: qbStartTotals(qbStartBySeason) };
   const meta = {
-    generatedAt, basis: 'half_ppr', seasons: defaults.seasons, checkpoints: defaults.checkpoints,
+    generatedAt, basis, seasons: defaults.seasons, checkpoints: defaults.checkpoints,
     nextTo: defaults.nextTo, plus2To: defaults.plus2To, bootstrap: defaults.bootstrap, kGridTenths: [0, defaults.kGridMaxTenths],
     minRosGames: defaults.minRosGames, nextMinGames: defaults.nextMinGames, minCell: { players: defaults.minCellPlayers, rows: defaults.minCellRows },
     regressionModel: CURRENT_REGRESSION_MODEL, qbPrior, ...QB_PRIOR_MAP[qbPrior], runtimeMs: Date.now() - t0,
@@ -1597,7 +1615,9 @@ export function buildInSeasonVerdictMarkdown(result) {
   lines.push(
     '# In-season evidence — Phase 2a graded backtest',
     '',
-    `Generated ${meta.generatedAt}. Basis **half_ppr** (pinned; a league-basis refit belongs to the custom-basis backlog item). ` +
+    `Generated ${meta.generatedAt}. Basis **${meta.basis}** (` + (meta.basis === 'league'
+      ? 'D-46: rows rescored as the app does at load, with positionBasisScale as-of each season). '
+      : 'pinned; a league-basis refit belongs to the custom-basis backlog item). ') +
       `Outcome seasons ${meta.seasons.from}–${meta.seasons.to}, calendar checkpoints W = 1–12, n = games played, leave-one-season-out, ` +
       `player-clustered bootstrap (${meta.bootstrap.resamples} resamples, seed ${meta.bootstrap.seed}, mulberry32), k grid ${meta.kGridTenths[0] / 10}–${meta.kGridTenths[1] / 10} in tenths.`,
     '',
@@ -1819,7 +1839,9 @@ export function buildInSeasonVerdictMarkdown(result) {
   }
 
   lines.push('## Limitations', '',
-    '- **Basis is half_ppr.** A dimensionless k fitted on the half-PPR panel is acceptable here; a league-basis refit belongs to the existing custom-basis backlog item.',
+    meta.basis === 'league'
+      ? '- **Basis is league (D-46).** Prior, evidence and outcome are on the app\'s load-time rescored basis; the verdict is `grading/<date>-league-basis-verdict.md`.'
+      : '- **Basis is half_ppr.** A dimensionless k fitted on the half-PPR panel is acceptable here; a league-basis refit belongs to the existing custom-basis backlog item.',
     '- **The prior is the reconstruction, not the app\'s live number.** It is faithful in 9 of 13 steps, with the divergences documented in `grading/2026-09-06-fullpipeline-verdict.md`. The depth factor uses the S week-1 chart as a stand-in for a pre-season capture; qbQuality is a flat 50.',
     '- **The rookie prior has no KTC multiplier historically** (KTC history starts 2026-05-18).',
     ...(meta.qbPrior === 'starter' ? ['- **The QB prior is the app\'s starter level, not the share-weighted projection.** QB rows blend the share-free starter level (depth model `qb-takeover`); a first-year QB with draft capital who was not his team\'s game-1 primary passer blends the pinned rookie starter level, a game-1 starter keeps the ceiled rookie-path level (the app\'s injured-original edge case is not reproducible from history), and the next-season horizon keeps the ceiled rookie-path level for rookies. The start share is mirrored and reported (`coverage.qbStart`) but never enters a fitted prior.'] : []),
@@ -1861,9 +1883,10 @@ export const ARTIFACT_CAPS = { panelBytes: 5 * 1024 * 1024, constantsBytes: 300 
 
 export function writeInSeasonArtifacts({ result, verdictMd }) {
   const date = result.meta.generatedAt.slice(0, 10);
-  const panelPath = `backtests/${date}-inseason-panel.json`;
-  const constantsPath = `backtests/${date}-inseason-constants.json`;
-  const verdictPath = `grading/${date}-inseason-verdict.md`;
+  const tag = result.meta.basis === 'league' ? 'inseason-league' : 'inseason';   // a league run never overwrites a half_ppr file
+  const panelPath = `backtests/${date}-${tag}-panel.json`;
+  const constantsPath = `backtests/${date}-${tag}-constants.json`;
+  const verdictPath = `grading/${date}-${tag}-verdict.md`;
   const { constants, ...panel } = result;
   const panelJson = JSON.stringify({ ...panel, pinnedFrom: result.pinnedFrom }, null, 2) + '\n';
   const constantsJson = formatConstantsJson(constants);
@@ -1886,10 +1909,10 @@ export function writeInSeasonArtifacts({ result, verdictMd }) {
  */
 export function inSeasonMain({
   load = INSEASON_LOAD, write = false, asJson = false, writeArtifacts = writeInSeasonArtifacts,
-  log = console.log, logErr = console.error,
+  log = console.log, logErr = console.error, basis = 'half_ppr',
 } = {}) {
   try {
-    const result = runInSeason({ load, log: (m) => logErr(`[backtest] ${m}`) });
+    const result = runInSeason({ load, basis, log: (m) => logErr(`[backtest] ${m}`) });
     const verdictMd = buildInSeasonVerdictMarkdown(result);
     if (write) {
       const w = writeArtifacts({ result, verdictMd });

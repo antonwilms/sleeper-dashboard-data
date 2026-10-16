@@ -25,7 +25,7 @@ import {
 import {
   guardLoad, runReconciliation, ReconciliationStop, runArmS, enumerateCandidates, makeScheduleIndex, verifyConstants,
   formatConstantsJson, pinDecision, makePut, runInSeason, addFoldK, inSeasonMain,
-  assembleSeason, writeQ4Pin, assertPrimaryCoverage, loadQbChainModels, rookieRosPrior, startsArmRows, gameOneStatus, rookieRecordFor, rookiePriorFor, QB_PRIOR_MODELS,
+  assembleSeason, writeQ4Pin, assertPrimaryCoverage, loadQbChainModels, rookieRosPrior, startsArmRows, gameOneStatus, rookieRecordFor, rookiePriorFor, QB_PRIOR_MODELS, basisDetailOf,
 } from '../scripts/inseason-run.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
@@ -824,5 +824,78 @@ describe('17: startsArmRows (Q9) on a two-team, five-week synthetic season', () 
     assert.deepEqual(gameOneStatus('a2', 2020, { ...base, gamelogsPlayer: gamelogsFile.players.a2 }), { status: 'ok', primary: false });
     assert.equal(gameOneStatus('z', 2020, { ...base, gamelogsPlayer: undefined }).status, 'noGames');
     assert.equal(gameOneStatus('a1', 2020, { primaries, scheduleIdxS: new Map(), gamelogsPlayer: gamelogsFile.players.a1 }).status, 'noSchedule');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// D-46 — the league basis in the 2a harness
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { leagueBasisLoad } from '../lib/leagueBasis.mjs';
+
+describe('D-46: rookiePriorFor / assembleSeason thread the as-of basis scale', () => {
+  const playerIds = { bySleeper: { q1: { draftYear: 2020, draftRound: 1, draftPick: 3, birthdate: '1998-06-01' } } };
+
+  test('rookiePriorFor threads basisScale to the rookie record (default 1 is unchanged)', () => {
+    const base = rookiePriorFor('q1', 'QB', 2020, playerIds);
+    assert.equal(rookiePriorFor('q1', 'QB', 2020, playerIds, 1), base);
+    const scaled = rookiePriorFor('q1', 'QB', 2020, playerIds, 1.2);
+    assert.equal(scaled, rookieRecordFor('q1', 'QB', 2020, playerIds, { rookieQbModel: 'legacy', basisScale: 1.2 }).projectedPPG);
+    assert.notEqual(scaled, base);
+  });
+
+  // One rookie per season S, priced through the league-wrapped loader. The scale-driving rows carry no crosswalk entry
+  // (so they are never candidates) but are RB to the league position source. 30 half-PPR rows rescored at ×1.2 in 2017 and
+  // 31 at ×1.4 in 2018: the as-of-2018 scale (2012–2017) is 1.2, the as-of-2019 scale (2012–2018, median of 61) is 1.4.
+  function fixture() {
+    const v = (n, rec) => Object.fromEntries(Array.from({ length: n }, (_, i) => [`v${i}`, {
+      team: 'KC', fantasyPoints: 100, gamesPlayed: 12, scoringBasis: 'half_ppr', stats: { rec }, weeklyPoints: {},
+    }]));
+    const rookie = () => ({ team: 'KC', fantasyPoints: 50, gamesPlayed: 5, scoringBasis: 'half_ppr', stats: { rec: 50 }, weeklyPoints: { 1: 10, 2: 10, 3: 10, 4: 10, 5: 10 } });
+    const totals = { 2017: v(30, 120), 2018: { ...v(31, 140), r18: rookie() }, 2019: { r19: rookie() } };
+    const ids = { 'g-r18': { sleeperId: 'r18', name: 'R18', position: 'RB' }, 'g-r19': { sleeperId: 'r19', name: 'R19', position: 'RB' } };
+    const bySleeper = {
+      r18: { draftYear: 2018, draftRound: 2, draftPick: 5, birthdate: '1996-06-01' },
+      r19: { draftYear: 2019, draftRound: 2, draftPick: 5, birthdate: '1997-06-01' },
+    };
+    return {
+      loadSeasonTotals: (y) => totals[y] ?? null,
+      loadGameLogs: () => null, loadAdvstats: () => null, loadRoster: () => null, loadDepth: () => null, loadSchedule: () => null,
+      loadSnapShare: () => null, loadManifest: () => ({ files: {} }),
+      loadPlayerIds: () => ({ ids, bySleeper }),
+    };
+  }
+
+  test('assembleSeason prices season S\'s rookie prior with the scale as-of S (league) and 1 (half_ppr)', () => {
+    const raw = fixture();
+    const ids = raw.loadPlayerIds();
+    const settings = { rec: 1 };   // rec 120 / 140 against fantasyPoints 100
+    const league = leagueBasisLoad({ ...raw, loadLeagueScoring: () => settings, loadLeaguePositionOf: () => () => 'RB' }, { scoringSettings: settings, positionOf: () => 'RB' });
+    const expectScale = { 2018: 1.2, 2019: 1.4 };
+    const pidOf = { 2018: 'r18', 2019: 'r19' };
+    for (const S of [2018, 2019]) {
+      const env = (load, basis) => ({ load, basis, defaults: IN_SEASON_DEFAULTS, qbPrior: 'legacy', playerIds: ids, gamelogsIdx: () => null, scheduleIdx: () => null });
+      const scaled = assembleSeason(S, env(league, 'league')).playerSeasons.find(p => p.sleeperId === pidOf[S]);
+      const plain = assembleSeason(S, env(raw, 'half_ppr')).playerSeasons.find(p => p.sleeperId === pidOf[S]);
+      const direct = (scale) => rookieRecordFor(pidOf[S], 'RB', S, ids, { rookieQbModel: 'legacy', basisScale: scale }).projectedPPG;
+      assert.equal(scaled.pointsPrior, direct(expectScale[S]), `S=${S}: league prior uses scale ${expectScale[S]}`);
+      assert.equal(plain.pointsPrior, direct(1));
+      assert.notEqual(scaled.pointsPrior, plain.pointsPrior);
+    }
+    assert.notEqual(rookieRecordFor('r18', 'RB', 2018, ids, { rookieQbModel: 'legacy', basisScale: 1.2 }).projectedPPG,
+      rookieRecordFor('r18', 'RB', 2018, ids, { rookieQbModel: 'legacy', basisScale: 1.4 }).projectedPPG, 'the two as-of scales are distinguishable');
+  });
+
+  test('runInSeason refuses an unknown basis; basisDetailOf names the fixture, the position file and the as-of scale per season', () => {
+    assert.throws(() => runInSeason({ load: skillFixture(), basis: 'x' }), /unknown --basis/);
+    const raw = fixture();
+    const league = leagueBasisLoad(raw, { scoringSettings: { rec: 1 }, positionOf: () => 'RB' });
+    const d = basisDetailOf(league, { from: 2018, to: 2019 });
+    assert.equal(d.scoringFixture, 'test/fixtures/league-scoring-2026-10-14.json');
+    assert.equal(d.positionFile, 'raw/-players-nfl.json');
+    assert.deepEqual(Object.keys(d.scaleBySeason), ['2018', '2019']);
+    assert.equal(d.scaleBySeason[2018].RB, 1.2);
+    assert.equal(d.scaleBySeason[2019].RB, 1.4);
+    assert.equal(d.scaleBySeason[2019].QB, 1, 'a position under the 30-row floor stays 1');
   });
 });
