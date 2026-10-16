@@ -448,7 +448,9 @@ plan-reviewer ran twice: data repo at full depth (15 flags; `npm test` 1542/1546
 
 ## Stage A verification (Session 1, 2026-10-16)
 
-Stage A: `1d80491..88d509f` (A1 `69ef2fa`, A2 `af36667`, A3 `88d509f`; local). Verdict: both files `do-not-wire`; G3
+Stage A: pushed as `cc6e125..cb27d88` (A1 `1de4942`, A2 `343cb51`, A3 `cb27d88`; plan commit `cc6e125`). The
+push-time rebase renamed them from `1d80491`/`69ef2fa`/`af36667`/`88d509f`, which the review and the hand-back cite;
+the committed verdict's header still says "generated at `af36667`+local" (Fix pass 1 item 2 regenerates it). Verdict: both files `do-not-wire`; G3
 finds QB `sensitivityVerdict` UNSTABLE → CLEARS under league (a backlog item at B3).
 - **G1b deviation accepted (Anton, 2026-10-16).** Captured `rookieMultiplierProduct` is rounded (2 dp on 68 rows,
   3 dp on 242), so §3's literal "equals … at 3 dp" cannot hold. The ceiling-input check is redefined as the
