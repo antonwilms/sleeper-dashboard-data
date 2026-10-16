@@ -443,3 +443,52 @@ plan-reviewer ran twice: data repo at full depth (15 flags; `npm test` 1542/1546
   wrap reaches every points reader in both in-season modes; D6 is consistent with CR-25/CR-26 and
   `priorModelFrom.test.js`; Mirror quotes byte-equal.
 - **Unverified:** G1b–G1d match counts, G2 outcomes and runtime, the app push time of `47af353`/`38acc39`.
+
+---
+
+## Stage A verification (Session 1, 2026-10-16)
+
+Stage A: `1d80491..88d509f` (A1 `69ef2fa`, A2 `af36667`, A3 `88d509f`; local). Verdict: both files `do-not-wire`; G3
+finds QB `sensitivityVerdict` UNSTABLE → CLEARS under league (a backlog item at B3).
+- **G1b deviation accepted (Anton, 2026-10-16).** Captured `rookieMultiplierProduct` is rounded (2 dp on 68 rows,
+  3 dp on 242), so §3's literal "equals … at 3 dp" cannot hold. The ceiling-input check is redefined as the
+  product's rounding bound, `0.005 × baseline × calibration + 5e-4`: 0 rows outside under `league`, 310/310 outside
+  under `half_ppr`. Every other G1 field passed as specified. G1 reads PASS.
+- **implementation-reviewer** (full depth, `1d80491..88d509f`): ports faithful to `sleeperStats.js:314-370`,
+  `dynastyScore.js:40-81, 141-146`, `seasonProjection.js:335-369, 378, 494, 504, 617`; `half_ppr` constants
+  deep-equal the shipped 2026-10-07 / 2026-10-11 files; a fresh league 2a run reproduces the committed file;
+  `npm test` 1601/1606 (5 skipped), `npm run smoke` exit 0; Invariant 10 holds; registry and manifest untouched.
+- **Blocker resolved — pooled-delta reading (Anton, 2026-10-16).** The 2a verdict depends on which rows the pooled
+  points delta includes. Pre-registered reading applies: all points entries' rows, deduplicated per cell as
+  implemented (`same` entries included) → mean −0.0002 [−0.0032, 0.0027], 147,351 rows, 21 cells, NO-GAIN →
+  **2a `do-not-wire`**. Recorded for disclosure: pooling only the 8 entries whose emitted k differs gives −0.0109
+  [−0.0194, −0.0031] BEATS, driven almost entirely by `K_ROS_POINTS_SHORT.TE` (shipped `study` 4 vs league pooled
+  1.5, Δ −0.141 [−0.225, −0.062], measured on `q4|X-short|ros|ALL` rows of every position — a study-pin question,
+  not a basis effect). Backlog: re-examine that study pin independent of basis (Stage B3). A wire would also have
+  added `K_DYN_POINTS_WEAK.WR`/`STRONG.WR`, absent from the shipped file — moot under `do-not-wire`.
+- **Re-run provenance (review flag 2), answered by Session 2:** between G2 runs 1 and 2 only
+  `scripts/league-basis-run.mjs`/`test/league-basis-run.test.mjs` changed — the shipped-commit lookup (`--diff-filter=A`
+  → `log -1`), `TEAM_` rows dropped from the per-season weeks table, and wording. `compareConstantsFiles`, `decideFile`'s
+  rule, `pooledParts`, `same` handling and `BASIS_INVARIANT_ENTRIES` were untouched; run 1 had identical verdicts and
+  pooled deltas (2a −0.0002 NO-GAIN; dyn +0.0120 WORSE, its single entry `same`).
+- **Dynasty file `do-not-wire`** (decided on the shipped-2a run): its one decided entry `K_DYN_PROSPECT_A_YE1` is
+  `same` (3.5); the pooled WORSE is fold-k leakage on an identical k, not a basis effect.
+
+## Fix pass 1 (deferred to Stage C; minor, no result moves)
+
+From the implementation review; none changes a k, a label or a verdict, so Stage A is pushed without it. Stage C
+applies it via fix-applier in its own commit, then implementation-reviewer re-runs once on that diff.
+1. `scripts/league-basis-run.mjs:774, 780` — compute the G1b counts in the verdict text from the result
+   (`g1.b.league.rows − capturedCeilingInputConsistent`, the 2-dp/3-dp count of `rookieMultiplierProduct`,
+   `fields.ceilingInput.fail`) and gate the D3 sentence on `g1.a.pass`, instead of literals.
+2. `buildLeagueBasisVerdictMarkdown` — under Verdicts, print both pooled readings (all points entries, the decision;
+   differing-only, disclosure) with the `K_ROS_POINTS_SHORT.TE` caveat; when every decided entry is `same`, say the
+   pooled delta measures fold-k leakage only. Regenerate `grading/2026-10-16-league-basis-verdict.md` from the
+   committed panel JSON (no re-run; constants files untouched).
+3. `test/league-basis-run.test.mjs` — the "verdict markdown" test asserts `indexOf('Pre-registered decision rule') <
+   indexOf('## Verdicts')` on a synthetic result; assert `cmp.pooled.label`/`rows`/`cells` on the synthetic BEATS
+   cell plus a two-entry/one-cell case pinning the dedup and the `same`-included rule.
+4. Unit-test `levelOf` (Q4 GS level × scale, `inseason-dyn-run.mjs:898`) and the S+1 prior scale (`priorY2`, `:867`)
+   on a wrapped two-season load.
+5. `lib/leagueBasis.mjs:195-203` — delete the unused `pidsAbsentFromPlayers` export, or use it in `runG1`
+   (`league-basis-run.mjs:255-260`). Pick the delete.
