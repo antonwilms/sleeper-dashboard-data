@@ -123,7 +123,7 @@ export function checkRookieRows(rows, { scaleOf, rookieQbModel = 'rookie-qb-leve
   const fields = Object.fromEntries(FIELD_NAMES.map(n => [n, { checked: 0, fail: 0, failures: [] }]));
   const out = {
     rows: rows.length, positionUnrecovered: 0, chainExcluded: 0, byPosition: {},
-    capturedCeilingInputConsistent: 0, levelExact: 0, totalExact: 0, fields,
+    capturedCeilingInputConsistent: 0, productDp2: 0, productDp3: 0, levelExact: 0, totalExact: 0, fields,
   };
   const note = (name, pid, ok, detail) => {
     const f = fields[name];
@@ -147,6 +147,7 @@ export function checkRookieRows(rows, { scaleOf, rookieQbModel = 'rookie-qb-leve
     const calib = resolveRookieCalibration({ position, draftCapitalStatus: factors.draftCapitalStatus, nflDraftTier: factors.nflDraftTier });
     const preOf = (base) => r3(Math.min(Math.max(base * factors.rookieMultiplierProduct * calib.rookieCalibrationMult, 0), 40));
     if (Math.abs(preOf(factors.basePPG) - factors.rookieCeilingPPGPre) < 1e-9) out.capturedCeilingInputConsistent++;
+    if (Math.abs(Math.round(factors.rookieMultiplierProduct * 100) / 100 - factors.rookieMultiplierProduct) < 1e-9) out.productDp2++; else out.productDp3++;
     // `rookieMultiplierProduct` is captured at 2-3 dp, so the 3-dp equality holds only where that rounding is benign; the check is
     // against the rounding bound of the captured product (half a unit at 2 dp × baseline × calibration, plus the 3-dp capture of the input).
     const baseM = ROOKIE_BASELINE_PPG[position] * scale;
@@ -483,6 +484,7 @@ export function compareConstantsFiles({ shipped, league, cellOf, rescoredBy = ()
   const entries = [];
   const analysisCache = new Map();
   const pooledParts = new Map();
+  const differingKeys = new Set();
   for (const name of names) {
     const cells = [...new Set([...Object.keys(shipped.constants?.[name] ?? {}), ...Object.keys(league.constants?.[name] ?? {})])];
     for (const cell of cells) {
@@ -513,23 +515,27 @@ export function compareConstantsFiles({ shipped, league, cellOf, rescoredBy = ()
         }
       }
       row.rowsUsed = a.rows;
+      if (!row.same) differingKeys.add(ckey);
       if (a.verdict === 'INSUFFICIENT' || !a.delta) { row.label = row.same ? 'same' : 'INSUFFICIENT'; continue; }
       row.delta = { mean: a.delta.mean, ci95: a.delta.ci95, label: a.delta.label };
       row.label = row.same ? 'same' : a.delta.label;
       row.weeksMethod = wkMethodCounts(c.rows, rescoredBy);
     }
   }
-  const ids = [], diffs = [];
-  for (const part of pooledParts.values()) { ids.push(...part.ids); diffs.push(...part.diffs); }
-  let pooled = null;
-  if (diffs.length) {
+  const poolOf = (parts) => {
+    const ids = [], diffs = [];
+    for (const part of parts) { ids.push(...part.ids); diffs.push(...part.diffs); }
+    if (!diffs.length) return null;
     const b = bootstrapPairedMean(ids, diffs, bootstrap);
-    pooled = {
-      cells: pooledParts.size, rows: diffs.length, players: new Set(ids).size,
+    return {
+      cells: parts.length, rows: diffs.length, players: new Set(ids).size,
       mean: b ? diffs.reduce((x, y) => x + y, 0) / diffs.length : null, ci95: b?.ci95 ?? null, label: b ? compareLabel(b.ci95) : null,
     };
-  }
-  return { entries, pooled };
+  };
+  const pooled = poolOf([...pooledParts.values()]);
+  // Disclosure only (never the decision): the same pool restricted to cells where at least one entry's emitted k differs.
+  const pooledDiffering = poolOf([...pooledParts].filter(([key]) => differingKeys.has(key)).map(([, part]) => part));
+  return { entries, pooled, pooledDiffering };
 }
 
 /** The pre-registered per-file rule (plan §3 G2). Never reads the narrative — only the labels. */
@@ -751,6 +757,25 @@ function entryTable(cmp) {
   return tbl(['entry', 'shipped k (basis)', 'league k (basis)', 'rows / players', 'Δ|err| league fold − shipped [95% CI]', 'label', '', 'weeks exact/scaled/none (player-seasons)'], rows);
 }
 
+const pooledS = (p) => (p ? `${[p.cells != null && `${p.cells} cells`, p.rows != null && `${p.rows} rows`, p.players != null && `${p.players} players`].filter(Boolean).join(', ')}${p.cells != null || p.rows != null || p.players != null ? ', ' : ''}mean ${f(p.mean, 4)} ${ciS(p.ci95)} → **${p.label}**` : 'n/a');
+
+/**
+ * Verdicts-section lines for one file's pooled points delta. The DECISION reading is the pre-registered one (Anton, 2026-10-16): every
+ * points entry's rows, deduplicated per cell, `same` entries included. The differing-only pool is disclosure, never the decision.
+ */
+function pooledVerdictLines(label, cmp) {
+  const decided = cmp.entries.filter(e => !e.excluded && e.cellKey != null);
+  const allSame = decided.length > 0 && decided.every(e => e.label === 'same');
+  const out = [`- **Pooled points delta, ${label} — the decision reading** (all points entries' rows, deduplicated per cell, \`same\` included): ${pooledS(cmp.pooled)}.`];
+  if (allSame) out.push(`  - Every decided entry's emitted k is identical, so this pooled delta measures fold-k leakage only (the shipped k was fitted on all seasons), not a basis effect.`);
+  if (cmp.pooledDiffering) {
+    out.push(`  - *Disclosure only — not the decision:* pooling only the cells where an emitted k differs: ${pooledS(cmp.pooledDiffering)}.`);
+    const te = cmp.entries.find(e => e.name === 'K_ROS_POINTS_SHORT' && e.cell === 'TE' && e.delta);
+    if (te) out.push(`  - Caveat: this reading is driven almost entirely by \`K_ROS_POINTS_SHORT.TE\` (shipped ${kStr(te.shipped)} vs league ${kStr(te.league)}, Δ ${f(te.delta.mean, 3)} ${ciS(te.delta.ci95)}, measured on \`${te.cellKey}\` rows) — a study-pin question, not a basis effect; backlog D-73 re-examines it independent of basis.`);
+  }
+  return out;
+}
+
 export function buildLeagueBasisVerdictMarkdown(r) {
   const L = [];
   const g1 = r.g1, g2 = r.g2, g3 = r.g3;
@@ -761,6 +786,8 @@ export function buildLeagueBasisVerdictMarkdown(r) {
   L.push('## Verdicts', '',
     `- **\`${SHIPPED_FILES.twoA.path}\` (2a): \`${g2.verdicts.twoA}\`** — ${g2.twoA.verdict.reason}.`,
     `- **\`${SHIPPED_FILES.dyn.path}\` (dynasty): \`${g2.verdicts.dyn}\`** — decided on the ${g2.dynDeciding} run: ${(g2.dynDeciding === 'league-2a' ? g2.dynLeague2a : g2.dynShipped2a).verdict.reason}.`,
+    ...pooledVerdictLines('2a', g2.twoA.comparison),
+    ...pooledVerdictLines('dynasty (deciding run)', (g2.dynDeciding === 'league-2a' ? g2.dynLeague2a : g2.dynShipped2a).comparison),
     `- **G3:** ${g3.table.anyLabelDiffers ? 'a verdict label differs between bases — the committed `r3fit-exponent-harness.md` verdict does not transport to league basis (Session 1 records a backlog item).' : 'every verdict label is the same under both bases.'}`,
     '- **Exposure (stated, as pre-registered):** with roughly 40 points entries at 95% intervals, one spurious `BEATS` or `WORSE` is expected by chance; the pooled-delta requirement is the guard.', '');
 
@@ -771,13 +798,14 @@ export function buildLeagueBasisVerdictMarkdown(r) {
     L.push(`**${d}** (unrecovered ${cap.unrecovered})`, '', ...tbl(['position', 'rookie rows', 'captured scale', 'match', 'export position diff', 'absent from export'],
       POSITIONS.map(p => { const e = cap.byPosition[p]; return [p, String(e.rows), e.captured.join(', '), String(e.match), String(e.exportPositionDiff), String(e.exportAbsent)]; })), '');
   }
-  L.push(`D3: qualifying (gp >= 10, half-PPR source) pids absent from \`${g1.positionFile}\`: ${g1.absentQualifyingPids}; the rookie-row position diffs between the export and the position recovered from the capture are in the tables above (they touch no qualifying history, so no scale moved). No parity miss was attributable to position, so the players-state overlay fallback was not used.`, '');
+  L.push(`D3: qualifying (gp >= 10, half-PPR source) pids absent from \`${g1.positionFile}\`: ${g1.absentQualifyingPids}; the rookie-row position diffs between the export and the position recovered from the capture are in the tables above (they touch no qualifying history, so no scale moved). ` +
+    (g1.a.pass ? 'No parity miss was attributable to position, so the players-state overlay fallback was not used.' : 'A parity miss occurred (G1a FAIL); see the tables above for its position, values and counts.'), '');
 
   const fieldRows = (c) => Object.entries(c.fields ?? c.byField).map(([n, v]) => [n, `${v.checked}`, `${v.fail}`]);
   L.push(`### G1b — rookie rows on ${g1.b.capture} (${g1.b.league.rows} rows; ${g1.b.league.chainExcluded} \`chain\` rows excluded from level/total)`, '',
     '**Under `league` (captured scale):**', '', ...tbl(['field', 'checked', 'mismatches'], fieldRows(g1.b.league)), '',
     '**Under `half_ppr` (scale 1) — the "before":**', '', ...tbl(['field', 'checked', 'mismatches'], fieldRows(g1.b.half_ppr)), '',
-    `Capture consistency of the ceiling input to the literal 3 dp: ${g1.b.league.capturedCeilingInputConsistent}/${g1.b.league.rows}. **Deviation from the plan, stated:** the plan's literal "equals … at 3 dp" cannot hold — the captured \`rookieMultiplierProduct\` is rounded to 2 dp on 68 rows and 3 dp on 242, so a first G1 run with the literal check missed on \`ceilingInput\` only (185 of 310 rows, every other field exact; the cause is capture rounding, not position, so D3's overlay fallback does not apply). The check was re-defined as the product's rounding bound (half a unit at 2 dp × baseline × calibration, plus the 3-dp capture of the input): 0 rows outside it under \`league\`, all 310 outside it under \`half_ppr\`.`, '');
+    `Capture consistency of the ceiling input to the literal 3 dp: ${g1.b.league.capturedCeilingInputConsistent}/${g1.b.league.rows}. **Deviation from the plan, stated:** the plan's literal "equals … at 3 dp" cannot hold — the captured \`rookieMultiplierProduct\` is rounded to 2 dp on ${g1.b.league.productDp2 ?? '—'} rows and 3 dp on ${g1.b.league.productDp3 ?? '—'}, so a literal check misses on \`ceilingInput\` only (${g1.b.league.rows - g1.b.league.capturedCeilingInputConsistent} of ${g1.b.league.rows} rows; the cause is capture rounding, not position, so D3's overlay fallback does not apply). The check is the product's rounding bound (half a unit at 2 dp × baseline × calibration, plus the 3-dp capture of the input): ${g1.b.league.fields.ceilingInput.fail} rows outside it under \`league\`, ${g1.b.half_ppr.fields.ceilingInput.fail} of ${g1.b.half_ppr.fields.ceilingInput.checked} outside it under \`half_ppr\`.`, '');
   L.push('### G1c — the boundary (rows checked under legacy rookie-QB / rookie-total models)', '');
   for (const [d, cap] of Object.entries(g1.c.captures)) {
     L.push(`**${d}** (${cap.side}-switch, envelope model \`${cap.model.model}\`)`, '',

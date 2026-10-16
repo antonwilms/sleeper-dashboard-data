@@ -18,6 +18,11 @@ Per constants file, on **emitted** `k` (never `pinK(kFit)`): for each pinned poi
 
 - **`backtests/2026-10-07-inseason-constants.json` (2a): `do-not-wire`** — BEATS K_ROS_POINTS_SHORT.TE; no WORSE entry; pooled points delta NO-GAIN.
 - **`backtests/2026-10-11-inseason-dyn-constants.json` (dynasty): `do-not-wire`** — decided on the shipped-2a run: no BEATS entry; no WORSE entry; pooled points delta WORSE.
+- **Pooled points delta, 2a — the decision reading** (all points entries' rows, deduplicated per cell, `same` included): 21 cells, 147351 rows, 1720 players, mean -0.0002 [-0.003, 0.003] → **NO-GAIN**.
+  - *Disclosure only — not the decision:* pooling only the cells where an emitted k differs: mean -0.0109 [-0.019, -0.003] → **BEATS**.
+  - Caveat: this reading is driven almost entirely by `K_ROS_POINTS_SHORT.TE` (shipped 4 (study) vs league 1.5 (pooled), Δ -0.141 [-0.225, -0.062], measured on `q4|X-short|ros|ALL` rows) — a study-pin question, not a basis effect; backlog D-73 re-examines it independent of basis.
+- **Pooled points delta, dynasty (deciding run) — the decision reading** (all points entries' rows, deduplicated per cell, `same` included): 1 cells, 7583 rows, 684 players, mean 0.0120 [0.007, 0.017] → **WORSE**.
+  - Every decided entry's emitted k is identical, so this pooled delta measures fold-k leakage only (the shipped k was fitted on all seasons), not a basis effect.
 - **G3:** a verdict label differs between bases — the committed `r3fit-exponent-harness.md` verdict does not transport to league basis (Session 1 records a backlog item).
 - **Exposure (stated, as pre-registered):** with roughly 40 points entries at 95% intervals, one spurious `BEATS` or `WORSE` is expected by chance; the pooled-delta requirement is the guard.
 
@@ -80,7 +85,7 @@ D3: qualifying (gp >= 10, half-PPR source) pids absent from `raw/-players-nfl.js
 | totalFactor | 264 | 0 |
 | total | 264 | 24 |
 
-Capture consistency of the ceiling input to the literal 3 dp: 125/310. **Deviation from the plan, stated:** the plan's literal "equals … at 3 dp" cannot hold — the captured `rookieMultiplierProduct` is rounded to 2 dp on 68 rows and 3 dp on 242, so a first G1 run with the literal check missed on `ceilingInput` only (185 of 310 rows, every other field exact; the cause is capture rounding, not position, so D3's overlay fallback does not apply). The check was re-defined as the product's rounding bound (half a unit at 2 dp × baseline × calibration, plus the 3-dp capture of the input): 0 rows outside it under `league`, all 310 outside it under `half_ppr`.
+Capture consistency of the ceiling input to the literal 3 dp: 125/310. **Deviation from the plan, stated:** the plan's literal "equals … at 3 dp" cannot hold — the captured `rookieMultiplierProduct` is rounded to 2 dp on 68 rows and 3 dp on 242, so a literal check misses on `ceilingInput` only (185 of 310 rows; the cause is capture rounding, not position, so D3's overlay fallback does not apply). The check is the product's rounding bound (half a unit at 2 dp × baseline × calibration, plus the 3-dp capture of the input): 0 rows outside it under `league`, 310 of 310 outside it under `half_ppr`.
 
 ### G1c — the boundary (rows checked under legacy rookie-QB / rookie-total models)
 

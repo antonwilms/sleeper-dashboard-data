@@ -864,7 +864,7 @@ function runQbSatLonger({ g, env, playerIds, constants2a, obsBy, rolesBySeason }
         flaggedAtEnd = satLonger;
       }
       playerRows.push({
-        sleeperId: q.pid, S, flaggedEver, flaggedAtEnd, prior, y1, y2, priorY2: rookiePriorFor(q.pid, 'QB', S + 1, playerIds, basisScaleOf(g, S + 1, 'QB')),   // a season S+1 prior takes S+1's as-of scale
+        sleeperId: q.pid, S, flaggedEver, flaggedAtEnd, prior, y1, y2, priorY2: priorY2At(q.pid, S, playerIds, g),
         startShareY1: games1 && maxTeamGames1 > 0 ? (games1.get(q.pid) ?? 0) / maxTeamGames1 : null,
       });
     }
@@ -876,6 +876,16 @@ function runQbSatLonger({ g, env, playerIds, constants2a, obsBy, rolesBySeason }
     populations: { ...agg.populations, roleCounts, flaggedWithY1, flaggedCheckpointRowsWithY1: agg.q5a.rows, flaggedAtEndWithY2: agg.q5b.players },
     q5a: agg.q5a, q5b: agg.q5b, q5c: agg.q5c,
   };
+}
+
+/** A season S+1 QB prior takes S+1's as-of scale (D-46); scale 1 on a `half_ppr` load. */
+export function priorY2At(pid, S, playerIds, g) {
+  return rookiePriorFor(pid, 'QB', S + 1, playerIds, basisScaleOf(g, S + 1, 'QB'));
+}
+
+/** The Q4 GS arm's rookie starter level for a row (`{ group, S }`): the group's level × the as-of scale for the row's season (D-46). */
+export function rookieQbLevelAt(levels, r, g) {
+  return levels[r.group] == null ? levels[r.group] : levels[r.group] * basisScaleOf(g, r.S, 'QB');
 }
 
 /**
@@ -895,7 +905,7 @@ function runQbRookieDynasty({ g, playerIds, constants2a, q1Rows, allRows, rolesB
   for (const [gr, v] of Object.entries(levels)) if (!Number.isFinite(v)) throw new Error(`[inseason-dyn] Q4: starterPPG.${gr}.value is absent from the rookie-level constants file`);
   // D-46: the Q4 GS arm's rookie starter level is × the as-of scale for the row's season under `league`, as the app's
   // resolveRookieQbStarterLevel does (a half_ppr load has no `basisScaleAsOf`, so the scale is 1 and the level unchanged).
-  const levelOf = (r) => (levels[r.group] == null ? levels[r.group] : levels[r.group] * basisScaleOf(g, r.S, 'QB'));
+  const levelOf = (r) => rookieQbLevelAt(levels, r, g);
   const k = constants2a?.constants?.K_DYN_POINTS_ROOKIE0?.QB?.k;
   if (!Number.isFinite(k)) throw new Error('[inseason-dyn] Q4: K_DYN_POINTS_ROOKIE0.QB is absent from the loaded 2a constants file');
 

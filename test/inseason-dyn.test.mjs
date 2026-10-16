@@ -1128,7 +1128,7 @@ describe('20d: d56aMarkdown — insufficient label', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { leagueBasisLoad, basisScaleOf } from '../lib/leagueBasis.mjs';
-import { dyn2aPinOf, assertQ4bNoDrift } from '../scripts/inseason-dyn-run.mjs';
+import { dyn2aPinOf, assertQ4bNoDrift, priorY2At, rookieQbLevelAt } from '../scripts/inseason-dyn-run.mjs';
 import { rookiePriorFor } from '../scripts/inseason-run.mjs';
 
 describe('D-46: prospect prior × basisScale; DYN_2A_PIN keyed by basis', () => {
@@ -1169,5 +1169,23 @@ describe('D-46: prospect prior × basisScale; DYN_2A_PIN keyed by basis', () => 
     assert.throws(() => assertQ4bNoDrift([{ sleeperId: 'q1', S: 2020, projPrior: rookiePriorFor('q1', 'QB', 2020, playerIds) }], playerIds, g), /Q4b prior drift/);
     // a half_ppr load (no basisScaleAsOf) compares at scale 1 on both sides
     assert.doesNotThrow(() => assertQ4bNoDrift([{ sleeperId: 'q1', S: 2020, projPrior: rookiePriorFor('q1', 'QB', 2020, playerIds) }], playerIds, { loadSeasonTotals: () => null }));
+  });
+
+  test('Q4 GS level × the as-of scale of the row\'s season, and the S+1 prior on S+1\'s scale (a two-season wrapped load)', () => {
+    const playerIds = { bySleeper: { q1: { draftYear: 2021, draftRound: 1, draftPick: 3, birthdate: '1998-06-01' } } };
+    // 2012-2019: 240 rows at ratio 1.2; 2020: 300 rows at ratio 1.8 → as-of 2020 median 1.2, as-of 2021 median 1.8
+    const rows = (n, rec) => Object.fromEntries(Array.from({ length: n }, (_, i) => [`p${i}`, { fantasyPoints: 100, gamesPlayed: 12, scoringBasis: 'half_ppr', stats: { rec } }]));
+    const g = leagueBasisLoad({ loadSeasonTotals: (y) => (y >= 2012 && y <= 2019 ? rows(30, 100) : y === 2020 ? rows(300, 150) : null) }, { scoringSettings: { rec: 1.2 }, positionOf: () => 'QB' });
+    assert.equal(basisScaleOf(g, 2020, 'QB'), 1.2);
+    assert.equal(basisScaleOf(g, 2021, 'QB'), 1.8);
+    const levels = { A: 10 };
+    assert.ok(Math.abs(rookieQbLevelAt(levels, { group: 'A', S: 2020 }, g) - 12) < 1e-9);
+    assert.ok(Math.abs(rookieQbLevelAt(levels, { group: 'A', S: 2021 }, g) - 18) < 1e-9);
+    assert.equal(rookieQbLevelAt(levels, { group: 'B', S: 2020 }, g), undefined, 'a group without a level stays absent');
+    assert.equal(rookieQbLevelAt(levels, { group: 'A', S: 2020 }, { loadSeasonTotals: () => null }), 10, 'a half_ppr load keeps the level unchanged');
+    // priorY2 for a season-2020 player is the S+1 = 2021 prior at scale 1.8, not the S = 2020 scale
+    assert.equal(priorY2At('q1', 2020, playerIds, g), rookiePriorFor('q1', 'QB', 2021, playerIds, 1.8));
+    assert.notEqual(priorY2At('q1', 2020, playerIds, g), rookiePriorFor('q1', 'QB', 2021, playerIds, 1.2));
+    assert.equal(priorY2At('q1', 2020, playerIds, { loadSeasonTotals: () => null }), rookiePriorFor('q1', 'QB', 2021, playerIds));
   });
 });

@@ -5,6 +5,7 @@
  */
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
@@ -73,6 +74,30 @@ describe('compareConstantsFiles / decideFile', () => {
     assert.equal(s.label, 'same');
     assert.equal(s.same, true);
     assert.ok(s.delta, 'delta is still reported (the league fold k vs the shipped k)');
+  });
+
+  test('pooled: the synthetic BEATS cell pools its own rows (label, rows, cells); a cell shared by two entries counts once; `same` entries stay in', () => {
+    const cmp = compareConstantsFiles({ shipped: { constants: { K_ROS_POINTS: { WR: ENTRY(6) } } }, league: { constants: { K_ROS_POINTS: { WR: ENTRY(0, 'observed-only') } } }, cellOf });
+    assert.equal(cmp.pooled.label, 'BEATS');
+    assert.equal(cmp.pooled.rows, rows.length);
+    assert.equal(cmp.pooled.cells, 1);
+    assert.equal(cmp.pooledDiffering.rows, rows.length, 'the only cell has a differing entry');
+
+    // two entries on ONE cell (same shipped k): rows counted once, not twice; plus a second cell whose only entry is `same`
+    const rbRows = cellRows({ outcome: 14 }).map(r => ({ ...r, sleeperId: `rb${r.sleeperId}` }));
+    const store2 = new Map([['pointsP_ros|WR', fakeCell(rows)], ['pointsP_ros|RB', fakeCell(rbRows)]]);
+    const pinned2 = { 'K_ROS_POINTS|WR': 'pointsP_ros|WR', 'K_ROS_POINTS_B|WR': 'pointsP_ros|WR', 'K_ROS_POINTS|RB': 'pointsP_ros|RB' };
+    const cellOf2 = twoACellResolver({ store: store2, pinnedFrom: pinned2 });
+    const c2 = compareConstantsFiles({
+      shipped: { constants: { K_ROS_POINTS: { WR: ENTRY(6), RB: ENTRY(6) }, K_ROS_POINTS_B: { WR: ENTRY(6) } } },
+      league: { constants: { K_ROS_POINTS: { WR: ENTRY(0, 'observed-only'), RB: ENTRY(6) }, K_ROS_POINTS_B: { WR: ENTRY(0, 'observed-only') } } },
+      cellOf: cellOf2,
+    });
+    assert.equal(c2.entries.find(e => e.name === 'K_ROS_POINTS' && e.cell === 'RB').label, 'same');
+    assert.equal(c2.pooled.cells, 2, 'WR cell (shared by two entries) once + the RB cell');
+    assert.equal(c2.pooled.rows, rows.length + rbRows.length, 'the shared cell is deduplicated, the `same` entry\'s rows are included');
+    assert.equal(c2.pooledDiffering.cells, 1, 'differing-only drops the cell whose only entry is `same`');
+    assert.equal(c2.pooledDiffering.rows, rows.length);
   });
 
   test('entries missing on one side, a null shipped k, and cells with no analysis are labelled, not decided', () => {
@@ -225,9 +250,42 @@ describe('CLI guards (bin/backtest.mjs, bin/panel.mjs) fail before any run', () 
 });
 
 describe('verdict markdown', () => {
-  test('buildLeagueBasisVerdictMarkdown opens with the rule before any result section', () => {
-    const md = DECISION_RULE_MD;
+  // The committed panel JSON is a result of the right shape; the 2a comparison is swapped for a synthetic one.
+  const base = JSON.parse(fs.readFileSync(new URL('../backtests/2026-10-16-league-basis-panel.json', import.meta.url), 'utf8'));
+  const withPooled = (pooled, pooledDiffering) => {
+    const r = JSON.parse(JSON.stringify(base));
+    r.g2.twoA.comparison.pooled = pooled;
+    r.g2.twoA.comparison.pooledDiffering = pooledDiffering;
+    return r;
+  };
+  const P = (label, mean) => ({ cells: 21, rows: 1000, players: 100, mean, ci95: [mean - 0.01, mean + 0.01], label });
+
+  test('the rule precedes the Verdicts section, which states both pooled readings and the TE caveat', () => {
+    const md = buildLeagueBasisVerdictMarkdown({ ...withPooled(P('NO-GAIN', -0.0002), P('BEATS', -0.0109)), decisionRule: DECISION_RULE_MD });
     assert.ok(md.indexOf('Pre-registered decision rule') >= 0);
-    assert.equal(typeof buildLeagueBasisVerdictMarkdown, 'function');
+    assert.ok(md.indexOf('Pre-registered decision rule') < md.indexOf('## Verdicts'));
+    const v = md.slice(md.indexOf('## Verdicts'), md.indexOf('## G1'));
+    assert.match(v, /the decision reading\*\* \(all points entries' rows, deduplicated per cell, `same` included\).*NO-GAIN/);
+    assert.match(v, /Disclosure only — not the decision.*BEATS/);
+    assert.match(v, /K_ROS_POINTS_SHORT\.TE.*D-73/);
+  });
+  test('no differing-only pool → no disclosure line; an all-`same` decided set says the pooled delta is fold-k leakage only', () => {
+    const r = withPooled(P('NO-GAIN', 0), null);
+    const md = buildLeagueBasisVerdictMarkdown({ ...r, decisionRule: DECISION_RULE_MD });
+    const v = md.slice(md.indexOf('## Verdicts'), md.indexOf('## G1'));
+    assert.ok(!v.includes('Disclosure only'));
+    // the dynasty deciding run in the committed result has a single `same` decided entry
+    assert.match(v, /fold-k leakage only/);
+  });
+  test('G1b counts come from the result, not literals', () => {
+    const r = withPooled(P('NO-GAIN', 0), null);
+    r.g1.b.league.rows = 400; r.g1.b.league.capturedCeilingInputConsistent = 100; r.g1.b.league.productDp2 = 11; r.g1.b.league.productDp3 = 389;
+    r.g1.b.league.fields.ceilingInput.fail = 7;
+    const md = buildLeagueBasisVerdictMarkdown({ ...r, decisionRule: DECISION_RULE_MD });
+    assert.match(md, /2 dp on 11 rows and 3 dp on 389/);
+    assert.match(md, /\(300 of 400 rows;/);
+    assert.match(md, /7 rows outside it under `league`/);
+    r.g1.a.pass = false;
+    assert.match(buildLeagueBasisVerdictMarkdown({ ...r, decisionRule: DECISION_RULE_MD }), /G1a FAIL/);
   });
 });
