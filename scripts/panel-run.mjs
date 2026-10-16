@@ -10,7 +10,7 @@
  *   DEFAULT_SCORING_SNAPSHOT, DEFAULT_LOAD
  *   resolveScoring({ basis, scoringFrom, load })              → { scoringSettings|null, basisMeta }
  *   buildOutcomeMaps(years, scoring, load)                    → { [year]: { outcomes, droppedTerms, excludedRateKeys, scoredKeyCount } | null }
- *   loadFactorInputs({ fromYear, toYear, basis, scoringFrom, load, withFactorMultipliers, historyFloor }) → { years, scoring, basisMeta, outcomeMapsByYear, inputsByYear, crosswalk, birthdateBySleeper, snapsByYear }
+ *   loadFactorInputs({ fromYear, toYear, basis, scoringFrom, load, withFactorMultipliers, historyFloor }) → { years, scoring, basisMeta, outcomeMapsByYear, inputsByYear, crosswalk, birthdateBySleeper, snapsByYear, load }   (load: the effective loader — wrapped under basis `league`)
  *   buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel, depthModel, load }) → attachFactorMultipliers ctx
  *   assemblePanel({ fromYear, toYear, attribution, basis, scoringFrom, minOutcomeGames, load }) → { rows, coverage, meta }
  *   runBaseline(panel, opts)                                  → { [position]: EvaluateModelResult }
@@ -24,6 +24,7 @@ import fs from 'fs';
 import path from 'path';
 import { readJson, writeJsonStable, repoPath } from '../lib/io.mjs';
 import { buildInBasisOutcomes, buildHalfPprOutcomes } from './grade-snapshot.mjs';
+import { leagueBasisLoad, loadLeaguePositions } from '../lib/leagueBasis.mjs';
 import { REGRESSION_MODELS, CURRENT_REGRESSION_MODEL, DEPTH_MODELS, CURRENT_DEPTH_MODEL } from '../lib/projectionFactors.mjs';
 import {
   PANEL_DEFAULTS,
@@ -74,11 +75,17 @@ import {
 
 export const DEFAULT_SCORING_SNAPSHOT = '2026-07-05';
 
+// D-46 (plan D2): the one pinned league `scoringSettings` for basis `league` — D-47's copy of the league's settings.
+export const LEAGUE_SCORING_FIXTURE = 'test/fixtures/league-scoring-2026-10-14.json';
+
 export const DEFAULT_LOAD = {
   loadSeasonTotals: (year) => readJson(`nfl/season-totals/${year}.json`),
   loadAdvstats:     (year) => readJson(`nflverse/advstats/${year}.json`),
   loadRoster:       (year) => readJson(`nflverse/roster/${year}.json`),
   loadSnapshot:     (date) => readJson(`snapshots/${date}.json`),
+  // D-46 — basis `league`: the pinned scoring fixture (D2) and the position source for the rescore (D3).
+  loadLeagueScoring: () => readJson(LEAGUE_SCORING_FIXTURE),
+  loadLeaguePositionOf: () => loadLeaguePositions(),
   // R1-SNAPS landed (D6a, finding 3): re-pointed at nflverse/snaps/<year>.json
   // (D4), which supplies offSnaps/teamOffSnaps 2013-2025 — a cross-validated
   // (r>=0.998/position) stand-in for season-totals' own off_snp/tm_off_snp,
@@ -123,6 +130,11 @@ export function resolveScoring({ basis = 'in-basis', scoringFrom = DEFAULT_SCORI
   if (basis === 'half_ppr') {
     return { scoringSettings: null, basisMeta: { type: 'half_ppr', scoringSource: null } };
   }
+  if (basis === 'league') {
+    const scoringSettings = load.loadLeagueScoring?.() ?? null;
+    if (!scoringSettings) throw new Error(`[panel] ${LEAGUE_SCORING_FIXTURE} not found — cannot resolve league scoring`);
+    return { scoringSettings, basisMeta: { type: 'league', scoringSource: LEAGUE_SCORING_FIXTURE } };
+  }
   const snapshot = load.loadSnapshot(scoringFrom);
   if (!snapshot || !snapshot.scoringSettings) {
     throw new Error(`[panel] snapshot ${scoringFrom} not found or missing scoringSettings — cannot resolve in-basis scoring (use --basis half_ppr to bypass)`);
@@ -164,7 +176,13 @@ export function loadFactorInputs({
   historyFloor = null,
 }) {
   const { scoringSettings, basisMeta } = resolveScoring({ basis, scoringFrom, load });
-  const scoring = basis === 'half_ppr' ? { basis: 'half_ppr' } : { basis: 'in-basis', scoringSettings };
+  // D-46: `league` reads the rescored rows (leagueBasisLoad wraps BEFORE any read; an already-wrapped load is
+  // returned unchanged) and builds outcomes with the half-PPR outcome builder — which now reads league points.
+  // It is deliberately not routed through buildInBasisOutcomes (no first-down derivation for 2012-2021).
+  if (basis === 'league') {
+    load = leagueBasisLoad(load, { scoringSettings, positionOf: (load.loadLeaguePositionOf ?? loadLeaguePositions)() });
+  }
+  const scoring = basis === 'half_ppr' || basis === 'league' ? { basis: 'half_ppr' } : { basis: 'in-basis', scoringSettings };
 
   // R3-FIT (§3.3): under withFactorMultipliers, load season-totals/outcomes
   // down to historyFloor so multi-season factors (basePPG/momentum/regression/
@@ -216,7 +234,7 @@ export function loadFactorInputs({
     for (const y of years) snapsByYear[y] = load.loadSnapShare(y) ?? null;
   }
 
-  return { years, scoring, basisMeta, outcomeMapsByYear, inputsByYear, crosswalk, birthdateBySleeper, snapsByYear };
+  return { years, scoring, basisMeta, outcomeMapsByYear, inputsByYear, crosswalk, birthdateBySleeper, snapsByYear, load };
 }
 
 // Extracted from assemblePanel (§2.1): the attachFactorMultipliers ctx. Returns
@@ -283,7 +301,7 @@ export function assemblePanel({
   let finalCoverage = coverage;
 
   if (withFactorMultipliers) {
-    const ctx = buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel, depthModel, load });
+    const ctx = buildFactorContext(inputs, { attribution, fromYear, toYear, regressionModel, depthModel, load: inputs.load });
     const { rows: fitRows, fitCoverage } = attachFactorMultipliers(rows, ctx);
     finalRows = fitRows;
     finalCoverage = { ...coverage, fitCoverage };
