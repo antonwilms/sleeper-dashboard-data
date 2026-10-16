@@ -1330,11 +1330,11 @@ rejects every other flag — the windows and basis are pinned; `--dynasty` requi
 `--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--games-calibration [--cause | --short]` (takes only `--cause`/`--short`/`--json`/`--write`; `--cause` or `--short` alone is rejected; `--cause` and `--short` are mutually exclusive).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
-`--basis in-basis|half_ppr`, `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
+`--basis in-basis|half_ppr|league` (`league` is `--fit` only, report-only), `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
 `--flip-gate`, `--fit`, `--alpha X`, `--json`, `--write`, `--fullpipeline`, `--rookie`,
 `--regression-model legacy|step4-upside` (with `--fit`/`--fullpipeline` only; default
 `step4-upside`). `--fit` defaults `--basis` to
-`half_ppr` (the app's own basis for store-served `careerStats`) while every other mode keeps
+`half_ppr` (the pre-switch basis of store-served `careerStats`) while every other mode keeps
 `in-basis`, and it **rejects an explicit `--attribution`** because it pins `per-season-team` —
 the app's live default, load-bearing for the reconstruction.
 
@@ -2005,7 +2005,7 @@ Offline analysis extending the E-0a panel harness with a log-space exponent fit 
 - **Structural QB sentinels** (`shareTrend`, `snapShare`, `teamRzShare`) — the app itself neutralizes these for QB (no share series, `SNAP_POSITIONS` gate, no `RZ_SHARE_CONFIG.QB` entry), so their absence from QB's product set is fidelity, not reduction.
 - **HELD-IN-ARM** (QB `rzUsageFactor`) — the app applies this to QB unposition-gated; it is reconstructed and carried in **both** QB arms at `wᵢ = 1`, never a fit candidate. QB's product set is therefore length 4, not 3.
 
-**Basis: half-PPR, not the E-0a/flip default.** The app's projection ppg series reads store-served `careerStats[s][pid].fantasyPoints` verbatim, and this repo writes that field as half-PPR — so `--fit` pins `--basis half_ppr` (exact parity by construction, no scoring snapshot read), while every other panel mode keeps `in-basis`. History loads to a `2012` floor (the app's own `loadCareerHistory` floor) instead of the stock `[fromYear-2..]` window, so multi-season factors (`basePPG`/momentum/regression/trajectory/shareTrend) see the app's real qualifying history.
+**Basis: half-PPR, not the E-0a/flip default.** The app's projection ppg series reads store-served `careerStats[s][pid].fantasyPoints` verbatim, and this repo writes that field as half-PPR — so `--fit` defaults `--basis` to `half_ppr` (exact parity with captures before 2026-09-25, no scoring snapshot read), while every other panel mode keeps `in-basis`. `--basis league` (D-46) runs the same fit on rows rescored as the app's `rescoreSeasonTotals` does — report-only, no exponent is activated. History loads to a `2012` floor (the app's own `loadCareerHistory` floor) instead of the stock `[fromYear-2..]` window, so multi-season factors (`basePPG`/momentum/regression/trajectory/shareTrend) see the app's real qualifying history.
 
 **The model form — RMS-scaled ridge toward `w=1`.** Per position, `y(r) = log(outcomePPG) − log(anchorBasePPG) − Σ log fᵢ(r)` (the hand-stack log-residual, no intercept). Raw regressors `x_i = log fᵢ` are rescaled per fold, train-rows-only, by an uncentered RMS scale `s_i` before ridge fitting with `ridgeLambda = α·nTrain` — this is what makes the dimensionless shrinkage knob `α` scale- and `n`-independent, so a `shareTrend` column (large log-variance) and a `teamRzShare` column (small) shrink by the *same fraction* `1/(1+α)`, not by wildly different amounts under one raw-column λ. That uniformity holds exactly only under column orthogonality — the fitted factors are correlated (the usage trio; momentum/trajectory), so real shrinkage is slightly non-uniform, a second-order and unavoidable effect. Map back `δ_i = β_i/s_i`, `w_i = 1 + δ_i`; ridge toward `β=0` is ridge toward `w=1` — "empirically dead" vs "hand-tuned was right."
 
@@ -2175,6 +2175,14 @@ diff excludes (its 2026-09-27 baseline predates the name). `lib/rookieCapturedLe
 capture's rookie level from its own factors; its neutral `dynastyPrior` (the ceiled level, never the QB chain)
 is the app's dynasty-side rookie prior, so no snapshot field carries it. It imports only
 `lib/projectionFactors.mjs`, so the grader can reach it (`test/rookie-captured-level.test.mjs`).
+
+### League-basis graded before/after (`bin/backtest.mjs --league-basis`)
+
+D-46 (`.claude/tasks/league-basis-mirror.md`). Since the app's season rescore (live from the 2026-09-25 capture) every season-totals row is rescored at load under the league's `scoringSettings` and `positionBasisScale` multiplies the rookie constants, while the served rows stay half-PPR. `lib/leagueBasis.mjs` is the data-side mirror: a scoring-basis **model** `league` beside the pinned `half_ppr` (never an overwrite — CR-15). `rescoreSeasonRowsLeague` ports `rescoreSeasonTotals`; `reconstructPositionBasisScale` ports the as-of scale; `leagueBasisLoad` wraps a loader so every reader of `fantasyPoints`/`weeklyPoints` moves with no edit to fit code. Scoring settings are the pinned `test/fixtures/league-scoring-2026-10-14.json`; positions come from `raw/-players-nfl.json`. `lib/rookieMirror.mjs` and the prospect prior take `basisScale` (default 1, byte-identical).
+
+`--inseason [--dynasty] --basis half_ppr|league` picks the model (default `half_ppr`, which reproduces every committed constants file); `--inseason --dynasty --basis league` requires `--inseason-2a <path>`, the paired 2a constants file. A league constants file adds one top-level `basisDetail` key. `--fit` accepts `--basis league` (report-only). Every other mode still rejects `--basis`.
+
+`--league-basis [--json] [--write]` is a hand-run (several minutes, never a test): **G1** mirror fidelity against the 2026-09-24/09-25/10-14 captures (a gate; T-RM16 and T-F10L pin its rookie and veteran rows on committed slim fixtures), **G2** the k re-fit (emitted `k` of the league files vs the shipped 2026-10-07 / 2026-10-11 files, a pre-registered `wire`/`do-not-wire` rule with a pooled-delta guard), **G3** R3-FIT transport. `--write` persists `backtests/<date>-league-basis-panel.json` and `grading/<date>-league-basis-verdict.md`. The 2026-10-16 run: G1 PASS; both constants files `do-not-wire` (the pooled points delta for 2a is NO-GAIN), so no k moved; G3 found one label that differs under league basis (QB `sensitivityVerdict`). `grading/anchor-policy.md` boundary 4a records the switch.
 
 ### QB takeover fit (`bin/backtest.mjs --qb-takeover`)
 
