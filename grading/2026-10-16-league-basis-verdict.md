@@ -1,6 +1,6 @@
 # D-46 — league-basis mirror: graded before/after (verdict)
 
-Generated 2026-10-16T08:51:09.053Z (data `af36667`+local). Scoring settings: `test/fixtures/league-scoring-2026-10-14.json`; positions: `raw/-players-nfl.json`. `node bin/backtest.mjs --league-basis --write`.
+Generated 2026-10-16T08:51:09.053Z (data `cb27d88`, the pushed commit holding the run's code). Scoring settings: `test/fixtures/league-scoring-2026-10-14.json`; positions: `raw/-players-nfl.json`. `node bin/backtest.mjs --league-basis --write`.
 
 ## Pre-registered decision rule (written before any G2 result was read)
 
@@ -19,7 +19,7 @@ Per constants file, on **emitted** `k` (never `pinK(kFit)`): for each pinned poi
 - **`backtests/2026-10-07-inseason-constants.json` (2a): `do-not-wire`** — BEATS K_ROS_POINTS_SHORT.TE; no WORSE entry; pooled points delta NO-GAIN.
 - **`backtests/2026-10-11-inseason-dyn-constants.json` (dynasty): `do-not-wire`** — decided on the shipped-2a run: no BEATS entry; no WORSE entry; pooled points delta WORSE.
 - **Pooled points delta, 2a — the decision reading** (all points entries' rows, deduplicated per cell, `same` included): 21 cells, 147351 rows, 1720 players, mean -0.0002 [-0.003, 0.003] → **NO-GAIN**.
-  - *Disclosure only — not the decision:* pooling only the cells where an emitted k differs: mean -0.0109 [-0.019, -0.003] → **BEATS**.
+  - *Disclosure only — not the decision:* pooling only the cells where an emitted k differs: mean -0.0109 [-0.019, -0.003] → **BEATS** (taken from the Stage A run record in `.claude/tasks/league-basis-mirror.md` → "Stage A verification"; not recomputed from the panel JSON, which does not hold it).
   - Caveat: this reading is driven almost entirely by `K_ROS_POINTS_SHORT.TE` (shipped 4 (study) vs league 1.5 (pooled), Δ -0.141 [-0.225, -0.062], measured on `q4|X-short|ros|ALL` rows) — a study-pin question, not a basis effect; backlog D-73 re-examines it independent of basis.
 - **Pooled points delta, dynasty (deciding run) — the decision reading** (all points entries' rows, deduplicated per cell, `same` included): 1 cells, 7583 rows, 684 players, mean 0.0120 [0.007, 0.017] → **WORSE**.
   - Every decided entry's emitted k is identical, so this pooled delta measures fold-k leakage only (the shipped k was fitted on all seasons), not a basis effect.
