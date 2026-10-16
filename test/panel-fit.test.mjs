@@ -1460,7 +1460,9 @@ describe('T-F19: non-positive-ppg guard', () => {
 // Basis: career-seasons.json's ppg fields are fp/gp on the store-served
 // half-PPR fantasyPoints (lib/sleeper.mjs:212/240-243) — the same field and
 // arithmetic the app reads verbatim (sleeperStats.js:145-159), so the basis
-// matches by construction (§3.0-C3); no scoring snapshot is read here.
+// matches by construction (§3.0-C3) — true for captures before 2026-09-25
+// (anchor-policy boundary 4a: since then the app rescores season rows at load;
+// T-F10L below is the league-basis counterpart). No scoring snapshot is read here.
 //
 // Why season 2025: the snapshot's `currentSeason: 2025` is "last season in
 // careerStats" (projectionSnapshot.js:149,176-177), so the app's own
@@ -3293,5 +3295,70 @@ describe('rookie-outcome-panels §6 test 14 — computeSeasonPoints\' widening i
     assert.equal(missingYear.ppg, null);
     assert.equal(missingYear.gamesPlayed, 0);
     assert.equal(missingYear.totalPts, 0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-F10L — veteran basePPG parity under the `league` basis (D-46, G1d)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// The league-basis counterpart of T-F10: snapshots/2026-10-14.json's 436 veteran candidates (pipelinePPG present, momentumLabel
+// defined), whose basePPG the app computes from season rows it rescored at load. The fixture's career seasons carry league
+// `fantasyPoints` from `rescoreSeasonRowsLeague` beside the served half-PPR `sourceFantasyPoints`, so the same rows are scored under
+// both bases. Reads ONLY the committed fixture under test/fixtures/r3fit-parity-2025/league-2026-10-14/ (Invariant 10 — never
+// snapshots/). Regenerate with `node scripts/fixtures/build-league-basis-fixtures.mjs` (see its header). `isTdReliant` has no data-side
+// mirror; `consistencyScore` / `outlierRatio` are reported as match rates, not asserted.
+import { veteranBasePPG } from '../scripts/league-basis-run.mjs';
+
+describe('T-F10L: veteran basePPG parity under the league basis (D-46 G1d)', () => {
+  const DIR = path.join(REPO_ROOT, 'test/fixtures/r3fit-parity-2025/league-2026-10-14');
+  const FILES = ['career-seasons.json', 'snapshot-2026-10-14.slim.json'];
+
+  test('fixture presence is asserted explicitly, not skipped', () => {
+    for (const f of FILES) assert.ok(fs.existsSync(path.join(DIR, f)), `required T-F10L parity fixture missing: ${f}`);
+  });
+
+  test('basePPG is exact at 1 dp on every one of the 436 veteran candidates under league rows; the same rows under half-PPR fail 425', (t) => {
+    const career = JSON.parse(fs.readFileSync(path.join(DIR, 'career-seasons.json'), 'utf8'));
+    const snapshot = JSON.parse(fs.readFileSync(path.join(DIR, 'snapshot-2026-10-14.slim.json'), 'utf8'));
+    assert.equal(snapshot.projectionBasis, 'league');
+    const pids = Object.keys(snapshot.players);
+    assert.equal(pids.length, 436, 'pinned: veteran candidates of the 2026-10-14 capture');
+
+    const leagueOf = (pid) => Object.fromEntries(Object.entries(career[pid]).map(([y, r]) => [y, { gamesPlayed: r.gamesPlayed, fantasyPoints: r.fantasyPoints }]));
+    const halfOf = (pid) => Object.fromEntries(Object.entries(career[pid]).map(([y, r]) => [y, { gamesPlayed: r.gamesPlayed, fantasyPoints: r.sourceFantasyPoints }]));
+    let leagueMatch = 0, halfMatch = 0, noQualifying = 0;
+    const leagueMisses = [];
+    for (const pid of pids) {
+      const captured = snapshot.players[pid].projection.factors.basePPG;
+      const l = veteranBasePPG(leagueOf(pid)), h = veteranBasePPG(halfOf(pid));
+      if (l.basePPG == null) { noQualifying++; continue; }
+      if (l.basePPG === captured) leagueMatch++; else leagueMisses.push({ pid, captured, league: l.basePPG });
+      if (h.basePPG === captured) halfMatch++;
+    }
+    assert.deepEqual(leagueMisses, []);
+    assert.equal(noQualifying, 0);
+    assert.equal(leagueMatch, 436, 'pinned: league-basis exact matches');
+    assert.equal(halfMatch, 11, 'pinned: the same rows under half-PPR match on only 11 — 425 fail, the "before"');
+    t.diagnostic(`half-PPR basePPG failures: ${436 - halfMatch} of 436`);
+  });
+
+  test('consistencyScore / outlierRatio match rates are reported, not asserted (D-46 G1d)', (t) => {
+    const career = JSON.parse(fs.readFileSync(path.join(DIR, 'career-seasons.json'), 'utf8'));
+    const snapshot = JSON.parse(fs.readFileSync(path.join(DIR, 'snapshot-2026-10-14.slim.json'), 'utf8'));
+    let checked = 0, consistencyLeague = 0;
+    for (const pid of Object.keys(snapshot.players)) {
+      const f = snapshot.players[pid].projection.factors;
+      const seasons = Object.entries(career[pid]).map(([y, r]) => ({ y: Number(y), gp: r.gamesPlayed, fp: r.fantasyPoints })).sort((a, b) => a.y - b.y);
+      const ppgs = seasons.filter(s => s.gp >= 8 && Number.isFinite(s.fp)).map(s => s.fp / s.gp);
+      if (ppgs.length < 3) continue;
+      const mean = ppgs.reduce((x, y) => x + y, 0) / ppgs.length;
+      const sd = Math.sqrt(ppgs.reduce((s, v) => s + (v - mean) ** 2, 0) / (ppgs.length - 1));
+      const score = Math.round(Math.max(0, Math.min(100, 100 - (mean > 0 ? sd / mean : 1) * 100)));
+      checked++;
+      if (score === f.consistencyScore) consistencyLeague++;
+    }
+    assert.ok(checked > 0);
+    t.diagnostic(`consistencyScore match (league rows, rows with >= 3 qualifying seasons): ${consistencyLeague}/${checked}`);
   });
 });

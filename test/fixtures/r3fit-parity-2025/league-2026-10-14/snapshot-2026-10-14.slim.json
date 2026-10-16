@@ -1,0 +1,4367 @@
+{
+  "targetSeason": 2026,
+  "currentSeason": 2025,
+  "projectionBasis": "league",
+  "players": {
+    "19": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.4,
+          "consistencyScore": 85,
+          "outlierRatio": 0.836,
+          "isTdReliant": true
+        }
+      }
+    },
+    "96": {
+      "projection": {
+        "factors": {
+          "basePPG": 16.5,
+          "consistencyScore": 82,
+          "outlierRatio": 0.744,
+          "isTdReliant": true
+        }
+      }
+    },
+    "421": {
+      "projection": {
+        "factors": {
+          "basePPG": 20.1,
+          "consistencyScore": 84,
+          "outlierRatio": 1.234,
+          "isTdReliant": true
+        }
+      }
+    },
+    "827": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.8,
+          "consistencyScore": 36,
+          "outlierRatio": 0.653,
+          "isTdReliant": false
+        }
+      }
+    },
+    "1166": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.8,
+          "consistencyScore": 84,
+          "outlierRatio": 0.615,
+          "isTdReliant": true
+        }
+      }
+    },
+    "1339": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.8,
+          "consistencyScore": 71,
+          "outlierRatio": 0.851,
+          "isTdReliant": false
+        }
+      }
+    },
+    "1373": {
+      "projection": {
+        "factors": {
+          "basePPG": 15.7,
+          "consistencyScore": 82,
+          "outlierRatio": 0.875,
+          "isTdReliant": true
+        }
+      }
+    },
+    "1466": {
+      "projection": {
+        "factors": {
+          "basePPG": 13,
+          "consistencyScore": 78,
+          "outlierRatio": 0.733,
+          "isTdReliant": false
+        }
+      }
+    },
+    "1479": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.6,
+          "consistencyScore": 80,
+          "outlierRatio": 0.639,
+          "isTdReliant": false
+        }
+      }
+    },
+    "1737": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.2,
+          "consistencyScore": 85,
+          "outlierRatio": 0.816,
+          "isTdReliant": true
+        }
+      }
+    },
+    "2078": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.3,
+          "consistencyScore": 42,
+          "outlierRatio": 0.089,
+          "isTdReliant": false
+        }
+      }
+    },
+    "2133": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.6,
+          "consistencyScore": 66,
+          "outlierRatio": 0.961,
+          "isTdReliant": true
+        }
+      }
+    },
+    "2197": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.3,
+          "consistencyScore": 66,
+          "outlierRatio": 0.278,
+          "isTdReliant": false
+        }
+      }
+    },
+    "2216": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.5,
+          "consistencyScore": 85,
+          "outlierRatio": 0.655,
+          "isTdReliant": false
+        }
+      }
+    },
+    "2306": {
+      "projection": {
+        "factors": {
+          "basePPG": 17.6,
+          "consistencyScore": 82,
+          "outlierRatio": 0.691,
+          "isTdReliant": true
+        }
+      }
+    },
+    "2307": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.9,
+          "consistencyScore": 56,
+          "outlierRatio": 0.898,
+          "isTdReliant": true
+        }
+      }
+    },
+    "2334": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.3,
+          "consistencyScore": 59,
+          "outlierRatio": 0.701,
+          "isTdReliant": false
+        }
+      }
+    },
+    "2359": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.1,
+          "consistencyScore": 41,
+          "outlierRatio": 0.834,
+          "isTdReliant": false
+        }
+      }
+    },
+    "2449": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.4,
+          "consistencyScore": 83,
+          "outlierRatio": 0.792,
+          "isTdReliant": false
+        }
+      }
+    },
+    "2505": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.1,
+          "consistencyScore": 55,
+          "outlierRatio": 0.896,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3048": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.3,
+          "consistencyScore": 32,
+          "outlierRatio": 0.1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3155": {
+      "projection": {
+        "factors": {
+          "basePPG": 2,
+          "consistencyScore": 12,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3161": {
+      "projection": {
+        "factors": {
+          "basePPG": 17.3,
+          "consistencyScore": 84,
+          "outlierRatio": 0.878,
+          "isTdReliant": true
+        }
+      }
+    },
+    "3163": {
+      "projection": {
+        "factors": {
+          "basePPG": 20.4,
+          "consistencyScore": 90,
+          "outlierRatio": 1.034,
+          "isTdReliant": true
+        }
+      }
+    },
+    "3198": {
+      "projection": {
+        "factors": {
+          "basePPG": 18.4,
+          "consistencyScore": 65,
+          "outlierRatio": 1.032,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3200": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.3,
+          "consistencyScore": 51,
+          "outlierRatio": 0.607,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3202": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.6,
+          "consistencyScore": 50,
+          "outlierRatio": 0.524,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3214": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.3,
+          "consistencyScore": 81,
+          "outlierRatio": 1.121,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3257": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.4,
+          "consistencyScore": 45,
+          "outlierRatio": 1.709,
+          "isTdReliant": true
+        }
+      }
+    },
+    "3258": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.9,
+          "consistencyScore": 21,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3271": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.9,
+          "consistencyScore": 54,
+          "outlierRatio": 1.027,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3286": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.8,
+          "consistencyScore": 53,
+          "outlierRatio": 0.871,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3294": {
+      "projection": {
+        "factors": {
+          "basePPG": 20.1,
+          "consistencyScore": 89,
+          "outlierRatio": 1.014,
+          "isTdReliant": true
+        }
+      }
+    },
+    "3634": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.6,
+          "consistencyScore": 68,
+          "outlierRatio": 0.939,
+          "isTdReliant": false
+        }
+      }
+    },
+    "3976": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.4,
+          "consistencyScore": 46,
+          "outlierRatio": 0.139,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4017": {
+      "projection": {
+        "factors": {
+          "basePPG": 24.5,
+          "consistencyScore": 94,
+          "outlierRatio": 1.06,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4033": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.5,
+          "consistencyScore": 62,
+          "outlierRatio": 0.814,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4034": {
+      "projection": {
+        "factors": {
+          "basePPG": 23.2,
+          "consistencyScore": 78,
+          "outlierRatio": 1.056,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4035": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.8,
+          "consistencyScore": 72,
+          "outlierRatio": 0.473,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4037": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.8,
+          "consistencyScore": 65,
+          "outlierRatio": 0.68,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4039": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.4,
+          "consistencyScore": 63,
+          "outlierRatio": 0.433,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4046": {
+      "projection": {
+        "factors": {
+          "basePPG": 21.4,
+          "consistencyScore": 85,
+          "outlierRatio": 0.932,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4054": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.1,
+          "consistencyScore": 51,
+          "outlierRatio": 0.578,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4066": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.4,
+          "consistencyScore": 74,
+          "outlierRatio": 0.615,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4137": {
+      "projection": {
+        "factors": {
+          "basePPG": 16,
+          "consistencyScore": 58,
+          "outlierRatio": 1.149,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4144": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.3,
+          "consistencyScore": 48,
+          "outlierRatio": 0.775,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4147": {
+      "projection": {
+        "factors": {
+          "basePPG": 6,
+          "consistencyScore": 76,
+          "outlierRatio": 1.129,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4177": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.5,
+          "consistencyScore": 39,
+          "outlierRatio": 1.673,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4179": {
+      "projection": {
+        "factors": {
+          "basePPG": 17.2,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4189": {
+      "projection": {
+        "factors": {
+          "basePPG": 1,
+          "consistencyScore": 23,
+          "outlierRatio": 0.873,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4199": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.4,
+          "consistencyScore": 72,
+          "outlierRatio": 0.683,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4217": {
+      "projection": {
+        "factors": {
+          "basePPG": 15.6,
+          "consistencyScore": 79,
+          "outlierRatio": 1.039,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4219": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.1,
+          "consistencyScore": 75,
+          "outlierRatio": 1.038,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4274": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.1,
+          "consistencyScore": 74,
+          "outlierRatio": 0.804,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4314": {
+      "projection": {
+        "factors": {
+          "basePPG": 2,
+          "consistencyScore": 28,
+          "outlierRatio": 0.915,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4351": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.7,
+          "consistencyScore": 48,
+          "outlierRatio": 0.51,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4443": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.4,
+          "consistencyScore": 42,
+          "outlierRatio": 0.458,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4454": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.1,
+          "consistencyScore": 63,
+          "outlierRatio": 0.826,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4464": {
+      "projection": {
+        "factors": {
+          "basePPG": 15.3,
+          "consistencyScore": null,
+          "outlierRatio": 0.868,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4574": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.5,
+          "consistencyScore": null,
+          "outlierRatio": 1.19,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4602": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.8,
+          "consistencyScore": 4,
+          "outlierRatio": 0.015,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4663": {
+      "projection": {
+        "factors": {
+          "basePPG": 14,
+          "consistencyScore": 67,
+          "outlierRatio": 0.871,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4718": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.7,
+          "consistencyScore": 50,
+          "outlierRatio": 0.505,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4866": {
+      "projection": {
+        "factors": {
+          "basePPG": 17.5,
+          "consistencyScore": 73,
+          "outlierRatio": 0.82,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4881": {
+      "projection": {
+        "factors": {
+          "basePPG": 22.3,
+          "consistencyScore": 73,
+          "outlierRatio": 0.827,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4892": {
+      "projection": {
+        "factors": {
+          "basePPG": 20.2,
+          "consistencyScore": 79,
+          "outlierRatio": 1.018,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4943": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.9,
+          "consistencyScore": 60,
+          "outlierRatio": 1.132,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4950": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.4,
+          "consistencyScore": 70,
+          "outlierRatio": 0.373,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4972": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.9,
+          "consistencyScore": null,
+          "outlierRatio": 1.042,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4981": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.5,
+          "consistencyScore": 79,
+          "outlierRatio": 0.792,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4983": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.2,
+          "consistencyScore": 81,
+          "outlierRatio": 0.75,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4984": {
+      "projection": {
+        "factors": {
+          "basePPG": 24.2,
+          "consistencyScore": 87,
+          "outlierRatio": 0.97,
+          "isTdReliant": true
+        }
+      }
+    },
+    "4993": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.4,
+          "consistencyScore": 57,
+          "outlierRatio": 0.797,
+          "isTdReliant": false
+        }
+      }
+    },
+    "4995": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.6,
+          "consistencyScore": 46,
+          "outlierRatio": 0.672,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5001": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.8,
+          "consistencyScore": 44,
+          "outlierRatio": 1.381,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5008": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.4,
+          "consistencyScore": 23,
+          "outlierRatio": 0.167,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5012": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.3,
+          "consistencyScore": 70,
+          "outlierRatio": 0.637,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5022": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.8,
+          "consistencyScore": 80,
+          "outlierRatio": 1.192,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5045": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.8,
+          "consistencyScore": 79,
+          "outlierRatio": 1.126,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5086": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.6,
+          "consistencyScore": 65,
+          "outlierRatio": 0.473,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5121": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.2,
+          "consistencyScore": 49,
+          "outlierRatio": 0.911,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5127": {
+      "projection": {
+        "factors": {
+          "basePPG": 16.2,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "5133": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.6,
+          "consistencyScore": 26,
+          "outlierRatio": 0.294,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5154": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.7,
+          "consistencyScore": 15,
+          "outlierRatio": 0.201,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5374": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.8,
+          "consistencyScore": 33,
+          "outlierRatio": 1.26,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5409": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.2,
+          "consistencyScore": 18,
+          "outlierRatio": 1.118,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5781": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.8,
+          "consistencyScore": null,
+          "outlierRatio": 1.021,
+          "isTdReliant": true
+        }
+      }
+    },
+    "5844": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.9,
+          "consistencyScore": 73,
+          "outlierRatio": 0.705,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5846": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.7,
+          "consistencyScore": 86,
+          "outlierRatio": 0.914,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5848": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.4,
+          "consistencyScore": 82,
+          "outlierRatio": 0.763,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5849": {
+      "projection": {
+        "factors": {
+          "basePPG": 19.8,
+          "consistencyScore": 87,
+          "outlierRatio": 0.896,
+          "isTdReliant": true
+        }
+      }
+    },
+    "5850": {
+      "projection": {
+        "factors": {
+          "basePPG": 15.7,
+          "consistencyScore": 87,
+          "outlierRatio": 0.962,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5854": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.9,
+          "consistencyScore": null,
+          "outlierRatio": 0.822,
+          "isTdReliant": true
+        }
+      }
+    },
+    "5857": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.8,
+          "consistencyScore": 70,
+          "outlierRatio": 0.676,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5859": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.6,
+          "consistencyScore": 89,
+          "outlierRatio": 0.906,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5870": {
+      "projection": {
+        "factors": {
+          "basePPG": 18.1,
+          "consistencyScore": 87,
+          "outlierRatio": 1.121,
+          "isTdReliant": true
+        }
+      }
+    },
+    "5872": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.2,
+          "consistencyScore": 72,
+          "outlierRatio": 0.834,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5892": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.8,
+          "consistencyScore": 78,
+          "outlierRatio": 0.728,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5906": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.3,
+          "consistencyScore": 61,
+          "outlierRatio": 0.959,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5927": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.6,
+          "consistencyScore": 88,
+          "outlierRatio": 0.842,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5938": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.9,
+          "consistencyScore": 73,
+          "outlierRatio": 0.923,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5947": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.9,
+          "consistencyScore": 68,
+          "outlierRatio": 0.965,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5967": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.8,
+          "consistencyScore": 76,
+          "outlierRatio": 0.968,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5970": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.4,
+          "consistencyScore": 74,
+          "outlierRatio": 1.362,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5973": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.9,
+          "consistencyScore": 58,
+          "outlierRatio": 1.228,
+          "isTdReliant": true
+        }
+      }
+    },
+    "5985": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.1,
+          "consistencyScore": 52,
+          "outlierRatio": 0.287,
+          "isTdReliant": false
+        }
+      }
+    },
+    "5995": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.1,
+          "consistencyScore": 47,
+          "outlierRatio": 1.331,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6001": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.3,
+          "consistencyScore": 36,
+          "outlierRatio": 0.801,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6011": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.7,
+          "consistencyScore": 74,
+          "outlierRatio": 0.733,
+          "isTdReliant": true
+        }
+      }
+    },
+    "6012": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.2,
+          "consistencyScore": 6,
+          "outlierRatio": -0.009,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6039": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.6,
+          "consistencyScore": 66,
+          "outlierRatio": 1.289,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6111": {
+      "projection": {
+        "factors": {
+          "basePPG": 18.1,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "6130": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.5,
+          "consistencyScore": 77,
+          "outlierRatio": 0.765,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6149": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.6,
+          "consistencyScore": 69,
+          "outlierRatio": 0.827,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6154": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.3,
+          "consistencyScore": null,
+          "outlierRatio": 1.108,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6271": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.4,
+          "consistencyScore": 62,
+          "outlierRatio": 1.018,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6290": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.2,
+          "consistencyScore": 32,
+          "outlierRatio": 0.411,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6323": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.6,
+          "consistencyScore": 4,
+          "outlierRatio": 1.198,
+          "isTdReliant": true
+        }
+      }
+    },
+    "6386": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.7,
+          "consistencyScore": null,
+          "outlierRatio": 0.742,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6427": {
+      "projection": {
+        "factors": {
+          "basePPG": 3,
+          "consistencyScore": 44,
+          "outlierRatio": 1.661,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6451": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.7,
+          "consistencyScore": null,
+          "outlierRatio": 0.258,
+          "isTdReliant": true
+        }
+      }
+    },
+    "6529": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.2,
+          "consistencyScore": null,
+          "outlierRatio": 1.078,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6588": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.8,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6659": {
+      "projection": {
+        "factors": {
+          "basePPG": 2,
+          "consistencyScore": 59,
+          "outlierRatio": 0.603,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6699": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.1,
+          "consistencyScore": 36,
+          "outlierRatio": 1.816,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6768": {
+      "projection": {
+        "factors": {
+          "basePPG": 16.3,
+          "consistencyScore": 86,
+          "outlierRatio": 0.817,
+          "isTdReliant": true
+        }
+      }
+    },
+    "6770": {
+      "projection": {
+        "factors": {
+          "basePPG": 20.6,
+          "consistencyScore": 85,
+          "outlierRatio": 0.924,
+          "isTdReliant": true
+        }
+      }
+    },
+    "6783": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.3,
+          "consistencyScore": 70,
+          "outlierRatio": 0.664,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6786": {
+      "projection": {
+        "factors": {
+          "basePPG": 15.6,
+          "consistencyScore": 79,
+          "outlierRatio": 0.854,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6790": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.4,
+          "consistencyScore": 91,
+          "outlierRatio": 1.093,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6794": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.1,
+          "consistencyScore": 80,
+          "outlierRatio": 0.62,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6797": {
+      "projection": {
+        "factors": {
+          "basePPG": 19.7,
+          "consistencyScore": 85,
+          "outlierRatio": 0.957,
+          "isTdReliant": true
+        }
+      }
+    },
+    "6798": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.2,
+          "consistencyScore": 38,
+          "outlierRatio": 0.416,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6801": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.5,
+          "consistencyScore": 83,
+          "outlierRatio": 0.99,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6803": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.9,
+          "consistencyScore": 81,
+          "outlierRatio": 1.186,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6804": {
+      "projection": {
+        "factors": {
+          "basePPG": 18.5,
+          "consistencyScore": 89,
+          "outlierRatio": 0.928,
+          "isTdReliant": true
+        }
+      }
+    },
+    "6806": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.7,
+          "consistencyScore": 87,
+          "outlierRatio": 0.993,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6813": {
+      "projection": {
+        "factors": {
+          "basePPG": 19.7,
+          "consistencyScore": 79,
+          "outlierRatio": 1.175,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6819": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.5,
+          "consistencyScore": 77,
+          "outlierRatio": 0.975,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6826": {
+      "projection": {
+        "factors": {
+          "basePPG": 7,
+          "consistencyScore": 65,
+          "outlierRatio": 0.697,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6828": {
+      "projection": {
+        "factors": {
+          "basePPG": 9,
+          "consistencyScore": 63,
+          "outlierRatio": 0.963,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6847": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.4,
+          "consistencyScore": 47,
+          "outlierRatio": 0.774,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6853": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.2,
+          "consistencyScore": 41,
+          "outlierRatio": 0.835,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6865": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.4,
+          "consistencyScore": 32,
+          "outlierRatio": 2.055,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6869": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.9,
+          "consistencyScore": 72,
+          "outlierRatio": 0.844,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6904": {
+      "projection": {
+        "factors": {
+          "basePPG": 21.7,
+          "consistencyScore": 68,
+          "outlierRatio": 0.997,
+          "isTdReliant": true
+        }
+      }
+    },
+    "6918": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.2,
+          "consistencyScore": 43,
+          "outlierRatio": 1.56,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6920": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.7,
+          "consistencyScore": null,
+          "outlierRatio": 0.52,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6927": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.2,
+          "consistencyScore": 66,
+          "outlierRatio": 0.711,
+          "isTdReliant": false
+        }
+      }
+    },
+    "6931": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.8,
+          "consistencyScore": 67,
+          "outlierRatio": 0.681,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7002": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.4,
+          "consistencyScore": 67,
+          "outlierRatio": 1.42,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7021": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.6,
+          "consistencyScore": 26,
+          "outlierRatio": 1.646,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7039": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.7,
+          "consistencyScore": null,
+          "outlierRatio": 1.669,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7049": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.5,
+          "consistencyScore": 43,
+          "outlierRatio": 1.459,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7066": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.5,
+          "consistencyScore": 40,
+          "outlierRatio": 0.365,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7075": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.7,
+          "consistencyScore": 42,
+          "outlierRatio": 0.782,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7087": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.7,
+          "consistencyScore": 78,
+          "outlierRatio": 0.775,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7090": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.6,
+          "consistencyScore": 62,
+          "outlierRatio": 0.611,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7204": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.2,
+          "consistencyScore": 0,
+          "outlierRatio": 0.253,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7496": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.8,
+          "consistencyScore": 34,
+          "outlierRatio": 0.265,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7523": {
+      "projection": {
+        "factors": {
+          "basePPG": 19.8,
+          "consistencyScore": 81,
+          "outlierRatio": 1.24,
+          "isTdReliant": true
+        }
+      }
+    },
+    "7525": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.8,
+          "consistencyScore": 85,
+          "outlierRatio": 0.868,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7526": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.7,
+          "consistencyScore": 82,
+          "outlierRatio": 0.898,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7527": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.5,
+          "consistencyScore": 87,
+          "outlierRatio": 1.032,
+          "isTdReliant": true
+        }
+      }
+    },
+    "7528": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.1,
+          "consistencyScore": 82,
+          "outlierRatio": 0.906,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7531": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.1,
+          "consistencyScore": 0,
+          "outlierRatio": 0.053,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7535": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.2,
+          "consistencyScore": 0,
+          "outlierRatio": 2.289,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7536": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.1,
+          "consistencyScore": 69,
+          "outlierRatio": 1.134,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7537": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.3,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7538": {
+      "projection": {
+        "factors": {
+          "basePPG": 12,
+          "consistencyScore": 92,
+          "outlierRatio": 0.916,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7543": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.1,
+          "consistencyScore": 73,
+          "outlierRatio": 1.151,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7547": {
+      "projection": {
+        "factors": {
+          "basePPG": 17.4,
+          "consistencyScore": 82,
+          "outlierRatio": 1.076,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7553": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.7,
+          "consistencyScore": 76,
+          "outlierRatio": 1.344,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7559": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.1,
+          "consistencyScore": 29,
+          "outlierRatio": 1.039,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7562": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.2,
+          "consistencyScore": 46,
+          "outlierRatio": 0.743,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7564": {
+      "projection": {
+        "factors": {
+          "basePPG": 18.2,
+          "consistencyScore": 86,
+          "outlierRatio": 1.007,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7567": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.3,
+          "consistencyScore": 49,
+          "outlierRatio": 1.862,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7568": {
+      "projection": {
+        "factors": {
+          "basePPG": 4,
+          "consistencyScore": 55,
+          "outlierRatio": 0.897,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7569": {
+      "projection": {
+        "factors": {
+          "basePPG": 15,
+          "consistencyScore": 58,
+          "outlierRatio": 1.158,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7571": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.5,
+          "consistencyScore": 55,
+          "outlierRatio": 0.602,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7585": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.2,
+          "consistencyScore": null,
+          "outlierRatio": 1.006,
+          "isTdReliant": true
+        }
+      }
+    },
+    "7587": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.1,
+          "consistencyScore": 64,
+          "outlierRatio": 1.375,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7588": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.2,
+          "consistencyScore": 75,
+          "outlierRatio": 1.331,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7591": {
+      "projection": {
+        "factors": {
+          "basePPG": 16.1,
+          "consistencyScore": 74,
+          "outlierRatio": 1.006,
+          "isTdReliant": true
+        }
+      }
+    },
+    "7593": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.6,
+          "consistencyScore": 63,
+          "outlierRatio": 1.165,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7594": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.4,
+          "consistencyScore": 62,
+          "outlierRatio": 0.878,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7595": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.6,
+          "consistencyScore": 38,
+          "outlierRatio": 1.159,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7596": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.5,
+          "consistencyScore": 50,
+          "outlierRatio": 0.456,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7597": {
+      "projection": {
+        "factors": {
+          "basePPG": 1,
+          "consistencyScore": 0,
+          "outlierRatio": 1.8,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7600": {
+      "projection": {
+        "factors": {
+          "basePPG": 8,
+          "consistencyScore": 81,
+          "outlierRatio": 0.803,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7602": {
+      "projection": {
+        "factors": {
+          "basePPG": 2,
+          "consistencyScore": 25,
+          "outlierRatio": 0.24,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7607": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.9,
+          "consistencyScore": 57,
+          "outlierRatio": 1.006,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7608": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.1,
+          "consistencyScore": 52,
+          "outlierRatio": 0.347,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7611": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.9,
+          "consistencyScore": 88,
+          "outlierRatio": 1.058,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7670": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.7,
+          "consistencyScore": 61,
+          "outlierRatio": 0.556,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7694": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.2,
+          "consistencyScore": 83,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7716": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.6,
+          "consistencyScore": 60,
+          "outlierRatio": 0.949,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7720": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.1,
+          "consistencyScore": 72,
+          "outlierRatio": 1.013,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7746": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.1,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7757": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.1,
+          "consistencyScore": 16,
+          "outlierRatio": 0.493,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7812": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.6,
+          "consistencyScore": null,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7828": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.2,
+          "consistencyScore": 42,
+          "outlierRatio": 0.667,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7842": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.6,
+          "consistencyScore": 55,
+          "outlierRatio": 1.469,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7891": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.8,
+          "consistencyScore": 71,
+          "outlierRatio": 1.141,
+          "isTdReliant": false
+        }
+      }
+    },
+    "7946": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.8,
+          "consistencyScore": 33,
+          "outlierRatio": 1.123,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8013": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.6,
+          "consistencyScore": 42,
+          "outlierRatio": 0.5,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8076": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.5,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8110": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.2,
+          "consistencyScore": 54,
+          "outlierRatio": 1.371,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8111": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.6,
+          "consistencyScore": 75,
+          "outlierRatio": 1.005,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8112": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.2,
+          "consistencyScore": 73,
+          "outlierRatio": 1.27,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8116": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.9,
+          "consistencyScore": 78,
+          "outlierRatio": 1.111,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8117": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.7,
+          "consistencyScore": 14,
+          "outlierRatio": 0.958,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8119": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.2,
+          "consistencyScore": 31,
+          "outlierRatio": 0.51,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8121": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.2,
+          "consistencyScore": 85,
+          "outlierRatio": 1.109,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8122": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.4,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8123": {
+      "projection": {
+        "factors": {
+          "basePPG": 2,
+          "consistencyScore": 70,
+          "outlierRatio": 0.719,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8125": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.6,
+          "consistencyScore": 67,
+          "outlierRatio": 1.05,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8126": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.9,
+          "consistencyScore": 75,
+          "outlierRatio": 1.278,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8127": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.1,
+          "consistencyScore": 79,
+          "outlierRatio": 1.116,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8129": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.4,
+          "consistencyScore": 52,
+          "outlierRatio": 0.677,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8130": {
+      "projection": {
+        "factors": {
+          "basePPG": 17.2,
+          "consistencyScore": 47,
+          "outlierRatio": 1.511,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8131": {
+      "projection": {
+        "factors": {
+          "basePPG": 6,
+          "consistencyScore": 76,
+          "outlierRatio": 0.736,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8132": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.3,
+          "consistencyScore": 79,
+          "outlierRatio": 0.892,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8134": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.9,
+          "consistencyScore": 49,
+          "outlierRatio": 1.282,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8135": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.1,
+          "consistencyScore": 45,
+          "outlierRatio": 0.706,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8136": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.4,
+          "consistencyScore": 68,
+          "outlierRatio": 0.74,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8137": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.5,
+          "consistencyScore": 74,
+          "outlierRatio": 1.359,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8138": {
+      "projection": {
+        "factors": {
+          "basePPG": 17.2,
+          "consistencyScore": 60,
+          "outlierRatio": 1.355,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8139": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.2,
+          "consistencyScore": 29,
+          "outlierRatio": 1.218,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8142": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.7,
+          "consistencyScore": 63,
+          "outlierRatio": 1.418,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8143": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.3,
+          "consistencyScore": 36,
+          "outlierRatio": 0.51,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8144": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.6,
+          "consistencyScore": 78,
+          "outlierRatio": 1.219,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8145": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.4,
+          "consistencyScore": 36,
+          "outlierRatio": 1.635,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8146": {
+      "projection": {
+        "factors": {
+          "basePPG": 12,
+          "consistencyScore": 89,
+          "outlierRatio": 1.12,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8147": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.4,
+          "consistencyScore": 58,
+          "outlierRatio": 1.319,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8148": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.2,
+          "consistencyScore": 62,
+          "outlierRatio": 1.161,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8150": {
+      "projection": {
+        "factors": {
+          "basePPG": 17.6,
+          "consistencyScore": 43,
+          "outlierRatio": 1.072,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8151": {
+      "projection": {
+        "factors": {
+          "basePPG": 13,
+          "consistencyScore": 87,
+          "outlierRatio": 0.842,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8154": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.6,
+          "consistencyScore": 64,
+          "outlierRatio": 0.484,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8155": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.2,
+          "consistencyScore": 91,
+          "outlierRatio": 0.921,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8160": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.8,
+          "consistencyScore": null,
+          "outlierRatio": 0.88,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8161": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.8,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8162": {
+      "projection": {
+        "factors": {
+          "basePPG": 17.6,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "8167": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.1,
+          "consistencyScore": 76,
+          "outlierRatio": 1.217,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8168": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.7,
+          "consistencyScore": 76,
+          "outlierRatio": 1.26,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8170": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.9,
+          "consistencyScore": null,
+          "outlierRatio": 0.273,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8172": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.4,
+          "consistencyScore": 24,
+          "outlierRatio": 1.202,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8177": {
+      "projection": {
+        "factors": {
+          "basePPG": 2,
+          "consistencyScore": 17,
+          "outlierRatio": 0.918,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8180": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.8,
+          "consistencyScore": 53,
+          "outlierRatio": 1.269,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8181": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.7,
+          "consistencyScore": 66,
+          "outlierRatio": 0.938,
+          "isTdReliant": true
+        }
+      }
+    },
+    "8183": {
+      "projection": {
+        "factors": {
+          "basePPG": 21.5,
+          "consistencyScore": 80,
+          "outlierRatio": 1.204,
+          "isTdReliant": true
+        }
+      }
+    },
+    "8188": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.1,
+          "consistencyScore": 50,
+          "outlierRatio": 1.514,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8195": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.9,
+          "consistencyScore": 56,
+          "outlierRatio": 1.452,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8204": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.4,
+          "consistencyScore": null,
+          "outlierRatio": 1.377,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8205": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.8,
+          "consistencyScore": 59,
+          "outlierRatio": 0.619,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8207": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.4,
+          "consistencyScore": null,
+          "outlierRatio": 0.333,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8208": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.2,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8210": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.3,
+          "consistencyScore": 90,
+          "outlierRatio": 1.104,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8214": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.5,
+          "consistencyScore": null,
+          "outlierRatio": 1.629,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8219": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.2,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8223": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.5,
+          "consistencyScore": 35,
+          "outlierRatio": 0.512,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8225": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.1,
+          "consistencyScore": 46,
+          "outlierRatio": 1.033,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8227": {
+      "projection": {
+        "factors": {
+          "basePPG": 1,
+          "consistencyScore": null,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8228": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.7,
+          "consistencyScore": 62,
+          "outlierRatio": 1.454,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8230": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.4,
+          "consistencyScore": null,
+          "outlierRatio": 0.542,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8249": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.8,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8253": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.3,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8254": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.9,
+          "consistencyScore": null,
+          "outlierRatio": 0.456,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8408": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.9,
+          "consistencyScore": 31,
+          "outlierRatio": 1.402,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8414": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.7,
+          "consistencyScore": null,
+          "outlierRatio": 1.09,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8484": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.4,
+          "consistencyScore": 0,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8489": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.5,
+          "consistencyScore": 38,
+          "outlierRatio": 0.466,
+          "isTdReliant": true
+        }
+      }
+    },
+    "8500": {
+      "projection": {
+        "factors": {
+          "basePPG": 1,
+          "consistencyScore": 0,
+          "outlierRatio": 1.73,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8523": {
+      "projection": {
+        "factors": {
+          "basePPG": 0,
+          "consistencyScore": null,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8527": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.3,
+          "consistencyScore": 0,
+          "outlierRatio": 2.489,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8583": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.6,
+          "consistencyScore": 53,
+          "outlierRatio": 0.473,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8676": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.4,
+          "consistencyScore": 89,
+          "outlierRatio": 0.938,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8698": {
+      "projection": {
+        "factors": {
+          "basePPG": 4,
+          "consistencyScore": null,
+          "outlierRatio": 2,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8756": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.1,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8799": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.5,
+          "consistencyScore": null,
+          "outlierRatio": 0.494,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8800": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.9,
+          "consistencyScore": null,
+          "outlierRatio": 1.216,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8849": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.2,
+          "consistencyScore": 0,
+          "outlierRatio": 2.094,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8861": {
+      "projection": {
+        "factors": {
+          "basePPG": 0,
+          "consistencyScore": null,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "8917": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.2,
+          "consistencyScore": 41,
+          "outlierRatio": 1.668,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9221": {
+      "projection": {
+        "factors": {
+          "basePPG": 19.9,
+          "consistencyScore": 83,
+          "outlierRatio": 1.075,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9224": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.5,
+          "consistencyScore": 44,
+          "outlierRatio": 1.319,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9225": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.1,
+          "consistencyScore": 24,
+          "outlierRatio": 0.809,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9226": {
+      "projection": {
+        "factors": {
+          "basePPG": 18.2,
+          "consistencyScore": 91,
+          "outlierRatio": 1.1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9228": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.8,
+          "consistencyScore": 81,
+          "outlierRatio": 1.112,
+          "isTdReliant": true
+        }
+      }
+    },
+    "9229": {
+      "projection": {
+        "factors": {
+          "basePPG": 16.6,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "9479": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.4,
+          "consistencyScore": 29,
+          "outlierRatio": 1.719,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9480": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.1,
+          "consistencyScore": 18,
+          "outlierRatio": 1.822,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9481": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.3,
+          "consistencyScore": null,
+          "outlierRatio": 0.6,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9482": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.1,
+          "consistencyScore": 74,
+          "outlierRatio": 1.207,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9484": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.8,
+          "consistencyScore": 47,
+          "outlierRatio": 1.54,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9486": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.5,
+          "consistencyScore": 79,
+          "outlierRatio": 0.805,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9487": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.6,
+          "consistencyScore": 48,
+          "outlierRatio": 1.592,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9488": {
+      "projection": {
+        "factors": {
+          "basePPG": 15.3,
+          "consistencyScore": 53,
+          "outlierRatio": 1.477,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9490": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.4,
+          "consistencyScore": null,
+          "outlierRatio": 0.658,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9493": {
+      "projection": {
+        "factors": {
+          "basePPG": 19,
+          "consistencyScore": 85,
+          "outlierRatio": 1.166,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9494": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.3,
+          "consistencyScore": 81,
+          "outlierRatio": 1.125,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9497": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.6,
+          "consistencyScore": 29,
+          "outlierRatio": 0.846,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9500": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.9,
+          "consistencyScore": 73,
+          "outlierRatio": 0.815,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9501": {
+      "projection": {
+        "factors": {
+          "basePPG": 6,
+          "consistencyScore": 83,
+          "outlierRatio": 0.808,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9502": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.9,
+          "consistencyScore": null,
+          "outlierRatio": 0.773,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9504": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.9,
+          "consistencyScore": null,
+          "outlierRatio": 1.066,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9506": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.3,
+          "consistencyScore": 19,
+          "outlierRatio": 1.665,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9508": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.3,
+          "consistencyScore": 87,
+          "outlierRatio": 0.854,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9509": {
+      "projection": {
+        "factors": {
+          "basePPG": 19.7,
+          "consistencyScore": 79,
+          "outlierRatio": 1.158,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9511": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.3,
+          "consistencyScore": null,
+          "outlierRatio": 0.834,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9753": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.1,
+          "consistencyScore": 70,
+          "outlierRatio": 1.233,
+          "isTdReliant": true
+        }
+      }
+    },
+    "9754": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.5,
+          "consistencyScore": 60,
+          "outlierRatio": 1.254,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9756": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.6,
+          "consistencyScore": 82,
+          "outlierRatio": 0.799,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9757": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.2,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9758": {
+      "projection": {
+        "factors": {
+          "basePPG": 16.9,
+          "consistencyScore": 84,
+          "outlierRatio": 0.972,
+          "isTdReliant": true
+        }
+      }
+    },
+    "9997": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.1,
+          "consistencyScore": 93,
+          "outlierRatio": 1.085,
+          "isTdReliant": false
+        }
+      }
+    },
+    "9999": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.3,
+          "consistencyScore": null,
+          "outlierRatio": 0.976,
+          "isTdReliant": true
+        }
+      }
+    },
+    "10210": {
+      "projection": {
+        "factors": {
+          "basePPG": 0,
+          "consistencyScore": null,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10212": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.5,
+          "consistencyScore": 63,
+          "outlierRatio": 0.696,
+          "isTdReliant": true
+        }
+      }
+    },
+    "10213": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.1,
+          "consistencyScore": 65,
+          "outlierRatio": 1.322,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10214": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.5,
+          "consistencyScore": 25,
+          "outlierRatio": 1.816,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10215": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.9,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10218": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.1,
+          "consistencyScore": 14,
+          "outlierRatio": 1.997,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10219": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.5,
+          "consistencyScore": 50,
+          "outlierRatio": 1.573,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10220": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.5,
+          "consistencyScore": null,
+          "outlierRatio": 0.343,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10222": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.5,
+          "consistencyScore": null,
+          "outlierRatio": 0.942,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10224": {
+      "projection": {
+        "factors": {
+          "basePPG": 0,
+          "consistencyScore": null,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10225": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.4,
+          "consistencyScore": null,
+          "outlierRatio": 0.498,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10226": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.8,
+          "consistencyScore": 62,
+          "outlierRatio": 1.014,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10227": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.9,
+          "consistencyScore": 3,
+          "outlierRatio": 0.128,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10228": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.7,
+          "consistencyScore": 64,
+          "outlierRatio": 1.415,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10229": {
+      "projection": {
+        "factors": {
+          "basePPG": 15,
+          "consistencyScore": null,
+          "outlierRatio": 1.171,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10231": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.4,
+          "consistencyScore": 90,
+          "outlierRatio": 1.077,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10232": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.4,
+          "consistencyScore": 70,
+          "outlierRatio": 1.338,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10234": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.5,
+          "consistencyScore": 69,
+          "outlierRatio": 0.664,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10235": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.5,
+          "consistencyScore": null,
+          "outlierRatio": 0.934,
+          "isTdReliant": true
+        }
+      }
+    },
+    "10236": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.1,
+          "consistencyScore": 84,
+          "outlierRatio": 1.158,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10444": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.4,
+          "consistencyScore": 57,
+          "outlierRatio": 0.934,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10859": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.6,
+          "consistencyScore": 87,
+          "outlierRatio": 0.963,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10866": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.2,
+          "consistencyScore": null,
+          "outlierRatio": 0.942,
+          "isTdReliant": true
+        }
+      }
+    },
+    "10867": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.2,
+          "consistencyScore": 16,
+          "outlierRatio": 0.19,
+          "isTdReliant": false
+        }
+      }
+    },
+    "10871": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.2,
+          "consistencyScore": 53,
+          "outlierRatio": 0.75,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11034": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.2,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11068": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.7,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11157": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.5,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11168": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.5,
+          "consistencyScore": null,
+          "outlierRatio": 1.515,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11199": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.4,
+          "consistencyScore": 92,
+          "outlierRatio": 1.022,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11201": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.6,
+          "consistencyScore": null,
+          "outlierRatio": 0.141,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11210": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.6,
+          "consistencyScore": 69,
+          "outlierRatio": 0.641,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11237": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.9,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11273": {
+      "projection": {
+        "factors": {
+          "basePPG": 0,
+          "consistencyScore": null,
+          "outlierRatio": 0.045,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11280": {
+      "projection": {
+        "factors": {
+          "basePPG": 0,
+          "consistencyScore": 0,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11292": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.6,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11299": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.2,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11304": {
+      "projection": {
+        "factors": {
+          "basePPG": 1,
+          "consistencyScore": null,
+          "outlierRatio": 0.963,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11306": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.7,
+          "consistencyScore": null,
+          "outlierRatio": 0.7,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11320": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.6,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11370": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.9,
+          "consistencyScore": 60,
+          "outlierRatio": 0.896,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11371": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.7,
+          "consistencyScore": 42,
+          "outlierRatio": 1.585,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11377": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.4,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11433": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.9,
+          "consistencyScore": 42,
+          "outlierRatio": 1.115,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11435": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.2,
+          "consistencyScore": null,
+          "outlierRatio": 1.06,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11439": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.9,
+          "consistencyScore": 83,
+          "outlierRatio": 0.803,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11474": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.5,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11508": {
+      "projection": {
+        "factors": {
+          "basePPG": 0,
+          "consistencyScore": null,
+          "outlierRatio": 0,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11559": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.7,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11560": {
+      "projection": {
+        "factors": {
+          "basePPG": 19.4,
+          "consistencyScore": null,
+          "outlierRatio": 1.112,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11562": {
+      "projection": {
+        "factors": {
+          "basePPG": 12.4,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11563": {
+      "projection": {
+        "factors": {
+          "basePPG": 20.3,
+          "consistencyScore": null,
+          "outlierRatio": 0.976,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11564": {
+      "projection": {
+        "factors": {
+          "basePPG": 20.7,
+          "consistencyScore": null,
+          "outlierRatio": 1.193,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11565": {
+      "projection": {
+        "factors": {
+          "basePPG": 14.8,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11566": {
+      "projection": {
+        "factors": {
+          "basePPG": 23,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11570": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.9,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11571": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.5,
+          "consistencyScore": null,
+          "outlierRatio": 1.208,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11574": {
+      "projection": {
+        "factors": {
+          "basePPG": 2,
+          "consistencyScore": null,
+          "outlierRatio": 1.622,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11575": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.8,
+          "consistencyScore": null,
+          "outlierRatio": 0.964,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11576": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.9,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11577": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.9,
+          "consistencyScore": null,
+          "outlierRatio": 1.418,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11579": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.8,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11582": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.8,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11584": {
+      "projection": {
+        "factors": {
+          "basePPG": 13.8,
+          "consistencyScore": null,
+          "outlierRatio": 0.952,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11586": {
+      "projection": {
+        "factors": {
+          "basePPG": 6.8,
+          "consistencyScore": null,
+          "outlierRatio": 1.542,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11589": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.7,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11592": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.2,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11593": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.4,
+          "consistencyScore": null,
+          "outlierRatio": 1.124,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11596": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.5,
+          "consistencyScore": null,
+          "outlierRatio": 1.38,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11597": {
+      "projection": {
+        "factors": {
+          "basePPG": 8,
+          "consistencyScore": null,
+          "outlierRatio": 1.193,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11599": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.4,
+          "consistencyScore": null,
+          "outlierRatio": 1.005,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11600": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.4,
+          "consistencyScore": null,
+          "outlierRatio": 0.948,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11603": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.8,
+          "consistencyScore": null,
+          "outlierRatio": 1.306,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11604": {
+      "projection": {
+        "factors": {
+          "basePPG": 15.9,
+          "consistencyScore": null,
+          "outlierRatio": 0.971,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11608": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.7,
+          "consistencyScore": null,
+          "outlierRatio": 1.6,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11610": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.1,
+          "consistencyScore": null,
+          "outlierRatio": 1.283,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11616": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.6,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11617": {
+      "projection": {
+        "factors": {
+          "basePPG": 3,
+          "consistencyScore": null,
+          "outlierRatio": 1.796,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11618": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.4,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11620": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.2,
+          "consistencyScore": null,
+          "outlierRatio": 1.191,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11623": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.5,
+          "consistencyScore": null,
+          "outlierRatio": 0.786,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11624": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.7,
+          "consistencyScore": null,
+          "outlierRatio": 0.822,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11625": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.2,
+          "consistencyScore": null,
+          "outlierRatio": 1.271,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11626": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.6,
+          "consistencyScore": null,
+          "outlierRatio": 0.837,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11627": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.3,
+          "consistencyScore": null,
+          "outlierRatio": 1.441,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11628": {
+      "projection": {
+        "factors": {
+          "basePPG": 9.8,
+          "consistencyScore": null,
+          "outlierRatio": 0.95,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11629": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.3,
+          "consistencyScore": null,
+          "outlierRatio": 1.508,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11630": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.6,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11631": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.7,
+          "consistencyScore": null,
+          "outlierRatio": 0.729,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11632": {
+      "projection": {
+        "factors": {
+          "basePPG": 15.8,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11633": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.5,
+          "consistencyScore": null,
+          "outlierRatio": 1.603,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11635": {
+      "projection": {
+        "factors": {
+          "basePPG": 11.1,
+          "consistencyScore": null,
+          "outlierRatio": 0.846,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11636": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.8,
+          "consistencyScore": null,
+          "outlierRatio": 0.8,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11637": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.3,
+          "consistencyScore": null,
+          "outlierRatio": 0.937,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11638": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.7,
+          "consistencyScore": null,
+          "outlierRatio": 1.072,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11643": {
+      "projection": {
+        "factors": {
+          "basePPG": 4.2,
+          "consistencyScore": null,
+          "outlierRatio": 1.449,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11646": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.3,
+          "consistencyScore": null,
+          "outlierRatio": 0.967,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11647": {
+      "projection": {
+        "factors": {
+          "basePPG": 8.1,
+          "consistencyScore": null,
+          "outlierRatio": 1.522,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11650": {
+      "projection": {
+        "factors": {
+          "basePPG": 7.4,
+          "consistencyScore": null,
+          "outlierRatio": 1.579,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11651": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.2,
+          "consistencyScore": null,
+          "outlierRatio": 0.128,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11655": {
+      "projection": {
+        "factors": {
+          "basePPG": 10.9,
+          "consistencyScore": null,
+          "outlierRatio": 1.004,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11716": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.6,
+          "consistencyScore": null,
+          "outlierRatio": 0.585,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11729": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.4,
+          "consistencyScore": null,
+          "outlierRatio": 0.214,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11762": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.3,
+          "consistencyScore": null,
+          "outlierRatio": 1.239,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11783": {
+      "projection": {
+        "factors": {
+          "basePPG": 5,
+          "consistencyScore": null,
+          "outlierRatio": 1.666,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11806": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.3,
+          "consistencyScore": null,
+          "outlierRatio": 0.269,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11820": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.6,
+          "consistencyScore": null,
+          "outlierRatio": 0.585,
+          "isTdReliant": true
+        }
+      }
+    },
+    "11834": {
+      "projection": {
+        "factors": {
+          "basePPG": 5.2,
+          "consistencyScore": null,
+          "outlierRatio": 0.775,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11895": {
+      "projection": {
+        "factors": {
+          "basePPG": 2.3,
+          "consistencyScore": null,
+          "outlierRatio": 1.201,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11942": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.3,
+          "consistencyScore": null,
+          "outlierRatio": 0.307,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11959": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.9,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11963": {
+      "projection": {
+        "factors": {
+          "basePPG": 2,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "11994": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.8,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "12045": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.1,
+          "consistencyScore": null,
+          "outlierRatio": 0.059,
+          "isTdReliant": false
+        }
+      }
+    },
+    "12048": {
+      "projection": {
+        "factors": {
+          "basePPG": 3.7,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "12062": {
+      "projection": {
+        "factors": {
+          "basePPG": 1,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    },
+    "12171": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.6,
+          "consistencyScore": null,
+          "outlierRatio": 0.603,
+          "isTdReliant": false
+        }
+      }
+    },
+    "12357": {
+      "projection": {
+        "factors": {
+          "basePPG": 0.8,
+          "consistencyScore": null,
+          "outlierRatio": 0.794,
+          "isTdReliant": true
+        }
+      }
+    },
+    "12374": {
+      "projection": {
+        "factors": {
+          "basePPG": 1.1,
+          "consistencyScore": null,
+          "outlierRatio": 1,
+          "isTdReliant": false
+        }
+      }
+    }
+  }
+}

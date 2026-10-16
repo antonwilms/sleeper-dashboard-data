@@ -1,0 +1,4500 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-16T08:51:09.053Z",
+    "date": "2026-10-16",
+    "runtimeMs": 157983,
+    "headRev": "af36667",
+    "shippedFiles": {
+      "twoA": {
+        "path": "backtests/2026-10-07-inseason-constants.json",
+        "expected": "f2c3b83b31acc589dac78b6d61a704ac02a57477",
+        "last": "f2c3b83b31acc589dac78b6d61a704ac02a57477",
+        "match": true
+      },
+      "dyn": {
+        "path": "backtests/2026-10-11-inseason-dyn-constants.json",
+        "expected": "037047811eae63a522b23de69cb9dcbc8bc2cc4d",
+        "last": "037047811eae63a522b23de69cb9dcbc8bc2cc4d",
+        "match": true
+      }
+    },
+    "leagueScoringFixture": "test/fixtures/league-scoring-2026-10-14.json",
+    "positionFile": "raw/-players-nfl.json"
+  },
+  "decisionRule": "## Pre-registered decision rule (written before any G2 result was read)\n\nPer constants file, on **emitted** `k` (never `pinK(kFit)`): for each pinned points entry compare the shipped file's emitted `k` with the league file's emitted `k`. The out-of-sample comparison is `analyzeKCell(rows, spec, { studyK: shippedK })` on the league rows of the cell the entry re-derives from (`fixtureKey ?? name|pos`); its `delta` is the paired leave-one-season-out |error| difference (league fold k − shipped k), clustered by player with the mode's pinned bootstrap, labelled by `compareLabel` (`BEATS` = the league k is better out of sample). The shipped k keeps a small leakage advantage (fitted on all seasons).\n\n- **Excluded (basis-invariant):** `K_ROS_OPP`, `K_DYN_OPP`, `K_ROS_SHARE` — no points in prior, evidence or outcome. Listed, not pooled.\n- **Study entries** (`basis: 'study'`) keep their pin rule under league and are decided like any other entry on their emitted k.\n- **`wire`** iff at least one points entry is `BEATS`, no points entry is `WORSE`, and the pooled points-only paired delta (all points entries' rows) is `BEATS`. Otherwise **`do-not-wire`**, naming the entries.\n- **Multiplicity exposure:** with roughly 40 points entries at 95% intervals, one spurious `BEATS` or `WORSE` is expected by chance; requiring the pooled delta to be `BEATS` as well is the guard against that.\n- **Dynasty file (additionally):** a `wire` requires `prospectPriorKind.kind`, `decisions` and `reuse` unchanged from the shipped file (every difference listed with `diffDynConstants`); if any changed, the dynasty file is **`stop-and-report`** (a decision, not a k). The dynasty file is decided on the run paired with the 2a k the app would keep: the league 2a file if the 2a file wires, else the shipped 2a file.\n- **Data-quality signal:** report `scaled` weeks above 0.5% of the G2 rows in any season.\n- **G3 is report-only:** no exponent is activated; any label difference between bases means the committed `r3fit-exponent-harness.md` verdict does not transport to league basis (Session 1 records a backlog item).\n",
+  "g1": {
+    "pass": true,
+    "positionFile": "raw/-players-nfl.json",
+    "settingsEqual": {
+      "2026-09-24": true,
+      "2026-09-25": true,
+      "2026-10-14": true
+    },
+    "scaleSeason": 2026,
+    "scaleByPosition": {
+      "QB": 1.114,
+      "RB": 1.118,
+      "WR": 1.101,
+      "TE": 1.325
+    },
+    "qualifyingRows": {
+      "QB": 435,
+      "RB": 1300,
+      "WR": 2028,
+      "TE": 1231
+    },
+    "absentQualifyingPids": 39,
+    "a": {
+      "captures": {
+        "2026-09-25": {
+          "unrecovered": 0,
+          "byPosition": {
+            "QB": {
+              "rows": 47,
+              "captured": [
+                1.114
+              ],
+              "mirror": 1.114,
+              "match": true,
+              "qualifyingRows": 435,
+              "exportPositionDiff": 0,
+              "exportAbsent": 0
+            },
+            "RB": {
+              "rows": 71,
+              "captured": [
+                1.118
+              ],
+              "mirror": 1.118,
+              "match": true,
+              "qualifyingRows": 1300,
+              "exportPositionDiff": 1,
+              "exportAbsent": 0
+            },
+            "WR": {
+              "rows": 124,
+              "captured": [
+                1.101
+              ],
+              "mirror": 1.101,
+              "match": true,
+              "qualifyingRows": 2028,
+              "exportPositionDiff": 0,
+              "exportAbsent": 1
+            },
+            "TE": {
+              "rows": 60,
+              "captured": [
+                1.325
+              ],
+              "mirror": 1.325,
+              "match": true,
+              "qualifyingRows": 1231,
+              "exportPositionDiff": 1,
+              "exportAbsent": 0
+            }
+          }
+        },
+        "2026-10-14": {
+          "unrecovered": 0,
+          "byPosition": {
+            "QB": {
+              "rows": 49,
+              "captured": [
+                1.114
+              ],
+              "mirror": 1.114,
+              "match": true,
+              "qualifyingRows": 435,
+              "exportPositionDiff": 0,
+              "exportAbsent": 0
+            },
+            "RB": {
+              "rows": 77,
+              "captured": [
+                1.118
+              ],
+              "mirror": 1.118,
+              "match": true,
+              "qualifyingRows": 1300,
+              "exportPositionDiff": 3,
+              "exportAbsent": 0
+            },
+            "WR": {
+              "rows": 125,
+              "captured": [
+                1.101
+              ],
+              "mirror": 1.101,
+              "match": true,
+              "qualifyingRows": 2028,
+              "exportPositionDiff": 0,
+              "exportAbsent": 1
+            },
+            "TE": {
+              "rows": 59,
+              "captured": [
+                1.325
+              ],
+              "mirror": 1.325,
+              "match": true,
+              "qualifyingRows": 1231,
+              "exportPositionDiff": 1,
+              "exportAbsent": 0
+            }
+          }
+        }
+      },
+      "pass": true
+    },
+    "b": {
+      "capture": "2026-10-14",
+      "league": {
+        "rows": 310,
+        "positionUnrecovered": 0,
+        "chainExcluded": 46,
+        "byPosition": {
+          "QB": 49,
+          "WR": 125,
+          "TE": 59,
+          "RB": 77
+        },
+        "capturedCeilingInputConsistent": 125,
+        "levelExact": 264,
+        "totalExact": 263,
+        "fields": {
+          "basePPG": {
+            "checked": 310,
+            "fail": 0,
+            "failures": []
+          },
+          "ceilingInput": {
+            "checked": 310,
+            "fail": 0,
+            "failures": []
+          },
+          "kneeAsymptote": {
+            "checked": 310,
+            "fail": 0,
+            "failures": []
+          },
+          "level": {
+            "checked": 264,
+            "fail": 0,
+            "failures": []
+          },
+          "qbStarter": {
+            "checked": 49,
+            "fail": 0,
+            "failures": []
+          },
+          "totalFactor": {
+            "checked": 264,
+            "fail": 0,
+            "failures": []
+          },
+          "total": {
+            "checked": 264,
+            "fail": 0,
+            "failures": []
+          }
+        },
+        "mismatchTotal": 0
+      },
+      "half_ppr": {
+        "rows": 310,
+        "positionUnrecovered": 0,
+        "chainExcluded": 46,
+        "byPosition": {
+          "QB": 49,
+          "WR": 125,
+          "TE": 59,
+          "RB": 77
+        },
+        "capturedCeilingInputConsistent": 125,
+        "levelExact": 241,
+        "totalExact": 237,
+        "fields": {
+          "basePPG": {
+            "checked": 310,
+            "fail": 310,
+            "failures": [
+              {
+                "pid": "260",
+                "position": "QB",
+                "mirror": 13,
+                "captured": 14.482000000000001
+              },
+              {
+                "pid": "6037",
+                "position": "QB",
+                "mirror": 13,
+                "captured": 14.482000000000001
+              },
+              {
+                "pid": "6045",
+                "position": "WR",
+                "mirror": 7,
+                "captured": 7.707
+              },
+              {
+                "pid": "6136",
+                "position": "QB",
+                "mirror": 13,
+                "captured": 14.482000000000001
+              },
+              {
+                "pid": "6185",
+                "position": "QB",
+                "mirror": 13,
+                "captured": 14.482000000000001
+              }
+            ]
+          },
+          "ceilingInput": {
+            "checked": 310,
+            "fail": 310,
+            "failures": [
+              {
+                "pid": "260",
+                "position": "QB",
+                "mirror": 10.66,
+                "captured": 11.875,
+                "tol": 0.066
+              },
+              {
+                "pid": "6037",
+                "position": "QB",
+                "mirror": 8.788,
+                "captured": 9.786,
+                "tol": 0.044
+              },
+              {
+                "pid": "6045",
+                "position": "WR",
+                "mirror": 3.893,
+                "captured": 4.286,
+                "tol": 0.028
+              },
+              {
+                "pid": "6136",
+                "position": "QB",
+                "mirror": 9.464,
+                "captured": 10.545,
+                "tol": 0.066
+              },
+              {
+                "pid": "6185",
+                "position": "QB",
+                "mirror": 7.254,
+                "captured": 8.075,
+                "tol": 0.066
+              }
+            ]
+          },
+          "kneeAsymptote": {
+            "checked": 310,
+            "fail": 310,
+            "failures": [
+              {
+                "pid": "260",
+                "position": "QB",
+                "mirror": [
+                  17.8,
+                  21.9
+                ],
+                "captured": [
+                  19.829200000000004,
+                  24.3966
+                ]
+              },
+              {
+                "pid": "6037",
+                "position": "QB",
+                "mirror": [
+                  17.8,
+                  21.9
+                ],
+                "captured": [
+                  19.829200000000004,
+                  24.3966
+                ]
+              },
+              {
+                "pid": "6045",
+                "position": "WR",
+                "mirror": [
+                  9.87,
+                  14.38
+                ],
+                "captured": [
+                  10.866869999999999,
+                  15.83238
+                ]
+              },
+              {
+                "pid": "6136",
+                "position": "QB",
+                "mirror": [
+                  17.8,
+                  21.9
+                ],
+                "captured": [
+                  19.829200000000004,
+                  24.3966
+                ]
+              },
+              {
+                "pid": "6185",
+                "position": "QB",
+                "mirror": [
+                  17.8,
+                  21.9
+                ],
+                "captured": [
+                  19.829200000000004,
+                  24.3966
+                ]
+              }
+            ]
+          },
+          "level": {
+            "checked": 264,
+            "fail": 17,
+            "failures": [
+              {
+                "pid": "12487",
+                "position": "TE",
+                "mirror": 7.5,
+                "captured": 7.7
+              },
+              {
+                "pid": "12501",
+                "position": "WR",
+                "mirror": 11.4,
+                "captured": 11.7
+              },
+              {
+                "pid": "12506",
+                "position": "TE",
+                "mirror": 8.9,
+                "captured": 9.7
+              },
+              {
+                "pid": "12507",
+                "position": "RB",
+                "mirror": 15,
+                "captured": 15.9
+              },
+              {
+                "pid": "12512",
+                "position": "RB",
+                "mirror": 14.6,
+                "captured": 15.3
+              }
+            ]
+          },
+          "qbStarter": {
+            "checked": 49,
+            "fail": 20,
+            "failures": [
+              {
+                "pid": "12508",
+                "basis": "projection",
+                "mirror": 20.839,
+                "captured": 22.28
+              },
+              {
+                "pid": "12522",
+                "basis": "projection",
+                "mirror": 19.327,
+                "captured": 19.71
+              },
+              {
+                "pid": "13269",
+                "basis": "rookie:top12",
+                "mirror": 15.801,
+                "captured": 17.602
+              },
+              {
+                "pid": "13272",
+                "basis": "rookie:day2",
+                "mirror": 13.303,
+                "captured": 14.82
+              },
+              {
+                "pid": "13275",
+                "basis": "rookie:r1",
+                "mirror": 14.355,
+                "captured": 15.991
+              }
+            ]
+          },
+          "totalFactor": {
+            "checked": 264,
+            "fail": 0,
+            "failures": []
+          },
+          "total": {
+            "checked": 264,
+            "fail": 24,
+            "failures": [
+              {
+                "pid": "12484",
+                "position": "WR",
+                "mirror": 73.1,
+                "captured": 73.4
+              },
+              {
+                "pid": "12487",
+                "position": "TE",
+                "mirror": 52.6,
+                "captured": 53.9
+              },
+              {
+                "pid": "12498",
+                "position": "TE",
+                "mirror": 50.6,
+                "captured": 51.4
+              },
+              {
+                "pid": "12501",
+                "position": "WR",
+                "mirror": 148.4,
+                "captured": 151.9
+              },
+              {
+                "pid": "12506",
+                "position": "TE",
+                "mirror": 62.1,
+                "captured": 67.9
+              }
+            ]
+          }
+        },
+        "mismatchTotal": 991
+      },
+      "pass": true
+    },
+    "c": {
+      "captures": {
+        "2026-09-24": {
+          "side": "pre",
+          "model": {
+            "model": "half_ppr"
+          },
+          "half_ppr": {
+            "rows": 302,
+            "positionUnrecovered": 0,
+            "chainExcluded": 0,
+            "mismatchTotal": 0,
+            "byField": {
+              "basePPG": {
+                "checked": 302,
+                "fail": 0
+              },
+              "ceilingInput": {
+                "checked": 302,
+                "fail": 0
+              },
+              "kneeAsymptote": {
+                "checked": 302,
+                "fail": 0
+              },
+              "level": {
+                "checked": 302,
+                "fail": 0
+              },
+              "qbStarter": {
+                "checked": 0,
+                "fail": 0
+              },
+              "totalFactor": {
+                "checked": 0,
+                "fail": 0
+              },
+              "total": {
+                "checked": 302,
+                "fail": 0
+              }
+            }
+          },
+          "league": {
+            "rows": 302,
+            "positionUnrecovered": 0,
+            "chainExcluded": 0,
+            "mismatchTotal": 938,
+            "byField": {
+              "basePPG": {
+                "checked": 302,
+                "fail": 302
+              },
+              "ceilingInput": {
+                "checked": 302,
+                "fail": 302
+              },
+              "kneeAsymptote": {
+                "checked": 302,
+                "fail": 302
+              },
+              "level": {
+                "checked": 302,
+                "fail": 13
+              },
+              "qbStarter": {
+                "checked": 0,
+                "fail": 0
+              },
+              "totalFactor": {
+                "checked": 0,
+                "fail": 0
+              },
+              "total": {
+                "checked": 302,
+                "fail": 19
+              }
+            }
+          }
+        },
+        "2026-09-25": {
+          "side": "post",
+          "model": {
+            "model": "league"
+          },
+          "half_ppr": {
+            "rows": 302,
+            "positionUnrecovered": 0,
+            "chainExcluded": 0,
+            "mismatchTotal": 956,
+            "byField": {
+              "basePPG": {
+                "checked": 302,
+                "fail": 302
+              },
+              "ceilingInput": {
+                "checked": 302,
+                "fail": 302
+              },
+              "kneeAsymptote": {
+                "checked": 302,
+                "fail": 302
+              },
+              "level": {
+                "checked": 302,
+                "fail": 22
+              },
+              "qbStarter": {
+                "checked": 0,
+                "fail": 0
+              },
+              "totalFactor": {
+                "checked": 0,
+                "fail": 0
+              },
+              "total": {
+                "checked": 302,
+                "fail": 28
+              }
+            }
+          },
+          "league": {
+            "rows": 302,
+            "positionUnrecovered": 0,
+            "chainExcluded": 0,
+            "mismatchTotal": 0,
+            "byField": {
+              "basePPG": {
+                "checked": 302,
+                "fail": 0
+              },
+              "ceilingInput": {
+                "checked": 302,
+                "fail": 0
+              },
+              "kneeAsymptote": {
+                "checked": 302,
+                "fail": 0
+              },
+              "level": {
+                "checked": 302,
+                "fail": 0
+              },
+              "qbStarter": {
+                "checked": 0,
+                "fail": 0
+              },
+              "totalFactor": {
+                "checked": 0,
+                "fail": 0
+              },
+              "total": {
+                "checked": 302,
+                "fail": 0
+              }
+            }
+          }
+        }
+      },
+      "pass": true
+    },
+    "d": {
+      "candidates": 436,
+      "noQualifying": 0,
+      "league": {
+        "match": 436
+      },
+      "half_ppr": {
+        "match": 11
+      },
+      "consistencyScore": {
+        "league": 436,
+        "half_ppr": 218,
+        "checked": 436
+      },
+      "outlierRatio": {
+        "league": 99,
+        "half_ppr": 56,
+        "checked": 436
+      },
+      "misses": [],
+      "pass": true,
+      "note": "`isTdReliant` has no data-side mirror (reported as unreconstructed); consistencyScore / outlierRatio are match rates, not asserted."
+    }
+  },
+  "g2": {
+    "twoA": {
+      "leagueFile": "backtests/2026-10-16-inseason-league-constants.json",
+      "comparison": {
+        "entries": [
+          {
+            "name": "K_ROS_POINTS",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 3,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "fitted",
+              "kFit": 2.6,
+              "rows": 3124,
+              "players": 78,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": false,
+            "cellKey": "pointsP_ros|QB",
+            "delta": {
+              "mean": 0.0023377864344863862,
+              "ci95": [
+                -0.013133912496088026,
+                0.018514927704339938
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 309,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 3124
+          },
+          {
+            "name": "K_ROS_POINTS",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "fitted",
+              "kFit": 2.6,
+              "rows": 9213,
+              "players": 308,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "pointsP_ros|RB",
+            "delta": {
+              "mean": 0.00469036679491301,
+              "ci95": [
+                0.0008646465828869433,
+                0.008859798910557635
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 890,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 9213
+          },
+          {
+            "name": "K_ROS_POINTS",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 3,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 3,
+              "basis": "fitted",
+              "kFit": 3.1,
+              "rows": 12845,
+              "players": 406,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "pointsP_ros|WR",
+            "delta": {
+              "mean": 0.0038240822764217673,
+              "ci95": [
+                0.0012654320067720026,
+                0.006352515385742656
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 1251,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 12845
+          },
+          {
+            "name": "K_ROS_POINTS",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 3,
+              "basis": "fitted",
+              "kFit": 3.2,
+              "rows": 8495,
+              "players": 240,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": false,
+            "cellKey": "pointsP_ros|TE",
+            "delta": {
+              "mean": -0.0008214126107313641,
+              "ci95": [
+                -0.004539944067469455,
+                0.002824628380780436
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 798,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8495
+          },
+          {
+            "name": "K_DYN_POINTS",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 4.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 4,
+              "basis": "fitted",
+              "kFit": 4.1,
+              "rows": 2726,
+              "players": 61,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": false,
+            "cellKey": "pointsP_next|QB",
+            "delta": {
+              "mean": 0.009375540685854005,
+              "ci95": [
+                -0.004187290233934725,
+                0.023544244403148677
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 235,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 2726
+          },
+          {
+            "name": "K_DYN_POINTS",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 4.5,
+              "basis": "study"
+            },
+            "league": {
+              "k": 4,
+              "basis": "fitted",
+              "kFit": 4,
+              "rows": 6840,
+              "players": 221,
+              "fixtureKey": null
+            },
+            "study": true,
+            "same": false,
+            "cellKey": "pointsP_next|RB",
+            "delta": {
+              "mean": 0.009623600751142665,
+              "ci95": [
+                -0.000929646707622552,
+                0.020455032433122286
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 587,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 6840
+          },
+          {
+            "name": "K_DYN_POINTS",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 4,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 4,
+              "basis": "fitted",
+              "kFit": 3.8,
+              "rows": 10001,
+              "players": 304,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "pointsP_next|WR",
+            "delta": {
+              "mean": 0.004032497892631711,
+              "ci95": [
+                0.0007179584311557882,
+                0.007471431109987218
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 861,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 10001
+          },
+          {
+            "name": "K_DYN_POINTS",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 4.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 4,
+              "basis": "fitted",
+              "kFit": 4,
+              "rows": 6471,
+              "players": 178,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": false,
+            "cellKey": "pointsP_next|TE",
+            "delta": {
+              "mean": 0.000594251799589983,
+              "ci95": [
+                -0.0066124221790590885,
+                0.007430656959255693
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 554,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 6471
+          },
+          {
+            "name": "K_DYN_POINTS_HISTORY",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 7.5,
+              "basis": "study"
+            },
+            "league": {
+              "k": 7.5,
+              "basis": "study",
+              "kFit": 7.1,
+              "rows": 3193,
+              "players": 70,
+              "fixtureKey": null
+            },
+            "study": true,
+            "same": true,
+            "cellKey": "pointsR_next|QB",
+            "delta": {
+              "mean": 0.011479045518497528,
+              "ci95": [
+                0.0013259541098182787,
+                0.021914487636029045
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 275,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 3193
+          },
+          {
+            "name": "K_DYN_POINTS_HISTORY",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 4,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 4,
+              "basis": "fitted",
+              "kFit": 4,
+              "rows": 8871,
+              "players": 275,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "pointsR_next|RB",
+            "delta": {
+              "mean": 0.0037745250657871825,
+              "ci95": [
+                0.0002642499717371065,
+                0.007245245599370544
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 763,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8871
+          },
+          {
+            "name": "K_DYN_POINTS_HISTORY",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 6,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 6,
+              "basis": "fitted",
+              "kFit": 5.8,
+              "rows": 12506,
+              "players": 365,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "pointsR_next|WR",
+            "delta": {
+              "mean": 0.000550519716119696,
+              "ci95": [
+                -0.0014253604851084025,
+                0.0024725202447202724
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 1079,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 12506
+          },
+          {
+            "name": "K_DYN_POINTS_HISTORY",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 5.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 5,
+              "basis": "fitted",
+              "kFit": 4.9,
+              "rows": 8068,
+              "players": 224,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": false,
+            "cellKey": "pointsR_next|TE",
+            "delta": {
+              "mean": -0.002330060715761751,
+              "ci95": [
+                -0.007892544269622739,
+                0.0031670172191005045
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 695,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8068
+          },
+          {
+            "name": "K_ROS_OPP",
+            "cell": "QB",
+            "excluded": true,
+            "shipped": {
+              "k": 2.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "fitted",
+              "kFit": 2.6,
+              "rows": 3715,
+              "players": 95,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_ROS_OPP",
+            "cell": "RB",
+            "excluded": true,
+            "shipped": {
+              "k": 1.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 1.5,
+              "basis": "fitted",
+              "kFit": 1.7,
+              "rows": 6872,
+              "players": 229,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_ROS_OPP",
+            "cell": "WR",
+            "excluded": true,
+            "shipped": {
+              "k": 3,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 3,
+              "basis": "fitted",
+              "kFit": 3.2,
+              "rows": 9461,
+              "players": 297,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_ROS_OPP",
+            "cell": "TE",
+            "excluded": true,
+            "shipped": {
+              "k": 3.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "fitted",
+              "kFit": 3.5,
+              "rows": 3099,
+              "players": 105,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_DYN_OPP",
+            "cell": "QB",
+            "excluded": true,
+            "shipped": {
+              "k": 6,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 6,
+              "basis": "fitted",
+              "kFit": 5.8,
+              "rows": 3357,
+              "players": 72,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_DYN_OPP",
+            "cell": "RB",
+            "excluded": true,
+            "shipped": {
+              "k": 2.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "fitted",
+              "kFit": 2.3,
+              "rows": 6287,
+              "players": 220,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_DYN_OPP",
+            "cell": "WR",
+            "excluded": true,
+            "shipped": {
+              "k": 4,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 4,
+              "basis": "fitted",
+              "kFit": 4,
+              "rows": 9149,
+              "players": 293,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_DYN_OPP",
+            "cell": "TE",
+            "excluded": true,
+            "shipped": {
+              "k": 4,
+              "basis": "study"
+            },
+            "league": {
+              "k": 4,
+              "basis": "study",
+              "kFit": 3.9,
+              "rows": 3609,
+              "players": 127,
+              "fixtureKey": null
+            },
+            "study": true,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_ROS_SHARE",
+            "cell": "WR",
+            "excluded": true,
+            "shipped": {
+              "k": 3,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 3,
+              "basis": "fitted",
+              "kFit": 2.8,
+              "rows": 9437,
+              "players": 296,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_ROS_SHARE",
+            "cell": "TE",
+            "excluded": true,
+            "shipped": {
+              "k": 2.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "fitted",
+              "kFit": 2.5,
+              "rows": 3099,
+              "players": 105,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": null,
+            "delta": null,
+            "label": "excluded",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_ROS_POINTS_ROOKIE0",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.7,
+              "rows": 9815,
+              "players": 1063,
+              "fixtureKey": "K_ROS_POINTS_ROOKIE0|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie0|ros|ALL",
+            "delta": {
+              "mean": 0.005663245358154449,
+              "ci95": [
+                0.002742946462223471,
+                0.008602379699585381
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 1063,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 9815
+          },
+          {
+            "name": "K_ROS_POINTS_ROOKIE0",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.7,
+              "rows": 9815,
+              "players": 1063,
+              "fixtureKey": "K_ROS_POINTS_ROOKIE0|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie0|ros|ALL",
+            "delta": {
+              "mean": 0.005663245358154449,
+              "ci95": [
+                0.002742946462223471,
+                0.008602379699585381
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 1063,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 9815
+          },
+          {
+            "name": "K_ROS_POINTS_ROOKIE0",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.7,
+              "rows": 9815,
+              "players": 1063,
+              "fixtureKey": "K_ROS_POINTS_ROOKIE0|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie0|ros|ALL",
+            "delta": {
+              "mean": 0.005663245358154449,
+              "ci95": [
+                0.002742946462223471,
+                0.008602379699585381
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 1063,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 9815
+          },
+          {
+            "name": "K_ROS_POINTS_ROOKIE0",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.7,
+              "rows": 9815,
+              "players": 1063,
+              "fixtureKey": "K_ROS_POINTS_ROOKIE0|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie0|ros|ALL",
+            "delta": {
+              "mean": 0.005663245358154449,
+              "ci95": [
+                0.002742946462223471,
+                0.008602379699585381
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 1063,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 9815
+          },
+          {
+            "name": "K_DYN_POINTS_ROOKIE0",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 6.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 6,
+              "basis": "pooled",
+              "kFit": 6.2,
+              "rows": 8072,
+              "players": 764,
+              "fixtureKey": "K_DYN_POINTS_ROOKIE0|ALL"
+            },
+            "study": false,
+            "same": false,
+            "cellKey": "q4|X-rookie0|next|ALL",
+            "delta": {
+              "mean": 0.0021248056665181658,
+              "ci95": [
+                -0.002598646622883734,
+                0.006981880524376697
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 764,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8072
+          },
+          {
+            "name": "K_DYN_POINTS_ROOKIE0",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 6.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 6,
+              "basis": "pooled",
+              "kFit": 6.2,
+              "rows": 8072,
+              "players": 764,
+              "fixtureKey": "K_DYN_POINTS_ROOKIE0|ALL"
+            },
+            "study": false,
+            "same": false,
+            "cellKey": "q4|X-rookie0|next|ALL",
+            "delta": {
+              "mean": 0.0021248056665181658,
+              "ci95": [
+                -0.002598646622883734,
+                0.006981880524376697
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 764,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8072
+          },
+          {
+            "name": "K_DYN_POINTS_ROOKIE0",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 6.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 6,
+              "basis": "pooled",
+              "kFit": 6.2,
+              "rows": 8072,
+              "players": 764,
+              "fixtureKey": "K_DYN_POINTS_ROOKIE0|ALL"
+            },
+            "study": false,
+            "same": false,
+            "cellKey": "q4|X-rookie0|next|ALL",
+            "delta": {
+              "mean": 0.0021248056665181658,
+              "ci95": [
+                -0.002598646622883734,
+                0.006981880524376697
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 764,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8072
+          },
+          {
+            "name": "K_DYN_POINTS_ROOKIE0",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 6.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 6,
+              "basis": "pooled",
+              "kFit": 6.2,
+              "rows": 8072,
+              "players": 764,
+              "fixtureKey": "K_DYN_POINTS_ROOKIE0|ALL"
+            },
+            "study": false,
+            "same": false,
+            "cellKey": "q4|X-rookie0|next|ALL",
+            "delta": {
+              "mean": 0.0021248056665181658,
+              "ci95": [
+                -0.002598646622883734,
+                0.006981880524376697
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "NO-GAIN",
+            "weeksMethod": {
+              "exact": 764,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8072
+          },
+          {
+            "name": "K_ROS_POINTS_ROOKIE1P",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.5,
+              "rows": 10857,
+              "players": 1089,
+              "fixtureKey": "K_ROS_POINTS_ROOKIE1P|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie1p|ros|ALL",
+            "delta": {
+              "mean": 0.004263083537967134,
+              "ci95": [
+                0.0021699643798252714,
+                0.006343901429729839
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 1145,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 10857
+          },
+          {
+            "name": "K_ROS_POINTS_ROOKIE1P",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.5,
+              "rows": 10857,
+              "players": 1089,
+              "fixtureKey": "K_ROS_POINTS_ROOKIE1P|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie1p|ros|ALL",
+            "delta": {
+              "mean": 0.004263083537967134,
+              "ci95": [
+                0.0021699643798252714,
+                0.006343901429729839
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 1145,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 10857
+          },
+          {
+            "name": "K_ROS_POINTS_ROOKIE1P",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 3,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 3,
+              "basis": "fitted",
+              "kFit": 3,
+              "rows": 4384,
+              "players": 439,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie1p|ros|WR",
+            "delta": {
+              "mean": 0.005150360140054181,
+              "ci95": [
+                0.0019957830132691363,
+                0.008397711913189875
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 452,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 4384
+          },
+          {
+            "name": "K_ROS_POINTS_ROOKIE1P",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.5,
+              "rows": 10857,
+              "players": 1089,
+              "fixtureKey": "K_ROS_POINTS_ROOKIE1P|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie1p|ros|ALL",
+            "delta": {
+              "mean": 0.004263083537967134,
+              "ci95": [
+                0.0021699643798252714,
+                0.006343901429729839
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 1145,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 10857
+          },
+          {
+            "name": "K_DYN_POINTS_ROOKIE1P",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 8690,
+              "players": 752,
+              "fixtureKey": "K_DYN_POINTS_ROOKIE1P|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie1p|next|ALL",
+            "delta": {
+              "mean": 0.006034086691375371,
+              "ci95": [
+                0.0014180478722922356,
+                0.010653057217632695
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 789,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8690
+          },
+          {
+            "name": "K_DYN_POINTS_ROOKIE1P",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 8690,
+              "players": 752,
+              "fixtureKey": "K_DYN_POINTS_ROOKIE1P|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie1p|next|ALL",
+            "delta": {
+              "mean": 0.006034086691375371,
+              "ci95": [
+                0.0014180478722922356,
+                0.010653057217632695
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 789,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8690
+          },
+          {
+            "name": "K_DYN_POINTS_ROOKIE1P",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 8690,
+              "players": 752,
+              "fixtureKey": "K_DYN_POINTS_ROOKIE1P|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie1p|next|ALL",
+            "delta": {
+              "mean": 0.006034086691375371,
+              "ci95": [
+                0.0014180478722922356,
+                0.010653057217632695
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 789,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8690
+          },
+          {
+            "name": "K_DYN_POINTS_ROOKIE1P",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 8690,
+              "players": 752,
+              "fixtureKey": "K_DYN_POINTS_ROOKIE1P|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-rookie1p|next|ALL",
+            "delta": {
+              "mean": 0.006034086691375371,
+              "ci95": [
+                0.0014180478722922356,
+                0.010653057217632695
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 789,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 8690
+          },
+          {
+            "name": "K_ROS_POINTS_SHORT",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 1.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 1.5,
+              "basis": "pooled",
+              "kFit": 1.4,
+              "rows": 4397,
+              "players": 418,
+              "fixtureKey": "K_ROS_POINTS_SHORT|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-short|ros|ALL",
+            "delta": {
+              "mean": 0.00516900445160616,
+              "ci95": [
+                -0.00008568454529085572,
+                0.010797721130593713
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 508,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 4397
+          },
+          {
+            "name": "K_ROS_POINTS_SHORT",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 1.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 1.5,
+              "basis": "pooled",
+              "kFit": 1.4,
+              "rows": 4397,
+              "players": 418,
+              "fixtureKey": "K_ROS_POINTS_SHORT|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-short|ros|ALL",
+            "delta": {
+              "mean": 0.00516900445160616,
+              "ci95": [
+                -0.00008568454529085572,
+                0.010797721130593713
+              ],
+              "label": "NO-GAIN"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 508,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 4397
+          },
+          {
+            "name": "K_ROS_POINTS_SHORT",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 1,
+              "basis": "fitted"
+            },
+            "league": {
+              "k": 1,
+              "basis": "fitted",
+              "kFit": 1.1,
+              "rows": 1662,
+              "players": 162,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-short|ros|WR",
+            "delta": {
+              "mean": 0.012699291293963336,
+              "ci95": [
+                0.003021024204415375,
+                0.024299842347153787
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 187,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 1662
+          },
+          {
+            "name": "K_ROS_POINTS_SHORT",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 4,
+              "basis": "study"
+            },
+            "league": {
+              "k": 1.5,
+              "basis": "pooled",
+              "kFit": 1.4,
+              "rows": 4397,
+              "players": 418,
+              "fixtureKey": "K_ROS_POINTS_SHORT|ALL"
+            },
+            "study": true,
+            "same": false,
+            "cellKey": "q4|X-short|ros|ALL",
+            "delta": {
+              "mean": -0.14094701765957882,
+              "ci95": [
+                -0.22459465307726942,
+                -0.06212826423334675
+              ],
+              "label": "BEATS"
+            },
+            "label": "BEATS",
+            "weeksMethod": {
+              "exact": 508,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 4397
+          },
+          {
+            "name": "K_DYN_POINTS_SHORT",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.4,
+              "rows": 2724,
+              "players": 221,
+              "fixtureKey": "K_DYN_POINTS_SHORT|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-short|next|ALL",
+            "delta": {
+              "mean": 0.02306892928314714,
+              "ci95": [
+                0.01006935930069737,
+                0.03643660326461022
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 256,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 2724
+          },
+          {
+            "name": "K_DYN_POINTS_SHORT",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.4,
+              "rows": 2724,
+              "players": 221,
+              "fixtureKey": "K_DYN_POINTS_SHORT|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-short|next|ALL",
+            "delta": {
+              "mean": 0.02306892928314714,
+              "ci95": [
+                0.01006935930069737,
+                0.03643660326461022
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 256,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 2724
+          },
+          {
+            "name": "K_DYN_POINTS_SHORT",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.4,
+              "rows": 2724,
+              "players": 221,
+              "fixtureKey": "K_DYN_POINTS_SHORT|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-short|next|ALL",
+            "delta": {
+              "mean": 0.02306892928314714,
+              "ci95": [
+                0.01006935930069737,
+                0.03643660326461022
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 256,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 2724
+          },
+          {
+            "name": "K_DYN_POINTS_SHORT",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 2.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 2.5,
+              "basis": "pooled",
+              "kFit": 2.4,
+              "rows": 2724,
+              "players": 221,
+              "fixtureKey": "K_DYN_POINTS_SHORT|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "q4|X-short|next|ALL",
+            "delta": {
+              "mean": 0.02306892928314714,
+              "ci95": [
+                0.01006935930069737,
+                0.03643660326461022
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 256,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 2724
+          },
+          {
+            "name": "K_DYN_POINTS_WEAK",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": null,
+            "league": {
+              "k": 8,
+              "basis": "fitted",
+              "kFit": 8.1,
+              "rows": 3114,
+              "players": 158,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": null,
+            "cellKey": null,
+            "delta": null,
+            "label": "shipped-missing",
+            "weeksMethod": null
+          },
+          {
+            "name": "K_DYN_POINTS_STRONG",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": null,
+            "league": {
+              "k": 3,
+              "basis": "fitted",
+              "kFit": 3.1,
+              "rows": 6887,
+              "players": 210,
+              "fixtureKey": null
+            },
+            "study": false,
+            "same": null,
+            "cellKey": null,
+            "delta": null,
+            "label": "shipped-missing",
+            "weeksMethod": null
+          }
+        ],
+        "pooled": {
+          "cells": 21,
+          "rows": 147351,
+          "players": 1720,
+          "mean": -0.0002212145915336113,
+          "ci95": [
+            -0.0032012721743109266,
+            0.002715413425139669
+          ],
+          "label": "NO-GAIN"
+        }
+      },
+      "verdict": {
+        "pointsEntries": 36,
+        "differing": 11,
+        "beats": [
+          "K_ROS_POINTS_SHORT.TE"
+        ],
+        "worse": [],
+        "pooledLabel": "NO-GAIN",
+        "ruleWires": false,
+        "verdict": "do-not-wire",
+        "reason": "BEATS K_ROS_POINTS_SHORT.TE; no WORSE entry; pooled points delta NO-GAIN"
+      },
+      "written": {
+        "panelPath": "backtests/2026-10-16-inseason-league-panel.json",
+        "constantsPath": "backtests/2026-10-16-inseason-league-constants.json",
+        "verdictPath": "grading/2026-10-16-inseason-league-verdict.md",
+        "panelBytes": 309986,
+        "constantsBytes": 177597
+      },
+      "reconciliation": {
+        "population": 7033,
+        "pass": 7032,
+        "rate": 0.9998578131665008,
+        "minRate": 0.99,
+        "ok": true,
+        "failures": [
+          {
+            "season": 2012,
+            "sleeperId": "133",
+            "position": "RB",
+            "gamelogs": 19,
+            "seasonTotals": 0,
+            "diff": 19
+          }
+        ],
+        "absentFromGamelogs": {
+          "2012": 12,
+          "2013": 16,
+          "2014": 14,
+          "2015": 14,
+          "2016": 4,
+          "2017": 2,
+          "2018": 6,
+          "2019": 7,
+          "2020": 7,
+          "2021": 6,
+          "2022": 6,
+          "2023": 2,
+          "2024": 5,
+          "2025": 9
+        },
+        "unmapped": {
+          "2012": 165,
+          "2013": 82,
+          "2014": 15,
+          "2015": 0,
+          "2016": 4,
+          "2017": 5,
+          "2018": 2,
+          "2019": 1,
+          "2020": 0,
+          "2021": 0,
+          "2022": 0,
+          "2023": 1,
+          "2024": 1,
+          "2025": 12
+        },
+        "tolerance": "max(2, 3%) of season-totals opportunities, REG games only"
+      },
+      "runtimeMs": 71129
+    },
+    "dynLeague2a": {
+      "pairing": "league-2a",
+      "inSeasonConstants": "backtests/2026-10-16-inseason-league-constants.json (uncommitted league 2a file)",
+      "structure": {
+        "diff": [
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.kFit",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.ci95",
+            "before": [
+              2.7,
+              4.8
+            ],
+            "after": [
+              2.8,
+              4.9
+            ]
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2014",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2015",
+            "before": 3.2,
+            "after": 3.3
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2016",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2017",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2020",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2021",
+            "before": 3.9,
+            "after": 4
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2022",
+            "before": 3.7,
+            "after": 3.8
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2023",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.kFit",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.ci95",
+            "before": [
+              2.7,
+              4.8
+            ],
+            "after": [
+              2.8,
+              4.9
+            ]
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2014",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2015",
+            "before": 3.2,
+            "after": 3.3
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2016",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2017",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2020",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2021",
+            "before": 3.9,
+            "after": 4
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2022",
+            "before": 3.7,
+            "after": 3.8
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2023",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.kFit",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.ci95",
+            "before": [
+              2.7,
+              4.8
+            ],
+            "after": [
+              2.8,
+              4.9
+            ]
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2014",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2015",
+            "before": 3.2,
+            "after": 3.3
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2016",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2017",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2020",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2021",
+            "before": 3.9,
+            "after": 4
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2022",
+            "before": 3.7,
+            "after": 3.8
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2023",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.kFit",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.ci95",
+            "before": [
+              2.7,
+              4.8
+            ],
+            "after": [
+              2.8,
+              4.9
+            ]
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2014",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2015",
+            "before": 3.2,
+            "after": 3.3
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2016",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2017",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2020",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2021",
+            "before": 3.9,
+            "after": 4
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2022",
+            "before": 3.7,
+            "after": 3.8
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2023",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE0|QB.k",
+            "before": [
+              6.5
+            ],
+            "after": [
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE0|RB.k",
+            "before": [
+              6.5
+            ],
+            "after": [
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE0|WR.k",
+            "before": [
+              6.5
+            ],
+            "after": [
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE0|TE.k",
+            "before": [
+              6.5
+            ],
+            "after": [
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE1|RB.k",
+            "before": [
+              3.5,
+              6.5
+            ],
+            "after": [
+              3.5,
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE1|WR.k",
+            "before": [
+              3.5,
+              6.5
+            ],
+            "after": [
+              3.5,
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE1|TE.k",
+            "before": [
+              3.5,
+              6.5
+            ],
+            "after": [
+              3.5,
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_POINTS_SHORT_HISTORY|TE.k",
+            "before": [
+              5.5
+            ],
+            "after": [
+              5
+            ]
+          }
+        ],
+        "kindEqual": true,
+        "kind": {
+          "shipped": {
+            "0": {
+              "QB": "projection",
+              "RB": "projection",
+              "WR": "projection",
+              "TE": "projection"
+            },
+            "1": {
+              "QB": "projection",
+              "RB": "projection",
+              "WR": "position",
+              "TE": "projection"
+            }
+          },
+          "league": {
+            "0": {
+              "QB": "projection",
+              "RB": "projection",
+              "WR": "projection",
+              "TE": "projection"
+            },
+            "1": {
+              "QB": "projection",
+              "RB": "projection",
+              "WR": "position",
+              "TE": "projection"
+            }
+          }
+        },
+        "decisionsChanged": [],
+        "reuseChanged": [
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE0|QB.k",
+            "before": [
+              6.5
+            ],
+            "after": [
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE0|RB.k",
+            "before": [
+              6.5
+            ],
+            "after": [
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE0|WR.k",
+            "before": [
+              6.5
+            ],
+            "after": [
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE0|TE.k",
+            "before": [
+              6.5
+            ],
+            "after": [
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE1|RB.k",
+            "before": [
+              3.5,
+              6.5
+            ],
+            "after": [
+              3.5,
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE1|WR.k",
+            "before": [
+              3.5,
+              6.5
+            ],
+            "after": [
+              3.5,
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_PROSPECT_B_YE1|TE.k",
+            "before": [
+              3.5,
+              6.5
+            ],
+            "after": [
+              3.5,
+              6
+            ]
+          },
+          {
+            "path": "reuse.K_DYN_POINTS_SHORT_HISTORY|TE.k",
+            "before": [
+              5.5
+            ],
+            "after": [
+              5
+            ]
+          }
+        ],
+        "changed": true
+      },
+      "comparison": {
+        "entries": [
+          {
+            "name": "K_DYN_PROSPECT_A_YE1",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 7583,
+              "players": 684,
+              "fixtureKey": "K_DYN_PROSPECT_A_YE1|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "K_DYN_PROSPECT_A_YE1|ALL",
+            "delta": {
+              "mean": 0.01197970440875225,
+              "ci95": [
+                0.007461631009046981,
+                0.01682635976763688
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 684,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 7583
+          },
+          {
+            "name": "K_DYN_PROSPECT_A_YE1",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 7583,
+              "players": 684,
+              "fixtureKey": "K_DYN_PROSPECT_A_YE1|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "K_DYN_PROSPECT_A_YE1|ALL",
+            "delta": {
+              "mean": 0.01197970440875225,
+              "ci95": [
+                0.007461631009046981,
+                0.01682635976763688
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 684,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 7583
+          },
+          {
+            "name": "K_DYN_PROSPECT_A_YE1",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 7583,
+              "players": 684,
+              "fixtureKey": "K_DYN_PROSPECT_A_YE1|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "K_DYN_PROSPECT_A_YE1|ALL",
+            "delta": {
+              "mean": 0.01197970440875225,
+              "ci95": [
+                0.007461631009046981,
+                0.01682635976763688
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 684,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 7583
+          },
+          {
+            "name": "K_DYN_PROSPECT_A_YE1",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 7583,
+              "players": 684,
+              "fixtureKey": "K_DYN_PROSPECT_A_YE1|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "K_DYN_PROSPECT_A_YE1|ALL",
+            "delta": {
+              "mean": 0.01197970440875225,
+              "ci95": [
+                0.007461631009046981,
+                0.01682635976763688
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 684,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 7583
+          }
+        ],
+        "pooled": {
+          "cells": 1,
+          "rows": 7583,
+          "players": 684,
+          "mean": 0.01197970440875225,
+          "ci95": [
+            0.007461631009046981,
+            0.01682635976763688
+          ],
+          "label": "WORSE"
+        }
+      },
+      "verdict": {
+        "pointsEntries": 4,
+        "differing": 0,
+        "beats": [],
+        "worse": [],
+        "pooledLabel": "WORSE",
+        "ruleWires": false,
+        "verdict": "do-not-wire",
+        "structural": {
+          "diff": [
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.kFit",
+              "before": 3.6,
+              "after": 3.7
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.ci95",
+              "before": [
+                2.7,
+                4.8
+              ],
+              "after": [
+                2.8,
+                4.9
+              ]
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2014",
+              "before": 3.4,
+              "after": 3.5
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2015",
+              "before": 3.2,
+              "after": 3.3
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2016",
+              "before": 3.4,
+              "after": 3.5
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2017",
+              "before": 3.8,
+              "after": 3.9
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2020",
+              "before": 3.6,
+              "after": 3.7
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2021",
+              "before": 3.9,
+              "after": 4
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2022",
+              "before": 3.7,
+              "after": 3.8
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2023",
+              "before": 3.8,
+              "after": 3.9
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.kFit",
+              "before": 3.6,
+              "after": 3.7
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.ci95",
+              "before": [
+                2.7,
+                4.8
+              ],
+              "after": [
+                2.8,
+                4.9
+              ]
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2014",
+              "before": 3.4,
+              "after": 3.5
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2015",
+              "before": 3.2,
+              "after": 3.3
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2016",
+              "before": 3.4,
+              "after": 3.5
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2017",
+              "before": 3.8,
+              "after": 3.9
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2020",
+              "before": 3.6,
+              "after": 3.7
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2021",
+              "before": 3.9,
+              "after": 4
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2022",
+              "before": 3.7,
+              "after": 3.8
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2023",
+              "before": 3.8,
+              "after": 3.9
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.kFit",
+              "before": 3.6,
+              "after": 3.7
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.ci95",
+              "before": [
+                2.7,
+                4.8
+              ],
+              "after": [
+                2.8,
+                4.9
+              ]
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2014",
+              "before": 3.4,
+              "after": 3.5
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2015",
+              "before": 3.2,
+              "after": 3.3
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2016",
+              "before": 3.4,
+              "after": 3.5
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2017",
+              "before": 3.8,
+              "after": 3.9
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2020",
+              "before": 3.6,
+              "after": 3.7
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2021",
+              "before": 3.9,
+              "after": 4
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2022",
+              "before": 3.7,
+              "after": 3.8
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2023",
+              "before": 3.8,
+              "after": 3.9
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.kFit",
+              "before": 3.6,
+              "after": 3.7
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.ci95",
+              "before": [
+                2.7,
+                4.8
+              ],
+              "after": [
+                2.8,
+                4.9
+              ]
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2014",
+              "before": 3.4,
+              "after": 3.5
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2015",
+              "before": 3.2,
+              "after": 3.3
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2016",
+              "before": 3.4,
+              "after": 3.5
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2017",
+              "before": 3.8,
+              "after": 3.9
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2020",
+              "before": 3.6,
+              "after": 3.7
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2021",
+              "before": 3.9,
+              "after": 4
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2022",
+              "before": 3.7,
+              "after": 3.8
+            },
+            {
+              "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2023",
+              "before": 3.8,
+              "after": 3.9
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE0|QB.k",
+              "before": [
+                6.5
+              ],
+              "after": [
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE0|RB.k",
+              "before": [
+                6.5
+              ],
+              "after": [
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE0|WR.k",
+              "before": [
+                6.5
+              ],
+              "after": [
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE0|TE.k",
+              "before": [
+                6.5
+              ],
+              "after": [
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE1|RB.k",
+              "before": [
+                3.5,
+                6.5
+              ],
+              "after": [
+                3.5,
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE1|WR.k",
+              "before": [
+                3.5,
+                6.5
+              ],
+              "after": [
+                3.5,
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE1|TE.k",
+              "before": [
+                3.5,
+                6.5
+              ],
+              "after": [
+                3.5,
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_POINTS_SHORT_HISTORY|TE.k",
+              "before": [
+                5.5
+              ],
+              "after": [
+                5
+              ]
+            }
+          ],
+          "kindEqual": true,
+          "kind": {
+            "shipped": {
+              "0": {
+                "QB": "projection",
+                "RB": "projection",
+                "WR": "projection",
+                "TE": "projection"
+              },
+              "1": {
+                "QB": "projection",
+                "RB": "projection",
+                "WR": "position",
+                "TE": "projection"
+              }
+            },
+            "league": {
+              "0": {
+                "QB": "projection",
+                "RB": "projection",
+                "WR": "projection",
+                "TE": "projection"
+              },
+              "1": {
+                "QB": "projection",
+                "RB": "projection",
+                "WR": "position",
+                "TE": "projection"
+              }
+            }
+          },
+          "decisionsChanged": [],
+          "reuseChanged": [
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE0|QB.k",
+              "before": [
+                6.5
+              ],
+              "after": [
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE0|RB.k",
+              "before": [
+                6.5
+              ],
+              "after": [
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE0|WR.k",
+              "before": [
+                6.5
+              ],
+              "after": [
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE0|TE.k",
+              "before": [
+                6.5
+              ],
+              "after": [
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE1|RB.k",
+              "before": [
+                3.5,
+                6.5
+              ],
+              "after": [
+                3.5,
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE1|WR.k",
+              "before": [
+                3.5,
+                6.5
+              ],
+              "after": [
+                3.5,
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_PROSPECT_B_YE1|TE.k",
+              "before": [
+                3.5,
+                6.5
+              ],
+              "after": [
+                3.5,
+                6
+              ]
+            },
+            {
+              "path": "reuse.K_DYN_POINTS_SHORT_HISTORY|TE.k",
+              "before": [
+                5.5
+              ],
+              "after": [
+                5
+              ]
+            }
+          ],
+          "changed": true
+        },
+        "reason": "no BEATS entry; no WORSE entry; pooled points delta WORSE; structure changed (kind / decisions / reuse)"
+      },
+      "written": {
+        "panelPath": "backtests/2026-10-16-inseason-dyn-league-panel.json",
+        "panelBytes": 101222,
+        "constantsPath": "backtests/2026-10-16-inseason-dyn-league-constants.json",
+        "constantsBytes": 11804,
+        "verdictPath": "grading/2026-10-16-inseason-dyn-league-verdict.md"
+      },
+      "decisions": {
+        "q1": {
+          "YE0": "B",
+          "YE1": "B"
+        },
+        "q2": "history"
+      },
+      "prospectPriorKind": {
+        "0": {
+          "QB": "projection",
+          "RB": "projection",
+          "WR": "projection",
+          "TE": "projection"
+        },
+        "1": {
+          "QB": "projection",
+          "RB": "projection",
+          "WR": "position",
+          "TE": "projection"
+        }
+      }
+    },
+    "dynShipped2a": {
+      "pairing": "shipped-2a",
+      "inSeasonConstants": "backtests/2026-10-07-inseason-constants.json @ f2c3b83b31acc589dac78b6d61a704ac02a57477",
+      "structure": {
+        "diff": [
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.kFit",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.ci95",
+            "before": [
+              2.7,
+              4.8
+            ],
+            "after": [
+              2.8,
+              4.9
+            ]
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2014",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2015",
+            "before": 3.2,
+            "after": 3.3
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2016",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2017",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2020",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2021",
+            "before": 3.9,
+            "after": 4
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2022",
+            "before": 3.7,
+            "after": 3.8
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.QB.foldK.2023",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.kFit",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.ci95",
+            "before": [
+              2.7,
+              4.8
+            ],
+            "after": [
+              2.8,
+              4.9
+            ]
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2014",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2015",
+            "before": 3.2,
+            "after": 3.3
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2016",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2017",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2020",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2021",
+            "before": 3.9,
+            "after": 4
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2022",
+            "before": 3.7,
+            "after": 3.8
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.RB.foldK.2023",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.kFit",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.ci95",
+            "before": [
+              2.7,
+              4.8
+            ],
+            "after": [
+              2.8,
+              4.9
+            ]
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2014",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2015",
+            "before": 3.2,
+            "after": 3.3
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2016",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2017",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2020",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2021",
+            "before": 3.9,
+            "after": 4
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2022",
+            "before": 3.7,
+            "after": 3.8
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.WR.foldK.2023",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.kFit",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.ci95",
+            "before": [
+              2.7,
+              4.8
+            ],
+            "after": [
+              2.8,
+              4.9
+            ]
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2014",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2015",
+            "before": 3.2,
+            "after": 3.3
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2016",
+            "before": 3.4,
+            "after": 3.5
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2017",
+            "before": 3.8,
+            "after": 3.9
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2020",
+            "before": 3.6,
+            "after": 3.7
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2021",
+            "before": 3.9,
+            "after": 4
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2022",
+            "before": 3.7,
+            "after": 3.8
+          },
+          {
+            "path": "constants.K_DYN_PROSPECT_A_YE1.TE.foldK.2023",
+            "before": 3.8,
+            "after": 3.9
+          }
+        ],
+        "kindEqual": true,
+        "kind": {
+          "shipped": {
+            "0": {
+              "QB": "projection",
+              "RB": "projection",
+              "WR": "projection",
+              "TE": "projection"
+            },
+            "1": {
+              "QB": "projection",
+              "RB": "projection",
+              "WR": "position",
+              "TE": "projection"
+            }
+          },
+          "league": {
+            "0": {
+              "QB": "projection",
+              "RB": "projection",
+              "WR": "projection",
+              "TE": "projection"
+            },
+            "1": {
+              "QB": "projection",
+              "RB": "projection",
+              "WR": "position",
+              "TE": "projection"
+            }
+          }
+        },
+        "decisionsChanged": [],
+        "reuseChanged": [],
+        "changed": false
+      },
+      "comparison": {
+        "entries": [
+          {
+            "name": "K_DYN_PROSPECT_A_YE1",
+            "cell": "QB",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 7583,
+              "players": 684,
+              "fixtureKey": "K_DYN_PROSPECT_A_YE1|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "K_DYN_PROSPECT_A_YE1|ALL",
+            "delta": {
+              "mean": 0.01197970440875225,
+              "ci95": [
+                0.007461631009046981,
+                0.01682635976763688
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 684,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 7583
+          },
+          {
+            "name": "K_DYN_PROSPECT_A_YE1",
+            "cell": "RB",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 7583,
+              "players": 684,
+              "fixtureKey": "K_DYN_PROSPECT_A_YE1|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "K_DYN_PROSPECT_A_YE1|ALL",
+            "delta": {
+              "mean": 0.01197970440875225,
+              "ci95": [
+                0.007461631009046981,
+                0.01682635976763688
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 684,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 7583
+          },
+          {
+            "name": "K_DYN_PROSPECT_A_YE1",
+            "cell": "WR",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 7583,
+              "players": 684,
+              "fixtureKey": "K_DYN_PROSPECT_A_YE1|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "K_DYN_PROSPECT_A_YE1|ALL",
+            "delta": {
+              "mean": 0.01197970440875225,
+              "ci95": [
+                0.007461631009046981,
+                0.01682635976763688
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 684,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 7583
+          },
+          {
+            "name": "K_DYN_PROSPECT_A_YE1",
+            "cell": "TE",
+            "excluded": false,
+            "shipped": {
+              "k": 3.5,
+              "basis": "pooled"
+            },
+            "league": {
+              "k": 3.5,
+              "basis": "pooled",
+              "kFit": 3.7,
+              "rows": 7583,
+              "players": 684,
+              "fixtureKey": "K_DYN_PROSPECT_A_YE1|ALL"
+            },
+            "study": false,
+            "same": true,
+            "cellKey": "K_DYN_PROSPECT_A_YE1|ALL",
+            "delta": {
+              "mean": 0.01197970440875225,
+              "ci95": [
+                0.007461631009046981,
+                0.01682635976763688
+              ],
+              "label": "WORSE"
+            },
+            "label": "same",
+            "weeksMethod": {
+              "exact": 684,
+              "scaled": 0,
+              "none": 0
+            },
+            "rowsUsed": 7583
+          }
+        ],
+        "pooled": {
+          "cells": 1,
+          "rows": 7583,
+          "players": 684,
+          "mean": 0.01197970440875225,
+          "ci95": [
+            0.007461631009046981,
+            0.01682635976763688
+          ],
+          "label": "WORSE"
+        }
+      },
+      "verdict": {
+        "pointsEntries": 4,
+        "differing": 0,
+        "beats": [],
+        "worse": [],
+        "pooledLabel": "WORSE",
+        "ruleWires": false,
+        "verdict": "do-not-wire",
+        "reason": "no BEATS entry; no WORSE entry; pooled points delta WORSE"
+      },
+      "written": {
+        "panelPath": "backtests/2026-10-16-inseason-dyn-league-shipped2a-panel.json",
+        "panelBytes": 100023,
+        "constantsPath": "backtests/2026-10-16-inseason-dyn-league-shipped2a-constants.json",
+        "constantsBytes": 11913,
+        "verdictPath": "grading/2026-10-16-inseason-dyn-league-shipped2a-verdict.md"
+      },
+      "decisions": {
+        "q1": {
+          "YE0": "B",
+          "YE1": "B"
+        },
+        "q2": "history"
+      },
+      "prospectPriorKind": {
+        "0": {
+          "QB": "projection",
+          "RB": "projection",
+          "WR": "projection",
+          "TE": "projection"
+        },
+        "1": {
+          "QB": "projection",
+          "RB": "projection",
+          "WR": "position",
+          "TE": "projection"
+        }
+      }
+    },
+    "dynDeciding": "shipped-2a",
+    "verdicts": {
+      "twoA": "do-not-wire",
+      "dyn": "do-not-wire"
+    },
+    "weeksBySeason": {
+      "2012": {
+        "rows": 1253,
+        "exactWeeks": 15652,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2013": {
+        "rows": 1572,
+        "exactWeeks": 19114,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2014": {
+        "rows": 1898,
+        "exactWeeks": 21962,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2015": {
+        "rows": 2083,
+        "exactWeeks": 23379,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2016": {
+        "rows": 2103,
+        "exactWeeks": 23427,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2017": {
+        "rows": 2121,
+        "exactWeeks": 23407,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2018": {
+        "rows": 2139,
+        "exactWeeks": 23424,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2019": {
+        "rows": 2146,
+        "exactWeeks": 23424,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2020": {
+        "rows": 2318,
+        "exactWeeks": 24276,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2021": {
+        "rows": 2814,
+        "exactWeeks": 25940,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2022": {
+        "rows": 2754,
+        "exactWeeks": 25826,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2023": {
+        "rows": 2745,
+        "exactWeeks": 25878,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2024": {
+        "rows": 2784,
+        "exactWeeks": 25944,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      },
+      "2025": {
+        "rows": 2800,
+        "exactWeeks": 25946,
+        "scaledWeeks": 0,
+        "noWeeksRows": 0,
+        "scaledShare": 0,
+        "flag": false
+      }
+    },
+    "qbChain": {
+      "league": [
+        {
+          "S": 2014,
+          "teams": 32,
+          "incumbent": 31,
+          "chain": 39,
+          "stale": 6,
+          "noChart": 2,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2015,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 44,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2016,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 46,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1345
+        },
+        {
+          "S": 2017,
+          "teams": 30,
+          "incumbent": 30,
+          "chain": 40,
+          "stale": 3,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2018,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 42,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1534
+        },
+        {
+          "S": 2019,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 41,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2020,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 43,
+          "stale": 7,
+          "noChart": 0,
+          "medianChainShare": 0.1131
+        },
+        {
+          "S": 2021,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 39,
+          "stale": 4,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2022,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 40,
+          "stale": 4,
+          "noChart": 0,
+          "medianChainShare": 0.1131
+        },
+        {
+          "S": 2023,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 37,
+          "stale": 7,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2024,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 36,
+          "stale": 6,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2025,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 46,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1131
+        }
+      ],
+      "halfPprCommitted": [
+        {
+          "S": 2014,
+          "teams": 32,
+          "incumbent": 31,
+          "chain": 39,
+          "stale": 6,
+          "noChart": 2,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2015,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 44,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2016,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 46,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2017,
+          "teams": 30,
+          "incumbent": 30,
+          "chain": 40,
+          "stale": 3,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2018,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 42,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2019,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 41,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2020,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 43,
+          "stale": 7,
+          "noChart": 0,
+          "medianChainShare": 0.1131
+        },
+        {
+          "S": 2021,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 39,
+          "stale": 4,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2022,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 40,
+          "stale": 4,
+          "noChart": 0,
+          "medianChainShare": 0.1131
+        },
+        {
+          "S": 2023,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 37,
+          "stale": 7,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2024,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 36,
+          "stale": 6,
+          "noChart": 0,
+          "medianChainShare": 0.1558
+        },
+        {
+          "S": 2025,
+          "teams": 32,
+          "incumbent": 32,
+          "chain": 46,
+          "stale": 5,
+          "noChart": 0,
+          "medianChainShare": 0.1131
+        }
+      ]
+    }
+  },
+  "g3": {
+    "halfPpr": {
+      "perPosition": {
+        "QB": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "UNSTABLE",
+          "exponents": {
+            "momentum": 0.10128508040578277,
+            "regression": 0.6904225242062567,
+            "trajectory": -0.42958122171486246,
+            "rzUsage": 1
+          },
+          "nFitRows": 300,
+          "nEvalRows": 251
+        },
+        "RB": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "UNSTABLE",
+          "exponents": {
+            "shareTrend": 0.9027291771719986,
+            "regression": 1.613679982375444,
+            "momentum": 0.7174407878477407,
+            "trajectory": 1.0348572530740523,
+            "snapShare": -0.2766126472856618,
+            "rzUsage": -1.5958458635194077,
+            "teamRzShare": -1.6762702679125843
+          },
+          "nFitRows": 588,
+          "nEvalRows": 482
+        },
+        "WR": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "UNSTABLE",
+          "exponents": {
+            "shareTrend": 1.015623443333165,
+            "regression": 1.9797176006879504,
+            "momentum": 1.0854052580138336,
+            "trajectory": 1.4351470027955842,
+            "snapShare": -3.335147913902386,
+            "rzUsage": -0.17141192586214338,
+            "teamRzShare": -0.19139906628758063
+          },
+          "nFitRows": 1039,
+          "nEvalRows": 875
+        },
+        "TE": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "UNSTABLE",
+          "exponents": {
+            "shareTrend": 1.3948886596613572,
+            "regression": 1.9277608457761257,
+            "momentum": 0.6808084391636686,
+            "trajectory": 0.9423693090032694,
+            "snapShare": -1.9696438379234915,
+            "rzUsage": -0.6467417637605641,
+            "teamRzShare": -0.021198511899598982
+          },
+          "nFitRows": 522,
+          "nEvalRows": 440
+        }
+      },
+      "pool": {
+        "WRTE": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "UNSTABLE",
+          "exponents": {
+            "shareTrend": 1.1507400935623007,
+            "regression": 1.9481497931848493,
+            "momentum": 0.9291016753830879,
+            "trajectory": 1.2767288330411146,
+            "snapShare": -2.864041447608782,
+            "rzUsage": -0.3194067117464441,
+            "teamRzShare": -0.16179237174117356
+          },
+          "nFitRows": 1561,
+          "nEvalRows": 1315
+        }
+      }
+    },
+    "league": {
+      "perPosition": {
+        "QB": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "CLEARS",
+          "exponents": {
+            "momentum": 0.13188234489377648,
+            "regression": 0.7725386438296632,
+            "trajectory": -0.3416787839978357,
+            "rzUsage": 1
+          },
+          "nFitRows": 300,
+          "nEvalRows": 251
+        },
+        "RB": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "UNSTABLE",
+          "exponents": {
+            "shareTrend": 0.35484500792463747,
+            "regression": 1.6067590332098423,
+            "momentum": 0.9700916948961836,
+            "trajectory": 1.1316304034624403,
+            "snapShare": -0.7835639985161826,
+            "rzUsage": -1.3322389368868488,
+            "teamRzShare": -1.524678722090019
+          },
+          "nFitRows": 588,
+          "nEvalRows": 482
+        },
+        "WR": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "UNSTABLE",
+          "exponents": {
+            "shareTrend": 0.8635932724358513,
+            "regression": 1.6893950508154907,
+            "momentum": 1.164866306059778,
+            "trajectory": 1.3731642088453626,
+            "snapShare": -3.4897032894276823,
+            "rzUsage": 0.046646531785483836,
+            "teamRzShare": -0.24842229670705462
+          },
+          "nFitRows": 1043,
+          "nEvalRows": 878
+        },
+        "TE": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "UNSTABLE",
+          "exponents": {
+            "shareTrend": 1.3329807687343471,
+            "regression": 1.843681720611138,
+            "momentum": 0.6797101466528572,
+            "trajectory": 0.989269225776704,
+            "snapShare": -2.05676422538186,
+            "rzUsage": -0.3760520329530257,
+            "teamRzShare": -0.16332062231026323
+          },
+          "nFitRows": 522,
+          "nEvalRows": 440
+        }
+      },
+      "pool": {
+        "WRTE": {
+          "verdict": "UNSTABLE",
+          "baseVerdict": "UNSTABLE",
+          "sensitivityVerdict": "UNSTABLE",
+          "exponents": {
+            "shareTrend": 1.0304392839692138,
+            "regression": 1.7480813611039754,
+            "momentum": 0.9772048064729737,
+            "trajectory": 1.2536102301175265,
+            "snapShare": -3.0162774551490834,
+            "rzUsage": -0.07329799787843005,
+            "teamRzShare": -0.2415382529019141
+          },
+          "nFitRows": 1565,
+          "nEvalRows": 1318
+        }
+      }
+    },
+    "table": {
+      "rows": [
+        {
+          "position": "QB",
+          "half_ppr": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "UNSTABLE"
+          },
+          "league": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "CLEARS"
+          },
+          "labelDiffers": true,
+          "exponents": {
+            "momentum": {
+              "half_ppr": 0.10128508040578277,
+              "league": 0.13188234489377648
+            },
+            "regression": {
+              "half_ppr": 0.6904225242062567,
+              "league": 0.7725386438296632
+            },
+            "trajectory": {
+              "half_ppr": -0.42958122171486246,
+              "league": -0.3416787839978357
+            },
+            "rzUsage": {
+              "half_ppr": 1,
+              "league": 1
+            }
+          }
+        },
+        {
+          "position": "RB",
+          "half_ppr": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "UNSTABLE"
+          },
+          "league": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "UNSTABLE"
+          },
+          "labelDiffers": false,
+          "exponents": {
+            "shareTrend": {
+              "half_ppr": 0.9027291771719986,
+              "league": 0.35484500792463747
+            },
+            "regression": {
+              "half_ppr": 1.613679982375444,
+              "league": 1.6067590332098423
+            },
+            "momentum": {
+              "half_ppr": 0.7174407878477407,
+              "league": 0.9700916948961836
+            },
+            "trajectory": {
+              "half_ppr": 1.0348572530740523,
+              "league": 1.1316304034624403
+            },
+            "snapShare": {
+              "half_ppr": -0.2766126472856618,
+              "league": -0.7835639985161826
+            },
+            "rzUsage": {
+              "half_ppr": -1.5958458635194077,
+              "league": -1.3322389368868488
+            },
+            "teamRzShare": {
+              "half_ppr": -1.6762702679125843,
+              "league": -1.524678722090019
+            }
+          }
+        },
+        {
+          "position": "WR",
+          "half_ppr": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "UNSTABLE"
+          },
+          "league": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "UNSTABLE"
+          },
+          "labelDiffers": false,
+          "exponents": {
+            "shareTrend": {
+              "half_ppr": 1.015623443333165,
+              "league": 0.8635932724358513
+            },
+            "regression": {
+              "half_ppr": 1.9797176006879504,
+              "league": 1.6893950508154907
+            },
+            "momentum": {
+              "half_ppr": 1.0854052580138336,
+              "league": 1.164866306059778
+            },
+            "trajectory": {
+              "half_ppr": 1.4351470027955842,
+              "league": 1.3731642088453626
+            },
+            "snapShare": {
+              "half_ppr": -3.335147913902386,
+              "league": -3.4897032894276823
+            },
+            "rzUsage": {
+              "half_ppr": -0.17141192586214338,
+              "league": 0.046646531785483836
+            },
+            "teamRzShare": {
+              "half_ppr": -0.19139906628758063,
+              "league": -0.24842229670705462
+            }
+          }
+        },
+        {
+          "position": "TE",
+          "half_ppr": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "UNSTABLE"
+          },
+          "league": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "UNSTABLE"
+          },
+          "labelDiffers": false,
+          "exponents": {
+            "shareTrend": {
+              "half_ppr": 1.3948886596613572,
+              "league": 1.3329807687343471
+            },
+            "regression": {
+              "half_ppr": 1.9277608457761257,
+              "league": 1.843681720611138
+            },
+            "momentum": {
+              "half_ppr": 0.6808084391636686,
+              "league": 0.6797101466528572
+            },
+            "trajectory": {
+              "half_ppr": 0.9423693090032694,
+              "league": 0.989269225776704
+            },
+            "snapShare": {
+              "half_ppr": -1.9696438379234915,
+              "league": -2.05676422538186
+            },
+            "rzUsage": {
+              "half_ppr": -0.6467417637605641,
+              "league": -0.3760520329530257
+            },
+            "teamRzShare": {
+              "half_ppr": -0.021198511899598982,
+              "league": -0.16332062231026323
+            }
+          }
+        },
+        {
+          "position": "WRTE",
+          "half_ppr": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "UNSTABLE"
+          },
+          "league": {
+            "verdict": "UNSTABLE",
+            "baseVerdict": "UNSTABLE",
+            "sensitivityVerdict": "UNSTABLE"
+          },
+          "labelDiffers": false,
+          "exponents": {
+            "shareTrend": {
+              "half_ppr": 1.1507400935623007,
+              "league": 1.0304392839692138
+            },
+            "regression": {
+              "half_ppr": 1.9481497931848493,
+              "league": 1.7480813611039754
+            },
+            "momentum": {
+              "half_ppr": 0.9291016753830879,
+              "league": 0.9772048064729737
+            },
+            "trajectory": {
+              "half_ppr": 1.2767288330411146,
+              "league": 1.2536102301175265
+            },
+            "snapShare": {
+              "half_ppr": -2.864041447608782,
+              "league": -3.0162774551490834
+            },
+            "rzUsage": {
+              "half_ppr": -0.3194067117464441,
+              "league": -0.07329799787843005
+            },
+            "teamRzShare": {
+              "half_ppr": -0.16179237174117356,
+              "league": -0.2415382529019141
+            }
+          }
+        }
+      ],
+      "anyLabelDiffers": true
+    }
+  }
+}

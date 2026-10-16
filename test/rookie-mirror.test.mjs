@@ -933,3 +933,74 @@ describe('D-46: the rookie mirror takes basisScale', () => {
     assert.equal(rec.qbStarterPPG, 15.801 * 1.114);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// T-RM16 — rookie mechanism parity under the `league` basis (D-46 G1b; T-RM15 is the rookie total factor above)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// The post-switch counterpart of T-RM10 on snapshots/2026-10-14.json (projectionBasis 'league', models rookie-total / rookie-qb-level).
+// The fixture test/fixtures/rookie-mirror-parity/snapshot-2026-10-14.slim.json is generated, by the T-RM9/T-RM10 pattern, with
+//   node scripts/fixtures/build-league-basis-fixtures.mjs        (from the repo root; header documents the inputs)
+// whose slimmer is `slimRookieSnapshot` (scripts/league-basis-run.mjs: ROOKIE_PARITY_KEYS = T-RM10's list plus rookieBasisScale,
+// rookieMultiplierProduct, rookieTotalFactor/Basis, qbTakeoverBasis, qbStartShare, qbStarterPPG/Basis). Reads only that committed
+// fixture (Invariant 10), never snapshots/. Asserted under `league` with each row's CAPTURED scale; the same rows under `half_ppr`
+// (scale 1) are the "before" and their mismatch counts are pinned too, so a change in either moves a number.
+//  - `rookieCeilingPPGPre` is a captured INPUT (ktc/college are held at 1.0 in the mirror): it is checked against baseline × scale ×
+//    captured rookieMultiplierProduct × calibration within the rounding bound of the product (captured at 2-3 dp, so the literal 3-dp
+//    equality holds on only 125 of 310 rows — also pinned).
+//  - `qbTakeoverBasis: 'chain'` rows (46) are excluded from the level/total assertions — the CR-15 Mirror says the reconstruction does
+//    not compose share × level — with the count pinned.
+import { slimRookieSnapshot, checkRookieRows, recoverRookiePosition } from '../scripts/league-basis-run.mjs';
+
+describe('T-RM16: rookie mechanism parity under the league basis (post-switch, 2026-10-14)', () => {
+  const FIXTURE = path.join(REPO_ROOT, 'test/fixtures/rookie-mirror-parity/snapshot-2026-10-14.slim.json');
+  test('the 2026-10-14 slim parity fixture exists (presence asserted, never skipped)', () => {
+    assert.ok(fs.existsSync(FIXTURE), 'required parity fixture missing: test/fixtures/rookie-mirror-parity/snapshot-2026-10-14.slim.json');
+  });
+
+  const fx = JSON.parse(fs.readFileSync(FIXTURE, 'utf8'));
+  const rows = Object.entries(fx.players);
+  const counts = (check) => Object.fromEntries(Object.entries(check.fields).map(([k, v]) => [k, [v.checked, v.fail]]));
+
+  test('fixture shape: league capture, 310 rookie rows by recovered position, every position recoverable from basePPG / rookieBasisScale', () => {
+    assert.equal(fx.projectionBasis, 'league');
+    assert.equal(rows.length, 310);
+    const byPos = {};
+    for (const [, p] of rows) {
+      const rec = recoverRookiePosition(p.projection.factors);
+      assert.ok(rec, 'every row recovers a position');
+      byPos[rec.position] = (byPos[rec.position] ?? 0) + 1;
+    }
+    assert.deepEqual(byPos, { QB: 49, RB: 77, WR: 125, TE: 59 });
+    // one captured scale per position — the as-of scale (G1a's reconstruction is asserted in the hand-run, not here)
+    const scales = {};
+    for (const [, p] of rows) (scales[recoverRookiePosition(p.projection.factors).position] ??= new Set()).add(p.projection.factors.rookieBasisScale);
+    assert.deepEqual(Object.fromEntries(Object.entries(scales).map(([k, v]) => [k, [...v]])), { QB: [1.114], RB: [1.118], WR: [1.101], TE: [1.325] });
+  });
+
+  test('under league (captured scale) every checked field matches; counts pinned', () => {
+    const c = checkRookieRows(rows, { scaleOf: (pos, f) => f.rookieBasisScale });
+    assert.equal(c.positionUnrecovered, 0);
+    assert.equal(c.chainExcluded, 46, 'pinned: qbTakeoverBasis chain rows excluded from level/total');
+    assert.deepEqual(counts(c), {
+      basePPG: [310, 0],            // basePPG === round3(ROOKIE_BASELINE_PPG[pos] × rookieBasisScale)
+      ceilingInput: [310, 0],       // captured rookieCeilingPPGPre = scaled baseline × product × calibration, within the product's rounding
+      kneeAsymptote: [310, 0],      // scaled constants, exact
+      level: [264, 0],              // ceiled level → projectedPPG at T-RM10's 0.1 tolerance (non-chain rows)
+      qbStarter: [49, 0],           // round3(QB_ROOKIE_STARTER_PPG[g] × scale) on rookie:* rows; round3(ceiled) on projection rows
+      totalFactor: [264, 0],        // boundary 9's factor
+      total: [264, 0],              // projectedTotalPts at 0.1
+    });
+    assert.equal(c.levelExact, 264, 'pinned exact-match count');
+    assert.equal(c.totalExact, 263, 'pinned exact-match count');
+    assert.equal(c.capturedCeilingInputConsistent, 125, 'pinned: rows where the literal 3-dp equality holds despite the 2-3 dp captured product');
+  });
+
+  test('under half_ppr (scale 1 — the "before") the scale-dependent fields mismatch; counts pinned', () => {
+    const c = checkRookieRows(rows, { scaleOf: () => 1 });
+    assert.deepEqual(counts(c), {
+      basePPG: [310, 310], ceilingInput: [310, 310], kneeAsymptote: [310, 310],
+      level: [264, 17], qbStarter: [49, 20], totalFactor: [264, 0], total: [264, 24],
+    });
+  });
+});

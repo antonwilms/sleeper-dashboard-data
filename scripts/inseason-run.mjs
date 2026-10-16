@@ -1433,7 +1433,7 @@ export function basisDetailOf(load, seasons) {
   return { scoringFixture: LEAGUE_SCORING_FIXTURE, positionFile: 'raw/-players-nfl.json', scaleBySeason };
 }
 
-export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULTS, log = () => {}, qbPrior = 'starter', basis = 'half_ppr' } = {}) {
+export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULTS, log = () => {}, qbPrior = 'starter', basis = 'half_ppr', onStore = null } = {}) {
   if (!QB_PRIOR_MODELS.includes(qbPrior)) throw new Error('[inseason] runInSeason needs qbPrior legacy|starter');
   if (!SCORING_BASIS_MODELS.includes(basis)) throw new Error(`[inseason] unknown --basis '${basis}' — use ${SCORING_BASIS_MODELS.join('|')}`);
   const t0 = Date.now();
@@ -1475,6 +1475,8 @@ export function runInSeason({ load = INSEASON_LOAD, defaults = IN_SEASON_DEFAULT
 
   const armSList = armSRows({ load: g });
   const an = analyze(rows, playerSeasons, defaults, armSList, changedByW, qbPrior === 'starter' ? q9Rows : null);
+  // Read-only hook (D-46 G2): the per-cell analyses (each keeps its `orderedRows`) and where each pinned entry was pinned from.
+  if (onStore) onStore({ store: an.store, pinnedFrom: an.pinned.pinnedFrom, load: g });
   const generatedAt = new Date().toISOString();
   const date = generatedAt.slice(0, 10);
   const combination = buildCombination(an.q2);

@@ -26,8 +26,16 @@
  *   --by-season  per-season breakout in addition to pooled
  *   --inseason   in-season evidence k-fit (Phase 2a graded backtest): re-fits the shrinkage k against the real
  *                reconstructed pre-season projection, answers Q1-Q8, emits the constants table. Takes only
- *                --json / --write / --dynasty; the windows and basis are pinned. --write persists
- *                backtests/<date>-inseason-{panel,constants}.json + grading/<date>-inseason-verdict.md.
+ *                --json / --write / --dynasty / --basis; the windows are pinned. --basis half_ppr|league (D-46) picks
+ *                the scoring-basis model: half_ppr (default) is the served rows verbatim and reproduces every committed
+ *                file; league rescores rows as the app does at load (lib/leagueBasis.mjs). --write persists
+ *                backtests/<date>-inseason-{panel,constants}.json + grading/<date>-inseason-verdict.md
+ *                (inseason-league-… under --basis league).
+ *   --league-basis  D-46's graded before/after of the league scoring-basis model (offline analysis only): G1 mirror
+ *                fidelity (a gate), G2 the k re-fit under a pre-registered wire / do-not-wire rule (2a and dynasty
+ *                files), G3 the R3-FIT verdicts under both bases (report-only). Takes only --json / --write; runs
+ *                for several minutes. --write persists the league constants files, backtests/<date>-league-basis-panel.json
+ *                and grading/<date>-league-basis-verdict.md. Never a test.
  *                Exit 1 if the gamelogs reconciliation stop fires (no artifacts written).
  *   --qb-takeover  QB backup→starter takeover fit (P6a, offline analysis only): a two-state weekly Markov chain
  *                (hazard pUp + stickiness pStay, ridge-logistic over categorical features), forward-ladder
@@ -73,6 +81,9 @@
  *                and the KTC-anchor report, plus the rookie QB level in the dynasty prior (Q4) and the
  *                sat-longer discount (Q5); runs on the starter QB prior. --write persists
  *                backtests/<date>-inseason-dyn-{panel,constants}.json + grading/<date>-inseason-dyn-verdict.md.
+ *                Under --basis league it needs --inseason-2a <path>, the 2a constants file the run is paired with
+ *                (the league 2a file, or backtests/2026-10-07-inseason-constants.json).
+ *   --inseason-2a <path>  (with --inseason --dynasty --basis league) the paired 2a constants file.
  */
 
 import path from 'path';
@@ -99,6 +110,8 @@ import { gamesCauseMain } from '../scripts/games-cause-run.mjs';
 import { gamesShortMain } from '../scripts/games-short-run.mjs';
 import { rookieTotalMain } from '../scripts/rookie-total-run.mjs';
 import { weeklyBasisMain } from '../scripts/weekly-basis-run.mjs';
+import { leagueBasisMain } from '../scripts/league-basis-run.mjs';
+import { SCORING_BASIS_MODELS } from '../lib/leagueBasis.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -310,17 +323,46 @@ if (isMain) {
         process.exit(qbTakeoverMain({ write, asJson }));
       }
 
-      const dynasty = flag('--dynasty');
-      if (flag('--inseason')) {
-        const rejected = args.filter(a => a.startsWith('--') && !['--inseason', '--json', '--write', '--dynasty'].includes(a));
+      if (flag('--league-basis')) {
+        const rejected = args.filter(a => a.startsWith('--') && !['--league-basis', '--json', '--write'].includes(a));
         if (rejected.length) {
           console.error(
-            `[backtest] Error: --inseason rejects ${rejected.join(', ')} — the seasons, checkpoints and basis (half_ppr) are pinned ` +
-            'by the task file, not knobs; it takes only --json, --write and --dynasty'
+            `[backtest] Error: --league-basis rejects ${rejected.join(', ')} — the seasons, shipped files, scoring fixture and ` +
+            'decision rule are pinned by the task file, not knobs; it takes only --json and --write'
           );
           process.exit(1);
         }
-        process.exit(dynasty ? inSeasonDynMain({ write, asJson }) : inSeasonMain({ write, asJson }));
+        process.exit(leagueBasisMain({ write, asJson }));
+      }
+
+      const dynasty = flag('--dynasty');
+      if (flag('--inseason')) {
+        const valued = ['--basis', '--inseason-2a'];
+        const rejected = args.filter((a, i) => (a.startsWith('--')
+          ? !['--inseason', '--json', '--write', '--dynasty', ...valued].includes(a)
+          : !valued.includes(args[i - 1])));
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --inseason rejects ${rejected.join(', ')} — the seasons and checkpoints are pinned ` +
+            'by the task file, not knobs; it takes only --json, --write, --dynasty, --basis half_ppr|league and (dynasty, league) --inseason-2a <path>'
+          );
+          process.exit(1);
+        }
+        const basis = option('--basis') ?? 'half_ppr';
+        if (!SCORING_BASIS_MODELS.includes(basis)) {
+          console.error(`[backtest] Error: --basis must be ${SCORING_BASIS_MODELS.join(' or ')}, got '${basis}'`);
+          process.exit(1);
+        }
+        const inseason2a = option('--inseason-2a');
+        if (inseason2a != null && !(dynasty && basis === 'league')) {
+          console.error('[backtest] Error: --inseason-2a applies only to --inseason --dynasty --basis league');
+          process.exit(1);
+        }
+        if (dynasty && basis === 'league' && !inseason2a) {
+          console.error('[backtest] Error: --inseason --dynasty --basis league requires --inseason-2a <path> (the 2a constants file this run is paired with)');
+          process.exit(1);
+        }
+        process.exit(dynasty ? inSeasonDynMain({ write, asJson, basis, inseason2a }) : inSeasonMain({ write, asJson, basis }));
       }
       if (dynasty) {
         console.error('[backtest] Error: --dynasty requires --inseason');

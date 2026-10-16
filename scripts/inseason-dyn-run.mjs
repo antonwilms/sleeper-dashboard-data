@@ -177,7 +177,7 @@ function augmentRow(row, ctx) {
   };
 }
 
-function classifyRow(row) {
+export function classifyRow(row) {
   const finite = Number.isFinite;
   const q1Eligible = row.ye === 0 || row.ye === 1;
   const properRoute = row.arm === 'X-rookie0' || row.arm === 'X-rookie1p';
@@ -1122,7 +1122,7 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
   const generatedAt = new Date().toISOString();
   const constantsFile = {
     source: basis === 'league'
-      ? `sleeper-dashboard-data backtests/${generatedAt.slice(0, 10)}-inseason-dyn-league-constants.json (node bin/backtest.mjs --inseason --dynasty --basis league --inseason-2a ${inseason2a} --write)`
+      ? `sleeper-dashboard-data backtests/${generatedAt.slice(0, 10)}-inseason-dyn-league${inseason2a === DYN_2A_PIN.starter.half_ppr.path ? '-shipped2a' : ''}-constants.json (node bin/backtest.mjs --inseason --dynasty --basis league --inseason-2a ${inseason2a} --write)`
       : `sleeper-dashboard-data backtests/${generatedAt.slice(0, 10)}-inseason-dyn-constants.json (node bin/backtest.mjs --inseason --dynasty --write)`,
     generatedAt, basis,
     ...(basis === 'league' ? { basisDetail: basisDetailOf(g, DYN_DEFAULTS.seasons) } : {}),
@@ -1175,6 +1175,8 @@ export function runInSeasonDyn({ load = INSEASON_DYN_LOAD, log = () => {}, assem
   const meta = {
     generatedAt, basis, seasons: DYN_DEFAULTS.seasons, runtimeMs: Date.now() - t0,
     routeMismatchRate: r4(routeMismatchRate), qbPrior, inSeasonConstants: pinnedSource,
+    // D-46: which 2a file a league run is paired with — the league 2a file, or the shipped one (G2 step 3)
+    ...(basis === 'league' ? { pairing: inseason2a === DYN_2A_PIN.starter.half_ppr.path ? 'shipped-2a' : 'league-2a' } : {}),
   };
   const coverage = {
     rowsTotal: allRows.length, q1Rows: q1Rows.length, q2PrimaryRows: q2PrimaryRows.length, q2StaleRows: q2StaleRows.length,
@@ -1398,7 +1400,8 @@ export function buildInSeasonDynVerdictMarkdown(result) {
 
 export function writeInSeasonDynArtifacts({ result, verdictMd }) {
   const date = result.meta.generatedAt.slice(0, 10);
-  const tag = result.meta.basis === 'league' ? 'inseason-dyn-league' : 'inseason-dyn';   // a league run never overwrites a half_ppr file
+  // a league run never overwrites a half_ppr file, nor the other pairing's league file
+  const tag = result.meta.basis !== 'league' ? 'inseason-dyn' : result.meta.pairing === 'shipped-2a' ? 'inseason-dyn-league-shipped2a' : 'inseason-dyn-league';
   const panelPath = `backtests/${date}-${tag}-panel.json`;
   const constantsPath = `backtests/${date}-${tag}-constants.json`;
   const verdictPath = `grading/${date}-${tag}-verdict.md`;

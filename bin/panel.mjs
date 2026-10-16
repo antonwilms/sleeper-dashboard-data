@@ -12,7 +12,7 @@
  * Usage: node bin/panel.mjs [options]
  *   --from YYYY --to YYYY             predictor-year range (default 2020–2024)
  *   --attribution current-team|per-season-team   seam flag (default current-team; --fit pins per-season-team, rejects this flag)
- *   --basis in-basis|half_ppr         default in-basis; --fit defaults to half_ppr (the app's own basis)
+ *   --basis in-basis|half_ppr|league  default in-basis; --fit defaults to half_ppr (the app's own basis); `league` (D-46: rows rescored as the app does at load) is admitted by --fit only, report-only
  *   --scoring-from YYYY-MM-DD         scoring-source snapshot (default 2026-07-05)
  *   --min-games N                     outcome gate (default 6)
  *   --ridge X                         default 1.0 (sweep always reported)
@@ -95,8 +95,12 @@ if (isMain) {
         console.error('[panel] Error: --from, --to, --min-games, --ridge, --alpha must be numeric');
         process.exit(1);
       }
-      if (!['in-basis', 'half_ppr'].includes(basis)) {
-        console.error("[panel] Error: --basis must be 'in-basis' or 'half_ppr'");
+      if (!['in-basis', 'half_ppr', 'league'].includes(basis)) {
+        console.error("[panel] Error: --basis must be 'in-basis', 'half_ppr' or 'league' (league: --fit only)");
+        process.exit(1);
+      }
+      if (basis === 'league' && !fitMode) {
+        console.error("[panel] Error: --basis league is admitted by --fit only (D-46) — every other mode keeps its pinned basis");
         process.exit(1);
       }
       if (flipGate && args.includes('--attribution')) {

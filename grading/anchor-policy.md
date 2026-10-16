@@ -2,8 +2,9 @@
 
 **Not to be confused with `.claude/tasks/anchor-policy.md`**, which is the registry
 line-anchor policy. This file is about which captured snapshot rows are safe to compare
-against which grading run, given that the app's projection mechanism has changed nine times on the axes this file
-tracks — three on the rookie path, one on the veteran path (the Step 4 up-side), one on QB rows of both paths (the
+against which grading run, given that the app's projection mechanism has changed ten times on the axes this file
+tracks — three on the rookie path, one on the veteran path (the Step 4 up-side), one on every row of both paths (the
+scoring basis: the load-time season rescore, boundary 4a), one on QB rows of both paths (the
 start share), one on rookie QB rows
 (the rookie starter level), once through a data correction rather than app code (the absence classification of served `weeklyStatus`), once on the veteran path (the short-season games rule), and once on the rookie path's season total (the total-points factor). Earlier
 snapshot-schema and factor-set changes (`schemaVersion` 1→2→3; the veteran factor set
@@ -57,7 +58,7 @@ captures either side of boundary 4.
 
 ## The date table is the cross-check, not the rule
 
-Nine changes on seven tracked axes, verified against the actually-committed app files (row 7: the data commit):
+Ten changes on eight tracked axes, verified against the actually-committed app files (row 7: the data commit):
 
 | # | commit | date (UTC) | path | mechanism |
 |---|---|---|---|---|
@@ -65,6 +66,7 @@ Nine changes on seven tracked axes, verified against the actually-committed app 
 | 2 | `ed027c7` | 2026-09-11 08:01 | rookie | games ladder |
 | 3 | `41f277e` | 2026-09-12 09:23 | rookie | ceiling |
 | 4 | `7b5b055` | 2026-09-12 22:27 | veteran | step4-upside (RB/WR/TE up-side removed, QB retained) |
+| 4a | app `47af353` + fix pass `38acc39` (the fix pass touched backlog text and tests only — no projection-output change; the model is live once the push lands; captures check out app `main`) | 2026-09-25, the **app push**, which git does not record: pushed after 19:21:51 UTC (`38acc39`), before 20:05:54 UTC (the first league capture, `snapshots/2026-09-25.json`) | both | season rescore — the league scoring basis (every season row rescored at load; `positionBasisScale` on the rookie constants) |
 | 5 | `c7a5d84` (Stage A; the model is live only once the Stage B commits ship with it) | 2026-10-04 01:04 (the **app push**, `00c0946..c53db19`); captures check out app `main`, and the push follows commits 2–3, so the Stage A commit time would be too early | both (QB rows) | qb-takeover start share |
 | 6 | `f97080a` (the model is live once the push lands; captures check out app `main`) | 2026-10-04 13:43 (the **app push**, `422fcfb..cec846d`, which also carried P11's seam fix `c804ada` — no projection-output change) | rookie (QB rows, yearsExp 0) | rookie QB starter level |
 | 7 | data `c7cfcc7` (an input correction — no app commit; was `8b95519` before the push-time rebase) | 2026-10-07 06:50 (the **data push**, `0b41c62..3097397`; CDN purge of all eleven files verified 12/12 immediately after) | veteran (QB/RB/WR/TE) | absence classification (served 'D', CR-28) |
@@ -94,6 +96,26 @@ the 2026-09-12 capture, so the first capture reflecting it is a later one.
 | `2026-05-19` (the only capture before 2026-06-06) | unclassified on this axis — confirmed: the 428 veteran rows in `snapshots/2026-05-19.json` carry `regressionFactor` but no `regressionFactorRaw` or `consistency*`, so the Step 4 table they were produced under cannot be read from the row |
 | `2026-06-06` – `2026-09-12` | legacy — confirmed: every veteran row in these 59 captures carries `regressionFactorRaw` and none carries `regressionUpsideBasis`; `snapshots/2026-09-12.json` (captured 18:34:49 UTC, before `7b5b055`) has 421 veteran rows, 170 of them at an up-side `regressionFactorRaw` (107 × 1.12, 63 × 1.05). The poisoned 2026-07-16 → 2026-07-18 window sits inside this segment and is excluded on its own axis (`CLAUDE.md`) |
 | `>= 2026-09-13` | step4-upside — confirmed: all 422 veteran rows in `snapshots/2026-09-13.json` (captured 18:52:36 UTC) carry `regressionUpsideBasis` (none 252 · removed:RB 34 · removed:WR 73 · removed:TE 52 · retained:QB 11), no rookie-path row carries it, and between the 2026-09-12 and 2026-09-13 captures the veteran rows whose `regressionFactorRaw` moved are exactly the 159 `removed:` rows |
+
+### Both paths — boundary 4a (scoring basis)
+
+**Row-detectable from the envelope**, not from a factor: `projectionBasis` `'league'` → league basis; absent or `'half_ppr'` →
+half-PPR; `'mixed'` / `'unknown'` → unclassified (no model reproduces it). A per-season `live-api` provenance in `inputStatus`
+was league-scored even before the boundary (CR-01), which is why the envelope field and not the provenance decides. Rookie-path rows
+also carry `factors.rookieBasisScale` (the `positionBasisScale` the rookie baseline, ceiling knee/asymptote and QB starter level were
+multiplied by); its absence on a rookie row is a pre-boundary capture.
+
+- It moves **every** `projectedPPG` and `projectedTotalPts` on both paths (rows on the half-PPR basis become league-basis rows;
+  on the rookie path the constants also scale), so **any pooled grade spanning it measures the basis change, not the model**.
+  Grade each side against outcomes in its own basis (D-44's segmentation); D-44 stays open for the grader change.
+- **Cross-check — confirmed (D-46, `grading/2026-10-16-league-basis-verdict.md` G1c).** The `half_ppr` model of
+  `lib/leagueBasis.mjs` reproduces every scale-dependent rookie field (`basePPG`, the ceiling input, knee/asymptote, the ceiled level
+  and total) of all 302 rookie rows of `snapshots/2026-09-24.json` (no `projectionBasis`; 0 mismatches) and fails on them under
+  `league` (938); on `snapshots/2026-09-25.json` (first `projectionBasis: 'league'`) the `league` model matches all 302 (0) and
+  `half_ppr` fails (956).
+
+Executable check: `test/rookie-mirror.test.mjs` T-RM16 (the 310 rookie rows of 2026-10-14, exact under `league`, the "before" counts under
+`half_ppr` pinned) and `test/panel-fit.test.mjs` T-F10L (the 436 veteran `basePPG` exact under league rows, 11 under half-PPR).
 
 ### QB rows — both paths
 
@@ -188,7 +210,7 @@ grade spanning it measures the mechanism change. Boundary 7 moves veteran rows' 
 `projectedTotalPts`, `injurySeasons` and `absenceShapeFactor`, and `projectedPPG` only on bounce-back flips; a pooled
 veteran games grade spanning it measures the correction. Boundary 8 is veteran-only and row-detectable through
 `factors.shortSeasonState`; it moves `projectedGames` on `'short'`/`'none'` rows (and `projectedTotalPts` except on QB
-`chain` rows), and a pooled veteran games grade spanning it measures the rule. Boundary 9 is rookie-only (RB/WR/TE, day-3 and undrafted) and row-detectable through `factors.rookieTotalBasis`; it moves `projectedTotalPts` only, so a pooled rookie total-points grade spanning it measures the factor, and a PPG or games grade does not see it.
+`chain` rows), and a pooled veteran games grade spanning it measures the rule. Boundary 9 is rookie-only (RB/WR/TE, day-3 and undrafted) and row-detectable through `factors.rookieTotalBasis`; it moves `projectedTotalPts` only, so a pooled rookie total-points grade spanning it measures the factor, and a PPG or games grade does not see it. Boundary 4a is both-path and row-detectable through the envelope's `projectionBasis` (rookie rows also through `factors.rookieBasisScale`); it moves every `projectedPPG` and `projectedTotalPts`, so a pooled grade of either spanning it measures the scoring basis.
 
 ## Why this is written now, not at the first forward grade
 
@@ -196,4 +218,4 @@ Writing this policy with a stale date list is worse than not writing it at all (
 reader would trust a table quietly missing a boundary. Boundary 4 exists as of `7b5b055`,
 boundary 5 as of the qb-takeover-wiring push and boundary 6 as of the rookie-qb-starter-level push, so the table above is complete,
 for the rookie mechanisms, the Step 4 up-side axis, the QB start-share axis and the rookie QB starter level, as of
-rookie-qb-starter-level, plus boundary 7 as of absence-classification, boundary 8 as of short-season-wiring and boundary 9 as of rookie-total-wiring.
+rookie-qb-starter-level, plus boundary 7 as of absence-classification, boundary 8 as of short-season-wiring and boundary 9 as of rookie-total-wiring; boundary 4a (the 2026-09-25 scoring-basis switch, which the table had missed) as of D-46, inserted chronologically so boundaries 5–9 keep their numbers.
