@@ -494,3 +494,37 @@ applies it via fix-applier in its own commit, then implementation-reviewer re-ru
    on a wrapped two-season load.
 5. `lib/leagueBasis.mjs:195-203` — delete the unused `pidsAbsentFromPlayers` export, or use it in `runG1`
    (`league-basis-run.mjs:255-260`). Pick the delete.
+
+## Stage C hand-back (Session 2, 2026-10-16)
+
+No C2: both constants files were `do-not-wire`. Four commits on data `c8338ba` (not pushed):
+- **C1 `b26990b`** — registry byte copy of the app's mirrored region @ `59b8c09`. Touches only `cross-repo-registry.md`
+  (14+/14−). Gates: region md5 (`sed -n '/^<!-- CR-REGISTRY-BEGIN -->$/,/^<!-- CR-REGISTRY-END -->$/p' | md5`)
+  `d1cdbabc1c3007301bffafa157c38313` on both sides; `REGISTRY_MIRROR=1 node --test test/registry-mirror.test.mjs` 21/21;
+  `npm test` 1601 pass / 5 skipped / 0 fail (`test/registry.test.mjs` resolves every claim).
+- **Fix pass 1 `5d449c9`** — items 1–5. Files: `scripts/league-basis-run.mjs`, `scripts/inseason-dyn-run.mjs`,
+  `lib/leagueBasis.mjs`, `test/league-basis-run.test.mjs`, `test/inseason-dyn.test.mjs`,
+  `grading/2026-10-16-league-basis-verdict.md`. `git diff --stat -- backtests` is empty: every constants and panel JSON is
+  byte-identical. `npm test` 1605 pass / 5 skipped / 0 fail.
+- **C3 `4ea26d0`** — `CLAUDE.md` (Commands row, `--fit` sentence; 24,979 B, ceiling 25,000, pruned "monitoring only;" from
+  the Dead-man row, ceiling untouched) and `README.md` (panel flags, `--fit` basis paragraph, new "League-basis graded
+  before/after" section). `data-catalog.md` untouched.
+- This section (task file commit).
+
+`npm run smoke` exit 0. `npm test` on the last code commit: 1610 tests, 1605 pass, 5 skipped, 0 fail.
+
+**Deviations / notes for review**
+1. *Item 2 — differing-only pool.* The panel JSON does not hold the differing-only pooled delta. `compareConstantsFiles`
+   now returns `pooledDiffering` (cells where at least one entry's emitted k differs; disclosure only, never read by
+   `decideFile`), but the committed verdict was regenerated from the JSON with no G2 re-run, so that one figure (mean
+   −0.0109 [−0.0194, −0.0031], BEATS) was injected in memory from the Stage A verification record above; its cells/rows/players
+   are therefore omitted from the line. The panel JSON was not edited.
+2. *Item 1 — 2-dp/3-dp counts.* `checkRookieRows` gained `productDp2`/`productDp3` for future runs; the regeneration took them
+   (68/242) from the committed slim fixture. The text tolerates their absence (prints "—").
+3. *Item 4 — small exports.* To unit-test them, `levelOf` and the `priorY2` expression were extracted unchanged into exported
+   `rookieQbLevelAt` and `priorY2At` in `scripts/inseason-dyn-run.mjs`; call sites use them (dyn tests 93/93).
+4. *Item 3 — fixture.* The verdict-markdown tests build their result from the committed 2026-10-16 panel JSON with the 2a
+   comparison swapped, rather than a fully hand-built result (the rest of the result shape is unaffected).
+5. The regenerated verdict header still reads "generated at … `af36667`+local" (meta in the JSON; `af36667` was renamed
+   `cb27d88` at push). Not touched — outside items 1–5.
+6. Dynasty "Pooled points delta" line prints "1 cells" (cosmetic).
