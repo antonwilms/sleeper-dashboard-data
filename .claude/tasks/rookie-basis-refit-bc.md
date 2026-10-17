@@ -110,3 +110,45 @@ reviews and pushes (`git pull --rebase` first).
 
 Done: `npm test`, `npm run smoke`, `git pull --rebase`, push. No CDN purge. Session 1 moves D-45 to Done with both
 repos' SHAs.
+
+---
+
+## Drafted for the outcome (Session 1, 2026-10-17): no family wires → B1′ + B2 + B3, then C1 + C3
+
+Verdict: data `grading/2026-10-17-rookie-basis-verdict.md` @ `6bb871d` (pushed `eb1b661..2c01446`): F1–F5 all
+`do-not-wire` (F4 after Fix pass 1; Anton 2026-10-17: keep do-not-wire — it also fails D-13's own per-player rule).
+No value, table, fixture, factor key or `PRIOR_MODEL_FROM` moves. Messages end `(rookie-basis-refit)`.
+
+### B1′ — exact replacements (one app commit)
+- `src/utils/seasonProjection.js:24` → `// PROVISIONAL(heuristic): hand-set half-PPR baseline · scaled at runtime by positionBasisScale; D-45's league-basis refit (data grading/2026-10-17-rookie-basis-verdict.md) did not beat it out of sample · a league-basis refit that beats the interim`
+- `:56` → `// PROVISIONAL(heuristic): half-PPR-calibrated knee/asymptote · scaled at runtime by positionBasisScale; D-45's league-basis refit (data grading/2026-10-17-rookie-basis-verdict.md) did not beat it out of sample · a league-basis refit that beats the interim`
+- `:75` → `// PROVISIONAL(heuristic): half-PPR-calibrated starter level · scaled at runtime by positionBasisScale; D-45's league-basis refit (data grading/2026-10-17-rookie-basis-verdict.md) did not beat it out of sample · a league-basis refit that beats the interim`
+- `:256` → `// Applied to projectedTotalPts only, never projectedPPG/projectedGames. Half-PPR fit, applied without a basis rescale: D-45's league refit was better calibrated on league totals but worse per player, so it stands (re-measured for the 2026 class, D-75).`
+- `ROOKIE_CALIBRATION` comment block (`:34-41`): add as its last line `// Half-PPR fit, applied unscaled; D-45's league-basis refit did not beat it out of sample (data grading/2026-10-17-rookie-basis-verdict.md).`
+- `src/utils/dynastyScore.js:58` → `// PROVISIONAL(heuristic): measured basis scale, interim single scale per position · transports the half-PPR rookie and prior constants; D-45's league-basis refit wired no family, so it serves all five · a league-basis refit that beats it`
+- `:502` → `// PROVISIONAL(heuristic): hand-set half-PPR prior PPG · scaled at runtime by positionBasisScale (computeProspectScore's basisScale); D-45's league-basis refit did not beat it out of sample · a league-basis refit that beats the interim`
+- `docs/projection.md:166` — replace "Interim until the data-side custom-basis refit (D-45); tagged `PROVISIONAL(heuristic)`." with "D-45's league-basis refit (data `grading/2026-10-17-rookie-basis-verdict.md`) did not beat this interim for any family, so it stands; tagged `PROVISIONAL(heuristic)`."
+- `docs/projection.md:352` — replace "Half-PPR fit; dimensionless (D-45), so no basis rescale." with "Half-PPR fit, applied without a basis rescale; D-45's league refit (day-3 0.866, undrafted 0.944) was better calibrated on league totals but worse per player, so the half-PPR factor stands (re-measured for the 2026 class, D-75)."
+- `docs/dynasty-scoring.md:72` — replace "interim until the data-side refit, D-45" with "D-45's league-basis refit did not beat it, so it stands".
+- Gate: `grep -rn "D-45" src docs` shows only the new wording; paste `grep -rn "PROVISIONAL(" src/` (same five sites, same count). No test changes are owed (comments/docs only); `docsAvailabilityClaims.test.js` must stay green.
+
+### B2 — registry edits (app `docs/cross-repo-registry.md`, mirrored region only; one commit)
+- **CR-14** — Data side: replace "`leagueRatio` in `lib/qbRookieLevel.mjs` (`--qb-rookie-level`, report-only league cross-check) scores season `stats` with `RATE_KEYS` stripped, the app's season-scoring convention" with "`leagueRatio` in `lib/qbRookieLevel.mjs` (`--qb-rookie-level`, report-only season-ratio cross-check) scores season `stats` through the `lib/fantasyPoints.mjs` port `scoreSeasonStats`, its `deriveFirstDowns` flag set per season by `seasonEmitsFirstDownBonus` in `scripts/qb-rookie-level-run.mjs` (D-45)". Triggers: after `lib/qbRookieLevel.mjs` add `, scripts/qb-rookie-level-run.mjs`. Mirror: replace "`scripts/qb-rookie-level-run.mjs` still stops on a non-zero `bonus_fd_qb` (D-45 re-routes it)." with "`scripts/qb-rookie-level-run.mjs` scores through the same port since D-45 (no `bonus_fd_qb` stop)."
+- **CR-15** — Data side: append, before its final period if any, "; since rookie-basis-refit (D-45) `lib/rookieMirror.mjs` (`ROOKIE_CONSTANTS_MODELS`, `CURRENT_ROOKIE_CONSTANTS_MODEL`), `lib/rookieBasisRefit.mjs`, `scripts/rookie-basis-run.mjs` (`runRookieBasis`), `scripts/rookie-constants-file.mjs` (`wiredConstantsOf`) and `scripts/panel-run.mjs` (`runRookiePanels`, `runFullPipeline` — their `league` basis)". Triggers: append `, lib/rookieBasisRefit.mjs, scripts/rookie-basis-run.mjs, scripts/rookie-constants-file.mjs` to the data-side list. Mirror: append " **rookie-basis-refit (D-45):** the rookie constants are versioned by model — `interim` (half-PPR × `positionBasisScale`, the app's only model) and `league-refit` (a family's league table at scale 1, reproducible, unshipped); no family wired (`grading/2026-10-17-rookie-basis-verdict.md`). A later wire adds a family to `league-refit` as a new model, never an overwrite."
+- **CR-25** — Triggers: append `, scripts/rookie-constants-file.mjs` to the data-side list. Mirror: append " **rookie-basis-refit (D-45):** `--inseason`/`--inseason --dynasty` take `--rookie-constants <file>` (league basis only) to re-fit the k against a candidate league rookie or prospect prior; plumbing only — no k moved, and the half-PPR path is byte-identical. `POSITION_PRIOR_PPG` and the rookie constants keep their half-PPR values × `positionBasisScale`."
+- **CR-27** — Mirror: append " **rookie-basis-refit (D-45):** `--qb-rookie-level` admits `--basis league`; the league refit of the starter level did not beat the half-PPR level × `positionBasisScale` (`do-not-wire`), so the pinned file stands."
+- Gates: claim check (`extractSymbolFileClaims` + `symbolResolvesIn` from `../sleeper-dashboard-data/lib/registry.mjs`) over the edited region against data HEAD `2c01446` — zero unresolved; `git diff --stat` only the registry; region md5 (`sed -n '/^<!-- CR-REGISTRY-BEGIN -->$/,/^<!-- CR-REGISTRY-END -->$/p' docs/cross-repo-registry.md | md5`) recorded.
+
+### B3 — backlog (app `.claude/tasks/data-repo-backlog.md`; one commit)
+- D-45 entry: add under its heading "**In progress — Stage C pending (2026-10-17).** Data `eb1b661..2c01446`: league-basis refit of the five rookie/prior families (`grading/2026-10-17-rookie-basis-verdict.md`); all `do-not-wire` (F4 after Fix pass 1, frozen `cde2d06` crosswalk). Interim half-PPR × `positionBasisScale` stands; app comments only (B1′)." — it moves to Done after Stage C's push.
+- New **D-75**, placed directly after D-16:
+  `### D-75 · Re-measure the ROOKIE_TOTAL_FACTOR bias on league basis for the 2026 class`
+  `**Watch (dated 2027-01-05, with D-16).** Trigger: D-16's 2026-class debut append. Then re-measure, on league basis, the day-3 / undrafted RB/WR/TE total-points bias of the shipped composition for the 2026 class — the first class the factor never saw.`
+  `**Found:** rookie-basis-refit (D-45, data `6bb871d`) · **Blocking:** no · **Size:** small, deferred until season end`
+  Body: "D-45's F4 found the league ratio-of-sums factor higher than the shipped half-PPR one (day-3 0.866 vs 0.796, undrafted 0.944 vs 0.835) and better calibrated out of sample (Σpred ÷ Σreal 1.000 / 1.003 vs 0.918 / 0.887), but worse per player (Δ |error| +0.68 / +0.54 points; MAE favours a smaller factor on a population where 38% / 66% of seasons score 0). It is `do-not-wire` under D-45's pre-registered rule and also fails D-13's own rule, which required the per-player error to beat. Pre-register the re-measure with **bias primary** (Σpred ÷ Σreal on league totals, per group) and a guard that the per-player error is **no worse** (paired Δ |error| CI not above 0). Wiring a league factor would bump `PRIOR_MODEL_FROM` (it moves rookie `projectedTotalPts`)."
+- Gate: the new D-id is the highest (`grep -o "D-[0-9]\+" … | sort -n` → D-75).
+
+### C (data, same day, after the app push)
+- **C1** registry byte copy of the app region at the pushed app SHA; gates as §7.
+- **C3** docs: `CLAUDE.md` Commands → Backtest row gains `--rookie-basis` and the `--basis league` note on `--rookie-total`/`--qb-rookie-level`; Panel row notes `--rookie`/`--fullpipeline` admit `--basis league`; README backtest section: one paragraph "League-basis refit of the rookie and prior constants (D-45)" naming the command, the five families and the verdict path. Ceiling 25,000 bytes (prune, never raise).
+- Then Session 1 pushes data and moves D-45 to Done (app) with both repos' SHAs.
