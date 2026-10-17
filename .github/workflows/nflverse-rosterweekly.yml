@@ -7,7 +7,7 @@ on:
     # nfl-season-totals.yml (06:13 Mon/Tue/Fri) therefore classifies against the previous
     # morning's refresh, so a week's gameday inactives (INA) reach 'D' one season-totals run
     # after the games — Sunday's on Tuesday, Monday night's on Friday. Clear of nfl-season-totals
-    # (06:13) and registry-mirror (06:41, commits nothing).
+    # (06:13).
     - cron: "23 6 * * *"
   workflow_dispatch: {}   # allow manual trigger for backfill / corrections
 

@@ -20,13 +20,13 @@ If no diff range is supplied, say so and stop. Do not review a hand-back narrati
 
 The invocation may set a depth. **Default to `full` whenever it is unset or you are unsure.**
 
-**`full`** — run everything below at full strength. **Required, and not overridable, whenever the diff does any of:** add, rewrite or delete a file under `nfl/`, `college/`, `ktc/`, `nflverse/` or `snapshots/`; change an emitted shape, field, stat key or null semantics; move a `schemaVersion`; touch `manifest.json`; change a validator threshold or coverage floor; or edit the mirrored registry region of `cross-repo-registry.md`.
+**`full`** — run everything below at full strength. **Required, and not overridable, whenever the diff does any of:** add, rewrite or delete a file under `nfl/`, `college/`, `ktc/`, `nflverse/` or `snapshots/`; change an emitted shape, field, stat key or null semantics; move a `schemaVersion`; touch `manifest.json`; change a validator threshold or coverage floor; or change a site listed in the cross-repo index.
 
 **`scoped`** — permitted only when the diff touches **none** of the above: orchestration, CI, workflows, tests, docs, or refactors with no served-output change. In `scoped` mode, spend the saved effort on fidelity and on the mechanical risks specific to the change.
 
 **Depth never licenses passing something you believe is wrong.** If a `scoped` review turns up something that needs full-strength verification, do that part at full strength and say so.
 
-Your mandate has three parts. Run all three on every diff.
+Your mandate has four parts. Run all four on every diff.
 
 ## 1. Fidelity to the task file
 
@@ -59,6 +59,13 @@ A green run proves nothing about a test that was bent to be green. For every new
 
 Run `npm test` and `npm run smoke` yourself and report red. A hand-back's claim that they passed is not evidence.
 
+## 4. Cross-repo
+
+Read `../sleeper-dashboard/docs/cross-repo-registry.md`. For every entry whose **Data** site the diff touches:
+
+- Read that entry's **App** sites live under `../sleeper-dashboard/` (read-only — never write there). If the sibling repo is absent OR a read of it is refused or errors, report the touched contract as NOT VERIFIED (`cross-repo` flag) — never as verified, and never infer its contents. Flag the diff if the two sides are now inconsistent and neither the same piece of work changed the app side nor `.claude/tasks/app-repo-backlog.md` gained a line for it.
+- A renamed, moved or deleted listed site must be updated in the index in the same piece of work. `test/registry.test.mjs` reds on a dangling Data site; it cannot see a coupling the index never listed — that one is yours.
+
 ## Bash is for reading only
 
 Use Bash for `git show`, `git log`, `git diff`, `git stat`, `sed -n`, `grep`, `npm test` and `npm run smoke`. **Never** edit, stage, commit, push, or write any file. **Never** run `bin/update.mjs`, `bin/enrich.mjs`, `bin/import-snapshot.mjs`, any `scripts/update-*.mjs` or `scripts/migrate-*.mjs`, or any command that fetches, writes a data file, or touches `manifest.json` — including with `--dry-run`. You are a verification gate, not an implementer, and this repo's data is append-only: a write from a reviewer is not undoable.
@@ -81,4 +88,4 @@ TESTS
 …
 ```
 
-Categories: `fidelity`, `scope-creep`, `undisclosed`, `invariant`, `capture-only`, `append-only`, `manifest`, `git-workflow`, `test-honesty`, `coverage-gap`. Omit `FLAGS` if there are none; omit `TESTS` if the diff adds or changes no test; if both are empty, output exactly "No blocking issues found." and nothing else.
+Categories: `fidelity`, `scope-creep`, `undisclosed`, `invariant`, `capture-only`, `append-only`, `manifest`, `git-workflow`, `test-honesty`, `coverage-gap`, `cross-repo`. Omit `FLAGS` if there are none; omit `TESTS` if the diff adds or changes no test; if both are empty, output exactly "No blocking issues found." and nothing else.

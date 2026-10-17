@@ -7,8 +7,8 @@ on:
     # Mon = Sat/Sun, Tue = Monday night — after Tuesday's run the week is complete for every team.
     # Between Fri and Tue the in-progress file holds a partly played current week (teams that have
     # played it carry one more gamesPlayed) — CR-21. 06:13 is clear of every committer (KTC 13:17
-    # Mon, roster 13:23 Tue, schedule 13:35 Fri); cron-deadman (05:19) and registry-mirror (06:41)
-    # commit nothing. Reads nflverse/schedule/<year>.json for D-1 bye inference; the season's
+    # Mon, roster 13:23 Tue, schedule 13:35 Fri); cron-deadman (05:19) commits nothing.
+    # Reads nflverse/schedule/<year>.json for D-1 bye inference; the season's
     # schedule is written long before week 1, so the Friday schedule job's timing does not matter.
     # Also reads nflverse/rosterweekly/<year>.json (refreshed daily at 06:23 UTC, after this job, so
     # classification lags one run) for absence classification (CR-28).
