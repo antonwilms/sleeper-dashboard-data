@@ -1,0 +1,1123 @@
+{
+  "source": "sleeper-dashboard-data backtests/2026-10-17-rookie-league-constants.json (node bin/backtest.mjs --rookie-basis --write)",
+  "generatedAt": "2026-10-17T08:43:25.285Z",
+  "basis": "league",
+  "basisDetail": {
+    "scoringFixture": "test/fixtures/league-scoring-2026-10-14.json",
+    "positionFile": "raw/-players-nfl.json",
+    "scaleBySeason": {
+      "2013": {
+        "QB": 1.122,
+        "RB": 1.135,
+        "WR": 1.108,
+        "TE": 1.311
+      },
+      "2014": {
+        "QB": 1.124,
+        "RB": 1.129,
+        "WR": 1.109,
+        "TE": 1.312
+      },
+      "2015": {
+        "QB": 1.125,
+        "RB": 1.123,
+        "WR": 1.11,
+        "TE": 1.317
+      },
+      "2016": {
+        "QB": 1.124,
+        "RB": 1.124,
+        "WR": 1.108,
+        "TE": 1.321
+      },
+      "2017": {
+        "QB": 1.123,
+        "RB": 1.128,
+        "WR": 1.108,
+        "TE": 1.324
+      },
+      "2018": {
+        "QB": 1.123,
+        "RB": 1.128,
+        "WR": 1.107,
+        "TE": 1.322
+      },
+      "2019": {
+        "QB": 1.123,
+        "RB": 1.126,
+        "WR": 1.108,
+        "TE": 1.323
+      },
+      "2020": {
+        "QB": 1.123,
+        "RB": 1.124,
+        "WR": 1.106,
+        "TE": 1.322
+      },
+      "2021": {
+        "QB": 1.123,
+        "RB": 1.122,
+        "WR": 1.106,
+        "TE": 1.322
+      },
+      "2022": {
+        "QB": 1.123,
+        "RB": 1.12,
+        "WR": 1.106,
+        "TE": 1.325
+      },
+      "2023": {
+        "QB": 1.121,
+        "RB": 1.119,
+        "WR": 1.104,
+        "TE": 1.324
+      },
+      "2024": {
+        "QB": 1.119,
+        "RB": 1.117,
+        "WR": 1.102,
+        "TE": 1.324
+      },
+      "2025": {
+        "QB": 1.115,
+        "RB": 1.118,
+        "WR": 1.101,
+        "TE": 1.325
+      },
+      "2026": {
+        "QB": 1.114,
+        "RB": 1.118,
+        "WR": 1.101,
+        "TE": 1.325
+      }
+    },
+    "scoringFixtureSha1": "32e33d61c5cfffacec0a052692fbd61c967b1d6f"
+  },
+  "headRev": "9621d09",
+  "note": "Constants for EVERY family are recorded; only a family whose verdict is `wire` is read by the app. Unwired families are never read.",
+  "families": {
+    "F1": {
+      "verdict": "do-not-wire",
+      "constants": {
+        "baselinePPG": {
+          "QB": 14.443,
+          "RB": 10.458,
+          "WR": 8.344,
+          "TE": 6.535
+        },
+        "calibration": {
+          "undrafted": {
+            "QB": 0.67,
+            "RB": 0.35,
+            "WR": 0.41,
+            "TE": 0.28
+          },
+          "day3": {
+            "QB": 1,
+            "RB": 0.82,
+            "WR": 0.81,
+            "TE": 0.72
+          }
+        }
+      },
+      "provenance": {
+        "recipe": "tierGroup / fitCellConstants / five-part minimum-n rule; ρ-transport of the hand-set baseline (decision A1)",
+        "folds": 12,
+        "rows": 1056,
+        "fullSample": {
+          "half": {
+            "calibration": {
+              "undrafted": {
+                "QB": 0.67,
+                "RB": 0.33,
+                "WR": 0.36,
+                "TE": 0.28
+              },
+              "day3": {
+                "QB": 1,
+                "RB": 0.8,
+                "WR": 0.79,
+                "TE": 0.71
+              }
+            },
+            "baselinePPG": {
+              "QB": 13,
+              "RB": 9,
+              "WR": 7,
+              "TE": 5
+            }
+          },
+          "interim": {
+            "baselinePPG": {
+              "QB": 14.482,
+              "RB": 10.062,
+              "WR": 7.707,
+              "TE": 6.625
+            },
+            "calibration": {
+              "undrafted": {
+                "QB": 0.67,
+                "RB": 0.33,
+                "WR": 0.36,
+                "TE": 0.28
+              },
+              "day3": {
+                "QB": 1,
+                "RB": 0.8,
+                "WR": 0.79,
+                "TE": 0.71
+              }
+            },
+            "scale": {
+              "QB": 1.114,
+              "RB": 1.118,
+              "WR": 1.101,
+              "TE": 1.325
+            }
+          },
+          "league": {
+            "baselinePPG": {
+              "QB": 14.443,
+              "RB": 10.458,
+              "WR": 8.344,
+              "TE": 6.535
+            },
+            "calibration": {
+              "undrafted": {
+                "QB": 0.67,
+                "RB": 0.35,
+                "WR": 0.41,
+                "TE": 0.28
+              },
+              "day3": {
+                "QB": 1,
+                "RB": 0.82,
+                "WR": 0.81,
+                "TE": 0.72
+              }
+            },
+            "rho": {
+              "QB": 1.111,
+              "RB": 1.162,
+              "WR": 1.192,
+              "TE": 1.307
+            }
+          },
+          "cells": {
+            "day3:QB": {
+              "n": 31,
+              "band": "n>=30",
+              "rawLeague": 1.101,
+              "c": 1,
+              "rawHalf": 1.103
+            },
+            "undrafted:TE": {
+              "n": 101,
+              "band": "n>=30",
+              "rawLeague": 0.279,
+              "c": 0.28,
+              "rawHalf": 0.279
+            },
+            "day2:QB": {
+              "n": 21,
+              "band": "none",
+              "rawLeague": 1.177,
+              "c": 1,
+              "rawHalf": 1.171
+            },
+            "undrafted:QB": {
+              "n": 14,
+              "band": "10<=n<30",
+              "rawLeague": 0.67,
+              "c": 0.67,
+              "rawHalf": 0.668
+            },
+            "day3:TE": {
+              "n": 83,
+              "band": "n>=30",
+              "rawLeague": 0.716,
+              "c": 0.72,
+              "rawHalf": 0.71
+            },
+            "undrafted:WR": {
+              "n": 150,
+              "band": "n>=30",
+              "rawLeague": 0.412,
+              "c": 0.41,
+              "rawHalf": 0.363
+            },
+            "day2:WR": {
+              "n": 98,
+              "band": "none",
+              "rawLeague": 1.012,
+              "c": 1,
+              "rawHalf": 1.063
+            },
+            "day3:WR": {
+              "n": 128,
+              "band": "n>=30",
+              "rawLeague": 0.812,
+              "c": 0.81,
+              "rawHalf": 0.787
+            },
+            "undrafted:RB": {
+              "n": 101,
+              "band": "n>=30",
+              "rawLeague": 0.345,
+              "c": 0.35,
+              "rawHalf": 0.332
+            },
+            "day3:RB": {
+              "n": 116,
+              "band": "n>=30",
+              "rawLeague": 0.815,
+              "c": 0.82,
+              "rawHalf": 0.799
+            },
+            "day2:TE": {
+              "n": 46,
+              "band": "none",
+              "rawLeague": 1.068,
+              "c": 1,
+              "rawHalf": 1.067
+            },
+            "day2:RB": {
+              "n": 55,
+              "band": "none",
+              "rawLeague": 1.233,
+              "c": 1,
+              "rawHalf": 1.273
+            },
+            "r1:WR": {
+              "n": 49,
+              "band": "none",
+              "rawLeague": 1.051,
+              "c": 1,
+              "rawHalf": 1.127
+            },
+            "r1:RB": {
+              "n": 15,
+              "band": "none",
+              "rawLeague": 1.223,
+              "c": 1,
+              "rawHalf": 1.265
+            },
+            "r1:QB": {
+              "n": 37,
+              "band": "none",
+              "rawLeague": 1.041,
+              "c": 1,
+              "rawHalf": 1.044
+            },
+            "r1:TE": {
+              "n": 11,
+              "band": "none",
+              "rawLeague": 1.372,
+              "c": 1,
+              "rawHalf": 1.396
+            }
+          }
+        },
+        "pooled": {
+          "rows": 1056,
+          "players": 1025,
+          "mean": 0.02018005939200467,
+          "ci95": [
+            -0.0019421331131816858,
+            0.0437508126261828
+          ],
+          "ci99": [
+            -0.009596975357173517,
+            0.05066265253665592
+          ],
+          "statLabel": "NO-GAIN",
+          "label": "NO-GAIN",
+          "insufficient": false
+        },
+        "entries": [
+          {
+            "key": "r1:QB",
+            "rows": 37,
+            "players": 36,
+            "mean": -0.030897978378378856,
+            "ci95": [
+              -0.08502650000000041,
+              0.026103711111110577
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "r1:RB",
+            "rows": 15,
+            "players": 15,
+            "mean": -0.20223813333333354,
+            "ci95": [
+              -0.3787857333333336,
+              0.002270333333332886
+            ],
+            "label": "INSUFFICIENT",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "r1:WR",
+            "rows": 49,
+            "players": 49,
+            "mean": -0.1275073580174922,
+            "ci95": [
+              -0.31337078775510113,
+              0.05386735218658923
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "r1:TE",
+            "rows": 11,
+            "players": 11,
+            "mean": 0.0270467272727274,
+            "ci95": [
+              -0.020234909090909282,
+              0.06923263636363686
+            ],
+            "label": "INSUFFICIENT",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day2:QB",
+            "rows": 21,
+            "players": 17,
+            "mean": 0.04461929160997791,
+            "ci95": [
+              -0.004653218045112264,
+              0.0934346947368427
+            ],
+            "label": "INSUFFICIENT",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day2:RB",
+            "rows": 55,
+            "players": 54,
+            "mean": -0.10106953696969696,
+            "ci95": [
+              -0.1825470222222222,
+              -0.01783282499999991
+            ],
+            "label": "BEATS",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day2:WR",
+            "rows": 98,
+            "players": 97,
+            "mean": 0.03428912579213486,
+            "ci95": [
+              -0.07665803883371541,
+              0.14048828603561359
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day2:TE",
+            "rows": 46,
+            "players": 46,
+            "mean": -0.009149565217391254,
+            "ci95": [
+              -0.027208456521739074,
+              0.009203956521739269
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day3:QB",
+            "rows": 31,
+            "players": 29,
+            "mean": 0.0020243935483871805,
+            "ci95": [
+              -0.03294062352941181,
+              0.038307612121212246
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day3:RB",
+            "rows": 116,
+            "players": 115,
+            "mean": 0.07518155215227112,
+            "ci95": [
+              0.02040829183009756,
+              0.12876543824774736
+            ],
+            "label": "WORSE",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day3:WR",
+            "rows": 128,
+            "players": 126,
+            "mean": 0.04502524114561817,
+            "ci95": [
+              -0.03182246035699439,
+              0.11851033981441655
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day3:TE",
+            "rows": 83,
+            "players": 81,
+            "mean": -0.0029546467722133874,
+            "ci95": [
+              -0.005636265344774024,
+              -0.0003693029792220783
+            ],
+            "label": "BEATS",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "undrafted:QB",
+            "rows": 14,
+            "players": 10,
+            "mean": 0.0429481354824967,
+            "ci95": [
+              0.003993191282523638,
+              0.09239689053163769
+            ],
+            "label": "INSUFFICIENT",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "undrafted:RB",
+            "rows": 101,
+            "players": 99,
+            "mean": 0.0460285813153052,
+            "ci95": [
+              -0.0018162139965961055,
+              0.090586053329025
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "undrafted:WR",
+            "rows": 150,
+            "players": 143,
+            "mean": 0.09562964930573432,
+            "ci95": [
+              0.0019523512267049686,
+              0.18729957829635416
+            ],
+            "label": "WORSE",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "undrafted:TE",
+            "rows": 101,
+            "players": 98,
+            "mean": -0.007690771257040869,
+            "ci95": [
+              -0.011511846608687213,
+              -0.003944726004962445
+            ],
+            "label": "BEATS",
+            "same": false,
+            "deciding": true
+          }
+        ],
+        "structural": {
+          "correctedHalf": [
+            "day3:RB",
+            "day3:TE",
+            "day3:WR",
+            "undrafted:QB",
+            "undrafted:RB",
+            "undrafted:TE",
+            "undrafted:WR"
+          ],
+          "correctedLeague": [
+            "day3:RB",
+            "day3:TE",
+            "day3:WR",
+            "undrafted:QB",
+            "undrafted:RB",
+            "undrafted:TE",
+            "undrafted:WR"
+          ],
+          "bandsHalf": {
+            "day2:QB": "none",
+            "day2:RB": "none",
+            "day2:TE": "none",
+            "day2:WR": "none",
+            "day3:QB": "n>=30",
+            "day3:RB": "n>=30",
+            "day3:TE": "n>=30",
+            "day3:WR": "n>=30",
+            "r1:QB": "none",
+            "r1:RB": "none",
+            "r1:TE": "none",
+            "r1:WR": "none",
+            "undrafted:QB": "10<=n<30",
+            "undrafted:RB": "n>=30",
+            "undrafted:TE": "n>=30",
+            "undrafted:WR": "n>=30"
+          },
+          "bandsLeague": {
+            "day2:QB": "none",
+            "day2:RB": "none",
+            "day2:TE": "none",
+            "day2:WR": "none",
+            "day3:QB": "n>=30",
+            "day3:RB": "n>=30",
+            "day3:TE": "n>=30",
+            "day3:WR": "n>=30",
+            "r1:QB": "none",
+            "r1:RB": "none",
+            "r1:TE": "none",
+            "r1:WR": "none",
+            "undrafted:QB": "10<=n<30",
+            "undrafted:RB": "n>=30",
+            "undrafted:TE": "n>=30",
+            "undrafted:WR": "n>=30"
+          },
+          "ok": true
+        },
+        "reasons": [
+          "BEATS day2:RB, day3:TE, undrafted:TE; WORSE day3:RB, undrafted:WR; pooled 99% interval [-0.01, 0.051] not below 0"
+        ],
+        "pinnedOk": true
+      }
+    },
+    "F2": {
+      "verdict": "do-not-wire",
+      "constants": {
+        "ceiling": {
+          "QB": {
+            "knee": 20.08,
+            "asymptote": 24
+          },
+          "RB": {
+            "knee": 13.71,
+            "asymptote": 19.02
+          },
+          "WR": {
+            "knee": 11.29,
+            "asymptote": 15.91
+          },
+          "TE": {
+            "knee": 8.04,
+            "asymptote": 14.06
+          }
+        }
+      },
+      "provenance": {
+        "recipe": "p90 knee / p99 asymptote of debut PPG (gp >= 8), 2 dp; leave-one-class-year-out (Q5); pinball loss at τ = 0.90 / 0.99",
+        "folds": 13,
+        "rows": 873,
+        "fullSample": {
+          "half": {
+            "QB": {
+              "knee": 17.8,
+              "asymptote": 21.9,
+              "n": 50
+            },
+            "RB": {
+              "knee": 12.11,
+              "asymptote": 16.87,
+              "n": 281
+            },
+            "WR": {
+              "knee": 9.87,
+              "asymptote": 14.38,
+              "n": 366
+            },
+            "TE": {
+              "knee": 6.21,
+              "asymptote": 11.6,
+              "n": 176
+            }
+          },
+          "interim": {
+            "QB": {
+              "knee": 19.83,
+              "asymptote": 24.4
+            },
+            "RB": {
+              "knee": 13.54,
+              "asymptote": 18.86
+            },
+            "WR": {
+              "knee": 10.87,
+              "asymptote": 15.83
+            },
+            "TE": {
+              "knee": 8.23,
+              "asymptote": 15.37
+            }
+          },
+          "league": {
+            "QB": {
+              "knee": 20.08,
+              "asymptote": 24,
+              "n": 50
+            },
+            "RB": {
+              "knee": 13.71,
+              "asymptote": 19.02,
+              "n": 281
+            },
+            "WR": {
+              "knee": 11.29,
+              "asymptote": 15.91,
+              "n": 366
+            },
+            "TE": {
+              "knee": 8.04,
+              "asymptote": 14.06,
+              "n": 176
+            }
+          },
+          "scale": {
+            "QB": 1.114,
+            "RB": 1.118,
+            "WR": 1.101,
+            "TE": 1.325
+          }
+        },
+        "pooled": {
+          "rows": 873,
+          "players": 873,
+          "mean": 0.0000778273999099469,
+          "ci95": [
+            -0.003650660075530769,
+            0.004167312979968606
+          ],
+          "ci99": [
+            -0.004635383795748152,
+            0.005369604109753876
+          ],
+          "statLabel": "NO-GAIN",
+          "label": "NO-GAIN",
+          "insufficient": false
+        },
+        "entries": [
+          {
+            "key": "QB:knee",
+            "rows": 50,
+            "players": 50,
+            "mean": -0.0005413714285713044,
+            "ci95": [
+              -0.009404611428571222,
+              0.009278208571428742
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "QB:asymptote",
+            "rows": 50,
+            "players": 50,
+            "mean": 0.016808359882352943,
+            "ci95": [
+              -0.0054731220000000195,
+              0.05645851576470591
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "RB:knee",
+            "rows": 281,
+            "players": 281,
+            "mean": -0.0011265231316725962,
+            "ci95": [
+              -0.005450533807829191,
+              0.0027058113879003367
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "RB:asymptote",
+            "rows": 281,
+            "players": 281,
+            "mean": 0.006242569039145871,
+            "ci95": [
+              0.0009738181494661972,
+              0.013150904626334455
+            ],
+            "label": "WORSE",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "WR:knee",
+            "rows": 366,
+            "players": 366,
+            "mean": -0.009926150893144131,
+            "ci95": [
+              -0.022801140056022424,
+              0.0027283386370941637
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "WR:asymptote",
+            "rows": 366,
+            "players": 366,
+            "mean": 0.0006706482695810616,
+            "ci95": [
+              -0.0006462996357012675,
+              0.0021186628415300643
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "TE:knee",
+            "rows": 176,
+            "players": 176,
+            "mean": 0.004685284090909094,
+            "ci95": [
+              -0.003254681818181836,
+              0.014285653409090944
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "TE:asymptote",
+            "rows": 176,
+            "players": 176,
+            "mean": 0.002544501578282835,
+            "ci95": [
+              -0.01166292159090911,
+              0.02361213977272729
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          }
+        ],
+        "structural": {
+          "ok": true,
+          "foldViolations": 0,
+          "kneeBelowAsymptote": {
+            "QB": true,
+            "RB": true,
+            "WR": true,
+            "TE": true
+          }
+        },
+        "reasons": [
+          "no labelled entry BEATS; WORSE RB:asymptote; pooled 99% interval [-0.005, 0.005] not below 0"
+        ],
+        "pinnedOk": true
+      }
+    },
+    "F3": {
+      "verdict": "do-not-wire",
+      "constants": {
+        "qbStarterPPG": {
+          "top12": 17.509,
+          "r1": 15.787,
+          "day2": 14.763,
+          "day3+": 13.738
+        }
+      },
+      "provenance": {
+        "recipe": "levelTable: Σ points ÷ Σ primary games, game-weighted, 3 dp; leave-one-season-out; loss |unit league PPG − group level| per unit",
+        "folds": 13,
+        "rows": 68,
+        "fullSample": {
+          "half": {
+            "top12": 15.801,
+            "r1": 14.355,
+            "day2": 13.303,
+            "day3+": 12.341
+          },
+          "interim": {
+            "top12": 17.602,
+            "r1": 15.991,
+            "day2": 14.82,
+            "day3+": 13.748
+          },
+          "league": {
+            "top12": 17.509,
+            "r1": 15.787,
+            "day2": 14.763,
+            "day3+": 13.738
+          },
+          "scale": 1.114,
+          "unitsByGroup": {
+            "top12": 27,
+            "r1": 8,
+            "day2": 14,
+            "day3+": 19
+          }
+        },
+        "pooled": {
+          "rows": 68,
+          "players": 68,
+          "mean": -0.0365613970588235,
+          "ci95": [
+            -0.0863786764705883,
+            0.013216455882353043
+          ],
+          "ci99": [
+            -0.10284679411764656,
+            0.029856632352941174
+          ],
+          "statLabel": "NO-GAIN",
+          "label": "NO-GAIN",
+          "insufficient": false
+        },
+        "entries": [
+          {
+            "key": "top12",
+            "rows": 27,
+            "players": 27,
+            "mean": -0.010282444444444105,
+            "ci95": [
+              -0.1006153333333332,
+              0.0778869259259266
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "r1",
+            "rows": 8,
+            "players": 8,
+            "mean": -0.21197750000000126,
+            "ci95": [
+              -0.3715592500000011,
+              -0.0014633750000010437
+            ],
+            "label": "INSUFFICIENT",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day2",
+            "rows": 14,
+            "players": 14,
+            "mean": -0.028962500000000193,
+            "ci95": [
+              -0.11687157142857162,
+              0.0641766428571428
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "day3+",
+            "rows": 19,
+            "players": 19,
+            "mean": -0.005644947368420735,
+            "ci95": [
+              -0.07319857894736839,
+              0.059060526315790104
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          }
+        ],
+        "structural": {
+          "ok": true,
+          "players": {
+            "top12": 30,
+            "r1": 9,
+            "day2": 17,
+            "day3+": 34
+          }
+        },
+        "reasons": [
+          "no labelled entry BEATS; pooled 99% interval [-0.103, 0.03] not below 0"
+        ],
+        "pinnedOk": true
+      }
+    },
+    "F4": {
+      "verdict": "stop-and-report",
+      "constants": null,
+      "provenance": {
+        "recipe": "G0b failed — the half-PPR recipe does not reproduce its shipped constant; the league section was not read",
+        "folds": 0,
+        "rows": 0,
+        "fullSample": null,
+        "pooled": null,
+        "entries": [],
+        "structural": {
+          "ok": true
+        },
+        "reasons": [
+          "G0 failed for this family",
+          "a pinned artifact this family reproduces did not reproduce at baseline (plan §2.6)"
+        ],
+        "pinnedOk": false
+      }
+    },
+    "F5": {
+      "verdict": "do-not-wire",
+      "constants": {
+        "positionPriorPPG": {
+          "QB": 15.498,
+          "RB": 13.62,
+          "WR": 10.413,
+          "TE": 9.205
+        },
+        "wirePositions": [
+          "WR"
+        ]
+      },
+      "provenance": {
+        "recipe": "arm-A prior as live (position constant × scale × age × draft, blended 8 : min(gp, 12)); ρ-transport of the hand-set constant (decision A1); leave-one-season-out",
+        "folds": 10,
+        "rows": 532,
+        "fullSample": {
+          "half": {
+            "QB": 14,
+            "RB": 12,
+            "WR": 9,
+            "TE": 7
+          },
+          "interim": {
+            "QB": 15.596,
+            "RB": 13.416,
+            "WR": 9.909,
+            "TE": 9.275
+          },
+          "league": {
+            "QB": 15.498,
+            "RB": 13.62,
+            "WR": 10.413,
+            "TE": 9.205
+          },
+          "rho": {
+            "QB": 1.107,
+            "RB": 1.135,
+            "WR": 1.157,
+            "TE": 1.315
+          },
+          "scale": {
+            "QB": 1.114,
+            "RB": 1.118,
+            "WR": 1.101,
+            "TE": 1.325
+          }
+        },
+        "pooled": {
+          "rows": 208,
+          "players": 208,
+          "mean": 0.02378875470619219,
+          "ci95": [
+            -0.00014465613800199173,
+            0.04760757747699276
+          ],
+          "ci99": [
+            -0.00626018480247132,
+            0.054230026902574544
+          ],
+          "statLabel": "NO-GAIN",
+          "label": "NO-GAIN",
+          "insufficient": false,
+          "decidingPositions": [
+            "WR"
+          ]
+        },
+        "entries": [
+          {
+            "key": "QB",
+            "rows": 33,
+            "players": 33,
+            "mean": 0.05471336412250836,
+            "ci95": [
+              0.028153652892562022,
+              0.08016005099119478
+            ],
+            "label": "WORSE",
+            "same": false,
+            "deciding": false
+          },
+          {
+            "key": "RB",
+            "rows": 166,
+            "players": 166,
+            "mean": 0.02113621136027616,
+            "ci95": [
+              0.014380736539598819,
+              0.027679033610799802
+            ],
+            "label": "WORSE",
+            "same": false,
+            "deciding": false
+          },
+          {
+            "key": "WR",
+            "rows": 208,
+            "players": 208,
+            "mean": 0.02378875470619219,
+            "ci95": [
+              -0.00014465613800199173,
+              0.04760757747699276
+            ],
+            "label": "NO-GAIN",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "TE",
+            "rows": 125,
+            "players": 125,
+            "mean": -0.00803682492387087,
+            "ci95": [
+              -0.01179535093800127,
+              -0.0042554808422641055
+            ],
+            "label": "BEATS",
+            "same": false,
+            "deciding": false
+          }
+        ],
+        "structural": {
+          "ok": true,
+          "note": "none specified for F5"
+        },
+        "reasons": [
+          "no labelled entry BEATS; pooled 99% interval [-0.006, 0.054] not below 0"
+        ],
+        "pinnedOk": true
+      }
+    }
+  }
+}
