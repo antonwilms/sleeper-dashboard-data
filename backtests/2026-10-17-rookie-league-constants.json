@@ -1,6 +1,6 @@
 {
   "source": "sleeper-dashboard-data backtests/2026-10-17-rookie-league-constants.json (node bin/backtest.mjs --rookie-basis --write)",
-  "generatedAt": "2026-10-17T08:43:25.285Z",
+  "generatedAt": "2026-10-17T10:26:19.785Z",
   "basis": "league",
   "basisDetail": {
     "scoringFixture": "test/fixtures/league-scoring-2026-10-14.json",
@@ -93,7 +93,7 @@
     },
     "scoringFixtureSha1": "32e33d61c5cfffacec0a052692fbd61c967b1d6f"
   },
-  "headRev": "9621d09",
+  "headRev": "ec01e2b",
   "note": "Constants for EVERY family are recorded; only a family whose verdict is `wire` is read by the app. Unwired families are never read.",
   "families": {
     "F1": {
@@ -968,23 +968,83 @@
       }
     },
     "F4": {
-      "verdict": "stop-and-report",
-      "constants": null,
+      "verdict": "do-not-wire",
+      "constants": {
+        "totalFactor": {
+          "day3": 0.866,
+          "undrafted": 0.944
+        }
+      },
       "provenance": {
-        "recipe": "G0b failed — the half-PPR recipe does not reproduce its shipped constant; the league section was not read",
-        "folds": 0,
-        "rows": 0,
-        "fullSample": null,
-        "pooled": null,
-        "entries": [],
+        "recipe": "losoMultiplier / loso.decision: Σ realised ÷ Σ predicted total per group, leave-one-season-out; both arms applied to the shipped composition",
+        "folds": 13,
+        "rows": 2901,
+        "fullSample": {
+          "half": {
+            "day3": 0.796,
+            "undrafted": 0.835
+          },
+          "interim": {
+            "day3": 0.796,
+            "undrafted": 0.835
+          },
+          "league": {
+            "day3": 0.866,
+            "undrafted": 0.944
+          }
+        },
+        "pooled": {
+          "rows": 2901,
+          "players": 1518,
+          "mean": 0.5817660186918981,
+          "ci95": [
+            0.529035389580152,
+            0.6357873845976469
+          ],
+          "ci99": [
+            0.510777001457455,
+            0.6523626306644542
+          ],
+          "statLabel": "WORSE",
+          "label": "WORSE",
+          "insufficient": false
+        },
+        "entries": [
+          {
+            "key": "day3",
+            "rows": 875,
+            "players": 555,
+            "mean": 0.6766524077866372,
+            "ci95": [
+              0.5210155580331979,
+              0.8221265433321997
+            ],
+            "label": "WORSE",
+            "same": false,
+            "deciding": true
+          },
+          {
+            "key": "undrafted",
+            "rows": 2026,
+            "players": 963,
+            "mean": 0.54078596417171,
+            "ci95": [
+              0.5029431531826216,
+              0.5783389797820448
+            ],
+            "label": "WORSE",
+            "same": false,
+            "deciding": true
+          }
+        ],
         "structural": {
-          "ok": true
+          "ok": true,
+          "note": "none specified for F4"
         },
         "reasons": [
-          "G0 failed for this family",
-          "a pinned artifact this family reproduces did not reproduce at baseline (plan §2.6)"
+          "no labelled entry BEATS; WORSE day3, undrafted; pooled 99% interval [0.511, 0.652] not below 0"
         ],
-        "pinnedOk": false
+        "pinnedOk": true
       }
     },
     "F5": {

@@ -1,7 +1,7 @@
 {
   "stopped": null,
-  "generatedAt": "2026-10-17T08:43:25.285Z",
-  "headRev": "9621d09",
+  "generatedAt": "2026-10-17T10:26:19.785Z",
+  "headRev": "ec01e2b",
   "captureDate": "2026-10-16",
   "g0": {
     "a": {
@@ -121,14 +121,8 @@
         "mismatches": []
       },
       "F4": {
-        "ok": false,
-        "mismatches": [
-          {
-            "group": "undrafted",
-            "recipe": 0.834,
-            "shipped": 0.835
-          }
-        ],
+        "ok": true,
+        "mismatches": [],
         "parityFails": 0
       }
     },
@@ -263,12 +257,8 @@
       }
     },
     "ok": true,
-    "familiesFailed": [
-      "F4"
-    ],
-    "failed": [
-      "b:F4"
-    ]
+    "familiesFailed": [],
+    "failed": []
   },
   "pinned": {
     "F1": {
@@ -284,12 +274,12 @@
       "what": "backtests/2026-10-04-qb-rookie-level-constants.json starterPPG + fixture"
     },
     "F4": {
-      "ok": false,
+      "ok": true,
       "what": "backtests/2026-10-11-rookie-total-panel.json loso.decision, and backtests/2026-10-10-rookie-panel.json rookiePathAll byRungCell cells",
       "detail": {
         "lososDecision": true,
-        "rookiePathAllCells": false,
-        "rowsNow": 3851,
+        "rookiePathAllCells": true,
+        "rowsNow": 3848,
         "rowsPinned": 3848
       }
     }
@@ -1600,45 +1590,127 @@
       "pinnedOk": true
     },
     "F4": {
-      "verdict": "stop-and-report",
+      "verdict": "do-not-wire",
       "decision": {
-        "verdict": "stop-and-report",
+        "verdict": "do-not-wire",
         "reasons": [
-          "G0 failed for this family",
-          "a pinned artifact this family reproduces did not reproduce at baseline (plan §2.6)"
+          "no labelled entry BEATS; WORSE day3, undrafted; pooled 99% interval [0.511, 0.652] not below 0"
         ],
         "beats": [],
-        "worse": [],
-        "labelled": 0,
+        "worse": [
+          "day3",
+          "undrafted"
+        ],
+        "labelled": 2,
         "allSame": false,
         "pooledBelow0": false
       },
       "result": {
         "id": "F4",
-        "skipped": true,
-        "recipe": "G0b failed — the half-PPR recipe does not reproduce its shipped constant; the league section was not read",
-        "folds": 0,
-        "rows": 0,
-        "entries": [],
-        "pooled": null,
-        "structural": {
-          "ok": true
-        },
-        "constants": null,
-        "fullSample": null,
-        "g0b": {
-          "ok": false,
-          "mismatches": [
-            {
-              "group": "undrafted",
-              "recipe": 0.834,
-              "shipped": 0.835
+        "recipe": "losoMultiplier / loso.decision: Σ realised ÷ Σ predicted total per group, leave-one-season-out; both arms applied to the shipped composition",
+        "folds": 13,
+        "rows": 2901,
+        "entries": [
+          {
+            "key": "day3",
+            "group": "day3",
+            "rows": 875,
+            "players": 555,
+            "mean": 0.6766524077866372,
+            "ci95": [
+              0.5210155580331979,
+              0.8221265433321997
+            ],
+            "ci99": [
+              0.46883233598384955,
+              0.8725030655480153
+            ],
+            "statLabel": "WORSE",
+            "label": "WORSE",
+            "insufficient": false,
+            "same": false,
+            "sameDetail": {
+              "league": 0.866,
+              "interim": 0.796,
+              "dp": 3
             }
+          },
+          {
+            "key": "undrafted",
+            "group": "undrafted",
+            "rows": 2026,
+            "players": 963,
+            "mean": 0.54078596417171,
+            "ci95": [
+              0.5029431531826216,
+              0.5783389797820448
+            ],
+            "ci99": [
+              0.48944496620572625,
+              0.5883554524824123
+            ],
+            "statLabel": "WORSE",
+            "label": "WORSE",
+            "insufficient": false,
+            "same": false,
+            "sameDetail": {
+              "league": 0.944,
+              "interim": 0.835,
+              "dp": 3
+            }
+          }
+        ],
+        "pooled": {
+          "rows": 2901,
+          "players": 1518,
+          "mean": 0.5817660186918981,
+          "ci95": [
+            0.529035389580152,
+            0.6357873845976469
           ],
+          "ci99": [
+            0.510777001457455,
+            0.6523626306644542
+          ],
+          "statLabel": "WORSE",
+          "label": "WORSE",
+          "insufficient": false
+        },
+        "structural": {
+          "ok": true,
+          "note": "none specified for F4"
+        },
+        "fullSample": {
+          "half": {
+            "day3": 0.796,
+            "undrafted": 0.835
+          },
+          "interim": {
+            "day3": 0.796,
+            "undrafted": 0.835
+          },
+          "league": {
+            "day3": 0.866,
+            "undrafted": 0.944
+          }
+        },
+        "constants": {
+          "totalFactor": {
+            "day3": 0.866,
+            "undrafted": 0.944
+          }
+        },
+        "g0b": {
+          "ok": true,
+          "mismatches": [],
           "parityFails": 0
+        },
+        "composition": {
+          "F1": "interim",
+          "F2": "interim"
         }
       },
-      "pinnedOk": false
+      "pinnedOk": true
     },
     "F5": {
       "verdict": "do-not-wire",
@@ -1839,9 +1911,9 @@
     }
   },
   "multiplicity": {
-    "labelledEntries": 24,
+    "labelledEntries": 26,
     "maxEntries": 30,
-    "expectedSpurious": 1.2000000000000002,
+    "expectedSpurious": 1.3,
     "expectedSpuriousAtMax": 1.5
   },
   "section46": {
@@ -1870,13 +1942,13 @@
       "meanMovedAbs": null
     },
     "F4": {
-      "rows": 0,
-      "moved": 0,
-      "meanMove": null,
-      "meanMovedAbs": null
+      "rows": 263,
+      "moved": 207,
+      "meanMove": 1.085171102661596,
+      "meanMovedAbs": 1.3787439613526558
     }
   },
   "meta": {
-    "runtimeMs": 44489
+    "runtimeMs": 45672
   }
 }

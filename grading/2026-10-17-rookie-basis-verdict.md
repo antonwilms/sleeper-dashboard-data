@@ -1,12 +1,12 @@
 # D-45 — league-basis refit of the rookie and prior constants (verdict)
 
-Generated 2026-10-17T08:43:25.285Z (data `9621d09`). Offline analysis: no served file, no manifest entry. League scoring: `test/fixtures/league-scoring-2026-10-14.json`. **Reproduce:** `node bin/backtest.mjs --rookie-basis --write`.
+Generated 2026-10-17T10:26:19.785Z (data `ec01e2b`). Offline analysis: no served file, no manifest entry. League scoring: `test/fixtures/league-scoring-2026-10-14.json`. **Reproduce:** `node bin/backtest.mjs --rookie-basis --write`.
 
 ## Pre-registered decision rule (D-45 §4.3 — committed in A3a, before the first league run)
 
 Each constant family is refitted on league outcomes by the recipe that produced its shipped half-PPR value and compared out of sample, on league-basis outcomes, against today's interim (the half-PPR recipe refitted on the same training folds × the as-of `positionBasisScale`). Both arms are in-fold. Per row `d = loss(refit) − loss(interim)`; an entry's and a family's delta is the unweighted mean `d`, clustered by player, `bootstrapPairedMean` (4000 resamples, seed 12345), labelled by `compareLabel` on its 95% interval.
 
-**Gates (G0):** a failure of (a), (c) or (d) stops the run (nothing under the families is read); a failure of a family's (b) makes that family `stop-and-report` and its league section is not read. (a) `basisScaleOf(load, 2026, pos)` = QB 1.114 / RB 1.118 / WR 1.101 / TE 1.325 (the per-target-season table is written to the panel); (b) each half-PPR recipe on the half rows reproduces its shipped constant exactly — F1 `ROOKIE_CALIBRATION` (8 cells, 2 dp, and every row's `projectedPPG` = round1(baseline × cappedProduct)), F2 `ROOKIE_CEILING` (8 values, 2 dp), F3 `QB_ROOKIE_STARTER_PPG` (4, 3 dp), F4 `ROOKIE_TOTAL_FACTOR` (2, 3 dp; every row's parity holds); (c) half and league row keys are equal per panel and the `rookiePathAll` games cells (`ROOKIE_GAMES_*` material) are equal across bases; (d) the scoring fixture's sha1 is the one D-46 D2 pinned, and the weeks-method counts per season are reported (`scaled` > 0.5% of a season's weeks is flagged).
+**Gates (G0):** a failure of (a), (c) or (d) stops the run (nothing under the families is read); a failure of a family's (b) makes that family `stop-and-report` and its league section is not read (ratified by Anton, 2026-10-17). (a) `basisScaleOf(load, 2026, pos)` = QB 1.114 / RB 1.118 / WR 1.101 / TE 1.325 (the per-target-season table is written to the panel); (b) each half-PPR recipe on the half rows reproduces its shipped constant exactly — F1 `ROOKIE_CALIBRATION` (8 cells, 2 dp, and every row's `projectedPPG` = round1(baseline × cappedProduct)), F2 `ROOKIE_CEILING` (8 values, 2 dp), F3 `QB_ROOKIE_STARTER_PPG` (4, 3 dp), F4 `ROOKIE_TOTAL_FACTOR` (2, 3 dp; every row's parity holds); (c) half and league row keys are equal per panel and the `rookiePathAll` games cells (`ROOKIE_GAMES_*` material) are equal across bases; (d) the scoring fixture's sha1 is the one D-46 D2 pinned, and the weeks-method counts per season are reported (`scaled` > 0.5% of a season's weeks is flagged).
 
 **Families (recipe · folds · arms · entries · loss):**
 
@@ -21,7 +21,7 @@ Each constant family is refitted on league outcomes by the recipe that produced 
 - `wire` iff at least one labelled entry is `BEATS`, no labelled entry is `WORSE`, the family pooled delta (all its rows, deduplicated per row) has a **99%** interval entirely below 0, and the structural check holds. A labelled entry is a deciding entry at or above its family floor that is not `same`; an entry below its floor is `INSUFFICIENT` (pooled, never labelled).
 - `stop-and-report` iff G0 fails for the family, its structural check fails, a pinned artifact it reproduces did not reproduce at baseline (plan §2.6), or §4.6 trips. Nothing wires from it.
 - Otherwise `do-not-wire`, naming the entries.
-- **Entries `same`:** the full-sample league value equals the full-sample interim value at the constant's committed precision (per family above). A family whose every entry is `same` is `do-not-wire` whatever its pooled delta; a `same` entry never counts as the required `BEATS` nor as a `WORSE`.
+- **Entries `same`:** the full-sample league value equals the full-sample interim value at the constant's committed precision (per family above). A family whose every entry is `same` is `do-not-wire` whatever its pooled delta; a `same` entry never counts as the required `BEATS`, but a `same` entry labelled `WORSE` does block a wire.
 - **Multiplicity:** the verdict counts the labelled entries after the floors (at most 16 + 8 + 3 + 2 + 1 = 30 deciding entries) and states the expected spurious `BEATS`/`WORSE` at 95% (0.05 × the count, ≈ 1.5 at 30); the pooled requirement is the guard (D-46's), held at 99% because five families are decided at once (0.05 ÷ 5, Bonferroni).
 - **§4.6 (only if F1, F2, F3 or F5 is `wire`):** the in-season k re-fit on the composition the app would ship, `--inseason --basis league` and `--inseason --dynasty --basis league --inseason-2a backtests/2026-10-07-inseason-constants.json`, each compared with the shipped file under D-46's `compareConstantsFiles`/`decideFile` unchanged. Both `do-not-wire` with `prospectPriorKind`, `decisions` and `reuse` unchanged → the shipped k stand; otherwise every triggering `wire` family becomes `stop-and-report`.
 - **Expected, stated so a surprise is visible:** F4 `same`; F1/F5 hinge on whether ρ differs from s by more than a few percent; F2/F3 on whether the rookie points mix differs from the veterans'.
@@ -33,15 +33,15 @@ Each constant family is refitted on league outcomes by the recipe that produced 
 | F1 | **do-not-wire** | BEATS day2:RB, day3:TE, undrafted:TE; WORSE day3:RB, undrafted:WR; pooled 99% interval [-0.01, 0.051] not below 0 |
 | F2 | **do-not-wire** | no labelled entry BEATS; WORSE RB:asymptote; pooled 99% interval [-0.005, 0.005] not below 0 |
 | F3 | **do-not-wire** | no labelled entry BEATS; pooled 99% interval [-0.103, 0.03] not below 0 |
-| F4 | **stop-and-report** | G0 failed for this family a pinned artifact this family reproduces did not reproduce at baseline (plan §2.6) |
+| F4 | **do-not-wire** | no labelled entry BEATS; WORSE day3, undrafted; pooled 99% interval [0.511, 0.652] not below 0 |
 | F5 | **do-not-wire** | no labelled entry BEATS; pooled 99% interval [-0.006, 0.054] not below 0 |
 
-Multiplicity: 24 labelled entries after the floors (at most 30); expected spurious `BEATS`/`WORSE` at 95%: 1.20 (1.50 at 30); the pooled 99% requirement is the guard.
+Multiplicity: 26 labelled entries after the floors (at most 30); expected spurious `BEATS`/`WORSE` at 95%: 1.30 (1.50 at 30); the pooled 99% requirement is the guard.
 
 ## G0
 
 - **G0a** scale 2026 (PASS): QB 1.114 (pinned 1.114), RB 1.118 (pinned 1.118), WR 1.101 (pinned 1.101), TE 1.325 (pinned 1.325).
-- **G0b** recipe fidelity: F1 PASS; F2 PASS; F3 PASS; F4 FAIL [{"group":"undrafted","recipe":0.834,"shipped":0.835}].
+- **G0b** recipe fidelity: F1 PASS; F2 PASS; F3 PASS; F4 PASS.
 - **G0c** populations (PASS): legacyGated equal, debut equal, rookiePathAll equal, f3Games equal, f5Rows equal; ROOKIE_GAMES cells equal.
 - **G0d** settings (PASS): fixture sha1 `32e33d61c5cfffacec0a052692fbd61c967b1d6f` (pinned `32e33d61c5cfffacec0a052692fbd61c967b1d6f`).
 
@@ -73,7 +73,7 @@ Pinned artifacts the app copies, reproduced by today's code at baseline (plan §
 | F1 | yes | backtests/2026-09-06-fullpipeline-panel.json rookiePanel.rows (committed fields) |
 | F2 | yes | backtests/2026-10-10-rookie-panel.json ceiling.observed |
 | F3 | yes | backtests/2026-10-04-qb-rookie-level-constants.json starterPPG + fixture |
-| F4 | **NO** | backtests/2026-10-11-rookie-total-panel.json loso.decision, and backtests/2026-10-10-rookie-panel.json rookiePathAll byRungCell cells — {"lososDecision":true,"rookiePathAllCells":false,"rowsNow":3851,"rowsPinned":3848} |
+| F4 | yes | backtests/2026-10-11-rookie-total-panel.json loso.decision, and backtests/2026-10-10-rookie-panel.json rookiePathAll byRungCell cells — {"lososDecision":true,"rookiePathAllCells":true,"rowsNow":3848,"rowsPinned":3848} |
 
 As-of scale per target season (league basis):
 
@@ -197,9 +197,23 @@ Structural: no group empty → **holds**; fold fallbacks to the pool: 0.
 
 **Pooled Δ** (68 rows, 68 players): -0.0366, 95% [-0.0864, 0.0132], **99% [-0.1028, 0.0299]**.
 
-## F4 — not computed
+## F4 — losoMultiplier / loso.decision: Σ realised ÷ Σ predicted total per group, leave-one-season-out; both arms applied to the shipped composition
 
-**Verdict: `stop-and-report`** — G0 failed for this family a pinned artifact this family reproduces did not reproduce at baseline (plan §2.6) G0b failed — the half-PPR recipe does not reproduce its shipped constant; the league section was not read. G0b: {"ok":false,"mismatches":[{"group":"undrafted","recipe":0.834,"shipped":0.835}],"parityFails":0}.
+13 folds, 2901 rows. **Verdict: `do-not-wire`** — no labelled entry BEATS; WORSE day3, undrafted; pooled 99% interval [0.511, 0.652] not below 0
+
+| group | half (today) | league |
+|---|---|---|
+| day3 | 0.796 | 0.866 |
+| undrafted | 0.835 | 0.944 |
+
+Shipped composition: F1 interim, F2 interim.
+
+| entry | rows | players | Δ [95%] | label | same |
+|---|---|---|---|---|---|
+| day3 | 875 | 555 | 0.6767 [0.5210, 0.8221] | WORSE | no |
+| undrafted | 2026 | 963 | 0.5408 [0.5029, 0.5783] | WORSE | no |
+
+**Pooled Δ** (2901 rows, 1518 players): 0.5818, 95% [0.5290, 0.6358], **99% [0.5108, 0.6524]**.
 
 ## F5 — arm-A prior as live (position constant × scale × age × draft, blended 8 : min(gp, 12)); ρ-transport of the hand-set constant (decision A1); leave-one-season-out
 
@@ -236,6 +250,6 @@ On the 2026-10-16 capture's non-chain rookie rows, each family swapped alone int
 | F1 | 268 | 221 | 0.368 | 0.461 |
 | F2 | 268 | 11 | 0.001 | 0.136 |
 | F3 | 1 | 0 | -0.010 | — |
-| F4 | 0 | 0 | — | — |
+| F4 | 263 | 207 | 1.085 | 1.379 |
 
 **What this does not model:** the live ktc/college multipliers (the reconstruction holds them at 1.0 as the shipped constants were fitted); PATH B and no-entry prospects for F5; any in-season k beyond §4.6.
