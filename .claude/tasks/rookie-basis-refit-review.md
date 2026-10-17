@@ -71,3 +71,23 @@ Messages end `(rookie-basis-refit)`. Do only what is below; stop and report on a
 6. **Hand back:** both SHAs; the F4 result in full (G0b, half/interim/league factors, entries Δ [95%] / label, pooled
    [99%], verdict); the confirmation of item 5's unchanged families; the `--rookie` §2.6 hash; `npm test`, `npm run
    smoke`; deviations.
+
+## Fix pass 1 verification (Session 1, 2026-10-17)
+
+Applied as `ec01e2b` (code + tests, before the re-run) and `6bb871d` (artifacts only); local, not pushed. F4: G0b
+passes (3,848 rows, 0.796/0.835, frozen `cde2d06` crosswalk); league factors day3 0.866 / undrafted 0.944; both
+entries WORSE (Δ +0.677, +0.541), pooled 99% [0.511, 0.652] → `do-not-wire`. F1/F2/F3/F5 unchanged vs `6aaf7d2`
+(deep diff); default `--rookie` hash unchanged; `npm test` 1712/1717 (5 skipped), smoke green.
+
+implementation-reviewer round 2 (final automatic round): no blocker; code faithful to Fix pass 1 and §4.2 F4,
+re-derived independently. Surviving flags for Anton:
+- **should-fix (plan-level): F4 estimator vs loss.** The factor is a ratio of sums (calibrates the mean) but is
+  judged by MAE (rewards the median) on a zero-heavy population (37.5% of day-3, 65.9% of undrafted rows score 0).
+  League realised totals of these rookies rise faster than the veteran scale (realised league ÷ half 1.245 / 1.298
+  vs s ≈ 1.144 / 1.148; mostly WR, then RB), so f_L ≈ f_H × ratio ÷ s. Out of sample the refit is the calibrated
+  arm (Σpred ÷ Σreal 1.000 / 1.003 vs interim 0.918 / 0.887; RMSE equal), but any larger factor raises MAE. The
+  verdict is the correct reading of the pre-registered rule; it is not evidence that the interim is better calibrated.
+- **nit:** no unit test of `runRookiePanels`' `'frozen'` path or the builder's `--rev` mode.
+- **nit:** the artifacts do not record that F4's rows used the frozen `cde2d06` crosswalk.
+- Reviewer disclosure: it ran the fixture builder by mistake; the pin fixture was rewritten byte-identical (`git
+  status` clean — confirmed by Session 1).
