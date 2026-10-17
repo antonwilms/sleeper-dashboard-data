@@ -14,12 +14,13 @@ import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 import { primaryPassers } from '../lib/qbTakeover.mjs';
+import { calculateFantasyPoints, RATE_KEYS } from '../lib/fantasyPoints.mjs';
 import {
   QB_ROOKIE_DEFAULTS, GROUPS, rookieGroup, rookieStarterGames, aggregate, levelTable, levelCI, playerDistribution,
   suppress, suppressPair, leagueRatio, liveLevel, unitsFrom, losoCompare, round2, round3,
 } from '../lib/qbRookieLevel.mjs';
 import {
-  runQbRookieLevel, runQ2, SnapshotStop, qbRookieLevelMain, writeQbRookieLevelArtifacts, formatQbRookieLevelConstantsJson,
+  runQbRookieLevel, runQ2, SnapshotStop, qbRookieLevelMain, differingScoringKeys, writeQbRookieLevelArtifacts, formatQbRookieLevelConstantsJson,
   buildQbRookieLevelVerdictMarkdown, QB_ROOKIE_LOAD, ARTIFACT_CAPS,
 } from '../scripts/qb-rookie-level-run.mjs';
 import { CoverageStop } from '../scripts/qb-takeover-run.mjs';
@@ -38,7 +39,7 @@ const ENTRY = {
  * primary every week except team A, whose rookie `r<S>` (group cycles by season) starts from `startWeek`
  * (weeks 4–10 for most seasons; the 2017 rookie starts game 1 and runs weeks 1–10).
  */
-function synthLoad({ dropPrimary = null, emptySeason = null, snapshot = undefined, inProgress = null, spy = null } = {}) {
+function synthLoad({ dropPrimary = null, emptySeason = null, snapshot = undefined, inProgress = null, spy = null, leagueScoring = { pass_td: 4, pass_yd: 0.04, rec: 0.5 } } = {}) {
   const seasons = {}, bySleeper = {}, ids = {};
   const addPlayer = (pid, draftYear, entry) => {
     bySleeper[pid] = { draftYear, ...entry, birthdate: `${draftYear - 22}-05-01` };
@@ -87,6 +88,9 @@ function synthLoad({ dropPrimary = null, emptySeason = null, snapshot = undefine
     loadSnapshot: rec('loadSnapshot', () => snap),
     loadDepth: rec('loadDepth', () => { throw new Error('depth must never be read'); }),
     loadManifest: () => ({ files: inProgress ? { [inProgress]: { inProgress: true } } : {} }),
+    // D-45: the league basis wraps the load with these (the pinned scoring fixture and the position source).
+    loadLeagueScoring: () => leagueScoring,
+    loadLeaguePositionOf: () => () => 'QB',
   };
 }
 
@@ -365,6 +369,46 @@ describe('T7 leagueRatio', () => {
   });
 });
 
+describe('T7b leagueRatio — the D-45 CR-14 re-route (scoreSeasonStats port, per-season first-down derivation)', () => {
+  const settingsFd = { pass_td: 4, pass_yd: 0.04, bonus_fd_qb: 1 };
+  test('a 2019-style row (no bonus_fd_* served) under bonus_fd_qb: 1 earns pass_fd + rush_fd + rec_fd points when the season derives first downs', () => {
+    const rec = { fantasyPoints: 20, stats: { pass_td: 2, pass_fd: 15, rush_fd: 3, rec_fd: 1 } };
+    // 2 × 4 + (15 + 3 + 1) × 1 = 27
+    assert.equal(leagueRatio(rec, settingsFd, { deriveFirstDowns: true }), 27 / 20);
+    // not derived (a season that serves the key): the absent key scores nothing
+    assert.equal(leagueRatio(rec, settingsFd, { deriveFirstDowns: false }), 8 / 20);
+  });
+  test('a 2023-style row keeps its served bonus_fd_qb (the derivation never overrides it); no throw', () => {
+    const rec = { fantasyPoints: 20, stats: { pass_td: 2, pass_fd: 15, bonus_fd_qb: 9 } };
+    assert.equal(leagueRatio(rec, settingsFd, { deriveFirstDowns: true }), 17 / 20);
+  });
+  test('byte identity: settings without bonus_fd_qb give exactly the pre-D-45 value (RATE_KEYS-stripped dot product ÷ fantasyPoints), with or without the derivation flag', () => {
+    const settings = { pass_td: 4, pass_yd: 0.04, rush_yd: 0.1, pass_int: -2, cmp_pct: 3, pass_rtg: 0.5 };
+    const rows = [
+      { fantasyPoints: 231.4, stats: { pass_td: 31, pass_yd: 4012, rush_yd: 211, pass_int: 9, cmp_pct: 66.1, pass_rtg: 101.3, pass_fd: 190 } },
+      { fantasyPoints: 12.34, stats: { pass_td: 1, pass_yd: 150, pass_lng: 70 } },
+    ];
+    const old = (rec) => {
+      const stripped = {};
+      for (const [k, v] of Object.entries(rec.stats ?? {})) if (!RATE_KEYS.has(k)) stripped[k] = v;
+      return calculateFantasyPoints(stripped, settings) / rec.fantasyPoints;
+    };
+    for (const rec of rows) {
+      assert.equal(leagueRatio(rec, settings), old(rec));
+      assert.equal(leagueRatio(rec, settings, { deriveFirstDowns: true }), old(rec));
+    }
+  });
+  test('a league-rescored row: the denominator is sourceFantasyPoints (its fantasyPoints is already league); a null source → null', () => {
+    const rec = { fantasyPoints: 99, sourceFantasyPoints: 20, stats: { pass_td: 2 } };
+    assert.equal(leagueRatio(rec, { pass_td: 4 }), 8 / 20);
+    assert.equal(leagueRatio({ ...rec, sourceFantasyPoints: null }, { pass_td: 4 }), null);
+  });
+  test('differingScoringKeys reads exactly the keys scoreSeasonStats reads: NON_ADDITIVE_KEYS ignored, null equals absent', () => {
+    assert.deepEqual(differingScoringKeys({ pass_td: 4, cmp_pct: 3, rec: null }, { pass_td: 4, cmp_pct: 9 }), []);
+    assert.deepEqual(differingScoringKeys({ pass_td: 4, bonus_fd_qb: 1 }, { pass_td: 6 }), ['bonus_fd_qb', 'pass_td']);
+  });
+});
+
 // ═════════════════════════════════════════════════════════════════════════════
 // T8 — liveLevel
 // ═════════════════════════════════════════════════════════════════════════════
@@ -447,14 +491,15 @@ describe('T11 CLI', () => {
     assert.equal(r.code, 1);
     assert.equal(r.writeArtifacts.calls.length, 0);
   });
-  test('SnapshotStop (null snapshot; bonus_fd_qb 0.5) → 1, no write', () => {
+  test('SnapshotStop (null snapshot; wrong targetSeason) → 1, no write; bonus_fd_qb is NOT a stop since D-45 (the re-route scores it)', () => {
     const a = run(synthLoad({ snapshot: null }), { write: true });
     assert.equal(a.code, 1); assert.equal(a.writeArtifacts.calls.length, 0);
-    const b = run(synthLoad({ snapshot: { targetSeason: 2026, scoringSettings: { bonus_fd_qb: 0.5 }, players: {} } }), { write: true });
-    assert.equal(b.code, 1); assert.equal(b.writeArtifacts.calls.length, 0);
     const c = run(synthLoad({ snapshot: { targetSeason: 2025, scoringSettings: {}, players: {} } }), { write: true });
     assert.equal(c.code, 1);
     assert.throws(() => runQbRookieLevel({ load: synthLoad({ snapshot: null }) }), SnapshotStop);
+    // D-45 CR-14 re-route: the former `bonus_fd_qb` stop is gone — a snapshot scoring first downs runs to completion.
+    const b = run(synthLoad({ snapshot: { targetSeason: 2026, scoringSettings: { bonus_fd_qb: 0.5 }, players: {} } }), { write: true });
+    assert.equal(b.code, 0); assert.equal(b.writeArtifacts.calls.length, 1);
   });
   test('success with write → 0 and the writer is called once; without write it is not', () => {
     const a = run(synthLoad(), { write: true });
@@ -592,5 +637,66 @@ describe('T14 disclosure', () => {
     const result = runQbRookieLevel({ load: synthLoad() });
     const text = JSON.stringify(result);
     for (const k of ['p25', 'p50', 'p75', 'p90']) assert.ok(!text.includes(`"${k}"`), k);
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// T15 — D-45: `--basis league`
+// ═════════════════════════════════════════════════════════════════════════════
+
+describe('T15 runQbRookieLevel --basis league', () => {
+  test('league: outcomes are the rescored weeks, meta/constants say league, the fixture re-derives, Q4 carries gapLeague/reconLeague', () => {
+    const half = runQbRookieLevel({ load: synthLoad() });
+    const lg = runQbRookieLevel({ load: synthLoad(), basis: 'league' });
+    assert.equal(half.meta.basis, 'half_ppr');
+    assert.equal(lg.meta.basis, 'league');
+    assert.equal(lg.constants.basis, 'league');
+    assert.deepEqual(Object.keys(lg.constants.basisDetail), ['scoringFixture', 'positionFile']);
+    assert.equal('basisDetail' in half.constants, false, 'a half run adds no key');
+    assert.equal(lg.constants.definitions.leagueScaling, 'none — league outcome');
+    assert.match(lg.constants.definitions.outcome, /league/);
+    assert.equal(lg.constants.verification.rederiveFromFixture, 'exact');
+    // the synthetic rows score 4 league points against ~100+ half points, so every league level is far below the half level
+    assert.ok(lg.constants.starterPPG.pooled.value < half.constants.starterPPG.pooled.value);
+    // same populations (games-based gates are basis-invariant)
+    assert.equal(lg.constants.starterPPG.pooled.games, half.constants.starterPPG.pooled.games);
+    assert.equal(lg.q1.pooled.leagueScaled, null, 'no veteran-scale product under league');
+    assert.ok(lg.q1.pooled.leagueByRatio.games > 0, 'the season-ratio cross-check runs on the half-PPR weeks');
+    for (const r of lg.q4.rows) {
+      assert.equal(r.fitHalf, null);
+      assert.equal(r.fitLeague, lg.constants.starterPPG[r.group].value, 'fitLeague is the league fit value itself, not × basisScale');
+      assert.equal(r.gapLeague, Math.round((r.levelLeague - r.fitLeague) * 1e3) / 1e3);
+      assert.ok(Number.isFinite(r.reconLeague));
+      assert.equal(r.reconHalf, half.q4.rows.find((x) => x.pid === r.pid).reconHalf, 'reconHalf keeps scale 1');
+    }
+    for (const r of half.q4.rows) { assert.equal('gapLeague' in r, false); assert.equal('reconLeague' in r, false); }
+  });
+  test('the snapshot scoring must equal the fixture on every key scoreSeasonStats reads: a differing key is a SnapshotStop (exit 1, nothing written)', () => {
+    assert.throws(() => runQbRookieLevel({ load: synthLoad({ leagueScoring: { pass_td: 6, pass_yd: 0.04, rec: 0.5 } }), basis: 'league' }), /differ from .* on pass_td/);
+    const writeArtifacts = () => { throw new Error('must not write'); };
+    assert.equal(qbRookieLevelMain({ load: synthLoad({ leagueScoring: { pass_td: 6 } }), basis: 'league', write: true, writeArtifacts, ...quiet }), 1);
+    // a RATE_KEYS-only difference is not a difference
+    assert.doesNotThrow(() => runQbRookieLevel({ load: synthLoad({ leagueScoring: { pass_td: 4, pass_yd: 0.04, rec: 0.5, cmp_pct: 7 } }), basis: 'league' }));
+  });
+  test('an unknown basis throws; the league artifacts are named …-league-…', () => {
+    assert.throws(() => runQbRookieLevel({ load: synthLoad(), basis: 'ppr' }), /unknown basis/);
+    const r = runQbRookieLevel({ load: synthLoad(), basis: 'league' });
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'qbrl-'));
+    try {
+      const w = writeQbRookieLevelArtifacts({ result: r, verdictMd: 'x', root });
+      assert.match(w.panelPath, /-qb-rookie-level-league-panel\.json$/);
+      assert.match(w.constantsPath, /-qb-rookie-level-league-constants\.json$/);
+      assert.match(w.verdictPath, /-qb-rookie-level-league-verdict\.md$/);
+    } finally { fs.rmSync(root, { recursive: true, force: true }); }
+  });
+  test('the bin admits --basis half_ppr|league and rejects an unknown basis', () => {
+    const bogus = spawnSync('node', ['bin/backtest.mjs', '--qb-rookie-level', '--basis', 'ppr'], { cwd: REPO_ROOT, encoding: 'utf8' });
+    assert.equal(bogus.status, 1);
+    assert.match(bogus.stderr, /--basis must be half_ppr or league, got 'ppr'/);
+    // --basis is admitted (not listed as rejected) — the rejection names only the other flag
+    const r = spawnSync('node', ['bin/backtest.mjs', '--qb-rookie-level', '--basis', 'league', '--dynasty'], { cwd: REPO_ROOT, encoding: 'utf8' });
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /--qb-rookie-level rejects --dynasty — /);
+    assert.doesNotMatch(r.stderr, /rejects[^—]*--basis/);
   });
 });

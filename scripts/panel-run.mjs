@@ -1366,10 +1366,10 @@ export function writeFitArtifacts({ panel, fitReport, verdictMd }) {
 // ─── D6b — full-pipeline calibration + verdicts (.claude/tasks/fullpipeline- ──
 // ─── harness.md §D/§E + the Decision section's sensitivity guard) ─────────────
 //
-// §B basis pin: half_ppr for every panel and verdict (finding 5). This
-// function's own header comment IS the basis record the Docs section asks
-// for — see fullpipeline-harness.md §B, which states the decision and its
-// reason; no separate hand-authored grading/ file was created.
+// §B basis pin: default half_ppr; `league` (D-45) is admitted and report-only for
+// §D/§E (finding 5). This function's own header comment IS the basis record the
+// Docs section asks for — see fullpipeline-harness.md §B, which states the decision
+// and its reason; no separate hand-authored grading/ file was created.
 
 const FULLPIPELINE_BASELINE_OF_RECORD = 'grading/2026-08-08-e0a-verdict.md';
 
@@ -1379,9 +1379,14 @@ export function runFullPipeline({
   load = DEFAULT_LOAD,
   regressionModel = CURRENT_REGRESSION_MODEL,
   depthModel = CURRENT_DEPTH_MODEL,
+  basis = 'half_ppr',
 } = {}) {
+  if (basis !== 'half_ppr' && basis !== 'league') throw new Error(`[panel] runFullPipeline: basis must be half_ppr|league, got '${basis}'`);
+  // D-45: under `league` the load is wrapped before the first read (idempotent — assemblePanel's loadFactorInputs
+  // returns an already-wrapped load unchanged), so the veteran panel and the rookie block read one rescored row set.
+  if (basis === 'league') load = leagueBasisLoad(load, leagueLoadArgs(load));
   const panel = assemblePanel({
-    fromYear, toYear, attribution: 'per-season-team', basis: 'half_ppr', load,
+    fromYear, toYear, attribution: 'per-season-team', basis, load,
     withFactorMultipliers: true, historyFloor: HISTORY_FLOOR, regressionModel, depthModel,
   });
 
@@ -1400,7 +1405,7 @@ export function runFullPipeline({
     panelYears: { fromYear, toYear },
     historyFloor: HISTORY_FLOOR,
     attribution: 'per-season-team (teamOffense alone reconstructed under current-team — Fix pass 1 item 1)',
-    basis: 'half_ppr',
+    basis,
     baselineOfRecord: FULLPIPELINE_BASELINE_OF_RECORD,
     goalLine: 'Grade a historical reconstruction of the veteran pipeline, faithful in nine of thirteen steps, ' +
       'with three live-state divergences quantified (teamOffense, age, depth) and one step ungradable (qbQuality).',
@@ -1648,7 +1653,7 @@ export function buildFullPipelineVerdictMarkdown(result) {
     '',
     `**Baseline of record:** ${meta.baselineOfRecord}`,
     '',
-    '**Reproduce:** `node bin/panel.mjs --fullpipeline --write`',
+    `**Reproduce:** \`node bin/panel.mjs --fullpipeline${meta.basis === 'league' ? ' --basis league' : ''} --write\``,
     '',
     '## Sensitivity check (Decision section) — run BEFORE any other output',
     '',
@@ -1754,8 +1759,9 @@ export function buildFullPipelineVerdictMarkdown(result) {
 // rookie panel's rows ARE kept (they are the deliverable, not a byproduct).
 export function writeFullPipelineArtifacts({ result, verdictMd }) {
   const date = result.meta.generatedAt.slice(0, 10);
-  const panelPath = `backtests/${date}-fullpipeline-panel.json`;
-  const verdictPath = `grading/${date}-fullpipeline-verdict.md`;
+  const tag = result.meta.basis === 'league' ? '-league' : '';
+  const panelPath = `backtests/${date}-fullpipeline${tag}-panel.json`;
+  const verdictPath = `grading/${date}-fullpipeline${tag}-verdict.md`;
 
   const { rows: _vetRows, ...panelWithoutRows } = result.panel;
   const slimResult = { ...result, panel: panelWithoutRows };
@@ -1918,7 +1924,12 @@ function computeCeilingReconciliation(debutRows) {
   return { observed, expected: APP_ROOKIE_CEILING, expectedCommit: APP_ROOKIE_CEILING_COMMIT, delta, match };
 }
 
-export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
+export function runRookiePanels({ load = DEFAULT_LOAD, basis = 'half_ppr' } = {}) {
+  if (basis !== 'half_ppr' && basis !== 'league') throw new Error(`[panel] runRookiePanels: basis must be half_ppr|league, got '${basis}'`);
+  // D-45: under `league` the load is wrapped BEFORE the first read (outcomes, rookiePathStateAt's ppg map and the
+  // totals all come through it), so every outcome below is the app's rescored league points. The predictor stays
+  // the uncorrected scale-1 reconstructRookieProjection under both bases (row schema unchanged).
+  if (basis === 'league') load = leagueBasisLoad(load, leagueLoadArgs(load));
   const { fromYear: legacyFromYear, toYear: legacyToYear } = ROOKIE_LEGACY_YEARS;
   const { fromYear: entryFromYear, toYear: entryToYear } = ROOKIE_ENTRY_YEARS;
 
@@ -2000,12 +2011,12 @@ export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
 
   // §A — the reproduction pin, checked here so both --json and the markdown
   // verdict read the same computed pass/fail.
-  const pinArtifact = typeof load.loadRookiePinArtifact === 'function' ? load.loadRookiePinArtifact() : null;
+  const pinArtifact = basis === 'half_ppr' && typeof load.loadRookiePinArtifact === 'function' ? load.loadRookiePinArtifact() : null;
   // The pin alone reads the crosswalk frozen at the artifact's rev (cde2d06 drift); §B–§G and the
   // artifact keep the live legacyGated/legacyUngated. Injected loads without the loader pin live.
   let pinGated = legacyGated;
   let pinCrosswalkKind = 'live';
-  if (typeof load.loadRookiePinCrosswalk === 'function') {
+  if (basis === 'half_ppr' && typeof load.loadRookiePinCrosswalk === 'function') {
     const pinMaps = pinCrosswalkMaps(load.loadRookiePinCrosswalk());
     pinGated = assembleRookiePanel({
       totalsByYear, ppgByYear,
@@ -2016,7 +2027,10 @@ export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
     });
     pinCrosswalkKind = 'frozen';
   }
-  const pin = { ...checkReproductionPin(pinGated, pinArtifact), crosswalk: pinCrosswalkKind };
+  // The pin is a half_ppr artifact: under `league` it is not checked (never thrown on, never a pass).
+  const pin = basis === 'league'
+    ? { checked: false, skipped: 'pin is half_ppr', reason: 'pin is half_ppr' }
+    : { ...checkReproductionPin(pinGated, pinArtifact), crosswalk: pinCrosswalkKind };
 
   // §2.3a / §9 — position-resolution asymmetry: how many legacy (ungated)
   // rows would resolve to a DIFFERENT position under crosswalk-only
@@ -2052,9 +2066,9 @@ export function runRookiePanels({ load = DEFAULT_LOAD } = {}) {
     legacyYears: ROOKIE_LEGACY_YEARS,
     entryYears: ROOKIE_ENTRY_YEARS,
     historyFloor: HISTORY_FLOOR,
-    basis: 'half_ppr',
+    basis,
     basisScope: {
-      basis: 'half_ppr',
+      basis,
       appliesTo: 'rows with outcomeGames > 0',
       basisFreeZeroRows,
       note: 'A zero outcome is read from no stats object and is identical under any scoring basis.',
@@ -2201,7 +2215,7 @@ export function buildRookieVerdictMarkdown(result) {
     `**Config:** legacy predictor years ${meta.legacyYears.fromYear}-${meta.legacyYears.toYear}, ` +
       `entry/target years ${meta.entryYears.fromYear}-${meta.entryYears.toYear}, history floor ${meta.historyFloor}, basis=\`${meta.basis}\``,
     '',
-    '**Reproduce:** `node bin/panel.mjs --rookie --write`',
+    `**Reproduce:** \`node bin/panel.mjs --rookie${meta.basis === 'league' ? ' --basis league' : ''} --write\``,
     '',
     '## §A — Reproduction pin',
     '',
@@ -2406,8 +2420,9 @@ export function buildRookieVerdictMarkdown(result) {
 // writeFullPipelineArtifacts).
 export function writeRookieArtifacts({ result, verdictMd }) {
   const date = result.meta.generatedAt.slice(0, 10);
-  const panelPath = `backtests/${date}-rookie-panel.json`;
-  const verdictPath = `grading/${date}-rookie-verdict.md`;
+  const tag = result.meta.basis === 'league' ? '-league' : '';
+  const panelPath = `backtests/${date}-rookie${tag}-panel.json`;
+  const verdictPath = `grading/${date}-rookie${tag}-verdict.md`;
 
   writeJsonStable(panelPath, result);
 

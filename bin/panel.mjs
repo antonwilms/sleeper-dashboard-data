@@ -12,17 +12,17 @@
  * Usage: node bin/panel.mjs [options]
  *   --from YYYY --to YYYY             predictor-year range (default 2020–2024)
  *   --attribution current-team|per-season-team   seam flag (default current-team; --fit pins per-season-team, rejects this flag)
- *   --basis in-basis|half_ppr|league  default in-basis; --fit defaults to half_ppr (the app's own basis); `league` (D-46: rows rescored as the app does at load) is admitted by --fit only, report-only
+ *   --basis in-basis|half_ppr|league  default in-basis; --fit/--rookie/--fullpipeline default to half_ppr (the app's own basis; `in-basis` is rejected for --rookie/--fullpipeline); `league` (D-46: rows rescored as the app does at load; D-45 admits it for --rookie/--fullpipeline) is admitted by --fit, --rookie and --fullpipeline, report-only
  *   --scoring-from YYYY-MM-DD         scoring-source snapshot (default 2026-07-05)
  *   --min-games N                     outcome gate (default 6)
  *   --ridge X                         default 1.0 (sweep always reported)
  *   --flip-gate                       R2 dual-mode attribution comparison (both modes; drop --attribution)
  *   --fit                             R3-FIT fitted per-position exponents (offline harness); mutually exclusive with --flip-gate
  *   --alpha X                         R3-FIT shrinkage knob override (default 0.5; sweep {0.1,0.25,0.5,1,2} always reported)
- *   --fullpipeline                    D6b full-pipeline calibration + verdicts (13-factor composition); mutually exclusive with --fit/--flip-gate; basis always half_ppr, attribution always per-season-team (teamOffense alone reconstructed under current-team)
+ *   --fullpipeline                    D6b full-pipeline calibration + verdicts (13-factor composition); mutually exclusive with --fit/--flip-gate; --basis half_ppr (default) or league (D-45, report-only), attribution always per-season-team (teamOffense alone reconstructed under current-team)
  *   --regression-model M              Step 4 regression table for --fit/--fullpipeline (default step4-upside = the current app; legacy reproduces unstamped artifacts committed before this flag existed)
  *   --depth-model M                   Step 8 depth step for --fit/--fullpipeline (default qb-takeover = the current app: a QB at order 1 x1.05, any other QB x1.00; legacy = flat 1.05/0.88/0.68 at every position, reproduces artifacts committed before this flag existed)
- *   --rookie                          D-8/D-9/D-12/D-13 rookie outcome panels (debut/ungated/total-points), plus D-14's independent re-derivation of the app's eight rookie-ceiling quantiles (§G, rookie-mirror.md §5); mutually exclusive with --fit/--flip-gate/--fullpipeline; rejects --from/--to/--attribution/--basis/--min-games — the three assemblies (legacy/debut/rookiePathAll) carry three different year semantics, one CLI pair cannot express them, the basis is pinned half_ppr, and the outcome gate is structural, not a knob (see .claude/tasks/rookie-outcome-panels.md §2.4)
+ *   --rookie                          D-8/D-9/D-12/D-13 rookie outcome panels (debut/ungated/total-points), plus D-14's independent re-derivation of the app's eight rookie-ceiling quantiles (§G, rookie-mirror.md §5); mutually exclusive with --fit/--flip-gate/--fullpipeline; rejects --from/--to/--attribution/--min-games — the three assemblies (legacy/debut/rookiePathAll) carry three different year semantics, one CLI pair cannot express them, and the outcome gate is structural, not a knob (see .claude/tasks/rookie-outcome-panels.md §2.4); --basis half_ppr (default) or league (D-45)
  *   --json                            machine-readable FitReport (FlipReport under --flip-gate, R3-FIT FitReport under --fit, full-pipeline result under --fullpipeline, rookie-panel result under --rookie) to stdout
  *   --write                           persist the three artifacts (backtests/ + grading/)
  */
@@ -84,10 +84,10 @@ if (isMain) {
       const fullPipelineMode = flag('--fullpipeline');
       const rookieMode = flag('--rookie');
       // Mode-aware basis default (§6.4 guard 2): --fit's own basis is half_ppr
-      // (the app's own store-served basis, §3.0-C3); every other mode keeps
-      // in-basis. option() returns null when the flag is absent, so an
-      // explicit --basis still wins over either default.
-      const basis = option('--basis') ?? ((fitMode || fullPipelineMode) ? 'half_ppr' : 'in-basis');
+      // (the app's own store-served basis, §3.0-C3), as are --fullpipeline's and
+      // --rookie's (D-45); every other mode keeps in-basis. option() returns null
+      // when the flag is absent, so an explicit --basis still wins over either default.
+      const basis = option('--basis') ?? ((fitMode || fullPipelineMode || rookieMode) ? 'half_ppr' : 'in-basis');
       const scoringFrom = option('--scoring-from') ?? DEFAULT_SCORING_SNAPSHOT;
       const alpha = parseFloat(option('--alpha') ?? String(FIT_ALPHA_DEFAULT));
 
@@ -96,11 +96,15 @@ if (isMain) {
         process.exit(1);
       }
       if (!['in-basis', 'half_ppr', 'league'].includes(basis)) {
-        console.error("[panel] Error: --basis must be 'in-basis', 'half_ppr' or 'league' (league: --fit only)");
+        console.error("[panel] Error: --basis must be 'in-basis', 'half_ppr' or 'league' (league: --fit/--rookie/--fullpipeline only)");
         process.exit(1);
       }
-      if (basis === 'league' && !fitMode) {
-        console.error("[panel] Error: --basis league is admitted by --fit only (D-46) — every other mode keeps its pinned basis");
+      if (basis === 'league' && !(fitMode || rookieMode || fullPipelineMode)) {
+        console.error("[panel] Error: --basis league is admitted by --fit, --rookie and --fullpipeline only (D-46, D-45) — every other mode keeps its pinned basis");
+        process.exit(1);
+      }
+      if (basis === 'in-basis' && (rookieMode || fullPipelineMode)) {
+        console.error("[panel] Error: --rookie and --fullpipeline take --basis half_ppr (default) or league; in-basis is rejected");
         process.exit(1);
       }
       if (flipGate && args.includes('--attribution')) {
@@ -119,10 +123,10 @@ if (isMain) {
         console.error('[panel] Error: --rookie is mutually exclusive with --fit/--flip-gate/--fullpipeline');
         process.exit(1);
       }
-      if (rookieMode && ['--from', '--to', '--attribution', '--basis', '--min-games'].some(f => args.includes(f))) {
+      if (rookieMode && ['--from', '--to', '--attribution', '--min-games'].some(f => args.includes(f))) {
         console.error(
-          '[panel] Error: --rookie rejects --from/--to/--attribution/--basis/--min-games — the three assemblies ' +
-          '(legacy/debut/rookiePathAll) carry three different year semantics, the basis is pinned half_ppr, and ' +
+          '[panel] Error: --rookie rejects --from/--to/--attribution/--min-games — the three assemblies ' +
+          '(legacy/debut/rookiePathAll) carry three different year semantics and ' +
           'the outcome gate is structural, not a knob'
         );
         process.exit(1);
@@ -166,7 +170,7 @@ if (isMain) {
       }
 
       if (rookieMode) {
-        const result = runRookiePanels({});
+        const result = runRookiePanels({ basis });
         const verdictMd = buildRookieVerdictMarkdown(result);
 
         if (asJson) {
@@ -185,7 +189,7 @@ if (isMain) {
       }
 
       if (fullPipelineMode) {
-        const result = runFullPipeline({ fromYear, toYear, ...(regressionModel !== undefined ? { regressionModel } : {}), ...(depthModel !== undefined ? { depthModel } : {}) });
+        const result = runFullPipeline({ fromYear, toYear, basis, ...(regressionModel !== undefined ? { regressionModel } : {}), ...(depthModel !== undefined ? { depthModel } : {}) });
         const verdictMd = buildFullPipelineVerdictMarkdown(result);
 
         if (asJson) {

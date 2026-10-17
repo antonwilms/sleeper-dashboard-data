@@ -13,6 +13,8 @@
 import fs from 'fs';
 import path from 'path';
 import { readJson, repoPath } from '../lib/io.mjs';
+import { leagueBasisLoad, basisScaleOf, loadLeaguePositions, SCORING_BASIS_MODELS } from '../lib/leagueBasis.mjs';
+import { leagueLoadArgs, LEAGUE_SCORING_FIXTURE } from './panel-run.mjs';
 import {
   ROOKIE_TOTAL, composeRookieRow, biasSummary, losoMultiplier, maeDelta, decideRookieTotal,
 } from '../lib/rookieTotalPoints.mjs';
@@ -26,6 +28,12 @@ export const ROOKIE_TOTAL_PIN = Object.freeze({
 export const ROOKIE_TOTAL_LOAD = {
   loadPanel: () => readJson(ROOKIE_TOTAL_PIN.path),
   loadPlayerIds: () => readJson('nflverse/playerids.json'),
+  // D-45 — used only to build a league-wrapped load for the as-of basis scale (the league panel already carries league outcomes).
+  loadSeasonTotals: (year) => readJson(`nfl/season-totals/${year}.json`),
+  loadLeagueScoring: () => readJson(LEAGUE_SCORING_FIXTURE),
+  loadLeaguePositionOf: () => loadLeaguePositions(),
+  // D-45 — the league `--rookie` panel a league run reads (an absolute or cwd-relative path; never a repo-relative readJson).
+  loadLeaguePanel: (panelPath) => JSON.parse(fs.readFileSync(path.resolve(panelPath), 'utf8')),
 };
 
 const r3 = (v) => (v == null || !Number.isFinite(v) ? null : Math.round(v * 1e3) / 1e3);
@@ -39,17 +47,32 @@ const roundDelta = (d) => ({
   maeShipped: r3(d.maeShipped), maeCorrected: r3(d.maeCorrected), mean: r3(d.mean), ci95: d.ci95 ? d.ci95.map(r3) : null, label: d.label,
 });
 
-export function runRookieTotal({ load = ROOKIE_TOTAL_LOAD, pin = ROOKIE_TOTAL_PIN } = {}) {
-  const panel = load.loadPanel();
+/**
+ * `basis` half_ppr (default) reads the committed pin panel (rows pinned) and is byte-identical to every committed run.
+ * `basis` league (D-45) reads `panelPath` — a league `--rookie` result — whose realised totals are league points, and
+ * composes each row at `basisScaleOf(wrappedLoad, targetSeason, pos)` (the interim: half constants × the as-of scale);
+ * `rookieConstants` ({ rookieConstantsModel, leagueConstants }) swaps in the league-refit constants for the families present.
+ */
+export function runRookieTotal({ load = ROOKIE_TOTAL_LOAD, pin = ROOKIE_TOTAL_PIN, basis = 'half_ppr', panelPath = null, rookieConstants = null } = {}) {
+  if (!SCORING_BASIS_MODELS.includes(basis)) throw new Error(`[rookie-total] unknown basis '${basis}' — use ${SCORING_BASIS_MODELS.join('|')}`);
+  if (basis === 'league' && !panelPath) throw new Error('[rookie-total] --basis league needs --rookie-panel <path> (the league --rookie panel)');
+  if (basis !== 'league' && panelPath) throw new Error('[rookie-total] --rookie-panel applies only with --basis league');
+  if (basis !== 'league' && rookieConstants) throw new Error('[rookie-total] rookieConstants apply only with --basis league');
+  const panel = basis === 'league' ? load.loadLeaguePanel(panelPath) : load.loadPanel();
   const panelRows = panel.rookiePathAll.rows;
-  if (panelRows.length !== pin.rows) throw new Error(`[rookie-total] ${pin.path}: ${panelRows.length} rows, pin says ${pin.rows}`);
+  if (basis === 'half_ppr' && panelRows.length !== pin.rows) throw new Error(`[rookie-total] ${pin.path}: ${panelRows.length} rows, pin says ${pin.rows}`);
+  if (basis === 'league' && panel.meta?.basis !== 'league') throw new Error(`[rookie-total] ${panelPath}: panel meta.basis is '${panel.meta?.basis}', not 'league'`);
   const bySleeper = load.loadPlayerIds()?.bySleeper ?? {};
+  const leagueLoad = basis === 'league' ? leagueBasisLoad(load, leagueLoadArgs(load)) : null;
 
   const rows = panelRows.map((r) => {
     const b = bySleeper[r.sleeperId];
     const birthYear = typeof b?.birthdate === 'string' ? parseInt(b.birthdate.slice(0, 4), 10) : null;
     if (!Number.isFinite(birthYear)) throw new Error(`[rookie-total] sleeperId ${r.sleeperId} has no birthdate in nflverse/playerids.json`);
-    return { ...r, ...composeRookieRow(r, r.draftYear - birthYear) };
+    const opts = basis === 'league'
+      ? { basisScale: basisScaleOf(leagueLoad, r.targetSeason, r.position), ...(rookieConstants ?? {}) }
+      : undefined;
+    return { ...r, ...composeRookieRow(r, r.draftYear - birthYear, opts) };
   });
   const parityFails = rows.filter(r => !r.parity).length;
   if (parityFails) throw new Error(`[rookie-total] parity: ${parityFails} of ${rows.length} rows — the uncorrected reconstruction does not reproduce the panel's projectedPPG`);
@@ -103,7 +126,11 @@ export function runRookieTotal({ load = ROOKIE_TOTAL_LOAD, pin = ROOKIE_TOTAL_PI
   };
 
   return {
-    meta: { generatedAt: new Date().toISOString(), panel: `${pin.path} @ ${pin.commit}`, rows: rows.length, basis: 'half_ppr' },
+    meta: {
+      generatedAt: new Date().toISOString(),
+      panel: basis === 'league' ? `${panelPath} (league --rookie panel)` : `${pin.path} @ ${pin.commit}`,
+      rows: rows.length, basis,
+    },
     bias, loso: { byGroupAll, decision: losoDecision }, decision, candidateMultipliers,
   };
 }
@@ -184,7 +211,7 @@ export function buildRookieTotalVerdictMarkdown(result) {
   L.push('- It would be an app slice: re-mirror in CR-15, a new rookie anchor-policy boundary, and the slice decides whether it touches `PRIOR_MODEL_FROM`.');
   L.push('- The proper fix stays D-13\'s original two-part model (PPG given a real season × probability of playing). The multiplier is the cheap version.', '');
 
-  L.push('**Reproduce:** `node bin/backtest.mjs --rookie-total --write`', '');
+  L.push(`**Reproduce:** \`node bin/backtest.mjs --rookie-total${meta.basis === 'league' ? ' --basis league --rookie-panel <path>' : ''} --write\``, '');
   return L.join('\n');
 }
 
@@ -192,8 +219,9 @@ export function buildRookieTotalVerdictMarkdown(result) {
 
 export function writeRookieTotalArtifacts({ result, verdictMd, root = null }) {
   const date = result.meta.generatedAt.slice(0, 10);
-  const panelPath = `backtests/${date}-rookie-total-panel.json`;
-  const verdictPath = `grading/${date}-rookie-total-verdict.md`;
+  const tag = result.meta.basis === 'league' ? '-league' : '';
+  const panelPath = `backtests/${date}-rookie-total${tag}-panel.json`;
+  const verdictPath = `grading/${date}-rookie-total${tag}-verdict.md`;
   const panelJson = JSON.stringify(result, null, 2) + '\n';
   const abs = (rel) => (root ? path.join(root, rel) : repoPath(rel));
   fs.mkdirSync(abs('backtests'), { recursive: true });
@@ -206,9 +234,9 @@ export function writeRookieTotalArtifacts({ result, verdictMd, root = null }) {
 /** The `--rookie-total` branch body of `bin/backtest.mjs`. */
 export function rookieTotalMain({
   load = ROOKIE_TOTAL_LOAD, write = false, asJson = false, writeArtifacts = writeRookieTotalArtifacts,
-  log = console.log, logErr = console.error,
+  log = console.log, logErr = console.error, basis = 'half_ppr', panelPath = null,
 } = {}) {
-  const result = runRookieTotal({ load });
+  const result = runRookieTotal({ load, basis, panelPath });
   const verdictMd = buildRookieTotalVerdictMarkdown(result);
   if (write) {
     const w = writeArtifacts({ result, verdictMd });

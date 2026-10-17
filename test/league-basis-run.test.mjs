@@ -231,21 +231,23 @@ describe('CLI guards (bin/backtest.mjs, bin/panel.mjs) fail before any run', () 
     r = bt('--inseason', '--from', '2012');
     assert.equal(r.status, 1); assert.match(r.stderr, /--inseason rejects --from/);
   });
+  // D-45 (rookie-basis-refit A1): --qb-rookie-level and --rookie-total now admit --basis (test/qb-rookie-level.test.mjs T15,
+  // test/rookie-basis-panels.test.mjs); the modes below still pin their basis.
   test('every other mode still rejects --basis; --league-basis takes only --json and --write', () => {
-    for (const mode of ['--qb-takeover', '--qb-rookie-level', '--absence', '--rookie-total']) {
+    for (const mode of ['--qb-takeover', '--absence']) {
       const r = bt(mode, '--basis', 'league');
       assert.equal(r.status, 1, mode); assert.match(r.stderr, /rejects --basis/, mode);
     }
     const r = bt('--league-basis', '--from', '2012');
     assert.equal(r.status, 1); assert.match(r.stderr, /--league-basis rejects --from/);
   });
-  test('panel: --basis league is --fit only; an unknown basis is refused', () => {
+  test('panel: --basis league is admitted by --fit/--rookie/--fullpipeline only (D-45); an unknown basis is refused', () => {
     let r = run('bin/panel.mjs', ['--basis', 'league']);
-    assert.equal(r.status, 1); assert.match(r.stderr, /league is admitted by --fit only|--fit only/);
+    assert.equal(r.status, 1); assert.match(r.stderr, /admitted by --fit, --rookie and --fullpipeline only/);
+    r = run('bin/panel.mjs', ['--flip-gate', '--basis', 'league']);
+    assert.equal(r.status, 1); assert.match(r.stderr, /admitted by --fit, --rookie and --fullpipeline only/);
     r = run('bin/panel.mjs', ['--fit', '--basis', 'nope']);
     assert.equal(r.status, 1); assert.match(r.stderr, /--basis must be/);
-    r = run('bin/panel.mjs', ['--fullpipeline', '--basis', 'league']);
-    assert.equal(r.status, 1);
   });
 });
 

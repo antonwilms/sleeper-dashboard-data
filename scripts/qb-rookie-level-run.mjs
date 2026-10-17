@@ -5,7 +5,7 @@
  *
  * Public exports:
  *   QB_ROOKIE_LOAD, SnapshotStop, ARTIFACT_CAPS
- *   runQbRookieLevel({ load, defaults, log })            → result (meta, coverage, excluded, q1…q4, constants)
+ *   runQbRookieLevel({ load, defaults, log, basis })     → result (meta, coverage, excluded, q1…q4, constants); basis half_ppr (default) | league (D-45)
  *   buildQbRookieLevelVerdictMarkdown(result)            → string
  *   formatQbRookieLevelConstantsJson(file)               → string
  *   writeQbRookieLevelArtifacts({ result, verdictMd })   → { panelPath, constantsPath, verdictPath, … }
@@ -17,6 +17,9 @@ import path from 'path';
 import { repoPath } from '../lib/io.mjs';
 import { INSEASON_LOAD, guardLoad, rookiePriorFor } from './inseason-run.mjs';
 import { CoverageStop } from './qb-takeover-run.mjs';
+import { leagueLoadArgs, LEAGUE_SCORING_FIXTURE } from './panel-run.mjs';
+import { leagueBasisLoad, basisScaleOf, SCORING_BASIS_MODELS } from '../lib/leagueBasis.mjs';
+import { NON_ADDITIVE_KEYS, seasonEmitsFirstDownBonus } from '../lib/fantasyPoints.mjs';
 import { primaryPassers, coverageFor } from '../lib/qbTakeover.mjs';
 import {
   QB_ROOKIE_DEFAULTS, GROUPS, round2, round3, rookieGroup, rookieStarterGames, newExcluded, aggregate, levelTable,
@@ -79,9 +82,28 @@ export function runQ2(games, defaults) {
   return out;
 }
 
+/**
+ * The scoring keys `scoreSeasonStats` reads that differ between two settings objects (D-45 re-route: the league
+ * run's ratio cross-check scores with the snapshot's settings while the league wrap rescored with the D2 fixture).
+ * NON_ADDITIVE_KEYS are never read; a null multiplier is skipped, so null and absent are equal.
+ */
+export function differingScoringKeys(a, b) {
+  const keys = new Set([...Object.keys(a ?? {}), ...Object.keys(b ?? {})]);
+  const out = [];
+  for (const k of [...keys].sort()) {
+    if (NON_ADDITIVE_KEYS.has(k)) continue;
+    if ((a?.[k] ?? null) !== (b?.[k] ?? null)) out.push(k);
+  }
+  return out;
+}
+
 // ─── runQbRookieLevel ─────────────────────────────────────────────────────────
 
-export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_DEFAULTS, log = () => {} } = {}) {
+export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_DEFAULTS, log = () => {}, basis = 'half_ppr' } = {}) {
+  if (!SCORING_BASIS_MODELS.includes(basis)) throw new Error(`[qb-rookie-level] unknown basis '${basis}' — use ${SCORING_BASIS_MODELS.join('|')}`);
+  // D-45: under league the load is wrapped before the first read, so weeklyPoints in primary games are league points
+  // (exact weeks, D-47) and the as-of scale is available from the wrapped load.
+  if (basis === 'league') load = leagueBasisLoad(load, leagueLoadArgs(load));
   const g = guardLoad(load, { maxLoadSeason: defaults.seasons.to });
   const { from, to } = defaults.seasons;
 
@@ -94,11 +116,16 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
   if (!(snapshot.targetSeason > to)) {
     throw new SnapshotStop(`[qb-rookie-level] snapshot targetSeason ${snapshot.targetSeason} is not above ${to} — nothing written`);
   }
-  const bonus = snapshot.scoringSettings.bonus_fd_qb;
-  if (typeof bonus === 'number' && bonus !== 0) {
-    throw new SnapshotStop(`[qb-rookie-level] scoringSettings.bonus_fd_qb = ${bonus}: the app derives bonus_fd for 2012-2021 and this run does not port that — nothing written`);
-  }
   const scoringSettings = snapshot.scoringSettings;
+  // D-45: the season-ratio cross-check scores through the app's season-scoring port (first downs derived per season), so a
+  // non-zero bonus_fd_qb is scored, not refused. Under league the snapshot's settings must score exactly as the fixture the
+  // wrap rescored with: a differing scored key is a stop.
+  if (basis === 'league') {
+    const differing = differingScoringKeys(scoringSettings, g.loadLeagueScoring());
+    if (differing.length) {
+      throw new SnapshotStop(`[qb-rookie-level] snapshot ${defaults.snapshotDate} scoringSettings differ from ${LEAGUE_SCORING_FIXTURE} on ${differing.join(', ')} — nothing written`);
+    }
+  }
 
   const playerIds = need(g.loadPlayerIds(), 'nflverse/playerids.json');
   const bySleeper = playerIds.bySleeper ?? {};
@@ -114,7 +141,7 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
     const primaries = primaryPassers(gl, S);
     const cov = coverageFor(sc, primaries);
     coverage.push({ S, teamGames: cov.teamGames, withPrimary: cov.withPrimary, rate: Number.isFinite(cov.rate) ? cov.rate : null });
-    ctx.set(S, { sc, st, primaries });
+    ctx.set(S, { sc, st, primaries, deriveFirstDowns: !seasonEmitsFirstDownBonus(st) });
   }
   const bad = coverage.filter((c) => c.teamGames === 0 || c.rate == null || c.rate < defaults.coverageMin);
   if (bad.length) {
@@ -153,17 +180,19 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
   const scaleCaptured = [...new Set(live.map((r) => r.lv.basisScale))].sort((a, b) => a - b);
   const scale = scaleCaptured.length === 1 ? scaleCaptured[0] : null;
 
-  // league by season-ratio: per rookie-season ratio, left out when null
+  // league by season-ratio: per rookie-season ratio, left out when null. Under league the games already carry league points
+  // (`pts`), so the ratio is applied to the half-PPR week (`halfPts`) — the season-ratio cross-check of the exact-week level.
   const ratioOf = new Map();
   const leagueAgg = Object.fromEntries(CELLS.map((c) => [c, { sum: 0, games: 0, ids: new Set(), nullIds: new Set() }]));
   for (const gm of games) {
     const k = `${gm.pid}|${gm.S}`;
-    if (!ratioOf.has(k)) ratioOf.set(k, leagueRatio(ctx.get(gm.S).st?.[gm.pid], scoringSettings));
+    if (!ratioOf.has(k)) ratioOf.set(k, leagueRatio(ctx.get(gm.S).st?.[gm.pid], scoringSettings, { deriveFirstDowns: ctx.get(gm.S).deriveFirstDowns }));
     const ratio = ratioOf.get(k);
+    const basePts = basis === 'league' ? gm.halfPts : gm.pts;
     for (const cell of [gm.group, POOLED]) {
       const a = leagueAgg[cell];
-      if (ratio == null) { a.nullIds.add(k); continue; }
-      a.sum += gm.pts * ratio; a.games++; a.ids.add(k);
+      if (ratio == null || basePts == null) { a.nullIds.add(k); continue; }
+      a.sum += basePts * ratio; a.games++; a.ids.add(k);
     }
   }
 
@@ -179,7 +208,7 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
       players: row.players, games: row.games, sumPts: row.sumPts, value: row.value,
       ci95: ci ? ci.ci95 : null, clusters: ci ? ci.clusters : 0, thin: row.players < defaults.thinPlayers,
       playerDistribution: playerDistribution(games, grp, defaults),
-      leagueScaled: row.value != null && scale != null ? round3(row.value * scale) : null,
+      leagueScaled: basis === 'league' ? null : (row.value != null && scale != null ? round3(row.value * scale) : null),
       leagueByRatio: { value: la.games > 0 ? round3(la.sum / la.games) : null, players: la.ids.size, games: la.games, seasonsWithoutRatio: la.nullIds.size },
     }, defaults.minCellPlayers);
   }
@@ -189,7 +218,9 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
   // 4. Q3
   const units = unitsFrom(games, defaults.minUnitGames);
   const priors = new Map();
-  for (const u of units) priors.set(`${u.pid}|${u.S}`, rookiePriorFor(u.pid, 'QB', u.S, playerIds));
+  for (const u of units) priors.set(`${u.pid}|${u.S}`, basis === 'league'
+    ? rookiePriorFor(u.pid, 'QB', u.S, playerIds, basisScaleOf(g, u.S, 'QB'))   // league outcomes: the shipped comparator at the as-of scale
+    : rookiePriorFor(u.pid, 'QB', u.S, playerIds));
   const nullPriors = [...priors.values()].filter((v) => v == null).length;
   if (nullPriors) throw new Error(`[qb-rookie-level] rookiePriorFor returned null for ${nullPriors} unit(s) — stop and ask`);
   const q3 = losoCompare({ games, units, priorOf: (u) => priors.get(`${u.pid}|${u.S}`), bootstrap: defaults.bootstrap });
@@ -211,17 +242,25 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
     const grp = rookieGroup(bySleeper[pid]);
     const fit = grp ? starterPPG[grp] : null;
     const levelHalf = round3(lv.levelHalf);
+    const league = basis === 'league';
+    // Half run: the class compares the half level with the half CI. League run: the fit is a league value already, so the
+    // class compares the (live, league-scored) level with the league CI, and there is no half fit.
+    const levelCmp = league ? round3(lv.level) : levelHalf;
     let cls = null;
-    if (fit && fit.ci95) cls = levelHalf > fit.ci95[1] ? 'ABOVE' : levelHalf < fit.ci95[0] ? 'BELOW' : 'WITHIN';
+    if (fit && fit.ci95) cls = levelCmp > fit.ci95[1] ? 'ABOVE' : levelCmp < fit.ci95[0] ? 'BELOW' : 'WITHIN';
     const f = p.projection.factors ?? {};
+    const fitLeague = fit && fit.value != null ? (league ? fit.value : round3(fit.value * lv.basisScale)) : null;
     return {
       pid, group: grp, draftOvr: bySleeper[pid]?.draftOvr ?? null, team: p.nfl_team ?? null, depthChartOrder: p.depthChartOrder ?? null,
       levelLeague: lv.level, source: lv.source, basisScale: lv.basisScale, levelHalf,
       reconHalf: rookiePriorFor(pid, 'QB', snapshot.targetSeason, playerIds),
+      ...(league ? { reconLeague: rookiePriorFor(pid, 'QB', snapshot.targetSeason, playerIds, basisScaleOf(g, snapshot.targetSeason, 'QB')) } : {}),
       ktcMult: f.ktcMult ?? null, collegeContribution: f.collegeContribution ?? null,
-      fitHalf: fit ? fit.value : null, fitCI: fit ? fit.ci95 : null,
-      fitLeague: fit && fit.value != null ? round3(fit.value * lv.basisScale) : null,
-      gapHalf: fit && fit.value != null ? round3(levelHalf - fit.value) : null, class: cls,
+      fitHalf: league ? null : (fit ? fit.value : null), fitCI: fit ? fit.ci95 : null,
+      fitLeague,
+      gapHalf: !league && fit && fit.value != null ? round3(levelHalf - fit.value) : null,
+      ...(league ? { gapLeague: fitLeague != null ? round3(lv.level - fitLeague) : null } : {}),
+      class: cls,
     };
   }).sort((a, b) => a.pid.localeCompare(b.pid, undefined, { numeric: true }));
   const byGroup = {};
@@ -230,24 +269,29 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
     if (!rs.length) continue;
     byGroup[grp] = {
       n: rs.length, meanLevelHalf: round3(rs.reduce((s, r) => s + r.levelHalf, 0) / rs.length),
-      fitHalf: grp === 'none' ? null : starterPPG[grp].value,
+      fitHalf: grp === 'none' || basis === 'league' ? null : starterPPG[grp].value,
       ABOVE: rs.filter((r) => r.class === 'ABOVE').length, WITHIN: rs.filter((r) => r.class === 'WITHIN').length, BELOW: rs.filter((r) => r.class === 'BELOW').length,
     };
   }
   const q4 = { snapshot: defaults.snapshotDate, targetSeason: snapshot.targetSeason, scaleCaptured, rows: q4Rows, byGroup, excluded: snapExcluded };
 
   const constants = {
-    source: 'sleeper-dashboard-data backtests/<date>-qb-rookie-level-constants.json (node bin/backtest.mjs --qb-rookie-level --write)',
-    generatedAt: new Date().toISOString(), basis: 'half_ppr',
+    source: basis === 'league'
+      ? 'sleeper-dashboard-data backtests/<date>-qb-rookie-level-league-constants.json (node bin/backtest.mjs --qb-rookie-level --basis league --write)'
+      : 'sleeper-dashboard-data backtests/<date>-qb-rookie-level-constants.json (node bin/backtest.mjs --qb-rookie-level --write)',
+    generatedAt: new Date().toISOString(), basis,
+    ...(basis === 'league' ? { basisDetail: { scoringFixture: LEAGUE_SCORING_FIXTURE, positionFile: 'raw/-players-nfl.json' } } : {}),
     definitions: {
       seasons: { from, to },
       started: 'primary passer of the REG team-game: max(attempts+sacksSuffered); ties attempts, then pid (P6a primaryPassers)',
       rookie: 'bySleeper.draftYear === S', position: 'playerids ids position QB',
       groups: { top12: 'round 1, pick <= 12', r1: 'round 1, pick >= 13', day2: 'rounds 2-3', 'day3+': 'rounds 4-7 or undrafted' },
       pickConvention: 'within-round (bySleeper.draftPick)',
-      outcome: 'season-totals weeklyPoints[week] (half_ppr) in each primary game; never gamelogs fantasyPoints',
+      outcome: basis === 'league'
+        ? 'season-totals weeklyPoints[week] (league: rescored exact weeks, D-47) in each primary game; never gamelogs fantasyPoints'
+        : 'season-totals weeklyPoints[week] (half_ppr) in each primary game; never gamelogs fantasyPoints',
       estimator: 'sum(points) / sum(primary games), game-weighted', thinPlayers: defaults.thinPlayers,
-      leagueScaling: "multiply by the app's runtime positionBasisScale (as ROOKIE_CEILING)",
+      leagueScaling: basis === 'league' ? 'none — league outcome' : "multiply by the app's runtime positionBasisScale (as ROOKIE_CEILING)",
     },
     starterPPG,
     heldOut: {
@@ -264,7 +308,7 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
   };
 
   const result = {
-    meta: { generatedAt: constants.generatedAt, seasons: { from, to }, snapshot: defaults.snapshotDate, basis: 'half_ppr', bootstrap: defaults.bootstrap, groupNote: 'round-based groups (D2); not P6a draftOvr bins' },
+    meta: { generatedAt: constants.generatedAt, seasons: { from, to }, snapshot: defaults.snapshotDate, basis, bootstrap: defaults.bootstrap, groupNote: 'round-based groups (D2); not P6a draftOvr bins' },
     coverage, excluded, q1, q2, q3, q4, constants,
     verdictInput: { groupsPinned: GROUPS.map((grp) => starterPPG[grp]), mendoza: q4Rows.find((r) => r.pid === '13269') ?? null },
   };
@@ -316,7 +360,7 @@ export function buildQbRookieLevelVerdictMarkdown(result) {
   const mend = result.verdictInput.mendoza;
 
   out(`# Rookie QB starter level (P12a) — ${meta.generatedAt.slice(0, 10)}`, '',
-    `Offline backtest, ${meta.seasons.from}–${meta.seasons.to}, half-PPR, game-weighted PPG in games a rookie QB started (primary passer of the team-game). Snapshot ${meta.snapshot}.`, '');
+    `Offline backtest, ${meta.seasons.from}–${meta.seasons.to}, ${meta.basis === 'league' ? 'league basis' : 'half-PPR'}, game-weighted PPG in games a rookie QB started (primary passer of the team-game). Snapshot ${meta.snapshot}.`, '');
 
   out('## Summary', '');
   out(md(['group', 'PPG if he starts (half-PPR)', '95% CI', 'rookies', 'games', 'thin'],
@@ -402,9 +446,10 @@ export function formatQbRookieLevelConstantsJson(file) {
 
 export function writeQbRookieLevelArtifacts({ result, verdictMd, root = null, caps = ARTIFACT_CAPS }) {
   const date = result.meta.generatedAt.slice(0, 10);
-  const panelPath = `backtests/${date}-qb-rookie-level-panel.json`;
-  const constantsPath = `backtests/${date}-qb-rookie-level-constants.json`;
-  const verdictPath = `grading/${date}-qb-rookie-level-verdict.md`;
+  const tag = result.meta.basis === 'league' ? '-league' : '';
+  const panelPath = `backtests/${date}-qb-rookie-level${tag}-panel.json`;
+  const constantsPath = `backtests/${date}-qb-rookie-level${tag}-constants.json`;
+  const verdictPath = `grading/${date}-qb-rookie-level${tag}-verdict.md`;
   const { constants, ...panel } = result;
   const panelJson = JSON.stringify(panel, null, 2) + '\n';
   const constantsJson = formatQbRookieLevelConstantsJson(constants);
@@ -424,10 +469,10 @@ export function writeQbRookieLevelArtifacts({ result, verdictMd, root = null, ca
 /** The `--qb-rookie-level` branch body of `bin/backtest.mjs`. Returns the exit code: 1 on CoverageStop/SnapshotStop, else 0. */
 export function qbRookieLevelMain({
   load = QB_ROOKIE_LOAD, write = false, asJson = false, writeArtifacts = writeQbRookieLevelArtifacts,
-  log = console.log, logErr = console.error,
+  log = console.log, logErr = console.error, basis = 'half_ppr',
 } = {}) {
   try {
-    const result = runQbRookieLevel({ load, log: (m) => logErr(`[backtest] ${m}`) });
+    const result = runQbRookieLevel({ load, basis, log: (m) => logErr(`[backtest] ${m}`) });
     const verdictMd = buildQbRookieLevelVerdictMarkdown(result);
     if (write) {
       const w = writeArtifacts({ result, verdictMd });

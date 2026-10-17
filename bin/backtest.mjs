@@ -48,6 +48,8 @@
  *                ktc-neutral level and the live snapshot's rookie QBs. Takes only --json / --write. --write
  *                persists backtests/<date>-qb-rookie-level-{panel,constants}.json +
  *                grading/<date>-qb-rookie-level-verdict.md. Exit 1 if the coverage or snapshot stop fires.
+ *                --basis half_ppr|league (D-45; default half_ppr): league scores the primary games' weeks as the app does
+ *                at load (exact weeks) and names the files …-qb-rookie-level-league-….
  *   --absence    graded before/after check of the absence correction (L5 Stage B, offline analysis only):
  *                the mirrored projected-games rule on season-totals with and without `classifyAbsences`
  *                applied, vs next-season games played. Takes only --json / --write. --write persists
@@ -68,8 +70,11 @@
  *   --rookie-total  composed rookie total points (D-13, offline analysis only): the shipped per-row rookie
  *                projection (calibrated PPG × availability games) against realised total points on W2's committed
  *                availability panel — bias by group, a leave-one-season-out multiplier, a pre-registered verdict.
- *                Takes only --json / --write. --write persists backtests/<date>-rookie-total-panel.json +
+ *                Takes only --json / --write / --basis / --rookie-panel. --write persists backtests/<date>-rookie-total-panel.json +
  *                grading/<date>-rookie-total-verdict.md. Changes no score.
+ *                --basis half_ppr|league (D-45; default half_ppr). league requires --rookie-panel <path>, a league
+ *                `bin/panel.mjs --rookie --basis league --json` result, and composes each row at the as-of basis scale;
+ *                --rookie-panel is an error under half_ppr. Files are named …-rookie-total-league-….
  *   --weekly-basis  graded before/after of serving per-week scoring keys (weekly-scoring-keys, D-47, offline
  *                analysis only): ratio-scaled weeks (B) vs weeks scored from per-week `weeklyStats` (A) against
  *                the full raw week scored under snapshots/2026-10-14.json (T), 2012–2025, with a pre-registered
@@ -257,15 +262,32 @@ if (isMain) {
       }
 
       if (flag('--rookie-total')) {
-        const rejected = args.filter(a => a.startsWith('--') && !['--rookie-total', '--json', '--write'].includes(a));
+        const valued = ['--basis', '--rookie-panel'];
+        const rejected = args.filter((a, i) => (a.startsWith('--')
+          ? !['--rookie-total', '--json', '--write', ...valued].includes(a)
+          : !valued.includes(args[i - 1])));
         if (rejected.length) {
           console.error(
             `[backtest] Error: --rookie-total rejects ${rejected.join(', ')} — the panel, seasons, groups and rule are pinned ` +
-            'by the task file, not knobs; it takes only --json and --write'
+            'by the task file, not knobs; it takes only --json, --write, --basis half_ppr|league and (league) --rookie-panel <path>'
           );
           process.exit(1);
         }
-        process.exit(rookieTotalMain({ write, asJson }));
+        const basis = option('--basis') ?? 'half_ppr';
+        if (!SCORING_BASIS_MODELS.includes(basis)) {
+          console.error(`[backtest] Error: --basis must be ${SCORING_BASIS_MODELS.join(' or ')}, got '${basis}'`);
+          process.exit(1);
+        }
+        const rookiePanel = option('--rookie-panel');
+        if (basis === 'league' && !rookiePanel) {
+          console.error('[backtest] Error: --rookie-total --basis league requires --rookie-panel <path> (the league --rookie panel)');
+          process.exit(1);
+        }
+        if (basis !== 'league' && args.includes('--rookie-panel')) {
+          console.error('[backtest] Error: --rookie-panel applies only to --rookie-total --basis league');
+          process.exit(1);
+        }
+        process.exit(rookieTotalMain({ write, asJson, basis, panelPath: rookiePanel }));
       }
 
       if (flag('--weekly-basis')) {
@@ -300,15 +322,23 @@ if (isMain) {
       }
 
       if (flag('--qb-rookie-level')) {
-        const rejected = args.filter(a => a.startsWith('--') && !['--qb-rookie-level', '--json', '--write'].includes(a));
+        const valued = ['--basis'];
+        const rejected = args.filter((a, i) => (a.startsWith('--')
+          ? !['--qb-rookie-level', '--json', '--write', ...valued].includes(a)
+          : !valued.includes(args[i - 1])));
         if (rejected.length) {
           console.error(
-            `[backtest] Error: --qb-rookie-level rejects ${rejected.join(', ')} — the seasons, groups, snapshot and basis (half_ppr) are pinned ` +
-            'by the task file, not knobs; it takes only --json and --write'
+            `[backtest] Error: --qb-rookie-level rejects ${rejected.join(', ')} — the seasons, groups and snapshot are pinned ` +
+            'by the task file, not knobs; it takes only --json, --write and --basis half_ppr|league'
           );
           process.exit(1);
         }
-        process.exit(qbRookieLevelMain({ write, asJson }));
+        const basis = option('--basis') ?? 'half_ppr';
+        if (!SCORING_BASIS_MODELS.includes(basis)) {
+          console.error(`[backtest] Error: --basis must be ${SCORING_BASIS_MODELS.join(' or ')}, got '${basis}'`);
+          process.exit(1);
+        }
+        process.exit(qbRookieLevelMain({ write, asJson, basis }));
       }
 
       if (flag('--qb-takeover')) {
