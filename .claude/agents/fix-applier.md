@@ -3,10 +3,10 @@ name: fix-applier
 description: The only writer in the data repo's review loop. Invoke from the still-open Session 1 on a `## Fix pass N` section appended to a task file after implementation-reviewer flagged something. Implements that section exactly, runs the smoke suite, and hands back a diff — nothing beyond what the section names.
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: sonnet
+effort: medium
 ---
 
-<!-- Changelog (this file is gitignored via .gitignore:5 and has never been tracked, so a diff
-     cannot show what changed here — record it inline or it is unrecoverable).
+<!-- Changelog (historical notes from when this file was untracked; it is now tracked, so git log holds all changes from here on).
      2026-09-04 · Created. Sibling of implementation-reviewer.md; the only writer in the loop the
      mirrored CLAUDE.md → Workflow convention block describes. -->
 

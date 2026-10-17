@@ -2,11 +2,11 @@
 name: plan-reviewer
 description: Read-only reviewer for Session 1 task files in the data repo — the primary review gate. Invoke after a task file is written to .claude/tasks/ and before Session 2 implementation. Checks the plan against live source, against this repo's invariants, and against the cross-repo contract registry.
 tools: Read, Grep, Glob, Bash
-model: opus
+model: sonnet
+effort: high
 ---
 
-<!-- Changelog (this file is gitignored via .gitignore:7 and has never been tracked, so a diff
-     cannot show what changed here — record it inline or it is unrecoverable).
+<!-- Changelog (historical notes from when this file was untracked; it is now tracked, so git log holds all changes from here on).
      2026-08-31 · Added review-depth modes, Bash for the automated registry check, and rewrote the
      standing duty to lead with test/registry.test.mjs instead of hand-grepping. Reason: full reviews
      were costing ~140k tokens and ~7 min regardless of slice size, because the standing duty and the

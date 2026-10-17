@@ -3,10 +3,10 @@ name: implementation-reviewer
 description: Read-only reviewer for Session 2 diffs in the data repo — the verification gate. Invoke from the still-open Session 1 after Session 2 hands back, on the diff, never on the hand-back alone. Checks fidelity to the task file, conformance to invariants no test guards, and whether new or changed tests assert real behaviour.
 tools: Read, Grep, Glob, Bash
 model: opus
+effort: medium
 ---
 
-<!-- Changelog (this file is gitignored via .gitignore:5 and has never been tracked, so a diff
-     cannot show what changed here — record it inline or it is unrecoverable).
+<!-- Changelog (historical notes from when this file was untracked; it is now tracked, so git log holds all changes from here on).
      2026-09-04 · Created. Sibling of plan-reviewer.md; the verification half of the loop the
      mirrored CLAUDE.md → Workflow convention block describes. -->
 

@@ -135,85 +135,7 @@ The canonical signal/feature registry — classifying every raw source, computed
 
 ## Workflow convention
 
-**The standard loop is fully in-repo.** Planning, review, approval, implementation and
-verification all happen in this repository against live source. Nothing in it waits on a
-chat held outside it.
-
-```
-Session 1 (planning, opus)
-  → plan-reviewer subagent      ← plan gate
-  → human approval
-Session 2 (implementation, sonnet)
-  → done-definition             ← machine gate
-  → back to Session 1 to verify ← judgment gate
-      → implementation-reviewer on the diff
-      → flags: opus triages, writes `## Fix pass N`, fix-applier applies it
-      → implementation-reviewer re-run once on the fix diff
-  → human sign-off
-```
-
-**Opus plans, sonnet implements, opus verifies.** A sonnet session that hits a design question
-the task file did not anticipate stops and reports — it never improvises architecture.
-
-- **Session 1** — read relevant code, decide signatures and data shapes, write
-  `.claude/tasks/<feature>.md`. **Edit no source files.** Invoke plan-reviewer, report its flags
-  verbatim, end the session. A task file projected over 40KB is a signal the slice is too large —
-  split it rather than planning it whole.
-- **Session 2** — read the task file first, implement exactly what it specifies, run the
-  done-definition. If something is ambiguous or contradicts existing code, stop and ask. Hand back:
-  **the commit SHA or diff range**, every file touched, every deviation from the task file, and
-  what each new or changed test asserts.
-- **Verification** — paste that hand-back into the still-open Session 1, which invokes
-  implementation-reviewer on the diff. **Verification reads the diff, never the hand-back alone** —
-  a self-report cannot show what it left out. Compact the session before verifying — the source
-  reads that produced the task file are no longer needed, and every later turn pays for them.
-- **Fix pass** — if the review flags something, Session 1 triages it and appends `## Fix pass N` to
-  the same task file: what to change, where, and what to leave alone. The fix-applier subagent
-  implements that section; implementation-reviewer then re-runs **once** on the fix diff. Flags
-  surviving that round go to the human — never a third automatic round. **Session 1 still edits no
-  source itself**: the fix pass is a written spec and the applier is the only writer, so the task
-  file remains the complete record.
-
-The task file is the handoff artifact, not chat history. A planning session that edits source has
-broken the handoff.
-
-### Reviews and fixes
-
-Three subagents. The two reviewers are read-only and **advisory** — flags are reported verbatim and
-never auto-applied. The human decides; the next step starts only after approval.
-
-- **plan-reviewer** (`.claude/agents/plan-reviewer.md`) — end of Session 1, on the task file.
-  Factual/mechanical, conformance to the Invariants, cross-repo intent.
-- **implementation-reviewer** (`.claude/agents/implementation-reviewer.md`) — invoked by Session 1
-  during verification, on Session 2's diff. Fidelity to the task file including scope beyond its
-  touch list; conformance to invariants no test guards; whether new or changed tests assert real
-  behaviour rather than having been bent green.
-- **fix-applier** (`.claude/agents/fix-applier.md`) — invoked by Session 1 on a `## Fix pass N`
-  section. The only agent in this loop that writes. Implements that section exactly and nothing
-  else; if the fix looks wrong, incomplete, or reaches beyond what the section names, it stops and
-  reports rather than improvising.
-
-### How to talk to Anton
-
-Anton owns *what* and *why*; you own *how*. Lead with outcome and stakes — what a change does for
-the product, what it costs, what it risks — not with mechanism. Keep internal machinery out unless
-it changes a decision; when a technical term is unavoidable, define it inline in one clause. Give a
-clear recommendation with one sentence of justification, or for a real judgment call two options
-and a pick. Never walk through code line by line unless asked.
-
-**This governs prose addressed to Anton only.** Task files, hand-backs and review flags are
-engineering artifacts — exact paths, function names, data shapes, line anchors. Do not let the
-executive register make them vague, and do not let their precision leak into what you say to him.
-
-### The Claude.ai project
-
-**Out of the standard loop.** An exploration tool — open-ended thinking, cross-repo reading,
-research that has not become a plan. Not a review gate, authors no task files, nothing waits on it.
-Its one residual case is a **brand-new cross-repo coupling absent from the registry**, which no
-repo-scoped subagent can reason about; its output is a draft registry entry that returns to
-Session 1 and takes the normal gate. Extending an existing entry stays in-repo.
-
-**These sections are mirrored in the sibling repo's CLAUDE.md and change together.**
+Workflow convention, review loop, how to talk to Anton, and model routing live in the parent folder's CLAUDE.md (`../CLAUDE.md`), which loads automatically for sessions started in this repo. Repo-specific rules (done-definition, git workflow) stay below.
 
 ---
 
@@ -223,9 +145,9 @@ Before reporting a task complete:
 1. Run `npm run smoke` — fix any red.
 2. For enrichment changes, run `npm run validate:enrichment` — fix any red.
 3. For any change touching a data file, confirm `manifest.json` is updated.
-4. Plan review: invoke the plan-reviewer subagent on the task file at the end of Session 1, before Session 2 — see [Workflow convention](#workflow-convention).
+4. Plan review: invoke the plan-reviewer subagent on the task file at the end of Session 1, before Session 2 — see [Workflow convention](#workflow-convention) (see ../CLAUDE.md).
 5. For any change that adds a served family or alters a family's coverage/schema/gate, update its `data-catalog.md` row in the same change.
-6. Hand back to Session 1 for verification — the hand-back contract is in [Workflow convention](#workflow-convention).
+6. Hand back to Session 1 for verification — the hand-back contract is in [Workflow convention](#workflow-convention) (see ../CLAUDE.md).
 
 ---
 
