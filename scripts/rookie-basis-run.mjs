@@ -72,7 +72,7 @@ export const ROOKIE_BASIS_RULE_MD = [
   '',
   'Each constant family is refitted on league outcomes by the recipe that produced its shipped half-PPR value and compared out of sample, on league-basis outcomes, against today\'s interim (the half-PPR recipe refitted on the same training folds × the as-of `positionBasisScale`). Both arms are in-fold. Per row `d = loss(refit) − loss(interim)`; an entry\'s and a family\'s delta is the unweighted mean `d`, clustered by player, `bootstrapPairedMean` (4000 resamples, seed 12345), labelled by `compareLabel` on its 95% interval.',
   '',
-  '**Gates (G0):** a failure of (a), (c) or (d) stops the run (nothing under the families is read); a failure of a family\'s (b) makes that family `stop-and-report` and its league section is not read. (a) `basisScaleOf(load, 2026, pos)` = QB 1.114 / RB 1.118 / WR 1.101 / TE 1.325 (the per-target-season table is written to the panel); (b) each half-PPR recipe on the half rows reproduces its shipped constant exactly — F1 `ROOKIE_CALIBRATION` (8 cells, 2 dp, and every row\'s `projectedPPG` = round1(baseline × cappedProduct)), F2 `ROOKIE_CEILING` (8 values, 2 dp), F3 `QB_ROOKIE_STARTER_PPG` (4, 3 dp), F4 `ROOKIE_TOTAL_FACTOR` (2, 3 dp; every row\'s parity holds); (c) half and league row keys are equal per panel and the `rookiePathAll` games cells (`ROOKIE_GAMES_*` material) are equal across bases; (d) the scoring fixture\'s sha1 is the one D-46 D2 pinned, and the weeks-method counts per season are reported (`scaled` > 0.5% of a season\'s weeks is flagged).',
+  '**Gates (G0):** a failure of (a), (c) or (d) stops the run (nothing under the families is read); a failure of a family\'s (b) makes that family `stop-and-report` and its league section is not read (ratified by Anton, 2026-10-17). (a) `basisScaleOf(load, 2026, pos)` = QB 1.114 / RB 1.118 / WR 1.101 / TE 1.325 (the per-target-season table is written to the panel); (b) each half-PPR recipe on the half rows reproduces its shipped constant exactly — F1 `ROOKIE_CALIBRATION` (8 cells, 2 dp, and every row\'s `projectedPPG` = round1(baseline × cappedProduct)), F2 `ROOKIE_CEILING` (8 values, 2 dp), F3 `QB_ROOKIE_STARTER_PPG` (4, 3 dp), F4 `ROOKIE_TOTAL_FACTOR` (2, 3 dp; every row\'s parity holds); (c) half and league row keys are equal per panel and the `rookiePathAll` games cells (`ROOKIE_GAMES_*` material) are equal across bases; (d) the scoring fixture\'s sha1 is the one D-46 D2 pinned, and the weeks-method counts per season are reported (`scaled` > 0.5% of a season\'s weeks is flagged).',
   '',
   '**Families (recipe · folds · arms · entries · loss):**',
   '',
@@ -87,7 +87,7 @@ export const ROOKIE_BASIS_RULE_MD = [
   '- `wire` iff at least one labelled entry is `BEATS`, no labelled entry is `WORSE`, the family pooled delta (all its rows, deduplicated per row) has a **99%** interval entirely below 0, and the structural check holds. A labelled entry is a deciding entry at or above its family floor that is not `same`; an entry below its floor is `INSUFFICIENT` (pooled, never labelled).',
   '- `stop-and-report` iff G0 fails for the family, its structural check fails, a pinned artifact it reproduces did not reproduce at baseline (plan §2.6), or §4.6 trips. Nothing wires from it.',
   '- Otherwise `do-not-wire`, naming the entries.',
-  '- **Entries `same`:** the full-sample league value equals the full-sample interim value at the constant\'s committed precision (per family above). A family whose every entry is `same` is `do-not-wire` whatever its pooled delta; a `same` entry never counts as the required `BEATS` nor as a `WORSE`.',
+  '- **Entries `same`:** the full-sample league value equals the full-sample interim value at the constant\'s committed precision (per family above). A family whose every entry is `same` is `do-not-wire` whatever its pooled delta; a `same` entry never counts as the required `BEATS`, but a `same` entry labelled `WORSE` does block a wire.',
   '- **Multiplicity:** the verdict counts the labelled entries after the floors (at most 16 + 8 + 3 + 2 + 1 = 30 deciding entries) and states the expected spurious `BEATS`/`WORSE` at 95% (0.05 × the count, ≈ 1.5 at 30); the pooled requirement is the guard (D-46\'s), held at 99% because five families are decided at once (0.05 ÷ 5, Bonferroni).',
   '- **§4.6 (only if F1, F2, F3 or F5 is `wire`):** the in-season k re-fit on the composition the app would ship, `--inseason --basis league` and `--inseason --dynasty --basis league --inseason-2a backtests/2026-10-07-inseason-constants.json`, each compared with the shipped file under D-46\'s `compareConstantsFiles`/`decideFile` unchanged. Both `do-not-wire` with `prospectPriorKind`, `decisions` and `reuse` unchanged → the shipped k stand; otherwise every triggering `wire` family becomes `stop-and-report`.',
   '- **Expected, stated so a surprise is visible:** F4 `same`; F1/F5 hinge on whether ρ differs from s by more than a few percent; F2/F3 on whether the rookie points mix differs from the veterans\'.',
@@ -123,7 +123,7 @@ export function collectInputs({ load = ROOKIE_BASIS_LOAD, log = () => {} } = {})
 
   const runBasis = (basis) => {
     log(`${basis}: --rookie panels …`);
-    const rookie = runRookiePanels({ load, basis });
+    const rookie = runRookiePanels({ load, basis, rookiePathAllCrosswalk: 'frozen' });
     log(`${basis}: --qb-rookie-level …`);
     let captured = null;
     const qb = runQbRookieLevel({ load, basis, onGames: (x) => { captured = x; } });
@@ -401,18 +401,18 @@ export function section46Trips({ twoA, dyn, structureChanged }) {
 }
 
 /** The k re-fit under the league constants, compared with the shipped files by D-46's machinery. Heavy: two in-season passes. */
-export function make46({ load = ROOKIE_BASIS_LOAD, log = () => {} } = {}) {
+export function make46({ load = ROOKIE_BASIS_LOAD, log = () => {}, runners = { runInSeason, runInSeasonDyn } } = {}) {   // `runners`: test seam only (the in-season passes are heavy)
   return function run46(constantsFile) {
     const rc = wiredConstantsOf(constantsFile);
     rc.ref = `in-memory @ ${crypto.createHash('sha1').update(JSON.stringify(constantsFile)).digest('hex')}`;
     const shipped2a = readJson(SHIPPED_FILES.twoA.path), shippedDyn = readJson(SHIPPED_FILES.dyn.path);
     let hook = null;
-    const r2a = runInSeason({ load, basis: 'league', rookieConstants: rc, onStore: (h) => { hook = h; }, log: (m) => log(`[4.6 2a] ${m}`) });
+    const r2a = runners.runInSeason({ load, basis: 'league', rookieConstants: rc, onStore: (h) => { hook = h; }, log: (m) => log(`[4.6 2a] ${m}`) });
     const rescoredBy = (S) => hook.load.loadSeasonTotals(S);
     const cmp2a = compareConstantsFiles({ shipped: shipped2a, league: r2a.constants, cellOf: twoACellResolver(hook), rescoredBy });
     const v2a = decideFile({ comparison: cmp2a, kind: '2a' });
     let dynRows = null;
-    const rd = runInSeasonDyn({ load, qbPrior: 'starter', basis: 'league', inseason2a: SHIPPED_FILES.twoA.path, rookieConstants: rc, onRows: (x) => { dynRows = x; }, log: (m) => log(`[4.6 dyn] ${m}`) });
+    const rd = runners.runInSeasonDyn({ load, qbPrior: 'starter', basis: 'league', inseason2a: SHIPPED_FILES.twoA.path, rookieConstants: rc, onRows: (x) => { dynRows = x; }, log: (m) => log(`[4.6 dyn] ${m}`) });
     const structure = dynStructure({ shipped: shippedDyn, league: rd.constants });
     const cmpD = compareConstantsFiles({ shipped: shippedDyn, league: rd.constants, cellOf: dynCellResolver(dynRows), rescoredBy });
     const vD = decideFile({ comparison: cmpD, kind: 'dyn', structural: structure });

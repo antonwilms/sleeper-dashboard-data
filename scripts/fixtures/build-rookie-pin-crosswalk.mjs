@@ -13,6 +13,12 @@
  * test reads.
  *
  * Run: node scripts/fixtures/build-rookie-pin-crosswalk.mjs
+ *
+ * D-45 Fix pass 1: `--rev <rev> --out <path>` builds the UN-slimmed variant (every bySleeper entry and every ids
+ * entry with a sleeperId, so the `rookiePathAll` entrant enumeration is complete), recording the command and rev in
+ * the header. Used for test/fixtures/rookie-total-crosswalk-2026-10-07.json:
+ *   node scripts/fixtures/build-rookie-pin-crosswalk.mjs --rev cde2d06 --out test/fixtures/rookie-total-crosswalk-2026-10-07.json
+ * With no arguments the output is byte-identical to before.
  */
 import { execFileSync } from 'child_process';
 import fs from 'fs';
@@ -25,7 +31,23 @@ export const ARTIFACT_DATE = '2026-09-06';
 const FROM = 2013, TO = 2024;
 const KEEP_BY_SLEEPER = ['birthdate', 'draftYear', 'draftRound', 'draftPick', 'undrafted'];
 
-const gitShowJson = (rel) => JSON.parse(execFileSync('git', ['show', `${SOURCE_REV}:${rel}`], { cwd: ROOT, maxBuffer: 1 << 30 }).toString());
+const gitShowJson = (rel, rev = SOURCE_REV) => JSON.parse(execFileSync('git', ['show', `${rev}:${rel}`], { cwd: ROOT, maxBuffer: 1 << 30 }).toString());
+
+/** Un-slimmed variant at `rev`: all bySleeper entries (the five fields) and all ids entries that carry a sleeperId. */
+export function buildFullFixture(rev, command) {
+  const playerIds = gitShowJson('nflverse/playerids.json', rev);
+  const bySleeper = {};
+  for (const [id, e] of Object.entries(playerIds.bySleeper ?? {})) {
+    const out = {};
+    for (const k of KEEP_BY_SLEEPER) if (e?.[k] !== undefined) out[k] = e[k];
+    bySleeper[id] = out;
+  }
+  const ids = {};
+  for (const [gsis, e] of Object.entries(playerIds.ids ?? {})) {
+    if (e?.sleeperId) ids[gsis] = { sleeperId: e.sleeperId, position: e.position ?? null };
+  }
+  return { sourceRev: rev, command, note: 'nflverse/playerids.json at sourceRev, un-slimmed, fields the rookie panel reads', bySleeper, ids };
+}
 
 export function buildFixture() {
   const wanted = new Set();
@@ -47,7 +69,15 @@ export function buildFixture() {
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isMain) {
+const argOf = (name) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : null; };
+if (isMain && argOf('--rev')) {
+  const rev = argOf('--rev'), outRel = argOf('--out');
+  if (!outRel) throw new Error('--rev needs --out <path>');
+  const fx = buildFullFixture(rev, `node scripts/fixtures/build-rookie-pin-crosswalk.mjs --rev ${rev} --out ${outRel}`);
+  const out = path.resolve(ROOT, outRel);
+  fs.writeFileSync(out, JSON.stringify(fx) + '\n');
+  console.log(`wrote ${out} — ${Object.keys(fx.bySleeper).length} bySleeper, ${Object.keys(fx.ids).length} ids, ${fs.statSync(out).size} bytes`);
+} else if (isMain) {
   const fx = buildFixture();
   const out = path.join(ROOT, 'test', 'fixtures', `rookie-pin-crosswalk-${ARTIFACT_DATE}.json`);
   fs.writeFileSync(out, JSON.stringify(fx) + '\n');

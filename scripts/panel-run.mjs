@@ -103,6 +103,9 @@ export const DEFAULT_LOAD = {
   // The pin's crosswalk, frozen at the rev the artifact was built against (cde2d06 drift;
   // scripts/fixtures/build-rookie-pin-crosswalk.mjs). Precedent: scripts/absence-run.mjs reads test/fixtures/.
   loadRookiePinCrosswalk: () => readJson('test/fixtures/rookie-pin-crosswalk-2026-09-06.json'),
+  // D-45 fix pass 1 — the crosswalk at cde2d06 (the rev the 2026-10-11 rookie-total panel was built on), un-slimmed,
+  // for `runRookiePanels({ rookiePathAllCrosswalk: 'frozen' })` (the F4 `rookiePathAll` only).
+  loadRookieTotalCrosswalk: () => readJson('test/fixtures/rookie-total-crosswalk-2026-10-07.json'),
 };
 
 // Maps a playerids-shaped fixture into the three lookups assembleRookiePanel needs. Shared by the
@@ -1924,7 +1927,8 @@ export function computeCeilingReconciliation(debutRows) {
   return { observed, expected: APP_ROOKIE_CEILING, expectedCommit: APP_ROOKIE_CEILING_COMMIT, delta, match };
 }
 
-export function runRookiePanels({ load = DEFAULT_LOAD, basis = 'half_ppr' } = {}) {
+export function runRookiePanels({ load = DEFAULT_LOAD, basis = 'half_ppr', rookiePathAllCrosswalk = 'live' } = {}) {
+  if (rookiePathAllCrosswalk !== 'live' && rookiePathAllCrosswalk !== 'frozen') throw new Error(`[panel] runRookiePanels: rookiePathAllCrosswalk must be live|frozen, got '${rookiePathAllCrosswalk}'`);
   if (basis !== 'half_ppr' && basis !== 'league') throw new Error(`[panel] runRookiePanels: basis must be half_ppr|league, got '${basis}'`);
   // D-45: under `league` the load is wrapped BEFORE the first read (outcomes, rookiePathStateAt's ppg map and the
   // totals all come through it), so every outcome below is the app's rescored league points. The predictor stays
@@ -2003,10 +2007,28 @@ export function runRookiePanels({ load = DEFAULT_LOAD, basis = 'half_ppr' } = {}
     enumerator: 'entry-cohort', entrantsBySleeper, debutOnly: true, rosterByYear,
   });
 
+  // D-45 fix pass 1: 'frozen' takes this assembly's position, birthdate, draft info and entrant enumeration from the
+  // cde2d06 crosswalk fixture (the 2026-10-11 rookie-total panel's rev); legacyGated/debut/pin keep the live crosswalk.
+  let pathAllMaps = { positionOf: positionOfCrosswalk, birthdateOf, draftInfoOf, entrantsBySleeper };
+  let rookiePathAllCrosswalkKind = 'live';
+  if (rookiePathAllCrosswalk === 'frozen' && typeof load.loadRookieTotalCrosswalk === 'function') {
+    const fm = pinCrosswalkMaps(load.loadRookieTotalCrosswalk());
+    const frozenEntrants = {};
+    for (const [sleeperId, d] of Object.entries(fm.draftInfoBySleeper)) {
+      frozenEntrants[sleeperId] = { ...d, position: fm.crosswalk[sleeperId] ?? null };
+    }
+    pathAllMaps = {
+      positionOf: (pid) => fm.crosswalk[pid] ?? null,
+      birthdateOf: (pid) => fm.birthdateBySleeper[pid] ?? null,
+      draftInfoOf: (pid) => fm.draftInfoBySleeper[pid] ?? null,
+      entrantsBySleeper: frozenEntrants,
+    };
+    rookiePathAllCrosswalkKind = 'frozen';
+  }
   const rookiePathAll = assembleRookiePanel({
-    totalsByYear, ppgByYear, positionOf: positionOfCrosswalk, birthdateOf, draftInfoOf,
+    totalsByYear, ppgByYear, positionOf: pathAllMaps.positionOf, birthdateOf: pathAllMaps.birthdateOf, draftInfoOf: pathAllMaps.draftInfoOf,
     fromYear: entryFromYear, toYear: entryToYear, minOutcomeGames: null,
-    enumerator: 'entry-cohort', entrantsBySleeper, rosterByYear,
+    enumerator: 'entry-cohort', entrantsBySleeper: pathAllMaps.entrantsBySleeper, rosterByYear,
   });
 
   // §A — the reproduction pin, checked here so both --json and the markdown
@@ -2067,6 +2089,8 @@ export function runRookiePanels({ load = DEFAULT_LOAD, basis = 'half_ppr' } = {}
     entryYears: ROOKIE_ENTRY_YEARS,
     historyFloor: HISTORY_FLOOR,
     basis,
+    // Recorded only when non-default so the default `--rookie` output stays byte-identical (plan §2.6).
+    ...(rookiePathAllCrosswalkKind === 'frozen' ? { rookiePathAllCrosswalk: rookiePathAllCrosswalkKind } : {}),
     basisScope: {
       basis,
       appliesTo: 'rows with outcomeGames > 0',

@@ -115,9 +115,11 @@ describe('decideFamily — the pre-registered rule (plan §4.3)', () => {
     assert.equal(decideFamily({ entries: [E('a', 'BEATS', { insufficient: true })], pooled: POOLED_BELOW }).verdict, 'do-not-wire');
     assert.equal(decideFamily({ entries: [E('a', 'BEATS'), E('b', 'WORSE', { insufficient: true })], pooled: POOLED_BELOW }).verdict, 'wire');
   });
-  test('`same` entries: never the required BEATS, never a WORSE; a family whose every entry is `same` is do-not-wire whatever its pooled delta', () => {
+  test('`same` entries: never the required BEATS, but a `same` WORSE blocks a wire; a family whose every entry is `same` is do-not-wire whatever its pooled delta', () => {
     assert.equal(decideFamily({ entries: [E('a', 'BEATS', { same: true })], pooled: POOLED_BELOW }).verdict, 'do-not-wire');
-    assert.equal(decideFamily({ entries: [E('a', 'BEATS'), E('b', 'WORSE', { same: true })], pooled: POOLED_BELOW }).verdict, 'wire');
+    assert.equal(decideFamily({ entries: [E('a', 'BEATS'), E('b', 'WORSE', { same: true })], pooled: POOLED_BELOW }).verdict, 'do-not-wire');
+    assert.deepEqual(decideFamily({ entries: [E('a', 'BEATS'), E('b', 'WORSE', { same: true })], pooled: POOLED_BELOW }).worse, ['b']);
+    assert.equal(decideFamily({ entries: [E('a', 'BEATS'), E('b', 'WORSE', { same: true, insufficient: true })], pooled: POOLED_BELOW }).verdict, 'wire', 'an INSUFFICIENT entry is never labelled');
     const all = decideFamily({ entries: [E('a', 'BEATS', { same: true }), E('b', 'BEATS', { same: true })], pooled: POOLED_BELOW });
     assert.equal(all.verdict, 'do-not-wire'); assert.equal(all.allSame, true); assert.match(all.reasons[0], /every entry is `same`/);
     assert.equal(decideFamily({ entries: [], pooled: POOLED_BELOW }).verdict, 'do-not-wire', 'no entries is not "all same" and cannot wire');

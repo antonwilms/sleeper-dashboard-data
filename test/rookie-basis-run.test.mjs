@@ -12,9 +12,11 @@ import { fileURLToPath } from 'node:url';
 
 import {
   ROOKIE_BASIS_RULE_MD, ROOKIE_BASIS_PIN, analyze, section46Trips, buildRookieBasisVerdictMarkdown, writeRookieBasisArtifacts,
-  runRookieBasis, rookieBasisMain, f1Rows, f2Rows, f3Inputs, buildLeagueConstantsFile,
+  runRookieBasis, rookieBasisMain, f1Rows, f2Rows, f3Inputs, buildLeagueConstantsFile, make46,
 } from '../scripts/rookie-basis-run.mjs';
 import { ROOKIE_BASIS } from '../lib/rookieBasisRefit.mjs';
+import { reconstructRookieProjection } from '../lib/projectionFactors.mjs';
+import { composeRookieRow } from '../lib/rookieTotalPoints.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const scaleOf = (T, pos) => ROOKIE_BASIS_PIN.scale2026[pos];
@@ -131,5 +133,121 @@ describe('verdict, artifacts and CLI', () => {
   test('the bin takes only --json / --write', () => {
     const r = spawnSync('node', ['bin/backtest.mjs', '--rookie-basis', '--from', '2013'], { cwd: REPO_ROOT, encoding: 'utf8' });
     assert.equal(r.status, 1); assert.match(r.stderr, /--rookie-basis rejects --from/);
+  });
+});
+
+// ─── analyze: F4's shipped composition and §4.6 (synthetic; in memory only — Invariant 10) ─────────────
+
+describe('analyze: G0b passes, F1 wires, F4 is decided on the shipped composition, §4.6 can trip it', () => {
+  const rec = (round, pick) => reconstructRookieProjection({ position: 'WR', ageAtDraft: 21, draftRound: round, draftPick: pick });
+  const bday = (year) => `${year - 21}-06-01`;
+  const bySleeper = {};
+  const half = side(), league = side();
+
+  // F1: 60 first-round WR gated rows (12 predictor years × 5). The league outcome is 1.35 × the half outcome, far from the
+  // as-of scale 1.101 → the ρ-transported refit beats the interim in every cell row.
+  for (let y = 2014; y <= 2025; y++) {
+    [3, 9, 15, 22, 30].forEach((pick, i) => {
+      const id = `g${y}_${i}`, r = rec(1, pick);
+      bySleeper[id] = { birthdate: bday(y) };
+      const row = { sleeperId: id, position: 'WR', predictorYear: y, draftYear: y, draftRound: 1, draftPick: pick, nflDraftTier: r.nflDraftTier, projectedPPG: r.projectedPPG, outcomePPG: r.projectedPPG };
+      half.rookie.legacy.gated.rows.push(row);
+      league.rookie.legacy.gated.rows.push({ ...row, outcomePPG: Math.round(r.projectedPPG * 1.35 * 100) / 100 });
+    });
+  }
+  // F4: day3 and undrafted WR rookiePathAll rows, 10 target seasons × 4 per group.
+  const f4Specs = [];
+  for (let y = 2016; y <= 2025; y++) {
+    for (const [group, round, pick] of [['day3', 5, 150], ['undrafted', null, null]]) {
+      for (let i = 0; i < 4; i++) {
+        const id = `p${group}${y}_${i}`, r = rec(round, pick);
+        bySleeper[id] = { birthdate: bday(y) };
+        const base = { sleeperId: id, position: 'WR', predictorYear: y, targetSeason: y, draftYear: y, draftRound: round, draftPick: pick, draftGroup: group, experienceYears: 0, projectedPPG: r.projectedPPG };
+        const pred = composeRookieRow(base, 21).predTotal;
+        f4Specs.push({ base, pred });
+        half.rookie.rookiePathAll.rows.push({ ...base, outcomeTotalPts: pred * (0.6 + 0.05 * i) });
+        league.rookie.rookiePathAll.rows.push({ ...base, outcomeTotalPts: pred * (0.9 + 0.05 * i) });
+      }
+    }
+  }
+  const mk = () => inputs({ playerIds: { bySleeper }, half, league });
+  const allOnes = { undrafted: { QB: 1, RB: 1, WR: 1, TE: 1 }, day3: { QB: 1, RB: 1, WR: 1, TE: 1 } };
+  const nullCeiling = Object.fromEntries(['QB', 'RB', 'WR', 'TE'].map((p) => [p, { knee: null, asymptote: null }]));
+  const halfFactor = Object.fromEntries(['day3', 'undrafted'].map((g) => [g, 0]));
+  // the half-PPR composition's own factor (G0b F4): Σ realH ÷ Σ predH per group
+  for (const g of ['day3', 'undrafted']) {
+    const rs = half.rookie.rookiePathAll.rows.filter((r) => r.draftGroup === g);
+    const p = f4Specs.filter((x) => x.base.draftGroup === g).reduce((a, x) => a + x.pred, 0);
+    halfFactor[g] = Math.round(rs.reduce((a, r) => a + r.outcomeTotalPts, 0) / p * 1e3) / 1e3;
+  }
+  const shipped = { calibration: allOnes, ceiling: nullCeiling, qbLevels: { top12: null, r1: null, day2: null, 'day3+': null }, totalFactor: halfFactor };
+
+  test('G0b passes for F1-F4 on the synthetic panel; F1 wires', () => {
+    const r = analyze({ inputs: mk(), shipped, run46: () => ({ trips: false }) });
+    assert.equal(r.stopped, null, JSON.stringify(r.g0 && r.g0.failed));
+    assert.deepEqual(r.g0.familiesFailed, []);
+    assert.equal(r.families.F1.verdict, 'wire', r.families.F1.decision.reasons.join(' '));
+  });
+  test('F4\'s shipped composition uses the F1 league constants (predS); the half-PPR G0b composition is unchanged', () => {
+    let seen = null;
+    const r = analyze({ inputs: mk(), shipped, run46: (file) => { seen = file; return { trips: false }; } });
+    assert.equal(r.families.F4.result.composition.F1, 'league');
+    assert.equal(r.families.F4.result.composition.F2, 'interim');
+    assert.equal(seen.families.F1.verdict, 'wire');
+    const c = r.families.F1.result.constants;
+    const group = (g, withF1) => {
+      const specs = f4Specs.filter((x) => x.base.draftGroup === g);
+      const pred = specs.reduce((a, x) => a + composeRookieRow(x.base, 21, { basisScale: ROOKIE_BASIS_PIN.scale2026.WR, ...(withF1 ? { rookieConstantsModel: 'league-refit', leagueConstants: c } : {}) }).predTotal, 0);
+      const real = league.rookie.rookiePathAll.rows.filter((x) => x.draftGroup === g).reduce((a, x) => a + x.outcomeTotalPts, 0);
+      return Math.round(real / pred * 1e3) / 1e3;
+    };
+    for (const g of ['day3', 'undrafted']) {
+      assert.equal(r.families.F4.result.fullSample.league[g], group(g, true), `${g}: league factor is on the F1-league composition`);
+      assert.notEqual(group(g, true), group(g, false), `${g}: the F1 constants do move the composition`);
+    }
+    assert.deepEqual(r.families.F4.result.fullSample.half, halfFactor);
+  });
+  test('a run46 that trips turns F1 into stop-and-report (F4 was already decided on the pre-§4.6 composition)', () => {
+    const r = analyze({ inputs: mk(), shipped, run46: () => ({ trips: true }) });
+    assert.equal(r.section46.ran, true); assert.equal(r.section46.trips, true);
+    assert.equal(r.families.F1.verdict, 'stop-and-report');
+    assert.match(r.families.F1.decision.reasons.join(' '), /§4\.6/);
+    assert.equal(r.families.F4.result.composition.F1, 'league');
+    assert.equal(r.wired.includes('F1'), false);
+  });
+  test('without a run46, a wiring F1 is an error (the §4.6 re-run is not optional)', () => {
+    assert.throws(() => analyze({ inputs: mk(), shipped }), /no run46 was supplied/);
+  });
+});
+
+describe('make46 builds the two in-season invocations', () => {
+  test('both league-basis, both with the in-memory rookie constants; the dynasty one on the shipped 2a file', () => {
+    const calls = [];
+    const shippedTwoA = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, ROOKIE_BASIS_PIN.shippedTwoA), 'utf8'));
+    const stop = new Error('stub');
+    const runners = {
+      runInSeason: (o) => { calls.push(['2a', o]); throw stop; },
+      runInSeasonDyn: (o) => { calls.push(['dyn', o]); throw stop; },
+    };
+    const none = { verdict: 'do-not-wire', constants: null };
+    const file = { basis: 'league', families: { F1: { verdict: 'wire', constants: { baselinePPG: { QB: 7, RB: 7, WR: 7, TE: 7 }, calibration: { undrafted: {}, day3: {} } } }, F2: none, F3: none, F4: none, F5: none } };
+    assert.throws(() => make46({ load: {}, runners })(file), /stub/);
+    assert.equal(calls.length, 1);
+    const [, o] = calls[0];
+    assert.equal(o.basis, 'league');
+    assert.match(o.rookieConstants.ref, /^in-memory @ [0-9a-f]{40}$/);
+    assert.deepEqual(o.rookieConstants.wiredFamilies, ['F1']);
+    assert.equal(o.inseason2a, undefined);
+    // second invocation: let the first return the shipped 2a constants so the comparison runs, then capture the dyn call
+    const run2 = {
+      runInSeason: (o2) => { o2.onStore({ store: new Map(), pinnedFrom: {}, load: { loadSeasonTotals: () => ({}) } }); return { constants: shippedTwoA }; },
+      runInSeasonDyn: (o2) => { calls.push(['dyn', o2]); throw stop; },
+    };
+    try { make46({ load: {}, runners: run2 })(file); } catch (e) { if (e !== stop) throw e; }
+    const dyn = calls.find(([k]) => k === 'dyn');
+    assert.ok(dyn, 'the dynasty invocation was reached');
+    assert.equal(dyn[1].basis, 'league'); assert.equal(dyn[1].qbPrior, 'starter');
+    assert.equal(dyn[1].inseason2a, ROOKIE_BASIS_PIN.shippedTwoA);
+    assert.equal(dyn[1].rookieConstants.ref, o.rookieConstants.ref);
   });
 });
