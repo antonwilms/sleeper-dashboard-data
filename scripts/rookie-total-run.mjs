@@ -15,6 +15,7 @@ import path from 'path';
 import { readJson, repoPath } from '../lib/io.mjs';
 import { leagueBasisLoad, basisScaleOf, loadLeaguePositions, SCORING_BASIS_MODELS } from '../lib/leagueBasis.mjs';
 import { leagueLoadArgs, LEAGUE_SCORING_FIXTURE } from './panel-run.mjs';
+import { mirrorArgsOf } from './rookie-constants-file.mjs';
 import {
   ROOKIE_TOTAL, composeRookieRow, biasSummary, losoMultiplier, maeDelta, decideRookieTotal,
 } from '../lib/rookieTotalPoints.mjs';
@@ -70,7 +71,7 @@ export function runRookieTotal({ load = ROOKIE_TOTAL_LOAD, pin = ROOKIE_TOTAL_PI
     const birthYear = typeof b?.birthdate === 'string' ? parseInt(b.birthdate.slice(0, 4), 10) : null;
     if (!Number.isFinite(birthYear)) throw new Error(`[rookie-total] sleeperId ${r.sleeperId} has no birthdate in nflverse/playerids.json`);
     const opts = basis === 'league'
-      ? { basisScale: basisScaleOf(leagueLoad, r.targetSeason, r.position), ...(rookieConstants ?? {}) }
+      ? { basisScale: basisScaleOf(leagueLoad, r.targetSeason, r.position), ...mirrorArgsOf(rookieConstants) }
       : undefined;
     return { ...r, ...composeRookieRow(r, r.draftYear - birthYear, opts) };
   });
@@ -130,6 +131,7 @@ export function runRookieTotal({ load = ROOKIE_TOTAL_LOAD, pin = ROOKIE_TOTAL_PI
       generatedAt: new Date().toISOString(),
       panel: basis === 'league' ? `${panelPath} (league --rookie panel)` : `${pin.path} @ ${pin.commit}`,
       rows: rows.length, basis,
+      ...(rookieConstants ? { rookieConstants: rookieConstants.ref } : {}),   // D-45: only when a league rookie-constants file is given
     },
     bias, loso: { byGroupAll, decision: losoDecision }, decision, candidateMultipliers,
   };
@@ -234,9 +236,9 @@ export function writeRookieTotalArtifacts({ result, verdictMd, root = null }) {
 /** The `--rookie-total` branch body of `bin/backtest.mjs`. */
 export function rookieTotalMain({
   load = ROOKIE_TOTAL_LOAD, write = false, asJson = false, writeArtifacts = writeRookieTotalArtifacts,
-  log = console.log, logErr = console.error, basis = 'half_ppr', panelPath = null,
+  log = console.log, logErr = console.error, basis = 'half_ppr', panelPath = null, rookieConstants = null,
 } = {}) {
-  const result = runRookieTotal({ load, basis, panelPath });
+  const result = runRookieTotal({ load, basis, panelPath, rookieConstants });
   const verdictMd = buildRookieTotalVerdictMarkdown(result);
   if (write) {
     const w = writeArtifacts({ result, verdictMd });

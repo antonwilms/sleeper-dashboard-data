@@ -89,6 +89,9 @@
  *                Under --basis league it needs --inseason-2a <path>, the 2a constants file the run is paired with
  *                (the league 2a file, or backtests/2026-10-07-inseason-constants.json).
  *   --inseason-2a <path>  (with --inseason --dynasty --basis league) the paired 2a constants file.
+ *   --rookie-constants <path>  (with --inseason [--dynasty] --basis league, or --rookie-total --basis league; D-45) the league
+ *                rookie-constants file (backtests/<date>-rookie-league-constants.json): the `league-refit` constants model for the
+ *                families it marks `wire`; recorded as basisDetail.rookieConstants <path @ sha1>. An error under half_ppr.
  */
 
 import path from 'path';
@@ -117,6 +120,7 @@ import { rookieTotalMain } from '../scripts/rookie-total-run.mjs';
 import { weeklyBasisMain } from '../scripts/weekly-basis-run.mjs';
 import { leagueBasisMain } from '../scripts/league-basis-run.mjs';
 import { SCORING_BASIS_MODELS } from '../lib/leagueBasis.mjs';
+import { loadRookieConstants } from '../scripts/rookie-constants-file.mjs';
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
 
@@ -262,14 +266,14 @@ if (isMain) {
       }
 
       if (flag('--rookie-total')) {
-        const valued = ['--basis', '--rookie-panel'];
+        const valued = ['--basis', '--rookie-panel', '--rookie-constants'];
         const rejected = args.filter((a, i) => (a.startsWith('--')
           ? !['--rookie-total', '--json', '--write', ...valued].includes(a)
           : !valued.includes(args[i - 1])));
         if (rejected.length) {
           console.error(
             `[backtest] Error: --rookie-total rejects ${rejected.join(', ')} — the panel, seasons, groups and rule are pinned ` +
-            'by the task file, not knobs; it takes only --json, --write, --basis half_ppr|league and (league) --rookie-panel <path>'
+            'by the task file, not knobs; it takes only --json, --write, --basis half_ppr|league and (league) --rookie-panel <path> [--rookie-constants <path>]'
           );
           process.exit(1);
         }
@@ -287,7 +291,16 @@ if (isMain) {
           console.error('[backtest] Error: --rookie-panel applies only to --rookie-total --basis league');
           process.exit(1);
         }
-        process.exit(rookieTotalMain({ write, asJson, basis, panelPath: rookiePanel }));
+        if (args.includes('--rookie-constants') && basis !== 'league') {
+          console.error('[backtest] Error: --rookie-constants applies only with --basis league');
+          process.exit(1);
+        }
+        const rookieConstantsPath = option('--rookie-constants');
+        if (args.includes('--rookie-constants') && !rookieConstantsPath) {
+          console.error('[backtest] Error: --rookie-constants needs a path');
+          process.exit(1);
+        }
+        process.exit(rookieTotalMain({ write, asJson, basis, panelPath: rookiePanel, rookieConstants: rookieConstantsPath ? loadRookieConstants(rookieConstantsPath) : null }));
       }
 
       if (flag('--weekly-basis')) {
@@ -367,14 +380,14 @@ if (isMain) {
 
       const dynasty = flag('--dynasty');
       if (flag('--inseason')) {
-        const valued = ['--basis', '--inseason-2a'];
+        const valued = ['--basis', '--inseason-2a', '--rookie-constants'];
         const rejected = args.filter((a, i) => (a.startsWith('--')
           ? !['--inseason', '--json', '--write', '--dynasty', ...valued].includes(a)
           : !valued.includes(args[i - 1])));
         if (rejected.length) {
           console.error(
             `[backtest] Error: --inseason rejects ${rejected.join(', ')} — the seasons and checkpoints are pinned ` +
-            'by the task file, not knobs; it takes only --json, --write, --dynasty, --basis half_ppr|league and (dynasty, league) --inseason-2a <path>'
+            'by the task file, not knobs; it takes only --json, --write, --dynasty, --basis half_ppr|league, (dynasty, league) --inseason-2a <path> and (league) --rookie-constants <path>'
           );
           process.exit(1);
         }
@@ -392,7 +405,17 @@ if (isMain) {
           console.error('[backtest] Error: --inseason --dynasty --basis league requires --inseason-2a <path> (the 2a constants file this run is paired with)');
           process.exit(1);
         }
-        process.exit(dynasty ? inSeasonDynMain({ write, asJson, basis, inseason2a }) : inSeasonMain({ write, asJson, basis }));
+        if (args.includes('--rookie-constants') && basis !== 'league') {
+          console.error('[backtest] Error: --rookie-constants applies only with --basis league');
+          process.exit(1);
+        }
+        const rookieConstantsPath = option('--rookie-constants');
+        if (args.includes('--rookie-constants') && !rookieConstantsPath) {
+          console.error('[backtest] Error: --rookie-constants needs a path');
+          process.exit(1);
+        }
+        const rookieConstants = rookieConstantsPath ? loadRookieConstants(rookieConstantsPath) : null;
+        process.exit(dynasty ? inSeasonDynMain({ write, asJson, basis, inseason2a, rookieConstants }) : inSeasonMain({ write, asJson, basis, rookieConstants }));
       }
       if (dynasty) {
         console.error('[backtest] Error: --dynasty requires --inseason');

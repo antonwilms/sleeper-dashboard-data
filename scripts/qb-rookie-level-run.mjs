@@ -99,8 +99,11 @@ export function differingScoringKeys(a, b) {
 
 // ─── runQbRookieLevel ─────────────────────────────────────────────────────────
 
-export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_DEFAULTS, log = () => {}, basis = 'half_ppr' } = {}) {
+export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_DEFAULTS, log = () => {}, basis = 'half_ppr', rookieConstants = null } = {}) {
   if (!SCORING_BASIS_MODELS.includes(basis)) throw new Error(`[qb-rookie-level] unknown basis '${basis}' — use ${SCORING_BASIS_MODELS.join('|')}`);
+  // D-45 (A2): a loaded league rookie-constants object reaches the shipped comparator / reconLeague below (no CLI flag; a library option).
+  if (rookieConstants != null && basis !== 'league') throw new Error('[qb-rookie-level] rookieConstants apply only with basis league');
+  const mirror = rookieConstants ? [rookieConstants.rookieConstantsModel, rookieConstants.leagueConstants] : [];
   // D-45: under league the load is wrapped before the first read, so weeklyPoints in primary games are league points
   // (exact weeks, D-47) and the as-of scale is available from the wrapped load.
   if (basis === 'league') load = leagueBasisLoad(load, leagueLoadArgs(load));
@@ -219,7 +222,7 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
   const units = unitsFrom(games, defaults.minUnitGames);
   const priors = new Map();
   for (const u of units) priors.set(`${u.pid}|${u.S}`, basis === 'league'
-    ? rookiePriorFor(u.pid, 'QB', u.S, playerIds, basisScaleOf(g, u.S, 'QB'))   // league outcomes: the shipped comparator at the as-of scale
+    ? rookiePriorFor(u.pid, 'QB', u.S, playerIds, basisScaleOf(g, u.S, 'QB'), ...mirror)   // league outcomes: the shipped comparator at the as-of scale
     : rookiePriorFor(u.pid, 'QB', u.S, playerIds));
   const nullPriors = [...priors.values()].filter((v) => v == null).length;
   if (nullPriors) throw new Error(`[qb-rookie-level] rookiePriorFor returned null for ${nullPriors} unit(s) — stop and ask`);
@@ -254,7 +257,7 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
       pid, group: grp, draftOvr: bySleeper[pid]?.draftOvr ?? null, team: p.nfl_team ?? null, depthChartOrder: p.depthChartOrder ?? null,
       levelLeague: lv.level, source: lv.source, basisScale: lv.basisScale, levelHalf,
       reconHalf: rookiePriorFor(pid, 'QB', snapshot.targetSeason, playerIds),
-      ...(league ? { reconLeague: rookiePriorFor(pid, 'QB', snapshot.targetSeason, playerIds, basisScaleOf(g, snapshot.targetSeason, 'QB')) } : {}),
+      ...(league ? { reconLeague: rookiePriorFor(pid, 'QB', snapshot.targetSeason, playerIds, basisScaleOf(g, snapshot.targetSeason, 'QB'), ...mirror) } : {}),
       ktcMult: f.ktcMult ?? null, collegeContribution: f.collegeContribution ?? null,
       fitHalf: league ? null : (fit ? fit.value : null), fitCI: fit ? fit.ci95 : null,
       fitLeague,
