@@ -8,6 +8,7 @@
   "What this slice does not do" and §0 D1–D7; `grading/2026-10-16-league-basis-verdict.md`; `grading/anchor-policy.md`.
 - Companions: [`rookie-basis-refit-registry.md`](rookie-basis-refit-registry.md) — every touched entry's `Mirror`, verbatim;
   [`rookie-basis-refit-bc.md`](rookie-basis-refit-bc.md) — Stages B and C (split for size).
+  [`rookie-basis-refit-review.md`](rookie-basis-refit-review.md) — Stage A verification and fix passes.
 
 **The problem.** Since season-rescore (boundary 4a) the app scores every season row in league basis, but five rookie /
 prospect constants are still half-PPR numbers that `computeEmpiricalAgeCurves` rescales at runtime by
