@@ -75,6 +75,13 @@
  *                --basis half_ppr|league (D-45; default half_ppr). league requires --rookie-panel <path>, a league
  *                `bin/panel.mjs --rookie --basis league --json` result, and composes each row at the as-of basis scale;
  *                --rookie-panel is an error under half_ppr. Files are named …-rookie-total-league-….
+ *   --rookie-basis  graded league-basis refit of the rookie and prior constants (D-45, offline analysis only): F1-F5 each
+ *                refitted on league outcomes by its own committed recipe and compared out of sample against today's
+ *                interim (half-PPR x as-of positionBasisScale), under the pre-registered rule the script writes into its
+ *                verdict. Takes only --json / --write; runs for several minutes (more if a prior-moving family wires:
+ *                the in-season k consistency re-run). --write persists backtests/<date>-rookie-basis-panel.json,
+ *                backtests/<date>-rookie-league-constants.json and grading/<date>-rookie-basis-verdict.md.
+ *                Exit 1 if a G0 gate stops the run (no constants file is written). Never a test.
  *   --weekly-basis  graded before/after of serving per-week scoring keys (weekly-scoring-keys, D-47, offline
  *                analysis only): ratio-scaled weeks (B) vs weeks scored from per-week `weeklyStats` (A) against
  *                the full raw week scored under snapshots/2026-10-14.json (T), 2012–2025, with a pre-registered
@@ -119,6 +126,7 @@ import { gamesShortMain } from '../scripts/games-short-run.mjs';
 import { rookieTotalMain } from '../scripts/rookie-total-run.mjs';
 import { weeklyBasisMain } from '../scripts/weekly-basis-run.mjs';
 import { leagueBasisMain } from '../scripts/league-basis-run.mjs';
+import { rookieBasisMain } from '../scripts/rookie-basis-run.mjs';
 import { SCORING_BASIS_MODELS } from '../lib/leagueBasis.mjs';
 import { loadRookieConstants } from '../scripts/rookie-constants-file.mjs';
 
@@ -364,6 +372,18 @@ if (isMain) {
           process.exit(1);
         }
         process.exit(qbTakeoverMain({ write, asJson }));
+      }
+
+      if (flag('--rookie-basis')) {
+        const rejected = args.filter(a => a.startsWith('--') && !['--rookie-basis', '--json', '--write'].includes(a));
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --rookie-basis rejects ${rejected.join(', ')} — the families, folds, scoring fixture and ` +
+            'decision rule are pinned by the task file, not knobs; it takes only --json and --write'
+          );
+          process.exit(1);
+        }
+        process.exit(rookieBasisMain({ write, asJson }));
       }
 
       if (flag('--league-basis')) {

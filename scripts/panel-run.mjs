@@ -1881,7 +1881,7 @@ const APP_ROOKIE_CEILING_COMMIT = '41f277e';
 
 // §5 — zero-based index p*(n-1), linear interpolation between adjacent
 // order statistics. `sortedValues` must already be sorted ascending.
-function quantile(sortedValues, p) {
+export function quantile(sortedValues, p) {
   const n = sortedValues.length;
   if (n === 0) return null;
   const idx = p * (n - 1);
@@ -1897,7 +1897,7 @@ function quantile(sortedValues, p) {
 // position). Tolerance is exact equality (verified against the committed
 // panel, C5) — see T-RM11/T-RM12. A mismatch is a finding, reported and
 // never retuned here (rookie-mirror.md §5 triage).
-function computeCeilingReconciliation(debutRows) {
+export function computeCeilingReconciliation(debutRows) {
   const observed = {};
   for (const position of PANEL_POSITIONS) {
     const values = debutRows

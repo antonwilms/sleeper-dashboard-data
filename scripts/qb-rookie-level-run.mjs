@@ -99,7 +99,7 @@ export function differingScoringKeys(a, b) {
 
 // ─── runQbRookieLevel ─────────────────────────────────────────────────────────
 
-export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_DEFAULTS, log = () => {}, basis = 'half_ppr', rookieConstants = null } = {}) {
+export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_DEFAULTS, log = () => {}, basis = 'half_ppr', rookieConstants = null, onGames = null } = {}) {
   if (!SCORING_BASIS_MODELS.includes(basis)) throw new Error(`[qb-rookie-level] unknown basis '${basis}' — use ${SCORING_BASIS_MODELS.join('|')}`);
   // D-45 (A2): a loaded league rookie-constants object reaches the shipped comparator / reconLeague below (no CLI flag; a library option).
   if (rookieConstants != null && basis !== 'league') throw new Error('[qb-rookie-level] rookieConstants apply only with basis league');
@@ -220,6 +220,8 @@ export function runQbRookieLevel({ load = QB_ROOKIE_LOAD, defaults = QB_ROOKIE_D
 
   // 4. Q3
   const units = unitsFrom(games, defaults.minUnitGames);
+  // Read-only hook (D-45 F3): the primary games and the Q3 units behind the result — additive, the result is unchanged.
+  if (onGames) onGames({ games, units });
   const priors = new Map();
   for (const u of units) priors.set(`${u.pid}|${u.S}`, basis === 'league'
     ? rookiePriorFor(u.pid, 'QB', u.S, playerIds, basisScaleOf(g, u.S, 'QB'), ...mirror)   // league outcomes: the shipped comparator at the as-of scale
