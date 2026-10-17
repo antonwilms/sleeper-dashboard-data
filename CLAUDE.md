@@ -13,8 +13,8 @@ Script-driven longitudinal data store consumed by the sleeper-dashboard React ap
 | Update | `bin/update.mjs` | `nfl`, `cfbd`, `ktc`, `snapshots`, `roster`, `draft`, `playerids`, `advstats`, `schedule`, `gamelogs`, `playerstats`, `teamcontext`, `playerstate`, `oline`, `snaps`, `depth`, `rosterweekly` |
 | Enrichment | `bin/enrich.mjs` | `coaching`/`scheme`/`injuries`/`notes` `add`, `validate`, `list`, `remove` |
 | Grading | `bin/grade.mjs` | `<snapshotDate>`, `--self-test` |
-| Backtest | `bin/backtest.mjs` | offline analysis over advstats + season-totals; `--inseason [--dynasty] [--basis league]`, `--league-basis`, `--qb-takeover`, `--qb-rookie-level`, `--absence`, `--games-calibration [--cause/--short]`, `--rookie-total`, `--weekly-basis` |
-| Panel | `bin/panel.mjs` | E-0a baseline, `--flip-gate` (R2), `--fit` (R3-FIT) |
+| Backtest | `bin/backtest.mjs` | offline analysis over advstats + season-totals; `--inseason [--dynasty] [--basis league]`, `--league-basis`, `--qb-takeover`, `--qb-rookie-level [--basis league]`, `--absence`, `--games-calibration [--cause/--short]`, `--rookie-total [--basis league]`, `--rookie-basis` (D-45), `--weekly-basis` |
+| Panel | `bin/panel.mjs` | E-0a baseline, `--flip-gate` (R2), `--fit` (R3-FIT), `--rookie`/`--fullpipeline` (admit `--basis league`) |
 | Dead-man | `bin/deadman.mjs` | needs `GITHUB_REPOSITORY` + `GITHUB_TOKEN` |
 | Purge | `bin/purge-cdn.mjs` | `<path>…` — jsDelivr family purge + verify; exit 1 if stale |
 
