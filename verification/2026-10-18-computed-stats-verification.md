@@ -2,13 +2,13 @@
 
 | field | value |
 |---|---|
-| harness (app repo) | `66ab1b7df754cd75a32bbf964751f24b6f60e3c6` — local — unpushed at report time |
-| data repo HEAD | `f8e5ce4ba014adcc887f7d57669e742b238faf92` (clean) |
+| harness (app repo) | `c49ad118c5baa3bc283d4d8a56d5ae79e87dbfae` — local — unpushed at report time |
+| data repo HEAD | `3adfd81acb0ab5894efa31465bfd5e1c02848000` (clean) |
 | snapshot | snapshots/2026-10-17.json (capturedAt 2026-10-17T18:43:19.681Z) |
 | KTC file | ktc/snapshot-2026-10-12.json |
 | playersMap fetched | 2026-10-18T12:38:19.127Z |
 | CR ids read | CR-01, CR-02, CR-06, CR-08, CR-09, CR-10, CR-17, CR-28 |
-| command | `node_modules/.bin/vite-node scripts/verify/computed-stats.mjs -- --data ../sleeper-dashboard-data --out ../sleeper-dashboard-data/verification --no-fetch --annotations annotations.json` |
+| command | `node_modules/.bin/vite-node scripts/verify/computed-stats.mjs -- --data ../sleeper-dashboard-data --out ../sleeper-dashboard-data/verification --date 2026-10-18 --no-fetch --annotations ../sleeper-dashboard-data/verification/2026-10-18-computed-stats-annotations.json` |
 
 ## Summary
 
@@ -18,15 +18,15 @@
 | V2.1 | Season counts (att, tgt, rec, cmp, int) vs gamelogs | 21552 | 12 | 0.06% | pass |
 | V2.2 | Season yards vs gamelogs | 10776 | 10 | 0.09% | pass |
 | V2.3 | Season TDs vs gamelogs | 10776 | 2 | 0.02% | pass |
-| V2.4 | Team totals (per-season-team, ex-traded) vs rebuild | 576 | 11 | 1.91% | gap (G5) — mechanical rule says defect |
+| V2.4 | Team totals (per-season-team, ex-traded) vs rebuild | 576 | 11 | 1.91% | defect |
 | V2.5 | Team totals (current-team) vs rebuild — report only | 576 | 566 | 98.26% | gap |
-| V2.6 | Historical shares (per-season-team) vs rebuild | 2233 | 54 | 2.42% | gap |
+| V2.6 | Historical shares (per-season-team) vs rebuild | 2233 | 0 | 0.00% | pass |
 | V2.7 | Historical shares (current-team, team-matched rows) — report only | 665 | 399 | 60.00% | gap |
-| V2.8 | computeTeamContext carry / reception share vs rebuild | 1496 | 896 | 59.89% | gap |
-| V2.9 | Efficiency-metric inputs vs gamelogs ratios | 10728 | 72 | 0.67% | gap (G6) — mechanical rule says defect |
+| V2.8 | computeTeamContext carry / reception share vs rebuild | 1535 | 2 | 0.13% | defect |
+| V2.9 | Efficiency-metric inputs vs gamelogs ratios | 10728 | 72 | 0.67% | defect |
 | V2.10 | Red-zone consistency and plausibility | 3784 | 9 | 0.24% | gap |
 | V2.11 | gamesPlayed vs snaps games | 3757 | 92 | 2.45% | defect |
-| V2.12 | dnpWeeks vs rosterweekly eligibility − snaps games | 3756 | 762 | 20.29% | defect |
+| V2.12 | dnpWeeks vs rosterweekly eligibility − snaps games | 4615 | 1387 | 30.05% | defect |
 | V3 KTC | V3 KTC joins (top 400 KTC) | 400 | 6 | 1.50% | defect |
 | V3 draft | V3 draft joins (top 400 KTC) | 400 | 2 | 0.50% | defect |
 | V3 college | V3 college joins (top 400 KTC) | 400 | 32 | 8.00% | defect |
@@ -138,19 +138,14 @@ _none_
 | V2.5 | rushAtt | 32/31 (96.9%) | 32/32 (100.0%) | 32/32 (100.0%) | 32/31 (96.9%) | 32/32 (100.0%) | 32/30 (93.8%) |
 | V2.5 | rec | 32/32 (100.0%) | 32/32 (100.0%) | 32/32 (100.0%) | 32/31 (96.9%) | 32/32 (100.0%) | 32/30 (93.8%) |
 | V2.5 | recTgt | 32/32 (100.0%) | 32/32 (100.0%) | 32/32 (100.0%) | 32/32 (100.0%) | 32/30 (93.8%) | 32/31 (96.9%) |
-| V2.6 | wrTeShare | 152/0 (0.0%) | 51/0 (0.0%) | 53/0 (0.0%) | 143/0 (0.0%) | 71/0 (0.0%) | 73/0 (0.0%) |
-| V2.6 | rbShare | 57/0 (0.0%) | 21/0 (0.0%) | 21/0 (0.0%) | 50/0 (0.0%) | 25/0 (0.0%) | 26/0 (0.0%) |
-| V2.6-g3team | wrTeShare | 115/0 (0.0%) | 217/2 (0.9%) | 212/14 (6.6%) | 137/0 (0.0%) | 198/7 (3.5%) | 195/7 (3.6%) |
-| V2.6-g3team | rbShare | 50/2 (4.0%) | 87/7 (8.0%) | 82/8 (9.8%) | 50/3 (6.0%) | 74/4 (5.4%) | 73/0 (0.0%) |
+| V2.6 | wrTeShare | 267/0 (0.0%) | 268/0 (0.0%) | 265/0 (0.0%) | 280/0 (0.0%) | 269/0 (0.0%) | 268/0 (0.0%) |
+| V2.6 | rbShare | 107/0 (0.0%) | 108/0 (0.0%) | 103/0 (0.0%) | 100/0 (0.0%) | 99/0 (0.0%) | 99/0 (0.0%) |
 | V2.7 | wrTeShare | 23/21 (91.3%) | 38/32 (84.2%) | 48/39 (81.3%) | 91/60 (65.9%) | 126/61 (48.4%) | 175/71 (40.6%) |
 | V2.7 | rbShare | 5/4 (80.0%) | 7/7 (100.0%) | 13/12 (92.3%) | 23/20 (87.0%) | 45/34 (75.6%) | 71/38 (53.5%) |
 | V2.7-g2 | wrTeShare | 59/53 (89.8%) | 72/58 (80.6%) | 91/81 (89.0%) | 97/58 (59.8%) | 89/45 (50.6%) | 72/21 (29.2%) |
 | V2.7-g2 | rbShare | 18/17 (94.4%) | 26/25 (96.2%) | 36/29 (80.6%) | 42/35 (83.3%) | 33/27 (81.8%) | 25/16 (64.0%) |
-| V2.8 | carryShare | — | — | — | — | — | 3/0 (0.0%) |
-| V2.8-g2 | receptionShare | 91/78 (85.7%) | 119/93 (78.2%) | 155/129 (83.2%) | 200/114 (57.0%) | 243/105 (43.2%) | 270/93 (34.4%) |
-| V2.8-g2 | carryShare | 25/22 (88.0%) | 36/34 (94.4%) | 56/44 (78.6%) | 73/57 (78.1%) | 91/67 (73.6%) | 112/60 (53.6%) |
-| V2.8-g3team | carryShare | 1/0 (0.0%) | — | — | 1/0 (0.0%) | — | 1/0 (0.0%) |
-| V2.8-g3team | receptionShare | — | — | — | 4/0 (0.0%) | — | 15/0 (0.0%) |
+| V2.8 | receptionShare | 92/0 (0.0%) | 122/0 (0.0%) | 159/0 (0.0%) | 206/0 (0.0%) | 249/0 (0.0%) | 297/0 (0.0%) |
+| V2.8 | carryShare | 26/2 (7.7%) | 37/0 (0.0%) | 58/0 (0.0%) | 75/0 (0.0%) | 94/0 (0.0%) | 120/0 (0.0%) |
 | V2.8-teamOffense | rushAtt | 32/31 (96.9%) | 32/32 (100.0%) | 32/32 (100.0%) | 32/31 (96.9%) | 32/32 (100.0%) | 32/30 (93.8%) |
 | V2.8-teamOffense | rec | 32/32 (100.0%) | 32/32 (100.0%) | 32/32 (100.0%) | 32/31 (96.9%) | 32/32 (100.0%) | 32/30 (93.8%) |
 | V2.9 | completionPct | 78/0 (0.0%) | 73/0 (0.0%) | 81/0 (0.0%) | 75/0 (0.0%) | 75/0 (0.0%) | 75/0 (0.0%) |
@@ -164,8 +159,8 @@ _none_
 | V2.10 | plausibility | 603/0 (0.0%) | 629/0 (0.0%) | 607/0 (0.0%) | 571/0 (0.0%) | 587/0 (0.0%) | 595/0 (0.0%) |
 | V2.10 | teamRushRz | 32/3 (9.4%) | 32/2 (6.3%) | 32/1 (3.1%) | 32/3 (9.4%) | 32/0 (0.0%) | 32/0 (0.0%) |
 | V2.11 | gamesPlayed | 621/5 (0.8%) | 663/39 (5.9%) | 628/31 (4.9%) | 611/5 (0.8%) | 615/7 (1.1%) | 619/5 (0.8%) |
-| V2.12 | dnpWeeks | 621/8 (1.3%) | 663/183 (27.6%) | 628/148 (23.6%) | 610/136 (22.3%) | 615/146 (23.7%) | 619/141 (22.8%) |
-| V2.12 | dnpWeeks-vs-D-count | 621/0 (0.0%) | 663/0 (0.0%) | 628/0 (0.0%) | 610/0 (0.0%) | 615/0 (0.0%) | 619/0 (0.0%) |
+| V2.12 | dnpWeeks | 669/20 (3.0%) | 812/293 (36.1%) | 789/277 (35.1%) | 784/266 (33.9%) | 781/277 (35.5%) | 780/254 (32.6%) |
+| V2.12 | dnpWeeks-vs-D-count | 669/0 (0.0%) | 812/0 (0.0%) | 789/0 (0.0%) | 784/0 (0.0%) | 781/0 (0.0%) | 780/0 (0.0%) |
 
 ### Signed Δ distributions (app − reference) — G6 stat-definition evidence
 
@@ -218,13 +213,49 @@ _none_
 | 2024 | 32 | 0.609 | 0.771 | 0.861 | none |
 | 2025 | 32 | 0.591 | 0.785 | 0.904 | none |
 
+### Report-only effect series (G3 / G2 size; never a verdict input)
+
+| series | metric | season | count | mean abs Δ | max abs Δ |
+|---|---|---|---|---|---|
+| V2.6-g3effect | share | 2020 | 165 | 0.0044 | 0.1050 |
+| V2.6-g3effect | share | 2021 | 304 | 0.0046 | 0.1500 |
+| V2.6-g3effect | share | 2022 | 294 | 0.0078 | 0.3300 |
+| V2.6-g3effect | share | 2023 | 187 | 0.0037 | 0.0860 |
+| V2.6-g3effect | share | 2024 | 272 | 0.0039 | 0.1360 |
+| V2.6-g3effect | share | 2025 | 268 | 0.0038 | 0.0870 |
+| V2.8-g2effect | receptionShare | 2020 | 66 | 0.1964 | 0.9070 |
+| V2.8-g2effect | receptionShare | 2021 | 79 | 0.1124 | 0.8920 |
+| V2.8-g2effect | receptionShare | 2022 | 103 | 0.0749 | 0.7240 |
+| V2.8-g2effect | receptionShare | 2023 | 109 | 0.0337 | 0.4400 |
+| V2.8-g2effect | receptionShare | 2024 | 102 | 0.0157 | 0.1680 |
+| V2.8-g2effect | receptionShare | 2025 | 84 | 0.0113 | 0.0960 |
+| V2.8-g2effect | carryShare | 2020 | 20 | 0.2807 | 0.7480 |
+| V2.8-g2effect | carryShare | 2021 | 29 | 0.1891 | 0.7290 |
+| V2.8-g2effect | carryShare | 2022 | 41 | 0.1132 | 0.5790 |
+| V2.8-g2effect | carryShare | 2023 | 50 | 0.0875 | 0.5280 |
+| V2.8-g2effect | carryShare | 2024 | 40 | 0.0749 | 0.3040 |
+| V2.8-g2effect | carryShare | 2025 | 36 | 0.0216 | 0.0890 |
+
 ### V2.12 signed distribution (app `dnpWeeks` − expected; negative = app undercounts misses)
 
 | n | neg | zero | pos | min | median | max | hist |
 |---|---|---|---|---|---|---|---|
-| 3756 | 22 | 2994 | 740 | -2 | 0 | 16 | {"0":2994,"1":67,"2":45,"<=-3":0,"-2":1,"-1":21,">=3":628} |
+| 4615 | 48 | 3228 | 1339 | -17 | 0 | 17 | {"0":3228,"1":114,"2":71,"<=-3":20,"-2":2,"-1":26,">=3":1154} |
 
-### Traded players (G3) — 149 player-season rows
+### V2.12 diagnostics by season (DEV weeks and sign of Δ)
+
+| season | rows with DEV | DEV weeks | DEV weeks marked D | DEV→D rate | Δ > 0 rows | Δ < 0 rows |
+|---|---|---|---|---|---|---|
+| 2020 | 168 | 1353 | 1 | 0.1% | 6 | 14 |
+| 2021 | 272 | 2671 | 2589 | 96.9% | 275 | 18 |
+| 2022 | 266 | 2543 | 2507 | 98.6% | 276 | 1 |
+| 2023 | 259 | 2537 | 2505 | 98.7% | 264 | 2 |
+| 2024 | 270 | 2700 | 2697 | 99.9% | 271 | 6 |
+| 2025 | 248 | 2337 | 2330 | 99.7% | 247 | 7 |
+
+V2.12 rows with Δ < 0 (`dnpNegative`): **48** — not interpreted here; per-week detail in sidecar `v2.info.dnpNegative`.
+
+### Traded players (G3) — 110 player-season rows
 
 | check | season | pid | pos | app team | app share | ref per team (stat · share · % of team denom) |
 |---|---|---|---|---|---|---|
@@ -289,7 +320,7 @@ _none_
 | V2.6 | 2024 | 6938 | RB | MIN | 0.209 | HOU: 40 · 0.092 · 9.2%; MIN: 64 · 0.140 · 14.0% |
 | V2.6 | 2022 | 6951 | RB | ARI | 0.172 | ARI: 70 · 0.161 · 16.1%; HOU: 3 · 0.008 · 0.8%; NO: 4 · 0.009 · 0.9% |
 
-_89 more in the sidecar._
+_50 more in the sidecar._
 
 ### Largest out-of-tolerance rows (top 40 by |Δ|)
 
@@ -299,42 +330,42 @@ _89 more in the sidecar._
 | V2.2 | rec_yd | 2022 | 2449 | WR | 1455 | 1429 | 26 |
 | V2.2 | rec_yd | 2022 | 4973 | TE | 439 | 414 | 25 |
 | V2.2 | rush_yd | 2022 | 8138 | RB | 525 | 507 | 18 |
-| V2.12 | dnpWeeks | 2021 | 2944 | TE | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 4208 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 4229 | TE | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 6059 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 6279 | TE | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 6402 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 6920 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 6967 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 7086 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 7091 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 7436 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 7560 | RB | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2021 | 8076 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 2382 | RB | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 3894 | TE | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 5076 | RB | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 6148 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 6878 | RB | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 6909 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 7729 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 8184 | RB | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 8185 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 8249 | TE | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2022 | 8928 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2023 | 7082 | TE | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2023 | 7337 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2023 | 7713 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2023 | 7992 | TE | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2023 | 8185 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2023 | 8250 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2023 | 10861 | RB | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2023 | 11384 | RB | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2023 | 11421 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2024 | 6171 | WR | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2024 | 7537 | RB | 16 | 0 | 16 |
-| V2.12 | dnpWeeks | 2024 | 7746 | WR | 16 | 0 | 16 |
+| V2.12 | dnpWeeks | 2021 | 1550 | QB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 3239 | TE | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 4489 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 4551 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 6178 | RB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 6233 | TE | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 6913 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 6939 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7009 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7013 | QB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7143 | QB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7233 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7412 | RB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7521 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7539 | RB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7541 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7546 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7741 | RB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7860 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7865 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7918 | RB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 7989 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2021 | 8018 | TE | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 1338 | QB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 1550 | QB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 2394 | QB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 3568 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 4647 | TE | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 5120 | QB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 5253 | TE | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 6059 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 6178 | RB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 6311 | RB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 6553 | RB | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 6913 | WR | 17 | 0 | 17 |
+| V2.12 | dnpWeeks | 2022 | 7009 | WR | 17 | 0 | 17 |
 
 ## V3 — joins, top KTC players
 
@@ -484,19 +515,19 @@ Matcher outputs on full inputs: KTC 457/500 rows resolved; 778 draft matches; 21
 
 computeTeamContext `targetShare` is reception share (receptions ÷ team receptions, teamContext.js:213)
 
-Reception-share vs true target-share gap over 19 WR/TE player-seasons (current-team mode, team-matched rows): mean |gap| 0.0123, p95 0.0400, max 0.0400; 8 rows > 0.01, 0 rows > 0.05.
+Reception-share vs true target-share gap over 1125 WR/TE player-seasons (every V2.8 WR/TE row, both shares on the same current-team reference): mean |gap| 0.0125, p95 0.0390, max 0.1000; 501 rows > 0.01, 21 rows > 0.05.
 
 ### G2
 
 Current-team attribution (App.jsx:246, :295, :300) groups a season under the player’s present team
 
-2131 share rows (V2.7 and V2.8) where the app's attributed current team differs from the player's nflverse season team; mean |error| 0.0725, max 0.9070; 697 rows > 0.05.
+1419 share rows (V2.7, and V2.8-g2effect: current-team reference minus season-team reference) where the app's attributed current team differs from the player's nflverse season team; mean |error| 0.0836, max 0.9070; 517 rows > 0.05.
 
 ### G3
 
 One team per player-season for traded players
 
-Traded (>1 REG team) player-seasons with a share row: 2020: 6, 2021: 18, 2022: 21, 2023: 6, 2024: 16, 2025: 18; excluded from V2.4/V2.6/V2.8 tolerance rates, listed in the traded table.
+Traded (>1 REG team) player-seasons with a share row: 2020: 6, 2021: 17, 2022: 21, 2023: 6, 2024: 15, 2025: 13; absent from the V2.4/V2.6 tolerance rates (ex-traded on both sides), listed in the traded table; the denominator effect on teammates is the V2.6-g3effect series.
 
 ### G4
 
@@ -545,21 +576,31 @@ First-down derivation uses the current position (`rescoreSeasonTotals`); no effe
 | defect | blocking (proposed) | backlog file | entry title |
 |---|---|---|---|
 | D-76 | yes | sleeper-dashboard/.claude/tasks/data-repo-backlog.md | D-76 · `dnpWeeks` / `'D'` weeks count practice-squad (`DEV`) weeks as missed games (V2.12) |
-| D-77 | yes (borderline) | sleeper-dashboard/.claude/tasks/data-repo-backlog.md | D-77 · Season-totals `gamesPlayed` exceeds nflverse snap games for ~2.5% of skill player-seasons (V2.11) |
+| D-77 | yes | sleeper-dashboard/.claude/tasks/data-repo-backlog.md | D-77 · Season-totals `gamesPlayed` exceeds nflverse snap games for ~2.5% of skill player-seasons (V2.11) |
 | D-78 | no | sleeper-dashboard/.claude/tasks/data-repo-backlog.md | D-78 · `college/` files carry no rows for some FCS / lower-division players in the KTC top 400 (V3 college) |
 | APP-1 | yes | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | Name-only matchers miss nickname and short-form name variants (V3 KTC, college, draft) |
 | APP-2 | yes | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | Same-name, different-person: KTC takes the first candidate, college attaches the wrong player's seasons (V3 KTC, college) |
 | APP-3 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | nflDraftMatch rejects TE↔RB hybrids as position-incompatible (V3 draft) |
+| APP-4 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | Travis Hunter: Sleeper position `DB` is outside the matchers' skill-position guard (V3 KTC) |
+| APP-5 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | V2.4 per-season-team team totals differ from the nflverse rebuild in 11 team-metric cells (cause not established) |
+| APP-6 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | V2.8 computeTeamContext carryShare differs from a current-team reference for 2 RBs in 2020 (cause not established) |
+| APP-7 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | V2.9 efficiency inputs (ypt, catchRate, others) differ from gamelogs ratios in 72 player-seasons (cause not established) |
+
+## Session notes (hand-written, not computed)
+
+- **V2.4** — Verdict is the mechanical 2% rule: one season-metric cell exceeds 2% (rec 2025, 3 of 32 teams). All 11 out cells have the app total above the rebuild. Cause not established; see backlog entry APP-5.
+- **V2.8** — Verdict is the mechanical 2% rule: carryShare 2020, 2 of 26 RBs (Δ -0.021 and -0.016). Cause not established; see backlog entry APP-6.
+- **V2.9** — Verdict is the mechanical 2% rule: ypt 2020 and 2021 and catchRate 2021 exceed 2%. Cause not established; see backlog entry APP-7.
+- **V2.12** — Verdict is the mechanical 2% rule. The `DEV` → `'D'` pattern is measured per season in the V2.12 diagnostics table; 2020 does not show it. See D-76.
 
 ## Unclassified
 
-- V2.4 team totals (ex-traded): 11 of 576 team-metric cells differ by 1–3.8% (worst 2025 `rec` 3 of 32 teams, 9.4%). All 11 have the app total *above* the rebuild, consistent with G5 (gamelogs `unmapped` 12 players in 2025, 1 in 2023/2024). The mechanical rule (outRate > 2% in a season) says defect; no backlog entry because the direction and size match G5. Session 1 to confirm.
-- V2.9 efficiency inputs: 72 of 10,728 comparisons out, almost all `ypt`/`catchRate` for players with > 10 targets and Δ of 0.05–0.6. The tolerances (0.05 / 0.005) are tighter than V2.1's ±1-target tolerance allows, so a single target difference between Sleeper and nflverse (G6) is enough to fail one. Season outRate > 2% for `ypt` 2021 (3.4%). Not entered as a defect; the tolerances are fixed by the plan, so Session 1 may want to revisit them.
-- V2.5 / V2.7 / V2.8 (current-team attribution): V2.5 566 of 576 team-metric cells differ > 1%; V2.7 399 of 665 team-matched share rows out, 67 of them > 0.05; V2.8 `teamOffense` denominators differ > 1% for 377 of 384 team-seasons. This is G2 (a season grouped under today's team), measured in the G2 section; the V2.8 tolerance rows left after setting G2 and G3 aside number only 3.
+- V2.5 / V2.7 (current-team attribution): V2.5 566 of 576 team-metric cells differ > 1%; V2.7 399 of 665 team-matched share rows out, 181 of them > 0.05. This is G2 (a season grouped under today's team), measured in the G2 section and by `V2.8-g2effect`. Report-only, no entry.
+- V2.8 `teamOffense` (current-team denominators) differs from the true-season-team rebuild by > 1% for 377 of 384 team-seasons. Same G2 cause, report-only; the toleranced V2.8 series compares shares against the current-team reference instead.
 - V2.10: 9 of 192 team-seasons have the rush-side red-zone ratio outside [0.85, 1.15] (2020 3, 2021 2, 2022 1, 2023 3); the receiving ratio ranges 0.59–0.91 and never exceeds 1.0; no player-season fails the plausibility checks. Consistency only (G7), so no entry.
 - KTC team spellings: KTC uses KCC, SFO, NEP, NOS, TBB, GBP (not only the plan's LVR/JAC), so `ktcMatch.js`'s name|team fallback, which compares the raw KTC team with Sleeper's team, cannot match a player whose position key misses. The harness aliases them (deviation), so the only `ktc-team-disagree` rows left are real team changes. No top-400 player is affected today.
 - V1: every compared row matches (6,072 of 6,072, all `exact` method), so the key-attribution path (`stale-capture` etc.) found nothing to attribute. 2,545 `app-missing-zero` rows are rostered non-players; 120 `app-no-row` rows all have 0 Sleeper points. Week 6 of 2026 is not scored (the week in progress).
-- V2.6 per-season-team shares: 0 of 743 rows out once rows on teams touched by a traded player are set aside; those 1,490 rows have 54 out (3.6%, up to 0.109), all on G3-touched teams.
+- V2.6: 0 of 2,233 share rows out when the arithmetic is tested on ex-traded denominators on both sides. The size of the traded-player (G3) effect on teammates is the report-only `V2.6-g3effect` series.
 
 ## Not covered
 

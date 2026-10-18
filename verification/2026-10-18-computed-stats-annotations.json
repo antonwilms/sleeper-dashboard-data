@@ -1,0 +1,28 @@
+{
+  "defects": [
+    { "id": "D-76", "file": "sleeper-dashboard/.claude/tasks/data-repo-backlog.md", "title": "D-76 · `dnpWeeks` / `'D'` weeks count practice-squad (`DEV`) weeks as missed games (V2.12)", "blocking": "yes" },
+    { "id": "D-77", "file": "sleeper-dashboard/.claude/tasks/data-repo-backlog.md", "title": "D-77 · Season-totals `gamesPlayed` exceeds nflverse snap games for ~2.5% of skill player-seasons (V2.11)", "blocking": "yes" },
+    { "id": "D-78", "file": "sleeper-dashboard/.claude/tasks/data-repo-backlog.md", "title": "D-78 · `college/` files carry no rows for some FCS / lower-division players in the KTC top 400 (V3 college)", "blocking": "no" },
+    { "id": "APP-1", "file": "sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md", "title": "Name-only matchers miss nickname and short-form name variants (V3 KTC, college, draft)", "blocking": "yes" },
+    { "id": "APP-2", "file": "sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md", "title": "Same-name, different-person: KTC takes the first candidate, college attaches the wrong player's seasons (V3 KTC, college)", "blocking": "yes" },
+    { "id": "APP-3", "file": "sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md", "title": "nflDraftMatch rejects TE↔RB hybrids as position-incompatible (V3 draft)", "blocking": "no" },
+    { "id": "APP-4", "file": "sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md", "title": "Travis Hunter: Sleeper position `DB` is outside the matchers' skill-position guard (V3 KTC)", "blocking": "no" },
+    { "id": "APP-5", "file": "sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md", "title": "V2.4 per-season-team team totals differ from the nflverse rebuild in 11 team-metric cells (cause not established)", "blocking": "no" },
+    { "id": "APP-6", "file": "sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md", "title": "V2.8 computeTeamContext carryShare differs from a current-team reference for 2 RBs in 2020 (cause not established)", "blocking": "no" },
+    { "id": "APP-7", "file": "sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md", "title": "V2.9 efficiency inputs (ypt, catchRate, others) differ from gamelogs ratios in 72 player-seasons (cause not established)", "blocking": "no" }
+  ],
+  "unclassified": [
+    "V2.5 / V2.7 (current-team attribution): V2.5 566 of 576 team-metric cells differ > 1%; V2.7 399 of 665 team-matched share rows out, 181 of them > 0.05. This is G2 (a season grouped under today's team), measured in the G2 section and by `V2.8-g2effect`. Report-only, no entry.",
+    "V2.8 `teamOffense` (current-team denominators) differs from the true-season-team rebuild by > 1% for 377 of 384 team-seasons. Same G2 cause, report-only; the toleranced V2.8 series compares shares against the current-team reference instead.",
+    "V2.10: 9 of 192 team-seasons have the rush-side red-zone ratio outside [0.85, 1.15] (2020 3, 2021 2, 2022 1, 2023 3); the receiving ratio ranges 0.59–0.91 and never exceeds 1.0; no player-season fails the plausibility checks. Consistency only (G7), so no entry.",
+    "KTC team spellings: KTC uses KCC, SFO, NEP, NOS, TBB, GBP (not only the plan's LVR/JAC), so `ktcMatch.js`'s name|team fallback, which compares the raw KTC team with Sleeper's team, cannot match a player whose position key misses. The harness aliases them (deviation), so the only `ktc-team-disagree` rows left are real team changes. No top-400 player is affected today.",
+    "V1: every compared row matches (6,072 of 6,072, all `exact` method), so the key-attribution path (`stale-capture` etc.) found nothing to attribute. 2,545 `app-missing-zero` rows are rostered non-players; 120 `app-no-row` rows all have 0 Sleeper points. Week 6 of 2026 is not scored (the week in progress).",
+    "V2.6: 0 of 2,233 share rows out when the arithmetic is tested on ex-traded denominators on both sides. The size of the traded-player (G3) effect on teammates is the report-only `V2.6-g3effect` series."
+  ],
+  "notes": {
+    "V2.4": "Verdict is the mechanical 2% rule: one season-metric cell exceeds 2% (rec 2025, 3 of 32 teams). All 11 out cells have the app total above the rebuild. Cause not established; see backlog entry APP-5.",
+    "V2.8": "Verdict is the mechanical 2% rule: carryShare 2020, 2 of 26 RBs (Δ -0.021 and -0.016). Cause not established; see backlog entry APP-6.",
+    "V2.9": "Verdict is the mechanical 2% rule: ypt 2020 and 2021 and catchRate 2021 exceed 2%. Cause not established; see backlog entry APP-7.",
+    "V2.12": "Verdict is the mechanical 2% rule. The `DEV` → `'D'` pattern is measured per season in the V2.12 diagnostics table; 2020 does not show it. See D-76."
+  }
+}
