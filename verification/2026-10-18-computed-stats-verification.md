@@ -2,8 +2,8 @@
 
 | field | value |
 |---|---|
-| harness (app repo) | `c49ad118c5baa3bc283d4d8a56d5ae79e87dbfae` — local — unpushed at report time |
-| data repo HEAD | `3adfd81acb0ab5894efa31465bfd5e1c02848000` (clean) |
+| harness (app repo) | `496913887b9b28417d0c69307874e971cf18a78f` — local — unpushed at report time |
+| data repo HEAD | `89966e3499f0e98d5060e4ea0055049d9dc71083` (clean) |
 | snapshot | snapshots/2026-10-17.json (capturedAt 2026-10-17T18:43:19.681Z) |
 | KTC file | ktc/snapshot-2026-10-12.json |
 | playersMap fetched | 2026-10-18T12:38:19.127Z |
@@ -584,11 +584,11 @@ First-down derivation uses the current position (`rescoreSeasonTotals`); no effe
 | APP-4 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | Travis Hunter: Sleeper position `DB` is outside the matchers' skill-position guard (V3 KTC) |
 | APP-5 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | V2.4 per-season-team team totals differ from the nflverse rebuild in 11 team-metric cells (cause not established) |
 | APP-6 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | V2.8 computeTeamContext carryShare differs from a current-team reference for 2 RBs in 2020 (cause not established) |
-| APP-7 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | V2.9 efficiency inputs (ypt, catchRate, others) differ from gamelogs ratios in 72 player-seasons (cause not established) |
+| APP-7 | no | sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md | V2.9 efficiency inputs differ from gamelogs ratios: 72 comparisons across 36 player-seasons (cause not established) |
 
 ## Session notes (hand-written, not computed)
 
-- **V2.4** — Verdict is the mechanical 2% rule: one season-metric cell exceeds 2% (rec 2025, 3 of 32 teams). All 11 out cells have the app total above the rebuild. Cause not established; see backlog entry APP-5.
+- **V2.4** — Verdict is the mechanical 2% rule. With 32 teams, any single team out of tolerance is 3.1% of a season-metric cell, so 7 cells exceed 2%: 2021 rec (1), 2021 recTgt (1), 2022 rushAtt (1), 2022 rec (1), 2025 rushAtt (2), 2025 rec (3), 2025 recTgt (2). That is 11 team-metric cells in all, each with the app total above the rebuild. Cause not established; see backlog entry APP-5.
 - **V2.8** — Verdict is the mechanical 2% rule: carryShare 2020, 2 of 26 RBs (Δ -0.021 and -0.016). Cause not established; see backlog entry APP-6.
 - **V2.9** — Verdict is the mechanical 2% rule: ypt 2020 and 2021 and catchRate 2021 exceed 2%. Cause not established; see backlog entry APP-7.
 - **V2.12** — Verdict is the mechanical 2% rule. The `DEV` → `'D'` pattern is measured per season in the V2.12 diagnostics table; 2020 does not show it. See D-76.

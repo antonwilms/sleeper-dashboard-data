@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T13:06:00.686Z",
+  "generatedAt": "2026-10-18T14:37:47.658Z",
   "inputs": {
     "files": [
       {
@@ -165,11 +165,11 @@
       }
     ],
     "dataRepo": {
-      "head": "3adfd81acb0ab5894efa31465bfd5e1c02848000",
+      "head": "89966e3499f0e98d5060e4ea0055049d9dc71083",
       "clean": true
     },
     "appHarness": {
-      "head": "c49ad118c5baa3bc283d4d8a56d5ae79e87dbfae",
+      "head": "496913887b9b28417d0c69307874e971cf18a78f",
       "clean": true
     },
     "runDate": "2026-10-18"
@@ -308,7 +308,7 @@
   ],
   "annotations": {
     "path": "../sleeper-dashboard-data/verification/2026-10-18-computed-stats-annotations.json",
-    "sha256": "bd1935f1e53bdd36773473aa3c8b7c3c4f027a126c86b98bf67f26c9090b6b15",
+    "sha256": "ea06d7661256f89f4d2166affe729a2460b74ce0ea083ab23b3a50be962e6228",
     "content": {
       "defects": [
         {
@@ -368,7 +368,7 @@
         {
           "id": "APP-7",
           "file": "sleeper-dashboard-data/.claude/tasks/app-repo-backlog.md",
-          "title": "V2.9 efficiency inputs (ypt, catchRate, others) differ from gamelogs ratios in 72 player-seasons (cause not established)",
+          "title": "V2.9 efficiency inputs differ from gamelogs ratios: 72 comparisons across 36 player-seasons (cause not established)",
           "blocking": "no"
         }
       ],
@@ -381,7 +381,7 @@
         "V2.6: 0 of 2,233 share rows out when the arithmetic is tested on ex-traded denominators on both sides. The size of the traded-player (G3) effect on teammates is the report-only `V2.6-g3effect` series."
       ],
       "notes": {
-        "V2.4": "Verdict is the mechanical 2% rule: one season-metric cell exceeds 2% (rec 2025, 3 of 32 teams). All 11 out cells have the app total above the rebuild. Cause not established; see backlog entry APP-5.",
+        "V2.4": "Verdict is the mechanical 2% rule. With 32 teams, any single team out of tolerance is 3.1% of a season-metric cell, so 7 cells exceed 2%: 2021 rec (1), 2021 recTgt (1), 2022 rushAtt (1), 2022 rec (1), 2025 rushAtt (2), 2025 rec (3), 2025 recTgt (2). That is 11 team-metric cells in all, each with the app total above the rebuild. Cause not established; see backlog entry APP-5.",
         "V2.8": "Verdict is the mechanical 2% rule: carryShare 2020, 2 of 26 RBs (Δ -0.021 and -0.016). Cause not established; see backlog entry APP-6.",
         "V2.9": "Verdict is the mechanical 2% rule: ypt 2020 and 2021 and catchRate 2021 exceed 2%. Cause not established; see backlog entry APP-7.",
         "V2.12": "Verdict is the mechanical 2% rule. The `DEV` → `'D'` pattern is measured per season in the V2.12 diagnostics table; 2020 does not show it. See D-76."
