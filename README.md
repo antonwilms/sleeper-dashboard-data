@@ -494,8 +494,8 @@ undrafted players — verified against `nflverse/draft/draft_picks.json`, not in
 is emitted explicitly so a consumer never has to read that null as "unknown." `ktc_id` is served but
 only 7% populated upstream; do not plan a join on it. `espnId`, `college` and `team` round out the
 eleven parsed columns — all three are plain strings, `null` when empty or the literal `NA`, same as
-every other id/string field here. `bySleeper` is capture-only — nothing reads it yet (see the
-`> *Note:*` below and CR-18 in the Cross-repo contract registry).
+every other id/string field here. `bySleeper` is capture-only — nothing reads it yet (see CR-18 in the
+[cross-repo index](../sleeper-dashboard/docs/cross-repo-registry.md); it is not itself a cross-repo contract).
 
 **Not a bijection, and no longer forward-map-only.** Measured 2026-09-05: the source data has 5
 duplicated `gsis_id` values (harmless — colliding rows share the same `sleeper_id`) and 6 duplicated
@@ -506,13 +506,13 @@ rather than inverting `ids`.
 
 **Sparsity gate (`MIN_PLAYERID_ROWS = 5000`):** the ingest refuses to write if fewer than 5000
 `ids` rows parse (unchanged, unaffected by `bySleeper`'s wider population); there is no app-side
-gate to keep in sync since there is no app loader (see the `> *Note:*` below). Two further internal
+gate to keep in sync since there is no app loader (not a cross-repo contract). Two further internal
 gates apply to `bySleeper`: `birthdate` fill rate ≥ 0.95 and `pfr_id` fill rate ≥ 0.85 (measured
 0.998/0.944). No gate exists for `draft_round`/`draft_pick`/`draft_ovr` (null means undrafted, not
 sparse) or `ktc_id` (genuinely 7% populated) — a fill-rate floor on either would fire on correct data.
 
-**`inProgress: false`:** internal-only family — there is no app loader to keep in sync (see the
-`> *Note:*` below). Content-hash dedup means no commit when unchanged; the dedup hash now covers
+**`inProgress: false`:** internal-only family — there is no app loader
+to keep in sync (not a cross-repo contract). Content-hash dedup means no commit when unchanged; the dedup hash now covers
 both `ids` and `bySleeper`, so a week where only sleeper-only rows change still produces a write.
 
 **Weekly refresh:** the `nflverse-playerids.yml` GitHub Action runs every Wednesday and re-ingests
@@ -1590,7 +1590,6 @@ Runs dry-run checks for nfl/cfbd/ktc/roster/draft/playerids/advstats/schedule/ga
 | `cron-deadman.yml` | Daily 05:19 UTC + push to `main` + `workflow_dispatch` | Runs `node bin/deadman.mjs`; monitoring only — no writes, no manifest touch |
 | `smoke-test.yml` | PR touching `bin/`, `lib/`, `scripts/`, `package.json`, `enrichment/`, or `.github/workflows/` | Runs the nfl/cfbd/ktc/playerids/advstats/gamelogs dry-runs, validates enrichment, and npm test (unit validators) |
 | `daily-snapshot.yml` (D1b, phase 1) | `workflow_dispatch` only — **no `cron:` line yet**, see CR-22 below | Checks out this repo plus a pinned ref of `antonwilms/sleeper-dashboard` into `app/`, builds and `vite preview`s the app headlessly, drives it with Playwright (localStorage-seeded, no UI interaction), reads the projection snapshot it wrote to IndexedDB, runs it through the commit gate (`lib/snapshot-capture.mjs`) and writes+registers+commits `snapshots/<date>.json` only on acceptance; purges and verifies the new snapshot path on jsDelivr (the capture's `snapshotPath` step output; `manifest.json` is not purged, CR-29). Rejects loudly (non-zero exit, no commit) rather than writing a neutral snapshot — see Cross-repo impact CR-01 below and `.claude/tasks/daily-snapshot-capture.md` |
-| `registry-mirror.yml` | Daily 06:41 UTC + PR/push to `main` touching `cross-repo-registry.md`, `lib/registry.mjs`, `test/registry-mirror.test.mjs` or itself + `workflow_dispatch` | Checks out this repo and `antonwilms/sleeper-dashboard` side by side and runs `test/registry-mirror.test.mjs` with `REGISTRY_MIRROR=1` (CR-24) — the mirrored registry span must be byte-identical and the app's documented drift command must point at both files; read-only, no writes |
 | `_ingest.yml` | `workflow_call` (reusable — no schedule of its own) | Shared body for the eleven uniform ingest jobs: sparse checkout (per-caller cone input), `npm ci`, `node bin/update.mjs <subcommand>`, commit + CDN purge. Callers: `weekly-nflverse-roster.yml`, `nfl-season-totals.yml`, `nflverse-draft.yml`, `nflverse-playerids.yml`, `nflverse-schedule.yml`, `nflverse-teamcontext.yml`, `nflverse-oline.yml`, `nflverse-snaps.yml`, `nflverse-depth.yml`, `nflverse-rosterweekly.yml`, `weekly-playerstate.yml`. Not used by `nflverse-playerstats.yml`, `weekly-ktc.yml`, or `daily-snapshot.yml` — see the file's own header for why |
 
 The weekly KTC workflow commits only when content changes (SHA256 hash dedup). If values are identical to the last snapshot, it writes `ktc/last-checked.json` only and produces no commit. If the ordering guard or the QB-count landscape check trips, the scrape is written to `ktc/quarantine/` with a `.reason.json` sidecar instead of `ktc/`, and the run fails so it can be reviewed and promoted manually.
@@ -1599,7 +1598,7 @@ Every committing workflow purges through `bin/purge-cdn.mjs`, and a CDN that sti
 
 *Season-keyed purges (roster, advstats, schedule, gamelogs, teamcontext) derive the file's NFL season from the node update step via a `season` step-output (`GITHUB_OUTPUT`), not `date -u +%Y` — the two diverge in the Jan–Feb rollover window, so calendar year would purge the wrong season's file.*
 
-**Why six workflows are standalone rather than `_ingest.yml` callers.**
+**Why five workflows are standalone rather than `_ingest.yml` callers.**
 
 - `nflverse-playerstats.yml` — per-family conditional staging. One CSV fetch drives two families,
   and each is staged only if its own step output says it succeeded; the reusable template has no
@@ -1609,7 +1608,6 @@ Every committing workflow purges through `bin/purge-cdn.mjs`, and a CDN that sti
   the alarm.
 - `cron-deadman.yml` — monitoring, not ingest. It writes no data file.
 - `smoke-test.yml` — CI, not ingest. It writes no data file.
-- `registry-mirror.yml` — a read-only cross-repo check, not ingest. It writes no data file.
 - `daily-snapshot.yml` (D1b) — it runs a headless browser against a second repo's own build
   (`npm ci && npm run build && npm run preview` in a cross-repo checkout, then Playwright), a
   shape `_ingest.yml`'s single-subcommand `node bin/update.mjs <subcommand>` body cannot express
@@ -1694,7 +1692,7 @@ jsDelivr caches `@main` for 12 h at the edge and tells browsers to cache for 7 d
 
 ## Cross-repo contract registry (with sleeper-dashboard)
 
-The complete enumerated registry — the entry-format definition and all 24 `CR-NN` entries — has moved to [cross-repo-registry.md](cross-repo-registry.md). Drift between this copy and the app's is checked by `test/registry-mirror.test.mjs` (CI: `registry-mirror.yml`).
+Shared contracts are indexed in the app repo: [../sleeper-dashboard/docs/cross-repo-registry.md](../sleeper-dashboard/docs/cross-repo-registry.md).
 
 ---
 

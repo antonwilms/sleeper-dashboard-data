@@ -51,7 +51,6 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `lib/io.mjs` | JSON I/O, step output, hashing, key-sort helpers (exports: README → Module notes) |
 | `lib/{enrichment,ktc,manifest,sleeper}.mjs` | Helpers — enrichment validation, KTC scraping, manifest I/O, Sleeper fetch |
 | `lib/seasonIngest.mjs` | `runSeasonKeyedIngest` — shared manifest-registration adapter for the eight season-keyed family ingests (`schedule`, `teamcontext`, `oline`, `gamelogs`, `advstats`, `snaps`, `depth`, `rosterweekly`); hard-codes `inProgress: false`, `schemaVersion: 1` (CR-04 data-side trigger) |
-| `lib/registry.mjs`, `scripts/registry-audit.mjs` | Field-block parser + read-only CLI for the mirrored registry region in `cross-repo-registry.md` |
 | `scripts/update-nfl.mjs` | NFL season-totals ingest. `--year` omitted resolves via `fetchCurrentNflSeason()` + `setStepOutput('season', …)`. Guards `hasNoData` / `isOpeningWeekPartial` / `shouldSkipCompletedSeason`; `DEFAULT_DEPS` is the injectable I/O+fetch seam |
 | `scripts/migrate-*.mjs` | One-shot historical rewrites, `--dry-run` capable — the Invariant 1 exceptions: `migrate-f24-prune.mjs`, `migrate-college-pivot.mjs`, `migrate-absence-roster.mjs`, `migrate-weekly-stats.mjs` (#4, `weeklyStats`) |
 | `scripts/update-cfbd.mjs` | CFBD ingest — fetch long-form, pivot, validate, write the pivoted envelope; dedup hashes the pivoted form on both sides |
@@ -69,7 +68,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `lib/panel.mjs` | Pure panel/fit logic — feature builders, forward-chain CV, ridge, spearman; no I/O. `buildTeamTotalsForSeason` **must** exclude `TEAM_<abbr>` pseudo-rows (mirror of app `isTeamAggregateId`), now also accumulates `fantasyPts` (team-offense rank input). D6a dispatch lists: README → Module notes. `predictFullPipeline` (D6b) is the real composed 13-factor product. `assembleRookiePanel` takes two enumerators (`season-presence`, `entry-cohort`) sharing one predicate, `rookiePathStateAt`; the uncorrected-fit-predictor guard (CR-15 re-fit trap) throws on any declared `appliedCorrections` |
 | `lib/projectionFactors.mjs` | Pure app-factor-multiplier reconstruction for R3-FIT — mirrors the app's leaf factor transforms and their input pipelines. **Cross-repo mirror contract (CR-15)**, now thirteen factors (D6a adds age/depth/teamOffense/qbQuality/efficiency/compBlend) |
 | `scripts/check-crons.mjs` | Dead-man detector for the scheduled workflows; no data-file I/O; a capture-only miss opens an issue |
-| `.github/workflows/` | Eleven uniform ingest jobs (mostly weekly; `nflverse-snaps` yearly, `nflverse-rosterweekly` daily) delegate to the reusable `_ingest.yml` (`workflow_call`) template. Six are deliberately **not** callers (`nflverse-playerstats`, `weekly-ktc`, `cron-deadman`, `smoke-test`, `registry-mirror`, `daily-snapshot` — a browser capture `_ingest.yml` cannot express). Triggers and per-job detail: README → [GitHub Actions](README.md#github-actions). Purge: `bin/purge-cdn.mjs`; URLs: Invariant 8 |
+| `.github/workflows/` | Eleven uniform ingest jobs (mostly weekly; `nflverse-snaps` yearly, `nflverse-rosterweekly` daily) delegate to the reusable `_ingest.yml` (`workflow_call`) template. Five are deliberately **not** callers (`nflverse-playerstats`, `weekly-ktc`, `cron-deadman`, `smoke-test`, `daily-snapshot` — a browser capture `_ingest.yml` cannot express). Triggers and per-job detail: README → [GitHub Actions](README.md#github-actions). Purge: `bin/purge-cdn.mjs`; URLs: Invariant 8 |
 | `nfl/`, `college/`, `ktc/`, `nflverse/`, `snapshots/` | Served data families — a section each in [data-catalog.md](data-catalog.md), schemas in README → [File schemas](README.md#file-schemas) |
 | `ktc/quarantine/` | Scrapes rejected by the Spearman ordering / QB-count guard — script-produced, **not** manifest-registered, **not** app-read; review and promote manually |
 | `nflverse/playerids.json` | gsis_id→sleeper_id crosswalk — **internal-only**: read server-side by `update-advstats.mjs`/`update-gamelogs.mjs`, never by the app |
@@ -89,7 +88,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 
 2. **Never hand-edit primary data files** (`nfl/`, `college/`, `ktc/`, `snapshots/`). They are script-produced. Only `enrichment/` is hand-authored, and only via `bin/enrich.mjs`—direct JSON edits bypass validation.
 
-3. **manifest.json is the index.** Every script-written file must be registered with `recordCount`, `schemaVersion`, `lastModified`, and `inProgress` maintained. Treat manifest field names as a public API (see Cross-repo contract registry).
+3. **manifest.json is the index.** Every script-written file must be registered with `recordCount`, `schemaVersion`, `lastModified`, and `inProgress` maintained. Treat manifest field names as a public API (CR-04 in the cross-repo index).
 
 4. **schemaVersion discipline.** Current versions: NFL season-totals **v4**, CFBD college stats **v2**, projection snapshots **v3** (D1a — adds `inputStatus`; the D1b commit gate rejects anything below v3), KTC snapshots **v1**. Bump `schemaVersion` only on an incompatible layout change, raising the app's `MAX_SUPPORTED_SCHEMA` first. The ceiling covers every family the app reads through `tryDataStore`, snapshots included (CR-26).
 
@@ -111,17 +110,9 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 
 ---
 
-## Cross-repo contract registry (with sleeper-dashboard)
+## Cross-repo contracts (with sleeper-dashboard)
 
-**A repo-scoped session does not edit the sibling** — the registry's `Mirror` text is how a change
-reaches the other side. A session started in the *parent folder* holding both repos can write both,
-and that is the one sanctioned way to land a two-sided change: registry-listed contracts and
-genuinely new couplings only, both sides in the same change, the registry entry updated or drafted
-in that same change. Never edit the sibling incidentally from a repo-scoped session. The **complete enumerated registry** — the entry-format definition and all 29 `CR-NN` entries — lives in [cross-repo-registry.md](cross-repo-registry.md). It is the sole authority for what the app must mirror: the plan-reviewer subagent reads that file and never reads the sibling tree. Its data-side trigger lists are a maintained cache the subagent re-verifies against live source on every review.
-
-**Rule.** Any change touching a listed contract **must emit that entry's `Mirror` text as Session 1 output**, in a `## Cross-repo impact` section of the task file, quoting the `CR-NN` id. Naming the contract in prose is not enough; the mirror instruction itself is the deliverable.
-
-**A coupling that is not listed there does not exist for review purposes.**
+Contracts shared with the app are indexed in the app repo at [`../sleeper-dashboard/docs/cross-repo-registry.md`](../sleeper-dashboard/docs/cross-repo-registry.md); `test/registry.test.mjs` checks its Data sites resolve here. The rule for changing one is `../CLAUDE.md` → *Cross-repo rule*.
 
 ---
 
@@ -178,4 +169,4 @@ Keep this file current as part of every task's done-definition. If a change adds
 
 When a change adds, removes, or alters the historical coverage of an ingested field, stat key, data source, or enrichment entry, update the family's row in [data-catalog.md](data-catalog.md) (this repo's storage registry) and note the change (Source / Historical coverage / Reconstructable-vs-ephemeral) in your task summary so the app repo can update the canonical signal registry at `docs/signal-registry.md`.
 
-Contract changes follow the mirror rule in [Cross-repo contract registry](#cross-repo-contract-registry-with-sleeper-dashboard) — including the new-coupling case, which lands in both repos in the same change.
+Contract changes follow `../CLAUDE.md` → *Cross-repo rule*, including the index entry for a new coupling.
