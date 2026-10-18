@@ -73,7 +73,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `ktc/quarantine/` | Scrapes rejected by the Spearman ordering / QB-count guard — script-produced, **not** manifest-registered, **not** app-read; review and promote manually |
 | `nflverse/playerids.json` | gsis_id→sleeper_id crosswalk — **internal-only**: read server-side by `update-advstats.mjs`/`update-gamelogs.mjs`, never by the app |
 | `enrichment/` | The only hand-authored tree: coaching / scheme / injuries / notes, edited **only** via `bin/enrich.mjs` (Invariant 2) |
-| `backtests/`, `grading/` | Analysis output from `--write`. The `<date>-*-verdict.md` reports are deliberately **unregistered** — a documented Invariant 3 exception |
+| `backtests/`, `grading/`, `verification/` | Analysis output from `--write`, and the dated computed-stats verification reports (app `scripts/verify/`, read-only). The `<date>-*-verdict.md` reports and `verification/` outputs are deliberately **unregistered** — a documented Invariant 3 exception |
 | `manifest.json` | Index of every script-written file (Invariant 3) |
 | `data-catalog.md` | Living dataset index — every ingest slice updates its family's row (Done-definition) |
 | `raw/` | Unprocessed Sleeper API responses |
