@@ -3,7 +3,7 @@ name: plan-reviewer
 description: Read-only reviewer for Session 1 task files in the data repo — the primary review gate. Invoke after a task file is written to .claude/tasks/ and before Session 2 implementation. Checks the plan against live source, against this repo's invariants, and against the cross-repo contract index.
 tools: Read, Grep, Glob, Bash
 model: sonnet
-effort: high
+effort: medium
 ---
 
 <!-- Changelog (historical notes from when this file was untracked; it is now tracked, so git log holds all changes from here on).
@@ -18,7 +18,7 @@ Read the task file under review (the one named in the invocation, or the most re
 
 ## Review depth
 
-The invocation may set a depth. **Default to `full` whenever it is unset or you are unsure.**
+The depth comes from the invocation, else from the task file's `Review depth: light|full — <reason>` line; `light` and `scoped` mean the same mode. **Default to `full` whenever both are unset or you are unsure.** The frontmatter runs you on sonnet/medium; Session 1 invokes you with `model: opus`, `effort: high` when the depth is `full`.
 
 **`full`** — run everything below at full strength. **Required, and not overridable, whenever the
 plan does any of:** write or rewrite a served data file; change an emitted shape, field, stat key or
