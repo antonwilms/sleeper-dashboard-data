@@ -99,6 +99,31 @@ function loadFixtureGradeInput() {
   });
 }
 
+test('per-player dynasty key is ignored: GradeInput and GradeReport are identical with and without it', () => {
+  const snapshot    = readJson('test/fixtures/grade-snapshot.json');
+  const rawOutcomes = readJson('test/fixtures/grade-outcomes-2026.json');
+  const outcomes = new Map();
+  for (const [id, rec] of Object.entries(rawOutcomes)) {
+    const gp = rec.gamesPlayed ?? 0;
+    const fp = rec.fantasyPoints ?? 0;
+    outcomes.set(String(id), { actualGames: gp, actualTotalPts: fp, actualPPG: gp > 0 ? fp / gp : null, played: gp > 0 });
+  }
+  const opts = { targetSeason: 2026, snapshotDate: 'fixture', source: 'test' };
+
+  const withKey = JSON.parse(JSON.stringify(snapshot));
+  const ids = Object.keys(withKey.players);
+  ids.forEach((id, i) => {
+    withKey.players[id].dynasty = i === 0
+      ? null
+      : { score: 60 + i, label: 'Solid', confidence: 'moderate', components: null, qbQualityScore: null, qbModifierApplied: null };
+  });
+
+  const plainInput = buildGradeInputFromSnapshot(snapshot, outcomes, opts);
+  const keyInput   = buildGradeInputFromSnapshot(withKey, outcomes, opts);
+  assert.deepEqual(keyInput, plainInput);
+  assert.deepEqual(scoreProjections(keyInput), scoreProjections(plainInput));
+});
+
 test('scoreProjections: counts', () => {
   const report = scoreProjections(loadFixtureGradeInput());
   assert.equal(report.counts.projected, 5);

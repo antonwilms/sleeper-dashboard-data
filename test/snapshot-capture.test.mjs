@@ -55,6 +55,33 @@ test('evaluateSnapshotRecord: accepts a valid v3 record and returns the registra
   assert.equal(result.snapshot, record.data)
 })
 
+test('evaluateSnapshotRecord: passes per-player dynasty blocks (and a null) through unchanged', () => {
+  const record = makeRecord()
+  const dyn = {
+    score: 72, label: 'Strong', confidence: 'high',
+    components: { ageAdjusted: { value: 60, weight: 0.3 }, trajectory: null },
+    qbQualityScore: 74, qbModifierApplied: 7,
+    dynastyScoreBase: { score: 65, label: 'Solid', confidence: 'moderate', components: null },
+  }
+  const expected = JSON.parse(JSON.stringify(dyn))
+  record.data.players.p0.dynasty = dyn
+  record.data.players.p1.dynasty = null
+  for (const id of Object.keys(record.data.players)) {
+    if (id !== 'p0' && id !== 'p1') record.data.players[id].dynasty = { score: 50, label: 'Mid', confidence: 'low', components: null, qbQualityScore: null, qbModifierApplied: null }
+  }
+  const result = evaluateSnapshotRecord(record, { now: new Date('2026-09-06T16:29:00Z') })
+  assert.equal(result.ok, true)
+  assert.deepEqual(result.snapshot.players.p0.dynasty, expected)
+  assert.equal(result.snapshot.players.p1.dynasty, null)
+})
+
+test('evaluateSnapshotRecord: a record with no dynasty keys is also accepted (the gate does not require the field)', () => {
+  const record = makeRecord()
+  assert.ok(Object.values(record.data.players).every(p => !('dynasty' in p)))
+  const result = evaluateSnapshotRecord(record, { now: new Date('2026-09-06T16:29:00Z') })
+  assert.equal(result.ok, true)
+})
+
 // ─── 2. Each gate condition rejects separately, with a distinguishable reason ─
 
 test('evaluateSnapshotRecord: rejects with missing-record when record is null', () => {

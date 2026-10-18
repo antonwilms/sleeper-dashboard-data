@@ -337,6 +337,17 @@ Absent when there is no usable live season or the player is ineligible. `project
 posterior), so grading continuity holds; graders that ignore unknown per-player keys need no change. Snapshots are read back by
 the app through `tryDataStore` (CR-26), so any future `schemaVersion` bump needs the app's `MAX_SUPPORTED_SCHEMA` raised first (CR-01).
 
+**`players[id].dynasty` (still v3 — additive, no bump).** The final dynasty score at capture, kept because its KTC-dependent
+paths cannot be rebuilt later: `null | { score, label, confidence, components, qbQualityScore, qbModifierApplied, dynastyScoreBase? }`.
+`components` is `null` or `{ ageAdjusted, trajectory, currentLevel, reliability, opportunityQuality }`, each `{ value, weight }`.
+The key is always present — `null` when the player has no finite score — so a missing key means the capture predates the field.
+`score` is post-QB-modifier. `qbQualityScore` / `qbModifierApplied` (percent) are `null` when no modifier applied.
+Recovering the pre-modifier score from `score`, `opportunityQuality.value`, `qbQualityScore` and `qbModifierApplied` is approximate
+(about ±1 point when nothing clamps; the app rounds each stored value). When the modifier clamps opportunity quality at 100 or
+the score at 0/100 the pre-modifier value is not recoverable. A QB's `score` carries the live in-season level while
+`dynastyScoreBase` (present only on such a QB) holds the level-free score in the same compact form, without `qb*` fields.
+The commit gate does not require it; graders ignore it.
+
 **`ktc`** is `null` if the player isn't in the KTC map; otherwise `{ value, positionPercentile }`.
 
 **`projection`** is the verbatim output of `computeNextSeasonProjection` — no field whitelist.
