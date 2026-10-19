@@ -48,3 +48,8 @@ V2.9 re-run verdict `defect` by the mechanical rule: `ypt` 2020 (7 of 346, 2.0%)
 Out cells (season, metric: out of compared): 2020 ypt 7/346, catchRate 6/346, recTdRate 2/346; 2021 ypt 12/356, catchRate 12/356, recTdRate 2/356, ypr 1/343; 2022 ypt 5/342, catchRate 4/342, ypc 1/148, ypr 1/329, recTdRate 1/342, passerRating 1/81; 2023 ypt 2/324, catchRate 2/324; 2024 ypt 5/342, catchRate 4/342; 2025 ypt 2/338, catchRate 2/338.
 
 Worst 5 by |Δ| ÷ tolerance (sidecar): pid `2755` (TE, 2021) catchRate app 0.5 / ref 1; pid `5134` (WR, 2022) catchRate 1 / 0.5; pid `111` (TE, 2024) catchRate 0.5 / 1; pid `7943` (TE, 2024) catchRate 1 / 0.5; pid `5134` (WR, 2022) ypt 9 / 4.5.
+
+### V2.12 scores a player-season with no `nflverse/snaps` entry as 0 games
+**Found:** D-76 absence-role (data worktree branch `d76-absence-role`; Stage A report `verification/2026-10-19-absence-role-diff.md`, re-measure `TBD-C1`) · **Blocking:** no · **Size:** small
+
+`scripts/verify/lib/v2GradeInputs.mjs:479` (app) treats a skill player-season that has a `rosterweekly` entry but no `snaps` entry as `snaps.games = 0`, so the reference counts every eligible week as missed. That is a reference artifact, not a data defect: 26 of V2.12's 48 negatives and ~100–130 positives per season 2021–2025 are rows of this kind. Compare those rows as "no reference" instead of as 0 games.

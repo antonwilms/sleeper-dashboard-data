@@ -2,11 +2,11 @@
 
 **Not to be confused with `.claude/tasks/anchor-policy.md`**, which is the registry
 line-anchor policy. This file is about which captured snapshot rows are safe to compare
-against which grading run, given that the app's projection mechanism has changed ten times on the axes this file
+against which grading run, given that the app's projection mechanism has changed eleven times on the axes this file
 tracks — three on the rookie path, one on the veteran path (the Step 4 up-side), one on every row of both paths (the
 scoring basis: the load-time season rescore, boundary 4a), one on QB rows of both paths (the
 start share), one on rookie QB rows
-(the rookie starter level), once through a data correction rather than app code (the absence classification of served `weeklyStatus`), once on the veteran path (the short-season games rule), and once on the rookie path's season total (the total-points factor). Earlier
+(the rookie starter level), twice through a data correction rather than app code (the absence classification of served `weeklyStatus`, then its role-week demotion), once on the veteran path (the short-season games rule), and once on the rookie path's season total (the total-points factor). Earlier
 snapshot-schema and factor-set changes (`schemaVersion` 1→2→3; the veteran factor set
 widening on 2026-06-06) are out of this file's scope.
 
@@ -58,7 +58,7 @@ captures either side of boundary 4.
 
 ## The date table is the cross-check, not the rule
 
-Ten changes on eight tracked axes, verified against the actually-committed app files (row 7: the data commit):
+Eleven changes on eight tracked axes, verified against the actually-committed app files (row 7: the data commit):
 
 | # | commit | date (UTC) | path | mechanism |
 |---|---|---|---|---|
@@ -72,6 +72,7 @@ Ten changes on eight tracked axes, verified against the actually-committed app f
 | 7 | data `c7cfcc7` (an input correction — no app commit; was `8b95519` before the push-time rebase) | 2026-10-07 06:50 (the **data push**, `0b41c62..3097397`; CDN purge of all eleven files verified 12/12 immediately after) | veteran (QB/RB/WR/TE) | absence classification (served 'D', CR-28) |
 | 8 | `e3de164` (B1, the model commit; the model is live once the push lands; captures check out app `main`) | 2026-10-10 12:45:38 (the **app push**, `ac26e0b..98a8a69`) | veteran (QB/RB/WR/TE) | short-season games rule (L6c) |
 | 9 | `26de86c` (the model is live once the push lands; captures check out app `main`) | 2026-10-13 10:51 (the **app push**, `6b725e6..e9414f8`) | rookie (RB/WR/TE, day-3/undrafted) | total-points factor (D-13) |
+| 10 | data `TBD-C3` + app `TBD-C3` (a served-data correction with its model pin: `PRIOR_MODEL_FROM` in the app commit) | `TBD-C3` (the **data push**) · app push `TBD-C3` · CDN purge of the nine rewritten/regenerated paths `TBD-C3` | veteran (QB/RB/WR/TE) | absence role — role weeks 'D' → 'X' in served `weeklyStatus` (D-76, CR-28) |
 
 Scheduled captures (`daily-snapshot.yml`) trigger at 16:29 UTC against app `main` but can
 start hours late — `snapshots/2026-09-12.json` has `capturedAt` 18:34:49 UTC. Cross-check a
@@ -198,6 +199,13 @@ Row-detectable through `factors.shortSeasonState`. Absent means pre-boundary.
   (displayed `projectedGames` only; the chain total never reads games). `writeProjectionSnapshot` reads the raw
   `seasonProjections`, so no capture differs on it and nothing segments on it.
 - **Cross-check (to be confirmed, D-67):** the first post-push capture's `'short'`/`'none'` veteran rows equal the mirror's `rule: 'l6c'` (`lib/durabilityMirror.mjs`).
+
+### Veteran rows — boundary 10 (input correction)
+
+A second **served-data correction** on the absence axis (boundary 7 was the first), this time `'D'` → `'X'`: a week the weekly roster lists in a role state (practice squad, released, exempt) no longer counts as a missed game. The data push moves a veteran row's `projectedGames`, `projectedTotalPts`, `injurySeasons` and `absenceShapeFactor`, and `projectedPPG` only on bounce-back flips; the app commit moves `PRIOR_MODEL_FROM` in the same release.
+
+- **Row-detectable, unlike boundary 7.** The release pairs the data push with a `PRIOR_MODEL_FROM` bump, and captures record it as the envelope's `projectionModelFrom` (D-50). A capture whose `projectionModelFrom` is at or after the boundary's value is corrected; an earlier or absent marker is legacy on this axis. Detect by the envelope field, never by a date lookup.
+- **Cross-check — open (D-83).** After the first post-push capture: **exact** on the season-totals-determined fields — the set of veteran rows whose `projectedGames`, `factors.injurySeasons`, `factors.absenceShapeFactor` or `factors.isBounceBack` change between the last pre-push and the first post-push capture, and their before/after values, equal the impact verdict's (`TBD-C1`; rows present in both captures only). **Report-only** on `projectedPPG`, `projectedTotalPts` and `dynasty.score`/`label`: the captures are a day apart, so live Sleeper/KTC/depth state moves them; report agreement in direction with the verdict's movers, no pass/fail.
 
 ## Boundaries by path
 
