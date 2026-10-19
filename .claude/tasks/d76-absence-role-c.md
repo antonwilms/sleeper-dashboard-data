@@ -178,7 +178,7 @@ Steps, in order:
    may fix it, else stop; revert trigger applies). Then in the app primary checkout (on `main`, clean):
    `git pull --rebase origin main`; `git merge --ff-only d76-absence-role`; `git push origin main`.
 6. Follow-ups, one commit per repo, pushed the same session after `git pull --rebase`: data —
-   `data-catalog.md` correction-note SHA, anchor-policy row 10 (data and app SHAs as pushed, push time
+   `data-catalog.md` rewrite #5 correction note: replace `db0e087` with the post-rebase SHA of the rewrite commit (the note carries only the SHA, no instruction text), anchor-policy row 10 (data and app SHAs as pushed, push time
    from step 3, purge result from step 4); app — D-76 moved verbatim to `data-repo-backlog-resolved.md`,
    cited data SHAs rewritten (CLAUDE.md cross-repo commit IDs). Data `npm test` (the registry test now
    resolves CR-30) and app `npm test` green.
@@ -225,3 +225,48 @@ upstream.
   `--before-rev <the R1 revert commit>` — `seasons` and `totals` deep-equal Stage A's report. Then set the
   new night's `PRIOR_MODEL_FROM` in the app worktree (amend) and run steps 1–7 (step 1's rebase is now a
   no-op or a clean rebase onto newer `origin/main`).
+
+---
+
+## Fix pass 1 (C2, after implementation-reviewer on app `837520d` and data `ec968e1`)
+
+Docs and backlog only — no source, test, or data-file change. One new commit per repo, each on its
+`d76-absence-role` branch in its worktree (`sleeper-dashboard-d76`, `sleeper-dashboard-data-d76`). Push
+nothing, merge nothing, never stage `.env*`.
+
+**App (`sleeper-dashboard-d76`):**
+1. `docs/integrations.md`, bring every description of the season-totals cache up to date with
+   `sourceRevision` (mechanism wording only; `docsAvailabilityClaims.test.js` must stay green):
+   - `:131` (Fetch-order diagram, data-store-sourced entry): stale if the manifest has a newer
+     `lastModified` **or** the record's `sourceRevision` differs from `SEASON_TOTALS_CACHE_REVISION`.
+   - `:204` (*Cache reuse across visits*): rewrite the sentence "Data-store-sourced entries … are
+     re-fetched only when the manifest confirms a newer data-store version" so it states both triggers
+     (newer manifest `lastModified`, or a record cached under an older revision), and drop the now
+     duplicated exception sentence that follows it.
+   - `:389` (Cache record shape): optional fields are `sourceLastModified`, `sourceSchemaVersion` and
+     `sourceRevision` (all nullable).
+   - `:395` `getCacheRecord` row: returns `{ data, expiresAt, sourceLastModified, sourceSchemaVersion,
+     sourceRevision }`. `:396` `setCacheWithMeta` row: also persists `meta.sourceRevision`.
+2. `.claude/tasks/data-repo-backlog.md`: in the **Found:** line of each new entry (D-79, D-80, D-81,
+   D-82, D-83, D-84, D-85), name the commit: "D-76 absence-role (data `db0e087`, Stage B rewrite, branch
+   `d76-absence-role`; §6 of `.claude/tasks/d76-absence-role.md`)". C3 step 6 rewrites cited data SHAs.
+
+**Data (`sleeper-dashboard-data-d76`):**
+3. `grading/anchor-policy.md`:
+   - § *Boundaries by path*: add boundary 10 on the veteran path, same form as the boundary-7 entry
+     (served-data correction, absence classification axis), noting it is row-detectable by
+     `projectionModelFrom`.
+   - § *Why this is written now, not at the first forward grade*: where it states the table's
+     completeness or enumerates boundaries, include boundary 10. Change nothing else in that section.
+4. `data-catalog.md:279` (rosterweekly *Consumption*): name `scripts/migrate-absence-role.mjs` (rewrite
+   #5, the `'D'` → `'X'` direction) as a consumer alongside `scripts/update-nfl.mjs` and
+   `scripts/migrate-absence-roster.mjs`.
+5. `data-catalog.md:38` (rewrite #5 correction note): the note cites the rewrite commit as
+   `` `db0e087` `` and nothing else — remove the explanatory clause about `<SHA>`, the local branch and
+   C3 step 6. (C3 step 6 now says to replace `db0e087` with the post-rebase SHA.)
+
+Leave alone: everything else in `837520d` and `ec968e1`, including the declared deviations (backlog
+layout, "eight tracked axes", boundary-10 section placement).
+
+Done: app `npm test` (incl. `docsAvailabilityClaims`), `npm run lint`; data `npm test`. Hand back both
+new SHAs and the files touched.
