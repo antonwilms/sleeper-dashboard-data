@@ -44,7 +44,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `bin/*.mjs` | Thin CLIs — parse flags, dispatch to a `scripts/` adapter; no logic of their own. Entry points and modes: [Commands](#commands) |
 | `bin/import-snapshot.mjs` | Projection-snapshot import (newest ~/Downloads export ZIP → manifest → commit + push); see [snapshot-workflow.md](snapshot-workflow.md) |
 | `lib/args.mjs` | `bin/update.mjs` arg validation. `MIN_CLI_YEAR = 1999` is a typo bound, **not** a coverage floor (CR-18); `ALL_SUBCOMMANDS` = the `--all` families |
-| `lib/absence.mjs` | Pure weekly-roster absence classifier (`classifyAbsences`) for season-totals `weeklyStatus` |
+| `lib/absence.mjs` | Pure weekly-roster absence classifier (`classifyAbsences`) for season-totals `weeklyStatus` — `'X'`↔`'D'` by roster status |
 | `lib/validate.mjs` | Schema validators + `findNonFinite`; holds `NFL_SENTINELS` (Invariant 7), `checkKtcLandscape`. |
 | `lib/fantasyPoints.mjs` | Scoring dot-product (`calculateFantasyPoints`, `RATE_KEYS`); drives the grading in-basis path (CR-14) |
 | `lib/cfbd.mjs` | CFBD fetch helpers; `pivotCfbdRows` is the long-form→pivoted-envelope transform, shared by `update-cfbd.mjs` and `migrate-college-pivot.mjs` |
@@ -52,7 +52,7 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `lib/{enrichment,ktc,manifest,sleeper}.mjs` | Helpers — enrichment validation, KTC scraping, manifest I/O, Sleeper fetch |
 | `lib/seasonIngest.mjs` | `runSeasonKeyedIngest` — shared manifest-registration adapter for the eight season-keyed family ingests (`schedule`, `teamcontext`, `oline`, `gamelogs`, `advstats`, `snaps`, `depth`, `rosterweekly`); hard-codes `inProgress: false`, `schemaVersion: 1` (CR-04 data-side trigger) |
 | `scripts/update-nfl.mjs` | NFL season-totals ingest. `--year` omitted resolves via `fetchCurrentNflSeason()` + `setStepOutput('season', …)`. Guards `hasNoData` / `isOpeningWeekPartial` / `shouldSkipCompletedSeason`; `DEFAULT_DEPS` is the injectable I/O+fetch seam |
-| `scripts/migrate-*.mjs` | One-shot historical rewrites, `--dry-run` capable — the Invariant 1 exceptions: `migrate-f24-prune.mjs`, `migrate-college-pivot.mjs`, `migrate-absence-roster.mjs`, `migrate-weekly-stats.mjs` (#4, `weeklyStats`) |
+| `scripts/migrate-*.mjs` | One-shot historical rewrites, `--dry-run` capable — the Invariant 1 exceptions: `migrate-f24-prune.mjs`, `migrate-college-pivot.mjs`, `migrate-absence-roster.mjs`, `migrate-absence-role.mjs` (#5, `'D'`→`'X'`), `migrate-weekly-stats.mjs` (#4, `weeklyStats`). An in-place rewrite of a completed `nfl/season-totals` file triggers CR-30 (bump the app's `SEASON_TOTALS_CACHE_REVISION`, push after purge verifies; a new one adds itself to CR-30's Data field) |
 | `scripts/update-cfbd.mjs` | CFBD ingest — fetch long-form, pivot, validate, write the pivoted envelope; dedup hashes the pivoted form on both sides |
 | `scripts/update-ktc.mjs` | KTC snapshot capture; the Spearman ordering guard lives here — `ktcOrderingGuard`, `KTC_ORDERING_THRESHOLD` |
 | `scripts/register-snapshots.mjs` | Snapshot manifest registration |

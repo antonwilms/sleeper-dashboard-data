@@ -16,6 +16,10 @@
  * the Sleeper-only baseline is not kept — see CR-28's Mirror. Idempotent: a second run changes
  * nothing. Does not write a `schemaVersion` key into the season file (manifest-only).
  *
+ * Superseded by rewrite #5 (`migrate-absence-role.mjs`, D-76): once #5 is on disk a re-run is a no-op
+ * (the classifier is idempotent on the stored files); run against files not yet rewritten (between the
+ * D-76 classifier commit and rewrite #5) it throws at its 'X' → 'D'-only guard on the first demotion — by design.
+ *
  * Usage:
  *   node scripts/migrate-absence-roster.mjs            # rewrite
  *   node scripts/migrate-absence-roster.mjs --dry-run  # report only, no writes

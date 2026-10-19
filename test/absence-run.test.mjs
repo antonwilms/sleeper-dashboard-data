@@ -57,6 +57,8 @@ test('AR-1: two corrected slots cross dnp ≥ 3 → injurySeasons 0 → 1; proje
   assert.deepEqual(a1[2018].P.weeklyStatus.slice(6, 8), ['D', 'D']);
   assert.equal(a1[2018].P.dnpWeeks, 4);
   assert.equal(corrections.find((c) => c.season === 2018).changedSlots, 2);
+  assert.equal(corrections.find((c) => c.season === 2018).promotedSlots, 2);
+  assert.equal(corrections.find((c) => c.season === 2018).demotedSlots, 0);
   const b = projectedGamesFor(one.before, 'P', 'WR', { throughSeason: 2019 });
   const a = projectedGamesFor(a1, 'P', 'WR', { throughSeason: 2019 });
   assert.equal(b.injurySeasons, 0);

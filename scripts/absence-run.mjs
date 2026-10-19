@@ -115,7 +115,10 @@ export function correctStore(totalsByYear, rosterByYear, { from, to }) {
     const rw = need(rosterByYear[y], `nflverse/rosterweekly/${y}.json`);
     const r = classifyAbsences(totalsByYear[y], rw.players, { season: y });
     after[y] = r.totals;
-    corrections.push({ season: y, changedSlots: r.changedSlots, changedRows: r.changedRows, byStatus: r.byStatus });
+    corrections.push({
+      season: y, changedSlots: r.changedSlots, changedRows: r.changedRows, byStatus: r.byStatus,
+      promotedSlots: r.promotedSlots, demotedSlots: r.demotedSlots, demotedByStatus: r.demotedByStatus,
+    });
   }
   return { after, corrections };
 }
@@ -340,14 +343,15 @@ export function buildAbsenceVerdictMarkdown(r) {
   w(`# Absence correction — graded before/after check (L5 Stage B) — ${meta.generatedAt.slice(0, 10)}`, '');
 
   w('## 1. What was compared', '',
-    `Season-totals ${meta.seasons.from}–${meta.seasons.to} as committed ("before") against the same files with each omitted \`'X'\` week reclassified \`'D'\` by \`classifyAbsences\` ` +
+    `Season-totals ${meta.seasons.from}–${meta.seasons.to} as committed ("before") against the same files reclassified by \`classifyAbsences\` (omitted \`'X'\` → \`'D'\` and role \`'D'\` → \`'X'\`, CR-28) ` +
     `against \`nflverse/rosterweekly\` ("after"; D1 status set ACT/INA/RES/PUP, a team that played, 2016+ only). Predictor seasons S = ${meta.predictorSeasons.from}–${meta.predictorSeasons.to}, outcome S+1 \`gamesPlayed\`. ` +
     'Prediction = the mirrored veteran projected-games rule (`lib/durabilityMirror.mjs`, app `d627562`), as-of S. Basis: ' + meta.basis + '.', '',
     `Panel: ${pc.included} player-seasons (${pc.includedZeroOutcome} included at outcome 0: no S+1 row but listed ACT/INA/RES/PUP in ≥1 S+1 REG week; ${pc.excludedNoRowNoReserve} excluded: no S+1 row and no such listing — this includes every season after a player's retirement; ` +
     `${pc.notVeteran} not yet veterans; ${pc.noQualifying} with no qualifying season).`, '',
     'Per-season correction totals, all rows (every position; Stage C §2.3 step 2 checks its migration dry-run against these):', '',
-    '| season | changedSlots | changedRows | byStatus |', '|---|---|---|---|');
-  for (const c of corrections) w(`| ${c.season} | ${c.changedSlots} | ${c.changedRows} | ${Object.entries(c.byStatus).sort().map(([k, v]) => `${k} ${v}`).join(', ') || '—'} |`);
+    '| season | changedSlots | changedRows | promoted | demoted | byStatus | demotedByStatus |', '|---|---|---|---|---|---|---|');
+  const fmtCounts = (o) => Object.entries(o ?? {}).sort().map(([k, v]) => `${k} ${v}`).join(', ') || '—';
+  for (const c of corrections) w(`| ${c.season} | ${c.changedSlots} | ${c.changedRows} | ${c.promotedSlots} | ${c.demotedSlots} | ${fmtCounts(c.byStatus)} | ${fmtCounts(c.demotedByStatus)} |`);
   w('');
 
   w('## 2. Parity', '',

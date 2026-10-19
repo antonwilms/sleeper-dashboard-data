@@ -442,3 +442,18 @@ test("updateNfl NFL-2: an INA roster week for a team that played becomes 'D' and
   // a player with no roster entry stays untouched
   assert.equal(written['T00_1'].dnpWeeks, 0);
 });
+
+test("updateNfl NFL-3: a gp 0 week with only a DEV roster listing writes 'X', not 'D', and dnpWeeks 0", async () => {
+  const roster = { players: { T00_0: { 2: [['ARI', 'DEV']] } } };
+  const deps = absenceDeps({ roster });
+  deps.fetchSeasonWeeks = async () => {
+    const data = twoWeekSeason({});
+    data[1].entries = data[1].entries.map(e => (e.player_id === 'T00_0' ? { ...e, stats: { gp: 0 } } : e));
+    return data;
+  };
+  await updateNfl({ year: 2026, force: false, dryRun: false, deps });
+  const written = deps.writeJsonStable.calls[0][1];
+  assert.equal(written['T00_0'].weeklyStatus[0], 'P');
+  assert.equal(written['T00_0'].weeklyStatus[1], 'X');
+  assert.equal(written['T00_0'].dnpWeeks, 0);
+});

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { setStepOutput, writeJsonStable, repoPath } from '../lib/io.mjs';
+import { setStepOutput, writeJsonStable, writeJsonStableAt, repoPath } from '../lib/io.mjs';
 
 test('setStepOutput: no-op + false when GITHUB_OUTPUT unset', () => {
   const prev = process.env.GITHUB_OUTPUT;
@@ -63,5 +63,25 @@ test('writeJsonStable: minify:true round-trips to the same value as the pretty d
     assert.deepStrictEqual(JSON.parse(fs.readFileSync(abs, 'utf8')), value);
   } finally {
     fs.rmSync(abs, { force: true });
+  }
+});
+
+test('IO-1: writeJsonStableAt writes the same bytes as writeJsonStable (pretty and minified) at the absolute path given', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'io1-'));
+  const rel = `test-io1-${process.pid}-${Date.now()}.json`;
+  const value = { b: [1, 2, { c: 3 }], a: 'x' };
+  try {
+    for (const minify of [false, true]) {
+      writeJsonStable(rel, value, { minify });
+      const viaRel = fs.readFileSync(repoPath(rel));
+      const abs = path.join(dir, 'nested', `out-${minify}.json`);
+      writeJsonStableAt(abs, value, { minify });
+      assert.ok(fs.readFileSync(abs).equals(viaRel), `bytes differ (minify=${minify})`);
+      assert.equal(fs.readFileSync(abs, 'utf8').endsWith('\n'), true);
+    }
+    assert.equal(fs.existsSync(repoPath('nested')), false, 'absolute path was not rebased under the repo');
+  } finally {
+    fs.rmSync(repoPath(rel), { force: true });
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 });

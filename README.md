@@ -1327,7 +1327,7 @@ Per-file behaviour that a session needs only when editing that file. The one-lin
 - **Re-keying.** `teamcontext`, `oline` and `playerstate` are TEAM- or date-keyed and read no crosswalk. The other
   uniform family ingests re-key to `sleeper_id`: `snaps` via `pfrId`, `depth` via `gsisId` primary with an `espnId`
   fallback on ESPN-era seasons, and the rest via `gsisId`.
-- **`lib/io.mjs` exports:** `readJson`, `writeJsonStable`, `setStepOutput`, `repoPath`, `stableHash`,
+- **`lib/io.mjs` exports:** `readJson`, `writeJsonStable`, `writeJsonStableAt` (same bytes at an absolute path), `setStepOutput`, `repoPath`, `stableHash`,
   `sortObjectKeys` (shallow) / `deepSortKeys` (recursive).
 
 #### Analysis CLI flags
@@ -1417,16 +1417,23 @@ file tree. Section references are to
 
 #### `lib/absence.mjs` — weekly-roster absence classification
 
-Pure, no I/O. `classifyAbsences(totals, rosterWeekly, { season })` turns an `'X'` slot (Sleeper's
-weekly response omitted the player) into `'D'` when `nflverse/rosterweekly` lists him that week
-with a status in `MISSED_ROSTER_STATUSES` (`ACT`, `INA`, `RES`, `PUP`) on a team that played.
-"Played" is read from the season file's own `TEAM_*` rows (`'P'` in `weeklyStatus`), not the
-schedule, so a bye or a not-yet-played week never converts. Only `'X'` → `'D'` ever changes;
-`'P'`/`'D'`/`'B'`, `TEAM_*` rows, and every stat field are untouched. A converted row gains
-`dnpWeeks` per slot and a recomputed `availability`; the input is never mutated and unchanged rows
-keep their reference. Seasons before `MIN_ABSENCE_CLASSIFY_SEASON = 2016` return the input as-is
-(the weekly status is season-level there). A missing `rosterWeekly` throws — the caller decides
-what an absent file means.
+Pure, no I/O. `classifyAbsences(totals, rosterWeekly, { season })` decides `'X'` vs `'D'` with one
+roster predicate, in both directions (D-76). For a slot with at least one `nflverse/rosterweekly`
+listing that week, `missed` = some listing has a status in `MISSED_ROSTER_STATUSES` (`ACT`, `INA`,
+`RES`, `PUP`) on a team that played. An `'X'` slot with `missed` becomes `'D'` (Sleeper's weekly
+response omitted a rostered player); a `'D'` slot without `missed` becomes `'X'` (a role week —
+practice squad `DEV`, `CUT`, `EXE`, `E01`, `E14`, `TRC`, `TRD` — that Sleeper returned with `gp 0`; not a
+missed game). A slot with **no** listing that week is left as Sleeper wrote it in both directions:
+`validateRosterWeekly` admits a week with as few as 24 teams, so "no listing" can mean "team missing from
+the file". "Played" is read from the season file's own `TEAM_*` rows (`'P'` in `weeklyStatus`), not the
+schedule, so a bye or a not-yet-played week never converts. `'P'`/`'B'`, `TEAM_*` rows and every stat
+field are untouched. A changed row gets `dnpWeeks` ± per slot and a recomputed `availability`; the input
+is never mutated and unchanged rows keep their reference. Returns `{ totals, changedSlots, changedRows,
+byStatus, promotedSlots, demotedSlots, demotedByStatus }` (`changedSlots` = promoted + demoted; `byStatus`
+keys promotions by the matching missed status; `demotedByStatus` keys demotions by the slot's distinct
+statuses, sorted and `+`-joined, e.g. `CUT+DEV`). Seasons before `MIN_ABSENCE_CLASSIFY_SEASON = 2016`
+return the input as-is (the weekly status is season-level there). A missing `rosterWeekly` throws — the
+caller decides what an absent file means.
 
 #### `lib/durabilityMirror.mjs` — offline mirror of the app's durability rules
 
@@ -1517,6 +1524,8 @@ it hashes through `deepSortKeys`. Stated as JSDoc at `lib/cfbd.mjs:63-66`.
 
 #### `scripts/migrate-*.mjs` — one-shot rewrites
 
+An in-place rewrite of a completed `nfl/season-totals` file triggers CR-30 — bump the app's `SEASON_TOTALS_CACHE_REVISION` and push it after the purge verifies; a new season-totals `migrate-*` adds itself to CR-30's Data field.
+
 - `migrate-f24-prune.mjs` — drops `idp_*`/`punt*` from every completed season file, minifies,
   bumps the manifest to `schemaVersion` 4. Invariant 1 exception; rationale in commit `2b06c5b`.
 - `migrate-absence-roster.mjs` — Invariant-1 correction #3 (absence-classification, CR-28): for every
@@ -1527,7 +1536,18 @@ it hashes through `deepSortKeys`. Stated as JSDoc at `lib/cfbd.mjs:63-66`.
   non-`'X'`→`'D'` slot change, a `dnpWeeks` mismatch or a `validateNflSeason` failure; manifest entries
   of changed seasons get `schemaVersion: 4`. `--dry-run` reports only; idempotent; skips `inProgress`
   seasons (the next `update-nfl` run classifies those). One-way — the Sleeper-only baseline is gone, so
-  narrowing the status set needs a forced re-fetch.
+  narrowing the status set needs a forced re-fetch. Superseded by `migrate-absence-role.mjs` (#5): once #5
+  is on disk a re-run is a no-op; against files not yet rewritten it throws at its `'X'`→`'D'`-only guard.
+- `migrate-absence-role.mjs` — Invariant-1 rewrite #5 (D-76, CR-28/CR-30; entry point `migrateAbsenceRole`):
+  runs the two-direction `classifyAbsences` over every completed 2016+ season and rewrites **only**
+  `weeklyStatus` `'D'` → `'X'` (role weeks), `dnpWeeks` and `availability`, in place. Eight guards
+  (`assertRoleGuards`: id set, other fields deep-equal, only `'D'`→`'X'`, independent roster
+  re-derivation, `dnpWeeks` delta, derived `availability`, `validateNflSeason`, idempotence). Three
+  modes, each requiring `--report <basePath>` (relative → under `verification/`, absolute → outside the
+  repo; refuses to overwrite): `--dry-run --out-dir <abs dir outside repo>` writes would-be season files
+  there and no repo data; bare `--report` rewrites in place + manifest (Stage B); `--report-only
+  --before-rev <rev>` writes only the report (before = `git show`). The report is a field-level leaf diff,
+  `{ meta, seasons, totals }` JSON + MD.
 - `migrate-weekly-stats.mjs` — Invariant-1 rewrite #4 (weekly-scoring-keys, D-47): re-fetches 2012–2025
   through a required `--weeks-cache <dir>` (outside the repo; the same raw weeks the `--weekly-basis`
   grade scored) and adds `weeklyStats` **only**. `attachWeeklyStats` attaches a fresh row's field iff it

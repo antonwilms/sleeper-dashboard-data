@@ -151,8 +151,9 @@ export async function updateNfl({ year: yearOpt = null, force, dryRun, deps = {}
   const totals = aggregateWeeks(weekData, schedule?.games ?? null);
   console.log(`[nfl] Aggregated: ${Object.keys(totals).length} players`);
 
-  // absence-classification (CR-28): an 'X' week Sleeper omitted becomes 'D' when the weekly roster
-  // lists the player ACT/INA/RES/PUP on a team that played. Every mode classifies — a run without it
+  // absence-classification (CR-28, D-76): an 'X' week Sleeper omitted becomes 'D' when the weekly roster
+  // lists the player ACT/INA/RES/PUP on a team that played; a 'D' week with only role listings
+  // (DEV, CUT, ...) becomes 'X'. Every mode classifies — a run without it
   // would turn classified 'D' back into 'X'.
   let classified = totals;
   if (year >= MIN_ABSENCE_CLASSIFY_SEASON) {
@@ -165,7 +166,7 @@ export async function updateNfl({ year: yearOpt = null, force, dryRun, deps = {}
     } else {
       const r = classifyAbsences(totals, roster.players, { season: year });
       classified = r.totals;
-      console.log(`[nfl] Absence classification: ${r.changedSlots} week(s) 'X' → 'D' ${JSON.stringify(r.byStatus)}`);
+      console.log(`[nfl] Absence classification: ${r.promotedSlots} 'X' → 'D' ${JSON.stringify(r.byStatus)}, ${r.demotedSlots} 'D' → 'X' ${JSON.stringify(r.demotedByStatus)}`);
     }
   }
 
