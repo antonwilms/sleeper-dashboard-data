@@ -1543,9 +1543,9 @@
     },
     "nfl/season-totals/2026.json": {
       "schemaVersion": 4,
-      "recordCount": 2623,
+      "recordCount": 2645,
       "inProgress": true,
-      "lastModified": "2026-10-16T11:15:45.246Z"
+      "lastModified": "2026-10-19T13:00:33.212Z"
     },
     "snapshots/2026-09-15.json": {
       "schemaVersion": 3,
@@ -1905,5 +1905,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-10-18T18:48:56.832Z"
+  "generatedAt": "2026-10-19T13:00:33.212Z"
 }
