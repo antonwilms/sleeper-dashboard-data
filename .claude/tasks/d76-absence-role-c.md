@@ -146,8 +146,16 @@ report.
 each with its `.env` / `.env.local` link. Check `git status` before every commit — never stage `.env*`.
 
 Steps, in order:
-1. Data, D-76 worktree: `git fetch origin`; `git rebase origin/main` (manifest conflicts: union rule;
-   anything else → stop). Re-run Stage B step 2b (idempotency) — zero changes.
+1. Data, D-76 worktree: `git fetch origin`; `git rebase origin/main`. Expect a `manifest.json` conflict
+   (at least top-level `generatedAt`; Anton 2026-10-19). **Resolve by regenerating, never by hand-editing:**
+   `git checkout --ours manifest.json` (during a rebase, `--ours` is the upstream side), then for every
+   `nfl/season-totals/<y>.json` the commit being replayed changed, re-run the manifest writer —
+   `node -e` calling `updateManifestEntry({ path, recordCount: Object.keys(readJson(path)).length,
+   inProgress: false, schemaVersion: 4 })` from `lib/manifest.mjs`/`lib/io.mjs` — then `git add
+   manifest.json` and `git rebase --continue`. Confirm afterwards with `git diff origin/main --
+   manifest.json` that only those entries' `lastModified` and the top-level `generatedAt` differ. A
+   conflict in any other file → `git rebase --abort`, stop. Re-run Stage B step 2b (idempotency) — zero
+   changes.
 2. Data, same worktree: `node bin/update.mjs nfl` (2026 in-progress, normal ingest, new classifier);
    `npm run smoke`; commit on the branch (`data: 2026 season-totals reclassified (D-76)`).
 3. Data, primary checkout (on `main`; precondition: `git status` clean and `git log origin/main..main`
