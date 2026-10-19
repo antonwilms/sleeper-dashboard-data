@@ -1,0 +1,1584 @@
+{
+  "meta": {
+    "generatedAt": "2026-10-19T19:41:30.129Z",
+    "mode": "write",
+    "outDir": null,
+    "beforeRev": null,
+    "idempotentChangedSlots": null,
+    "toolVersion": 1
+  },
+  "seasons": {
+    "2016": {
+      "beforeSha256": "190d8b73eeb2def4b7e5c3e2079dc6a83a4f37620d861f31d1b25709b0cd8413",
+      "afterSha256": "190d8b73eeb2def4b7e5c3e2079dc6a83a4f37620d861f31d1b25709b0cd8413",
+      "beforeBytes": 2730744,
+      "afterBytes": 2730744,
+      "rows": {
+        "before": 2135,
+        "after": 2135
+      },
+      "leafChangesByField": {},
+      "availabilityChangesBySubfield": {},
+      "demotedSlots": 0,
+      "demotedSkillSlots": 0,
+      "changedRows": 0,
+      "changedSkillRows": 0,
+      "demotedByStatus": {},
+      "dnpDeltaHistogram": {},
+      "segmentShapeChanges": 0,
+      "topSkillRows": [],
+      "residual": {
+        "noEntry": {
+          "all": 947,
+          "skill": 6
+        },
+        "otherWeeksOnly": {
+          "all": 0,
+          "skill": 0
+        }
+      },
+      "spotRows": {}
+    },
+    "2017": {
+      "beforeSha256": "74fc1457523d5beaeac824ab4260bfd7967bfbd58c1ae347c5fed84ca042e0e6",
+      "afterSha256": "07d007cb7d06f9e3757ef6f417b924562ac49cc2b0cf1ee3d96aafe176013c15",
+      "beforeBytes": 2736484,
+      "afterBytes": 2736484,
+      "rows": {
+        "before": 2153,
+        "after": 2153
+      },
+      "leafChangesByField": {
+        "dnpWeeks": 1,
+        "weeklyStatus": 1
+      },
+      "availabilityChangesBySubfield": {},
+      "demotedSlots": 1,
+      "demotedSkillSlots": 0,
+      "changedRows": 1,
+      "changedSkillRows": 0,
+      "demotedByStatus": {
+        "DEV": 1
+      },
+      "dnpDeltaHistogram": {
+        "-1": 1
+      },
+      "segmentShapeChanges": 0,
+      "topSkillRows": [],
+      "residual": {
+        "noEntry": {
+          "all": 1013,
+          "skill": 4
+        },
+        "otherWeeksOnly": {
+          "all": 0,
+          "skill": 0
+        }
+      },
+      "spotRows": {}
+    },
+    "2018": {
+      "beforeSha256": "262cc31a483552f05038dac8827d7efe6883d0eda12be173ba36501b553cdba3",
+      "afterSha256": "1a2e7928e9011d3541154129028fa0c451f6e0e73a14b02e961d51d43df2865d",
+      "beforeBytes": 2757185,
+      "afterBytes": 2757185,
+      "rows": {
+        "before": 2171,
+        "after": 2171
+      },
+      "leafChangesByField": {
+        "dnpWeeks": 3,
+        "weeklyStatus": 3
+      },
+      "availabilityChangesBySubfield": {},
+      "demotedSlots": 3,
+      "demotedSkillSlots": 1,
+      "changedRows": 3,
+      "changedSkillRows": 1,
+      "demotedByStatus": {
+        "DEV": 3
+      },
+      "dnpDeltaHistogram": {
+        "-1": 3
+      },
+      "segmentShapeChanges": 0,
+      "topSkillRows": [
+        {
+          "id": "3934",
+          "name": "Troymaine Pope",
+          "position": "RB",
+          "team": "LAC",
+          "dnpBefore": 3,
+          "dnpAfter": 2
+        }
+      ],
+      "residual": {
+        "noEntry": {
+          "all": 949,
+          "skill": 4
+        },
+        "otherWeeksOnly": {
+          "all": 0,
+          "skill": 0
+        }
+      },
+      "spotRows": {}
+    },
+    "2019": {
+      "beforeSha256": "132a604a36e48e56e30851a9707f796a040ae9f986a144a0ead56b98d0f29420",
+      "afterSha256": "132a604a36e48e56e30851a9707f796a040ae9f986a144a0ead56b98d0f29420",
+      "beforeBytes": 2767416,
+      "afterBytes": 2767416,
+      "rows": {
+        "before": 2178,
+        "after": 2178
+      },
+      "leafChangesByField": {},
+      "availabilityChangesBySubfield": {},
+      "demotedSlots": 0,
+      "demotedSkillSlots": 0,
+      "changedRows": 0,
+      "changedSkillRows": 0,
+      "demotedByStatus": {},
+      "dnpDeltaHistogram": {},
+      "segmentShapeChanges": 0,
+      "topSkillRows": [],
+      "residual": {
+        "noEntry": {
+          "all": 1022,
+          "skill": 5
+        },
+        "otherWeeksOnly": {
+          "all": 0,
+          "skill": 0
+        }
+      },
+      "spotRows": {}
+    },
+    "2020": {
+      "beforeSha256": "0e352140e4e314adc83d6c7c22ebc92dd81635312b9addc9dfac7224127be7bd",
+      "afterSha256": "7eb47c49049625bed24decfb4ba4abc051eb10e9c7e5dcc8738fd2293b4f9f29",
+      "beforeBytes": 2903020,
+      "afterBytes": 2902960,
+      "rows": {
+        "before": 2350,
+        "after": 2350
+      },
+      "leafChangesByField": {
+        "dnpWeeks": 10,
+        "weeklyStatus": 10,
+        "availability": 6
+      },
+      "availabilityChangesBySubfield": {
+        "longestAbsence": 2,
+        "absenceSegments": 2,
+        "returnedFromAbsence": 2
+      },
+      "demotedSlots": 10,
+      "demotedSkillSlots": 1,
+      "changedRows": 10,
+      "changedSkillRows": 1,
+      "demotedByStatus": {
+        "DEV": 2,
+        "TRC": 6,
+        "TRD": 2
+      },
+      "dnpDeltaHistogram": {
+        "-1": 10
+      },
+      "segmentShapeChanges": 2,
+      "topSkillRows": [
+        {
+          "id": "7496",
+          "name": "Nick Westbrook-Ikhine",
+          "position": "WR",
+          "team": "TEN",
+          "dnpBefore": 2,
+          "dnpAfter": 1
+        }
+      ],
+      "residual": {
+        "noEntry": {
+          "all": 808,
+          "skill": 1
+        },
+        "otherWeeksOnly": {
+          "all": 0,
+          "skill": 0
+        }
+      },
+      "spotRows": {
+        "7496": {
+          "dnpBefore": 2,
+          "dnpAfter": 1,
+          "statusBefore": "DPPXPPPPPPPPDPPPPX",
+          "statusAfter": "XPPXPPPPPPPPDPPPPX"
+        }
+      }
+    },
+    "2021": {
+      "beforeSha256": "15b5894b736ce79e6924eedc80e605c6497518daab99f0c0b805aa20d734ec32",
+      "afterSha256": "b9bd4b307f2f2d2823f543e8d4fad4c6720de56d6bd76a07eeee59b5d13d8dc3",
+      "beforeBytes": 3222169,
+      "afterBytes": 3213434,
+      "rows": {
+        "before": 2846,
+        "after": 2846
+      },
+      "leafChangesByField": {
+        "dnpWeeks": 633,
+        "weeklyStatus": 5474,
+        "availability": 691
+      },
+      "availabilityChangesBySubfield": {
+        "longestAbsence": 168,
+        "absenceSegments": 397,
+        "returnedFromAbsence": 126
+      },
+      "demotedSlots": 5474,
+      "demotedSkillSlots": 2598,
+      "changedRows": 633,
+      "changedSkillRows": 273,
+      "demotedByStatus": {
+        "CUT": 18,
+        "DEV": 5450,
+        "E14": 5,
+        "TRC": 1
+      },
+      "dnpDeltaHistogram": {
+        "-17": 39,
+        "-16": 41,
+        "-15": 39,
+        "-14": 38,
+        "-13": 31,
+        "-12": 33,
+        "-11": 29,
+        "-10": 27,
+        "-9": 35,
+        "-8": 34,
+        "-7": 34,
+        "-6": 33,
+        "-5": 37,
+        "-4": 43,
+        "-3": 41,
+        "-2": 48,
+        "-1": 51
+      },
+      "segmentShapeChanges": 196,
+      "topSkillRows": [
+        {
+          "id": "1550",
+          "name": "Ryan Griffin",
+          "position": "QB",
+          "team": "TB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "3239",
+          "name": "Bronson Kaufusi",
+          "position": "TE",
+          "team": "GB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "4489",
+          "name": "Gehrig Dieter",
+          "position": "WR",
+          "team": "KC",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "4551",
+          "name": "Tanner Gentry",
+          "position": "WR",
+          "team": "BUF",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6178",
+          "name": "Darwin Thompson",
+          "position": "RB",
+          "team": "TB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6233",
+          "name": "Matt Sokol",
+          "position": "TE",
+          "team": "JAX",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6913",
+          "name": "Joe Reed",
+          "position": "WR",
+          "team": "LAC",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6939",
+          "name": "Binjimen Victor",
+          "position": "WR",
+          "team": "BAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7009",
+          "name": "Trishton Jackson",
+          "position": "WR",
+          "team": "MIN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7013",
+          "name": "Steven Montez",
+          "position": "QB",
+          "team": "DET",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7143",
+          "name": "Ben DiNucci",
+          "position": "QB",
+          "team": "DAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7233",
+          "name": "Andre Baccellia",
+          "position": "WR",
+          "team": "ARI",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7412",
+          "name": "Sandro Platzgummer",
+          "position": "RB",
+          "team": "NYG",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7521",
+          "name": "Chris Blair",
+          "position": "WR",
+          "team": "GB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7539",
+          "name": "Gerrid Doaks",
+          "position": "RB",
+          "team": "MIA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7541",
+          "name": "Cornell Powell",
+          "position": "WR",
+          "team": "KC",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7546",
+          "name": "Tre Nixon",
+          "position": "WR",
+          "team": "NE",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7741",
+          "name": "Caleb Huntley",
+          "position": "RB",
+          "team": "ATL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7865",
+          "name": "Brandon Smith",
+          "position": "WR",
+          "team": "DAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7918",
+          "name": "A.J. Rose",
+          "position": "RB",
+          "team": "MIN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        }
+      ],
+      "residual": {
+        "noEntry": {
+          "all": 3882,
+          "skill": 322
+        },
+        "otherWeeksOnly": {
+          "all": 48,
+          "skill": 25
+        }
+      },
+      "spotRows": {
+        "2944": {
+          "dnpBefore": 16,
+          "dnpAfter": 0,
+          "statusBefore": "DDDDDDDDDPDDDXDDDD",
+          "statusAfter": "XXXXXXXXXPXXXXXXXX"
+        }
+      }
+    },
+    "2022": {
+      "beforeSha256": "fafad27ab7c323a66b50db42a5c648808dad01bd87d0c9bafdbb40a47febf28a",
+      "afterSha256": "e4f240a36de492a588b92b34b2655f67b8dcc1c9d2fad007b35a034102245b41",
+      "beforeBytes": 3504146,
+      "afterBytes": 3496941,
+      "rows": {
+        "before": 2786,
+        "after": 2786
+      },
+      "leafChangesByField": {
+        "dnpWeeks": 632,
+        "weeklyStatus": 5595,
+        "availability": 598
+      },
+      "availabilityChangesBySubfield": {
+        "longestAbsence": 150,
+        "absenceSegments": 332,
+        "returnedFromAbsence": 116
+      },
+      "demotedSlots": 5595,
+      "demotedSkillSlots": 2516,
+      "changedRows": 632,
+      "changedSkillRows": 266,
+      "demotedByStatus": {
+        "CUT": 17,
+        "DEV": 5575,
+        "TRC": 2,
+        "TRD": 1
+      },
+      "dnpDeltaHistogram": {
+        "-17": 59,
+        "-16": 48,
+        "-15": 32,
+        "-14": 28,
+        "-13": 26,
+        "-12": 32,
+        "-11": 39,
+        "-10": 28,
+        "-9": 31,
+        "-8": 24,
+        "-7": 32,
+        "-6": 35,
+        "-5": 30,
+        "-4": 45,
+        "-3": 53,
+        "-2": 37,
+        "-1": 53
+      },
+      "segmentShapeChanges": 165,
+      "topSkillRows": [
+        {
+          "id": "1338",
+          "name": "Matt Barkley",
+          "position": "QB",
+          "team": "BUF",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "1550",
+          "name": "Ryan Griffin",
+          "position": "QB",
+          "team": "TB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "2394",
+          "name": "Sean Mannion",
+          "position": "QB",
+          "team": "SEA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "3568",
+          "name": "Marken Michel",
+          "position": "WR",
+          "team": "WAS",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "4647",
+          "name": "Colin Thompson",
+          "position": "TE",
+          "team": "CAR",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "5120",
+          "name": "Danny Etling",
+          "position": "QB",
+          "team": "GB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "5253",
+          "name": "Jordan Franks",
+          "position": "TE",
+          "team": "KC",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6059",
+          "name": "Travis Fulgham",
+          "position": "WR",
+          "team": "GB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6178",
+          "name": "Darwin Thompson",
+          "position": "RB",
+          "team": "SEA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6311",
+          "name": "Patrick Laird",
+          "position": "RB",
+          "team": "TB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6553",
+          "name": "Austin Walter",
+          "position": "RB",
+          "team": "LV",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6913",
+          "name": "Joe Reed",
+          "position": "WR",
+          "team": "LAC",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7009",
+          "name": "Trishton Jackson",
+          "position": "WR",
+          "team": "MIN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7308",
+          "name": "Nick Bowers",
+          "position": "TE",
+          "team": "CIN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7412",
+          "name": "Sandro Platzgummer",
+          "position": "RB",
+          "team": "NYG",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7458",
+          "name": "Isaiah Zuber",
+          "position": "WR",
+          "team": "LV",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7534",
+          "name": "Seth Williams",
+          "position": "WR",
+          "team": "JAX",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7546",
+          "name": "Tre Nixon",
+          "position": "WR",
+          "team": "NE",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7865",
+          "name": "Brandon Smith",
+          "position": "WR",
+          "team": "DAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7943",
+          "name": "Zach Davidson",
+          "position": "TE",
+          "team": "BUF",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        }
+      ],
+      "residual": {
+        "noEntry": {
+          "all": 3941,
+          "skill": 448
+        },
+        "otherWeeksOnly": {
+          "all": 53,
+          "skill": 36
+        }
+      },
+      "spotRows": {}
+    },
+    "2023": {
+      "beforeSha256": "c3c8b64e8ffaf1246254b9bb8a2877814a30c042212df3d3e6f074c863b1d2b3",
+      "afterSha256": "912cabf4c1c43ab0816c2740d505314031632341c2b8a6b05ea6a378401f0442",
+      "beforeBytes": 3506540,
+      "afterBytes": 3501218,
+      "rows": {
+        "before": 2777,
+        "after": 2777
+      },
+      "leafChangesByField": {
+        "dnpWeeks": 589,
+        "weeklyStatus": 5509,
+        "availability": 424
+      },
+      "availabilityChangesBySubfield": {
+        "longestAbsence": 105,
+        "absenceSegments": 241,
+        "returnedFromAbsence": 78
+      },
+      "demotedSlots": 5509,
+      "demotedSkillSlots": 2513,
+      "changedRows": 589,
+      "changedSkillRows": 264,
+      "demotedByStatus": {
+        "CUT": 6,
+        "DEV": 5471,
+        "E01": 2,
+        "EXE": 29,
+        "TRC": 1
+      },
+      "dnpDeltaHistogram": {
+        "-17": 71,
+        "-16": 36,
+        "-15": 39,
+        "-14": 35,
+        "-13": 19,
+        "-12": 23,
+        "-11": 32,
+        "-10": 36,
+        "-9": 30,
+        "-8": 37,
+        "-7": 29,
+        "-6": 28,
+        "-5": 31,
+        "-4": 25,
+        "-3": 35,
+        "-2": 36,
+        "-1": 47
+      },
+      "segmentShapeChanges": 116,
+      "topSkillRows": [
+        {
+          "id": "11070",
+          "name": "Kazmeir Allen",
+          "position": "WR",
+          "team": "WAS",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11105",
+          "name": "Shaquan Davis",
+          "position": "WR",
+          "team": "NO",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11157",
+          "name": "Brycen Tremayne",
+          "position": "WR",
+          "team": "WAS",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11168",
+          "name": "Xavier Smith",
+          "position": "WR",
+          "team": "LA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11276",
+          "name": "Joseph Ngata",
+          "position": "WR",
+          "team": "PHI",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11377",
+          "name": "Tyrell Shavers",
+          "position": "WR",
+          "team": "BUF",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11495",
+          "name": "Bryan Thompson",
+          "position": "WR",
+          "team": "BUF",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11506",
+          "name": "Jalen Cropper",
+          "position": "WR",
+          "team": "DAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "5102",
+          "name": "Daurice Fountain",
+          "position": "WR",
+          "team": "DET",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "5124",
+          "name": "Alex McGough",
+          "position": "QB",
+          "team": "GB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6311",
+          "name": "Patrick Laird",
+          "position": "RB",
+          "team": "TB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6387",
+          "name": "Nsimba Webster",
+          "position": "WR",
+          "team": "CHI",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "6450",
+          "name": "David Blough",
+          "position": "QB",
+          "team": "DET",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7308",
+          "name": "Nick Bowers",
+          "position": "TE",
+          "team": "MIA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7427",
+          "name": "Tyler Mabry",
+          "position": "TE",
+          "team": "SEA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7439",
+          "name": "Tommy Hudson",
+          "position": "TE",
+          "team": "NO",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7534",
+          "name": "Seth Williams",
+          "position": "WR",
+          "team": "JAX",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7541",
+          "name": "Cornell Powell",
+          "position": "WR",
+          "team": "KC",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7609",
+          "name": "Demetric Felton",
+          "position": "RB",
+          "team": "CIN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "7956",
+          "name": "Cade Johnson",
+          "position": "WR",
+          "team": "SEA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        }
+      ],
+      "residual": {
+        "noEntry": {
+          "all": 4001,
+          "skill": 401
+        },
+        "otherWeeksOnly": {
+          "all": 23,
+          "skill": 21
+        }
+      },
+      "spotRows": {}
+    },
+    "2024": {
+      "beforeSha256": "662f042805ebad2e5049c0b1ac3b73be50ce465ebea891977c49f4949977e1c4",
+      "afterSha256": "860b1b8793781635213a7d2a7185360509e994d64649bbd3eef9bad4bf9c667b",
+      "beforeBytes": 3553050,
+      "afterBytes": 3546268,
+      "rows": {
+        "before": 2816,
+        "after": 2816
+      },
+      "leafChangesByField": {
+        "dnpWeeks": 610,
+        "weeklyStatus": 5543,
+        "availability": 543
+      },
+      "availabilityChangesBySubfield": {
+        "longestAbsence": 136,
+        "absenceSegments": 310,
+        "returnedFromAbsence": 97
+      },
+      "demotedSlots": 5543,
+      "demotedSkillSlots": 2706,
+      "changedRows": 610,
+      "changedSkillRows": 272,
+      "demotedByStatus": {
+        "CUT": 19,
+        "DEV": 5511,
+        "EXE": 13
+      },
+      "dnpDeltaHistogram": {
+        "-17": 55,
+        "-16": 41,
+        "-15": 42,
+        "-14": 33,
+        "-13": 28,
+        "-12": 32,
+        "-11": 28,
+        "-10": 32,
+        "-9": 26,
+        "-8": 37,
+        "-7": 33,
+        "-6": 32,
+        "-5": 33,
+        "-4": 33,
+        "-3": 31,
+        "-2": 47,
+        "-1": 47
+      },
+      "segmentShapeChanges": 150,
+      "topSkillRows": [
+        {
+          "id": "10860",
+          "name": "Malik Cunningham",
+          "position": "WR",
+          "team": "BAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "10870",
+          "name": "Deneric Prince",
+          "position": "RB",
+          "team": "MIA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11068",
+          "name": "Mitch Tinsley",
+          "position": "WR",
+          "team": "WAS",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11070",
+          "name": "Kazmeir Allen",
+          "position": "WR",
+          "team": "WAS",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11299",
+          "name": "Zavier Scott",
+          "position": "RB",
+          "team": "MIN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11311",
+          "name": "Jason Brownlee",
+          "position": "WR",
+          "team": "NYJ",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11520",
+          "name": "Lucky Jackson",
+          "position": "WR",
+          "team": "MIN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11556",
+          "name": "Devin Leary",
+          "position": "QB",
+          "team": "BAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11648",
+          "name": "Kedon Slovis",
+          "position": "QB",
+          "team": "HOU",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11652",
+          "name": "Louis Rees-Zammit",
+          "position": "RB",
+          "team": "JAX",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11802",
+          "name": "Tejhaun Palmer",
+          "position": "WR",
+          "team": "ARI",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11924",
+          "name": "Tanner Mordecai",
+          "position": "QB",
+          "team": "SF",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11931",
+          "name": "Austin Reed",
+          "position": "QB",
+          "team": "CHI",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11943",
+          "name": "Michael Wiley",
+          "position": "RB",
+          "team": "WAS",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11964",
+          "name": "Dayton Wade",
+          "position": "WR",
+          "team": "BAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11969",
+          "name": "Xavier Johnson",
+          "position": "WR",
+          "team": "HOU",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12068",
+          "name": "Mason Pline",
+          "position": "TE",
+          "team": "SF",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12133",
+          "name": "Drake Stoops",
+          "position": "WR",
+          "team": "LA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12190",
+          "name": "Jason Bean",
+          "position": "QB",
+          "team": "IND",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12210",
+          "name": "Cole Burgess",
+          "position": "WR",
+          "team": "CIN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        }
+      ],
+      "residual": {
+        "noEntry": {
+          "all": 4364,
+          "skill": 450
+        },
+        "otherWeeksOnly": {
+          "all": 19,
+          "skill": 6
+        }
+      },
+      "spotRows": {}
+    },
+    "2025": {
+      "beforeSha256": "43814751f653adc56e77b69e24e549b1d781984ab198340da5fc1773f232e1cf",
+      "afterSha256": "8f27a999f927f6371639c776ae687e739da21bd52846f49a92ec0160295f04b6",
+      "beforeBytes": 3561786,
+      "afterBytes": 3555978,
+      "rows": {
+        "before": 2832,
+        "after": 2832
+      },
+      "leafChangesByField": {
+        "dnpWeeks": 537,
+        "weeklyStatus": 4624,
+        "availability": 499
+      },
+      "availabilityChangesBySubfield": {
+        "longestAbsence": 128,
+        "absenceSegments": 279,
+        "returnedFromAbsence": 92
+      },
+      "demotedSlots": 4624,
+      "demotedSkillSlots": 2344,
+      "changedRows": 537,
+      "changedSkillRows": 248,
+      "demotedByStatus": {
+        "CUT": 20,
+        "DEV": 4599,
+        "EXE": 5
+      },
+      "dnpDeltaHistogram": {
+        "-17": 38,
+        "-16": 35,
+        "-15": 26,
+        "-14": 37,
+        "-13": 26,
+        "-12": 21,
+        "-11": 20,
+        "-10": 25,
+        "-9": 30,
+        "-8": 30,
+        "-7": 36,
+        "-6": 27,
+        "-5": 30,
+        "-4": 35,
+        "-3": 39,
+        "-2": 37,
+        "-1": 45
+      },
+      "segmentShapeChanges": 144,
+      "topSkillRows": [
+        {
+          "id": "10863",
+          "name": "A.T. Perry",
+          "position": "WR",
+          "team": "DEN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11573",
+          "name": "Frank Gore",
+          "position": "RB",
+          "team": "BUF",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11582",
+          "name": "Carson Steele",
+          "position": "RB",
+          "team": "KC",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "11615",
+          "name": "Ainias Smith",
+          "position": "WR",
+          "team": "CAR",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12478",
+          "name": "Nick Nash",
+          "position": "WR",
+          "team": "ATL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12479",
+          "name": "Ja'Quinden Jackson",
+          "position": "RB",
+          "team": "JAX",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12494",
+          "name": "Kyle McCord",
+          "position": "QB",
+          "team": "PHI",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12725",
+          "name": "Luke Lachey",
+          "position": "TE",
+          "team": "HOU",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12735",
+          "name": "Caleb Lohner",
+          "position": "TE",
+          "team": "DEN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12743",
+          "name": "Junior Bergen",
+          "position": "WR",
+          "team": "SF",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12761",
+          "name": "Jordan Moore",
+          "position": "WR",
+          "team": "CIN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12772",
+          "name": "Courtney Jackson",
+          "position": "WR",
+          "team": "SEA",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12849",
+          "name": "Traeshon Holden",
+          "position": "WR",
+          "team": "DAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12883",
+          "name": "Joshua Simon",
+          "position": "TE",
+          "team": "ATL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "12925",
+          "name": "Jamaal Pritchett",
+          "position": "WR",
+          "team": "NYJ",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "13074",
+          "name": "Isaiah Neyor",
+          "position": "WR",
+          "team": "GB",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "13179",
+          "name": "Ja'seem Reed",
+          "position": "WR",
+          "team": "CAR",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "2549",
+          "name": "Trevor Siemian",
+          "position": "QB",
+          "team": "TEN",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "4127",
+          "name": "C.J. Beathard",
+          "position": "QB",
+          "team": "DET",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        },
+        {
+          "id": "5903",
+          "name": "Will Grier",
+          "position": "QB",
+          "team": "DAL",
+          "dnpBefore": 17,
+          "dnpAfter": 0
+        }
+      ],
+      "residual": {
+        "noEntry": {
+          "all": 5350,
+          "skill": 698
+        },
+        "otherWeeksOnly": {
+          "all": 6,
+          "skill": 2
+        }
+      },
+      "spotRows": {}
+    }
+  },
+  "totals": {
+    "beforeBytes": 31242540,
+    "afterBytes": 31208628,
+    "rows": {
+      "before": 25044,
+      "after": 25044
+    },
+    "leafChangesByField": {
+      "dnpWeeks": 3015,
+      "weeklyStatus": 26759,
+      "availability": 2761
+    },
+    "availabilityChangesBySubfield": {
+      "longestAbsence": 689,
+      "absenceSegments": 1561,
+      "returnedFromAbsence": 511
+    },
+    "demotedSlots": 26759,
+    "demotedSkillSlots": 12679,
+    "changedRows": 3015,
+    "changedSkillRows": 1325,
+    "demotedByStatus": {
+      "CUT": 80,
+      "DEV": 26612,
+      "E01": 2,
+      "E14": 5,
+      "EXE": 47,
+      "TRC": 10,
+      "TRD": 3
+    },
+    "dnpDeltaHistogram": {
+      "-17": 262,
+      "-16": 201,
+      "-15": 178,
+      "-14": 171,
+      "-13": 130,
+      "-12": 141,
+      "-11": 148,
+      "-10": 148,
+      "-9": 152,
+      "-8": 162,
+      "-7": 164,
+      "-6": 155,
+      "-5": 161,
+      "-4": 181,
+      "-3": 199,
+      "-2": 205,
+      "-1": 257
+    },
+    "segmentShapeChanges": 773,
+    "topSkillRows": [
+      {
+        "year": 2021,
+        "id": "1550",
+        "name": "Ryan Griffin",
+        "position": "QB",
+        "team": "TB",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "3239",
+        "name": "Bronson Kaufusi",
+        "position": "TE",
+        "team": "GB",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "4489",
+        "name": "Gehrig Dieter",
+        "position": "WR",
+        "team": "KC",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "4551",
+        "name": "Tanner Gentry",
+        "position": "WR",
+        "team": "BUF",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "6178",
+        "name": "Darwin Thompson",
+        "position": "RB",
+        "team": "TB",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "6233",
+        "name": "Matt Sokol",
+        "position": "TE",
+        "team": "JAX",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "6913",
+        "name": "Joe Reed",
+        "position": "WR",
+        "team": "LAC",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "6939",
+        "name": "Binjimen Victor",
+        "position": "WR",
+        "team": "BAL",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7009",
+        "name": "Trishton Jackson",
+        "position": "WR",
+        "team": "MIN",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7013",
+        "name": "Steven Montez",
+        "position": "QB",
+        "team": "DET",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7143",
+        "name": "Ben DiNucci",
+        "position": "QB",
+        "team": "DAL",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7233",
+        "name": "Andre Baccellia",
+        "position": "WR",
+        "team": "ARI",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7412",
+        "name": "Sandro Platzgummer",
+        "position": "RB",
+        "team": "NYG",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7521",
+        "name": "Chris Blair",
+        "position": "WR",
+        "team": "GB",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7539",
+        "name": "Gerrid Doaks",
+        "position": "RB",
+        "team": "MIA",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7541",
+        "name": "Cornell Powell",
+        "position": "WR",
+        "team": "KC",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7546",
+        "name": "Tre Nixon",
+        "position": "WR",
+        "team": "NE",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7741",
+        "name": "Caleb Huntley",
+        "position": "RB",
+        "team": "ATL",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7865",
+        "name": "Brandon Smith",
+        "position": "WR",
+        "team": "DAL",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      },
+      {
+        "year": 2021,
+        "id": "7918",
+        "name": "A.J. Rose",
+        "position": "RB",
+        "team": "MIN",
+        "dnpBefore": 17,
+        "dnpAfter": 0
+      }
+    ],
+    "residual": {
+      "noEntry": {
+        "all": 26277,
+        "skill": 2339
+      },
+      "otherWeeksOnly": {
+        "all": 149,
+        "skill": 90
+      }
+    }
+  }
+}
