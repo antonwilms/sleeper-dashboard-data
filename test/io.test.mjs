@@ -71,15 +71,19 @@ test('IO-1: writeJsonStableAt writes the same bytes as writeJsonStable (pretty a
   const rel = `test-io1-${process.pid}-${Date.now()}.json`;
   const value = { b: [1, 2, { c: 3 }], a: 'x' };
   try {
+    const written = [];
     for (const minify of [false, true]) {
       writeJsonStable(rel, value, { minify });
       const viaRel = fs.readFileSync(repoPath(rel));
       const abs = path.join(dir, 'nested', `out-${minify}.json`);
       writeJsonStableAt(abs, value, { minify });
+      written.push(abs);
       assert.ok(fs.readFileSync(abs).equals(viaRel), `bytes differ (minify=${minify})`);
       assert.equal(fs.readFileSync(abs, 'utf8').endsWith('\n'), true);
     }
-    assert.equal(fs.existsSync(repoPath('nested')), false, 'absolute path was not rebased under the repo');
+    for (const abs of written) {
+      assert.equal(fs.existsSync(repoPath(abs)), false, `absolute path was rebased under the repo: ${abs}`);
+    }
   } finally {
     fs.rmSync(repoPath(rel), { force: true });
     fs.rmSync(dir, { recursive: true, force: true });

@@ -107,10 +107,11 @@ test('MR-1 assertRoleGuards: each of guards 1–8 throws on a doctored result', 
   assert.throws(() => guards(before, good(), { a: { 2: [['KC', 'ACT']], 3: [['KC', 'ACT']] } }), /roster lists KC\/ACT/);
   // 4 — a demotion with no roster listing at all
   assert.throws(() => guards(before, good(), {}), /does not list the player/);
-  // 6 — a fixed availability subfield changed
+  // 6 — a fixed availability subfield changed: the derived-availability check is the one that fires
+  // (the per-subfield AVAILABILITY_FIXED loop is defence in depth, unreachable while guard 3 holds)
   const fixed = good();
   fixed.a.availability = { ...fixed.a.availability, firstWeek: 9 };
-  assert.throws(() => guards(before, fixed), /availability is not computeAvailability|availability\.firstWeek/);
+  assert.throws(() => guards(before, fixed), /availability is not computeAvailability/);
   // 7 — the schema validator
   assert.throws(() => guards(before, good(), ROSTER, { validateNflSeason: () => { throw new Error('schema boom'); } }), /schema boom/);
   // 8 — not idempotent
@@ -139,6 +140,27 @@ test('MR-2 write mode: only the changed completed season and its manifest entry;
   run(again, { mode: 'write', report: 'verification/x-diff2' });
   assert.equal(again.repoWrites.length, 0);
   assert.equal(again.manifestWrites.length, 0);
+});
+
+// ─── MR-6 guards run before any write ────────────────────────────────────────
+
+test('MR-6 a doctored classifier result throws (guard 2) before any write, in write and dry-run modes', () => {
+  for (const mode of ['write', 'dry-run']) {
+    const o = memRepo();
+    o.deps.classifyAbsences = (...a) => {
+      const r = classifyAbsences(...a);
+      if (r.changedSlots > 0) r.totals.a.stats = { ...r.totals.a.stats, rec: 9 };
+      return r;
+    };
+    const args = mode === 'write'
+      ? { mode, report: 'verification/m6-diff' }
+      : { mode, outDir: '/scratch/out', report: 'verification/m6-diff' };
+    assert.throws(() => run(o, args), /field "stats" changed/, mode);
+    assert.equal(o.repoWrites.length, 0, `${mode}: writeJsonStable called`);
+    assert.equal(o.manifestWrites.length, 0, `${mode}: updateManifestEntry called`);
+    assert.deepEqual(Object.keys(o.atWrites), [], `${mode}: writeJsonStableAt called`);
+    assert.deepEqual(Object.keys(o.textWrites), [], `${mode}: writeText called`);
+  }
 });
 
 /** A fresh harness over the same (already rewritten) files. */

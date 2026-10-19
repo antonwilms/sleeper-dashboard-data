@@ -118,6 +118,7 @@ export function assertRoleGuards(before, after, rosterPlayers, { relPath, year }
     }
     // 6. availability derived, fixed subfields unchanged
     if (!isDeepStrictEqual(a.availability, computeAvailability(sa))) fail(id, 'availability is not computeAvailability(weeklyStatus)');
+    // defence in depth — unreachable while guard 3 holds (firstWeek/lastWeek derive from 'P' slots, absenceCause is constant)
     for (const k of AVAILABILITY_FIXED) {
       if (!isDeepStrictEqual(a.availability?.[k], b.availability?.[k])) fail(id, `availability.${k} changed`);
     }
