@@ -270,3 +270,83 @@ layout, "eight tracked axes", boundary-10 section placement).
 
 Done: app `npm test` (incl. `docsAvailabilityClaims`), `npm run lint`; data `npm test`. Hand back both
 new SHAs and the files touched.
+
+---
+
+## Fix pass 2 (C2 sign-off, Anton 2026-10-20) — no review round
+
+App worktree `sleeper-dashboard-d76`, branch `d76-absence-role`, one commit, unpushed. Docs only.
+`docs/integrations.md:131` (Fetch-order diagram, data-store-sourced entry) becomes, keeping the
+diagram's indentation and bullet:
+`• data-store-sourced entry (sourceLastModified set): stale if manifest has newer lastModified; a season-totals entry (getSeasonTotals) is also stale if its sourceRevision differs from SEASON_TOTALS_CACHE_REVISION (college entries do not check it)`.
+Change nothing else. Done: app `npm test` (incl. `docsAvailabilityClaims`) green. Anton waived the
+review re-run for this line.
+
+---
+
+## C1 amendments (Anton, 2026-10-22) — supersede §C1 where they differ
+
+Review depth: full — C1 changes the daily capture path (`scripts/capture-snapshot.mjs`), which
+`daily-snapshot.yml` runs unattended; unsure → full.
+
+One Session 2 (sonnet), started from the parent folder: data edits in `sleeper-dashboard-data-d76`
+(branch `d76-absence-role`), app edits in `sleeper-dashboard-d76` (branch `d76-absence-role`). Push
+nothing, merge nothing, never stage `.env*`.
+
+1. **C1a, testable without Playwright.** `scripts/capture-snapshot.mjs` imports `playwright` at the top
+   and calls `main()` on import, so it cannot be unit-tested. Put the new logic in a **new pure module
+   `lib/capture-target.mjs`** (not `lib/snapshot-capture.mjs`, a CR-01 site):
+   - `resolveCaptureTarget({ env, repoRoot, dateKey })` → `{ mode: 'committed', relPath:
+     'snapshots/<dateKey>.json' }` when `env.SNAPSHOT_OUT_PATH` is unset or empty; `{ mode: 'out',
+     absPath }` when it is absolute and `path.relative(repoRoot, absPath)` starts with `..`; throws
+     otherwise (relative, or inside the repo).
+   - `writeCapturedSnapshot(target, snapshot, deps)` with `deps = { writeJsonStable, writeJsonStableAt,
+     setStepOutput }`: `committed` → `deps.writeJsonStable(relPath, snapshot)` **with exactly those two
+     arguments** (today's call at `scripts/capture-snapshot.mjs:123`), then `setStepOutput('wrote',
+     'true')` and `setStepOutput('snapshotPath', relPath)` — today's order and values; `out` →
+     `deps.writeJsonStableAt(absPath, snapshot)` and no `setStepOutput`.
+   - `scripts/capture-snapshot.mjs`: resolve the target once at the top of `main()`; the existing
+     skip-if-committed check runs only for `committed`; the write block calls `writeCapturedSnapshot`.
+     The rejected-record and catch paths keep their `setStepOutput('wrote', 'false')` calls unchanged
+     for `committed` and skip them for `out`. Log lines unchanged for `committed`. Nothing else in the
+     file changes.
+   - New `test/capture-target.test.mjs`: **CT-1 (unset is byte-identical)** — with `SNAPSHOT_OUT_PATH`
+     unset and with it `''`, the target is `committed`, `snapshots/<date>.json`; `writeCapturedSnapshot`
+     calls the injected `writeJsonStable` once with args deep-equal `[relPath, snapshot]` (no third
+     argument), never calls `writeJsonStableAt`, and calls `setStepOutput` exactly
+     `[['wrote','true'],['snapshotPath', relPath]]` in that order; and the bytes the real
+     `writeJsonStable` produces for a fixture snapshot through this path equal the bytes of
+     `JSON.stringify(snapshot, null, 2) + '\n'` (today's pretty-printed form; write into a temp file via
+     `writeJsonStableAt` to compare, never into the repo). **CT-2** — an absolute out-of-repo path gives
+     `out`; `writeJsonStableAt` gets that path; no `setStepOutput`. **CT-3** — a relative path and an
+     absolute in-repo path both throw.
+   - `scripts/absence-role-impact.mjs` and its test as §C1b says.
+2. **Playwright**, in the data worktree only, exactly: `npm install --no-save --no-package-lock
+   playwright@1.63.0` then `npx playwright install chromium`. Afterwards confirm `git status` shows no
+   change to `package.json` or `package-lock.json` in either repo; if it does, `git checkout` them and
+   report.
+3. **Run §C1c** with these concrete values: `<before>` = `git merge-base d76-absence-role origin/main`
+   (do **not** fetch first — use the local ref, so both trees differ only in season-totals); `<after>` =
+   `db0e087` (the Stage B rewrite). Build the app for the captures from the **app primary checkout's
+   `main`** state via a third detached app worktree (`git -C sleeper-dashboard worktree add --detach
+   <app-before> main`, `npm ci`, link `.env.local`, build with `VITE_DATA_STORE_URL=http://localhost:8787`)
+   — never from `sleeper-dashboard-d76`, which carries the C2 cache revision and model bump. Remove all
+   temporary worktrees afterwards.
+4. **Fill every `TBD-C1`** from the C1 output, one commit per repo:
+   - data `grading/anchor-policy.md:208` (boundary-10 cross-check bullet) → the verdict path;
+   - data `.claude/tasks/app-repo-backlog.md:53` (V2.12 no-snaps item) → the verdict path and the V2.12
+     re-measure numbers;
+   - app `.claude/tasks/data-repo-backlog.md:122` (D-83) and `:185` (D-79) → the verdict path (and, for
+     D-79, the verdict's `projectedGames` mover count).
+   Afterwards `grep -rn "TBD-C1"` over both worktrees returns nothing.
+5. Done: data `npm test`, `npm run smoke`; app `npm test`, `npm run lint`. Hand back: every SHA, files,
+   deviations, test assertions, the noise-floor result, and the verdict's impact table (counts of rows
+   whose `projectedGames` / `projectedPPG` / `projectedTotalPts` / dynasty score / label move; each
+   move's distribution; the 20 largest movers; label transitions; in-season healthy-cut count; V2.12
+   re-measure).
+
+## C3 amendment (Anton, 2026-10-22)
+
+The C2 placeholder `PRIOR_MODEL_FROM = '2026-10-21'` has passed. In C3 step 5, set `PRIOR_MODEL_FROM`
+to the actual first UTC `daily-snapshot` capture date after the coordinated push (`2026-10-23` if the
+release runs the night of 2026-10-22), with `GOLDEN.recordedUnder` and anchor-policy row 10 to match.
