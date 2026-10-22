@@ -9,6 +9,11 @@
  * Env:
  *   APP_PREVIEW_URL     Base URL of the running `vite preview` server (default http://localhost:4173)
  *   SNAPSHOT_LEAGUE_ID  Sleeper league id to seed into localStorage (required)
+ *   SNAPSHOT_OUT_PATH   Optional. Absolute path outside the repo working tree: the accepted
+ *                       snapshot is written there instead of `snapshots/<date>.json`, the
+ *                       skip-if-committed check is bypassed and no step outputs are set.
+ *                       Unset (the daily workflow) → behaviour unchanged. Used by the D-76
+ *                       impact measurement (`scripts/absence-role-impact.mjs`).
  *
  * Exit codes: 0 on acceptance OR on a legitimate already-committed skip; 1 on any capture
  * failure (marker timeout, missing record) or commit-gate rejection. The caller (the
@@ -21,7 +26,8 @@ import { chromium } from 'playwright'
 import fs from 'fs'
 
 import { evaluateSnapshotRecord } from '../lib/snapshot-capture.mjs'
-import { writeJsonStable, repoPath, setStepOutput } from '../lib/io.mjs'
+import { writeJsonStable, writeJsonStableAt, repoPath, setStepOutput } from '../lib/io.mjs'
+import { resolveCaptureTarget, writeCapturedSnapshot } from '../lib/capture-target.mjs'
 
 const APP_URL = process.env.APP_PREVIEW_URL ?? 'http://localhost:4173'
 const LEAGUE_ID = process.env.SNAPSHOT_LEAGUE_ID
@@ -58,11 +64,13 @@ async function main() {
   }
 
   const dateKey = utcDateKey()
-  const snapshotRelPath = `snapshots/${dateKey}.json`
+  const target = resolveCaptureTarget({ env: process.env, repoRoot: repoPath(), dateKey })
+  const committed = target.mode === 'committed'
+  const snapshotRelPath = target.relPath
 
   // Design D — skip-if-committed. Check before driving the browser at all, so a manual
   // import earlier in the day wins and this run is a cheap no-op.
-  if (fs.existsSync(repoPath(snapshotRelPath))) {
+  if (committed && fs.existsSync(repoPath(snapshotRelPath))) {
     console.log(`[capture] ${snapshotRelPath} already committed — skipping browser run.`)
     setStepOutput('wrote', 'false')
     return
@@ -114,16 +122,15 @@ async function main() {
     const result = evaluateSnapshotRecord(record)
     if (!result.ok) {
       console.error(`::error::Snapshot rejected — ${result.reason}`)
-      setStepOutput('wrote', 'false')
+      if (committed) setStepOutput('wrote', 'false')
       process.exitCode = 1
       return
     }
 
     const playerCount = Object.keys(result.snapshot.players ?? {}).length
-    writeJsonStable(snapshotRelPath, result.snapshot)
-    console.log(`[capture] wrote ${snapshotRelPath} (${playerCount} players, ktc.count=${result.snapshot.inputStatus.ktc.count}, depthChart.count=${result.snapshot.inputStatus.depthChart.count})`)
-    setStepOutput('wrote', 'true')
-    setStepOutput('snapshotPath', snapshotRelPath)
+    writeCapturedSnapshot(target, result.snapshot, { writeJsonStable, writeJsonStableAt, setStepOutput })
+    const wroteTo = committed ? snapshotRelPath : target.absPath
+    console.log(`[capture] wrote ${wroteTo} (${playerCount} players, ktc.count=${result.snapshot.inputStatus.ktc.count}, depthChart.count=${result.snapshot.inputStatus.depthChart.count})`)
   } finally {
     await browser.close()
   }
@@ -131,6 +138,6 @@ async function main() {
 
 main().catch(err => {
   console.error(err)
-  setStepOutput('wrote', 'false')
+  if (!process.env.SNAPSHOT_OUT_PATH) setStepOutput('wrote', 'false')
   process.exitCode = 1
 })

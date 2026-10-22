@@ -50,6 +50,6 @@ Out cells (season, metric: out of compared): 2020 ypt 7/346, catchRate 6/346, re
 Worst 5 by |Δ| ÷ tolerance (sidecar): pid `2755` (TE, 2021) catchRate app 0.5 / ref 1; pid `5134` (WR, 2022) catchRate 1 / 0.5; pid `111` (TE, 2024) catchRate 0.5 / 1; pid `7943` (TE, 2024) catchRate 1 / 0.5; pid `5134` (WR, 2022) ypt 9 / 4.5.
 
 ### V2.12 scores a player-season with no `nflverse/snaps` entry as 0 games
-**Found:** D-76 absence-role (data worktree branch `d76-absence-role`; Stage A report `verification/2026-10-19-absence-role-diff.md`, re-measure `TBD-C1`) · **Blocking:** no · **Size:** small
+**Found:** D-76 absence-role (data worktree branch `d76-absence-role`; Stage A report `verification/2026-10-19-absence-role-diff.md`, re-measure `grading/2026-10-22-absence-role-verdict.md`: V2.12 mismatches 1387/4615 = 30.05% → 110/4615 = 2.38% on the D-76 data, 48 → 65 negative-Δ rows) · **Blocking:** no · **Size:** small
 
 `scripts/verify/lib/v2GradeInputs.mjs:479` (app) treats a skill player-season that has a `rosterweekly` entry but no `snaps` entry as `snaps.games = 0`, so the reference counts every eligible week as missed. That is a reference artifact, not a data defect: 26 of V2.12's 48 negatives and ~100–130 positives per season 2021–2025 are rows of this kind. Compare those rows as "no reference" instead of as 0 games.
