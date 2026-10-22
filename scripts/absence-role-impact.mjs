@@ -88,6 +88,19 @@ export function topMovers(diff, field, n = 20) {
     .slice(0, n)
 }
 
+/** Movers whose change set includes any of `fields` (diff order, i.e. sorted by id). */
+export function moverRows(diff, fields) {
+  return diff.movers.filter((m) => fields.some((f) => m.changes[f]))
+}
+
+/** Count of rows present in both captures whose `dynasty.components.reliability.value` moved. */
+export function reliabilityMoves(before, after) {
+  const rel = (p) => get(p, ['dynasty', 'components', 'reliability', 'value'])
+  const bp = before?.players ?? {}
+  const ap = after?.players ?? {}
+  return Object.keys(bp).filter((id) => id in ap && !same(rel(bp[id]), rel(ap[id]))).sort()
+}
+
 // ─── markdown ────────────────────────────────────────────────────────────────
 
 const fmt = (v) => (v == null ? '—' : typeof v === 'number' ? String(v) : String(v))
@@ -156,7 +169,8 @@ export function startStaticServer(root, port) {
   const server = http.createServer((req, res) => {
     const headers = { 'Access-Control-Allow-Origin': '*' }
     if (req.method === 'OPTIONS') { res.writeHead(204, { ...headers, 'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS', 'Access-Control-Allow-Headers': '*' }); return res.end() }
-    const rel = decodeURIComponent((req.url ?? '/').split('?')[0])
+    let rel
+    try { rel = decodeURIComponent((req.url ?? '/').split('?')[0]) } catch { res.writeHead(400, headers); return res.end() }
     const file = path.resolve(absRoot, '.' + rel)
     if (file !== absRoot && !file.startsWith(absRoot + path.sep)) { res.writeHead(403, headers); return res.end() }
     fs.readFile(file, (err, buf) => {

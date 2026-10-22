@@ -27,7 +27,7 @@ import fs from 'fs'
 
 import { evaluateSnapshotRecord } from '../lib/snapshot-capture.mjs'
 import { writeJsonStable, writeJsonStableAt, repoPath, setStepOutput } from '../lib/io.mjs'
-import { resolveCaptureTarget, writeCapturedSnapshot } from '../lib/capture-target.mjs'
+import { resolveCaptureTarget, writeCapturedSnapshot, emitsStepOutputs, shouldSkipCommitted } from '../lib/capture-target.mjs'
 
 const APP_URL = process.env.APP_PREVIEW_URL ?? 'http://localhost:4173'
 const LEAGUE_ID = process.env.SNAPSHOT_LEAGUE_ID
@@ -70,7 +70,7 @@ async function main() {
 
   // Design D — skip-if-committed. Check before driving the browser at all, so a manual
   // import earlier in the day wins and this run is a cheap no-op.
-  if (committed && fs.existsSync(repoPath(snapshotRelPath))) {
+  if (shouldSkipCommitted(target, (p) => fs.existsSync(repoPath(p)))) {
     console.log(`[capture] ${snapshotRelPath} already committed — skipping browser run.`)
     setStepOutput('wrote', 'false')
     return
@@ -122,7 +122,7 @@ async function main() {
     const result = evaluateSnapshotRecord(record)
     if (!result.ok) {
       console.error(`::error::Snapshot rejected — ${result.reason}`)
-      if (committed) setStepOutput('wrote', 'false')
+      if (emitsStepOutputs(process.env)) setStepOutput('wrote', 'false')
       process.exitCode = 1
       return
     }
@@ -138,6 +138,6 @@ async function main() {
 
 main().catch(err => {
   console.error(err)
-  if (!process.env.SNAPSHOT_OUT_PATH) setStepOutput('wrote', 'false')
+  if (emitsStepOutputs(process.env)) setStepOutput('wrote', 'false')
   process.exitCode = 1
 })

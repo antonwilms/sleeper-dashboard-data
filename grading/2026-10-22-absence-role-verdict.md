@@ -128,7 +128,7 @@ Status stays `defect` by threshold but falls from 30% to 2.4%. The residual 110 
 
 ## Stage A --absence §3 / §5 (reference)
 
-Source: `/Users/antonwilms/Library/Application Support/Claude/side-session-notes/local_ab40a7f9-4075-4594-9d6d-75a82ff63d54/d76-stageA-absence-run.md` (Stage A `--absence` run, 2026-10-19; pre-migration measurement, kept verbatim for reference).
+Source: the Stage A `--absence` run notes, kept outside the repository (machine-local); the numbers needed for later checks are reproduced in this file (Stage A `--absence` run, 2026-10-19; pre-migration measurement, kept verbatim for reference).
 
 ### 3. Primary result
 
@@ -161,7 +161,7 @@ Bounce-back flips among today's veterans: David Sills (WR) on→off.
 
 ## Comparison with D9 and method
 
-Counts are rows moved of 741 compared (no row on one side only). D9 pre-estimate column: 435 veterans, 2026-10-18 snapshot; the 3× stop bound is not approached on any field.
+Counts are rows moved of 741 compared (no row on one side only). D9 pre-estimate column: 435 veterans, 2026-10-18 snapshot; the 3× stop bound is not approached on any field. Dynasty injury-season counts, measured as rows whose `dynasty.components.reliability.value` moved between `before` and `after` (ids 3155, 4274, 4443, 4602, 6154, 6659, 7039, 7066, 8122, 8204, 12062): 11 against the estimate of 30; the 3× check passes (11 ≤ 90).
 
 | field | measured | D9 pre-estimate |
 |---|---|---|
@@ -169,6 +169,28 @@ Counts are rows moved of 741 compared (no row on one side only). D9 pre-estimate
 | `injurySeasons` | 5 | 6 |
 | `absenceShapeFactor` | 9 | 8 |
 | bounce-back flips | 1 | 1 |
-| dynasty injury-season counts | see dynasty score moves above (5 rows) | 30 (counts, not score moves) |
+| dynasty injury-season counts (rows whose `dynasty.components.reliability.value` moves) | 11 | 30 |
 
 Method: both captures `scripts/capture-snapshot.mjs` with `SNAPSHOT_OUT_PATH`, one Chromium session sequence (before → after → before2, ~3 min each), app built from a detached worktree of app `main` @ `11c2b53` with `VITE_DATA_STORE_URL=http://localhost:8787` and `VITE_CFBD_API_KEY` forced empty (as `daily-snapshot.yml`, which sets none — the linked `.env.local` would otherwise inject the key; same build for all three captures). Data trees: `<before>` = `git merge-base d76-absence-role origin/main` = `48ad260` (no fetch), `<after>` = `db0e087`; `git diff --name-only` between them touches served data only in `nfl/season-totals/{2017,2018,2020–2025}.json` and `manifest.json` (the new `lastModified` entries). `projectionModelFrom` is `2026-10-14` in both captures. All three captured 741 players with `dynasty` present.
+
+## Rows moved — reference for the D-83 cross-check
+
+15 player rows (of 741 compared) where `projectedGames`, `factors.injurySeasons`, `factors.absenceShapeFactor` or `factors.isBounceBack` moved between `before` and `after`; an unchanged field is shown once with "(unchanged)". Generated with `diffCaptures` + `moverRows` from `scripts/absence-role-impact.mjs` over the same two captures. The captures themselves are kept outside the repository (machine-local); the numbers needed for later checks are reproduced in this file.
+
+| player id | name | pos | projectedGames | injurySeasons | absenceShapeFactor | isBounceBack |
+|---|---|---|---|---|---|---|
+| 10212 | Josh Whyle | TE | 11 (unchanged) | 1 → 0 | 1 (unchanged) | false (unchanged) |
+| 10219 | Chris Rodriguez Jr. | RB | 12 (unchanged) | 1 → 0 | 1 (unchanged) | true (unchanged) |
+| 10224 | Brayden Willis | TE | 5 (unchanged) | 0 (unchanged) | 0.97 → 1 | null (unchanged) |
+| 11201 | Blake Whiteheart | TE | 15 (unchanged) | 0 (unchanged) | 0.97 → 1 | false (unchanged) |
+| 11304 | E.J. Jenkins | TE | 4 (unchanged) | 0 (unchanged) | 0.95 → 1 | null (unchanged) |
+| 11508 | Princeton Fant | TE | 4 (unchanged) | 0 (unchanged) | 0.95 → 1 | null (unchanged) |
+| 12062 | Cam Grandy | TE | 4 (unchanged) | 1 → 0 | 1 (unchanged) | null (unchanged) |
+| 3258 | Nick Vannett | TE | 8 (unchanged) | 4 → 3 | 0.9 (unchanged) | false (unchanged) |
+| 5086 | Marquez Valdes-Scantling | WR | 12 (unchanged) | 0 (unchanged) | 0.93 → 0.97 | false (unchanged) |
+| 6154 | David Sills | WR | 15 (unchanged) | 1 (unchanged) | 1 (unchanged) | true → false |
+| 7039 | Cody White | WR | 11 → 12 | 0 (unchanged) | 0.97 → 1 | false (unchanged) |
+| 7050 | Josiah Deguara | TE | 13 → 14 | 0 (unchanged) | 0.97 → 1 | false (unchanged) |
+| 7559 | Ihmir Smith-Marsette | WR | 7 (unchanged) | 0 (unchanged) | 0.9 → 0.95 | false (unchanged) |
+| 7596 | Elijah Moore | WR | 13 (unchanged) | 1 → 0 | 1 (unchanged) | false (unchanged) |
+| 7597 | Kenny Yeboah | TE | 5 (unchanged) | 0 (unchanged) | 0.95 → 1 | false (unchanged) |

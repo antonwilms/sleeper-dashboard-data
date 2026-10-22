@@ -4,8 +4,9 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import http from 'node:http'
 
-import { diffCaptures, isEmptyDiff, topMovers, renderVerdict, startStaticServer, FIELD_NAMES } from '../scripts/absence-role-impact.mjs'
+import { diffCaptures, isEmptyDiff, topMovers, moverRows, reliabilityMoves, renderVerdict, startStaticServer, FIELD_NAMES } from '../scripts/absence-role-impact.mjs'
 
 const row = ({ g = 16, ppg = 10, pts = 160, inj = 0, shape = 1, bb = false, score = 50, label = 'Solid', team = 'SF' } = {}) => ({
   nfl_team: team,
@@ -77,8 +78,29 @@ test('static server sends CORS + JSON and refuses path escapes', async () => {
     assert.match(r.headers.get('content-type'), /json/)
     assert.deepEqual(await r.json(), { ok: true })
     assert.equal((await fetch(`http://localhost:${port}/nope.json`)).status, 404)
+    const rawStatus = (rawPath) => new Promise((resolve, reject) => {
+      http.request({ host: 'localhost', port, path: rawPath, method: 'GET' }, (res) => { res.resume(); resolve(res.statusCode) }).on('error', reject).end()
+    })
+    assert.equal(await rawStatus('/%2e%2e/%2e%2e/etc/hosts'), 403)
+    assert.equal(await rawStatus('/%E0%A4%A'), 400)
   } finally {
     server.close()
     fs.rmSync(dir, { recursive: true, force: true })
   }
+})
+
+test('moverRows keeps only movers whose changes include a requested field', () => {
+  const d = diffCaptures(
+    snap({ a: row({ g: 12 }), b: row({ inj: 1 }), c: row({ score: 50 }), d: row() }),
+    snap({ a: row({ g: 13 }), b: row({ inj: 0 }), c: row({ score: 51 }), d: row() }),
+  )
+  assert.deepEqual(moverRows(d, ['projectedGames', 'injurySeasons']).map((m) => m.id), ['a', 'b'])
+  assert.deepEqual(moverRows(d, ['isBounceBack']), [])
+})
+
+test('reliabilityMoves lists ids present on both sides whose reliability value moved', () => {
+  const r = (v) => ({ dynasty: { components: { reliability: { value: v } } } })
+  const before = snap({ a: r(0.5), b: r(0.5), c: r(0.5), gone: r(1) })
+  const after = snap({ a: r(0.6), b: r(0.5), c: { dynasty: null }, fresh: r(1) })
+  assert.deepEqual(reliabilityMoves(before, after), ['a', 'c'])
 })

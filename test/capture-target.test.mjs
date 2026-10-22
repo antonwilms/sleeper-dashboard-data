@@ -6,10 +6,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'fs'
-import os from 'os'
 import path from 'path'
 
-import { resolveCaptureTarget, writeCapturedSnapshot } from '../lib/capture-target.mjs'
+import { resolveCaptureTarget, writeCapturedSnapshot, emitsStepOutputs, shouldSkipCommitted } from '../lib/capture-target.mjs'
 import { writeJsonStable, writeJsonStableAt, repoPath } from '../lib/io.mjs'
 
 const REPO = '/repo/root'
@@ -41,22 +40,13 @@ for (const [label, env] of [['unset', {}], ["''", { SNAPSHOT_OUT_PATH: '' }]]) {
   })
 }
 
-test('CT-1: bytes through the real write path equal JSON.stringify(snapshot, null, 2) + newline', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'capture-target-'))
+test('CT-1: bytes through the real writeJsonStable equal JSON.stringify(snapshot, null, 2) + newline', () => {
+  const rel = `test-ct1-${process.pid}-${Date.now()}.json`
   try {
-    const file = path.join(dir, 'out.json')
-    const target = resolveCaptureTarget({ env: {}, repoRoot: REPO, dateKey: DATE })
-    // Route the real writeJsonStable's serialisation into a temp file (never into the repo).
-    writeCapturedSnapshot(target, SNAP, {
-      writeJsonStable: (_rel, value) => writeJsonStableAt(file, value),
-      writeJsonStableAt,
-      setStepOutput: () => {},
-    })
-    assert.equal(fs.readFileSync(file, 'utf8'), JSON.stringify(SNAP, null, 2) + '\n')
-    assert.equal(typeof writeJsonStable, 'function')
-    assert.ok(repoPath('snapshots', `${DATE}.json`).endsWith(`snapshots/${DATE}.json`))
+    writeJsonStable(rel, SNAP)
+    assert.equal(fs.readFileSync(repoPath(rel), 'utf8'), JSON.stringify(SNAP, null, 2) + '\n')
   } finally {
-    fs.rmSync(dir, { recursive: true, force: true })
+    fs.rmSync(repoPath(rel), { force: true })
   }
 })
 
@@ -74,4 +64,28 @@ test('CT-2: absolute out-of-repo path → out target, writeJsonStableAt only, no
 test('CT-3: a relative path and an absolute in-repo path both throw', () => {
   assert.throws(() => resolveCaptureTarget({ env: { SNAPSHOT_OUT_PATH: 'out/before.json' }, repoRoot: REPO, dateKey: DATE }), /absolute/)
   assert.throws(() => resolveCaptureTarget({ env: { SNAPSHOT_OUT_PATH: `${REPO}/snapshots/x.json` }, repoRoot: REPO, dateKey: DATE }), /outside the repo/)
+  // a sibling segment that merely starts with ".." is still inside the repo
+  assert.throws(() => resolveCaptureTarget({ env: { SNAPSHOT_OUT_PATH: `${REPO}/..x/out.json` }, repoRoot: REPO, dateKey: DATE }), /outside the repo/)
+  // a real parent-relative path is outside
+  assert.deepEqual(
+    resolveCaptureTarget({ env: { SNAPSHOT_OUT_PATH: `${REPO}/../x.json` }, repoRoot: REPO, dateKey: DATE }),
+    { mode: 'out', absPath: `${REPO}/../x.json` },
+  )
+})
+
+test('CT-4: emitsStepOutputs is true for unset and empty, false for any non-empty value', () => {
+  assert.equal(emitsStepOutputs({}), true)
+  assert.equal(emitsStepOutputs({ SNAPSHOT_OUT_PATH: '' }), true)
+  assert.equal(emitsStepOutputs({ SNAPSHOT_OUT_PATH: '/tmp/x.json' }), false)
+  assert.equal(emitsStepOutputs({ SNAPSHOT_OUT_PATH: 'relative' }), false)
+})
+
+test('CT-5: shouldSkipCommitted only for a committed target whose path exists; exists unused for out', () => {
+  const committed = { mode: 'committed', relPath: `snapshots/${DATE}.json` }
+  const seen = []
+  assert.equal(shouldSkipCommitted(committed, (p) => { seen.push(p); return true }), true)
+  assert.deepEqual(seen, [committed.relPath])
+  assert.equal(shouldSkipCommitted(committed, () => false), false)
+  const out = { mode: 'out', absPath: '/tmp/x.json' }
+  assert.equal(shouldSkipCommitted(out, () => { throw new Error('exists must not be consulted') }), false)
 })
