@@ -350,3 +350,60 @@ nothing, merge nothing, never stage `.env*`.
 The C2 placeholder `PRIOR_MODEL_FROM = '2026-10-21'` has passed. In C3 step 5, set `PRIOR_MODEL_FROM`
 to the actual first UTC `daily-snapshot` capture date after the coordinated push (`2026-10-23` if the
 release runs the night of 2026-10-22), with `GOLDEN.recordedUnder` and anchor-policy row 10 to match.
+
+---
+
+## Fix pass 3 (C1, after implementation-reviewer on data `d1c8b16`, app `9e45ac0`)
+
+Review depth for the re-run: **full** — item 3 touches `scripts/capture-snapshot.mjs`, CR-22's Data site.
+Data worktree `sleeper-dashboard-data-d76`, branch `d76-absence-role`, one new commit. App untouched
+(its C1 diff passed). Push nothing, merge nothing, never stage `.env*`. No served data file, manifest,
+or workflow; no new captures.
+
+1. **Verdict carries the cross-check rows.** `grading/2026-10-22-absence-role-verdict.md` gains an
+   appendix *Rows moved — reference for the D-83 cross-check*: one table row per player row whose
+   `projectedGames`, `factors.injurySeasons`, `factors.absenceShapeFactor` or `factors.isBounceBack`
+   moved between `before` and `after` — player id, name, position, then before → after for each of the
+   four fields (unchanged fields shown once). Generate it with `diffCaptures` from
+   `scripts/absence-role-impact.mjs` over the stored captures (the same `before.json` / `after.json` C1
+   used); if that needs a small exported helper in the script (e.g. `moverRows(diff, field)`), add it
+   with a unit test. Expected: 2 + 5 + 9 + 1 field moves over the ids the reviewer listed (injurySeasons
+   10212, 10219, 12062, 3258, 7596; absenceShapeFactor-only 10224, 11201, 11304, 11508, 5086, 7559, 7597;
+   plus the dynasty/totals movers already named) — if the set differs, stop and report. In the same
+   file, replace every machine-local absolute path (the side-session-notes paths at `:131` and wherever
+   the raw captures are cited) with plain text: "kept outside the repository (machine-local); the
+   numbers needed for later checks are reproduced in this file".
+2. **D9 "dynasty injury-season counts" row measured.** In the verdict's § *Comparison with D9 and
+   method*, replace "see dynasty score moves (5 rows)" with the measured count of rows whose
+   `dynasty.components.reliability.value` moves (reviewer: 11) against the estimate of 30, and the 3×
+   check outcome (pass: 11 ≤ 90). Generated from the captures, same as item 1.
+3. **Committed-mode guards become testable.** Move the three decisions in `scripts/capture-snapshot.mjs`
+   into `lib/capture-target.mjs` and call them from the script:
+   - `emitsStepOutputs(env)` → `!env.SNAPSHOT_OUT_PATH`; used at **all three** sites that today read
+     `committed` or `process.env.SNAPSHOT_OUT_PATH` for step outputs (`:125` rejected path, `:141` catch
+     path) — one predicate everywhere;
+   - `shouldSkipCommitted(target, exists)` → `target.mode === 'committed' && exists(target.relPath)`,
+     replacing the check at `:73` (call it with `p => fs.existsSync(repoPath(p))`).
+   Behaviour with `SNAPSHOT_OUT_PATH` unset must stay exactly as at `5e29fe8`. New tests in
+   `test/capture-target.test.mjs`: **CT-4** `emitsStepOutputs` true for unset and `''`, false for any
+   non-empty value; **CT-5** `shouldSkipCommitted` true only for a committed target whose path exists,
+   false for a committed target that does not exist and for any `out` target (the `exists` stub is not
+   consulted for `out`).
+4. **CT-1 bytes case calls the real `writeJsonStable`.** Replace the stub with the real function writing
+   a repo-relative temp path (IO-1's pattern in `test/io.test.mjs`: a unique name under a path ignored
+   by git or removed in `finally`), and assert its bytes equal `JSON.stringify(snapshot, null, 2) +
+   '\n'`. Delete the two vacuous assertions (`typeof writeJsonStable === 'function'`,
+   `repoPath(...).endsWith(...)`).
+5. **Out-of-repo check by segment.** In `resolveCaptureTarget`, replace `rel.startsWith('..')` with
+   `rel === '..' || rel.startsWith('..' + path.sep)` (keep `path.isAbsolute(rel)` as also outside, for a
+   different drive root). CT-3 gains `<repo>/..x/out.json` (must throw, in-repo) and `<repo>/../x.json`
+   (must resolve to `out`). Symlink and case-folding are out of scope — note it in the module header.
+6. **Static server.** In `startStaticServer`, wrap `decodeURIComponent` so a malformed escape returns 400
+   instead of throwing. In `test/absence-role-impact.test.mjs`, the "refuses path escapes" test sends an
+   actual escape (e.g. raw path `/%2e%2e/%2e%2e/etc/hosts` via `http.request` with that literal path)
+   and asserts 403, and a malformed `%` request asserts 400; keep its existing 404 case.
+
+Leave alone: everything else in `d1c8b16`; the declared C1 deviations; the app commit `9e45ac0`.
+
+Done: data `npm test`; `npm run smoke`. Hand back the SHA, files, the appendix row count, the measured
+reliability count, and what each new or changed test asserts.
