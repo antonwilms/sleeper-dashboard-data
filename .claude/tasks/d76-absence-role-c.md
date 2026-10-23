@@ -407,3 +407,25 @@ Leave alone: everything else in `d1c8b16`; the declared C1 deviations; the app c
 
 Done: data `npm test`; `npm run smoke`. Hand back the SHA, files, the appendix row count, the measured
 reliability count, and what each new or changed test asserts.
+
+## C3 amendment 2 — daytime release, 2026-10-23 (Anton) — supersedes C3's window, deadline and date
+
+- **Precondition before step 1:** today's `nfl-season-totals` (06:13 UTC Fri) and
+  `nflverse-rosterweekly` (06:23 UTC) runs have completed and committed on data `main`:
+  `gh run list --workflow nfl-season-totals.yml -L 2 --repo antonwilms/sleeper-dashboard-data`, the same
+  for `nflverse-rosterweekly.yml`, plus `git log origin/main` after `git fetch`. Either queued or in
+  progress → wait (poll no more often than every 5 min); never start mid-run. `nflverse-schedule`
+  (13:35 UTC Fri) may overlap: its `manifest.json` conflict at step 3's `git pull --rebase` uses the
+  union rule; at step 1's rebase the regenerate rule (C3 step 1) still applies.
+- **No release in flight across the 16:29 UTC capture.** Deadline: the app push (step 5) has succeeded
+  by **15:30 UTC 2026-10-23**. If not, and the data push (step 3) has happened, run R1–R5 at once so the
+  revert completes before 16:29 UTC; row 10 reads "released then reverted"; stop. A failure before step
+  3's push → the step-3 reset only. This replaces the night window and the 14:00 UTC D+1 deadline.
+- **`PRIOR_MODEL_FROM = '2026-10-23'`** (today's 16:29 UTC capture is the first on the new data), with
+  `GOLDEN.recordedUnder` and anchor-policy row 10 to match. If anything would push the app after 16:29
+  UTC, the revert rule applies instead — never ship `2026-10-23` after today's capture has run.
+- **Extra live check after pulling data `main`** (step 7): run the S1 live check from
+  `sleeper-dashboard/.claude/tasks/snapshot-dynasty-capture.md` (§ Done-definition, "Live check") on the
+  newest `snapshots/<date>.json` and include its output and pass/fail against that file's criteria.
+- Hand-back adds: both pushed SHAs, push times, the purge result, the post-push checks, and row 10 as
+  filled in.
