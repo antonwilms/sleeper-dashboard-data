@@ -1524,7 +1524,7 @@ it hashes through `deepSortKeys`. Stated as JSDoc at `lib/cfbd.mjs:63-66`.
 
 #### `scripts/migrate-*.mjs` — one-shot rewrites
 
-An in-place rewrite of a completed `nfl/season-totals` file triggers CR-30 — bump the app's `SEASON_TOTALS_CACHE_REVISION` and push it after the purge verifies; a new season-totals `migrate-*` adds itself to CR-30's Data field.
+An in-place rewrite of a completed `nfl/season-totals` file triggers CR-30 — bump the app's `SEASON_TOTALS_CACHE_REVISION` and push it after the purge verifies and raw GitHub serves the new bytes ([git-workflow.md](git-workflow.md) step 5); a new season-totals `migrate-*` adds itself to CR-30's Data field.
 
 - `migrate-f24-prune.mjs` — drops `idp_*`/`punt*` from every completed season file, minifies,
   bumps the manifest to `schemaVersion` 4. Invariant 1 exception; rationale in commit `2b06c5b`.

@@ -10,8 +10,9 @@
  * missed game) becomes 'X' (CR-28). No new code; 'X' already means "no game recorded".
  *
  * An in-place rewrite of a completed `nfl/season-totals` file triggers CR-30 — bump the app's
- * `SEASON_TOTALS_CACHE_REVISION` and push it after the purge verifies; a new season-totals `migrate-*`
- * adds itself to CR-30's Data field. (This script's entry point `migrateAbsenceRole` is that field.)
+ * `SEASON_TOTALS_CACHE_REVISION` and push it after the purge verifies and raw GitHub serves the new
+ * bytes; a new season-totals `migrate-*` adds itself to CR-30's Data field. (This script's entry
+ * point `migrateAbsenceRole` is that field.)
  *
  * Guards (assertRoleGuards, each a throw naming season, id and slot): row id set unchanged; every
  * field other than weeklyStatus/dnpWeeks/availability deep-equal; every changed slot 'D' → 'X' (zero

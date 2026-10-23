@@ -19,13 +19,16 @@
  * failure (marker timeout, missing record) or commit-gate rejection. The caller (the
  * workflow's commit step) treats both non-zero paths as "do not commit" and treats the
  * `wrote` step output as the discriminator between "nothing to do" (skip) and "should have
- * produced a file" — see .github/workflows/daily-snapshot.yml.
+ * produced a file" — see .github/workflows/daily-snapshot.yml. An accepted snapshot whose
+ * completed seasons were not all read from the data store logs one non-fatal `::warning::`
+ * (`provenanceWarningLine`) after the write; it never changes the exit code, step outputs or
+ * the file.
  */
 
 import { chromium } from 'playwright'
 import fs from 'fs'
 
-import { evaluateSnapshotRecord } from '../lib/snapshot-capture.mjs'
+import { evaluateSnapshotRecord, provenanceWarningLine } from '../lib/snapshot-capture.mjs'
 import { writeJsonStable, writeJsonStableAt, repoPath, setStepOutput } from '../lib/io.mjs'
 import { resolveCaptureTarget, writeCapturedSnapshot, emitsStepOutputs, shouldSkipCommitted } from '../lib/capture-target.mjs'
 
@@ -131,6 +134,13 @@ async function main() {
     writeCapturedSnapshot(target, result.snapshot, { writeJsonStable, writeJsonStableAt, setStepOutput })
     const wroteTo = committed ? snapshotRelPath : target.absPath
     console.log(`[capture] wrote ${wroteTo} (${playerCount} players, ktc.count=${result.snapshot.inputStatus.ktc.count}, depthChart.count=${result.snapshot.inputStatus.depthChart.count})`)
+
+    // Non-fatal (data-store-cdn-limit D3): runs only after the commit decision and the write; never
+    // touches the exit code, step outputs or the written file.
+    try {
+      const warning = provenanceWarningLine(result.snapshot, dateKey)
+      if (warning) console.log(warning)
+    } catch {}
   } finally {
     await browser.close()
   }

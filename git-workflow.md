@@ -60,3 +60,16 @@ This file is the procedure.
    sees fresh data instead of stale cache; `manifest.json` needs no purge (the app reads it from
    raw GitHub, CR-29, and the CLI rejects it). Method:
    `GITHUB_REPOSITORY=antonwilms/sleeper-dashboard-data node bin/purge-cdn.mjs <paths>`.
+
+   **CR-30 releases.** For an in-place rewrite of a completed season-totals file, also confirm raw
+   GitHub serves the new bytes before pushing the app's `SEASON_TOTALS_CACHE_REVISION` bump. Run this
+   for every rewritten path; each must print `match`. Raw caches for up to 5 minutes, so if one
+   differs, wait and re-run. Do not push the app until every path matches.
+
+   ```sh
+   for p in nfl/season-totals/2025.json; do   # list every rewritten path
+     raw=$(curl -sfL "https://raw.githubusercontent.com/antonwilms/sleeper-dashboard-data/main/$p" | shasum -a 256 | cut -d' ' -f1)
+     loc=$(shasum -a 256 "$p" | cut -d' ' -f1)
+     [ "$raw" = "$loc" ] && echo "match $p" || echo "DIFFERS $p"
+   done
+   ```

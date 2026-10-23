@@ -29,6 +29,17 @@ A rejection almost always means re-running immediately will fail the same way (t
 changed) — investigate first, then either fix and re-dispatch, or fall back to a manual capture
 for today so the day isn't lost while the job is being fixed.
 
+**A provenance warning is not a rejection.** An accepted capture may log
+`::warning title=careerStats provenance::<date>: completed seasons not from the data store — <season> (<provenance>), …`.
+The snapshot is still written and committed. The listed seasons were read from the live Sleeper
+API (pre-D-76 classification) or by an unknown path. The daily job builds the app with
+`VITE_DATA_STORE_URL` set to raw GitHub, a single-source base with no jsDelivr step and no
+fallback (CR-29, Guard 1). So the cause is raw GitHub failing for those files on that run: an HTTP
+error, timeout, parse error or network error. The snapshot is kept as captured;
+whether the frozen prior should refuse such a snapshot is a backlog decision for before the 2027
+kickoff. It does not cover the just-completed season between its last game and Sleeper's season
+rollover (CR-01).
+
 ---
 
 ### Fallback: manual capture
