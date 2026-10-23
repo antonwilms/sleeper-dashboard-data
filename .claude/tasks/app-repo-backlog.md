@@ -4,6 +4,19 @@ Work that belongs in `sleeper-dashboard`, found by a session scoped to this repo
 
 ## Open
 
+### ~~Family-file raw fallback (CR-29)~~
+**✅ Done 2026-10-23** — app `ff9a751` (fix pass `511b8cf`).
+**Found:** data-store-cdn-limit (data `5231fb4`, task file `.claude/tasks/data-store-cdn-limit.md` Revision 1, Stage 1) · **Blocking:** no — wanted before the next CR-30 in-place rewrite release · **Size:** small — `src/api/dataStore.js` + tests + docs
+
+jsDelivr intermittently answers family files with 403 "package size exceeded the configured limit of 50 MB" (the repo is ~550 MB unpacked; the limit bites when jsDelivr's per-file fetch fails and it falls back to the whole-repo tarball). `tryDataStore` treats it as a silent `null`, and `getSeasonTotals` falls back to the live API (pre-D-76 classification). Decided (Anton, 2026-10-23): keep jsDelivr first, add raw.githubusercontent.com as the fallback on HTTP error / timeout / JSON parse error, a per-session host skip, a budget that fits `loadFrozenPrior`'s 30 s race, a log line for every failed fetch, and the CR-29 retitle/sites. Full spec, guards, budgets and test list are in the task file's Stage 1. Its own Session 1 runs **in the app repo**.
+
+### Frozen prior and live-API-labelled snapshots — decide before 2027 kickoff
+**Found:** data-store-cdn-limit (data `5231fb4`, task file Revision 1, D2) · **Blocking:** no — the frozen prior is unused in 2026 · **Size:** small — `src/utils/inSeasonScoring.js` (`trimFrozenSnapshot`, `checkFrozenSnapshot`) + `src/api/frozenPrior.js` (`readAndGate`)
+
+A snapshot records per-season `inputStatus.careerStats.detail.provenance`. Should `loadFrozenPrior` refuse a snapshot in which any completed season is `'live-api'`, falling to "live prior, flagged"? This is scoring-affecting, but only in that failure case. The decision is deferred (Anton, 2026-10-23); make it before the 2027 kickoff selects a frozen prior.
+
+**There is a cache trap if the answer is yes.** `readAndGate` gates on a cached trim (`frozen-prior/<date>`, TTL 999999). `trimFrozenSnapshot`'s `env` keeps only `capturedAt`/`leagueId`/`targetSeason`/`projectionBasis`/`projectionModelFrom`, so `inputStatus` is dropped. The trim must start carrying provenance, and already-cached trims must be re-trimmed, in the way the existing `qbChain == null` re-trim works (`frozenPrior.js:20`).
+
 ### Name-only matchers miss nickname and short-form name variants
 **Found:** computed-stats-verification (app `4969138` (fix pass 2), report `verification/2026-10-18-computed-stats-verification.md`) · **Blocking:** yes · **Size:** medium — three matchers, one shared alias idea
 
