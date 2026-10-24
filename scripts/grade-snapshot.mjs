@@ -7,7 +7,8 @@
  * Public exports:
  *   deriveTargetSeason(capturedAtISO)           → number
  *   buildPositionMap(snapshot)                  → Map<playerId, pos>
- *   loadOutcomes(targetSeason)                  → Map<id, OutcomeRecord> | null
+ *   resolveOutcomeBasis(snapshot)               → { model, classification, provenance, caveats }  (D-44)
+ *   loadOutcomes(targetSeason, basis, load)     → { outcomes, … } | null
  *   buildGradeInputFromSnapshot(snap, out, opts) → GradeInput
  *   gradeSnapshot(opts)                         → GradeReport | null
  *   runSelfTest()                               → void (throws on mismatch)
@@ -18,6 +19,7 @@ import { readJson, writeJsonStable } from '../lib/io.mjs';
 import { updateManifestEntry }       from '../lib/manifest.mjs';
 import { scoreProjections }          from '../lib/grade.mjs';
 import { calculateFantasyPoints, RATE_KEYS } from '../lib/fantasyPoints.mjs';
+import { rescoreSeasonRowsLeague, loadLeaguePositions } from '../lib/leagueBasis.mjs';
 
 // ─── deriveTargetSeason ───────────────────────────────────────────────────────
 
@@ -116,29 +118,105 @@ export function buildInBasisOutcomes(seasonTotals, scoringSettings) {
 }
 
 /**
+ * League-basis outcomes (D-44): the app's load-time rescore (lib/leagueBasis.mjs `rescoreSeasonRowsLeague`,
+ * CR-15 mirror), then the half-PPR builder's shape over the rescored `fantasyPoints`.
+ * @returns {{ outcomes: Map, droppedTerms: string[], excludedRateKeys: string[], scoredKeyCount: null }}
+ */
+export function buildLeagueOutcomes(seasonTotals, scoringSettings, positionOf) {
+  const rescored = rescoreSeasonRowsLeague(seasonTotals, scoringSettings, positionOf);
+  return {
+    outcomes: buildHalfPprOutcomes(rescored),
+    droppedTerms: [],
+    excludedRateKeys: [],
+    scoredKeyCount: null,
+  };
+}
+
+/**
  * Injectable I/O surface, mirroring scripts/panel-run.mjs's DEFAULT_LOAD.
+ * `loadPositionOf()` returns the league position lookup (raw/-players-nfl.json); read lazily, league model only.
  */
 export const DEFAULT_LOAD = {
   loadSeasonTotals: (year) => readJson(`nfl/season-totals/${year}.json`),
   loadSnapshot:     (date) => readJson(`snapshots/${date}.json`),
+  loadPositionOf:   () => loadLeaguePositions(),
 };
 
+// ─── resolveOutcomeBasis (D-44) ───────────────────────────────────────────────
+
 /**
- * Load nfl/season-totals/<targetSeason>.json and build outcomes.
+ * Which outcome basis a snapshot's projections are comparable to (D-44, plan january-grading-run-a §4).
+ *
+ * @param {object} snapshot
+ * @returns {{ model: 'half_ppr'|'league'|null, classification: 'half_ppr'|'league'|'mixed'|'unknown',
+ *             provenance: object|null, caveats: string[] }}
+ */
+export function resolveOutcomeBasis(snapshot) {
+  const provenance = snapshot.inputStatus?.careerStats?.detail?.provenance ?? null;
+  if (snapshot.scoringSettings == null) {
+    return { model: 'half_ppr', classification: 'half_ppr', provenance, caveats: [] };
+  }
+  const basis = snapshot.projectionBasis;
+  if (basis === 'league') {
+    const caveats = [];
+    const off = provenance ? Object.entries(provenance).filter(([, v]) => v !== 'data-store') : [];
+    if (off.length) caveats.push(`career seasons not from the data store (${off.map(([y, v]) => `${y}:${v}`).join(', ')}) — CR-01: caveat only`);
+    return { model: 'league', classification: 'league', provenance, caveats };
+  }
+  if (basis === undefined || basis === null || basis === 'half_ppr') {
+    if (provenance == null) {
+      return { model: 'half_ppr', classification: 'half_ppr', provenance: null, caveats: ['provenance unrecorded (pre-inputStatus capture)'] };
+    }
+    const off = Object.entries(provenance).filter(([, v]) => v !== 'data-store');
+    if (off.length) {
+      return { model: null, classification: 'mixed', provenance, caveats: [`non-data-store career seasons: ${off.map(([y, v]) => `${y}:${v}`).join(', ')}`] };
+    }
+    return { model: 'half_ppr', classification: 'half_ppr', provenance, caveats: [] };
+  }
+  return { model: null, classification: 'unknown', provenance, caveats: [`unrecognised projectionBasis '${basis}'`] };
+}
+
+function normalisePositionLookup(src) {
+  if (typeof src === 'function') return src;
+  if (src instanceof Map) return (id) => src.get(String(id)) ?? null;
+  if (src && typeof src === 'object') return (id) => src[String(id)]?.position ?? src[String(id)] ?? null;
+  return () => null;
+}
+
+/**
+ * The `positionOf` seam: league lookup (load.loadPositionOf, skipped when absent) → the snapshot's
+ * depth charts → null. `counts` is meta.positionSource over the snapshot's projected players.
+ */
+export function resolvePositionOf(snapshot, load = DEFAULT_LOAD) {
+  const league = typeof load.loadPositionOf === 'function' ? normalisePositionLookup(load.loadPositionOf()) : null;
+  const chart = buildPositionMap(snapshot);
+  const positionOf = (id) => league?.(id) ?? chart.get(String(id)) ?? null;
+  const counts = { league: 0, snapshot: 0, none: 0 };
+  for (const [id, player] of Object.entries(snapshot.players ?? {})) {
+    if (!player.projection) continue;
+    if (league?.(id) != null) counts.league++;
+    else if (chart.has(String(id))) counts.snapshot++;
+    else counts.none++;
+  }
+  return { positionOf, counts };
+}
+
+/**
+ * Load nfl/season-totals/<targetSeason>.json and build outcomes on the resolved basis (D-44).
  * Returns null if the file does not exist.
- * When scoringSettings is provided, builds in-basis outcomes; otherwise half_ppr.
  *
  * @param {number} targetSeason
- * @param {object|null} scoringSettings  v2 snapshot scoringSettings, or null for v1
+ * @param {{ model: 'half_ppr'|'league', scoringSettings?: object|null, positionOf?: Function|null }} basis
  * @param {object} load  injectable loaders, defaults to DEFAULT_LOAD
  * @returns {{ outcomes: Map, inBasis: boolean, droppedTerms: string[], excludedRateKeys: string[], scoredKeyCount: number|null } | null}
  */
-export function loadOutcomes(targetSeason, scoringSettings = null, load = DEFAULT_LOAD) {
+export function loadOutcomes(targetSeason, { model = 'half_ppr', scoringSettings = null, positionOf = null } = {}, load = DEFAULT_LOAD) {
   const data = load.loadSeasonTotals(targetSeason);
   if (!data) return null;
-  if (scoringSettings) {
-    return { ...buildInBasisOutcomes(data, scoringSettings), inBasis: true };
+  if (model === 'league') {
+    return { ...buildLeagueOutcomes(data, scoringSettings, positionOf), inBasis: true };
   }
+  if (model !== 'half_ppr') throw new Error(`[grade] loadOutcomes: unknown outcome model '${model}'`);
   return {
     outcomes: buildHalfPprOutcomes(data),
     inBasis: false,
@@ -165,12 +243,15 @@ export function loadOutcomes(targetSeason, scoringSettings = null, load = DEFAUL
 export function buildGradeInputFromSnapshot(snapshot, outcomes, {
   targetSeason, snapshotDate = null, source = 'snapshot',
   inBasis = false, droppedTerms = [], excludedRateKeys = [], scoredKeyCount = null,
+  outcomeBasis: outcomeBasisOpt = null,
 }) {
   const posMap       = buildPositionMap(snapshot);
   const scoringBasis = snapshot.scoringBasis ?? 'unknown';
-  const inBasisFlag  = !!inBasis;
-  const outcomeBasis = inBasisFlag ? scoringBasis : 'half_ppr';
-  const basisMatch   = inBasisFlag ? true : (scoringBasis === outcomeBasis);
+  // D-44 seam: a non-null `outcomeBasis` ('half_ppr'|'league') is the resolved routing — the outcomes were built on the
+  // basis the projections are comparable to, so basisMatch is true. The default null keeps the pre-D-44 computation.
+  const inBasisFlag  = outcomeBasisOpt != null ? outcomeBasisOpt === 'league' : !!inBasis;
+  const outcomeBasis = outcomeBasisOpt != null ? outcomeBasisOpt : (inBasisFlag ? scoringBasis : 'half_ppr');
+  const basisMatch   = outcomeBasisOpt != null ? true : (inBasisFlag ? true : (scoringBasis === outcomeBasis));
 
   const projections = [];
   for (const [playerId, player] of Object.entries(snapshot.players ?? {})) {
@@ -223,9 +304,11 @@ export function buildGradeInputFromSnapshot(snapshot, outcomes, {
  * @param {boolean}      opts.strictBasis    skip non-half_ppr snapshots
  * @param {boolean}      opts.dryRun         suppress writes even if --write is set
  * @param {object}       opts.load           injectable loaders, defaults to DEFAULT_LOAD
+ * @param {boolean}      opts.quiet          no stdout report and no log lines (the season-grade orchestrator embeds the report)
  * @returns {object|null}
  */
-export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = null, write = false, json = false, strictBasis = false, dryRun = false, load = DEFAULT_LOAD }) {
+export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = null, write = false, json = false, strictBasis = false, dryRun = false, load = DEFAULT_LOAD, quiet = false }) {
+  const log = quiet ? () => {} : (...a) => console.log(...a);
   // 1. Load snapshot
   const snapshot = load.loadSnapshot(snapshotDate);
   if (!snapshot) {
@@ -241,23 +324,40 @@ export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = nu
     ?? (snapshot.targetSeason != null ? snapshot.targetSeason : deriveTargetSeason(snapshot.capturedAt));
 
   if (seasonDerived) {
-    console.log(`[grade] targetSeason ${targetSeason} derived from capturedAt (${snapshot.capturedAt}) — use --target-season to override.`);
+    log(`[grade] targetSeason ${targetSeason} derived from capturedAt (${snapshot.capturedAt}) — use --target-season to override.`);
   }
 
   // 3. Strict-basis check (v1 only — v2 uses in-basis, making strict-basis moot)
   if (strictBasis && snapshot.scoringSettings == null && snapshot.scoringBasis !== 'half_ppr') {
-    console.log(
+    log(
       `[grade] Skipping: --strict-basis set and snapshot scoringBasis is ` +
       `'${snapshot.scoringBasis}' (not half_ppr).`
     );
     return null;
   }
 
-  // 4. Load outcomes (in-basis for v2, half_ppr for v1)
-  const scoringSettings = snapshot.scoringSettings ?? null;
-  const loaded = loadOutcomes(targetSeason, scoringSettings, load);
+  // 4. Resolve the outcome basis (D-44), then load outcomes on it
+  const resolved = resolveOutcomeBasis(snapshot);
+  if (resolved.model == null) {
+    const seasons = resolved.provenance
+      ? Object.entries(resolved.provenance).filter(([, v]) => v !== 'data-store').map(([y, v]) => `${y}:${v}`).join(', ')
+      : 'n/a';
+    log(
+      `[grade] Skipping: snapshot ${snapshotDate} classified '${resolved.classification}' ` +
+      `(non-data-store career seasons: ${seasons}) — no comparable outcome basis.`
+    );
+    return null;
+  }
+  let positionSource = null;
+  let positionOf = null;
+  if (resolved.model === 'league') {
+    const r = resolvePositionOf(snapshot, load);
+    positionOf = r.positionOf;
+    positionSource = r.counts;
+  }
+  const loaded = loadOutcomes(targetSeason, { model: resolved.model, scoringSettings: snapshot.scoringSettings ?? null, positionOf }, load);
   if (!loaded) {
-    console.log(
+    log(
       `[grade] nfl/season-totals/${targetSeason}.json not found — ` +
       `outcome not available yet (expected before the season completes).`
     );
@@ -274,9 +374,15 @@ export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = nu
     droppedTerms,
     excludedRateKeys,
     scoredKeyCount,
+    outcomeBasis: resolved.model,
   });
 
   const report = scoreProjections(gradeInput);
+  report.meta.outcomeModel        = resolved.model;
+  report.meta.basisClassification = resolved.classification;
+  report.meta.provenance          = resolved.provenance;
+  if (positionSource) report.meta.positionSource = positionSource;
+  if (resolved.caveats.length) report.caveats = [...report.caveats, ...resolved.caveats];
 
   // Decorate meta with runtime fields
   report.meta.gradedAt      = new Date().toISOString();
@@ -284,7 +390,9 @@ export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = nu
   if (seasonDerived) report.meta.targetSeasonDerived = true;
 
   // 6. Output
-  if (json) {
+  if (quiet) {
+    // no stdout
+  } else if (json) {
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
   } else {
     process.stdout.write(formatHumanReport(report) + '\n');
@@ -300,9 +408,9 @@ export function gradeSnapshot({ snapshotDate, targetSeason: targetSeasonOpt = nu
       inProgress:   false,
       schemaVersion: 1,
     });
-    console.log(`[grade] Written → ${outPath}`);
+    log(`[grade] Written → ${outPath}`);
   } else if (write && dryRun) {
-    console.log(`[grade] --dry-run: would write grading/${snapshotDate}.json (suppressed).`);
+    log(`[grade] --dry-run: would write grading/${snapshotDate}.json (suppressed).`);
   }
 
   return report;
@@ -569,6 +677,14 @@ export function formatHumanReport(report) {
   if (meta.targetSeasonDerived) {
     lines.push(`│  (season derived from capturedAt — use --target-season to   │`);
     lines.push(`│   override if the heuristic is wrong for this capture)      │`);
+  }
+  if (meta.basisClassification) {
+    const routed = `${meta.outcomeModel} (${meta.basisClassification})`;
+    lines.push(`│  Outcomes:  ${routed.padEnd(49)}│`);
+    if (meta.positionSource) {
+      const ps = `league=${meta.positionSource.league} snapshot=${meta.positionSource.snapshot} none=${meta.positionSource.none}`;
+      lines.push(`│  Positions: ${ps.padEnd(49)}│`);
+    }
   }
   if (meta.inBasis) {
     const basisStr   = `in-basis (${meta.scoringBasis}) — authoritative`;

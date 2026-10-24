@@ -13,6 +13,7 @@ Script-driven longitudinal data store consumed by the sleeper-dashboard React ap
 | Update | `bin/update.mjs` | `nfl`, `cfbd`, `ktc`, `snapshots`, `roster`, `draft`, `playerids`, `advstats`, `schedule`, `gamelogs`, `playerstats`, `teamcontext`, `playerstate`, `oline`, `snaps`, `depth`, `rosterweekly` |
 | Enrichment | `bin/enrich.mjs` | `coaching`/`scheme`/`injuries`/`notes` `add`, `validate`, `list`, `remove` |
 | Grading | `bin/grade.mjs` | `<snapshotDate>`, `--self-test` |
+| Season grade | `bin/season-grade.mjs` | `--rehearse`, `--write`, `--json`, `--only <steps>` (January run, Fri 2027-01-15 ≥ 14:00 UTC) |
 | Backtest | `bin/backtest.mjs` | offline analysis over advstats + season-totals; `--inseason [--dynasty] [--basis league]`, `--league-basis`, `--qb-takeover`, `--qb-rookie-level [--basis league]`, `--absence`, `--games-calibration [--cause/--short]`, `--rookie-total [--basis league]`, `--rookie-basis` (D-45), `--weekly-basis` |
 | Panel | `bin/panel.mjs` | E-0a baseline, `--flip-gate` (R2), `--fit` (R3-FIT), `--rookie`/`--fullpipeline` (admit `--basis league`) |
 | Dead-man | `bin/deadman.mjs` | needs `GITHUB_REPOSITORY` + `GITHUB_TOKEN` |
@@ -27,7 +28,7 @@ npm test                    # node --test — unit validators under test/
 
 Other shortcuts: `update:{nfl,cfbd,ktc}`, `import:snapshot`, `enrich`, `grade`, `backtest`, `backtest:{inseason,qb-takeover,qb-rookie-level,absence,games-calibration}`, `panel`, `panel:{flip,fit}`, `validate:enrichment`.
 
-`bin/backtest.mjs` and `bin/panel.mjs` are **offline analysis, not the snapshot grader** (`bin/grade.mjs`). `--fit` defaults `--basis` to `half_ppr` (`league` is report-only) and pins `--attribution per-season-team`, rejecting an explicit `--attribution`.
+`bin/backtest.mjs`, `bin/panel.mjs` and `bin/season-grade.mjs` are **offline analysis, not the snapshot grader** (`bin/grade.mjs`). `--fit` defaults `--basis` to `half_ppr` (`league` is report-only) and pins `--attribution per-season-team`, rejecting an explicit `--attribution`.
 
 **Poisoned-snapshot window (2026-07-16 → 2026-07-18):** app snapshots in this window carry ~½-scale `teamRzShare` and `shareVolatility`. Exclude or correct them in the 2026 grading run — README → [Module notes](README.md#module-notes).
 
@@ -59,7 +60,8 @@ path/source/grain/join/coverage/gate is [data-catalog.md](data-catalog.md).
 | `scripts/update-{roster,draft,playerids,advstats,schedule,gamelogs,teamcontext,playerstate,oline,snaps,depth,rosterweekly}.mjs` | Uniform family ingests — fetch, parse, dedup, write; re-keying: README → Module notes |
 | `scripts/update-playerstats.mjs` | Single-fetch orchestrator — one `stats_player_week_<year>.csv` drives `updateAdvStats` + `updateGameLogs` under per-family throw isolation; emits `advstats_ok`/`gamelogs_ok` |
 | `lib/nflverse.mjs` | nflverse fetch + CSV-parse helpers. **Coverage floors** (CR-18 trigger sites): `MIN_ROSTER_IDS`, `MIN_DRAFT_YEAR`, `MIN_PLAYERID_ROWS`, `MIN_ADVSTATS_ROWS`, `MIN_SCHEDULE_SEASON`, `MIN_SCHEDULE_GAMES`, `MIN_PLAYERGAME_ROWS`, `MIN_GAMELOG_SEASON`, `MIN_TEAMCONTEXT_ROWS`, `MIN_TEAMCONTEXT_SEASON`, `MIN_OLINE_ROWS`, `MIN_OLINE_SEASON`, `MIN_SNAPS_ROWS`, `MIN_SNAPS_SEASON` (2013 — the 2012 upstream file is header-only), `MIN_DEPTH_ROWS`, `MIN_DEPTH_SEASON`, `DEPTH_ESPN_FROM_SEASON` (2025 — legacy/ESPN schema split), `DEPTH_JOIN_RATE_MIN`, `MIN_DEPTH_QB1_TEAMS`, `MIN_ROSTERWEEKLY_SEASON`, `MIN_ROSTERWEEKLY_WEEK_ROWS`, `MIN_ROSTERWEEKLY_WEEK_TEAMS`, `ROSTERWEEKLY_JOIN_RATE_MIN`. `AY_PER_TARGET_MIN`/`MAX` is a plausibility **band**, not a floor |
-| `scripts/grade-snapshot.mjs` | Grading adapter — loads snapshot + outcomes, builds GradeInput, orchestrates `lib/grade.mjs` |
+| `scripts/grade-snapshot.mjs` | Grading adapter — loads snapshot + outcomes, builds GradeInput, orchestrates `lib/grade.mjs`. `resolveOutcomeBasis` routes each capture's outcomes half-PPR / league / skip (D-44; CR-01 consumer) |
+| `scripts/season-grade-run.mjs`, `lib/seasonGrade.mjs`, `lib/vetReplay.mjs` | January season grade: step registry `STEPS` + per-step isolation; pure segment table / metrics / labels; the veteran replay R, its gates and drift Q. `lib/vetReplay.mjs` mirrors the app's veteran composition (CR-15). `VETERAN_SEGMENTS` is mirrored in `grading/anchor-policy.md`; README → January season grade |
 | `scripts/backtest-run.mjs` | Backtest adapters (injectable loaders): this file (advstats); per-mode adapters (`*-run.mjs`) are listed in README → Module notes — several reach `lib/rookieMirror.mjs` outside `bin/panel.mjs`'s closure |
 | `scripts/update-enrichment.mjs` | Enrichment upsert/validate/remove logic |
 | `lib/grade.mjs` | Pure scorer — `scoreProjections(GradeInput) → GradeReport`; no I/O |

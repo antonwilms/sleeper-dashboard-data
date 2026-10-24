@@ -5,15 +5,15 @@
  * scripts/grade-snapshot.mjs) — fixtures are served from memory, no reads or
  * writes touch the real repo filesystem.
  *
- * Coverage gap filled:
- *   - loadOutcomes v2 (scoringSettings present) → buildInBasisOutcomes path
- *   - loadOutcomes v1 (scoringSettings absent)  → buildHalfPprOutcomes path
- *   - gradeSnapshot routing: snapshot.scoringSettings extraction + dispatch
+ * D-44 (january-grading-run-a §4): routing is by resolveOutcomeBasis(snapshot) — half_ppr / league / skip —
+ * and loadOutcomes takes { model, scoringSettings, positionOf }. v2 captures no longer reach buildInBasisOutcomes.
+ * Four tests below are DECLARED REWRITES (the behaviour changed; not bent green): the v2 loadOutcomes test, the v1
+ * loadOutcomes test (new signature), the missing-year test (new signature), and the gradeSnapshot v2 test.
  */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadOutcomes, gradeSnapshot } from '../scripts/grade-snapshot.mjs';
+import { loadOutcomes, gradeSnapshot, resolveOutcomeBasis } from '../scripts/grade-snapshot.mjs';
 
 // ─── Sentinel paths ───────────────────────────────────────────────────────────
 
@@ -85,34 +85,28 @@ function suppressOutput(fn) {
 
 // ─── loadOutcomes routing ─────────────────────────────────────────────────────
 
-test('loadOutcomes v2: scoringSettings present → buildInBasisOutcomes path', () => {
-  const result = loadOutcomes(SENTINEL_YEAR, SCORING_V2, load);
+// REWRITE 1 (was: v2 → buildInBasisOutcomes). A v2 capture now reaches half-PPR or league via `model`.
+test('loadOutcomes model league → rescored outcomes (decoy fantasyPoints prove the path)', () => {
+  const result = loadOutcomes(SENTINEL_YEAR, { model: 'league', scoringSettings: SCORING_V2, positionOf: () => 'RB' }, load);
 
   assert.ok(result !== null, 'result not null');
   assert.equal(result.inBasis, true, 'inBasis === true');
-  assert.deepEqual(result.excludedRateKeys, ['rec_ypr'], 'rec_ypr rate-excluded');
-  assert.deepEqual(result.droppedTerms,    ['bonus_xyz'], 'bonus_xyz dropped');
-  assert.equal(result.scoredKeyCount, 5, 'scoredKeyCount === 5');
+  assert.deepEqual(result.droppedTerms, [], 'league path reports no dropped terms');
 
-  // p1 in-basis: 700*0.1 + 7*6 = 112; /16 = 7.0
-  // if half_ppr path ran: 480/16 = 30 — the two values prove which path fired
+  // p1 rescored: 700*0.1 + 7*6 = 112 (the decoy fantasyPoints is 480); /16 = 7.0
   const p1 = result.outcomes.get('p1');
   assert.ok(p1, 'p1 outcome present');
-  assert.equal(p1.actualTotalPts, 112,  'p1 actualTotalPts (dot-product, not decoy 480)');
-  assert.equal(p1.actualPPG,      7.0,  'p1 actualPPG (dot-product, not decoy 30)');
+  assert.equal(p1.actualTotalPts, 112, 'p1 actualTotalPts (rescored, not decoy 480)');
+  assert.equal(p1.actualPPG,      7.0, 'p1 actualPPG (rescored, not decoy 30)');
 
-  // p2 rec_ypr:99 must NOT contribute (rate-excluded); 1200*0.1+10*6 = 180; /15 = 12
-  const p2 = result.outcomes.get('p2');
-  assert.equal(p2.actualPPG, 12.0, 'p2 actualPPG — rec_ypr excluded');
-
-  // p4 0-GP rule
   const p4 = result.outcomes.get('p4');
   assert.equal(p4.actualPPG, null,  'p4 actualPPG null (0 gp)');
   assert.equal(p4.played,    false, 'p4 played false');
 });
 
-test('loadOutcomes v1: scoringSettings absent → buildHalfPprOutcomes path', () => {
-  const result = loadOutcomes(SENTINEL_YEAR, null, load);
+// REWRITE 2 (was: v1 with a bare `null` second argument). New signature.
+test('loadOutcomes model half_ppr → buildHalfPprOutcomes path', () => {
+  const result = loadOutcomes(SENTINEL_YEAR, { model: 'half_ppr' }, load);
 
   assert.ok(result !== null, 'result not null');
   assert.equal(result.inBasis, false, 'inBasis === false');
@@ -120,39 +114,125 @@ test('loadOutcomes v1: scoringSettings absent → buildHalfPprOutcomes path', ()
   assert.deepEqual(result.excludedRateKeys, [], 'excludedRateKeys empty');
   assert.equal(result.scoredKeyCount, null, 'scoredKeyCount null');
 
-  // p1 half_ppr: fantasyPoints=480, gp=16 → 30.0
-  // if in-basis path ran: 7.0 — again proves which path fired
   const p1 = result.outcomes.get('p1');
-  assert.ok(p1, 'p1 outcome present');
   assert.equal(p1.actualTotalPts, 480,  'p1 actualTotalPts = fantasyPoints (not dot-product 112)');
-  assert.equal(p1.actualPPG,      30.0, 'p1 actualPPG = 30.0 (not dot-product 7.0)');
+  assert.equal(p1.actualPPG,      30.0, 'p1 actualPPG = 30.0');
 
-  // p4 0-GP rule unchanged
   const p4 = result.outcomes.get('p4');
   assert.equal(p4.actualPPG, null,  'p4 actualPPG null');
   assert.equal(p4.played,    false, 'p4 played false');
 });
 
+// REWRITE 3 (new signature).
 test('loadOutcomes returns null for missing year', () => {
-  assert.equal(loadOutcomes(1900, null),      null, 'null for missing year (v1)');
-  assert.equal(loadOutcomes(1900, SCORING_V2), null, 'null for missing year (v2)');
+  assert.equal(loadOutcomes(1900, { model: 'half_ppr' }, load), null, 'null for missing year (half_ppr)');
+  assert.equal(loadOutcomes(1900, { model: 'league', scoringSettings: SCORING_V2, positionOf: () => null }, load), null, 'null for missing year (league)');
+});
+
+test('loadOutcomes rejects an unknown model', () => {
+  assert.throws(() => loadOutcomes(SENTINEL_YEAR, { model: 'nope' }, load), /unknown outcome model/);
+});
+
+// ─── resolveOutcomeBasis ──────────────────────────────────────────────────────
+
+const prov = (o) => ({ inputStatus: { careerStats: { detail: { provenance: o } } } });
+
+test('resolveOutcomeBasis: v1 (no scoringSettings) → half_ppr', () => {
+  const r = resolveOutcomeBasis({ schemaVersion: 1 });
+  assert.equal(r.model, 'half_ppr');
+  assert.equal(r.classification, 'half_ppr');
+});
+
+test('resolveOutcomeBasis: v2 with no inputStatus → half_ppr with a provenance-unrecorded caveat', () => {
+  const r = resolveOutcomeBasis({ scoringSettings: SCORING_V2 });
+  assert.equal(r.model, 'half_ppr');
+  assert.ok(r.caveats.some(c => /provenance unrecorded/.test(c)));
+});
+
+test('resolveOutcomeBasis: all data-store provenance, no projectionBasis → half_ppr', () => {
+  const r = resolveOutcomeBasis({ scoringSettings: SCORING_V2, ...prov({ 2024: 'data-store', 2025: 'data-store' }) });
+  assert.equal(r.model, 'half_ppr');
+  assert.deepEqual(r.caveats, []);
+});
+
+test('resolveOutcomeBasis: a live-api season on a half-PPR capture → mixed, model null', () => {
+  const r = resolveOutcomeBasis({ scoringSettings: SCORING_V2, ...prov({ 2024: 'data-store', 2025: 'live-api' }) });
+  assert.equal(r.model, null);
+  assert.equal(r.classification, 'mixed');
+  assert.ok(r.caveats[0].includes('2025:live-api'));
+});
+
+test("resolveOutcomeBasis: 'league' → league; a non-data-store season is a caveat only (CR-01)", () => {
+  const r = resolveOutcomeBasis({ scoringSettings: SCORING_V2, projectionBasis: 'league', ...prov({ 2025: 'live-api' }) });
+  assert.equal(r.model, 'league');
+  assert.equal(r.classification, 'league');
+  assert.equal(r.caveats.length, 1);
+});
+
+test("resolveOutcomeBasis: an unrecognised projectionBasis → unknown, model null", () => {
+  const r = resolveOutcomeBasis({ scoringSettings: SCORING_V2, projectionBasis: 'unknown' });
+  assert.equal(r.model, null);
+  assert.equal(r.classification, 'unknown');
 });
 
 // ─── gradeSnapshot routing ────────────────────────────────────────────────────
 
-test('gradeSnapshot v2: snapshot.scoringSettings extracted → meta.inBasis true', () => {
+// REWRITE 4 (was: v2 → meta.inBasis true / outcomeBasis 'custom'). A v2 capture with no projectionBasis is half-PPR.
+test('gradeSnapshot v2 (no projectionBasis): routed to half_ppr outcomes', () => {
   const report = suppressOutput(() =>
     gradeSnapshot({ snapshotDate: SNAP_V2_DATE, dryRun: true, load })
   );
 
   assert.ok(report !== null, 'report not null');
-  assert.equal(report.meta.inBasis,     true,     'meta.inBasis === true');
-  assert.equal(report.meta.basisMatch,  true,     'meta.basisMatch === true (no indicative caveat)');
-  assert.equal(report.meta.outcomeBasis, 'custom', 'meta.outcomeBasis = scoringBasis');
-  assert.ok(
-    !report.caveats.some(c => c.toLowerCase().includes('basis mismatch')),
-    'no basis-mismatch caveat for in-basis report'
+  assert.equal(report.meta.outcomeModel, 'half_ppr', 'outcomeModel half_ppr');
+  assert.equal(report.meta.basisClassification, 'half_ppr');
+  assert.equal(report.meta.inBasis,     false,     'meta.inBasis === false');
+  assert.equal(report.meta.outcomeBasis, 'half_ppr', 'meta.outcomeBasis half_ppr');
+  assert.equal(report.meta.basisMatch,  true,     'meta.basisMatch === true');
+  assert.ok(report.caveats.some(c => /provenance unrecorded/.test(c)), 'provenance caveat surfaced');
+  // p1: projected 9.0 vs half_ppr actual 480/16 = 30 (the rescored value would be 7.0) → bias 9 − 30
+  assert.equal(report.overall.biasPPG, -21);
+});
+
+const SNAP_LEAGUE = {
+  ...SNAP_V2,
+  projectionBasis: 'league',
+  teamDepthCharts: { AAA: { RB: [{ playerId: 'p1', depthOrder: 1 }] } },
+  ...prov({ 2025: 'data-store' }),
+};
+const SNAP_MIXED = { ...SNAP_V2, ...prov({ 2025: 'live-api' }) };
+const SNAP_UNKNOWN = { ...SNAP_V2, projectionBasis: 'weird' };
+
+function loadWith(snap, extra = {}) {
+  return { ...load, loadSnapshot: () => snap, ...extra };
+}
+
+test('gradeSnapshot league: outcomes rescored (decoys), positionSource counts via injected loadPositionOf', () => {
+  const report = suppressOutput(() =>
+    gradeSnapshot({ snapshotDate: 'x', dryRun: true, load: loadWith(SNAP_LEAGUE, { loadPositionOf: () => ({ p1: { position: 'RB' } }) }) })
   );
+  assert.ok(report);
+  assert.equal(report.meta.outcomeModel, 'league');
+  assert.equal(report.meta.inBasis, true);
+  assert.equal(report.meta.outcomeBasis, 'league');
+  assert.deepEqual(report.meta.positionSource, { league: 1, snapshot: 0, none: 0 });
+  // p1 actual PPG 7.0 (rescored) vs projected 9.0 → bias +2.0; the half-PPR decoy would give −21
+  assert.equal(report.overall.biasPPG, 2.0);
+});
+
+test('gradeSnapshot league: absent loadPositionOf skips that source; snapshot charts count', () => {
+  const report = suppressOutput(() =>
+    gradeSnapshot({ snapshotDate: 'x', dryRun: true, load: loadWith(SNAP_LEAGUE) })
+  );
+  assert.deepEqual(report.meta.positionSource, { league: 0, snapshot: 1, none: 0 });
+});
+
+test('gradeSnapshot: a mixed-provenance half-PPR capture is skipped (null, exit-0 condition)', () => {
+  assert.equal(suppressOutput(() => gradeSnapshot({ snapshotDate: 'x', dryRun: true, load: loadWith(SNAP_MIXED) })), null);
+});
+
+test("gradeSnapshot: projectionBasis 'weird' is skipped as unknown", () => {
+  assert.equal(suppressOutput(() => gradeSnapshot({ snapshotDate: 'x', dryRun: true, load: loadWith(SNAP_UNKNOWN) })), null);
 });
 
 test('gradeSnapshot v1: no scoringSettings → meta.inBasis false', () => {

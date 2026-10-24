@@ -1907,6 +1907,21 @@ Three layers, each with a clean interface:
 
 Override with `--target-season YYYY` if the heuristic is wrong.
 
+### Outcome-basis routing (D-44)
+
+`resolveOutcomeBasis(snapshot)` in `scripts/grade-snapshot.mjs` decides which outcome basis a capture's projections are comparable to; `gradeSnapshot` always uses it and passes the result to `buildGradeInputFromSnapshot` as `outcomeBasis` (so `meta.basisMatch` is `true` on a routed grade).
+
+| Capture | `inputStatus.careerStats.detail.provenance` | Outcomes | `meta.basisClassification` |
+|---|---|---|---|
+| v1 (no `scoringSettings`) | — | half-PPR | `half_ppr` |
+| `projectionBasis` absent / `'half_ppr'` | none (v2) | half-PPR, caveat "provenance unrecorded" | `half_ppr` |
+| same | every season `'data-store'` | half-PPR | `half_ppr` |
+| same | any season ≠ `'data-store'` | **skipped** (exit 0, seasons logged) | `mixed` |
+| `'league'` (from 2026-09-25) | any | league-rescored (`buildLeagueOutcomes` → `rescoreSeasonRowsLeague`, the capture's `scoringSettings`); a non-`data-store` season adds a caveat only (CR-01) | `league` |
+| anything else | any | **skipped** | `unknown` |
+
+The league position lookup is `load.loadPositionOf()` (default `raw/-players-nfl.json`), falling back to the capture's depth charts; per-source counts land in `meta.positionSource`. `meta` also carries `outcomeModel`, `basisClassification` and `provenance` (additive; `schemaVersion` stays 1). The pre-D-44 behaviour (every `scoringSettings` capture dot-producted against its own settings through `buildInBasisOutcomes`) is no longer reached by `gradeSnapshot`; the builder stays for the self-test.
+
 ### In-basis grading (v2 snapshots)
 
 For **v2 snapshots** (those with a `scoringSettings` field), the harness grades **in-basis**: it recomputes each player's actual target-season PPG by running a dot-product of the season-totals `stats` object against the snapshot's stored `scoringSettings` (via `lib/fantasyPoints.mjs`). This means absolute MAE/bias are **authoritative** — the actuals are computed under the same scoring weights as the projections, so no half_ppr basis offset distorts the numbers. The report shows:
@@ -1914,7 +1929,7 @@ For **v2 snapshots** (those with a `scoringSettings` field), the harness grades 
 - `Dropped`: scored keys absent from season-totals (omitted from actuals; in-basis totals undercount by these terms).
 - `Rate-excluded`: non-additive rate keys (e.g. `rec_ypr`) stripped from `scoringSettings` before the dot-product (defensive guard; these never appear in real Sleeper `scoringSettings`).
 
-**v1 snapshots** (no `scoringSettings`) continue to grade in half_ppr with the indicative-only basis-mismatch caveat. `--strict-basis` skips v1 non-half_ppr snapshots; it has no effect on v2 (in-basis makes it moot).
+**Pre-D-44 behaviour (historical):** v2 snapshots were graded in-basis via the dot-product above. **v1 snapshots** (no `scoringSettings`) continue to grade in half_ppr with the indicative-only basis-mismatch caveat. `--strict-basis` skips v1 non-half_ppr snapshots; it has no effect on v2 (in-basis makes it moot).
 
 ### Basis mismatch (v1 only)
 
@@ -2267,6 +2282,25 @@ node bin/backtest.mjs --rookie-total --write   # persist the two artifacts above
 Reproduce: `node bin/backtest.mjs --rookie-total --write`.
 
 ---
+
+### January season grade (`bin/season-grade.mjs`)
+
+P3 slice A (`.claude/tasks/january-grading-run-a.md`). One command for the grades parked until the 2026 regular season ends; **report-only** — numbers and labels, never a constant or a wiring recommendation. Offline analysis, not the snapshot grader (Invariant 9): the veteran replay **recomposes** projections.
+
+```sh
+node bin/season-grade.mjs --rehearse        # end to end on today's partial data; bypasses G-SEASON, writes nothing
+node bin/season-grade.mjs                   # the January run (Fri 2027-01-15, ≥ 14:00 UTC); G-SEASON is a hard stop
+node bin/season-grade.mjs --write           # + grading/<captureDate>.json (registered), backtests/<runDate>-season-grade.json, grading/<runDate>-season-grade-verdict.md (unregistered)
+node bin/season-grade.mjs --only vet-calibration --json
+npm run grade:season -- --rehearse
+```
+
+- **Registry:** `scripts/season-grade-run.mjs` exports `STEPS` — `season-gate`, `inventory`, `d44`, `vet-calibration`; Slice B appends its steps. Each step after the gate runs in its own try/catch; exit 1 if any failed.
+- **Gate:** G-SEASON = 272 scored REG games; week-18 `'P'` ≥ 0.85 × the median of weeks 1–17; `weeklyStats` on every played row; season-totals manifest `lastModified` ≥ schedule's − 24 h.
+- **Segments:** `lib/seasonGrade.mjs` `VETERAN_SEGMENTS` (mirrored byte-for-byte as a JSON block in [grading/anchor-policy.md](grading/anchor-policy.md)); `KICKOFF_2026_UTC` = 2026-09-10T00:20:00Z (`games.csv` `2026_01_NE_SEA`, Wed 2026-09-09 20:20 ET). K = the last capture before it (`2026-09-09`); L0…L6 are the first capture of each post-kickoff veteran segment (leaky); S is the composite of per-player source rows (leaky). A capture outside its segment's date range, an unpinned `projectionModelFrom`, or a newest capture not in the last segment **stops** the run — a new veteran boundary goes into the JSON block and `VETERAN_SEGMENTS` first.
+- **Replay R** (`lib/vetReplay.mjs`): the shipping model recomposed on pre-kickoff (K) inputs by delta-form substitution into the newest-segment capture S(i) — K's `teamFactor` and `qbQualityFactor` tables, depth (`reconstructDepthFactor` + `qbRole`), the QB start share from K's rooms, S's age table at K's age, the breakout age rule. Gates: G1 identity, G2 depth, G3 tables, **G-MECH** (A's inputs replayed onto B's rows over fixed pairs M1–M9 plus the bounded window pair M10 must match within display rounding), G5 QB chain, G6 age table; the boundary-equality guard stops on a changed boundary. R is the headline iff G1–G3 and G-MECH pass, else K ("not the shipping model"); R and K are always both reported, with R − K. Drift Q (Q-within, Q-cross) is printed under the headline and never decides.
+- **Metrics:** `R_ppg`, `R_tot` per position and pooled, 95% player-cluster bootstrap (4,000 resamples, seed 12345), labels `optimistic|within-CI|pessimistic`, `consistent-with-history`, `agrees|differs`, heterogeneity (per-position difference from pooled + a 4,000-permutation test).
+- **CR-15:** `lib/vetReplay.mjs` mirrors the app's veteran composition (`seasonProjection.js:1013-1054`, `:964`, `projectionSignals.js:31-35`); G1/G2/G-MECH fail loudly if an app change goes unsynced.
 
 ## Data sources and attribution
 

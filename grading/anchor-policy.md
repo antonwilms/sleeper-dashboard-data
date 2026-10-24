@@ -220,6 +220,26 @@ veteran games grade spanning it measures the correction. Boundary 8 is veteran-o
 `factors.shortSeasonState`; it moves `projectedGames` on `'short'`/`'none'` rows (and `projectedTotalPts` except on QB
 `chain` rows), and a pooled veteran games grade spanning it measures the rule. Boundary 9 is rookie-only (RB/WR/TE, day-3 and undrafted) and row-detectable through `factors.rookieTotalBasis`; it moves `projectedTotalPts` only, so a pooled rookie total-points grade spanning it measures the factor, and a PPG or games grade does not see it. Boundary 4a is both-path and row-detectable through the envelope's `projectionBasis` (rookie rows also through `factors.rookieBasisScale`); it moves every `projectedPPG` and `projectedTotalPts`, so a pooled grade of either spanning it measures the scoring basis. Boundary 10 is veteran-only, a served-data correction on the absence axis like boundary 7 (`'D'` → `'X'` for role-state weeks), and row-detectable through the envelope's `projectionModelFrom`; it moves veteran rows' `projectedGames`, `projectedTotalPts`, `injurySeasons` and `absenceShapeFactor`, and `projectedPPG` only on bounce-back flips, so a pooled veteran games grade spanning it measures the correction.
 
+## Veteran segments for the January season grade (machine-readable)
+
+`lib/seasonGrade.mjs` `VETERAN_SEGMENTS` is mirrored **byte-for-byte** as the JSON block below (`test/season-grade.test.mjs` deep-equals the two). Boundaries 6 and 9 are rookie-only and have no veteran segment; boundary 9's marker date maps to L5. `L0` is the first capture after the earliest 2026 regular-season kickoff (`KICKOFF_2026_UTC` = 2026-09-10T00:20:00Z: nflverse `games.csv` `2026_01_NE_SEA`, Wed 2026-09-09 20:20 ET); `K`, the last capture before it, is `2026-09-09`. A capture's segment is the **last** entry (array order) whose detector fires; the run stops if the capture's date lies outside [that entry's `firstCapture`, the next's), if a non-null `projectionModelFrom` is not a listed marker or maps to another segment, or if the newest 2026 capture does not classify to the last entry. **A new veteran boundary is added here and to `VETERAN_SEGMENTS` first** (and re-opens the season-grade plan for its segment-dependent spans).
+
+Detector vocabulary: `capturedAfter` (`capturedAt > utc`); `vetRowKey` (every veteran row has `factors[key] !== undefined`); `envelopeEquals` (`snapshot[field] === value`); `markerIn` (`projectionModelFrom` ∈ `markers`).
+
+<!-- veteran-segments:begin -->
+```json
+[
+  {"id":"L0","boundary":"none","firstCapture":"2026-09-10","detector":{"kind":"capturedAfter","utc":"2026-09-10T00:20:00Z"},"markers":[]},
+  {"id":"L1","boundary":"4","firstCapture":"2026-09-13","detector":{"kind":"vetRowKey","key":"regressionUpsideBasis"},"markers":[]},
+  {"id":"L2","boundary":"4a","firstCapture":"2026-09-25","detector":{"kind":"envelopeEquals","field":"projectionBasis","value":"league"},"markers":[]},
+  {"id":"L3","boundary":"5","firstCapture":"2026-10-04","detector":{"kind":"vetRowKey","key":"qbTakeoverBasis"},"markers":[]},
+  {"id":"L4","boundary":"7","firstCapture":"2026-10-07","detector":{"kind":"capturedAfter","utc":"2026-10-07T06:50:00Z"},"markers":[]},
+  {"id":"L5","boundary":"8","firstCapture":"2026-10-10","detector":{"kind":"vetRowKey","key":"shortSeasonState"},"markers":["2026-10-11","2026-10-14"]},
+  {"id":"L6","boundary":"10","firstCapture":"2026-10-23","detector":{"kind":"markerIn","markers":["2026-10-23"]},"markers":["2026-10-23"]}
+]
+```
+<!-- veteran-segments:end -->
+
 ## Why this is written now, not at the first forward grade
 
 Writing this policy with a stale date list is worse than not writing it at all (D-15) — a

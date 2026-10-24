@@ -88,7 +88,7 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 
 ## Grading reports
 - **Served path / subcommand / refresh:** `grading/<date>.json`; `bin/grade.mjs --write`; on demand
-- **Source + provenance:** derived internally — joins a snapshot to its outcome season-totals file (`lib/grade.mjs`); no external upstream
+- **Source + provenance:** derived internally — joins a snapshot to its outcome season-totals file (`lib/grade.mjs`); no external upstream. **Outcome basis is routed per capture (D-44, `resolveOutcomeBasis`):** `projectionBasis: 'league'` captures (from 2026-09-25) grade against league-rescored outcomes; half-PPR captures against half-PPR; mixed-provenance / unknown captures are skipped. `meta` adds `outcomeModel`, `basisClassification`, `provenance`, `positionSource` (additive; `schemaVersion` stays 1)
 - **Grain:** snapshot-date
 - **Join id(s):** snapshot date ↔ outcome season-totals via sleeper_id
 - **Coverage:** on-demand set
@@ -97,7 +97,7 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Null semantics:** n/a — derived report, not a sourced dataset
 - **Consumption:** banked
 - **Keep-rationale:** projection-quality audit trail
-- **Note:** `grading/` also holds unregistered `<date>-e0a-verdict.md` and `<date>-r2flip-verdict.md` analysis reports (see Non-served artifacts) — not part of this family.
+- **Note:** `grading/` also holds unregistered `<date>-e0a-verdict.md` and `<date>-r2flip-verdict.md` analysis reports (see Non-served artifacts) — not part of this family. The January season grade (`bin/season-grade.mjs --write`) writes the registered per-capture `grading/<captureDate>.json` for K and the first capture of each veteran segment, plus the unregistered `grading/<runDate>-season-grade-verdict.md` and `backtests/<runDate>-season-grade.json` (aggregates only).
 
 ## Enrichment overlay
 - **Served path / subcommand / refresh:** `enrichment/{coaching,scheme,injuries,notes}.json`; `bin/enrich.mjs`; hand-authored (the one non-script family)
@@ -298,7 +298,7 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 Outside the catalog contract (not app-consumed; unregistered except where noted):
 
 - **`backtests/`** — offline analysis JSONs written by `bin/backtest.mjs --write`; not wired into smoke, not the snapshot grader; also the E-0a panel/fit artifacts (`<date>-e0a-*.json`) from `bin/panel.mjs --write`, the R2 flip-gate artifacts (`<date>-r2flip-{panel,fit}.json`) from `bin/panel.mjs --flip-gate --write`, and the R3-FIT fitted-exponent artifacts (`<date>-r3fit-{panel,fit}.json`) from `bin/panel.mjs --fit --write`.
-- **`grading/<date>-e0a-verdict.md`** — human-readable E-0a verdict written by `bin/panel.mjs --write`; unregistered analysis reports (`<date>-e0a-verdict.md`, `<date>-r2flip-verdict.md`, `<date>-r3fit-verdict.md`) (the registered `grading/<date>.json` family from `bin/grade.mjs` is unchanged).
+- **`grading/<date>-e0a-verdict.md`** — human-readable E-0a verdict written by `bin/panel.mjs --write`; unregistered analysis reports (`<date>-e0a-verdict.md`, `<date>-r2flip-verdict.md`, `<date>-r3fit-verdict.md`) (the registered `grading/<date>.json` family from `bin/grade.mjs` is unchanged). **`grading/<runDate>-season-grade-verdict.md`** and **`backtests/<runDate>-season-grade.json`** — the January season grade (`bin/season-grade.mjs --write`, plan `january-grading-run-a`); unregistered, report-only; `grading/anchor-policy.md` carries the machine-readable veteran segment table.
 - **`raw/`** — legacy one-time dumps (league/roster/user/player-state Sleeper snapshots, 6 files). These 6 are registered in `manifest.json` (the only entries in this section that are) but are not a served family. The earlier 252 `raw/stats-*.json` dumps referenced by `.claude/tasks/retire-raw-stats.md` have already been retired and removed from disk. The eight `raw/cfbd-players-<year>.json` dumps (2017–2024) have likewise been retired and removed (`.claude/tasks/repo-weight.md`, E1) — nothing read them, and they remain recoverable from commit `82235d2`.
 - **`ktc/quarantine/`** — script-produced when a KTC scrape trips the Spearman ordering guard or the QB-count landscape check; unregistered, app-ignored; does not exist yet — created on demand by `scripts/update-ktc.mjs` on the first guard trip (no scrape has been quarantined).
 - **`ktc/last-checked.json`** + **`nflverse/last-checked-roster.json`** — run markers, not data.

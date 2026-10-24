@@ -4,6 +4,11 @@ Work that belongs in `sleeper-dashboard`, found by a session scoped to this repo
 
 ## Open
 
+### January grading run (P3 slice A): app-side registry and backlog edits
+**Found:** january-grading-run-a (data branch `claude/p3-slice-a-037aa6`, task file `.claude/tasks/january-grading-run-a.md` §16) · **Blocking:** no — land after the data commit, so `test/registry.test.mjs` resolves the new Data sites · **Size:** small — docs only, parent-folder session
+
+The exact edits are in the task file's §16: (1) app `.claude/tasks/data-repo-backlog.md`: the trigger for D-16, D-44, D-52, D-60 and D-75 changes from "≥ 2027-01-05" to Fri 2027-01-15 (≥ 14:00 UTC; week 18 ends 2027-01-10); (2) `docs/cross-repo-registry.md` CR-15: Data += `lib/vetReplay.mjs` (`recompose`); App += `src/App.jsx` (the `computeTeamContext` current-team memo and the `computeEmpiricalAgeCurves` memo, :222-247, not the dynasty-only `computeHistoricalShares` memo at :293-301), `src/utils/teamContext.js` (`computeTeamContext`), `src/utils/projectionSignals.js` (`computeBreakoutFlag`); Tests += `test/vet-replay.test.mjs`; (3) CR-01: Data += `scripts/grade-snapshot.mjs` (`resolveOutcomeBasis`).
+
 ### ~~Family-file raw fallback (CR-29)~~
 **✅ Done 2026-10-23** — app `ff9a751` (fix pass `511b8cf`).
 **Found:** data-store-cdn-limit (data `5231fb4`, task file `.claude/tasks/data-store-cdn-limit.md` Revision 1, Stage 1) · **Blocking:** no — wanted before the next CR-30 in-place rewrite release · **Size:** small — `src/api/dataStore.js` + tests + docs

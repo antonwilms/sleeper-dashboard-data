@@ -74,10 +74,13 @@ NOTES
   Until nfl/season-totals/2026.json exists (~early 2027), running this command
   will print "outcome not available yet" and exit 0 — that is the expected state.
 
-  All current snapshots are 'custom' scoring basis; actual outcomes are
-  canonical half_ppr. The absolute PPG MAE/bias conflates basis offset with
-  projection error. Use --strict-basis to skip non-half_ppr snapshots entirely.
+  Outcome basis is routed per snapshot (D-44): captures with projectionBasis
+  'league' (from 2026-09-25) are graded against league-rescored outcomes; v1
+  and half-PPR v2 captures against half_ppr outcomes; a capture whose career
+  seasons are not all data-store (mixed) or whose basis is unrecognised is
+  skipped (exit 0). --strict-basis keeps its v1-only meaning.
   See README.md Grading harness section for full details.
+  The January season grade (one command, many grades) is bin/season-grade.mjs.
 `);
 }
 

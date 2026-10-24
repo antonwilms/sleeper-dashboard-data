@@ -1837,6 +1837,24 @@ describe('D6a §Design/A — depth (Step 8, D5)', () => {
     assert.equal(reconstructDepthFactor(3, true), 1.0);
     assert.equal(reconstructDepthFactor(1, true), 1.05, 'depth-1 is never demoted by staleness');
   });
+  test("reconstructDepthFactor: qbRole 'backup' (qb-takeover QB, not stale) -> 1.00; the default call is byte-identical", () => {
+    const qb = { position: 'QB', model: 'qb-takeover' };
+    assert.equal(reconstructDepthFactor(1, false, { ...qb, qbRole: 'backup' }), 1.0, 'a second order-1 QB');
+    assert.equal(reconstructDepthFactor(1, false, qb), 1.05, 'no qbRole: unchanged');
+    assert.equal(reconstructDepthFactor(1, false, { ...qb, qbRole: 'incumbent' }), 1.05);
+    // inert outside the QB / qb-takeover branch
+    assert.equal(reconstructDepthFactor(1, false, { position: 'RB', model: 'qb-takeover', qbRole: 'backup' }), 1.05);
+    assert.equal(reconstructDepthFactor(1, false, { position: 'QB', model: 'legacy', qbRole: 'backup' }), 1.05);
+    for (const position of [null, 'QB', 'RB', 'WR', 'TE']) for (const model of ['legacy', 'qb-takeover']) {
+      for (const order of [null, 1, 2, 3, 7]) for (const stale of [true, false]) {
+        assert.equal(
+          reconstructDepthFactor(order, stale, { position, model, qbRole: null }),
+          reconstructDepthFactor(order, stale, { position, model }),
+          `${position}/${model}/${order}/${stale}`,
+        );
+      }
+    }
+  });
 });
 
 describe('D6a §Design/A — team offense (Step 7)', () => {

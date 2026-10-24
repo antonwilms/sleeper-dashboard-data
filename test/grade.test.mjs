@@ -293,3 +293,18 @@ test('buildPositionMap: player absent from charts → undefined (adapter assigns
   const map = buildPositionMap({ teamDepthCharts: {} });
   assert.equal(map.size, 0);
 });
+
+// D-44 seam: an explicit outcomeBasis marks the outcomes as built on the routed basis → basisMatch true, even on a
+// 'custom'-labelled envelope; the default (null) keeps the pre-D-44 computation.
+test('buildGradeInputFromSnapshot: outcomeBasis half_ppr on a custom envelope → basisMatch true, inBasis false', () => {
+  const snap = { scoringBasis: 'custom', capturedAt: '2026-10-01T00:00:00Z', teamDepthCharts: {}, players: {} };
+  const routed = buildGradeInputFromSnapshot(snap, new Map(), { targetSeason: 2026, outcomeBasis: 'half_ppr' });
+  assert.equal(routed.meta.basisMatch, true);
+  assert.equal(routed.meta.inBasis, false);
+  assert.equal(routed.meta.outcomeBasis, 'half_ppr');
+  const dflt = buildGradeInputFromSnapshot(snap, new Map(), { targetSeason: 2026 });
+  assert.equal(dflt.meta.basisMatch, false);
+  const lg = buildGradeInputFromSnapshot(snap, new Map(), { targetSeason: 2026, outcomeBasis: 'league' });
+  assert.equal(lg.meta.inBasis, true);
+  assert.equal(lg.meta.outcomeBasis, 'league');
+});
