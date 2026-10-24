@@ -1063,9 +1063,9 @@
     },
     "nflverse/oline/2026.json": {
       "schemaVersion": 1,
-      "recordCount": 14305,
+      "recordCount": 14714,
       "inProgress": false,
-      "lastModified": "2026-10-17T17:29:36.230Z"
+      "lastModified": "2026-10-24T17:32:27.163Z"
     },
     "nfl/players-state/2026-07-25.json": {
       "schemaVersion": 1,
@@ -1947,5 +1947,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-10-24T17:24:30.831Z"
+  "generatedAt": "2026-10-24T17:32:27.163Z"
 }
