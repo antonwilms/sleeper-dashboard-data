@@ -23,7 +23,7 @@ Pre-registration means the rules are frozen in this file, committed before any o
 
 1. **Season end.** Week 18 ends Sun **2027-01-10**, not 2027-01-03.
    - `nfl/season-totals/2026.json` (2026-10-23) has weeks 1–6 played and 95 non-`TEAM_*` `'P'` slots in week 7.
-   - `nflverse/schedule/2026.json` has 1 of 14 week-7 games scored. Week 7 began Thu 2026-10-22, so week 1 began Thu 2026-09-10.
+   - `nflverse/schedule/2026.json` has 1 of 14 week-7 games scored. Week 7 began Thu 2026-10-22, so week 1's Thursday is 2026-09-10 (the opener itself was Wed 2026-09-09, §5.1).
 2. **Captures.** `snapshots/` holds 100 files, 2026-05-19 → 2026-10-23.
    - v1 (`05-19`, `06-06`, `06-07`) has no `targetSeason` or `scoringSettings`; every other capture has `targetSeason` 2026, and `currentSeason` is 2025 throughout.
    - `projectionBasis: 'league'` from `2026-09-25`.
@@ -120,8 +120,8 @@ New export `resolveOutcomeBasis(snapshot) → { model: 'half_ppr'|'league'|null,
 
 ### 5.1 Population and K
 
-- `KICKOFF_2026_UTC` is pinned by Session 2 from nflverse `games.csv` (`gameday` + `gametime` ET → UTC of the earliest 2026 `REG` game), with a source comment. The expected value is 2026-09-11T00:20Z.
-- **K** = the last capture with `capturedAt <` kickoff. Expected `snapshots/2026-09-10.json`; if the opener was Wed 09-09, K = `2026-09-09`. Report which.
+- `KICKOFF_2026_UTC` = **`2026-09-10T00:20:00Z`**. Source: nflverse `games.csv` (fetched 2026-10-24 by Session 2): `2026_01_NE_SEA`, gameday 2026-09-09 (Wed), gametime 20:20 ET. **Correction (Session 1, 2026-10-24):** the plan had assumed a Thu 09-10 opener (2026-09-11T00:20Z); the Thu 09-10 game, SF@LA, is the second game.
+- **K** = the last capture with `capturedAt <` kickoff = **`snapshots/2026-09-09.json`** (19:22:18Z). Verified: no `projectionBasis`; 424 veterans, none with `regressionUpsideBasis`/`qbTakeoverBasis`; `teamFactor` constant within team (32 teams). `2026-09-10` (19:12Z) is after kickoff and is L0's first capture. K-vs-S counts quoted elsewhere were measured on `09-10` (illustrative; the run recomputes on K).
 - **Guard:** K's envelope has no `projectionBasis`, and K's veteran rows carry no `regressionUpsideBasis` or `qbTakeoverBasis`; else stop.
 - **P** = K's rows with `projection.confidence !== 'rookie'`.
 - **Position:** K's `teamDepthCharts`, then `raw/-players-nfl.json`, then `nflverse/roster/2026.json`. `UNK` is pooled only, with a count.
@@ -142,7 +142,7 @@ New export `resolveOutcomeBasis(snapshot) → { model: 'half_ppr'|'league'|null,
 
 ```json
 [
-  {"id":"L0","boundary":"none","firstCapture":"2026-09-11","detector":{"kind":"capturedAfter","utc":"2026-09-11T00:20:00Z"},"markers":[]},
+  {"id":"L0","boundary":"none","firstCapture":"2026-09-10","detector":{"kind":"capturedAfter","utc":"2026-09-10T00:20:00Z"},"markers":[]},
   {"id":"L1","boundary":"4","firstCapture":"2026-09-13","detector":{"kind":"vetRowKey","key":"regressionUpsideBasis"},"markers":[]},
   {"id":"L2","boundary":"4a","firstCapture":"2026-09-25","detector":{"kind":"envelopeEquals","field":"projectionBasis","value":"league"},"markers":[]},
   {"id":"L3","boundary":"5","firstCapture":"2026-10-04","detector":{"kind":"vetRowKey","key":"qbTakeoverBasis"},"markers":[]},
@@ -179,7 +179,7 @@ L0's `utc` is `KICKOFF_2026_UTC`. If Session 2's `games.csv` check gives a diffe
   - Any failure: stop and report. January then needs a plan decision; nothing is improvised.
 
 **Why one capture per segment, never pooled:** pooling measures the mechanism change, and daily rows are not independent. The first capture is the least leaky.
-- **Inventory only** (listed, not graded as calibration): v1/v2 and summer captures. They are pre-kickoff and share K's veteran model, apart from untracked June–July changes and the poisoned 07-16→07-18 window.
+- **Inventory only** (not graded): v1/v2 and summer captures (pre-kickoff, K's veteran model bar untracked June–July changes and the poisoned 07-16→07-18 window).
 
 ### 5.3 Replay R — the shipping model on pre-kickoff inputs (aggregate fidelity)
 
@@ -327,7 +327,7 @@ For rows with projection `p` (PPG), `G`, `T`, and outcome `a` (points), `g` (gam
     - `'unknown'` → null;
     - `positionSource` counts via the injected `loadPositionOf`.
 - **`test/grade.test.mjs`:** unchanged. Add one case: `outcomeBasis: 'half_ppr'` on a `'custom'` envelope gives `basisMatch` true.
-- **`test/vet-replay.test.mjs`** runs on `test/fixtures/season-grade/` **trimmed copies** of committed captures, about 60 veteran rows each from `2026-10-13`, `10-14`, `10-22` and `2026-09-10`, plus a fixture birthdate map:
+- **`test/vet-replay.test.mjs`** runs on `test/fixtures/season-grade/` **trimmed copies** of committed captures, about 60 veteran rows each from `2026-10-13`, `10-14`, `10-22` and `2026-09-09` (K), plus a fixture birthdate map:
   - G1/G2/G3 pass on them;
   - G-MECH on the trimmed `10-13→10-14` pair: 0 rows beyond rounding and ratios ≤ 0.003, against values computed in the test file;
   - the row-rule boundary (a row exactly one step off passes; two steps fail; the total bound at `0.1·G + 0.1`);

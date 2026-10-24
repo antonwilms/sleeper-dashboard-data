@@ -24,7 +24,7 @@
 
 ### 6.1 ROS grade by checkpoint (`inSeason.ros`)
 
-- **Calendar:** `T_c` = week c's Thursday = the date of `KICKOFF_2026_UTC` in ET (2026-09-10) + 7(c−1) days. Week c **closes** at `T_c` + 5 days, 06:00 UTC (the Tuesday after Monday night).
+- **Calendar:** `T_c` = week c's Thursday = **2026-09-10 (a fixed literal, week 1's Thursday)** + 7(c−1) days. It is *not* derived from `KICKOFF_2026_UTC`: the opener was Wed 2026-09-09, Slice A §5.1. Week c **closes** at `T_c` + 5 days, 06:00 UTC (the Tuesday after Monday night).
 - **Checkpoint c's capture:** the first capture with `capturedAt` in [close_c, `T_{c+1}` 23:00 UTC). Otherwise it is the first capture after close_c, flagged `late`.
 - **Checkpoints:** c = 3…17. The first `inSeason` capture is 09-27, inside week 3. c = 1 and 2 are listed as `no-inSeason-capture`. Week 18 has no ROS.
 - **Rows** with `inSeason.season === 2026`:
