@@ -1845,15 +1845,12 @@ describe('D6a §Design/A — depth (Step 8, D5)', () => {
     // inert outside the QB / qb-takeover branch
     assert.equal(reconstructDepthFactor(1, false, { position: 'RB', model: 'qb-takeover', qbRole: 'backup' }), 1.05);
     assert.equal(reconstructDepthFactor(1, false, { position: 'QB', model: 'legacy', qbRole: 'backup' }), 1.05);
-    for (const position of [null, 'QB', 'RB', 'WR', 'TE']) for (const model of ['legacy', 'qb-takeover']) {
-      for (const order of [null, 1, 2, 3, 7]) for (const stale of [true, false]) {
-        assert.equal(
-          reconstructDepthFactor(order, stale, { position, model, qbRole: null }),
-          reconstructDepthFactor(order, stale, { position, model }),
-          `${position}/${model}/${order}/${stale}`,
-        );
-      }
-    }
+    // explicit expected values under qb-takeover with qbRole: null (not a null-vs-omitted comparison)
+    const qbNull = { position: 'QB', model: 'qb-takeover', qbRole: null };
+    assert.deepEqual([1, 2, 3, null].map(o => reconstructDepthFactor(o, false, qbNull)), [1.05, 1.00, 1.00, 1.00]);
+    assert.deepEqual([2, 3, null].map(o => reconstructDepthFactor(o, true, qbNull)), [1.00, 1.00, 1.00], 'stale -> 1.00');
+    const rbNull = { position: 'RB', model: 'qb-takeover', qbRole: null };
+    assert.deepEqual([1, 2, 3].map(o => reconstructDepthFactor(o, false, rbNull)), [1.05, 0.88, 0.68]);
   });
 });
 

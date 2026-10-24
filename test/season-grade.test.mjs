@@ -17,7 +17,7 @@ import {
   calibrationLabel, historyLabel, agreeLabel, pooledDiffLabel, bootCI, permutationTest, MIN_CELL,
 } from '../lib/seasonGrade.mjs';
 import { boundaryGuard } from '../lib/vetReplay.mjs';
-import { STEPS, runSeasonGrade } from '../scripts/season-grade-run.mjs';
+import { STEPS, runSeasonGrade, makeContext, decideHeadline, K_HEADLINE_LABEL, M10_CAVEAT } from '../scripts/season-grade-run.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const fx = (name) => JSON.parse(fs.readFileSync(path.join(ROOT, 'test/fixtures/season-grade', name), 'utf8'));
@@ -192,6 +192,18 @@ describe('G-SEASON', () => {
     const y = good(); y.totals.TEAM_Y = { gamesPlayed: 17 };
     assert.equal(evaluateSeasonGate(y).checks[2].pass, true);
   });
+  test('(c) mirrors requireWeeklyStats: an empty {} passes; an absent field or a non-object fails', () => {
+    const empty = good(); empty.totals.p7.weeklyStats = {};
+    assert.equal(evaluateSeasonGate(empty).checks[2].pass, true, 'played row with weeklyStats: {} passes');
+    const absent = good(); delete absent.totals.p7.weeklyStats;
+    assert.equal(evaluateSeasonGate(absent).checks[2].pass, false, 'field absent fails');
+    for (const bad of [null, 'x', 5, [], [1]]) {
+      const x = good(); x.totals.p7.weeklyStats = bad;
+      assert.equal(evaluateSeasonGate(x).checks[2].pass, false, `non-object ${JSON.stringify(bad)} fails`);
+    }
+    const unplayed = good(); unplayed.totals.p7 = { gamesPlayed: 0 };
+    assert.equal(evaluateSeasonGate(unplayed).checks[2].pass, true, 'gamesPlayed 0 needs no weeklyStats');
+  });
   test('(d) fails when season-totals lastModified is > 24 h before the schedule’s', () => {
     const x = good();
     x.manifest.files['nfl/season-totals/2026.json'].lastModified = '2027-01-14T13:34:00Z';
@@ -336,5 +348,169 @@ describe('STEPS registry', () => {
     const r = await runSeasonGrade({ steps: [mk('a')], rehearse: true, write: true, load: {} });
     assert.deepEqual(r.artifacts, []);
     assert.match(r.verdict, /REHEARSAL/);
+  });
+});
+
+// ─── --only cannot bypass the gate (fix pass 1, item 2) ───────────────────────
+
+describe('season gate runs first regardless of --only', () => {
+  const failingLoad = { loadSchedule: () => ({ games: [] }), loadSeasonTotals: () => ({}), loadManifest: () => ({ files: {} }) };
+  const gate = STEPS.find(s => s.id === 'season-gate');
+  const probe = () => {
+    const calls = [];
+    return { calls, step: { id: 'd44', run: async () => { calls.push('d44'); return { section: { id: 'd44', title: 'd44', md: 'ran', placement: 'main' }, artifacts: [{ path: 'grading/x.json' }] }; } } };
+  };
+
+  test('--only d44 with a failing gate: no step runs and nothing is written', async () => {
+    const { calls, step } = probe();
+    const r = await runSeasonGrade({ steps: [gate, step], only: ['d44'], write: true, load: failingLoad });
+    assert.deepEqual(calls, [], 'd44 never ran');
+    assert.equal(r.exitCode, 1);
+    assert.deepEqual(r.artifacts, [], 'nothing written');
+    assert.equal(r.results[0].id, 'season-gate');
+    assert.ok(r.results[0].error);
+    assert.deepEqual(r.results.slice(1).map(x => [x.id, !!x.skipped]), [['d44', true]]);
+  });
+
+  test('--only d44 --rehearse: the gate is reported and bypassed, d44 runs, nothing is written', async () => {
+    const { calls, step } = probe();
+    const r = await runSeasonGrade({ steps: [gate, step], only: ['d44'], rehearse: true, write: true, load: failingLoad });
+    assert.deepEqual(calls, ['d44']);
+    assert.deepEqual(r.results.map(x => x.id), ['season-gate', 'd44']);
+    assert.match(r.verdict, /G-SEASON bypassed \(would FAIL\)/);
+    assert.equal(r.exitCode, 0);
+    assert.deepEqual(r.artifacts, []);
+  });
+});
+
+// ─── Headline decision (fix pass 1, item 7) ───────────────────────────────────
+
+describe('decideHeadline', () => {
+  const pass = { pass: true };
+  const all = (over = {}) => ({ g1: pass, g2: pass, g3: pass, gMech: { pass: true, m10Skipped: false }, m10: { id: 'M10', pass: true }, g5: pass, g6: pass, ...over });
+
+  test('all gates pass with M10 run → R, no caveat', () => {
+    const d = decideHeadline(all());
+    assert.equal(d.headline, 'R');
+    assert.equal(d.label, d.labels.R);
+    assert.equal(d.label, 'replay of the shipping model on pre-kickoff inputs — HEADLINE, clean');
+    assert.ok(!d.label.includes(M10_CAVEAT));
+    assert.deepEqual(d.gateFail, []);
+  });
+
+  test('M10 skipped → R with the exact caveat', () => {
+    const d = decideHeadline(all({ gMech: { pass: true, m10Skipped: true }, m10: { id: 'M10', skipped: true, pass: true } }));
+    assert.equal(d.headline, 'R');
+    assert.equal(M10_CAVEAT, 'mechanics of the newest model version unverified');
+    assert.equal(d.label, 'replay of the shipping model on pre-kickoff inputs — HEADLINE, clean — mechanics of the newest model version unverified');
+  });
+
+  for (const [name, over, gate] of [
+    ['G1', { g1: { pass: false } }, 'G1'], ['G2', { g2: { pass: false } }, 'G2'], ['G3', { g3: { pass: false } }, 'G3'],
+    ['G-MECH', { gMech: { pass: false, m10Skipped: false } }, 'G-MECH'],
+  ]) {
+    test(`${name} failing → K headline with the exact label, R labelled "replay failed gate ${gate} — not headline"`, () => {
+      const d = decideHeadline(all(over));
+      assert.equal(d.headline, 'K');
+      assert.equal(K_HEADLINE_LABEL, 'September model — not the shipping model; model changes since are unmeasured');
+      assert.equal(d.label, 'September model — not the shipping model; model changes since are unmeasured');
+      assert.equal(d.labels.R, `replay failed gate ${gate} — not headline`);
+      assert.deepEqual(d.gateFail, [gate]);
+    });
+  }
+
+  test('G5 failing → backup/chain QB rows dropped from R (flag), headline unchanged', () => {
+    const d = decideHeadline(all({ g5: { pass: false } }));
+    assert.equal(d.headline, 'R');
+    assert.deepEqual(d.degrade, { useAgeTable: true, dropQbBackups: true });
+    assert.deepEqual(decideHeadline(all()).degrade, { useAgeTable: true, dropQbBackups: false });
+  });
+
+  test('G6 failing → S’s ageDelta kept (flag), headline unchanged', () => {
+    const d = decideHeadline(all({ g6: { pass: false } }));
+    assert.equal(d.headline, 'R');
+    assert.deepEqual(d.degrade, { useAgeTable: false, dropQbBackups: false });
+  });
+});
+
+// ─── vet-calibration step on trimmed captures (fix pass 1, items 4 and 5) ─────
+
+describe('stepVetCalibration on trimmed captures', () => {
+  const DATES = ['2026-09-09', '2026-10-13', '2026-10-14', '2026-10-22'];
+  const loadSnap = (d) => fx(`snap-2026-${d.slice(5)}.json`);
+  const { birthdates, draftYear } = fx('birthdates.json');
+  const root = (rel) => JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
+
+  /** A context whose inventory is seeded: K = 09-09, every later fixture capture in the last segment (the fixtures stop at L5). */
+  function seeded(snaps) {
+    const load = {
+      listSnapshotDates: () => DATES,
+      // G-MECH pairs name dates the fixtures do not carry: any other date reads as 10-14 (G-MECH then fails or not — irrelevant here)
+      loadSnapshot: (d) => snaps[d] ?? snaps['2026-10-14'],
+      loadSeasonTotals: (y) => root(`nfl/season-totals/${y}.json`),
+      loadPlayerIds: () => ({ bySleeper: Object.fromEntries(Object.keys(birthdates).map(id => [id, { birthdate: birthdates[id], draftYear: draftYear[id] }])) }),
+      loadQbConstants: () => root('backtests/2026-10-03-qb-takeover-constants.json'),
+    };
+    const ctx = makeContext({ load, rehearse: true });
+    const last = VETERAN_SEGMENTS.length - 1;
+    const mk = (d, seg) => ({ date: d, capturedAt: snaps[d].capturedAt, era: seg ? 'segment' : 'pre-kickoff', segment: seg ? VETERAN_SEGMENTS[last].id : null,
+      index: seg ? last : -1, d44: 'league', outcomeModel: 'league', offStore: null, vets: 1, sEligible: seg });
+    const entries = [mk(DATES[0], false), ...DATES.slice(1).map(d => mk(d, true))];
+    ctx.shared.inventory = {
+      entries, kDate: DATES[0], kPrevDate: null,
+      segments: VETERAN_SEGMENTS.map((sg, i) => { const caps = i === last ? entries.slice(1) : []; return { id: sg.id, boundary: sg.boundary, first: caps[0]?.date ?? null, last: caps.at(-1)?.date ?? null, n: caps.length, captures: caps }; }),
+    };
+    return ctx;
+  }
+  const vetStep = STEPS.find(s => s.id === 'vet-calibration');
+
+  test('a failing boundary guard stops: inventory, classification and guard section, STOPPED verdict, no headline, the step throws, exit 1', async () => {
+    const snaps = Object.fromEntries(DATES.map(d => [d, loadSnap(d)]));
+    const victim = Object.values(snaps['2026-10-13'].players).find(p => p.projection?.factors && p.projection.confidence !== 'rookie');
+    victim.projection.factors.teamFactor = 1.2345;   // off the 1 + (16 − rank)/200 grid → guard (b) fails
+    const ctx = seeded(snaps);
+    await assert.rejects(() => vetStep.run(ctx), (err) => {
+      assert.match(err.message, /STOPPED — boundary-equality guard failed/);
+      const md = err.section.md;
+      assert.match(md, /STOPPED — boundary-equality guard failed \(K→L6 \[\(b\) \d+\/\d+\]\); no headline/);
+      assert.match(md, /Capture inventory and classification/);
+      assert.match(md, /\| segment \| boundary \| first \| last \| captures \|/);
+      assert.match(md, /Boundary-equality guard/);
+      assert.ok(!/Headline — veteran calibration/.test(md), 'no headline table');
+      assert.ok(!/R label:|K label:/.test(md), 'no R/K label');
+      assert.equal(err.section.data.stopped, 'boundary-equality-guard');
+      return true;
+    });
+    // through the runner: the failed step is reported, exit 1, and nothing is written
+    const ctx2 = seeded(snaps);
+    const r = await runSeasonGrade({ steps: [{ id: 'vet-calibration', run: (c) => vetStep.run(Object.assign(c, { shared: ctx2.shared, load: ctx2.load })) }], load: ctx2.load, rehearse: true, write: true });
+    assert.equal(r.exitCode, 1);
+    assert.match(r.verdict, /STOPPED — boundary-equality guard failed/);
+    assert.ok(!/Headline — veteran calibration/.test(r.verdict));
+    assert.deepEqual(r.artifacts, []);
+  });
+
+  test('after vet-calibration, ctx.shared carries K, P, classification, S and replay for a later step', async () => {
+    const snaps = Object.fromEntries(DATES.map(d => [d, loadSnap(d)]));
+    const ctx = seeded(snaps);
+    const reader = { id: 'slice-b-probe', run: async (c) => ({ section: { id: 'p', title: 'p', md: JSON.stringify({
+      k: c.shared.K?.date, kCapture: !!c.shared.K?.capture?.players, p: Object.keys(c.shared.P ?? {}).length,
+      cls: c.shared.classification, s: Object.keys(c.shared.S ?? {}).length, rR: Object.keys(c.shared.replay?.R ?? {}).length, rK: Object.keys(c.shared.replay?.K ?? {}).length,
+    }), placement: 'main' }, artifacts: [] }) };
+    const first = await vetStep.run(ctx);
+    assert.equal(first.section.data.headline === 'R' || first.section.data.headline === 'K', true);
+    const out = await reader.run(ctx);
+    const seen = JSON.parse(out.section.md);
+    assert.equal(seen.k, '2026-09-09');
+    assert.equal(seen.kCapture, true);
+    assert.ok(seen.p > 100, 'P = K veterans, ids → position');
+    assert.ok(Object.values(ctx.shared.P).every(pos => typeof pos === 'string'));
+    assert.deepEqual(seen.cls, { '2026-09-09': 'pre-kickoff', '2026-10-13': 'L6', '2026-10-14': 'L6', '2026-10-22': 'L6' });
+    assert.equal(seen.s, seen.rR - Object.values(ctx.shared.replay.R).filter(v => v.imputed).length, 'S(i) only for replayed rows');
+    assert.equal(seen.rK, seen.p);
+    const anyR = Object.values(ctx.shared.replay.R)[0];
+    assert.deepEqual(Object.keys(anyR).sort(), ['G', 'T', 'imputed', 'p']);
+    assert.deepEqual(Object.keys(Object.values(ctx.shared.replay.K)[0]).sort(), ['G', 'T', 'p']);
+    assert.ok(Object.values(ctx.shared.S).every(d => DATES.includes(d)));
   });
 });

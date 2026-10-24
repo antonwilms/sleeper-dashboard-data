@@ -263,6 +263,41 @@ function headlineTable(R, K, diff, labels) {
   return lines;
 }
 
+// ─── Headline decision (§5.2 / §5.5) ──────────────────────────────────────────
+
+export const K_HEADLINE_LABEL = 'September model — not the shipping model; model changes since are unmeasured';
+export const M10_CAVEAT = 'mechanics of the newest model version unverified';
+
+/**
+ * Pure headline decision. R is the headline iff G1, G2, G3 and G-MECH all pass; otherwise K is, and R is labelled
+ * "replay failed gate X — not headline". A skipped M10 keeps R but adds the fixed caveat. G5 failing drops the veteran
+ * backup/chain QB rows from R (counted by replayR) and G6 failing keeps S's ageDelta (birthday count reported by replayR);
+ * neither changes the headline — they are returned as `degrade` flags for the replay.
+ * @param {{ g1, g2, g3, gMech, m10?: {skipped?: boolean}, g5, g6 }} gates  each `{ pass }`
+ * @returns {{ headline: 'R'|'K', label: string, labels: { R: string, K: string }, gateFail: string[],
+ *             degrade: { useAgeTable: boolean, dropQbBackups: boolean } }}
+ */
+export function decideHeadline({ g1, g2, g3, gMech, m10 = null, g5, g6 }) {
+  const gateFail = [];
+  if (!g1.pass) gateFail.push('G1');
+  if (!g2.pass) gateFail.push('G2');
+  if (!g3.pass) gateFail.push('G3');
+  if (!gMech.pass) gateFail.push('G-MECH');
+  const rHeadline = gateFail.length === 0;
+  const m10Skipped = !!(m10?.skipped ?? gMech.m10Skipped);
+  const caveat = rHeadline && m10Skipped ? ` — ${M10_CAVEAT}` : '';
+  const labels = {
+    R: rHeadline ? `replay of the shipping model on pre-kickoff inputs — HEADLINE, clean${caveat}` : `replay failed gate ${gateFail.join(', ')} — not headline`,
+    K: rHeadline ? 'September model on pre-kickoff inputs — clean, not the shipping model' : `${K_HEADLINE_LABEL} — HEADLINE`,
+  };
+  return {
+    headline: rHeadline ? 'R' : 'K',
+    label: rHeadline ? labels.R : K_HEADLINE_LABEL,
+    labels, gateFail,
+    degrade: { useAgeTable: !!g6.pass, dropQbBackups: !g5.pass },
+  };
+}
+
 // ─── Steps ────────────────────────────────────────────────────────────────────
 
 async function stepSeasonGate(ctx) {
@@ -351,6 +386,22 @@ async function stepVetCalibration(ctx) {
   for (let i = 0; i + 1 < firsts.length; i++) guardPairs.push({ from: firsts[i].last, to: firsts[i + 1].first, label: `${firsts[i].id}→${firsts[i + 1].id}` });
   const guardResults = guardPairs.map(g => ({ ...g, ...boundaryGuard(ctx.snapshot(g.from), ctx.snapshot(g.to)) }));
   const guardFail = guardResults.filter(g => !g.pass);
+  const guardTable = () => {
+    const t = ['**Boundary-equality guard** (a) cohort factors equal (b) teamFactor formula (c) qbQualityFactor formula', '', '| pair | common vets | (a) diffs | (b) bad/rows | (c) bad/rows | result |', '|---|---|---|---|---|---|'];
+    for (const g of guardResults) t.push(`| ${g.label} \`${g.from}\`→\`${g.to}\` | ${g.a.common} | ${g.a.diffs} | ${g.b.bad}/${g.b.rows} | ${g.c.bad}/${g.c.rows} | ${g.pass ? 'PASS' : 'FAIL'} |`);
+    return t;
+  };
+  if (guardFail.length) {
+    // §5.2: stop. Emit the inventory, the classification and the guard section; no R/K headline table or label.
+    const inventoryMd = (await stepInventory(ctx)).section.md;
+    const failed = guardFail.map(g => `${g.label} [${[g.a.diffs ? `(a) ${g.a.diffs}/${g.a.common}` : null, g.b.bad ? `(b) ${g.b.bad}/${g.b.rows}` : null, g.c.bad ? `(c) ${g.c.bad}/${g.c.rows}` : null].filter(Boolean).join(', ')}]`).join('; ');
+    const L = [];
+    if (stamp) L.push(`**${stamp}**`, '');
+    L.push(`**STOPPED — boundary-equality guard failed (${failed}); no headline.**`, '');
+    L.push('### Capture inventory and classification', '', inventoryMd, '', ...guardTable());
+    const section = { id: 'vet-calibration', title: 'Veteran calibration', placement: 'main', md: L.join('\n'), data: { stopped: 'boundary-equality-guard', guardFailed: failed, boundaryGuard: guardResults, k: inv.kDate } };
+    throw Object.assign(new Error(`STOPPED — boundary-equality guard failed (${failed}); no headline — January needs a plan decision; nothing is improvised`), { section });
+  }
 
   // ── G-MECH ──
   const mech = [];
@@ -394,18 +445,15 @@ async function stepVetCalibration(ctx) {
   const g5 = { pass: perCapture.every(c => c.g5.pass), vetMismatch: perCapture.reduce((n, c) => n + c.g5.vetMismatch, 0),
     vetRows: perCapture.reduce((n, c) => n + c.g5.vetRows, 0), rookieMismatch: perCapture.reduce((n, c) => n + c.g5.rookieMismatch, 0), rookieRows: perCapture.reduce((n, c) => n + c.g5.rookieRows, 0) };
   const g6 = { pass: perCapture.every(c => c.g6.pass), min: Math.min(1, ...perCapture.map(c => c.g6.shareInMode ?? 1)) };
-  let degraded = [];
-  if (!g6.pass || !g5.pass) {
-    replay = replayR({ ...replayArgs, useAgeTable: g6.pass, dropQbBackups: !g5.pass });
-    if (!g6.pass) degraded.push("G6 failed: S's ageDelta kept everywhere");
-    if (!g5.pass) degraded.push(`G5 failed: ${replay.counts.dropped} veteran QB rows with a backup/chain K role dropped from R`);
+  const decision = decideHeadline({ g1, g2, g3, gMech, m10, g5, g6 });
+  const { gateFail, labels, degrade } = decision;
+  const rHeadline = decision.headline === 'R';
+  const degraded = [];
+  if (!degrade.useAgeTable || degrade.dropQbBackups) {
+    replay = replayR({ ...replayArgs, useAgeTable: degrade.useAgeTable, dropQbBackups: degrade.dropQbBackups });
+    if (!degrade.useAgeTable) degraded.push(`G6 failed: S's ageDelta kept everywhere (${replay.counts.ageNoBirthdate} rows without a birthdate)`);
+    if (degrade.dropQbBackups) degraded.push(`G5 failed: ${replay.counts.dropped} veteran QB rows with a backup/chain K role dropped from R`);
   }
-  const gateFail = [];
-  if (!g1.pass) gateFail.push('G1');
-  if (!g2.pass) gateFail.push('G2');
-  if (!g3.pass) gateFail.push('G3');
-  if (!gMech.pass) gateFail.push('G-MECH');
-  const rHeadline = gateFail.length === 0;
 
   // ── Q ──
   const qWithin = (() => {
@@ -417,9 +465,9 @@ async function stepVetCalibration(ctx) {
   const qCross = (() => {
     if (!l2?.first || !lastSeg.first) return { skipped: true };
     const r = qDrift(ctx.snapshot(l2.first), ctx.snapshot(lastSeg.first), { birthdateOf });
-    const rep = replay.rows.filter(x => x.kind === 'replayed');
-    const notB = rep.filter(x => x.sDate !== lastSeg.first).length;
-    return { a: l2.first, b: lastSeg.first, ...r, sNotB: { n: notB, of: rep.length } };
+    // share of P whose S(i) is absent or ≠ B; denominator is |P|
+    const notB = replay.rows.filter(x => !(x.kind === 'replayed' && x.sDate === lastSeg.first)).length;
+    return { a: l2.first, b: lastSeg.first, ...r, sNotB: { n: notB, of: replay.rows.length } };
   })();
 
   // ── Outcomes and datasets ──
@@ -456,23 +504,18 @@ async function stepVetCalibration(ctx) {
   // ── Sensitivity (report-only) ──
   const sens = {};
   const pointOf = (rows) => { const st = segmentStats(rows); return Object.fromEntries([...POSITIONS, 'pooled'].map(c => { const s = c === 'pooled' ? st.pooled : st.byPos[c]; return [c, { R_ppg: s.R_ppg, R_tot: s.R_tot }]; })); };
-  sens['S teamFactor table'] = pointOf(replayRows(replayR({ ...replayArgs, teamTableSource: 'S', useAgeTable: g6.pass, dropQbBackups: !g5.pass }), leagueOut));
-  sens["S's values for every K-sourced factor"] = pointOf(replayRows(replayR({ ...replayArgs, kSourced: false, useAgeTable: g6.pass, dropQbBackups: !g5.pass }), leagueOut));
+  sens['S teamFactor table'] = pointOf(replayRows(replayR({ ...replayArgs, teamTableSource: 'S', useAgeTable: degrade.useAgeTable, dropQbBackups: degrade.dropQbBackups }), leagueOut));
+  sens["S's values for every K-sourced factor"] = pointOf(replayRows(replayR({ ...replayArgs, kSourced: false, useAgeTable: degrade.useAgeTable, dropQbBackups: degrade.dropQbBackups }), leagueOut));
   if (inv.kPrevDate) {
     const Kp = ctx.snapshot(inv.kPrevDate);
     const posKp = makePositionOf(Kp, ctx);
-    sens[`K′ = ${inv.kPrevDate}`] = pointOf(replayRows(replayR({ ...replayArgs, K: Kp, positionOfK: posKp, useAgeTable: g6.pass, dropQbBackups: !g5.pass }), leagueOut));
+    sens[`K′ = ${inv.kPrevDate}`] = pointOf(replayRows(replayR({ ...replayArgs, K: Kp, positionOfK: posKp, useAgeTable: degrade.useAgeTable, dropQbBackups: degrade.dropQbBackups }), leagueOut));
   }
   sens['R-replayed (no imputed rows)'] = pointOf(replayedOnly);
 
   // ── Headline and heterogeneity ──
   const headlineRows = rHeadline ? rowsR : rowsK;
   const het = heterogeneity(headlineRows);
-  const m10Caveat = rHeadline && gMech.m10Skipped ? ' — mechanics of the newest model version unverified' : '';
-  const labels = {
-    R: rHeadline ? `replay of the shipping model on pre-kickoff inputs — HEADLINE, clean${m10Caveat}` : `replay failed gate ${gateFail.join(', ')} — not headline`,
-    K: rHeadline ? 'September model on pre-kickoff inputs — clean, not the shipping model' : 'September model — not the shipping model; model changes since are unmeasured — HEADLINE',
-  };
 
   // ── Markdown ──
   const L = [];
@@ -504,9 +547,7 @@ async function stepVetCalibration(ctx) {
   L.push('', `G-MECH: ${gMech.pass ? 'PASS' : 'FAIL'}${gMech.m10Skipped ? ' (M10 skipped — mechanics of the newest model version unverified)' : ''}`);
   L.push('', `G5 QB chain (veteran rows): ${g5.pass ? 'PASS' : 'FAIL'} — ${g5.vetMismatch}/${g5.vetRows} mismatches; rookie-path (reported, not gated) ${g5.rookieMismatch}/${g5.rookieRows}`);
   L.push(`G6 age table: ${g6.pass ? 'PASS' : 'FAIL'} — min share-in-mode ${fmt(g6.min, 4)} (≥ 0.98)`);
-  L.push('', '**Boundary-equality guard** (a) cohort factors equal (b) teamFactor formula (c) qbQualityFactor formula', '', '| pair | common vets | (a) diffs | (b) bad/rows | (c) bad/rows | result |', '|---|---|---|---|---|---|');
-  for (const g of guardResults) L.push(`| ${g.label} \`${g.from}\`→\`${g.to}\` | ${g.a.common} | ${g.a.diffs} | ${g.b.bad}/${g.b.rows} | ${g.c.bad}/${g.c.rows} | ${g.pass ? 'PASS' : 'FAIL'} |`);
-  L.push('');
+  L.push('', ...guardTable(), '');
 
   L.push('### Segments (each captured veteran row set; leaky L0…L6 and composite S are NOT clean)', '');
   const segLine = (id, rep, extra) => {
@@ -545,9 +586,19 @@ async function stepVetCalibration(ctx) {
     k: inv.kDate, kickoff: KICKOFF_2026_UTC,
   };
   const section = { id: 'vet-calibration', title: 'Veteran calibration', placement: 'main', md: L.join('\n'), data };
-  if (guardFail.length) {
-    throw Object.assign(new Error(`boundary-equality guard failed on ${guardFail.map(g => g.label).join(', ')} — January needs a plan decision; nothing is improvised`), { section });
-  }
+
+  // ── Hand-off to Slice B ──
+  ctx.shared.K = { date: inv.kDate, capture: K };
+  ctx.shared.P = Object.fromEntries(replay.rows.map(r => [r.id, r.pos]));
+  ctx.shared.classification = Object.fromEntries(inv.entries.map(e => [e.date, e.era === 'segment' ? e.segment : e.era]));
+  ctx.shared.S = Object.fromEntries(replay.rows.filter(r => r.kind === 'replayed').map(r => [r.id, r.sDate]));
+  // R: replayed rows carry the replayed values; imputed rows carry K's captured values with imputed: true (ρ is applied by materializeRows); dropped rows are absent
+  ctx.shared.replay = {
+    R: Object.fromEntries(replay.rows.filter(r => r.kind !== 'dropped').map(r => (r.kind === 'replayed'
+      ? [r.id, { p: r.p, G: r.G, T: r.T, imputed: false }]
+      : [r.id, { p: r.pK, G: r.GK, T: r.TK, imputed: true }]))),
+    K: Object.fromEntries(kVets.map(e => [e.id, { p: e.proj.projectedPPG, G: e.proj.projectedGames ?? 0, T: e.proj.projectedTotalPts ?? 0 }])),
+  };
   return { section, artifacts: [] };
 }
 
@@ -569,11 +620,13 @@ export async function runSeasonGrade({ steps = STEPS, only = null, rehearse = fa
   const known = new Set(steps.map(s => s.id));
   if (only) for (const id of only) if (!known.has(id)) throw new Error(`unknown step id '${id}' — known: ${[...known].join(', ')}`);
   const ctx = makeContext({ load, rehearse, write: write && !rehearse, runDate, log });
+  // The season gate always runs first, whatever `--only` says; `--only` filters only the steps after it.
+  steps = [...steps.filter(s => s.id === 'season-gate'), ...steps.filter(s => s.id !== 'season-gate')];
   const results = [];
   let failed = false;
   let halted = false;
   for (const step of steps) {
-    if (only && !only.includes(step.id)) continue;
+    if (only && step.id !== 'season-gate' && !only.includes(step.id)) continue;
     if (halted) { results.push({ id: step.id, skipped: true }); continue; }
     try {
       const r = await step.run(ctx);

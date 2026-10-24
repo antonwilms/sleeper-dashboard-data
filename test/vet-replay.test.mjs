@@ -132,9 +132,14 @@ test("reconstructDepthFactor: qbRole 'backup' → 1.00 on a non-stale order-1 QB
   const qb = { position: 'QB', model: 'qb-takeover' };
   assert.equal(reconstructDepthFactor(1, false, { ...qb, qbRole: 'backup' }), 1.0);
   assert.equal(reconstructDepthFactor(1, false, qb), 1.05);
-  for (const order of [null, 1, 2, 3]) for (const stale of [true, false]) {
-    assert.equal(reconstructDepthFactor(order, stale, { ...qb, qbRole: null }), reconstructDepthFactor(order, stale, qb));
-  }
+  // explicit expected values under qb-takeover with qbRole: null (not a null-vs-omitted comparison)
+  const qbNull = { ...qb, qbRole: null };
+  assert.deepEqual([1, 2, 3, null].map(o => reconstructDepthFactor(o, false, qbNull)), [1.05, 1.00, 1.00, 1.00]);
+  assert.deepEqual([2, 3, null].map(o => reconstructDepthFactor(o, true, qbNull)), [1.00, 1.00, 1.00], 'stale → 1.00');
+  assert.equal(reconstructDepthFactor(1, true, qbNull), 1.05, 'order 1 is never demoted by staleness');
+  // non-QB: orders 1/2/3
+  const rb = { position: 'RB', model: 'qb-takeover', qbRole: null };
+  assert.deepEqual([1, 2, 3].map(o => reconstructDepthFactor(o, false, rb)), [1.05, 0.88, 0.68]);
 });
 
 // ─── G1 / G2 / G3 on the trimmed captures ─────────────────────────────────────
@@ -406,11 +411,41 @@ describe('replayR on the trimmed captures', () => {
     assert.ok(Math.abs(sum(x => x.p) / sum(x => x.sRow.p) - 1) < 0.08);
   });
 
-  test('K’s chart teamFactor table is used: a replayed non-QB row carries K’s team factor when it differs from S’s', () => {
-    const r = run();
-    const kt = teamTables(vetEntries(K), posOfMap(K));
-    assert.equal(kt.violations.length, 0);
-    assert.ok(r.kTables.team.size > 20);
+  test('K’s inputs are used: team factor, per-team qbQualityFactor and depthChartOrder-driven depth factor come from K, not S', () => {
+    const mk = (capturedAt, rows) => synth(capturedAt, rows);
+    const kf = { teamFactor: 1.05, qbQualityFactor: 1.02 };
+    const sf = { teamFactor: 1.0, qbQualityFactor: 1.0 };
+    // a: K order 2 / S order 1; b: K order 1 / S order 2 — both WR on team AAA
+    const Kx = mk('2026-09-09T19:00:00Z', [
+      { id: 'a', ppg: 10, pos: 'WR', order: 2, f: factors({ ...kf, depthFactor: 0.88 }) },
+      { id: 'b', ppg: 10, pos: 'WR', order: 1, f: factors({ ...kf, depthFactor: 1.05 }) },
+    ]);
+    const Sx = mk('2026-10-22T19:00:00Z', [
+      { id: 'a', ppg: 10, pos: 'WR', order: 1, f: factors({ ...sf, depthFactor: 1.05 }) },
+      { id: 'b', ppg: 10, pos: 'WR', order: 2, f: factors({ ...sf, depthFactor: 0.88 }) },
+    ]);
+    assert.notEqual(Kx.players.a.projection.factors.teamFactor, Sx.players.a.projection.factors.teamFactor);
+    const r = replayR({
+      K: Kx, sCaptures: [{ date: 's', snapshot: Sx }], positionOfK: posOfMap(Kx), birthdateOf: () => null,
+      drafted2026Of: () => false, recentStarterOf: () => false, qbModels, priorOf: () => null,
+    });
+    const by = Object.fromEntries(r.rows.map(x => [x.id, x]));
+    const sRow = (id) => ({ proj: Sx.players[id].projection, f: Sx.players[id].projection.factors });
+    // hand-computed recompose with K's values: teamFactor 1.05, qbQualityFactor 1.02 (K's per-team value at AAA), depth from K's order
+    const expA = recompose(sRow('a'), { teamFactor: 1.05, qbQualityFactor: 1.02, depthFactor: 0.88 }).p;
+    const expB = recompose(sRow('b'), { teamFactor: 1.05, qbQualityFactor: 1.02, depthFactor: 1.05 }).p;
+    assert.ok(Math.abs(by.a.p - expA) < 1e-12, `a: ${by.a.p} vs ${expA}`);
+    assert.ok(Math.abs(by.b.p - expB) < 1e-12, `b: ${by.b.p} vs ${expB}`);
+    // and the same figure by hand: p′ = p_S + B(f′) − B(f_S), the substituted qbQuality entering the combined raw (1.0 → 1.02)
+    const hand = (id, depth) => {
+      const fS = Sx.players[id].projection.factors;
+      return 10 + composeBlended({ ...fS, teamFactor: 1.05, qbQualityFactor: 1.02, depthFactor: depth }, { raw: 1.02 }) - composeBlended(fS, { raw: 1 });
+    };
+    assert.ok(Math.abs(by.a.p - hand('a', 0.88)) < 1e-9);
+    assert.ok(Math.abs(by.b.p - hand('b', 1.05)) < 1e-9);
+    // K's per-team tables are what the replay reads
+    assert.equal(r.kTables.team.get('AAA'), 1.05);
+    assert.equal(r.kTables.qbq.get('AAA'), 1.02);
   });
 
   test('sensitivity switches change the result; G5-failure option drops backup/chain QBs; G6-failure keeps S ageDelta', () => {
@@ -423,6 +458,29 @@ describe('replayR on the trimmed captures', () => {
     assert.equal(drop.rows.filter(x => x.kind === 'dropped').length, drop.counts.dropped);
     const noAge = run({ useAgeTable: false });
     assert.equal(noAge.counts.ageNoCell, 0);
+  });
+
+  test('sensitivity kSourced:false takes every K-sourced input from S as captured: an S-chain QB’s p′ equals S’s projectedPPG', () => {
+    const chainF = factors({ qbTakeoverBasis: 'chain', qbStarterPPG: 12, qbStartShare: 0.4, teamFactor: 1.0 });
+    const Kq = synth('2026-09-09T19:00:00Z', [
+      { id: 'q', ppg: 12, pos: 'QB', order: 1, team: 'AAA', f: factors({ teamFactor: 1.1, depthFactor: 1.05, breakoutFactor: 1.3 }) },
+    ]);
+    const Sq = synth('2026-10-22T19:00:00Z', [
+      { id: 'q', ppg: 4.8, games: 17, pos: 'QB', order: 2, team: 'AAA', f: chainF },
+    ]);
+    const args = {
+      K: Kq, sCaptures: [{ date: 's', snapshot: Sq }], positionOfK: posOfMap(Kq), birthdateOf: () => '2003-10-01',
+      drafted2026Of: () => false, recentStarterOf: () => false, qbModels, priorOf: () => null,
+    };
+    const sens = replayR({ ...args, kSourced: false });
+    const row = sens.rows[0];
+    assert.equal(row.kind, 'replayed');
+    assert.equal(row.chain, true, 'an S-chain QB stays chain, recomposed through the chain branch');
+    assert.ok(Math.abs(row.p - 4.8) < 0.15, `p′ ${row.p} vs S 4.8`);
+    assert.equal(sens.counts.breakoutFromK, 0, 'the K-breakout branch is off');
+    // the default run is K-sourced, so it differs (K's teamFactor 1.1 and breakout 1.3 apply)
+    const live = replayR(args);
+    assert.notEqual(live.rows[0].p, row.p);
   });
 
   test('QB role comes from K’s rooms: a chain row appears iff the K role is backup and not stale; its share is the reconstructed share', () => {
@@ -447,9 +505,35 @@ describe('replayR on the trimmed captures', () => {
   });
 });
 
+describe('replayR degradation options (G5 / G6 failure)', () => {
+  const run = (over = {}) => replayR({
+    K, sCaptures: [{ date: '2026-10-22', snapshot: S22 }], positionOfK: posOfMap(K), birthdateOf, drafted2026Of, recentStarterOf,
+    qbModels, priorOf: priorOfFor(S22), ...over,
+  });
+  test('G5 failure: veteran backup/chain QB rows are dropped and counted', () => {
+    const r = run({ dropQbBackups: true });
+    assert.ok(r.counts.dropped > 0);
+    assert.equal(r.rows.filter(x => x.kind === 'dropped').length, r.counts.dropped);
+    for (const x of r.rows.filter(y => y.kind === 'dropped')) assert.equal(x.pos, 'QB');
+  });
+  test('G6 failure: S’s ageDelta is kept (no age-table cell lookups) and the no-birthdate count is still reported', () => {
+    const r = run({ useAgeTable: false });
+    assert.equal(r.counts.ageNoCell, 0);
+    const missing = vetEntries(K).filter(e => birthdateOf(e.id) == null).length;
+    assert.equal(r.counts.ageNoBirthdate, missing);
+  });
+  test('onCapture is not called for a capture that assigns no S(i)', () => {
+    const seen = [];
+    const empty = { ...S22, capturedAt: '2026-10-21T20:00:00Z', players: {} };
+    run({ sCaptures: [{ date: '2026-10-21', snapshot: empty }, { date: '2026-10-22', snapshot: S22 }], onCapture: (i) => seen.push(i.date) });
+    assert.deepEqual(seen, ['2026-10-22']);
+  });
+});
+
 describe('breakout age rule (each branch) and age substitution', () => {
   // K and S share one veteran per branch; the birthdate decides which branch applies.
-  const mkRow = (id, f) => ({ id, ppg: 10, games: 10, pos: 'WR', f: factors(f) });
+  // depthFactor 1.05 = what the order-1 depth rule reconstructs, so the K-sourced substitutions are no-ops here
+  const mkRow = (id, f) => ({ id, ppg: 10, games: 10, pos: 'WR', f: factors({ basePPG: 10 / 1.05, depthFactor: 1.05, ...f }) });
   const Ksnap = synth('2026-09-09T19:00:00Z', [mkRow('same', { breakoutFactor: 1.1 }), mkRow('old', { breakoutFactor: 1.1 }), mkRow('young', { breakoutFactor: 1.1 }), mkRow('nobd', { breakoutFactor: 1.1 })]);
   const Ssnap = synth('2026-10-22T19:00:00Z', [mkRow('same', { breakoutFactor: 1.0 }), mkRow('old', { breakoutFactor: 1.0 }), mkRow('young', { breakoutFactor: 1.0 }), mkRow('nobd', { breakoutFactor: 1.0 })]);
   // same: 23 on both dates (birthday 04-01); old: turns 26 between K and S (age > 24); young: turns 23 between K and S (≤ 24)
@@ -457,7 +541,6 @@ describe('breakout age rule (each branch) and age substitution', () => {
   const run = () => replayR({
     K: Ksnap, sCaptures: [{ date: 's', snapshot: Ssnap }], positionOfK: () => 'WR', birthdateOf: (id) => bds[id] ?? null,
     drafted2026Of: () => false, recentStarterOf: () => false, qbModels, priorOf: () => null,
-    kSourced: false,   // isolate the age / breakout rules from the K-sourced team / qbQuality / depth substitutions
   });
   test('age equal → S’s breakout; age > 24 → S’s; age differs and ≤ 24 → K’s (counted); no birthdate → S’s (counted)', () => {
     const r = run();

@@ -165,7 +165,9 @@ export function resolveOutcomeBasis(snapshot) {
   }
   if (basis === undefined || basis === null || basis === 'half_ppr') {
     if (provenance == null) {
-      return { model: 'half_ppr', classification: 'half_ppr', provenance: null, caveats: ['provenance unrecorded (pre-inputStatus capture)'] };
+      // v2 (no inputStatus at all) vs a v3 capture whose inputStatus lacks careerStats provenance
+      const caveat = snapshot.inputStatus === undefined ? 'provenance unrecorded (pre-inputStatus capture)' : 'provenance missing from inputStatus';
+      return { model: 'half_ppr', classification: 'half_ppr', provenance: null, caveats: [caveat] };
     }
     const off = Object.entries(provenance).filter(([, v]) => v !== 'data-store');
     if (off.length) {

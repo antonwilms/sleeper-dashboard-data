@@ -149,6 +149,17 @@ test('resolveOutcomeBasis: v2 with no inputStatus → half_ppr with a provenance
   assert.ok(r.caveats.some(c => /provenance unrecorded/.test(c)));
 });
 
+test('resolveOutcomeBasis: inputStatus present but provenance missing → half_ppr, caveat "provenance missing from inputStatus"', () => {
+  for (const inputStatus of [{}, { careerStats: {} }, { careerStats: { detail: {} } }]) {
+    const r = resolveOutcomeBasis({ scoringSettings: SCORING_V2, inputStatus });
+    assert.equal(r.model, 'half_ppr');
+    assert.equal(r.classification, 'half_ppr');
+    assert.deepEqual(r.caveats, ['provenance missing from inputStatus']);
+  }
+  // inputStatus undefined keeps the v2 wording
+  assert.deepEqual(resolveOutcomeBasis({ scoringSettings: SCORING_V2 }).caveats, ['provenance unrecorded (pre-inputStatus capture)']);
+});
+
 test('resolveOutcomeBasis: all data-store provenance, no projectionBasis → half_ppr', () => {
   const r = resolveOutcomeBasis({ scoringSettings: SCORING_V2, ...prov({ 2024: 'data-store', 2025: 'data-store' }) });
   assert.equal(r.model, 'half_ppr');
