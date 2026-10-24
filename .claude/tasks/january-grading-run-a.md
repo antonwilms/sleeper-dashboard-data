@@ -411,3 +411,36 @@ Moved to `.claude/tasks/january-grading-run-reviews.md`: every flag from both pl
 Run 2026-10-24 by Session 2 after `git pull --rebase origin main` on `claude/p3-slice-a-037aa6` (up to date; origin/main carried no capture newer than `2026-10-23`).
 
 **Not yet available (newest capture 2026-10-23).** L6 holds one capture, `2026-10-23` (`capturedAt` 2026-10-23T20:02:03Z); no other L6 capture exists with `capturedAt ≤ 2026-11-01T20:02:03Z`. M10 is `skipped`; R stays the headline with the fixed caveat "mechanics of the newest model version unverified". M10 stays open: Session 1 runs it at verification or later (pair A = `2026-10-23`, B = the latest L6 capture with `capturedAt ≤ A + 9 days` and `< 2027-01-01`) and records it in this section.
+
+## Fix pass 1
+
+Session 1 triage (2026-10-24) of the full-depth implementation review of `0622948..a71f606`. The fix-applier implements exactly this section on branch `claude/p3-slice-a-037aa6`, commits there and **does not push**.
+
+**Change:**
+1. **G-SEASON (c) — blocking.** `lib/seasonGrade.mjs:81`. Condition (c) passes iff every non-`TEAM_*` row with `gamesPlayed > 0` has `weeklyStats !== undefined` and it is a plain object, **empty `{}` included**. This mirrors `lib/validate.mjs:182-189` (`requireWeeklyStats`). Add a test in `test/season-grade.test.mjs`: a played row with `weeklyStats: {}` passes; a played row with the field absent fails; a non-object value fails.
+2. **`--only` cannot bypass the gate.** `scripts/season-grade-run.mjs:576,590`. `season-gate` always runs first, regardless of `--only`, and `--only` filters only the steps after it. Without `--rehearse`, a failing gate stops before any step runs, so nothing is written. With `--rehearse` the gate is reported and bypassed, and `--rehearse` never writes, as today. Add tests: `--only d44` with a failing gate → no step runs and nothing is written; `--only d44 --rehearse` → d44 runs and nothing is written.
+3. **Sensitivity "S's values for every K-sourced factor".** `lib/vetReplay.mjs:552-576`. In this run every K-sourced input comes from S **as captured**:
+   - `teamFactor`, `qbQualityFactor` and `depthFactor`;
+   - the QB role and share, which keep S's `qbTakeoverBasis`/`qbStartShare`, so an S-chain QB stays chain with S's share and is recomposed through the chain branch;
+   - `breakoutFactor`, so the K-breakout branch is off.
+   `ageDelta` keeps the age rule (S's curve at K's age), which is not K-sourced. Add a test: in this run an S-chain QB's `p'` equals S's captured `projectedPPG` within 0.15 when no other input differs.
+4. **Guard failure stops (§5.2).** `scripts/season-grade-run.mjs:548-550,610`. On any boundary-equality guard failure, `vet-calibration` emits the inventory, the classification and the guard section, then throws. It builds and prints **no** R/K headline table or label. The verdict prints "STOPPED — boundary-equality guard failed (pair, part, counts); no headline". Add a test with a synthetic failing guard: no headline in the section; the step throws; exit 1.
+5. **`ctx.shared` for Slice B.** `scripts/season-grade-run.mjs:52-72,323-552`. After `vet-calibration`, set `ctx.shared.K` (date and parsed capture), `ctx.shared.P` (ids → position), `ctx.shared.classification` (capture date → segment id or `pre-kickoff`), `ctx.shared.S` (id → S(i) capture date), and `ctx.shared.replay` (per-player `{ p, G, T, imputed }` for R, plus K's `{ p, G, T }`). Add a registry test that a later mock step can read all five.
+6. **Factor-sourcing test (replace).** `test/vet-replay.test.mjs:409-420`. Replace the table-size check with real assertions on fixture or synthetic rows. A replayed non-QB row whose team is `T_K`, where K's and S's `teamFactor` for `T_K` differ, recomposes with **K's** value. A non-QB row uses K's captured per-team `qbQualityFactor` at `T_K`. `depthFactor` follows K's `depthChartOrder` (a row whose order differs between K and S takes K's). Each check compares `p'` with a hand-computed `recompose` result.
+7. **Headline-decision tests.** Factor `stepVetCalibration`'s decision into an exported pure function, `decideHeadline({ g1, g2, g3, gMech, m10, g5, g6 }) → { headline: 'R'|'K', label }`, and test:
+   - all pass with M10 run → R, label without caveat;
+   - M10 `skipped` → R, with the exact caveat "mechanics of the newest model version unverified";
+   - each of G1/G2/G3/G-MECH failing → K, with the exact label "September model — not the shipping model; model changes since are unmeasured", plus R's "replay failed gate X — not headline";
+   - G5 fail → the veteran backup/chain QB rows are dropped (counted), headline unchanged;
+   - G6 fail → S's `ageDelta` is kept and the birthday count is reported.
+8. **Nit — the byte-identity test.** `test/vet-replay.test.mjs:135-137` and `test/panel-fit.test.mjs:1848-1856`. Replace the `null`-vs-omitted loop with explicit expected values: under `qb-takeover` with `qbRole: null`, QB orders 1/2/3/null, stale and not stale → 1.05/1.00/1.00/1.00, stale → 1.00. Non-QB orders 1/2/3 → 1.05/0.88/0.68.
+9. **Nit — the "share of P whose S(i) is not B" denominator.** `scripts/season-grade-run.mjs:420-422`. The numerator is P members whose S(i) is absent or ≠ B; the denominator is |P|.
+10. **Nit — gate only contributing captures.** `lib/vetReplay.mjs:584-585`. G1/G2/G3/G5/G6 run only on captures with at least one assigned S(i).
+11. **Nit — provenance detection.** `scripts/grade-snapshot.mjs:167`. "Provenance unrecorded (v2)" applies iff `snapshot.inputStatus === undefined`. If `inputStatus` exists but `careerStats.detail.provenance` is missing → model `half_ppr`, caveat "provenance missing from inputStatus". Add the routing test.
+
+**Leave alone:**
+- Fixture size (about 118 veterans, not about 60): accepted.
+- Session 2's disclosed deviations 2–5 and 7: accepted as implemented.
+- Everything else in the diff.
+
+**Done:** `npm test` green, with registry tests allowed to fail only for the missing sibling, stated as such. `npm run smoke` green. `node bin/season-grade.mjs --rehearse` still reproduces M1–M9 and every gate result. One commit on the branch; no push.
