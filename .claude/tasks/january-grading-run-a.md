@@ -405,3 +405,9 @@ None open. The run date and replay approach were decided in Revision 1; the gate
 ## 17. Flag → section map
 
 Moved to `.claude/tasks/january-grading-run-reviews.md`: every flag from both plan-review rounds, mapped to its section here or in Slice B.
+
+## M10 result
+
+Run 2026-10-24 by Session 2 after `git pull --rebase origin main` on `claude/p3-slice-a-037aa6` (up to date; origin/main carried no capture newer than `2026-10-23`).
+
+**Not yet available (newest capture 2026-10-23).** L6 holds one capture, `2026-10-23` (`capturedAt` 2026-10-23T20:02:03Z); no other L6 capture exists with `capturedAt ≤ 2026-11-01T20:02:03Z`. M10 is `skipped`; R stays the headline with the fixed caveat "mechanics of the newest model version unverified". M10 stays open: Session 1 runs it at verification or later (pair A = `2026-10-23`, B = the latest L6 capture with `capturedAt ≤ A + 9 days` and `< 2027-01-01`) and records it in this section.
