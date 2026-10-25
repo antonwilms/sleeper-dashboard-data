@@ -1,0 +1,3694 @@
+{
+  "panelsHalf": {
+    "meta": {
+      "legacyYears": {
+        "fromYear": 2013,
+        "toYear": 2024
+      },
+      "entryYears": {
+        "fromYear": 2013,
+        "toYear": 2025
+      },
+      "historyFloor": 2012,
+      "basis": "half_ppr",
+      "basisScope": {
+        "basis": "half_ppr",
+        "appliesTo": "rows with outcomeGames > 0",
+        "basisFreeZeroRows": 0,
+        "note": "A zero outcome is read from no stats object and is identical under any scoring basis."
+      },
+      "goalLine": "Turn the rookie panel from one survivor-gated second-season PPG panel into one harness that can also grade a debut season, an ungated outcome, and realised total points, with the re-fit trap enforced as a thrown error rather than a convention."
+    },
+    "pin": {
+      "checked": false,
+      "pass": false,
+      "reason": "reference artifact not available to this load",
+      "crosswalk": "live"
+    },
+    "legacy": {
+      "gated": {
+        "rows": [
+          {
+            "sleeperId": "p1",
+            "position": "WR",
+            "predictorYear": 2020,
+            "draftYear": 2020,
+            "draftRound": 1,
+            "draftPick": 5,
+            "projectedPPG": 8.7,
+            "hitCap": false,
+            "nflDraftTier": "top-8",
+            "outcomePPG": 12.5,
+            "outcomeClass": "played6plus",
+            "outcomeGames": 16,
+            "outcomeTotalPts": 200,
+            "dnpWeeks": null,
+            "draftGroup": "r1"
+          },
+          {
+            "sleeperId": "p2",
+            "position": "RB",
+            "predictorYear": 2020,
+            "draftYear": 2020,
+            "draftRound": null,
+            "draftPick": null,
+            "projectedPPG": 9.5,
+            "hitCap": false,
+            "nflDraftTier": null,
+            "outcomePPG": 7,
+            "outcomeClass": "played6plus",
+            "outcomeGames": 10,
+            "outcomeTotalPts": 70,
+            "dnpWeeks": null,
+            "draftGroup": "undrafted"
+          }
+        ],
+        "coverage": {
+          "assembled": 2,
+          "surviving": 2,
+          "drops": {},
+          "hitCapCount": 0,
+          "byOutcomeClass": {
+            "played6plus": 2
+          },
+          "byCellOutcomeClass": {
+            "r1|WR": {
+              "played6plus": 1
+            },
+            "undrafted|RB": {
+              "played6plus": 1
+            }
+          },
+          "byRungCell": {},
+          "byExperience": {
+            "0": 2
+          },
+          "invalidEntryYear": 0,
+          "predictorCorrections": []
+        }
+      },
+      "ungated": {
+        "rows": [
+          {
+            "sleeperId": "p1",
+            "position": "WR",
+            "predictorYear": 2020,
+            "draftYear": 2020,
+            "draftRound": 1,
+            "draftPick": 5,
+            "projectedPPG": 8.7,
+            "hitCap": false,
+            "nflDraftTier": "top-8",
+            "outcomePPG": 12.5,
+            "outcomeClass": "played6plus",
+            "outcomeGames": 16,
+            "outcomeTotalPts": 200,
+            "dnpWeeks": null,
+            "draftGroup": "r1"
+          },
+          {
+            "sleeperId": "p2",
+            "position": "RB",
+            "predictorYear": 2020,
+            "draftYear": 2020,
+            "draftRound": null,
+            "draftPick": null,
+            "projectedPPG": 9.5,
+            "hitCap": false,
+            "nflDraftTier": null,
+            "outcomePPG": 7,
+            "outcomeClass": "played6plus",
+            "outcomeGames": 10,
+            "outcomeTotalPts": 70,
+            "dnpWeeks": null,
+            "draftGroup": "undrafted"
+          }
+        ],
+        "coverage": {
+          "assembled": 2,
+          "surviving": 2,
+          "drops": {},
+          "hitCapCount": 0,
+          "byOutcomeClass": {
+            "played6plus": 2
+          },
+          "byCellOutcomeClass": {
+            "r1|WR": {
+              "played6plus": 1
+            },
+            "undrafted|RB": {
+              "played6plus": 1
+            }
+          },
+          "byRungCell": {},
+          "byExperience": {
+            "0": 2
+          },
+          "invalidEntryYear": 0,
+          "predictorCorrections": []
+        }
+      }
+    },
+    "debut": {
+      "rows": [
+        {
+          "sleeperId": "p1",
+          "position": "WR",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": 1,
+          "draftPick": 5,
+          "projectedPPG": 8.7,
+          "hitCap": false,
+          "nflDraftTier": "top-8",
+          "outcomePPG": 10,
+          "outcomeClass": "played6plus",
+          "outcomeGames": 16,
+          "outcomeTotalPts": 160,
+          "dnpWeeks": null,
+          "draftGroup": "r1",
+          "entryYear": 2020,
+          "targetSeason": 2020,
+          "experienceYears": 0,
+          "experienceBucket": "0"
+        },
+        {
+          "sleeperId": "p2",
+          "position": "RB",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": null,
+          "draftPick": null,
+          "projectedPPG": 9.5,
+          "hitCap": false,
+          "nflDraftTier": null,
+          "outcomePPG": 4,
+          "outcomeClass": "played1to5",
+          "outcomeGames": 5,
+          "outcomeTotalPts": 20,
+          "dnpWeeks": null,
+          "draftGroup": "undrafted",
+          "entryYear": 2020,
+          "targetSeason": 2020,
+          "experienceYears": 0,
+          "experienceBucket": "0"
+        }
+      ],
+      "coverage": {
+        "assembled": 2,
+        "surviving": 2,
+        "drops": {},
+        "hitCapCount": 0,
+        "byOutcomeClass": {
+          "played6plus": 1,
+          "played1to5": 1
+        },
+        "byCellOutcomeClass": {
+          "r1|WR": {
+            "played6plus": 1
+          },
+          "undrafted|RB": {
+            "played1to5": 1
+          }
+        },
+        "byRungCell": {
+          "r1|WR|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1|WR": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "U|WR|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "U|WR": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "undrafted|RB|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted|RB": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "U|RB|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "U|RB": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          }
+        },
+        "byExperience": {
+          "0": 2
+        },
+        "invalidEntryYear": 0,
+        "predictorCorrections": []
+      }
+    },
+    "rookiePathAll": {
+      "rows": [
+        {
+          "sleeperId": "p1",
+          "position": "WR",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": 1,
+          "draftPick": 5,
+          "projectedPPG": 8.7,
+          "hitCap": false,
+          "nflDraftTier": "top-8",
+          "outcomePPG": 10,
+          "outcomeClass": "played6plus",
+          "outcomeGames": 16,
+          "outcomeTotalPts": 160,
+          "dnpWeeks": null,
+          "draftGroup": "r1",
+          "entryYear": 2020,
+          "targetSeason": 2020,
+          "experienceYears": 0,
+          "experienceBucket": "0"
+        },
+        {
+          "sleeperId": "p2",
+          "position": "RB",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": null,
+          "draftPick": null,
+          "projectedPPG": 9.5,
+          "hitCap": false,
+          "nflDraftTier": null,
+          "outcomePPG": 4,
+          "outcomeClass": "played1to5",
+          "outcomeGames": 5,
+          "outcomeTotalPts": 20,
+          "dnpWeeks": null,
+          "draftGroup": "undrafted",
+          "entryYear": 2020,
+          "targetSeason": 2020,
+          "experienceYears": 0,
+          "experienceBucket": "0"
+        },
+        {
+          "sleeperId": "p2",
+          "position": "RB",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": null,
+          "draftPick": null,
+          "projectedPPG": 9.5,
+          "hitCap": false,
+          "nflDraftTier": null,
+          "outcomePPG": 7,
+          "outcomeClass": "played6plus",
+          "outcomeGames": 10,
+          "outcomeTotalPts": 70,
+          "dnpWeeks": null,
+          "draftGroup": "undrafted",
+          "entryYear": 2020,
+          "targetSeason": 2021,
+          "experienceYears": 1,
+          "experienceBucket": "1"
+        }
+      ],
+      "coverage": {
+        "assembled": 3,
+        "surviving": 3,
+        "drops": {},
+        "hitCapCount": 0,
+        "byOutcomeClass": {
+          "played6plus": 2,
+          "played1to5": 1
+        },
+        "byCellOutcomeClass": {
+          "r1|WR": {
+            "played6plus": 1
+          },
+          "undrafted|RB": {
+            "played1to5": 1,
+            "played6plus": 1
+          }
+        },
+        "byRungCell": {
+          "r1|WR|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1|WR": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "U|WR|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "U|WR": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "undrafted|RB|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted|RB": {
+            "n": 2,
+            "meanOutcomeGames": 7.5,
+            "meanOutcomeGamesRounded": 8
+          },
+          "undrafted": {
+            "n": 2,
+            "meanOutcomeGames": 7.5,
+            "meanOutcomeGamesRounded": 8
+          },
+          "U|RB|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "U|RB": {
+            "n": 2,
+            "meanOutcomeGames": 7.5,
+            "meanOutcomeGamesRounded": 8
+          },
+          "undrafted|RB|1": {
+            "n": 1,
+            "meanOutcomeGames": 10,
+            "meanOutcomeGamesRounded": 10
+          },
+          "undrafted|1": {
+            "n": 1,
+            "meanOutcomeGames": 10,
+            "meanOutcomeGamesRounded": 10
+          },
+          "U|RB|1": {
+            "n": 1,
+            "meanOutcomeGames": 10,
+            "meanOutcomeGamesRounded": 10
+          }
+        },
+        "byExperience": {
+          "0": 2,
+          "1": 1
+        },
+        "invalidEntryYear": 0,
+        "predictorCorrections": []
+      }
+    },
+    "positionAsymmetryCount": 0,
+    "legacyRowCount": 2,
+    "residual": {
+      "byGroup": {
+        "r1": {
+          "n": 1,
+          "meanGames": 16,
+          "meanPts": 200,
+          "ePpg": 12.5,
+          "n6": 1,
+          "product": 200,
+          "error": 0
+        },
+        "day2": null,
+        "day3": null,
+        "undrafted": {
+          "n": 1,
+          "meanGames": 10,
+          "meanPts": 70,
+          "ePpg": 7,
+          "n6": 1,
+          "product": 70,
+          "error": 0
+        }
+      },
+      "byCell": {
+        "r1|WR": {
+          "n": 1,
+          "meanGames": 16,
+          "meanPts": 200,
+          "ePpg": 12.5,
+          "n6": 1,
+          "product": 200,
+          "error": 0
+        },
+        "undrafted|RB": {
+          "n": 1,
+          "meanGames": 10,
+          "meanPts": 70,
+          "ePpg": 7,
+          "n6": 1,
+          "product": 70,
+          "error": 0
+        }
+      }
+    },
+    "availability": {
+      "observed": {
+        "r1": {
+          "total": 1,
+          "byBucket": {
+            "0": 1,
+            "1": 0,
+            "2+": 0
+          }
+        },
+        "day2": {
+          "total": 0,
+          "byBucket": {
+            "0": 0,
+            "1": 0,
+            "2+": 0
+          }
+        },
+        "day3": {
+          "total": 0,
+          "byBucket": {
+            "0": 0,
+            "1": 0,
+            "2+": 0
+          }
+        },
+        "undrafted": {
+          "total": 2,
+          "byBucket": {
+            "0": 1,
+            "1": 1,
+            "2+": 0
+          }
+        }
+      },
+      "expected": {
+        "r1": {
+          "total": 152,
+          "byBucket": {
+            "0": 127,
+            "1": 17,
+            "2+": 8
+          }
+        },
+        "day2": {
+          "total": 360,
+          "byBucket": {
+            "0": 276,
+            "1": 44,
+            "2+": 40
+          }
+        },
+        "day3": {
+          "total": 1119,
+          "byBucket": {
+            "0": 632,
+            "1": 274,
+            "2+": 213
+          }
+        },
+        "undrafted": {
+          "total": 2217,
+          "byBucket": {
+            "0": 1036,
+            "1": 785,
+            "2+": 396
+          }
+        }
+      },
+      "totalObserved": 3,
+      "totalExpected": 3848,
+      "perBucketDelta": {
+        "r1": {
+          "0": -126,
+          "1": -17,
+          "2+": -8
+        },
+        "day2": {
+          "0": -276,
+          "1": -44,
+          "2+": -40
+        },
+        "day3": {
+          "0": -632,
+          "1": -274,
+          "2+": -213
+        },
+        "undrafted": {
+          "0": -1035,
+          "1": -784,
+          "2+": -396
+        }
+      },
+      "rung4Moved": {
+        "r1": {
+          "observed": 16,
+          "roundedObserved": 16,
+          "appValue": 12.2,
+          "roundedApp": 12,
+          "moved": true
+        },
+        "day2": {
+          "observed": null,
+          "roundedObserved": null,
+          "appValue": 10.7,
+          "roundedApp": 11,
+          "moved": true
+        },
+        "day3": {
+          "observed": null,
+          "roundedObserved": null,
+          "appValue": 6.2,
+          "roundedApp": 6,
+          "moved": true
+        },
+        "undrafted": {
+          "observed": 7.5,
+          "roundedObserved": 8,
+          "appValue": 3.2,
+          "roundedApp": 3,
+          "moved": true
+        }
+      },
+      "ladder": {
+        "cells": {
+          "r1|QB|0": {
+            "appValue": 11.5,
+            "appN": 41,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -41,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|WR|0": {
+            "appValue": 13.1,
+            "appN": 54,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -53,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "day2|RB|0": {
+            "appValue": 12.3,
+            "appN": 71,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -71,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|TE|0": {
+            "appValue": 12.6,
+            "appN": 61,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -61,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|WR|0": {
+            "appValue": 13.5,
+            "appN": 117,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -117,
+            "valueMatch": false,
+            "wholeApp": 14,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|QB|0": {
+            "appValue": 1.9,
+            "appN": 77,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -77,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|QB|1": {
+            "appValue": 2.2,
+            "appN": 64,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -64,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|QB|2+": {
+            "appValue": 2,
+            "appN": 103,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -103,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|RB|0": {
+            "appValue": 9.9,
+            "appN": 204,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -204,
+            "valueMatch": false,
+            "wholeApp": 10,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|RB|1": {
+            "appValue": 3.5,
+            "appN": 65,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -65,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|RB|2+": {
+            "appValue": 4,
+            "appN": 34,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -34,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|TE|0": {
+            "appValue": 8.6,
+            "appN": 117,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -117,
+            "valueMatch": false,
+            "wholeApp": 9,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|TE|1": {
+            "appValue": 5.8,
+            "appN": 47,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -47,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|WR|0": {
+            "appValue": 8.2,
+            "appN": 234,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -234,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|WR|1": {
+            "appValue": 4.7,
+            "appN": 98,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -98,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|WR|2+": {
+            "appValue": 3.8,
+            "appN": 53,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -53,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|QB|0": {
+            "appValue": 0.9,
+            "appN": 73,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -73,
+            "valueMatch": false,
+            "wholeApp": 1,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|QB|1": {
+            "appValue": 0.7,
+            "appN": 66,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -66,
+            "valueMatch": false,
+            "wholeApp": 1,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|QB|2+": {
+            "appValue": 2.8,
+            "appN": 52,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -52,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|RB|0": {
+            "appValue": 4.4,
+            "appN": 290,
+            "n": 1,
+            "mean": 5,
+            "value": 5,
+            "nDelta": -289,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": 5,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|RB|1": {
+            "appValue": 2.6,
+            "appN": 205,
+            "n": 1,
+            "mean": 10,
+            "value": 10,
+            "nDelta": -204,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 10,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|RB|2+": {
+            "appValue": 4.9,
+            "appN": 69,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -69,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|TE|0": {
+            "appValue": 3.9,
+            "appN": 204,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -204,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|TE|1": {
+            "appValue": 3.8,
+            "appN": 151,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -151,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|TE|2+": {
+            "appValue": 4.7,
+            "appN": 101,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -101,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|WR|0": {
+            "appValue": 2.8,
+            "appN": 469,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -469,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|WR|1": {
+            "appValue": 2.3,
+            "appN": 363,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -363,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|WR|2+": {
+            "appValue": 4.1,
+            "appN": 174,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -174,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|0": {
+            "appValue": 12.8,
+            "appN": 127,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -126,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "day2|0": {
+            "appValue": 12.3,
+            "appN": 276,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -276,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|1": {
+            "appValue": 6.9,
+            "appN": 44,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -44,
+            "valueMatch": false,
+            "wholeApp": 7,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|2+": {
+            "appValue": 4,
+            "appN": 40,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -40,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|0": {
+            "appValue": 8,
+            "appN": 632,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -632,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|1": {
+            "appValue": 4,
+            "appN": 274,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -274,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|2+": {
+            "appValue": 3.4,
+            "appN": 213,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -213,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|0": {
+            "appValue": 3.3,
+            "appN": 1036,
+            "n": 1,
+            "mean": 5,
+            "value": 5,
+            "nDelta": -1035,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 5,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|1": {
+            "appValue": 2.5,
+            "appN": 785,
+            "n": 1,
+            "mean": 10,
+            "value": 10,
+            "nDelta": -784,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 10,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|2+": {
+            "appValue": 4.2,
+            "appN": 396,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -396,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|QB": {
+            "appValue": 10.5,
+            "appN": 57,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -57,
+            "valueMatch": false,
+            "wholeApp": 11,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|RB": {
+            "appValue": 13.8,
+            "appN": 18,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -18,
+            "valueMatch": false,
+            "wholeApp": 14,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|WR": {
+            "appValue": 12.8,
+            "appN": 61,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -60,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "r1|TE": {
+            "appValue": 14.6,
+            "appN": 16,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -16,
+            "valueMatch": false,
+            "wholeApp": 15,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|QB": {
+            "appValue": 4.7,
+            "appN": 65,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -65,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|RB": {
+            "appValue": 10.8,
+            "appN": 91,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -91,
+            "valueMatch": false,
+            "wholeApp": 11,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|WR": {
+            "appValue": 13.1,
+            "appN": 127,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -127,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|TE": {
+            "appValue": 11.5,
+            "appN": 77,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -77,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|QB": {
+            "appValue": 2.1,
+            "appN": 244,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -244,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|RB": {
+            "appValue": 7.9,
+            "appN": 303,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -303,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|WR": {
+            "appValue": 6.7,
+            "appN": 385,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -385,
+            "valueMatch": false,
+            "wholeApp": 7,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|TE": {
+            "appValue": 7.7,
+            "appN": 187,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -187,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|QB": {
+            "appValue": 1.3,
+            "appN": 191,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -191,
+            "valueMatch": false,
+            "wholeApp": 1,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|RB": {
+            "appValue": 3.8,
+            "appN": 564,
+            "n": 2,
+            "mean": 7.5,
+            "value": 7.5,
+            "nDelta": -562,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": 8,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|WR": {
+            "appValue": 2.9,
+            "appN": 1006,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -1006,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|TE": {
+            "appValue": 4,
+            "appN": 456,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -456,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1": {
+            "appValue": 12.2,
+            "appN": 152,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -151,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "day2": {
+            "appValue": 10.7,
+            "appN": 360,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -360,
+            "valueMatch": false,
+            "wholeApp": 11,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3": {
+            "appValue": 6.2,
+            "appN": 1119,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -1119,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted": {
+            "appValue": 3.2,
+            "appN": 2217,
+            "n": 2,
+            "mean": 7.5,
+            "value": 7.5,
+            "nDelta": -2215,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 8,
+            "moved": true,
+            "missing": false
+          },
+          "U|QB|0": {
+            "appValue": 3.9,
+            "appN": 218,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -218,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|QB|1": {
+            "appValue": 2.3,
+            "appN": 155,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -155,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|QB|2+": {
+            "appValue": 2.5,
+            "appN": 184,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -184,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|QB": {
+            "appValue": 3,
+            "appN": 557,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -557,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|RB|0": {
+            "appValue": 7.6,
+            "appN": 582,
+            "n": 1,
+            "mean": 5,
+            "value": 5,
+            "nDelta": -581,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": 5,
+            "moved": true,
+            "missing": false
+          },
+          "U|RB|1": {
+            "appValue": 3,
+            "appN": 282,
+            "n": 1,
+            "mean": 10,
+            "value": 10,
+            "nDelta": -281,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 10,
+            "moved": true,
+            "missing": false
+          },
+          "U|RB|2+": {
+            "appValue": 4.5,
+            "appN": 112,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -112,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|RB": {
+            "appValue": 5.9,
+            "appN": 976,
+            "n": 2,
+            "mean": 7.5,
+            "value": 7.5,
+            "nDelta": -974,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": 8,
+            "moved": true,
+            "missing": false
+          },
+          "U|WR|0": {
+            "appValue": 6.3,
+            "appN": 874,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -873,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "U|WR|1": {
+            "appValue": 3,
+            "appN": 474,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -474,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|WR|2+": {
+            "appValue": 4.1,
+            "appN": 231,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -231,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|WR": {
+            "appValue": 5,
+            "appN": 1579,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -1578,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "U|TE|0": {
+            "appValue": 7,
+            "appN": 397,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -397,
+            "valueMatch": false,
+            "wholeApp": 7,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|TE|1": {
+            "appValue": 4.5,
+            "appN": 209,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -209,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|TE|2+": {
+            "appValue": 5.2,
+            "appN": 130,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -130,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|TE": {
+            "appValue": 6,
+            "appN": 736,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -736,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          }
+        },
+        "summary": {
+          "cells": 74,
+          "nMismatch": 15,
+          "valueMismatch": 15,
+          "moved": 74,
+          "missing": 59
+        }
+      }
+    },
+    "ceiling": {
+      "observed": {
+        "QB": {
+          "n": 0,
+          "knee": null,
+          "asymptote": null
+        },
+        "RB": {
+          "n": 0,
+          "knee": null,
+          "asymptote": null
+        },
+        "WR": {
+          "n": 1,
+          "knee": 10,
+          "asymptote": 10
+        },
+        "TE": {
+          "n": 0,
+          "knee": null,
+          "asymptote": null
+        }
+      },
+      "expected": {
+        "QB": {
+          "knee": 17.8,
+          "asymptote": 21.9
+        },
+        "RB": {
+          "knee": 12.11,
+          "asymptote": 16.87
+        },
+        "WR": {
+          "knee": 9.87,
+          "asymptote": 14.38
+        },
+        "TE": {
+          "knee": 6.21,
+          "asymptote": 11.6
+        }
+      },
+      "expectedCommit": "41f277e",
+      "delta": {
+        "QB": {
+          "knee": null,
+          "asymptote": null
+        },
+        "RB": {
+          "knee": null,
+          "asymptote": null
+        },
+        "WR": {
+          "knee": 0.13,
+          "asymptote": -4.38
+        },
+        "TE": {
+          "knee": null,
+          "asymptote": null
+        }
+      },
+      "match": {
+        "QB": false,
+        "RB": false,
+        "WR": false,
+        "TE": false
+      }
+    }
+  },
+  "panelsLeague": {
+    "meta": {
+      "legacyYears": {
+        "fromYear": 2013,
+        "toYear": 2024
+      },
+      "entryYears": {
+        "fromYear": 2013,
+        "toYear": 2025
+      },
+      "historyFloor": 2012,
+      "basis": "league",
+      "basisScope": {
+        "basis": "league",
+        "appliesTo": "rows with outcomeGames > 0",
+        "basisFreeZeroRows": 0,
+        "note": "A zero outcome is read from no stats object and is identical under any scoring basis."
+      },
+      "goalLine": "Turn the rookie panel from one survivor-gated second-season PPG panel into one harness that can also grade a debut season, an ungated outcome, and realised total points, with the re-fit trap enforced as a thrown error rather than a convention."
+    },
+    "pin": {
+      "checked": false,
+      "skipped": "pin is half_ppr",
+      "reason": "pin is half_ppr"
+    },
+    "legacy": {
+      "gated": {
+        "rows": [
+          {
+            "sleeperId": "p1",
+            "position": "WR",
+            "predictorYear": 2020,
+            "draftYear": 2020,
+            "draftRound": 1,
+            "draftPick": 5,
+            "projectedPPG": 8.7,
+            "hitCap": false,
+            "nflDraftTier": "top-8",
+            "outcomePPG": 17.375,
+            "outcomeClass": "played6plus",
+            "outcomeGames": 16,
+            "outcomeTotalPts": 278,
+            "dnpWeeks": null,
+            "draftGroup": "r1"
+          },
+          {
+            "sleeperId": "p2",
+            "position": "RB",
+            "predictorYear": 2020,
+            "draftYear": 2020,
+            "draftRound": null,
+            "draftPick": null,
+            "projectedPPG": 9.5,
+            "hitCap": false,
+            "nflDraftTier": null,
+            "outcomePPG": 6,
+            "outcomeClass": "played6plus",
+            "outcomeGames": 10,
+            "outcomeTotalPts": 60,
+            "dnpWeeks": null,
+            "draftGroup": "undrafted"
+          }
+        ],
+        "coverage": {
+          "assembled": 2,
+          "surviving": 2,
+          "drops": {},
+          "hitCapCount": 0,
+          "byOutcomeClass": {
+            "played6plus": 2
+          },
+          "byCellOutcomeClass": {
+            "r1|WR": {
+              "played6plus": 1
+            },
+            "undrafted|RB": {
+              "played6plus": 1
+            }
+          },
+          "byRungCell": {},
+          "byExperience": {
+            "0": 2
+          },
+          "invalidEntryYear": 0,
+          "predictorCorrections": []
+        }
+      },
+      "ungated": {
+        "rows": [
+          {
+            "sleeperId": "p1",
+            "position": "WR",
+            "predictorYear": 2020,
+            "draftYear": 2020,
+            "draftRound": 1,
+            "draftPick": 5,
+            "projectedPPG": 8.7,
+            "hitCap": false,
+            "nflDraftTier": "top-8",
+            "outcomePPG": 17.375,
+            "outcomeClass": "played6plus",
+            "outcomeGames": 16,
+            "outcomeTotalPts": 278,
+            "dnpWeeks": null,
+            "draftGroup": "r1"
+          },
+          {
+            "sleeperId": "p2",
+            "position": "RB",
+            "predictorYear": 2020,
+            "draftYear": 2020,
+            "draftRound": null,
+            "draftPick": null,
+            "projectedPPG": 9.5,
+            "hitCap": false,
+            "nflDraftTier": null,
+            "outcomePPG": 6,
+            "outcomeClass": "played6plus",
+            "outcomeGames": 10,
+            "outcomeTotalPts": 60,
+            "dnpWeeks": null,
+            "draftGroup": "undrafted"
+          }
+        ],
+        "coverage": {
+          "assembled": 2,
+          "surviving": 2,
+          "drops": {},
+          "hitCapCount": 0,
+          "byOutcomeClass": {
+            "played6plus": 2
+          },
+          "byCellOutcomeClass": {
+            "r1|WR": {
+              "played6plus": 1
+            },
+            "undrafted|RB": {
+              "played6plus": 1
+            }
+          },
+          "byRungCell": {},
+          "byExperience": {
+            "0": 2
+          },
+          "invalidEntryYear": 0,
+          "predictorCorrections": []
+        }
+      }
+    },
+    "debut": {
+      "rows": [
+        {
+          "sleeperId": "p1",
+          "position": "WR",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": 1,
+          "draftPick": 5,
+          "projectedPPG": 8.7,
+          "hitCap": false,
+          "nflDraftTier": "top-8",
+          "outcomePPG": 13.5,
+          "outcomeClass": "played6plus",
+          "outcomeGames": 16,
+          "outcomeTotalPts": 216,
+          "dnpWeeks": null,
+          "draftGroup": "r1",
+          "entryYear": 2020,
+          "targetSeason": 2020,
+          "experienceYears": 0,
+          "experienceBucket": "0"
+        },
+        {
+          "sleeperId": "p2",
+          "position": "RB",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": null,
+          "draftPick": null,
+          "projectedPPG": 9.5,
+          "hitCap": false,
+          "nflDraftTier": null,
+          "outcomePPG": 3,
+          "outcomeClass": "played1to5",
+          "outcomeGames": 5,
+          "outcomeTotalPts": 15,
+          "dnpWeeks": null,
+          "draftGroup": "undrafted",
+          "entryYear": 2020,
+          "targetSeason": 2020,
+          "experienceYears": 0,
+          "experienceBucket": "0"
+        }
+      ],
+      "coverage": {
+        "assembled": 2,
+        "surviving": 2,
+        "drops": {},
+        "hitCapCount": 0,
+        "byOutcomeClass": {
+          "played6plus": 1,
+          "played1to5": 1
+        },
+        "byCellOutcomeClass": {
+          "r1|WR": {
+            "played6plus": 1
+          },
+          "undrafted|RB": {
+            "played1to5": 1
+          }
+        },
+        "byRungCell": {
+          "r1|WR|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1|WR": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "U|WR|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "U|WR": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "undrafted|RB|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted|RB": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "U|RB|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "U|RB": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          }
+        },
+        "byExperience": {
+          "0": 2
+        },
+        "invalidEntryYear": 0,
+        "predictorCorrections": []
+      }
+    },
+    "rookiePathAll": {
+      "rows": [
+        {
+          "sleeperId": "p1",
+          "position": "WR",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": 1,
+          "draftPick": 5,
+          "projectedPPG": 8.7,
+          "hitCap": false,
+          "nflDraftTier": "top-8",
+          "outcomePPG": 13.5,
+          "outcomeClass": "played6plus",
+          "outcomeGames": 16,
+          "outcomeTotalPts": 216,
+          "dnpWeeks": null,
+          "draftGroup": "r1",
+          "entryYear": 2020,
+          "targetSeason": 2020,
+          "experienceYears": 0,
+          "experienceBucket": "0"
+        },
+        {
+          "sleeperId": "p2",
+          "position": "RB",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": null,
+          "draftPick": null,
+          "projectedPPG": 9.5,
+          "hitCap": false,
+          "nflDraftTier": null,
+          "outcomePPG": 3,
+          "outcomeClass": "played1to5",
+          "outcomeGames": 5,
+          "outcomeTotalPts": 15,
+          "dnpWeeks": null,
+          "draftGroup": "undrafted",
+          "entryYear": 2020,
+          "targetSeason": 2020,
+          "experienceYears": 0,
+          "experienceBucket": "0"
+        },
+        {
+          "sleeperId": "p2",
+          "position": "RB",
+          "predictorYear": 2020,
+          "draftYear": 2020,
+          "draftRound": null,
+          "draftPick": null,
+          "projectedPPG": 9.5,
+          "hitCap": false,
+          "nflDraftTier": null,
+          "outcomePPG": 6,
+          "outcomeClass": "played6plus",
+          "outcomeGames": 10,
+          "outcomeTotalPts": 60,
+          "dnpWeeks": null,
+          "draftGroup": "undrafted",
+          "entryYear": 2020,
+          "targetSeason": 2021,
+          "experienceYears": 1,
+          "experienceBucket": "1"
+        }
+      ],
+      "coverage": {
+        "assembled": 3,
+        "surviving": 3,
+        "drops": {},
+        "hitCapCount": 0,
+        "byOutcomeClass": {
+          "played6plus": 2,
+          "played1to5": 1
+        },
+        "byCellOutcomeClass": {
+          "r1|WR": {
+            "played6plus": 1
+          },
+          "undrafted|RB": {
+            "played1to5": 1,
+            "played6plus": 1
+          }
+        },
+        "byRungCell": {
+          "r1|WR|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1|WR": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "r1": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "U|WR|0": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "U|WR": {
+            "n": 1,
+            "meanOutcomeGames": 16,
+            "meanOutcomeGamesRounded": 16
+          },
+          "undrafted|RB|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "undrafted|RB": {
+            "n": 2,
+            "meanOutcomeGames": 7.5,
+            "meanOutcomeGamesRounded": 8
+          },
+          "undrafted": {
+            "n": 2,
+            "meanOutcomeGames": 7.5,
+            "meanOutcomeGamesRounded": 8
+          },
+          "U|RB|0": {
+            "n": 1,
+            "meanOutcomeGames": 5,
+            "meanOutcomeGamesRounded": 5
+          },
+          "U|RB": {
+            "n": 2,
+            "meanOutcomeGames": 7.5,
+            "meanOutcomeGamesRounded": 8
+          },
+          "undrafted|RB|1": {
+            "n": 1,
+            "meanOutcomeGames": 10,
+            "meanOutcomeGamesRounded": 10
+          },
+          "undrafted|1": {
+            "n": 1,
+            "meanOutcomeGames": 10,
+            "meanOutcomeGamesRounded": 10
+          },
+          "U|RB|1": {
+            "n": 1,
+            "meanOutcomeGames": 10,
+            "meanOutcomeGamesRounded": 10
+          }
+        },
+        "byExperience": {
+          "0": 2,
+          "1": 1
+        },
+        "invalidEntryYear": 0,
+        "predictorCorrections": []
+      }
+    },
+    "positionAsymmetryCount": 0,
+    "legacyRowCount": 2,
+    "residual": {
+      "byGroup": {
+        "r1": {
+          "n": 1,
+          "meanGames": 16,
+          "meanPts": 278,
+          "ePpg": 17.375,
+          "n6": 1,
+          "product": 278,
+          "error": 0
+        },
+        "day2": null,
+        "day3": null,
+        "undrafted": {
+          "n": 1,
+          "meanGames": 10,
+          "meanPts": 60,
+          "ePpg": 6,
+          "n6": 1,
+          "product": 60,
+          "error": 0
+        }
+      },
+      "byCell": {
+        "r1|WR": {
+          "n": 1,
+          "meanGames": 16,
+          "meanPts": 278,
+          "ePpg": 17.375,
+          "n6": 1,
+          "product": 278,
+          "error": 0
+        },
+        "undrafted|RB": {
+          "n": 1,
+          "meanGames": 10,
+          "meanPts": 60,
+          "ePpg": 6,
+          "n6": 1,
+          "product": 60,
+          "error": 0
+        }
+      }
+    },
+    "availability": {
+      "observed": {
+        "r1": {
+          "total": 1,
+          "byBucket": {
+            "0": 1,
+            "1": 0,
+            "2+": 0
+          }
+        },
+        "day2": {
+          "total": 0,
+          "byBucket": {
+            "0": 0,
+            "1": 0,
+            "2+": 0
+          }
+        },
+        "day3": {
+          "total": 0,
+          "byBucket": {
+            "0": 0,
+            "1": 0,
+            "2+": 0
+          }
+        },
+        "undrafted": {
+          "total": 2,
+          "byBucket": {
+            "0": 1,
+            "1": 1,
+            "2+": 0
+          }
+        }
+      },
+      "expected": {
+        "r1": {
+          "total": 152,
+          "byBucket": {
+            "0": 127,
+            "1": 17,
+            "2+": 8
+          }
+        },
+        "day2": {
+          "total": 360,
+          "byBucket": {
+            "0": 276,
+            "1": 44,
+            "2+": 40
+          }
+        },
+        "day3": {
+          "total": 1119,
+          "byBucket": {
+            "0": 632,
+            "1": 274,
+            "2+": 213
+          }
+        },
+        "undrafted": {
+          "total": 2217,
+          "byBucket": {
+            "0": 1036,
+            "1": 785,
+            "2+": 396
+          }
+        }
+      },
+      "totalObserved": 3,
+      "totalExpected": 3848,
+      "perBucketDelta": {
+        "r1": {
+          "0": -126,
+          "1": -17,
+          "2+": -8
+        },
+        "day2": {
+          "0": -276,
+          "1": -44,
+          "2+": -40
+        },
+        "day3": {
+          "0": -632,
+          "1": -274,
+          "2+": -213
+        },
+        "undrafted": {
+          "0": -1035,
+          "1": -784,
+          "2+": -396
+        }
+      },
+      "rung4Moved": {
+        "r1": {
+          "observed": 16,
+          "roundedObserved": 16,
+          "appValue": 12.2,
+          "roundedApp": 12,
+          "moved": true
+        },
+        "day2": {
+          "observed": null,
+          "roundedObserved": null,
+          "appValue": 10.7,
+          "roundedApp": 11,
+          "moved": true
+        },
+        "day3": {
+          "observed": null,
+          "roundedObserved": null,
+          "appValue": 6.2,
+          "roundedApp": 6,
+          "moved": true
+        },
+        "undrafted": {
+          "observed": 7.5,
+          "roundedObserved": 8,
+          "appValue": 3.2,
+          "roundedApp": 3,
+          "moved": true
+        }
+      },
+      "ladder": {
+        "cells": {
+          "r1|QB|0": {
+            "appValue": 11.5,
+            "appN": 41,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -41,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|WR|0": {
+            "appValue": 13.1,
+            "appN": 54,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -53,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "day2|RB|0": {
+            "appValue": 12.3,
+            "appN": 71,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -71,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|TE|0": {
+            "appValue": 12.6,
+            "appN": 61,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -61,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|WR|0": {
+            "appValue": 13.5,
+            "appN": 117,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -117,
+            "valueMatch": false,
+            "wholeApp": 14,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|QB|0": {
+            "appValue": 1.9,
+            "appN": 77,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -77,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|QB|1": {
+            "appValue": 2.2,
+            "appN": 64,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -64,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|QB|2+": {
+            "appValue": 2,
+            "appN": 103,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -103,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|RB|0": {
+            "appValue": 9.9,
+            "appN": 204,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -204,
+            "valueMatch": false,
+            "wholeApp": 10,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|RB|1": {
+            "appValue": 3.5,
+            "appN": 65,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -65,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|RB|2+": {
+            "appValue": 4,
+            "appN": 34,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -34,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|TE|0": {
+            "appValue": 8.6,
+            "appN": 117,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -117,
+            "valueMatch": false,
+            "wholeApp": 9,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|TE|1": {
+            "appValue": 5.8,
+            "appN": 47,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -47,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|WR|0": {
+            "appValue": 8.2,
+            "appN": 234,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -234,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|WR|1": {
+            "appValue": 4.7,
+            "appN": 98,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -98,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|WR|2+": {
+            "appValue": 3.8,
+            "appN": 53,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -53,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|QB|0": {
+            "appValue": 0.9,
+            "appN": 73,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -73,
+            "valueMatch": false,
+            "wholeApp": 1,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|QB|1": {
+            "appValue": 0.7,
+            "appN": 66,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -66,
+            "valueMatch": false,
+            "wholeApp": 1,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|QB|2+": {
+            "appValue": 2.8,
+            "appN": 52,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -52,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|RB|0": {
+            "appValue": 4.4,
+            "appN": 290,
+            "n": 1,
+            "mean": 5,
+            "value": 5,
+            "nDelta": -289,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": 5,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|RB|1": {
+            "appValue": 2.6,
+            "appN": 205,
+            "n": 1,
+            "mean": 10,
+            "value": 10,
+            "nDelta": -204,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 10,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|RB|2+": {
+            "appValue": 4.9,
+            "appN": 69,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -69,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|TE|0": {
+            "appValue": 3.9,
+            "appN": 204,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -204,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|TE|1": {
+            "appValue": 3.8,
+            "appN": 151,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -151,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|TE|2+": {
+            "appValue": 4.7,
+            "appN": 101,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -101,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|WR|0": {
+            "appValue": 2.8,
+            "appN": 469,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -469,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|WR|1": {
+            "appValue": 2.3,
+            "appN": 363,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -363,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|WR|2+": {
+            "appValue": 4.1,
+            "appN": 174,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -174,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|0": {
+            "appValue": 12.8,
+            "appN": 127,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -126,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "day2|0": {
+            "appValue": 12.3,
+            "appN": 276,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -276,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|1": {
+            "appValue": 6.9,
+            "appN": 44,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -44,
+            "valueMatch": false,
+            "wholeApp": 7,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|2+": {
+            "appValue": 4,
+            "appN": 40,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -40,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|0": {
+            "appValue": 8,
+            "appN": 632,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -632,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|1": {
+            "appValue": 4,
+            "appN": 274,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -274,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|2+": {
+            "appValue": 3.4,
+            "appN": 213,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -213,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|0": {
+            "appValue": 3.3,
+            "appN": 1036,
+            "n": 1,
+            "mean": 5,
+            "value": 5,
+            "nDelta": -1035,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 5,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|1": {
+            "appValue": 2.5,
+            "appN": 785,
+            "n": 1,
+            "mean": 10,
+            "value": 10,
+            "nDelta": -784,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 10,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|2+": {
+            "appValue": 4.2,
+            "appN": 396,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -396,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|QB": {
+            "appValue": 10.5,
+            "appN": 57,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -57,
+            "valueMatch": false,
+            "wholeApp": 11,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|RB": {
+            "appValue": 13.8,
+            "appN": 18,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -18,
+            "valueMatch": false,
+            "wholeApp": 14,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1|WR": {
+            "appValue": 12.8,
+            "appN": 61,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -60,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "r1|TE": {
+            "appValue": 14.6,
+            "appN": 16,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -16,
+            "valueMatch": false,
+            "wholeApp": 15,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|QB": {
+            "appValue": 4.7,
+            "appN": 65,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -65,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|RB": {
+            "appValue": 10.8,
+            "appN": 91,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -91,
+            "valueMatch": false,
+            "wholeApp": 11,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|WR": {
+            "appValue": 13.1,
+            "appN": 127,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -127,
+            "valueMatch": false,
+            "wholeApp": 13,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day2|TE": {
+            "appValue": 11.5,
+            "appN": 77,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -77,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|QB": {
+            "appValue": 2.1,
+            "appN": 244,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -244,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|RB": {
+            "appValue": 7.9,
+            "appN": 303,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -303,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|WR": {
+            "appValue": 6.7,
+            "appN": 385,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -385,
+            "valueMatch": false,
+            "wholeApp": 7,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3|TE": {
+            "appValue": 7.7,
+            "appN": 187,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -187,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|QB": {
+            "appValue": 1.3,
+            "appN": 191,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -191,
+            "valueMatch": false,
+            "wholeApp": 1,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|RB": {
+            "appValue": 3.8,
+            "appN": 564,
+            "n": 2,
+            "mean": 7.5,
+            "value": 7.5,
+            "nDelta": -562,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": 8,
+            "moved": true,
+            "missing": false
+          },
+          "undrafted|WR": {
+            "appValue": 2.9,
+            "appN": 1006,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -1006,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted|TE": {
+            "appValue": 4,
+            "appN": 456,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -456,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "r1": {
+            "appValue": 12.2,
+            "appN": 152,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -151,
+            "valueMatch": false,
+            "wholeApp": 12,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "day2": {
+            "appValue": 10.7,
+            "appN": 360,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -360,
+            "valueMatch": false,
+            "wholeApp": 11,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "day3": {
+            "appValue": 6.2,
+            "appN": 1119,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -1119,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "undrafted": {
+            "appValue": 3.2,
+            "appN": 2217,
+            "n": 2,
+            "mean": 7.5,
+            "value": 7.5,
+            "nDelta": -2215,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 8,
+            "moved": true,
+            "missing": false
+          },
+          "U|QB|0": {
+            "appValue": 3.9,
+            "appN": 218,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -218,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|QB|1": {
+            "appValue": 2.3,
+            "appN": 155,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -155,
+            "valueMatch": false,
+            "wholeApp": 2,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|QB|2+": {
+            "appValue": 2.5,
+            "appN": 184,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -184,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|QB": {
+            "appValue": 3,
+            "appN": 557,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -557,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|RB|0": {
+            "appValue": 7.6,
+            "appN": 582,
+            "n": 1,
+            "mean": 5,
+            "value": 5,
+            "nDelta": -581,
+            "valueMatch": false,
+            "wholeApp": 8,
+            "whole": 5,
+            "moved": true,
+            "missing": false
+          },
+          "U|RB|1": {
+            "appValue": 3,
+            "appN": 282,
+            "n": 1,
+            "mean": 10,
+            "value": 10,
+            "nDelta": -281,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": 10,
+            "moved": true,
+            "missing": false
+          },
+          "U|RB|2+": {
+            "appValue": 4.5,
+            "appN": 112,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -112,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|RB": {
+            "appValue": 5.9,
+            "appN": 976,
+            "n": 2,
+            "mean": 7.5,
+            "value": 7.5,
+            "nDelta": -974,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": 8,
+            "moved": true,
+            "missing": false
+          },
+          "U|WR|0": {
+            "appValue": 6.3,
+            "appN": 874,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -873,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "U|WR|1": {
+            "appValue": 3,
+            "appN": 474,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -474,
+            "valueMatch": false,
+            "wholeApp": 3,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|WR|2+": {
+            "appValue": 4.1,
+            "appN": 231,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -231,
+            "valueMatch": false,
+            "wholeApp": 4,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|WR": {
+            "appValue": 5,
+            "appN": 1579,
+            "n": 1,
+            "mean": 16,
+            "value": 16,
+            "nDelta": -1578,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": 16,
+            "moved": true,
+            "missing": false
+          },
+          "U|TE|0": {
+            "appValue": 7,
+            "appN": 397,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -397,
+            "valueMatch": false,
+            "wholeApp": 7,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|TE|1": {
+            "appValue": 4.5,
+            "appN": 209,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -209,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|TE|2+": {
+            "appValue": 5.2,
+            "appN": 130,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -130,
+            "valueMatch": false,
+            "wholeApp": 5,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          },
+          "U|TE": {
+            "appValue": 6,
+            "appN": 736,
+            "n": 0,
+            "mean": null,
+            "value": null,
+            "nDelta": -736,
+            "valueMatch": false,
+            "wholeApp": 6,
+            "whole": null,
+            "moved": true,
+            "missing": true
+          }
+        },
+        "summary": {
+          "cells": 74,
+          "nMismatch": 15,
+          "valueMismatch": 15,
+          "moved": 74,
+          "missing": 59
+        }
+      }
+    },
+    "ceiling": {
+      "observed": {
+        "QB": {
+          "n": 0,
+          "knee": null,
+          "asymptote": null
+        },
+        "RB": {
+          "n": 0,
+          "knee": null,
+          "asymptote": null
+        },
+        "WR": {
+          "n": 1,
+          "knee": 13.5,
+          "asymptote": 13.5
+        },
+        "TE": {
+          "n": 0,
+          "knee": null,
+          "asymptote": null
+        }
+      },
+      "expected": {
+        "QB": {
+          "knee": 17.8,
+          "asymptote": 21.9
+        },
+        "RB": {
+          "knee": 12.11,
+          "asymptote": 16.87
+        },
+        "WR": {
+          "knee": 9.87,
+          "asymptote": 14.38
+        },
+        "TE": {
+          "knee": 6.21,
+          "asymptote": 11.6
+        }
+      },
+      "expectedCommit": "41f277e",
+      "delta": {
+        "QB": {
+          "knee": null,
+          "asymptote": null
+        },
+        "RB": {
+          "knee": null,
+          "asymptote": null
+        },
+        "WR": {
+          "knee": 3.63,
+          "asymptote": -0.88
+        },
+        "TE": {
+          "knee": null,
+          "asymptote": null
+        }
+      },
+      "match": {
+        "QB": false,
+        "RB": false,
+        "WR": false,
+        "TE": false
+      }
+    }
+  },
+  "rookieTotalLeague": {
+    "meta": {
+      "panel": "p.json (league --rookie panel)",
+      "rows": 1,
+      "basis": "league"
+    },
+    "bias": {
+      "all": {
+        "n": 1,
+        "players": 1,
+        "meanPred": 8.7,
+        "meanReal": 20,
+        "ratio": 0.435,
+        "ci95": [
+          0.435,
+          0.435
+        ],
+        "gamesHeldRatio": 0.58,
+        "ppgRealOverPred": {
+          "gp6": null,
+          "gp1to5": 1.724
+        }
+      },
+      "byGroup": {
+        "r1": {
+          "n": 0,
+          "players": 0,
+          "meanPred": null,
+          "meanReal": null,
+          "ratio": null,
+          "ci95": null,
+          "gamesHeldRatio": null,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": null
+          }
+        },
+        "day2": {
+          "n": 0,
+          "players": 0,
+          "meanPred": null,
+          "meanReal": null,
+          "ratio": null,
+          "ci95": null,
+          "gamesHeldRatio": null,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": null
+          }
+        },
+        "day3": {
+          "n": 0,
+          "players": 0,
+          "meanPred": null,
+          "meanReal": null,
+          "ratio": null,
+          "ci95": null,
+          "gamesHeldRatio": null,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": null
+          }
+        },
+        "undrafted": {
+          "n": 1,
+          "players": 1,
+          "meanPred": 8.7,
+          "meanReal": 20,
+          "ratio": 0.435,
+          "ci95": [
+            0.435,
+            0.435
+          ],
+          "gamesHeldRatio": 0.58,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": 1.724
+          }
+        }
+      },
+      "byGroupNonQB": {
+        "r1": {
+          "n": 0,
+          "players": 0,
+          "meanPred": null,
+          "meanReal": null,
+          "ratio": null,
+          "ci95": null,
+          "gamesHeldRatio": null,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": null
+          }
+        },
+        "day2": {
+          "n": 0,
+          "players": 0,
+          "meanPred": null,
+          "meanReal": null,
+          "ratio": null,
+          "ci95": null,
+          "gamesHeldRatio": null,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": null
+          }
+        },
+        "day3": {
+          "n": 0,
+          "players": 0,
+          "meanPred": null,
+          "meanReal": null,
+          "ratio": null,
+          "ci95": null,
+          "gamesHeldRatio": null,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": null
+          }
+        },
+        "undrafted": {
+          "n": 1,
+          "players": 1,
+          "meanPred": 8.7,
+          "meanReal": 20,
+          "ratio": 0.435,
+          "ci95": [
+            0.435,
+            0.435
+          ],
+          "gamesHeldRatio": 0.58,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": 1.724
+          }
+        }
+      },
+      "byGroupPosition": {
+        "undrafted|WR": {
+          "n": 1,
+          "players": 1,
+          "meanPred": 8.7,
+          "meanReal": 20,
+          "ratio": 0.435,
+          "ci95": [
+            0.435,
+            0.435
+          ],
+          "gamesHeldRatio": 0.58,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": 1.724
+          }
+        }
+      },
+      "byExperience": {
+        "0": {
+          "n": 1,
+          "players": 1,
+          "meanPred": 8.7,
+          "meanReal": 20,
+          "ratio": 0.435,
+          "ci95": [
+            0.435,
+            0.435
+          ],
+          "gamesHeldRatio": 0.58,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": 1.724
+          }
+        },
+        "1": {
+          "n": 0,
+          "players": 0,
+          "meanPred": null,
+          "meanReal": null,
+          "ratio": null,
+          "ci95": null,
+          "gamesHeldRatio": null,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": null
+          }
+        },
+        "2+": {
+          "n": 0,
+          "players": 0,
+          "meanPred": null,
+          "meanReal": null,
+          "ratio": null,
+          "ci95": null,
+          "gamesHeldRatio": null,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": null
+          }
+        }
+      },
+      "qb": {
+        "n": 0,
+        "players": 0,
+        "meanPred": null,
+        "meanReal": null,
+        "ratio": null,
+        "ci95": null,
+        "gamesHeldRatio": null,
+        "ppgRealOverPred": {
+          "gp6": null,
+          "gp1to5": null
+        }
+      },
+      "target2025": {
+        "label": "in-sample (the games ladder and the PPG calibration were fitted on overlapping rows, target seasons <= 2025)",
+        "all": {
+          "n": 0,
+          "players": 0,
+          "meanPred": null,
+          "meanReal": null,
+          "ratio": null,
+          "ci95": null,
+          "gamesHeldRatio": null,
+          "ppgRealOverPred": {
+            "gp6": null,
+            "gp1to5": null
+          }
+        },
+        "byGroupNonQB": {
+          "r1": {
+            "n": 0,
+            "players": 0,
+            "meanPred": null,
+            "meanReal": null,
+            "ratio": null,
+            "ci95": null,
+            "gamesHeldRatio": null,
+            "ppgRealOverPred": {
+              "gp6": null,
+              "gp1to5": null
+            }
+          },
+          "day2": {
+            "n": 0,
+            "players": 0,
+            "meanPred": null,
+            "meanReal": null,
+            "ratio": null,
+            "ci95": null,
+            "gamesHeldRatio": null,
+            "ppgRealOverPred": {
+              "gp6": null,
+              "gp1to5": null
+            }
+          },
+          "day3": {
+            "n": 0,
+            "players": 0,
+            "meanPred": null,
+            "meanReal": null,
+            "ratio": null,
+            "ci95": null,
+            "gamesHeldRatio": null,
+            "ppgRealOverPred": {
+              "gp6": null,
+              "gp1to5": null
+            }
+          },
+          "undrafted": {
+            "n": 0,
+            "players": 0,
+            "meanPred": null,
+            "meanReal": null,
+            "ratio": null,
+            "ci95": null,
+            "gamesHeldRatio": null,
+            "ppgRealOverPred": {
+              "gp6": null,
+              "gp1to5": null
+            }
+          }
+        }
+      }
+    },
+    "loso": {
+      "byGroupAll": {
+        "r1": {
+          "maeShipped": null,
+          "maeCorrected": null,
+          "mean": null,
+          "ci95": null,
+          "label": null,
+          "fullSample": null
+        },
+        "day2": {
+          "maeShipped": null,
+          "maeCorrected": null,
+          "mean": null,
+          "ci95": null,
+          "label": null,
+          "fullSample": null
+        },
+        "day3": {
+          "maeShipped": null,
+          "maeCorrected": null,
+          "mean": null,
+          "ci95": null,
+          "label": null,
+          "fullSample": null
+        },
+        "undrafted": {
+          "maeShipped": 11.3,
+          "maeCorrected": 11.3,
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "label": "NO-GAIN",
+          "fullSample": 2.299
+        }
+      },
+      "decision": {
+        "day3": {
+          "maeShipped": null,
+          "maeCorrected": null,
+          "mean": null,
+          "ci95": null,
+          "label": null,
+          "rows": 0,
+          "fullSample": null,
+          "folds": []
+        },
+        "undrafted": {
+          "maeShipped": 11.3,
+          "maeCorrected": 11.3,
+          "mean": 0,
+          "ci95": [
+            0,
+            0
+          ],
+          "label": "NO-GAIN",
+          "rows": 1,
+          "fullSample": 2.299,
+          "folds": [
+            {
+              "S": 2020,
+              "m": null
+            }
+          ]
+        }
+      }
+    },
+    "decision": {
+      "rule": "§7.2",
+      "population": "non-QB (RB/WR/TE) rows of day3 and undrafted",
+      "perGroup": {
+        "day3": "none",
+        "undrafted": "none"
+      },
+      "verdict": "close"
+    },
+    "candidateMultipliers": {
+      "note": "not pinned anywhere",
+      "byGroup": {
+        "r1": null,
+        "day2": null,
+        "day3": null,
+        "undrafted": 2.299
+      }
+    }
+  }
+}
