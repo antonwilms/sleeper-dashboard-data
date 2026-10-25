@@ -392,3 +392,17 @@ Session 1 triage (2026-10-25) of the full-depth implementation review of `6c2931
 - `npm test` green; the 2 `registry.test` failures from the missing sibling are expected, so state them.
 - `node bin/season-grade.mjs --rehearse` exits 0, with no `NOT COMPUTED`; A's sections are unchanged.
 - One commit on the branch; no push.
+
+## Fix pass 2
+
+Anton, 2026-10-25, at Slice B sign-off. The re-review nit: when the half-PPR part fails, the D-16 league comparison flag claims a difference that was never measured. No review round follows this pass.
+
+**Change** (`scripts/season-grade-run.mjs` `stepRookie`, the D-16 league part, ~:926 `const differ = hc ? diffs.length > 0 : true`):
+- When the half part failed (no half counts), set `data.d16League.classCountsDiffer = 'not compared'` (the literal string) instead of `true`.
+- Print `(i, league) not compared — half-PPR part failed` and then the league table, with no "Differing cells" line.
+- With half counts present, behaviour is unchanged (`true` or `false`).
+- **Test** (`test/season-grade-b.test.mjs`): a stub whose half `runRookiePanels` throws while the league call succeeds, run with `ctx.write === true` so the half part degrades. Assert `classCountsDiffer === 'not compared'`, that the "not compared" line and the league table are printed, and that no "Differing cells" line appears.
+
+**Leave alone:** everything else.
+
+**Done:** `npm test` green (the 2 `registry.test` failures from the missing sibling are expected); one commit; no push.
