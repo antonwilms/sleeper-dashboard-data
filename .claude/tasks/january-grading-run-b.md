@@ -237,8 +237,8 @@ The `next` grade needs 2027 outcomes (≥ 2028-01). The artifact records the cou
 
 - **Step-local catch-all.** Each B step function wraps its whole body in `try { … } catch (e) { return degradeOrThrow(ctx, stepId, e) }`.
   - `degradeOrThrow` is a module-private helper in `scripts/season-grade-run.mjs`.
-  - **If `ctx.write === true`** (the real January `--write` run), it returns `{ section: { id, title, placement: 'main', md: '**⚠ NOT COMPUTED — <stepId>: <e.message>**' + stamp, data: { computed: false, error: e.message } }, artifacts: [] }`. The banner is the section's first line, and `computed:false` lands in `steps[i].data` of `season-grade.json`.
-  - **Otherwise** (`--rehearse`, a plain run, every test), it **re-throws** `e`. A's per-step isolation then fails the step, so the exit is non-zero and the bug surfaces now, not in January.
+  - **If `ctx.write === true && ctx.rehearse !== true`** (the real January `--write` run; the same condition as A's own write at :643, `write && !rehearse`, stated explicitly even though `ctx.write` is already false under `--rehearse`), it returns `{ section: { id, title, placement: 'main', md: '**⚠ NOT COMPUTED — <stepId>: <e.message>**' + stamp, data: { computed: false, error: e.message } }, artifacts: [] }`. The banner is the section's first line, and `computed:false` lands in `steps[i].data` of `season-grade.json`.
+  - **Otherwise** (`--rehearse` with or without `--write`, a plain run, every test), it **re-throws** `e`. A's per-step isolation then fails the step, so the exit is non-zero and the bug surfaces now, not in January.
   - **Part level:** the same helper wraps each part inside `rookie` (D-16 half, D-16 league, D-75) and each `writeJsonStable`, so one failed part does not hide the others in January.
 - **`computed: false` is reserved for caught errors.** Designed statuses are not errors and never fail a rehearsal: `empty`, `insufficient`, `no-capture`, `late`, `n-inconsistent`, the exclusion counts, `graded: false` for a missing `vet-calibration` dependency, and D-60's `counted: false`.
 - **The six null guards** give designed messages; each states its message:
@@ -289,7 +289,7 @@ The `next` grade needs 2027 outcomes (≥ 2028-01). The artifact records the cou
   - Imputed, dropped and missingField exclusions are counted separately in `games-l6` and `override`.
   - `runSeasonGrade({ only: ['games-l6'], rehearse: true, load })` gives `games-l6` `graded: false` and `exitCode` 0 (Flag 12).
   - `stepD60` returns `{ counted: false, reason }` and its `exitCode` contribution is 0.
-  - §10a: guards 1–6; `degradeOrThrow` with `ctx.write` true (degrade) and false (re-throw); a rehearse run with a forced B throw gives `exitCode` 1.
+  - §10a: guards 1–6; `degradeOrThrow` with `ctx.write` true and `ctx.rehearse` false (degrade), `ctx.write` false (re-throw), and `ctx.write` true with `ctx.rehearse` true (re-throw); a rehearse run with a forced B throw gives `exitCode` 1; **`--write --rehearse` with a forced B throw gives `exitCode` 1** (approved fix, 2026-10-25).
   - (b) start rows with `inSeason.n = 0` enter the observed-to-date Δ with comparator 0 (§13a); (a) rows with `n = 0` do not.
   - `STEPS` ids equal the ten in order (the updated `test/season-grade.test.mjs:315`).
   - A `--rehearse` run of a stubbed `rookie` step writes nothing.
