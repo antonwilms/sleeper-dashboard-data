@@ -383,34 +383,29 @@ For rows with projection `p` (PPG), `G`, `T`, and outcome `a` (points), `g` (gam
 
 1. `npm test` and `npm run smoke` green.
 2. `node bin/season-grade.mjs --rehearse` runs end to end on today's partial data. Paste the G1–G3, the G-MECH table (must reproduce §5.4's M1–M9 values to 4 dp), G5, G6, the guard and Q blocks, and the R/K headline table. A gate that fails in rehearsal is reported, never fixed by loosening a §13 value.
-3. **M10.** First `git pull --rebase origin main` on the working branch, to get the newest captures; never push. If a capture of the current segment (L6) exists with `capturedAt ≤ 2026-10-23T20:02:03Z + 9 days` other than `2026-10-23`, run M10 (the latest such capture as B) and append a `## M10 result` section to this file: pair, rows, rows beyond rounding, max steps, worst ratios per position, PASS/FAIL. If none exists yet, append the section stating "not yet available (newest capture <date>)". M10 then stays open, and Session 1 runs it at verification or later, recording it in the same section.
-4. README, CLAUDE.md (size test), data-catalog, the anchor-policy JSON block and the app-repo-backlog entry are updated.
-5. **Commit; do not push.** Anton signs off first (2026-10-24 instruction). No served data or manifest entry changes.
-6. Hand-back: SHA range, files touched, deviations, and what each new or changed test asserts (call out the four declared `grade-routing` rewrites and the `reconstructDepthFactor` default byte-identity).
+3. **M10.** First `git pull --rebase origin main` on the working branch, to get the newest captures; never push. If a capture of the current segment (L6) exists with `capturedAt ≤ 2026-10-23T20:02:03Z + 9 days` other than `2026-10-23`, run M10 (the latest such capture as B) and append a `## M10 result
 
-## 15. Questions for Anton
+**First check (2026-10-24, Session 2):** not yet available. L6 held one capture, `2026-10-23`.
 
-None open. The run date and replay approach were decided in Revision 1; the gate split and tolerances in Revision 2; the skipped-M10 caveat, the M10 follow-up and the A/B split on 2026-10-24.
+**Run (2026-10-25, Session 1, on `main` at `4f949a9`, via `node bin/season-grade.mjs --rehearse`):** **PASS.**
 
-## 16. App-side edits for a later parent-folder session (not made here)
+| pair | segment | rows | beyond rounding | max display steps | worst \|PPG ratio − 1\| (all positions) | worst \|total ratio − 1\| (all positions) | UNK | chain excluded |
+|---|---|---|---|---|---|---|---|---|
+| M10 `2026-10-23` → `2026-10-24` | L6 | 421 | 0 | 1 | 0.0001 | 0.0003 | 0 | 12 |
 
-1. App `.claude/tasks/data-repo-backlog.md`: change the trigger for D-16, D-44, D-52, D-60 and D-75 from "≥ 2027-01-05" to **Fri 2027-01-15 (≥ 14:00 UTC; week 18 ends 2027-01-10)**, citing this task file.
-2. `docs/cross-repo-registry.md` **CR-15**:
-   - Data += `lib/vetReplay.mjs` (`recompose`);
-   - App += `src/App.jsx` (the `computeTeamContext` current-team memo and the `computeEmpiricalAgeCurves` memo, :222-247; **not** the dynasty-only `computeHistoricalShares` current-team memo at :293-301), `src/utils/teamContext.js` (`computeTeamContext`), `src/utils/projectionSignals.js` (`computeBreakoutFlag`);
-   - Tests += `test/vet-replay.test.mjs`.
-3. **CR-01:** Data += `scripts/grade-snapshot.mjs` (`resolveOutcomeBasis`).
-4. Land after the data commit, so `test/registry.test.mjs` resolves the new Data sites.
+- **B:** `2026-10-24`, captured 2026-10-24T18:55:43Z, `projectionModelFrom` `2026-10-23`, within A + 9 days and before 2027-01-01.
+- **Every other gate unchanged:** G1 max 0.102; G2 and G3 pass; G5 0/58; G6 0.9931; M1–M9 all pass.
+- **Headline:** with M10 run, the R label is "HEADLINE, clean". The caveat "mechanics of the newest model version unverified" no longer applies.
+- **Q-within** (drift, reported only), `10-23 → 10-24`, 421 rows, 1 live row beyond one step vs `p_A`. Q_ppg / Q_tot by position:
 
-## 17. Flag → section map
+  | position | Q_ppg | Q_tot |
+  |---|---|---|
+  | QB | 0.0000 | 0.0000 |
+  | RB | −0.0004 | −0.0005 |
+  | WR | 0.0000 | 0.0000 |
+  | TE | 0.0000 | 0.0000 |
 
-Moved to `.claude/tasks/january-grading-run-reviews.md`: every flag from both plan-review rounds, mapped to its section here or in Slice B.
-
-## M10 result
-
-Run 2026-10-24 by Session 2 after `git pull --rebase origin main` on `claude/p3-slice-a-037aa6` (up to date; origin/main carried no capture newer than `2026-10-23`).
-
-**Not yet available (newest capture 2026-10-23).** L6 holds one capture, `2026-10-23` (`capturedAt` 2026-10-23T20:02:03Z); no other L6 capture exists with `capturedAt ≤ 2026-11-01T20:02:03Z`. M10 is `skipped`; R stays the headline with the fixed caveat "mechanics of the newest model version unverified". M10 stays open: Session 1 runs it at verification or later (pair A = `2026-10-23`, B = the latest L6 capture with `capturedAt ≤ A + 9 days` and `< 2027-01-01`) and records it in this section.
+- **January:** M10 re-runs on whatever L6 captures exist within the bounded window. This record is today's result.
 
 ## Fix pass 1
 
