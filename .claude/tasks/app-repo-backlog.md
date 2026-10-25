@@ -4,12 +4,14 @@ Work that belongs in `sleeper-dashboard`, found by a session scoped to this repo
 
 ## Open
 
-### January grading run (P3 slice A): app-side registry and backlog edits
+### ~~January grading run (P3 slice A): app-side registry and backlog edits~~
+**✅ Done 2026-10-25** — app `01120b1` (D-60 excluded, handled in slice B; CR-15 App `src/App.jsx` site written as `computeTeamContext`, `computeEmpiricalAgeCurves` to fit the registry site grammar).
 **Found:** january-grading-run-a (data branch `claude/p3-slice-a-037aa6`, task file `.claude/tasks/january-grading-run-a.md` §16) · **Blocking:** no — land after the data commit, so `test/registry.test.mjs` resolves the new Data sites · **Size:** small — docs only, parent-folder session
 
 The exact edits are in the task file's §16: (1) app `.claude/tasks/data-repo-backlog.md`: the trigger for D-16, D-44, D-52 and D-75 changes from "≥ 2027-01-05" to Fri 2027-01-15 (≥ 14:00 UTC; week 18 ends 2027-01-10); (2) `docs/cross-repo-registry.md` CR-15: Data += `lib/vetReplay.mjs` (`recompose`); App += `src/App.jsx` (the `computeTeamContext` current-team memo and the `computeEmpiricalAgeCurves` memo, :222-247, not the dynasty-only `computeHistoricalShares` memo at :293-301), `src/utils/teamContext.js` (`computeTeamContext`), `src/utils/projectionSignals.js` (`computeBreakoutFlag`); Tests += `test/vet-replay.test.mjs`; (3) CR-01: Data += `scripts/grade-snapshot.mjs` (`resolveOutcomeBasis`). **D-60: see P3 Slice B §16 (post-rollover trigger)** — it is dropped from item (1).
 
-### January grading run (P3 slice B): D-60 trigger and the CR-01 inSeason/projection-field coupling
+### ~~January grading run (P3 slice B): D-60 trigger and the CR-01 inSeason/projection-field coupling~~
+**✅ Done 2026-10-25** — app `01120b1`.
 **Found:** january-grading-run-b (data branch `claude/p3-slice-b-build-7301cb`, task file `.claude/tasks/january-grading-run-b.md` §12 and §16) · **Blocking:** no — land after the data commit, so `test/registry.test.mjs` resolves the new Data sites · **Size:** small — docs only, parent-folder session
 
 (1) **D-60.** In app `.claude/tasks/data-repo-backlog.md`, under `### D-60 · Replicate Q5 on the app's sat-longer definition`, set its trigger to: recount at the first `nfl/season-totals` run where `nfl/season-totals/2026.json` is `inProgress: false` (after Sleeper's post-Super-Bowl rollover). The January run (P3 Slice B) deliberately does not count it: the in-progress guard refuses 2026 (Anton, 2026-10-24). Recipe: the existing `--inseason --dynasty` path cannot reach the 2025 class's S+1 until `guardLoad(load, { maxLoadSeason: 2025 })` (`scripts/inseason-dyn-run.mjs:1068`) and `DYN_DEFAULTS.seasons.to` (2024, `lib/inSeasonEvidence.mjs:631`) are lifted by a planned slice; re-run only at ≥ 20 flagged-with-S+1 players. This replaces D-60's part of the slice A entry above.
