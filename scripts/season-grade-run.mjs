@@ -629,6 +629,7 @@ const B_TITLES = {
   listed: 'Listed, not built',
 };
 
+const errMsg = (e) => (e instanceof Error ? e.message : String(e));
 const canDegrade = (ctx) => ctx.write === true && ctx.rehearse !== true;
 
 function degradeOrThrow(ctx, stepId, e) {
@@ -637,8 +638,8 @@ function degradeOrThrow(ctx, stepId, e) {
   return {
     section: {
       id: stepId, title: B_TITLES[stepId], placement: 'main',
-      md: `**⚠ NOT COMPUTED — ${stepId}: ${e.message}**` + (stamp ? `\n\n**${stamp}**` : ''),
-      data: { computed: false, error: e.message },
+      md: `**⚠ NOT COMPUTED — ${stepId}: ${errMsg(e)}**` + (stamp ? `\n\n**${stamp}**` : ''),
+      data: { computed: false, error: errMsg(e) },
     },
     artifacts: [],
   };
@@ -648,7 +649,8 @@ function degradeOrThrow(ctx, stepId, e) {
 async function part(ctx, label, fn) {
   try { return { value: await fn() }; } catch (e) {
     if (!canDegrade(ctx)) throw e;
-    return { failed: { computed: false, error: e.message, banner: `**⚠ ${label} not computed — ${e.message}**` } };
+    const msg = errMsg(e);
+    return { failed: { computed: false, error: msg, banner: `**⚠ ${label} not computed — ${msg}**` } };
   }
 }
 
@@ -904,9 +906,34 @@ async function stepRookie(ctx) {
     const lg = await part(ctx, 'D-16 (league)', () => {
       panelLoad ??= ctx.load.rookiePanelLoad();
       league = runRookiePanels({ load: panelLoad, basis: 'league', entryToYear: 2026 });
-      return { nDebut2026: league.debut.rows.filter(r => r.entryYear === 2026).length };
+      const debut26 = league.debut.rows.filter(r => r.entryYear === 2026);
+      return { nDebut2026: debut26.length, classCounts: countBy3(debut26) };
     });
-    if (lg.failed) note('d16-league', lg.failed); else data.parts['d16-league'] = lg.value;
+    if (lg.failed) note('d16-league', lg.failed);
+    else {
+      const lc = lg.value.classCounts;
+      const hc = h.failed ? null : h.value.debutCounts;
+      const cellOf = (c, k, cls) => (c?.[k]?.[cls] ?? 0);
+      const diffs = [];
+      if (hc) {
+        for (const k of new Set([...Object.keys(hc), ...Object.keys(lc)])) {
+          for (const cls of new Set([...Object.keys(hc[k] ?? {}), ...Object.keys(lc[k] ?? {})])) {
+            const a = cellOf(hc, k, cls), b = cellOf(lc, k, cls);
+            if (a !== b) diffs.push(`${k.replace('|', ' | ')} ${cls}: half ${a} vs league ${b}`);
+          }
+        }
+      }
+      const differ = hc ? diffs.length > 0 : true;
+      data.parts['d16-league'] = { nDebut2026: lg.value.nDebut2026, classCounts: lc };
+      data.d16League = { classCountsDiffer: differ, classCounts: lc };
+      L.push('');
+      if (!differ) L.push('(i, league) league class counts identical to half-PPR');
+      else {
+        L.push(`(i, league) 2026-class debut counts on the league panel (position | draft group → outcome classes):`, '');
+        for (const [k, c] of Object.entries(lc).sort()) L.push(`- ${k.replace('|', ' | ')}: ${Object.entries(c).map(([a, b]) => `${a} ${b}`).join(', ')}`);
+        if (diffs.length) L.push('', `Differing cells: ${diffs.join('; ')}.`);
+      }
+    }
 
     // (iv)
     const iv = await part(ctx, 'D-16 (iv)', () => {

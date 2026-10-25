@@ -140,13 +140,17 @@ describe('buildRosRows (§6.1)', () => {
   test('(b) start rows use the team-game basis: the schedule alias LAR→LA, realised = the last `remaining` scheduled games ÷ remaining, observed = team weeks ≤ c ÷ their count, unplayed weeks 0', () => {
     const q = Object.fromEntries(build().start.map(x => [x.id, x]));
     assert.equal(q.q1.realised, 6);          // LA's last 3 games are weeks 15–17 at 6 points each
-    assert.equal(q.q1.observed, 12 / 3);     // weeks 1–3: 12 + 0 + 0
+    assert.equal(q.q1.observed, 0);          // n = 0 → comparator exactly 0 (§13a), despite 12 points in week 1
     assert.equal(q.q4.realised, 0);          // no 2026 row scores 0
     assert.equal(q.q4.observed, 0);
     assert.equal(q.q5.realised, 20);
   });
-  test('(b) start rows with inSeason.n = 0 keep a comparator of 0-or-more (§13a) and enter the observed-to-date Δ; (a) rows with n = 0 do not', () => {
+  test('(b) start rows with inSeason.n = 0 have a comparator of exactly 0 (§6.1/§13a) even with league points in weeks ≤ c, and enter the observed-to-date Δ; n ≥ 1 start rows keep the team-week value; (a) rows with n = 0 do not', () => {
     const r = build();
+    const q1 = r.start.find(x => x.id === 'q1');
+    assert.equal(q1.n, 0); assert.equal(q1.observed, 0, 'q1 scored 12 in week 1 (≤ c) yet n = 0 → observed is exactly 0');
+    const q5 = r.start.find(x => x.id === 'q5');
+    assert.equal(q5.n, 3); assert.equal(q5.observed, 20, 'n ≥ 1 keeps the team-week mean over weeks ≤ c');
     const b0 = r.start.find(x => x.id === 'q4');
     assert.equal(b0.n, 0); assert.equal(b0.observed, 0);
     const rep = rosCheckpointReport([b0, ...Array.from({ length: 40 }, (_, i) => ({ ...b0, id: `x${i}`, value: 10, realised: 12, observed: 0 }))]);
@@ -210,6 +214,7 @@ describe('rosCheckpointReport, empty / insufficient / split (§6.1)', () => {
     assert.deepEqual([noPrior.WR.vsPrior.mean, noPrior.WR.vsPrior.ci, noPrior.WR.vsPrior.label], [null, null, 'insufficient']);
     const g = gamesL6Report([{ id: 'a', state: 'short', l6c: NaN, base: 1, realised: 1, rel3: false }]);
     assert.equal(g.byState.short.delta.label, 'insufficient');
+    assert.equal(g.byState.short.delta.mean, null); assert.equal(g.byState.short.delta.ci, null);
     assert.equal(g.byState.none.n, 0); assert.equal(g.byState.none.delta.label, 'insufficient');
   });
 });
@@ -263,6 +268,9 @@ describe('rookieTotalArms (§7)', () => {
   test('null guard 1: a group with 0 rows is n: 0 / insufficient with no biasSummary call; the same for a group whose diffs are not finite', () => {
     const a = rookieTotalArms([], { shipped, league });
     assert.equal(a.day3.n, 0); assert.equal(a.day3.label, 'insufficient'); assert.equal(a.day3.ratioH.value, null);
+    const bad = rookieTotalArms(rows('day3', D75_MIN, NaN), { shipped, league });
+    assert.equal(bad.day3.n, D75_MIN);
+    assert.equal(bad.day3.delta.mean, null); assert.equal(bad.day3.delta.ci, null); assert.equal(bad.day3.label, 'insufficient');
   });
 });
 
@@ -464,6 +472,12 @@ describe('degradeOrThrow (§10a), exercised through a B step', () => {
     assert.deepEqual(out.artifacts, []);
     assert.deepEqual(written, []);
   });
+  test('a non-Error throw (`throw undefined`) degrades on a real write with error \'undefined\'', async () => {
+    const odd = { listSnapshotDates: () => { throw undefined; } };   // eslint-disable-line no-throw-literal
+    const r = await ros.run(makeContext({ load: odd, write: true, rehearse: false }));
+    assert.deepEqual(r.section.data, { computed: false, error: 'undefined' });
+    assert.ok(r.section.md.startsWith('**⚠ NOT COMPUTED — ros: undefined**'));
+  });
   test('the real --write run with a forced B throw degrades: exit 0, A\'s aggregate is still written, steps[].data carries computed:false under the step id', async () => {
     const { out, written } = await noWrites(() => runSeasonGrade({ steps: [ros], write: true, runDate: '2027-01-15', load: boom }));
     assert.equal(out.exitCode, 0);
@@ -513,6 +527,30 @@ describe('stepRookie (§7)', () => {
     assert.equal(p.d75.evaluated, 1);
     assert.equal(p.d75.arms.day3.label, 'insufficient', 'below 30 rows');
     assert.ok(out.section.md.startsWith('**REHEARSAL'));
+  });
+  test('D-16 (i) league counts: identical to half → one line, d16League.classCountsDiffer false', async () => {
+    const { out } = await noWrites(() => rookie.run(seededCtx({ load: mkLoad(), entries: [] })));
+    assert.match(out.section.md, /league class counts identical to half-PPR/);
+    assert.equal(out.section.data.d16League.classCountsDiffer, false);
+    assert.doesNotMatch(out.section.md, /Differing cells/);
+  });
+  test('D-16 (i) league counts: a differing league panel → the league table, the differing-cell line, classCountsDiffer true', async () => {
+    const m = memLoad2026();
+    // the league branch of runRookiePanels asks for loadLeaguePositionOf before its first read (the half branch never does),
+    // so flipping there makes only the league panel see p3 at 12 games (a different games-based outcome class)
+    let leagueSeen = false;
+    const panel = {
+      ...m,
+      loadLeaguePositionOf: () => { leagueSeen = true; return m.loadLeaguePositionOf(); },
+      loadSeasonTotals: (y) => (y === 2026 && leagueSeen ? { p3: { fantasyPoints: 120, gamesPlayed: 12, stats: { rec: 60, rec_yd: 600, rec_td: 4 } } } : m.loadSeasonTotals(y)),
+    };
+    const { out } = await noWrites(() => rookie.run(seededCtx({ load: mkLoad({ rookiePanelLoad: () => panel }), entries: [] })));
+    const d = out.section.data;
+    assert.equal(d.d16League.classCountsDiffer, true);
+    assert.notDeepEqual(d.d16League.classCounts, d.parts['d16-half'].debutCounts);
+    assert.match(out.section.md, /\(i, league\) 2026-class debut counts on the league panel/);
+    assert.match(out.section.md, /Differing cells: .*WR \| day3/);
+    assert.doesNotMatch(out.section.md, /identical to half-PPR/);
   });
   test('--write: both panels are written (unregistered) under the naming of writeRookieArtifacts; a failing write degrades as an artifact error (guard 3)', async () => {
     const ctx = seededCtx({ load: mkLoad(), entries: [], rehearse: false, write: true, runDate: '2027-01-15' });
