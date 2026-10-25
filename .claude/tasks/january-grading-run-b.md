@@ -2,38 +2,13 @@
 
 **Review depth: full** — it grades shipped scoring rules (L6c, the in-season override, ROOKIE_TOTAL_FACTOR, the rookie ceiling) for decision input, and it adds parameters to two committed analysis adapters whose committed outputs must stay byte-identical.
 
-**Session 1:** opus, data repo. Rev 0 was read against data `12c769b` / app `f7ebfa8`. Revisions 1 and 2 were re-read against data `bea5dd5` (Slice A merged) / app `f7ebfa8` (registry and in-season writers unchanged at app `06d432a`). **Session 2: sonnet**, effort high. **Starts only after Anton approves Revision 2.** Slice A is signed off at `bea5dd5`. Its facts (§1), trigger and G-SEASON (§2), K/P/S(i) (§5.1–5.3), CI method and `--rehearse` are A's and are not repeated here. Section numbers are kept from the pre-split plan.
+**Session 1:** opus, data repo. Rev 0 was read against data `12c769b` / app `f7ebfa8`. Revisions 1–3 were re-read against data `bea5dd5` (Slice A merged) / app `f7ebfa8` (registry and in-season writers unchanged at app `06d432a`). **Session 2: sonnet**, effort high. **Starts only after Anton approves Revision 3.** Slice A is signed off at `bea5dd5`. Its facts (§1), trigger and G-SEASON (§2), K/P/S(i) (§5.1–5.3), CI method and `--rehearse` are A's and are not repeated here. Section numbers are kept from the pre-split plan.
 
 **Goal.** Plug six steps into Slice A's `STEPS` registry: `ros`, `games-l6`, `override`, `rookie`, `d60` (which reports "not counted"; §8), plus `listed` (the §9 table, text only). Numbers only: no constant, no wiring recommendation.
 
-## Revision 2 (2026-10-24) — Anton's answers to Q1–Q3 and the full-depth review of Rev 1 folded in
+## Revision 3 (2026-10-25)
 
-| Item | Resolution | Where |
-|---|---|---|
-| Q1 → (b) | D-60 leaves the January run. `stepD60` returns normally with `counted: false` and never throws. Option (a) is removed, and so is all `countSatLongerFlagged` plumbing: no edit to `scripts/inseason-dyn-run.mjs`, no Q5 tests. Nothing else needed it. The post-rollover recount goes in a deferred app-side backlog edit | §8, §3, §11, §16 |
-| Q2 | Veteran backup QBs dropped by a failed G5 are excluded from the games grades too, and counted separately | §6.2, §6.3 |
-| Q3 | (b) start rows' observed-to-date = the player's league points over his team's games to date ÷ that count (team-game basis) | §6.1 |
-| No-throw rule (Anton) | Nothing in B may throw in a way that blocks A's aggregate write (`scripts/season-grade-run.mjs:643`). Every check prints and counts. Audited per step | §10a |
-| Flag 1 (blocking) | `d60` never throws | §8, §10a |
-| Flag 2 (blocking) | `rookieTotalArms` moves to `scripts/season-grade-run.mjs`; `lib/seasonGrade.mjs` keeps only the pure `d75Label` and stays free of `lib/rookieTotalPoints.mjs`/`lib/rookieMirror.mjs` | §3, §7 |
-| Flags 3, 4 (Q5 memLoad; vacuous Q5 identity) | moot: the D-60 code is removed | §11 |
-| Flag 4 (rookie panels) | the byte-identity checks compare against golden outputs captured **before** the edit, not default ≡ explicit | §11 |
-| Flag 5 | the `entryToYear` growth case uses 2026 on a local memLoad variant with a 2026 season and entrant | §11 |
-| Flag 6 | `missingField` rows: count and exclude; no stop | §6.2 |
-| Flag 7 | the frozen/live split keys on `inSeason.frozen`; frozen rows carry `priorSource: 'snapshot:<dateKey>'` | §6.1, §11 |
-| Flag 8 | `rel3Of` takes `position: crosswalkPositionOf[id]`, as `games-cause-run` does | §6.2 |
-| Flag 9 | §12's backlog line also covers §6.2's value reads of `projectedGames`, `factors.projectedGamesBase` and `factors.shortSeasonState` | §12 |
-| Flag 10 | D-16 (iii) `classes ≠ 14` is print-only | §7 |
-| Flag 11 | touch list adds the fixture builder `scripts/fixtures/build-season-grade-inseason-fixture.mjs` | §3 |
-| Flag 12 (nit) | the `--only games-l6` test runs with `rehearse: true` | §11 |
-| Flag 13 (nit) | the guard anchor is `scripts/inseason-run.mjs:91-92`; it is no longer used (D-60 removed) | §8 |
-| Flag 14 (nit) | `import { DEFAULT_LOAD as PANEL_DEFAULT_LOAD } from './panel-run.mjs'` | §5a |
-| Flag 15 (nit) | `ctx.shared` already holds `inventory`, `leaguePos`, `roster` and `seasonGate` before `vet-calibration`; the dependency check keys on `ctx.shared.S` | §5a, §6.2 |
-| Flag 16 (nit) | moot (Q1(a) removed) | — |
-| Flag 17 (nit) | a start row with `nfl_team` null is counted `no-team`, separately from `schedule-short` | §6.1 |
-| Flag 18 (nit) | moot (D-60 basis wording removed) | — |
-
-**Revision 1 (commit `7cf2dd5`; its 19-row table is in git history)** fitted rev 0 to A's real seams. It added §5a, `steps[].data` aggregates, step-written artifacts, the corrected `rescoreSeasonRowsLeague` call, `sRef` scoring, `SCHEDULE_TEAM_ALIAS`, the literal week-1 Thursday, the S(i) lookup, D-75's `result.evaluate` split, the imported shipped factor and 21.90, the new LOCO helper, the `-rookie-league-panel` naming, the touch list, fixtures, §12 and Q1–Q3. In every revision the rule text of §6–§9 and §13 is rev 0's. Revision 2's only rule change is Anton's Q1 decision, which takes D-60 out of January. New material sits under **Seams** headings or in §3, §5a, §10–§12, §14 and §16.
+This revision folds in Anton's answers to the Round-4 review: the step-local catch-all and six null guards (§10a); the start-row comparator amendment, dated and hashed (§6.1, §13a); and every mechanical flag and nit (§3, §5a, §6, §10–§12, §14, §16). There is no further plan-review round; Anton reviews it. The per-flag table and all earlier revisions are in `january-grading-run-reviews.md`. The rule text of §6–§9 and §13 is rev 0's except the Q1 decision (§8) and the 2026-10-25 amendment (§13a).
 
 ---
 
@@ -47,10 +22,12 @@
 | `scripts/rookie-total-run.mjs` | `runRookieTotal({ …, evaluateTargetSeason = null })`; non-null adds `result.evaluate` (§7). Null → byte-identical (no `evaluate` key) |
 | `bin/season-grade.mjs` | help text: B's step ids and artifacts |
 | `scripts/fixtures/build-season-grade-inseason-fixture.mjs` **(new, one-off, committed)** | builds the trimmed `snap-2026-10-06.json` (§11); precedent `scripts/fixtures/build-rookie-pin-crosswalk.mjs` |
-| `test/season-grade-b.test.mjs` **(new)**; `test/fixtures/season-grade/snap-2026-10-06.json` **(new, trimmed)**; `test/fixtures/season-grade/rookie-golden-pre-b.json` **(new)**; `test/rookie-basis-panels.test.mjs` (byte-identity cases) | §11 |
+| `test/season-grade-b.test.mjs` **(new)**; `test/fixtures/season-grade/snap-2026-10-06.json` **(new, trimmed)**; `test/fixtures/season-grade/rookie-golden-pre-b.json` **(new)**; `test/helpers/rookie-basis-fixtures.mjs` **(new: `memLoad`, `leagueStub`, `row` hoisted unchanged from `test/rookie-basis-panels.test.mjs`)**; `test/rookie-basis-panels.test.mjs` (imports the helpers; byte-identity cases) | §11 |
+| `scripts/fixtures/build-rookie-golden-pre-b.mjs` **(new, one-off, committed)** | generates `rookie-golden-pre-b.json` from the **pre-edit** adapters (§11) |
+| `test/season-grade.test.mjs` | the one assertion at :315 becomes the ten ids in order: `season-gate`, `inventory`, `d44`, `vet-calibration`, `ros`, `games-l6`, `override`, `rookie`, `d60`, `listed`. Nothing else in A's tests changes |
 | `README.md` | the "January season grade" section (:2286) gains B's steps, artifacts, the D-60 deferral and the `--only` dependency note |
 | `data-catalog.md` | `grading/` row: the two unregistered rookie panels |
-| `.claude/tasks/app-repo-backlog.md` | one entry (§12) and one entry pointing to §16 |
+| `.claude/tasks/app-repo-backlog.md` | one new entry (§12 + §16). **Amend A's open entry** "January grading run (P3 slice A)": drop D-60 from its item (1) and add "D-60: see P3 Slice B §16 (post-rollover trigger)" |
 
 Untouched: every committed artifact, every pinned constant, A's steps, `lib/vetReplay.mjs`, `scripts/games-short-run.mjs` (`inSeasonCheck` is called, not changed), `scripts/inseason-dyn-run.mjs`, `scripts/inseason-run.mjs`, `manifest.json`.
 
@@ -62,7 +39,7 @@ Untouched: every committed artifact, every pinned constant, A's steps, `lib/vetR
   - `ctx.snapshot(date)` (LRU of 4) and `ctx.totals(year)` (memoised);
   - `ctx.inventory()`, lazy and available without `vet-calibration`: `{ entries[{ date, capturedAt, era, segment, index, sEligible, … }], kDate, kPrevDate, segments[{ id, first, last, n, captures }] }`;
   - `stampOf(ctx)` (module-private; B's steps live in the same file).
-- **`ctx.shared`.** Before `vet-calibration` it already holds `inventory`, `leaguePos`, `roster` and `seasonGate` (:70, :116-117, :301). After a **successful** `vet-calibration` it gains (:590-601):
+- **`ctx.shared`.** Before `vet-calibration` it already holds `inventory`, `leaguePos`, `roster` and `seasonGate` (:70, :116-117, :309). After a **successful** `vet-calibration` it gains (:590-601):
   - `K = { date, capture }`;
   - `P = { id → pos }` over every replay row (replayed, imputed and, under a G5 failure, dropped), K-style position, `'UNK'` possible;
   - `classification = { captureDate → segment id | 'pre-kickoff' | 'other' }`;
@@ -78,7 +55,7 @@ Untouched: every committed artifact, every pinned constant, A's steps, `lib/vetR
   - `loadRookieLeagueConstants: () => readJson('backtests/2026-10-17-rookie-league-constants.json')`.
 
   Tests inject all three.
-- **Import graph (T-RM1):** `scripts/season-grade-run.mjs` reaches `lib/rookieMirror.mjs` through `scripts/rookie-total-run.mjs` and `lib/rookieTotalPoints.mjs`. That is allowed, because it is not a fit entry point. No file in `test/rookie-mirror.test.mjs`'s `FIT_ENTRY_POINTS` closure may import `scripts/season-grade-run.mjs`. `lib/seasonGrade.mjs` stays mirror-free by its own rule (§3).
+- **Import graph (T-RM1):** `scripts/season-grade-run.mjs` may reach `lib/rookieMirror.mjs` (it is not a fit entry point). No file in `FIT_ENTRY_POINTS`' closure may import it, and `lib/seasonGrade.mjs` stays mirror-free (§3).
 
 ## 6. D-52
 
@@ -94,11 +71,11 @@ Untouched: every committed artifact, every pinned constant, A's steps, `lib/vetR
 - **Weekly points:** `rescoreSeasonRowsLeague(2026, S.scoringSettings, positionOf).weeklyPoints` (D-71 → `exact`). Count `scaled` rows.
 - **Metrics per checkpoint × position, (a) and (b) separately:**
   - MAE and bias of `value`.
-  - Paired Δ|err| (value − comparator) via `bootstrapPairedMean`, against `ros.prior` and against observed-to-date PPG (n ≥ 1).
+  - Paired Δ|err| (value − comparator) via `bootstrapPairedMean`, against `ros.prior` and against observed-to-date PPG: (a) rows with `inSeason.n ≥ 1`; (b) start rows on the team-game basis, **every row, with `inSeason.n = 0` → comparator 0** *(amended 2026-10-25, §13a)*.
   - Caveat to print: on live-prior rows `ros.prior` is the current, leaky projection.
 - **Empty cells:**
-  - n = 0 → `empty` (row printed).
-  - n below the minimum → `insufficient` (numbers printed, no label).
+  - a cell with 0 graded players → `empty` (row printed) *(wording amended 2026-10-25: "cell size", not `inSeason.n`)*.
+  - a cell with fewer graded players than the minimum → `insufficient` (numbers printed, no label).
   - The frozen/live split is reported only when both groups are non-empty. Otherwise it prints one line: "split degenerate: all rows priorSource live (notFrozenReason counts …)". This is the expected state for 2026.
 
 **Seams.**
@@ -115,8 +92,8 @@ Untouched: every committed artifact, every pinned constant, A's steps, `lib/vetR
 - **Scoring and positions.**
   - "S.scoringSettings" is `sRef.scoringSettings`, with `sRef = ctx.snapshot(ctx.inventory().segments.at(-1).first)` (A's `sRef`, :373). S itself is a composite.
   - The rescore is `rescoreSeasonRowsLeague(ctx.totals(2026), sRef.scoringSettings, resolvePositionOf(sRef, ctx.load).positionOf)[id]`, and `scaled` means `weeklyPointsMethod === 'scaled'`. That count is taken over the non-`TEAM_*` rows of the rescored 2026 file and printed once per run.
-  - A row's cell position is `makePositionOf(checkpointCapture, ctx)`; `UNK` rows are counted and not graded.
-- **Start rows.** The team is the capture row's `nfl_team` through `SCHEDULE_TEAM_ALIAS` (`lib/sleeper.mjs:25`; captures say `LAR`, the schedule says `LA`). Its REG weeks come from `ctx.load.loadSchedule(2026)` (home or away), ascending, and the last `start.remaining` of them are used. Rows are excluded and counted when:
+  - A row's cell position is `makePositionOf(checkpointCapture, ctx)`. A null result is **UNK**: counted, not graded.
+- **Start rows.** The team is the capture row's `nfl_team` through `SCHEDULE_TEAM_ALIAS` (`lib/sleeper.mjs:25`; captures say `LAR`, the schedule says `LA`). The **caller** (`stepRos`) applies the alias and passes the mapped code into `buildRosRows`; `lib/seasonGrade.mjs` does not import `lib/sleeper.mjs`. Its REG weeks come from `ctx.load.loadSchedule(2026)` (home or away), ascending, and the last `start.remaining` of them are used. Rows are excluded and counted when:
   - `nfl_team` is null → `no-team`;
   - the team has fewer scheduled games than `remaining` → `schedule-short`;
   - the schedule is null → `no-schedule`, and every (b) cell is `empty`.
@@ -124,7 +101,7 @@ Untouched: every committed artifact, every pinned constant, A's steps, `lib/vetR
   (b) cells are QB only.
 - **Observed-to-date.**
   - (a): the league points over the first n `'P'` weeks ÷ n.
-  - (b) (Q3, team-game basis): the player's league points over his team's scheduled REG weeks ≤ c, ÷ the count of those weeks. Weeks he did not play count 0. If the count is 0, the comparator is undefined and the row is excluded from that Δ only.
+  - (b) (Q3, team-game basis): the player's league points over his team's scheduled REG weeks ≤ c, ÷ the count of those weeks. Weeks he did not play count 0. **No `inSeason.n ≥ 1` filter** (§13a): a row with `inSeason.n = 0` has comparator 0. Only a **team-week count** of 0 leaves the comparator undefined, excluding the row from that Δ only; this cannot happen for c ≥ 3.
 - **`buildRosRows(capture, { rescored, schedule, positionOf, c }) → { perGame[], start[], nConsistency: { share, n }, counts: { unk, noTeam, scheduleShort, noSchedule, noRow } }`.** Each row is `{ id, pos, value, prior, observed, realised, nGames, frozen, priorSource, notFrozenReason }`.
 - **`rosCheckpointReport(rows, { min = ROS_MIN }) → per pos { n, mae, bias, vsPrior: { mean, ci, label }, vsObserved: { … } }`.**
   - The frozen/live split keys on **`inSeason.frozen === true`**. The app writes `priorSource: 'snapshot:<dateKey>'` on frozen rows and `'live'` otherwise (app `src/utils/inSeasonScoring.js:205-216`). Otherwise the report returns the degenerate line with `notFrozenReason` counts.
@@ -142,8 +119,8 @@ Untouched: every committed artifact, every pinned constant, A's steps, `lib/vetR
 - **Rows.** The rows are `Object.keys(ctx.shared.P)`. A row with `ctx.shared.S[id]` reads `ctx.snapshot(ctx.shared.S[id]).players[id].projection`. Rows with no S(i) are excluded and counted by kind:
   - `imputed` — `ctx.shared.replay.R[id]?.imputed === true`;
   - `dropped` (Q2) — absent from `replay.R`; this happens only under a G5 failure, as veteran backup/chain QBs.
-- **Fields.** `L6c = projectedGames`, `base = factors.projectedGamesBase`, `state = factors.shortSeasonState`. Realised = `ctx.totals(2026)[id]?.gamesPlayed ?? 0` (A §5.1's no-row-is-0 rule). State cells use `ctx.shared.P[id]` for position.
-- **Missing fields (Flag 6).** A row whose S(i) projection lacks `projectedGames`, `projectedGamesBase` or `shortSeasonState` is counted `missingField` and excluded, with no stop. Measured on 2026-10-22/23: 0 such rows.
+- **Fields.** `L6c = projectedGames`, `base = factors.projectedGamesBase`, `state = factors.shortSeasonState`. Realised = `ctx.totals(2026)[id]?.gamesPlayed ?? 0` (A §5.1's no-row-is-0 rule). The cells are by state and by rel3 only, with no position dimension, so UNK needs no handling here.
+- **Missing fields (Flag 6).** Read with optional chaining (`proj?.factors?.…`). A row whose S(i) projection, or its `factors`, lacks `projectedGames`, `projectedGamesBase` or `shortSeasonState` is counted `missingField` and excluded, with no stop. Measured on 2026-10-22/23: 0 such rows.
 - **rel3 (Flag 8).** `rel3Of({ id, S: 2025, position: crosswalkPositionOf[id] }, rankIndex, GAMES_CAL_DEFAULTS)`, where:
   - `rankIndex = buildRankIndex({ 2023, 2024, 2025: ctx.totals(y) }, crosswalkPositionOf, [2023, 2024, 2025], POSITIONS)`;
   - `crosswalkPositionOf` is the object built from `ctx.load.loadPlayerIds().ids` as at `games-cause-run.mjs:310-311`.
@@ -244,12 +221,9 @@ The `next` grade needs 2027 outcomes (≥ 2028-01). The artifact records the cou
 
 ## 10. Orchestrator hooks (Slice B)
 
-- Steps append in this order: `ros` (§6.1), `games-l6` (§6.2), `override` (§6.3, plus §6.4's `next` counts), `rookie` (§7), `d60` (§8), `listed` (§9).
-- Each reads Slice A's `ctx` (K, P, S(i), classification, loads, `KICKOFF_2026_UTC`), and reruns nothing A computed.
-- New artifacts: `backtests/<runDate>-rookie-panel.json` and `backtests/<runDate>-rookie-panel-league.json` (unregistered, README §Analysis). B's aggregates go into A's `season-grade.json` under keys `ros`, `gamesL6`, `override`, `rookie`, `d60`.
-- Verdict sections follow A's, in step order.
+- Steps append in this order: `ros` (§6.1), `games-l6` (§6.2), `override` (§6.3, plus §6.4's `next` counts), `rookie` (§7), `d60` (§8), `listed` (§9). Verdict sections follow A's, in step order.
 
-**Seams — these supersede the bullets above where they differ.**
+**Seams.**
 - **Registry.** `STEPS` gains `{ id: 'ros', run: stepRos }`, `{ id: 'games-l6', run: stepGamesL6 }`, `{ id: 'override', run: stepOverride }`, `{ id: 'rookie', run: stepRookie }`, `{ id: 'd60', run: stepD60 }` and `{ id: 'listed', run: stepListed }`, after `vet-calibration`. `--only` accepts these ids; `season-gate` still runs first.
 - **Reads.** `ros`, `rookie`, `d60` and `listed` need only `ctx.load`, `ctx.inventory()`, `ctx.snapshot()` and `ctx.totals()`. `games-l6` and `override` also need `ctx.shared.P`, `.S` and `.replay`. No B step reads `ctx.shared.K` or `.classification`.
 - **Aggregates.** Each step's `section.data` lands in `backtests/<runDate>-season-grade.json` as `steps[i].data`, with `steps[i].id` = the step id (A's layout, :641). It holds aggregates only.
@@ -257,24 +231,24 @@ The `next` grade needs 2027 outcomes (≥ 2028-01). The artifact records the cou
 - **Rehearsal.** Each B section starts with `**${stampOf(ctx)}**` when rehearsing.
 - **`stepListed`** prints §9's table verbatim; its `data` is `{ items: ['D-79', 'D-80', 'D-85'] }`.
 
-### 10a. No-throw rule (Anton, Revision 2)
+### 10a. No-throw rule (Anton, Revisions 2–3)
 
-**Nothing in Slice B may throw in a way that blocks Slice A's aggregate write** (`scripts/season-grade-run.mjs:643`, `if (write && !rehearse && !failed)`). Every new check prints and counts. B's step functions contain **no `throw` statement of their own**. A B step can throw only in the two cases A's own steps share:
-- **(1) programming errors**, i.e. bugs;
-- **(2) the `ctx.snapshot(date)` "not found" dependency error** (:60). B calls it only with dates taken from `ctx.inventory()` or `ctx.shared.S`, so the file exists.
+**Nothing in Slice B may throw in a way that blocks Slice A's aggregate write** (`scripts/season-grade-run.mjs:643`, `if (write && !rehearse && !failed)`). Every new check prints and counts.
 
-Audit:
-
-| Step | Possible failure | Handling |
-|---|---|---|
-| `ros` | no capture in a window; no `inSeason` rows; n-inconsistent; null schedule; no team; schedule short; UNK; no 2026 row | statuses and counts (§6.1); never a throw |
-| `games-l6` | `ctx.shared.S` absent; imputed/dropped/missingField rows; no crosswalk position | `graded: false` or counts (§6.2) |
-| `override` | as `games-l6`; `inSeasonCheck` has no throw | as `games-l6`; `next` counts still reported |
-| `rookie` | committed-adapter stops in `runRookiePanels` (invalid basis/crosswalk mode; rookie-panel `appliedCorrections` / ungated invariants) and `runRookieTotal` (parity, birthdate, `meta.basis`); incomplete F4 constants; `classes ≠ 14` | each of **D-16 half, D-16 league, D-75** runs in its own try/catch inside the step. A caught error prints `<part> not computed — <message>` and sets `data.<part> = { computed: false, error }`, and the step still returns. D-75 is skipped (with its own reason) if the league panel failed. `classes ≠ 14` and F4 completeness are prints |
-| `d60` | none (reads nothing) | `counted: false` (§8) |
-| `listed` | none | — |
-
-Only A's per-step isolation catches anything above (1)–(2). A test asserts that a stub `rookie` load whose `runRookiePanels` throws still returns a section with the part marked `computed: false`, and that the run's `exitCode` stays 0.
+- **Step-local catch-all.** Each B step function wraps its whole body in `try { … } catch (e) { return degradeOrThrow(ctx, stepId, e) }`.
+  - `degradeOrThrow` is a module-private helper in `scripts/season-grade-run.mjs`.
+  - **If `ctx.write === true`** (the real January `--write` run), it returns `{ section: { id, title, placement: 'main', md: '**⚠ NOT COMPUTED — <stepId>: <e.message>**' + stamp, data: { computed: false, error: e.message } }, artifacts: [] }`. The banner is the section's first line, and `computed:false` lands in `steps[i].data` of `season-grade.json`.
+  - **Otherwise** (`--rehearse`, a plain run, every test), it **re-throws** `e`. A's per-step isolation then fails the step, so the exit is non-zero and the bug surfaces now, not in January.
+  - **Part level:** the same helper wraps each part inside `rookie` (D-16 half, D-16 league, D-75) and each `writeJsonStable`, so one failed part does not hide the others in January.
+- **`computed: false` is reserved for caught errors.** Designed statuses are not errors and never fail a rehearsal: `empty`, `insufficient`, `no-capture`, `late`, `n-inconsistent`, the exclusion counts, `graded: false` for a missing `vet-calibration` dependency, and D-60's `counted: false`.
+- **The six null guards** give designed messages; each states its message:
+  1. `bootstrapPairedMean(…)` returning `null`, i.e. no finite diffs (`lib/inSeasonEvidence.mjs:335`), gives `{ mean: null, ci: null, label: 'insufficient' }` in `rosCheckpointReport`, `gamesL6Report` and `rookieTotalArms`. A group with 0 rows gives `n: 0, label: 'insufficient'`, with no `biasSummary` call.
+  2. `panelLoad = ctx.load.rookiePanelLoad()` sits **inside** the D-16 half part's try.
+  3. Each `writeJsonStable` (both rookie panels) sits inside its own part-level try. It degrades as an artifact error when `ctx.write`, and never runs otherwise.
+  4. `loadRookieLeagueConstants()` returning null raises `Error('league constants file missing: backtests/2026-10-17-rookie-league-constants.json')`. Missing `families?.F4?.constants?.totalFactor?.day3` or `undrafted` raises `Error('F4 totalFactor incomplete')`. Both go through the part-level helper.
+  5. `ctx.inventory().segments.at(-1)?.first == null` raises `Error('no capture in the last veteran segment')` inside `ros`, through the helper.
+  6. §6.2 reads the projection with optional chaining, so a missing `factors` counts as `missingField` (§6.2).
+- **Tests** (§11): each of guards 1–6; `degradeOrThrow` returning `computed:false` with `ctx.write = true` and re-throwing with `ctx.write = false`; and `runSeasonGrade({ rehearse: true, … })` with a B step forced to throw gives `exitCode` 1.
 
 ## 11. Tests (Slice B; Invariant 10 as in Slice A)
 
@@ -291,8 +265,6 @@ Only A's per-step isolation catches anything above (1)–(2). A test asserts tha
 - **Byte-identity, on memLoad fixtures** (the `test/rookie-basis-panels.test.mjs` precedent):
   - `runRookiePanels` default ≡ explicit `entryToYear: 2025`;
   - `runRookieTotal` with `evaluateTargetSeason: null` ≡ omitted;
-  - ~~`countSatLongerFlagged` default ≡ explicit `seasonsTo: 2024, maxLoadSeason: 2025`~~ (removed by Q1(b)).
-- ~~**Live check (not a test):** the 13-player count~~ (removed by Q1(b)).
 
 **Seams — fixtures and placement.**
 - **Synthetic, built in `test/season-grade-b.test.mjs`.** No fixture here reads `nfl/`, `nflverse/`, `ktc/` or `snapshots/`.
@@ -308,7 +280,7 @@ Only A's per-step isolation catches anything above (1)–(2). A test asserts tha
 - **A's fixture reused.** `snap-2026-10-22.json` (L5 veterans carry `projectedGamesBase`/`shortSeasonState`) drives the §6.2 field read. It runs with a stub `ctx.shared`: `P`; `S` → `'2026-10-22'`; `replay.R` with one imputed id and one id absent, i.e. dropped.
 - **Assertions:**
   - `rosCalendar()[2]` (c = 3) closes at `2026-09-29T06:00:00Z`, with its window ending at `2026-10-01T23:00:00Z`.
-  - The calendar is unchanged when `KICKOFF_2026_UTC` is varied in a copy.
+  - `rosCalendar()[0].thursday === '2026-09-10'` (the literal, not kickoff-derived).
   - (b)'s observed-to-date uses team weeks ≤ c, with unplayed weeks counted as 0 (Q3).
   - `no-team`, `schedule-short` and `no-schedule` are counted separately.
   - The frozen split appears only with both groups present, keyed on `frozen`.
@@ -317,13 +289,15 @@ Only A's per-step isolation catches anything above (1)–(2). A test asserts tha
   - Imputed, dropped and missingField exclusions are counted separately in `games-l6` and `override`.
   - `runSeasonGrade({ only: ['games-l6'], rehearse: true, load })` gives `games-l6` `graded: false` and `exitCode` 0 (Flag 12).
   - `stepD60` returns `{ counted: false, reason }` and its `exitCode` contribution is 0.
-  - The §10a `rookie` part-failure case.
+  - §10a: guards 1–6; `degradeOrThrow` with `ctx.write` true (degrade) and false (re-throw); a rehearse run with a forced B throw gives `exitCode` 1.
+  - (b) start rows with `inSeason.n = 0` enter the observed-to-date Δ with comparator 0 (§13a); (a) rows with `n = 0` do not.
+  - `STEPS` ids equal the ten in order (the updated `test/season-grade.test.mjs:315`).
   - A `--rehearse` run of a stubbed `rookie` step writes nothing.
   - `steps[].data` carries B's aggregates under the step ids.
   - `qbAsymptoteLoco` on a synthetic 3-class set gives hand-computed folds, and `classes ≠ 14` prints rather than throws.
   - Labels at their boundaries: D-16 at 20.49 / 20.50 / 21.95 / 21.96; D-75 with `ratio_L` closer and guard pass / guard fail / fewer than 30 rows; L6 at CI upper < 0 / lower > 0 / straddling; ROS at CI upper < 0 / ≥ 0.
 - **Byte-identity (Flag 4: against a golden captured before the edit).**
-  - **Golden.** Before editing either adapter, Session 2 commits `test/fixtures/season-grade/rookie-golden-pre-b.json`. It holds the outputs of `runRookiePanels({ load: memLoad() })`, `runRookiePanels({ load: memLoad(), basis: 'league' })` and `runRookieTotal({ load: leagueStub(rows), basis: 'league', panelPath: 'p.json' })` at the pre-edit commit, with `generatedAt` stripped. The test module's fixtures are those of `test/rookie-basis-panels.test.mjs`.
+  - **Golden.** Before editing either adapter, Session 2 makes two commits. The first hoists `memLoad`, `leagueStub` and `row` from `test/rookie-basis-panels.test.mjs` into `test/helpers/rookie-basis-fixtures.mjs`, unchanged, with `npm test` green. The second runs `node scripts/fixtures/build-rookie-golden-pre-b.mjs`, which imports those helpers and the **unedited** adapters, and commits `test/fixtures/season-grade/rookie-golden-pre-b.json`. It holds the outputs of `runRookiePanels({ load: memLoad() })`, `runRookiePanels({ load: memLoad(), basis: 'league' })` and `runRookieTotal({ load: leagueStub(rows), basis: 'league', panelPath: 'p.json' })` at the pre-edit commit, with `generatedAt` stripped. The hand-back names the golden commit, and it must predate every adapter edit.
   - **Golden test.** After the edit, the same calls (default arguments) and the explicit `entryToYear: 2025` / `evaluateTargetSeason: null` calls must all `deepStrictEqual` the golden.
   - **Growth (Flag 5).** On a local memLoad variant adding a 2026 season and a 2026 entrant, `entryToYear: 2026` adds that entrant's debut and rookiePathAll rows, and sets `meta.entryYears.toYear` to 2026.
   - **Evaluate rows.** On a stub panel including target-2026 rows, `evaluateTargetSeason: 2026` returns exactly those rows, with `predTotal` equal to the composed row's.
@@ -333,11 +307,12 @@ Only A's per-step isolation catches anything above (1)–(2). A test asserts tha
 - **New couplings, none indexed today.** The registry has no entry for these fields (CR-01 is envelope-only; CR-15's Data sites are `lib/projectionFactors.mjs`/`lib/panel.mjs`).
   - **§6.1** reads the per-player `inSeason` block of app-written snapshots: `season`, `n`, `frozen`, `priorSource`, `notFrozenReason`, `ros.value`, `ros.prior`, `start.remaining`, `next`. Writer: app `src/utils/inSeasonScoring.js` (`buildScoringPosteriors`, :184), attached in `src/utils/projectionSnapshot.js` (:163-164).
   - **§6.2/§6.3** read the **values** of `projectedGames`, `factors.projectedGamesBase` and `factors.shortSeasonState`. Writer: app `src/utils/seasonProjection.js` (`computeNextSeasonProjection`). Slice A reads `shortSeasonState` only for presence, as a detector, and left that read unindexed too.
-- **Backlog entry.** Session 2 adds one `.claude/tasks/app-repo-backlog.md` entry (blocking: no; land after the data commit) proposing:
-  - CR-01 Invariant += the `inSeason` per-player fields; App += `src/utils/inSeasonScoring.js` (`buildScoringPosteriors`); Data += `lib/seasonGrade.mjs` (`buildRosRows`);
-  - CR-15 (or CR-01) App += `src/utils/seasonProjection.js` (`computeNextSeasonProjection`); Data += `lib/seasonGrade.mjs` (`gamesL6Report`), for the three projection fields, closing A's presence-read gap as well.
+- **Backlog entry.** Session 2 adds one `.claude/tasks/app-repo-backlog.md` entry (blocking: no; land after the data commit) proposing **CR-01** as the single registry entry:
+  - Invariant += the per-player `inSeason` fields above, plus the values of `projectedGames`, `factors.projectedGamesBase` and `factors.shortSeasonState`;
+  - App += `src/utils/inSeasonScoring.js` (`buildScoringPosteriors`). CR-15 already lists `src/utils/seasonProjection.js`;
+  - Data += `lib/seasonGrade.mjs` (`buildRosRows`) and `scripts/season-grade-run.mjs` (`stepGamesL6`, the actual reading site of the three projection fields).
 
-  The entry is flagged in the hand-back. No app file is edited.
+  This also closes A's unindexed presence-read. The entry is flagged in the hand-back, and no app file is edited.
 - No other coupling changes: `inSeasonCheck`, `runRookiePanels` and `runRookieTotal` are data-internal analysis adapters.
 
 ## 13. Pre-registration (Slice B; frozen at this commit)
@@ -349,7 +324,16 @@ Only A's per-step isolation catches anything above (1)–(2). A test asserts tha
 | ROS | `value-beats-<cmp>` iff Δ\|err\| CI upper < 0 |
 | L6 | `l6c-beats-base` iff CI upper < 0; `base-beats-l6c` iff CI lower > 0; else `no-difference` |
 | D-16 / D-75 / D-60 | §7 / §7 / §8 |
+| Amendments | 2026-10-25 (§13a) |
 | Never output | a constant, a multiplier, or a recommendation to wire |
+
+### 13a. Pre-registration amendment, 2026-10-25 (Anton)
+
+- **What.** For (b) start rows on the team-game basis, the observed-to-date comparator applies to every row: `inSeason.n = 0` → comparator 0. It is no longer limited to `n ≥ 1`. Wording only: the cell-size "n" in the empty/insufficient rule is renamed, to stop it being confused with `inSeason.n`.
+- **Why.** Under the Q3 team-game basis the comparator is defined at `n = 0`. The `n ≥ 1` filter would drop most start rows (52 of 76 on 2026-10-06; 45 of 78 on 2026-10-20) and push the QB (b) cells below `ROS_MIN`. **Decided on row counts only; no 2026 outcome or graded result was seen.**
+- **Hash.** SHA-256 over the pre-registration text: the §6.1 rule block (from `- **Calendar:**` to the line before `**Seams.**`), then `\n`, then the `|` lines of §13, UTF-8.
+  - before (Revision 2, `c9e2de0`): `9bff0187dd1338eead10bc6ef7c1f5407c651cc6636708b8639b435cdf9d6378`
+  - after (Revision 3): `1d8d69632ad7ed19f48823e680603ea9c7255ded60003c4712111d5973d4adde`
 
 ## 14. Done-definition and hand-back (Slice B)
 
@@ -357,25 +341,27 @@ Only A's per-step isolation catches anything above (1)–(2). A test asserts tha
 2. `node bin/season-grade.mjs --rehearse` runs all steps on today's partial data; paste B's sections.
 3. README updated.
 4. Commit; push only after Anton's sign-off.
-5. Hand-back: SHA range, files touched, deviations, what each test asserts, and the live `countSatLongerFlagged` default count (expected 13).
+5. Hand-back: SHA range, files touched, deviations, what each test asserts, and the golden-capture commit (it must predate the adapter edits).
 
 **Revision 2 notes.**
 - **Item 1.** `test/registry.test.mjs` fails in a worktree only because it looks for the sibling repo at `.claude/worktrees/sleeper-dashboard`. Report it as that and nothing else.
-- **Item 2.** A's sections must still reproduce M1–M9 and every gate result unchanged, and the rehearsal `exitCode` must be 0 unless an A step fails. `ros` shows `no-capture` for c ≥ 7 today, and `d60` prints `counted: false`.
-- **Item 3** also covers the `data-catalog.md` row, the `bin/season-grade.mjs` help and the two app-repo-backlog entries (§12, §16).
+- **Item 2.** A's sections must still reproduce M1–M10 and every gate result unchanged. The rehearsal `exitCode` must be 0; any B error now fails it (§10a). `ros` shows `no-capture` for c ≥ 7 today, and `d60` prints `counted: false`.
+- **Item 3** also covers the `data-catalog.md` row, the `bin/season-grade.mjs` help, the new app-repo-backlog entry, and the amendment to A's open entry (§12, §16).
 - **Item 4.** Do not push or merge without Anton's sign-off.
-- **Item 5.** The count no longer applies (Q1(b)). Instead, report the golden-capture commit and confirm that its outputs predate the adapter edits.
 
 Flags from both review rounds that land in B: 1-9 (§6.1), 1-14 (§7), 1-16 (§8, now deferred). The full map is in `january-grading-run-reviews.md`.
 
 ## 15. Questions for Anton
 
-None open. Q1–Q3 were answered on 2026-10-24 (Revision 2 table).
+None open. Q1–Q3 were answered on 2026-10-24, and the Revision 2 review on 2026-10-25 (Revision 3).
 
 ## 16. App-side edits for a later parent-folder session (not made here)
 
-1. App `.claude/tasks/data-repo-backlog.md` **D-60** (`### D-60 · Replicate Q5 on the app's sat-longer definition`). Replace its trigger, which A §16.1 sets to 2027-01-15, with: *"recount at the first `nfl/season-totals` run where `nfl/season-totals/2026.json` is `inProgress: false` (after Sleeper's post-Super-Bowl rollover). The January run (P3 Slice B) deliberately does not count it: the in-progress guard refuses 2026 (Anton, 2026-10-24)."* Cite this task file. D-60's only backlog entry is app-side; this repo has none.
-2. The §12 registry edits.
-3. Session 2 adds one `.claude/tasks/app-repo-backlog.md` entry pointing here (blocking: no) and flags it in the hand-back.
+1. **D-60.** In app `.claude/tasks/data-repo-backlog.md`, under `### D-60 · Replicate Q5 on the app's sat-longer definition`, set its trigger to:
 
-Recorded, not a question: `nflverse/gamelogs/2026.json` does not exist today (advstats 2026 does). Slice B does not read it.
+   > recount at the first `nfl/season-totals` run where `nfl/season-totals/2026.json` is `inProgress: false` (after Sleeper's post-Super-Bowl rollover). The January run (P3 Slice B) deliberately does not count it: the in-progress guard refuses 2026 (Anton, 2026-10-24). Recipe: the existing `--inseason --dynasty` path cannot reach the 2025 class's S+1 until `guardLoad(load, { maxLoadSeason: 2025 })` (`scripts/inseason-dyn-run.mjs:1068`) and `DYN_DEFAULTS.seasons.to` (2024, `lib/inSeasonEvidence.mjs:631`) are lifted by a planned slice; re-run only at ≥ 20 flagged-with-S+1 players.
+
+   This **replaces** D-60's part of the open data-side entry "January grading run (P3 slice A)", which Session 2 amends (§3), so the two cannot be applied in the wrong order. D-60's only backlog entry is app-side; this repo has none. Cite this task file.
+2. **The §12 CR-01 edit.**
+3. Session 2's one new `.claude/tasks/app-repo-backlog.md` entry carries 1 and 2. It is flagged in the hand-back.
+
