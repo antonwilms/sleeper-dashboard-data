@@ -365,3 +365,30 @@ None open. Q1–Q3 were answered on 2026-10-24, and the Revision 2 review on 202
 2. **The §12 CR-01 edit.**
 3. Session 2's one new `.claude/tasks/app-repo-backlog.md` entry carries 1 and 2. It is flagged in the hand-back.
 
+
+## Fix pass 1
+
+Session 1 triage (2026-10-25) of the full-depth implementation review of `6c2931b..950face`. The fix-applier implements exactly this section on branch `claude/p3-slice-b-build-7301cb`, commits there and **does not push**.
+
+**Change:**
+1. **§13a comparator, should-fix.** `lib/seasonGrade.mjs` `buildRosRows`, (b) start rows. When `inSeason.n === 0`, set `observed = 0` exactly, as the frozen §6.1/§13a text says. Otherwise keep the team-week formula. The team-week-count-0 exclusion is unchanged. Update the test in `test/season-grade-b.test.mjs` (≈:160): the q1 row with `ins(0, …)` must give `observed === 0`, even though it has league points in weeks ≤ c, and its title no longer says "0-or-more". Add a case: an `n ≥ 1` start row keeps the team-week value.
+2. **D-16 (i) league counts, should-fix.** `scripts/season-grade-run.mjs` `stepRookie`. Compute the league panel's 2026-class debut counts with the same `position` × `draftGroup` × `outcomeClass` grouping as the half part.
+   - If every cell equals half's, print one line: "league class counts identical to half-PPR".
+   - Otherwise print the league table, plus a line listing the differing cells.
+   - Record `data.d16League.classCountsDiffer` (boolean) and the counts.
+
+   Test: identical counts → the one line; a differing stub → the table and `classCountsDiffer: true`.
+3. **Nit, test honesty.** In the `rookieTotalArms` null-guard test, add a group whose diffs are all non-finite and assert `delta.mean === null && delta.ci === null && label === 'insufficient'`, or retitle the test to what it asserts. In the `gamesL6Report` guard-1 case, assert `delta.mean === null` and `delta.ci === null`.
+4. **Nit, non-Error throws.** In `degradeOrThrow` and `part`, read the message as `e instanceof Error ? e.message : String(e)`. Test: `throw undefined` degrades on a real write, with `error: 'undefined'`.
+5. **Nit, alias default.** `buildRosRows`'s `teamOf` option becomes **required**: no default; a missing `teamOf` is a programming error, so a plain `TypeError` is fine. Update its doc comment. `stepRos` already passes it.
+6. **Nit, cross-repo.** In `.claude/tasks/app-repo-backlog.md`, P3 slice B entry, item (2), add the actual reading sites: `scripts/season-grade-run.mjs` `stepOverride` (`next`) and `l6RowsOf` (the three projection fields), next to `buildRosRows`/`stepGamesL6`.
+
+**Leave alone:**
+- The byte-identity cases living in `test/season-grade-b.test.mjs` instead of `test/rookie-basis-panels.test.mjs` (review nit 3): accepted as built, recorded here.
+- Session 2's disclosed deviations 1–6: accepted.
+- Everything else in the diff.
+
+**Done:**
+- `npm test` green; the 2 `registry.test` failures from the missing sibling are expected, so state them.
+- `node bin/season-grade.mjs --rehearse` exits 0, with no `NOT COMPUTED`; A's sections are unchanged.
+- One commit on the branch; no push.
