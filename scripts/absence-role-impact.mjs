@@ -10,7 +10,10 @@
  * CLI:
  *   node scripts/absence-role-impact.mjs serve --root <dir> [--port 8787]
  *   node scripts/absence-role-impact.mjs report --before <f> --before2 <f> --after <f>
- *        --after-tree <dir> --out <md> [--section "<title>=<md file>"]…
+ *        --after-tree <dir> --out <md> [--title "<text>"] [--section "<title>=<md file>"]…
+ *
+ * Rows are split by projection path: 'rookie' when the after row's `projection.confidence === 'rookie'`
+ * (the before row's when the after row carries none), else 'veteran'.
  */
 
 import http from 'node:http'
@@ -32,11 +35,18 @@ export const FIELDS = [
   ['isBounceBack', (p) => get(p, ['projection', 'factors', 'isBounceBack']), false],
   ['dynastyScore', (p) => get(p, ['dynasty', 'score']), true],
   ['dynastyLabel', (p) => get(p, ['dynasty', 'label']), false],
+  ['nflDraftMatchSource', (p) => get(p, ['projection', 'factors', 'nflDraftMatchSource']), false],
 ]
 export const FIELD_NAMES = FIELDS.map(([n]) => n)
 
 const same = (a, b) => a === b || (Number.isNaN(a) && Number.isNaN(b))
 const round3 = (x) => Math.round(x * 1000) / 1000
+
+export const PATHS = ['rookie', 'veteran']
+const pathOf = (beforeRow, afterRow) => {
+  const conf = get(afterRow, ['projection', 'confidence']) ?? get(beforeRow, ['projection', 'confidence'])
+  return conf === 'rookie' ? 'rookie' : 'veteran'
+}
 
 /**
  * @param {{players?: Record<string, object>}} before
@@ -44,8 +54,9 @@ const round3 = (x) => Math.round(x * 1000) / 1000
  * @returns {{
  *   rowsCompared: number, onlyBefore: string[], onlyAfter: string[],
  *   counts: Record<string, number>,
+ *   countsByPath: Record<'rookie'|'veteran', Record<string, number>>,
  *   distributions: Record<string, Map<string, number>>,
- *   movers: Array<{ id: string, changes: Record<string, {before: any, after: any, delta: number|null}> }>,
+ *   movers: Array<{ id: string, path: 'rookie'|'veteran', changes: Record<string, {before: any, after: any, delta: number|null}> }>,
  * }}
  */
 export function diffCaptures(before, after) {
@@ -54,6 +65,7 @@ export function diffCaptures(before, after) {
   const onlyBefore = Object.keys(bp).filter((id) => !(id in ap)).sort()
   const onlyAfter = Object.keys(ap).filter((id) => !(id in bp)).sort()
   const counts = Object.fromEntries(FIELD_NAMES.map((n) => [n, 0]))
+  const countsByPath = Object.fromEntries(PATHS.map((p) => [p, Object.fromEntries(FIELD_NAMES.map((n) => [n, 0]))]))
   const distributions = Object.fromEntries(FIELD_NAMES.map((n) => [n, new Map()]))
   const movers = []
   let rowsCompared = 0
@@ -62,20 +74,22 @@ export function diffCaptures(before, after) {
     if (!(id in ap)) continue
     rowsCompared++
     const changes = {}
+    const rowPath = pathOf(bp[id], ap[id])
     for (const [name, extract, numeric] of FIELDS) {
       const b = extract(bp[id])
       const a = extract(ap[id])
       if (same(a, b)) continue
       counts[name]++
+      countsByPath[rowPath][name]++
       const numericDelta = numeric && typeof a === 'number' && typeof b === 'number'
       const delta = numericDelta ? round3(a - b) : null
       const key = numericDelta ? (delta > 0 ? `+${delta}` : `${delta}`) : `${b ?? 'null'} → ${a ?? 'null'}`
       distributions[name].set(key, (distributions[name].get(key) ?? 0) + 1)
       changes[name] = { before: b ?? null, after: a ?? null, delta }
     }
-    if (Object.keys(changes).length) movers.push({ id, changes })
+    if (Object.keys(changes).length) movers.push({ id, path: rowPath, changes })
   }
-  return { rowsCompared, onlyBefore, onlyAfter, counts, distributions, movers }
+  return { rowsCompared, onlyBefore, onlyAfter, counts, countsByPath, distributions, movers }
 }
 
 /** True iff a diff reports nothing — no moved field, no one-sided row. */
@@ -103,6 +117,8 @@ export function reliabilityMoves(before, after) {
 
 // ─── markdown ────────────────────────────────────────────────────────────────
 
+export const DEFAULT_TITLE = 'D-76 absence-role — impact verdict'
+
 const fmt = (v) => (v == null ? '—' : typeof v === 'number' ? String(v) : String(v))
 
 function distributionTable(map) {
@@ -110,10 +126,23 @@ function distributionTable(map) {
   return ['| move | rows |', '|---|---|', ...rows.map(([k, n]) => `| ${k} | ${n} |`)].join('\n')
 }
 
+/** Every row whose `nflDraftMatchSource` changed (id, name, position, path, before → after). */
+function draftSourceTable(diff, info) {
+  const rows = diff.movers.filter((m) => m.changes.nflDraftMatchSource)
+  if (!rows.length) return '_none_'
+  const lines = ['| id | player | pos | path | before → after |', '|---|---|---|---|---|']
+  for (const m of rows) {
+    const meta = info?.[m.id] ?? {}
+    const c = m.changes.nflDraftMatchSource
+    lines.push(`| ${m.id} | ${meta.name ?? m.id} | ${meta.position ?? '?'} | ${m.path} | ${fmt(c.before)} → ${fmt(c.after)} |`)
+  }
+  return lines.join('\n')
+}
+
 function moverTable(movers, field, info, snapshot) {
   const lines = [
-    `| # | player | pos | team | ${field} before → after | Δ | injurySeasons before → after |`,
-    '|---|---|---|---|---|---|---|',
+    `| # | player | pos | path | team | ${field} before → after | Δ | injurySeasons before → after |`,
+    '|---|---|---|---|---|---|---|---|',
   ]
   movers.forEach((m, i) => {
     const meta = info?.[m.id] ?? {}
@@ -121,7 +150,7 @@ function moverTable(movers, field, info, snapshot) {
     const inj = m.changes.injurySeasons
     const injCell = inj ? `${fmt(inj.before)} → ${fmt(inj.after)}` : `${fmt(get(snapshot, ['players', m.id, 'projection', 'factors', 'injurySeasons']))} (unchanged)`
     const team = meta.team ?? get(snapshot, ['players', m.id, 'nfl_team'])
-    lines.push(`| ${i + 1} | ${meta.name ?? m.id} | ${meta.position ?? '?'} | ${fmt(team)} | ${fmt(c.before)} → ${fmt(c.after)} | ${c.delta > 0 ? '+' : ''}${c.delta} | ${injCell} |`)
+    lines.push(`| ${i + 1} | ${meta.name ?? m.id} | ${meta.position ?? '?'} | ${m.path} | ${fmt(team)} | ${fmt(c.before)} → ${fmt(c.after)} | ${c.delta > 0 ? '+' : ''}${c.delta} | ${injCell} |`)
   })
   return lines.join('\n')
 }
@@ -133,9 +162,9 @@ function moverTable(movers, field, info, snapshot) {
  *   meta?: Record<string, string>, sections?: Array<{title: string, body: string}>,
  * }} args
  */
-export function renderVerdict({ date, after, noise, diff, info = {}, meta = {}, sections = [] }) {
+export function renderVerdict({ date, after, noise, diff, info = {}, meta = {}, sections = [], title = DEFAULT_TITLE }) {
   const out = []
-  out.push(`# D-76 absence-role — impact verdict (${date})`, '')
+  out.push(`# ${title} (${date})`, '')
   for (const [k, v] of Object.entries(meta)) out.push(`- **${k}:** ${v}`)
   out.push('', '## Noise floor (before vs before2)', '')
   out.push(isEmptyDiff(noise)
@@ -143,7 +172,7 @@ export function renderVerdict({ date, after, noise, diff, info = {}, meta = {}, 
     : `**NOT EMPTY** — ${noise.movers.length} moving rows, ${noise.onlyBefore.length} only in before, ${noise.onlyAfter.length} only in before2.`)
   out.push('', '## Rows moved (before vs after)', '')
   out.push(`Rows compared: ${diff.rowsCompared}; only in before: ${diff.onlyBefore.length}${diff.onlyBefore.length ? ` (${diff.onlyBefore.join(', ')})` : ''}; only in after: ${diff.onlyAfter.length}${diff.onlyAfter.length ? ` (${diff.onlyAfter.join(', ')})` : ''}.`, '')
-  out.push('| field | rows moved |', '|---|---|', ...FIELD_NAMES.map((n) => `| ${n} | ${diff.counts[n]} |`), '')
+  out.push('| field | rows moved | rookie | veteran |', '|---|---|---|---|', ...FIELD_NAMES.map((n) => `| ${n} | ${diff.counts[n]} | ${diff.countsByPath.rookie[n]} | ${diff.countsByPath.veteran[n]} |`), '')
   out.push('## Distribution of each move', '')
   for (const n of FIELD_NAMES) {
     out.push(`### ${n}`, '')
@@ -157,6 +186,11 @@ export function renderVerdict({ date, after, noise, diff, info = {}, meta = {}, 
   out.push('## 20 largest movers by |Δ projectedTotalPts|', '')
   const byPts = topMovers(diff, 'projectedTotalPts')
   out.push(byPts.length ? moverTable(byPts, 'projectedTotalPts', info, after) : '_none_', '')
+  out.push('## 20 largest movers by |Δ projectedPPG|', '')
+  const byPpg = topMovers(diff, 'projectedPPG')
+  out.push(byPpg.length ? moverTable(byPpg, 'projectedPPG', info, after) : '_none_', '')
+  out.push('## Rows whose `nflDraftMatchSource` changed', '')
+  out.push(draftSourceTable(diff, info), '')
   for (const s of sections) out.push(`## ${s.title}`, '', s.body.trimEnd(), '')
   return out.join('\n')
 }
@@ -227,8 +261,10 @@ async function main() {
     const diff = diffCaptures(before, after)
     const date = new Date().toISOString().slice(0, 10)
     const sections = a.section.map((s) => { const i = s.indexOf('='); return { title: s.slice(0, i), body: fs.readFileSync(s.slice(i + 1), 'utf8') } })
-    fs.writeFileSync(a.out, renderVerdict({ date, before, after, noise, diff, info: loadInfo(a['after-tree']), meta: { 'capturedAt (before / after)': `${before.capturedAt} / ${after.capturedAt}` }, sections }))
+    fs.writeFileSync(a.out, renderVerdict({ date, before, after, noise, diff, title: a.title ?? DEFAULT_TITLE, info: loadInfo(a['after-tree']), meta: { 'capturedAt (before / after)': `${before.capturedAt} / ${after.capturedAt}` }, sections }))
     console.log(`[impact] wrote ${a.out}; noise ${isEmptyDiff(noise) ? 'empty' : 'NOT EMPTY'}; movers ${diff.movers.length}`)
+    const v = diff.countsByPath.veteran
+    console.log(`[impact] veteran projectedPPG ${v.projectedPPG} / projectedGames ${v.projectedGames}; rookie projectedPPG ${diff.countsByPath.rookie.projectedPPG}`)
     if (!isEmptyDiff(noise)) process.exitCode = 2
     return
   }

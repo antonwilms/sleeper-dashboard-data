@@ -6,11 +6,11 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import http from 'node:http'
 
-import { diffCaptures, isEmptyDiff, topMovers, moverRows, reliabilityMoves, renderVerdict, startStaticServer, FIELD_NAMES } from '../scripts/absence-role-impact.mjs'
+import { DEFAULT_TITLE, diffCaptures, isEmptyDiff, topMovers, moverRows, reliabilityMoves, renderVerdict, startStaticServer, FIELD_NAMES } from '../scripts/absence-role-impact.mjs'
 
-const row = ({ g = 16, ppg = 10, pts = 160, inj = 0, shape = 1, bb = false, score = 50, label = 'Solid', team = 'SF' } = {}) => ({
+const row = ({ g = 16, ppg = 10, pts = 160, inj = 0, shape = 1, bb = false, score = 50, label = 'Solid', team = 'SF', conf, src } = {}) => ({
   nfl_team: team,
-  projection: { projectedGames: g, projectedPPG: ppg, projectedTotalPts: pts, factors: { injurySeasons: inj, absenceShapeFactor: shape, isBounceBack: bb } },
+  projection: { projectedGames: g, projectedPPG: ppg, projectedTotalPts: pts, ...(conf ? { confidence: conf } : {}), factors: { injurySeasons: inj, absenceShapeFactor: shape, isBounceBack: bb, ...(src ? { nflDraftMatchSource: src } : {}) } },
   dynasty: score == null ? null : { score, label },
 })
 const snap = (players) => ({ players })
@@ -103,4 +103,42 @@ test('reliabilityMoves lists ids present on both sides whose reliability value m
   const before = snap({ a: r(0.5), b: r(0.5), c: r(0.5), gone: r(1) })
   const after = snap({ a: r(0.6), b: r(0.5), c: { dynasty: null }, fresh: r(1) })
   assert.deepEqual(reliabilityMoves(before, after), ['a', 'c'])
+})
+
+test('rookie/veteran split: path comes from the after row, the before row when the after row has none; per-path counts', () => {
+  const before = snap({ r: row({ conf: 'rookie', ppg: 8 }), v: row({ conf: 'high', ppg: 12 }), x: row({ conf: 'rookie', ppg: 9 }), y: row({ ppg: 9 }) })
+  const after = snap({ r: row({ conf: 'rookie', ppg: 8.5 }), v: row({ conf: 'high', ppg: 12.5, g: 15 }), x: row({ ppg: 9.5 }), y: row({ ppg: 9.5 }) })
+  const d = diffCaptures(before, after)
+  assert.deepEqual(d.movers.map((m) => [m.id, m.path]), [['r', 'rookie'], ['v', 'veteran'], ['x', 'rookie'], ['y', 'veteran']])
+  assert.equal(d.countsByPath.rookie.projectedPPG, 2)
+  assert.equal(d.countsByPath.veteran.projectedPPG, 2)
+  assert.equal(d.countsByPath.veteran.projectedGames, 1)
+  assert.equal(d.countsByPath.rookie.projectedGames, 0)
+  assert.equal(d.counts.projectedPPG, d.countsByPath.rookie.projectedPPG + d.countsByPath.veteran.projectedPPG)
+})
+
+test('nflDraftMatchSource is a compared field; a flip lands in the draft-source section with its path', () => {
+  const before = snap({ a: row({ conf: 'rookie', src: 'unmatched' }), b: row({ src: 'matched' }) })
+  const after = snap({ a: row({ conf: 'rookie', src: 'matched' }), b: row({ src: 'matched' }) })
+  const d = diffCaptures(before, after)
+  assert.equal(d.counts.nflDraftMatchSource, 1)
+  assert.equal(d.countsByPath.rookie.nflDraftMatchSource, 1)
+  assert.equal(d.distributions.nflDraftMatchSource.get('unmatched → matched'), 1)
+  const md = renderVerdict({ date: '2026-10-25', after, noise: diffCaptures(before, before), diff: d, info: { a: { name: 'Robbie Ouzts', position: 'RB' } } })
+  assert.match(md, /## Rows whose `nflDraftMatchSource` changed/)
+  assert.match(md, /\| a \| Robbie Ouzts \| RB \| rookie \| unmatched → matched \|/)
+})
+
+test('renderVerdict: rookie/veteran columns, the |Δ projectedPPG| mover section with a path column, and --title', () => {
+  const before = snap({ a: row({ conf: 'rookie', ppg: 8 }), b: row({ conf: 'high', ppg: 12 }) })
+  const after = snap({ a: row({ conf: 'rookie', ppg: 9 }), b: row({ conf: 'high', ppg: 12 }) })
+  const d = diffCaptures(before, after)
+  const md = renderVerdict({ date: '2026-10-25', after, noise: diffCaptures(before, before), diff: d, title: 'Join defects — impact verdict', info: { a: { name: 'Rook Ie', position: 'WR' } } })
+  assert.match(md, /^# Join defects — impact verdict \(2026-10-25\)/)
+  assert.match(md, /\| field \| rows moved \| rookie \| veteran \|/)
+  assert.match(md, /\| projectedPPG \| 1 \| 1 \| 0 \|/)
+  assert.match(md, /## 20 largest movers by \|Δ projectedPPG\|/)
+  assert.match(md, /\| 1 \| Rook Ie \| WR \| rookie \|/)
+  assert.ok(md.indexOf('|Δ projectedTotalPts|') < md.indexOf('|Δ projectedPPG|'))
+  assert.match(renderVerdict({ date: 'd', after, noise: d, diff: d }), new RegExp(`^# ${DEFAULT_TITLE}`))
 })
