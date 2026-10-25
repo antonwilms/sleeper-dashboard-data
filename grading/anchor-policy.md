@@ -2,11 +2,11 @@
 
 **Not to be confused with `.claude/tasks/anchor-policy.md`**, which is the registry
 line-anchor policy. This file is about which captured snapshot rows are safe to compare
-against which grading run, given that the app's projection mechanism has changed eleven times on the axes this file
+against which grading run, given that the app's projection mechanism has changed twelve times on the axes this file
 tracks — three on the rookie path, one on the veteran path (the Step 4 up-side), one on every row of both paths (the
 scoring basis: the load-time season rescore, boundary 4a), one on QB rows of both paths (the
 start share), one on rookie QB rows
-(the rookie starter level), twice through a data correction rather than app code (the absence classification of served `weeklyStatus`, then its role-week demotion), once on the veteran path (the short-season games rule), and once on the rookie path's season total (the total-points factor). Earlier
+(the rookie starter level), twice through a data correction rather than app code (the absence classification of served `weeklyStatus`, then its role-week demotion), once on the veteran path (the short-season games rule), once on the rookie path's season total (the total-points factor), and once on the rookie path through an app-side join correction (the KTC / draft / college id joins). Earlier
 snapshot-schema and factor-set changes (`schemaVersion` 1→2→3; the veteran factor set
 widening on 2026-06-06) are out of this file's scope.
 
@@ -58,7 +58,7 @@ captures either side of boundary 4.
 
 ## The date table is the cross-check, not the rule
 
-Eleven changes on eight tracked axes, verified against the actually-committed app files (row 7: the data commit):
+Twelve changes on nine tracked axes (row 11 is filled at release), verified against the actually-committed app files (row 7: the data commit):
 
 | # | commit | date (UTC) | path | mechanism |
 |---|---|---|---|---|
@@ -73,6 +73,7 @@ Eleven changes on eight tracked axes, verified against the actually-committed ap
 | 8 | `e3de164` (B1, the model commit; the model is live once the push lands; captures check out app `main`) | 2026-10-10 12:45:38 (the **app push**, `ac26e0b..98a8a69`) | veteran (QB/RB/WR/TE) | short-season games rule (L6c) |
 | 9 | `26de86c` (the model is live once the push lands; captures check out app `main`) | 2026-10-13 10:51 (the **app push**, `6b725e6..e9414f8`) | rookie (RB/WR/TE, day-3/undrafted) | total-points factor (D-13) |
 | 10 | data `76b5ddf` + app `c39f8b4` (a served-data correction with its model pin: `PRIOR_MODEL_FROM` in the app commit) | 2026-10-23 12:38:58 UTC (the **data push**, `6971064..3041353`) · app push 2026-10-23 12:43:20 UTC (`11c2b53..3ec9298`) · CDN purge of the nine rewritten/regenerated paths verified 9/9 (exit 0, 12:41 UTC, before the app push) | veteran (QB/RB/WR/TE) | absence role — role weeks 'D' → 'X' in served `weeklyStatus` (D-76, CR-28) |
+| 11 | _TBD at release (§9.4 of `join-defects-id-crosswalk.md`):_ app `<release SHA>` | _TBD at release:_ `<push time> UTC` (the **app push**, `<range>`) | rookie (QB/RB/WR/TE) | ID-first joins (KTC alias, draft id, college id) — CR-31 |
 
 Scheduled captures (`daily-snapshot.yml`) trigger at 16:29 UTC against app `main` but can
 start hours late — `snapshots/2026-09-12.json` has `capturedAt` 18:34:49 UTC. Cross-check a
@@ -207,6 +208,14 @@ A second **served-data correction** on the absence axis (boundary 7 was the firs
 - **Row-detectable, unlike boundary 7.** The release pairs the data push with a `PRIOR_MODEL_FROM` bump, and captures record it as the envelope's `projectionModelFrom` (D-50). A capture whose `projectionModelFrom` is at or after the boundary's value is corrected; an earlier or absent marker is legacy on this axis. Detect by the envelope field, never by a date lookup.
 - **Cross-check — open (D-83).** After the first post-push capture: **exact** on the season-totals-determined fields — the set of veteran rows whose `projectedGames`, `factors.injurySeasons`, `factors.absenceShapeFactor` or `factors.isBounceBack` change between the last pre-push and the first post-push capture, and their before/after values, equal the impact verdict's (`grading/2026-10-22-absence-role-verdict.md`; rows present in both captures only). **Report-only** on `projectedPPG`, `projectedTotalPts` and `dynasty.score`/`label`: the captures are a day apart, so live Sleeper/KTC/depth state moves them; report agreement in direction with the verdict's movers, no pass/fail.
 
+### Rookie rows — boundary 11 (join correction)
+
+An **app-side join correction** (CR-31): the app's KTC, draft and college matchers key on the nflverse player-id crosswalk (KTC name alias, `draftYear` + `draftOvr`, `espnId` = CFBD athlete id) with name fallback. Players whose join changed move on the rookie path only: `projectedPPG`, `projectedGames` and `projectedTotalPts` through draft capital, college metrics and the KTC position percentile (and dynasty scores with them). The veteran projection does not move — measured, see `grading/2026-10-25-join-fix-verdict.md`; the veteran path reads none of the three joins.
+
+- **Row-detectable through the envelope.** The release pairs the app push with a `PRIOR_MODEL_FROM` bump (the envelope's `projectionModelFrom`), and `inputStatus.playerIds.loaded` says whether the joins ran on the crosswalk. A capture whose `projectionModelFrom` is at or after the boundary's value is corrected; an earlier or absent marker is legacy on this axis. Detect by the envelope field, never by a date lookup.
+- **Cross-check — open.** After the first post-push capture: **exact** on the set of rookie-path rows whose `factors.nflDraftMatchSource` changed between the last pre-push and the first post-push capture — equal to the verdict's "Rows whose `nflDraftMatchSource` changed" list. **Report-only** on `projectedPPG` and `dynasty.score`/`label`: the captures are a day apart, so live state moves them; report agreement in direction with the verdict's movers, no pass/fail.
+- **No new veteran segment** (rookie-only, like boundaries 6 and 9); the release registers its `PRIOR_MODEL_FROM` value as an L6 marker so the capture maps to a segment.
+
 ## Boundaries by path
 
 Rookie boundaries 1–3 are rookie-path only. Boundary 4 is veteran-path only, affects only
@@ -218,11 +227,11 @@ grade spanning it measures the mechanism change. Boundary 7 moves veteran rows' 
 `projectedTotalPts`, `injurySeasons` and `absenceShapeFactor`, and `projectedPPG` only on bounce-back flips; a pooled
 veteran games grade spanning it measures the correction. Boundary 8 is veteran-only and row-detectable through
 `factors.shortSeasonState`; it moves `projectedGames` on `'short'`/`'none'` rows (and `projectedTotalPts` except on QB
-`chain` rows), and a pooled veteran games grade spanning it measures the rule. Boundary 9 is rookie-only (RB/WR/TE, day-3 and undrafted) and row-detectable through `factors.rookieTotalBasis`; it moves `projectedTotalPts` only, so a pooled rookie total-points grade spanning it measures the factor, and a PPG or games grade does not see it. Boundary 4a is both-path and row-detectable through the envelope's `projectionBasis` (rookie rows also through `factors.rookieBasisScale`); it moves every `projectedPPG` and `projectedTotalPts`, so a pooled grade of either spanning it measures the scoring basis. Boundary 10 is veteran-only, a served-data correction on the absence axis like boundary 7 (`'D'` → `'X'` for role-state weeks), and row-detectable through the envelope's `projectionModelFrom`; it moves veteran rows' `projectedGames`, `projectedTotalPts`, `injurySeasons` and `absenceShapeFactor`, and `projectedPPG` only on bounce-back flips, so a pooled veteran games grade spanning it measures the correction.
+`chain` rows), and a pooled veteran games grade spanning it measures the rule. Boundary 9 is rookie-only (RB/WR/TE, day-3 and undrafted) and row-detectable through `factors.rookieTotalBasis`; it moves `projectedTotalPts` only, so a pooled rookie total-points grade spanning it measures the factor, and a PPG or games grade does not see it. Boundary 4a is both-path and row-detectable through the envelope's `projectionBasis` (rookie rows also through `factors.rookieBasisScale`); it moves every `projectedPPG` and `projectedTotalPts`, so a pooled grade of either spanning it measures the scoring basis. Boundary 10 is veteran-only, a served-data correction on the absence axis like boundary 7 (`'D'` → `'X'` for role-state weeks), and row-detectable through the envelope's `projectionModelFrom`; it moves veteran rows' `projectedGames`, `projectedTotalPts`, `injurySeasons` and `absenceShapeFactor`, and `projectedPPG` only on bounce-back flips, so a pooled veteran games grade spanning it measures the correction. Boundary 11 is rookie-only (an app-side join correction, CR-31) and row-detectable through the envelope's `projectionModelFrom` and `inputStatus.playerIds`; it moves rookie-path `projectedPPG`, `projectedGames` and `projectedTotalPts` for players whose KTC, draft or college join changed, so a pooled rookie grade spanning it measures the join correction.
 
 ## Veteran segments for the January season grade (machine-readable)
 
-`lib/seasonGrade.mjs` `VETERAN_SEGMENTS` is mirrored **byte-for-byte** as the JSON block below (`test/season-grade.test.mjs` deep-equals the two). Boundaries 6 and 9 are rookie-only and have no veteran segment; boundary 9's marker date maps to L5. `L0` is the first capture after the earliest 2026 regular-season kickoff (`KICKOFF_2026_UTC` = 2026-09-10T00:20:00Z: nflverse `games.csv` `2026_01_NE_SEA`, Wed 2026-09-09 20:20 ET); `K`, the last capture before it, is `2026-09-09`. A capture's segment is the **last** entry (array order) whose detector fires; the run stops if the capture's date lies outside [that entry's `firstCapture`, the next's), if a non-null `projectionModelFrom` is not a listed marker or maps to another segment, or if the newest 2026 capture does not classify to the last entry. **A new veteran boundary is added here and to `VETERAN_SEGMENTS` first** (and re-opens the season-grade plan for its segment-dependent spans).
+`lib/seasonGrade.mjs` `VETERAN_SEGMENTS` is mirrored **byte-for-byte** as the JSON block below (`test/season-grade.test.mjs` deep-equals the two). Boundaries 6, 9 and 11 are rookie-only and have no veteran segment; boundary 9's marker date maps to L5, and boundary 11's marker (registered at release) maps to L6. `L0` is the first capture after the earliest 2026 regular-season kickoff (`KICKOFF_2026_UTC` = 2026-09-10T00:20:00Z: nflverse `games.csv` `2026_01_NE_SEA`, Wed 2026-09-09 20:20 ET); `K`, the last capture before it, is `2026-09-09`. A capture's segment is the **last** entry (array order) whose detector fires; the run stops if the capture's date lies outside [that entry's `firstCapture`, the next's), if a non-null `projectionModelFrom` is not a listed marker or maps to another segment, or if the newest 2026 capture does not classify to the last entry. **A new veteran boundary is added here and to `VETERAN_SEGMENTS` first** (and re-opens the season-grade plan for its segment-dependent spans).
 
 Detector vocabulary: `capturedAfter` (`capturedAt > utc`); `vetRowKey` (every veteran row has `factors[key] !== undefined`); `envelopeEquals` (`snapshot[field] === value`); `markerIn` (`projectionModelFrom` ∈ `markers`).
 

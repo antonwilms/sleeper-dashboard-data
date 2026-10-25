@@ -12,10 +12,8 @@
  *     where only the 199 sleeper-only rows change).
  *   - Sparsity gate: rowCount < MIN_PLAYERID_ROWS → log + return (no write).
  *   - --dry-run: fetch + validate, print plan, no writes.
- *   - inProgress: false — internal-only family, no app loader (the loader was
- *     cut; see README.md's playerids `> *Note:*` and data-catalog.md's
- *     playerids row). This is convention parity with sibling nflverse
- *     ingests, not a live app dependency.
+ *   - inProgress: false — convention parity with sibling nflverse ingests. The
+ *     app reads this family through `src/api/playerIds.js` (CR-31).
  *   - No last-checked marker (mirrors draft pattern, not roster pattern).
  *
  * @param {object} opts
@@ -112,7 +110,7 @@ export async function updatePlayerIds({ dryRun = false, force = false } = {}) {
   writeJsonStable(PLAYERIDS_PATH, output, { minify: true });
   console.log(`[playerids] Wrote ${PLAYERIDS_PATH} (${rowCount} crosswalk rows, ${sleeperRowCount} bySleeper)`);
 
-  // 8. Update manifest (inProgress: false — internal-only, no app loader)
+  // 8. Update manifest (inProgress: false — convention parity; the app loads it, CR-31)
   updateManifestEntry({
     path:          PLAYERIDS_PATH,
     recordCount:   rowCount,

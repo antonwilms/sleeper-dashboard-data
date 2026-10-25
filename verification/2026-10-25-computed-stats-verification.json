@@ -1,0 +1,803 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-25T15:25:54.499Z",
+  "inputs": {
+    "files": [
+      {
+        "path": "snapshots/2026-10-24.json"
+      },
+      {
+        "path": "nfl/season-totals/2020.json",
+        "lastModified": "2026-10-23T12:34:47.416Z"
+      },
+      {
+        "path": "nfl/season-totals/2021.json",
+        "lastModified": "2026-10-23T12:34:47.511Z"
+      },
+      {
+        "path": "nfl/season-totals/2022.json",
+        "lastModified": "2026-10-23T12:34:47.573Z"
+      },
+      {
+        "path": "nfl/season-totals/2023.json",
+        "lastModified": "2026-10-23T12:34:47.642Z"
+      },
+      {
+        "path": "nfl/season-totals/2024.json",
+        "lastModified": "2026-10-23T12:34:47.716Z"
+      },
+      {
+        "path": "nfl/season-totals/2025.json",
+        "lastModified": "2026-10-23T12:34:47.787Z"
+      },
+      {
+        "path": "nfl/season-totals/2026.json",
+        "lastModified": "2026-10-23T12:35:14.360Z"
+      },
+      {
+        "path": "ktc/snapshot-2026-10-19.json"
+      },
+      {
+        "path": "nflverse/draft/draft_picks.json"
+      },
+      {
+        "path": "nflverse/playerids.json"
+      }
+    ],
+    "dataRepo": {
+      "head": "6d3c04a35f63542943a02b2ef3fc78f1d2fed55b",
+      "clean": true
+    },
+    "appHarness": {
+      "head": "0d8938b0ad02fc37d806f1fb2b8046474512c88a",
+      "clean": true
+    },
+    "runDate": "2026-10-25"
+  },
+  "fetches": [
+    {
+      "url": "https://api.sleeper.app/v1/players/nfl",
+      "fetchedAt": "2026-10-25T15:14:52.551Z",
+      "cached": true
+    }
+  ],
+  "annotations": null,
+  "v1": null,
+  "v2": null,
+  "v3": {
+    "flagged": {
+      "ktc": [
+        {
+          "rank": 222,
+          "name": "Kyle Williams",
+          "team": "NEP",
+          "position": "WR",
+          "value": 2160,
+          "sid": "12547",
+          "reasons": [
+            "ktc-team-fallback"
+          ],
+          "evidence": {
+            "path": "exact-team",
+            "positions": {
+              "ktc": "WR",
+              "sleeper": "WR"
+            }
+          }
+        },
+        {
+          "rank": 297,
+          "name": "Matthew Hibner",
+          "team": "BAL",
+          "position": "TE",
+          "value": 1611,
+          "sid": "13324",
+          "reasons": [
+            "ktc-team-fallback"
+          ],
+          "evidence": {
+            "path": "alias-team",
+            "positions": {
+              "ktc": "TE",
+              "sleeper": "TE"
+            }
+          }
+        },
+        {
+          "rank": 306,
+          "name": "Najee Harris",
+          "team": "NYG",
+          "position": "RB",
+          "value": 1534,
+          "sid": "7528",
+          "reasons": [
+            "ktc-team-disagree"
+          ],
+          "evidence": {
+            "teams": {
+              "ktc": "NYG",
+              "sleeper": null
+            }
+          }
+        },
+        {
+          "rank": 374,
+          "name": "Trey Palmer",
+          "team": "NOS",
+          "position": "WR",
+          "value": 1127,
+          "sid": "9492",
+          "reasons": [
+            "ktc-team-disagree"
+          ],
+          "evidence": {
+            "teams": {
+              "ktc": "NOS",
+              "sleeper": null
+            }
+          }
+        }
+      ],
+      "draft": [
+        {
+          "rank": 54,
+          "name": "Dak Prescott",
+          "team": "DAL",
+          "position": "QB",
+          "value": 5204,
+          "sid": "3294",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 57,
+          "name": "Derrick Henry",
+          "team": "BAL",
+          "position": "RB",
+          "value": 5146,
+          "sid": "3198",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 61,
+          "name": "Jared Goff",
+          "team": "DET",
+          "position": "QB",
+          "value": 5033,
+          "sid": "3163",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 89,
+          "name": "Davante Adams",
+          "team": "LAR",
+          "position": "WR",
+          "value": 3987,
+          "sid": "2133",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 94,
+          "name": "Mike Evans",
+          "team": "SFO",
+          "position": "WR",
+          "value": 3772,
+          "sid": "2216",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 96,
+          "name": "Matthew Stafford",
+          "team": "LAR",
+          "position": "QB",
+          "value": 3671,
+          "sid": "421",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 149,
+          "name": "Travis Kelce",
+          "team": "KCC",
+          "position": "TE",
+          "value": 2811,
+          "sid": "1466",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 173,
+          "name": "Kirk Cousins",
+          "team": "LVR",
+          "position": "QB",
+          "value": 2680,
+          "sid": "1166",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 175,
+          "name": "Stefon Diggs",
+          "team": "WAS",
+          "position": "WR",
+          "value": 2663,
+          "sid": "2449",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 179,
+          "name": "Jacoby Brissett",
+          "team": "ARI",
+          "position": "QB",
+          "value": 2611,
+          "sid": "3257",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 193,
+          "name": "Geno Smith",
+          "team": "NYJ",
+          "position": "QB",
+          "value": 2455,
+          "sid": "1373",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 206,
+          "name": "Hunter Henry",
+          "team": "NEP",
+          "position": "TE",
+          "value": 2327,
+          "sid": "3214",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 219,
+          "name": "Aaron Rodgers",
+          "team": "PIT",
+          "position": "QB",
+          "value": 2179,
+          "sid": "96",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 232,
+          "name": "Jameis Winston",
+          "team": "NYG",
+          "position": "QB",
+          "value": 2100,
+          "sid": "2306",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 250,
+          "name": "Tyler Higbee",
+          "team": "LAR",
+          "position": "TE",
+          "value": 1923,
+          "sid": "3271",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 259,
+          "name": "Darren Waller",
+          "team": "CAR",
+          "position": "TE",
+          "value": 1888,
+          "sid": "2505",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 264,
+          "name": "Kalif Raymond",
+          "team": "CHI",
+          "position": "WR",
+          "value": 1858,
+          "sid": "3634",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 281,
+          "name": "Marcus Mariota",
+          "team": "WAS",
+          "position": "QB",
+          "value": 1764,
+          "sid": "2307",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 288,
+          "name": "Keenan Allen",
+          "team": "IND",
+          "position": "WR",
+          "value": 1700,
+          "sid": "1479",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 315,
+          "name": "Tyreek Hill",
+          "team": "FA",
+          "position": "WR",
+          "value": 1462,
+          "sid": "3321",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 346,
+          "name": "Carson Wentz",
+          "team": "MIN",
+          "position": "QB",
+          "value": 1261,
+          "sid": "3161",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 372,
+          "name": "Demarcus Robinson",
+          "team": "SFO",
+          "position": "WR",
+          "value": 1132,
+          "sid": "3286",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        },
+        {
+          "rank": 397,
+          "name": "Zach Ertz",
+          "team": "PHI",
+          "position": "TE",
+          "value": 1014,
+          "sid": "1339",
+          "reasons": [
+            "draft-out-of-window"
+          ],
+          "evidence": {}
+        }
+      ],
+      "college": [
+        {
+          "rank": 36,
+          "name": "Christian Watson",
+          "team": "GBP",
+          "position": "WR",
+          "value": 5697,
+          "sid": "8167",
+          "reasons": [
+            "college-none"
+          ],
+          "evidence": {
+            "cfbdNameFound": {}
+          }
+        },
+        {
+          "rank": 78,
+          "name": "Bo Nix",
+          "team": "DEN",
+          "position": "QB",
+          "value": 4450,
+          "sid": "11563",
+          "reasons": [
+            "college-disagree"
+          ],
+          "evidence": {
+            "matchedTeams": [
+              {
+                "year": 2019,
+                "team": "Auburn"
+              },
+              {
+                "year": 2020,
+                "team": "Auburn"
+              },
+              {
+                "year": 2021,
+                "team": "Auburn"
+              }
+            ],
+            "sources": {
+              "crosswalk": "Oregon",
+              "sleeper": "Oregon"
+            }
+          }
+        },
+        {
+          "rank": 168,
+          "name": "Dallas Goedert",
+          "team": "PHI",
+          "position": "TE",
+          "value": 2702,
+          "sid": "5022",
+          "reasons": [
+            "college-none"
+          ],
+          "evidence": {
+            "cfbdNameFound": {}
+          }
+        },
+        {
+          "rank": 183,
+          "name": "Emanuel Wilson",
+          "team": "SEA",
+          "position": "RB",
+          "value": 2534,
+          "sid": "11435",
+          "reasons": [
+            "college-none"
+          ],
+          "evidence": {
+            "cfbdNameFound": {}
+          }
+        },
+        {
+          "rank": 262,
+          "name": "Dohnte Meyers",
+          "team": "CIN",
+          "position": "WR",
+          "value": 1868,
+          "sid": "13264",
+          "reasons": [
+            "college-none"
+          ],
+          "evidence": {
+            "cfbdNameFound": {}
+          }
+        },
+        {
+          "rank": 282,
+          "name": "Tyson Bagent",
+          "team": "CHI",
+          "position": "QB",
+          "value": 1764,
+          "sid": "11256",
+          "reasons": [
+            "college-none"
+          ],
+          "evidence": {
+            "cfbdNameFound": {}
+          }
+        },
+        {
+          "rank": 360,
+          "name": "Jack Strand",
+          "team": "ATL",
+          "position": "QB",
+          "value": 1212,
+          "sid": "13602",
+          "reasons": [
+            "college-none"
+          ],
+          "evidence": {
+            "cfbdNameFound": {}
+          }
+        },
+        {
+          "rank": 367,
+          "name": "Kameron Johnson",
+          "team": "TBB",
+          "position": "WR",
+          "value": 1159,
+          "sid": "11994",
+          "reasons": [
+            "college-none"
+          ],
+          "evidence": {
+            "cfbdNameFound": {}
+          }
+        }
+      ]
+    },
+    "counts": {
+      "ktc-team-fallback": 2,
+      "ktc-team-disagree": 2,
+      "draft-out-of-window": 23,
+      "college-none": 7,
+      "college-disagree": 1
+    },
+    "sizes": {
+      "ktcRows": 500,
+      "ktcMatched": 464,
+      "drafts": 806,
+      "collegePlayers": 2118
+    },
+    "draftInfo": {
+      "outOfWindow": [
+        {
+          "rank": 54,
+          "name": "Dak Prescott",
+          "team": "DAL",
+          "position": "QB",
+          "value": 5204,
+          "sid": "3294",
+          "draftYear": 2016
+        },
+        {
+          "rank": 57,
+          "name": "Derrick Henry",
+          "team": "BAL",
+          "position": "RB",
+          "value": 5146,
+          "sid": "3198",
+          "draftYear": 2016
+        },
+        {
+          "rank": 61,
+          "name": "Jared Goff",
+          "team": "DET",
+          "position": "QB",
+          "value": 5033,
+          "sid": "3163",
+          "draftYear": 2016
+        },
+        {
+          "rank": 89,
+          "name": "Davante Adams",
+          "team": "LAR",
+          "position": "WR",
+          "value": 3987,
+          "sid": "2133",
+          "draftYear": 2014
+        },
+        {
+          "rank": 94,
+          "name": "Mike Evans",
+          "team": "SFO",
+          "position": "WR",
+          "value": 3772,
+          "sid": "2216",
+          "draftYear": 2014
+        },
+        {
+          "rank": 96,
+          "name": "Matthew Stafford",
+          "team": "LAR",
+          "position": "QB",
+          "value": 3671,
+          "sid": "421",
+          "draftYear": 2009
+        },
+        {
+          "rank": 149,
+          "name": "Travis Kelce",
+          "team": "KCC",
+          "position": "TE",
+          "value": 2811,
+          "sid": "1466",
+          "draftYear": 2013
+        },
+        {
+          "rank": 173,
+          "name": "Kirk Cousins",
+          "team": "LVR",
+          "position": "QB",
+          "value": 2680,
+          "sid": "1166",
+          "draftYear": 2012
+        },
+        {
+          "rank": 175,
+          "name": "Stefon Diggs",
+          "team": "WAS",
+          "position": "WR",
+          "value": 2663,
+          "sid": "2449",
+          "draftYear": 2015
+        },
+        {
+          "rank": 179,
+          "name": "Jacoby Brissett",
+          "team": "ARI",
+          "position": "QB",
+          "value": 2611,
+          "sid": "3257",
+          "draftYear": 2016
+        },
+        {
+          "rank": 193,
+          "name": "Geno Smith",
+          "team": "NYJ",
+          "position": "QB",
+          "value": 2455,
+          "sid": "1373",
+          "draftYear": 2013
+        },
+        {
+          "rank": 206,
+          "name": "Hunter Henry",
+          "team": "NEP",
+          "position": "TE",
+          "value": 2327,
+          "sid": "3214",
+          "draftYear": 2016
+        },
+        {
+          "rank": 219,
+          "name": "Aaron Rodgers",
+          "team": "PIT",
+          "position": "QB",
+          "value": 2179,
+          "sid": "96",
+          "draftYear": 2005
+        },
+        {
+          "rank": 232,
+          "name": "Jameis Winston",
+          "team": "NYG",
+          "position": "QB",
+          "value": 2100,
+          "sid": "2306",
+          "draftYear": 2015
+        },
+        {
+          "rank": 250,
+          "name": "Tyler Higbee",
+          "team": "LAR",
+          "position": "TE",
+          "value": 1923,
+          "sid": "3271",
+          "draftYear": 2016
+        },
+        {
+          "rank": 259,
+          "name": "Darren Waller",
+          "team": "CAR",
+          "position": "TE",
+          "value": 1888,
+          "sid": "2505",
+          "draftYear": 2015
+        },
+        {
+          "rank": 264,
+          "name": "Kalif Raymond",
+          "team": "CHI",
+          "position": "WR",
+          "value": 1858,
+          "sid": "3634",
+          "draftYear": 2016
+        },
+        {
+          "rank": 281,
+          "name": "Marcus Mariota",
+          "team": "WAS",
+          "position": "QB",
+          "value": 1764,
+          "sid": "2307",
+          "draftYear": 2015
+        },
+        {
+          "rank": 288,
+          "name": "Keenan Allen",
+          "team": "IND",
+          "position": "WR",
+          "value": 1700,
+          "sid": "1479",
+          "draftYear": 2013
+        },
+        {
+          "rank": 315,
+          "name": "Tyreek Hill",
+          "team": "FA",
+          "position": "WR",
+          "value": 1462,
+          "sid": "3321",
+          "draftYear": 2016
+        },
+        {
+          "rank": 346,
+          "name": "Carson Wentz",
+          "team": "MIN",
+          "position": "QB",
+          "value": 1261,
+          "sid": "3161",
+          "draftYear": 2016
+        },
+        {
+          "rank": 372,
+          "name": "Demarcus Robinson",
+          "team": "SFO",
+          "position": "WR",
+          "value": 1132,
+          "sid": "3286",
+          "draftYear": 2016
+        },
+        {
+          "rank": 397,
+          "name": "Zach Ertz",
+          "team": "PHI",
+          "position": "TE",
+          "value": 1014,
+          "sid": "1339",
+          "draftYear": 2013
+        }
+      ],
+      "noCrosswalk": [
+        {
+          "rank": 297,
+          "name": "Matthew Hibner",
+          "team": "BAL",
+          "position": "TE",
+          "value": 1611,
+          "sid": "13324"
+        },
+        {
+          "rank": 360,
+          "name": "Jack Strand",
+          "team": "ATL",
+          "position": "QB",
+          "value": 1212,
+          "sid": "13602"
+        },
+        {
+          "rank": 369,
+          "name": "CJ Daniels",
+          "team": "LAR",
+          "position": "WR",
+          "value": 1143,
+          "sid": "13270"
+        }
+      ]
+    },
+    "rushingOnlyRbs": []
+  }
+}

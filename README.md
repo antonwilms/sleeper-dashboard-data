@@ -273,7 +273,8 @@ way — see [snapshot-workflow.md](snapshot-workflow.md).
     "ktc":                { "loaded": true,  "count": 441, "detail": { "rows": 500 } },
     "priorSnapshotTeams": { "loaded": false, "count": 0 },
     "depthChart":         { "loaded": true,  "count": 671 },
-    "careerStats":        { "loaded": true,  "count": 14, "detail": { "seasons": ["2012", "...", "2025"], "provenance": { "2025": "data-store" } } }
+    "careerStats":        { "loaded": true,  "count": 14, "detail": { "seasons": ["2012", "...", "2025"], "provenance": { "2025": "data-store" } } },
+    "playerIds":          { "loaded": true,  "count": 6400, "detail": { "generatedAt": "2026-10-21T18:07:53.362Z" } }
   },
   "teamDepthCharts": {
     "BUF": {
@@ -312,9 +313,10 @@ way — see [snapshot-workflow.md](snapshot-workflow.md).
 
 **v2 is additive.** Existing v1 snapshots remain valid — `targetSeason`, `currentSeason`, and `scoringSettings` are simply absent. The grading harness falls back to the `capturedAt` heuristic (`deriveTargetSeason()`) for v1 snapshots.
 
-**`inputStatus` (v3, D1a/D1b).** Six labels for the gated projection inputs that would
+**`inputStatus` (v3, D1a/D1b).** Seven labels for the gated projection inputs that would
 otherwise fail *silently neutral* — `college`, `nflDraft`, `ktc`, `priorSnapshotTeams`,
-`depthChart`, `careerStats` — each `{ loaded: boolean, count: number|null, detail?: object }`.
+`depthChart`, `careerStats`, `playerIds` (the crosswalk the app's KTC/draft/college joins used; additive, no
+reader here) — each `{ loaded: boolean, count: number|null, detail?: object }`.
 This is a **label only**: the app's own write gate never refuses to write on a `false` (see
 `docs/architecture.md` → *Smoke-testing* in the app repo), so a v3 snapshot with a degraded
 input still exists — it is simply detectable. `priorSnapshotTeams.loaded` is legitimately
@@ -505,8 +507,10 @@ undrafted players — verified against `nflverse/draft/draft_picks.json`, not in
 is emitted explicitly so a consumer never has to read that null as "unknown." `ktc_id` is served but
 only 7% populated upstream; do not plan a join on it. `espnId`, `college` and `team` round out the
 eleven parsed columns — all three are plain strings, `null` when empty or the literal `NA`, same as
-every other id/string field here. `bySleeper` is capture-only — nothing reads it yet (see CR-18 in the
-[cross-repo index](../sleeper-dashboard/docs/cross-repo-registry.md); it is not itself a cross-repo contract).
+every other id/string field here. The app reads `ids[gsisId].name` (KTC's spelling) and `bySleeper`'s
+`draftYear`/`draftOvr`/`undrafted`/`espnId`/`college` to join KTC, the NFL draft and CFBD college stats
+(CR-31 in the [cross-repo index](../sleeper-dashboard/docs/cross-repo-registry.md)); `draftOvr` is the overall
+pick (`draft_picks.json` `pick`), `espnId` is the CFBD athlete id.
 
 **Not a bijection, and no longer forward-map-only.** Measured 2026-09-05: the source data has 5
 duplicated `gsis_id` values (harmless — colliding rows share the same `sleeper_id`) and 6 duplicated
@@ -516,14 +520,14 @@ in-memory inversion of it — a consumer needing the reverse lookup should read 
 rather than inverting `ids`.
 
 **Sparsity gate (`MIN_PLAYERID_ROWS = 5000`):** the ingest refuses to write if fewer than 5000
-`ids` rows parse (unchanged, unaffected by `bySleeper`'s wider population); there is no app-side
-gate to keep in sync since there is no app loader (not a cross-repo contract). Two further internal
+`ids` rows parse (unchanged, unaffected by `bySleeper`'s wider population); the app's `isValidPlayerIds`
+only checks `schemaVersion === 2` and the two blocks (CR-31). Two further internal
 gates apply to `bySleeper`: `birthdate` fill rate ≥ 0.95 and `pfr_id` fill rate ≥ 0.85 (measured
 0.998/0.944). No gate exists for `draft_round`/`draft_pick`/`draft_ovr` (null means undrafted, not
 sparse) or `ktc_id` (genuinely 7% populated) — a fill-rate floor on either would fire on correct data.
 
-**`inProgress: false`:** internal-only family — there is no app loader
-to keep in sync (not a cross-repo contract). Content-hash dedup means no commit when unchanged; the dedup hash now covers
+**`inProgress: false`:** the app loads this family through `tryDataStore` (`src/api/playerIds.js`, CR-31);
+the flag is convention parity with the sibling nflverse ingests. Content-hash dedup means no commit when unchanged; the dedup hash now covers
 both `ids` and `bySleeper`, so a week where only sleeper-only rows change still produces a write.
 
 **Weekly refresh:** the `nflverse-playerids.yml` GitHub Action runs every Wednesday and re-ingests

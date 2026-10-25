@@ -157,10 +157,10 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
   players (42% of `bySleeper`, verified against `nflverse/draft/draft_picks.json` — this is the *undrafted*
   population, not missing data, so it is **never** fill-rate gated) and the row instead carries `undrafted: true`.
   `ktc_id` is served but only **7% populated** (measured 2026-09-05) — real upstream sparsity, not a parser fault;
-  do not plan a join on it without independent backfill.
-- **Consumption:** **internal-only** (server-side re-key for advstats/gamelogs; no app loader). `bySleeper` is
-  capture-only as of D2 — nothing reads it yet; a future app reader is a new cross-repo coupling (see CR-18 in the
-  cross-repo index).
+  do not plan a join on `ktc_id` without independent backfill.
+- **Consumption:** server-side re-key for advstats/gamelogs, **and** read by the app's `loadPlayerIds`
+  (`src/api/playerIds.js`) to join KTC (`ids[gsisId].name` = KTC's spelling), the NFL draft (`draftYear` +
+  `draftOvr`) and CFBD college stats (`espnId`) — CR-31 in the cross-repo index.
 - **Keep-rationale:** the id substrate every gsis-keyed ingest depends on. D2 widens the parse to also serve
   `pfr_id`/`ktc_id`/`cfbref_id`/`birthdate`/draft capital/`espn_id`/`college`/`team` — all eight, plus `undrafted`,
   already present unparsed in the source file — `birthdate` is the precondition for age-curve grading. (Fix pass 1
