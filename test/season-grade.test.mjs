@@ -311,8 +311,8 @@ describe('bootstrap and permutation are deterministic', () => {
 // ─── Registry, --only, isolation ──────────────────────────────────────────────
 
 describe('STEPS registry', () => {
-  test('Slice A ships season-gate, inventory, d44, vet-calibration in that order', () => {
-    assert.deepEqual(STEPS.map(s => s.id), ['season-gate', 'inventory', 'd44', 'vet-calibration']);
+  test('Slice A ships season-gate, inventory, d44, vet-calibration in that order; Slice B appends six', () => {
+    assert.deepEqual(STEPS.map(s => s.id), ['season-gate', 'inventory', 'd44', 'vet-calibration', 'ros', 'games-l6', 'override', 'rookie', 'd60', 'listed']);
     for (const s of STEPS) assert.equal(typeof s.run, 'function');
   });
 

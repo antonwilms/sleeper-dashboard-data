@@ -97,7 +97,7 @@ _Reconciled against manifest.json by `test/manifest.test.mjs` on every `npm test
 - **Null semantics:** n/a — derived report, not a sourced dataset
 - **Consumption:** banked
 - **Keep-rationale:** projection-quality audit trail
-- **Note:** `grading/` also holds unregistered `<date>-e0a-verdict.md` and `<date>-r2flip-verdict.md` analysis reports (see Non-served artifacts) — not part of this family. The January season grade (`bin/season-grade.mjs --write`) writes the registered per-capture `grading/<captureDate>.json` for K and the first capture of each veteran segment, plus the unregistered `grading/<runDate>-season-grade-verdict.md` and `backtests/<runDate>-season-grade.json` (aggregates only).
+- **Note:** `grading/` also holds unregistered `<date>-e0a-verdict.md` and `<date>-r2flip-verdict.md` analysis reports (see Non-served artifacts) — not part of this family. The January season grade (`bin/season-grade.mjs --write`) writes the registered per-capture `grading/<captureDate>.json` for K and the first capture of each veteran segment, plus the unregistered `grading/<runDate>-season-grade-verdict.md` and `backtests/<runDate>-season-grade.json` (aggregates only). Its `rookie` step (P3 Slice B) also writes the unregistered `backtests/<runDate>-rookie-panel.json` and `backtests/<runDate>-rookie-league-panel.json` (the 2013–2026 rookie panels, `half_ppr` and `league`; no verdict md).
 
 ## Enrichment overlay
 - **Served path / subcommand / refresh:** `enrichment/{coaching,scheme,injuries,notes}.json`; `bin/enrich.mjs`; hand-authored (the one non-script family)

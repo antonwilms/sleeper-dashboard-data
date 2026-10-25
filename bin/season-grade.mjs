@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * bin/season-grade.mjs — January season grade CLI (plan january-grading-run-a §10).
+ * bin/season-grade.mjs — January season grade CLI (plans january-grading-run-a §10, january-grading-run-b).
  *
  * Thin: parses flags and dispatches to scripts/season-grade-run.mjs. Report-only — it never proposes a constant.
  *
@@ -31,6 +31,10 @@ OPTIONS
                          grading/<runDate>-season-grade-verdict.md (the last two are unregistered analysis output)
   --json                 Print the aggregate data as JSON instead of the markdown verdict
   --only <ids>           Comma-separated step ids: ${STEPS.map(s => s.id).join(', ')}
+                         (Slice B: ros = D-52 ROS grade by checkpoint; games-l6 / override = L6 games check and the healthy
+                         override, both need vet-calibration in the same list or report graded: false; rookie = D-16 + D-75,
+                         with --write also backtests/<runDate>-rookie-panel.json and -rookie-league-panel.json; d60 = not
+                         counted until the 2026 season-totals leave inProgress; listed = D-79/D-80/D-85 text)
   --run-date YYYY-MM-DD  Override the run date used in artifact names (default: today, UTC)
   -h, --help
 

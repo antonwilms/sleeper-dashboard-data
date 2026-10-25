@@ -54,7 +54,7 @@ const roundDelta = (d) => ({
  * composes each row at `basisScaleOf(wrappedLoad, targetSeason, pos)` (the interim: half constants × the as-of scale);
  * `rookieConstants` ({ rookieConstantsModel, leagueConstants }) swaps in the league-refit constants for the families present.
  */
-export function runRookieTotal({ load = ROOKIE_TOTAL_LOAD, pin = ROOKIE_TOTAL_PIN, basis = 'half_ppr', panelPath = null, rookieConstants = null } = {}) {
+export function runRookieTotal({ load = ROOKIE_TOTAL_LOAD, pin = ROOKIE_TOTAL_PIN, basis = 'half_ppr', panelPath = null, rookieConstants = null, evaluateTargetSeason = null } = {}) {
   if (!SCORING_BASIS_MODELS.includes(basis)) throw new Error(`[rookie-total] unknown basis '${basis}' — use ${SCORING_BASIS_MODELS.join('|')}`);
   if (basis === 'league' && !panelPath) throw new Error('[rookie-total] --basis league needs --rookie-panel <path> (the league --rookie panel)');
   if (basis !== 'league' && panelPath) throw new Error('[rookie-total] --rookie-panel applies only with --basis league');
@@ -134,6 +134,17 @@ export function runRookieTotal({ load = ROOKIE_TOTAL_LOAD, pin = ROOKIE_TOTAL_PI
       ...(rookieConstants ? { rookieConstants: rookieConstants.ref } : {}),   // D-45: only when a league rookie-constants file is given
     },
     bias, loso: { byGroupAll, decision: losoDecision }, decision, candidateMultipliers,
+    // P3 Slice B §7: in-memory per-row evaluation input for the January D-75 re-measure. Absent (not null) when
+    // `evaluateTargetSeason` is null, so every committed run stays byte-identical; never written to an artifact.
+    ...(evaluateTargetSeason == null ? {} : {
+      evaluate: {
+        targetSeason: evaluateTargetSeason,
+        rows: rows.filter(r => r.targetSeason === evaluateTargetSeason).map(r => ({
+          sleeperId: r.sleeperId, position: r.position, draftGroup: r.draftGroup, predTotal: r.predTotal, predPPG: r.predPPG,
+          outcomeTotalPts: r.outcomeTotalPts, outcomeGames: r.outcomeGames,
+        })),
+      },
+    }),
   };
 }
 

@@ -1,0 +1,1645 @@
+{
+ "schemaVersion": 3,
+ "capturedAt": "2026-10-06T21:07:01.424Z",
+ "targetSeason": 2026,
+ "currentSeason": 2025,
+ "scoringBasis": "custom",
+ "projectionBasis": "league",
+ "scoringSettings": {
+  "sack": 1,
+  "fgm_40_49": 4,
+  "bonus_rec_te": 0.5,
+  "bonus_rec_yd_100": 2,
+  "bonus_rush_yd_100": 2,
+  "pass_int": -1,
+  "pts_allow_0": 10,
+  "pass_2pt": 2,
+  "st_td": 6,
+  "rec_td": 6,
+  "fgm_30_39": 3,
+  "fgm_50_59": 5,
+  "xpmiss": -1,
+  "rush_td": 6,
+  "bonus_fd_wr": 0.25,
+  "rec_2pt": 2,
+  "st_fum_rec": 1,
+  "fgmiss": -1,
+  "ff": 1,
+  "rec": 0.5,
+  "pts_allow_14_20": 1,
+  "fgm_0_19": 3,
+  "int": 2,
+  "def_st_fum_rec": 1,
+  "fum_lost": -2,
+  "pts_allow_1_6": 7,
+  "kr_yd": 0.05,
+  "fgm_60p": 6,
+  "fgm_20_29": 3,
+  "pts_allow_21_27": 0,
+  "xpm": 1,
+  "rush_2pt": 2,
+  "fum_rec": 2,
+  "bonus_rec_yd_200": 1,
+  "def_st_td": 6,
+  "def_td": 6,
+  "bonus_rush_yd_200": 1,
+  "safe": 2,
+  "pass_yd": 0.04,
+  "blk_kick": 2,
+  "pass_td": 5,
+  "rush_yd": 0.1,
+  "pr_yd": 0.05,
+  "fum": 0,
+  "pts_allow_28_34": -1,
+  "pts_allow_35p": -4,
+  "fum_rec_td": 6,
+  "rec_yd": 0.1,
+  "bonus_fd_te": 0.25,
+  "bonus_fd_rb": 0.25,
+  "def_st_ff": 1,
+  "pts_allow_7_13": 4,
+  "st_ff": 1
+ },
+ "teamDepthCharts": {
+  "CIN": {
+   "QB": [
+    {
+     "playerId": "19",
+     "fullName": "Joe Flacco",
+     "depthOrder": 2,
+     "status": "Active"
+    },
+    {
+     "playerId": "260",
+     "fullName": "Josh Johnson",
+     "depthOrder": 99,
+     "status": "Active"
+    }
+   ]
+  },
+  "PIT": {
+   "QB": [
+    {
+     "playerId": "96",
+     "fullName": "Aaron Rodgers",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "LAR": {
+   "QB": [
+    {
+     "playerId": "421",
+     "fullName": "Matthew Stafford",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ],
+   "WR": [
+    {
+     "playerId": "2133",
+     "fullName": "Davante Adams",
+     "depthOrder": 2,
+     "status": "Active"
+    }
+   ],
+   "TE": [
+    {
+     "playerId": "3271",
+     "fullName": "Tyler Higbee",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "GB": {
+   "QB": [
+    {
+     "playerId": "827",
+     "fullName": "Tyrod Taylor",
+     "depthOrder": 2,
+     "status": "Active"
+    }
+   ]
+  },
+  "PHI": {
+   "QB": [
+    {
+     "playerId": "829",
+     "fullName": "Andy Dalton",
+     "depthOrder": 2,
+     "status": "Active"
+    }
+   ],
+   "TE": [
+    {
+     "playerId": "1339",
+     "fullName": "Zach Ertz",
+     "depthOrder": 99,
+     "status": "Active"
+    }
+   ]
+  },
+  "LV": {
+   "QB": [
+    {
+     "playerId": "1166",
+     "fullName": "Kirk Cousins",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ],
+   "WR": [
+    {
+     "playerId": "2334",
+     "fullName": "Phillip Dorsett",
+     "depthOrder": 99,
+     "status": "Active"
+    }
+   ]
+  },
+  "NYJ": {
+   "QB": [
+    {
+     "playerId": "1373",
+     "fullName": "Geno Smith",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ],
+   "WR": [
+    {
+     "playerId": "3200",
+     "fullName": "Sterling Shepard",
+     "depthOrder": 99,
+     "status": "Active"
+    }
+   ]
+  },
+  "KC": {
+   "TE": [
+    {
+     "playerId": "1466",
+     "fullName": "Travis Kelce",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "IND": {
+   "WR": [
+    {
+     "playerId": "3155",
+     "fullName": "Laquon Treadwell",
+     "depthOrder": 2,
+     "status": "Active"
+    },
+    {
+     "playerId": "1479",
+     "fullName": "Keenan Allen",
+     "depthOrder": 6,
+     "status": "Active"
+    }
+   ]
+  },
+  "CHI": {
+   "QB": [
+    {
+     "playerId": "1737",
+     "fullName": "Case Keenum",
+     "depthOrder": 2,
+     "status": "Active"
+    }
+   ],
+   "WR": [
+    {
+     "playerId": "3634",
+     "fullName": "Kalif Raymond",
+     "depthOrder": 3,
+     "status": "Active"
+    }
+   ]
+  },
+  "SF": {
+   "RB": [
+    {
+     "playerId": "4034",
+     "fullName": "Christian McCaffrey",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ],
+   "WR": [
+    {
+     "playerId": "2216",
+     "fullName": "Mike Evans",
+     "depthOrder": 1,
+     "status": "Active"
+    },
+    {
+     "playerId": "2197",
+     "fullName": "Brandin Cooks",
+     "depthOrder": 5,
+     "status": "Active"
+    },
+    {
+     "playerId": "3286",
+     "fullName": "Demarcus Robinson",
+     "depthOrder": 6,
+     "status": "Inactive"
+    }
+   ]
+  },
+  "NYG": {
+   "QB": [
+    {
+     "playerId": "2306",
+     "fullName": "Jameis Winston",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ],
+   "TE": [
+    {
+     "playerId": "3048",
+     "fullName": "Chris Manhertz",
+     "depthOrder": 3,
+     "status": "Active"
+    }
+   ]
+  },
+  "WAS": {
+   "QB": [
+    {
+     "playerId": "2307",
+     "fullName": "Marcus Mariota",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ],
+   "WR": [
+    {
+     "playerId": "2449",
+     "fullName": "Stefon Diggs",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "JAX": {
+   "RB": [
+    {
+     "playerId": "2359",
+     "fullName": "Ameer Abdullah",
+     "depthOrder": 3,
+     "status": "Active"
+    }
+   ]
+  },
+  "CAR": {
+   "TE": [
+    {
+     "playerId": "2505",
+     "fullName": "Darren Waller",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "MIN": {
+   "QB": [
+    {
+     "playerId": "3161",
+     "fullName": "Carson Wentz",
+     "depthOrder": 2,
+     "status": "Active"
+    }
+   ]
+  },
+  "DET": {
+   "QB": [
+    {
+     "playerId": "3163",
+     "fullName": "Jared Goff",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "BAL": {
+   "RB": [
+    {
+     "playerId": "3198",
+     "fullName": "Derrick Henry",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ],
+   "WR": [
+    {
+     "playerId": "3269",
+     "fullName": "Chris Moore",
+     "depthOrder": 6,
+     "status": "Active"
+    }
+   ],
+   "TE": [
+    {
+     "playerId": "3258",
+     "fullName": "Nick Vannett",
+     "depthOrder": 99,
+     "status": "Active"
+    }
+   ]
+  },
+  "ATL": {
+   "TE": [
+    {
+     "playerId": "3202",
+     "fullName": "Austin Hooper",
+     "depthOrder": 2,
+     "status": "Active"
+    }
+   ]
+  },
+  "NE": {
+   "TE": [
+    {
+     "playerId": "3214",
+     "fullName": "Hunter Henry",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "ARI": {
+   "QB": [
+    {
+     "playerId": "3257",
+     "fullName": "Jacoby Brissett",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "DAL": {
+   "QB": [
+    {
+     "playerId": "3294",
+     "fullName": "Dak Prescott",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "CLE": {
+   "QB": [
+    {
+     "playerId": "4017",
+     "fullName": "Deshaun Watson",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  },
+  "LAC": {
+   "TE": [
+    {
+     "playerId": "4033",
+     "fullName": "David Njoku",
+     "depthOrder": 3,
+     "status": "Inactive"
+    }
+   ]
+  },
+  "NO": {
+   "RB": [
+    {
+     "playerId": "4035",
+     "fullName": "Alvin Kamara",
+     "depthOrder": 1,
+     "status": "Active"
+    }
+   ]
+  }
+ },
+ "players": {
+  "19": {
+   "nfl_team": "CIN",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 12.1
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 1,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 1.2711349574423505,
+     "k": 3,
+     "weight": 0,
+     "value": 1.27
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 13.2,
+     "k": 7.5,
+     "weight": 0.1176,
+     "value": 11.65
+    },
+    "start": {
+     "kind": "backup",
+     "fraction": 0.1047,
+     "expected": 1.3606,
+     "remaining": 13,
+     "pNext": 0.037,
+     "starts": 0,
+     "seasonPoints": 0,
+     "starterPrior": 12.145,
+     "starterValue": 12.15,
+     "priorSource": "live"
+    }
+   }
+  },
+  "96": {
+   "nfl_team": "PIT",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 16.3
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 16.3,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 17.29
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 16.1,
+     "k": 7.5,
+     "weight": 0.3478,
+     "value": 16.77
+    }
+   }
+  },
+  "260": {
+   "nfl_team": "CIN",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 0.6
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 0,
+    "population": "ROOKIE1P",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 0.4064470995815036,
+     "k": 2.5,
+     "weight": 0,
+     "value": 0.41
+    },
+    "next": {
+     "priorKind": "projection",
+     "prior": 11.88,
+     "k": 3.5,
+     "weight": 0,
+     "value": 11.88
+    },
+    "start": {
+     "kind": "backup",
+     "fraction": 0.0342,
+     "expected": 0.445,
+     "remaining": 13,
+     "pNext": 0.0114,
+     "starts": 0,
+     "seasonPoints": 0,
+     "starterPrior": 11.875,
+     "starterValue": 11.88,
+     "priorSource": "live"
+    }
+   }
+  },
+  "421": {
+   "nfl_team": "LAR",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 23
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 23,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 20.38
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 23.79,
+     "k": 7.5,
+     "weight": 0.3478,
+     "value": 21.92
+    }
+   }
+  },
+  "827": {
+   "nfl_team": "GB",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 1.1
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 0,
+    "population": "SHORT",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 1.0009847421125817,
+     "k": 1.5,
+     "weight": 0,
+     "value": 1
+    },
+    "next": {
+     "priorKind": "projection",
+     "prior": 6.91,
+     "k": 2.5,
+     "weight": 0,
+     "value": 6.91
+    },
+    "start": {
+     "kind": "backup",
+     "fraction": 0.1449,
+     "expected": 1.8832,
+     "remaining": 13,
+     "pNext": 0.0531,
+     "starts": 0,
+     "seasonPoints": 0,
+     "starterPrior": 6.91,
+     "starterValue": 6.91,
+     "priorSource": "live"
+    }
+   }
+  },
+  "829": {
+   "nfl_team": "PHI",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 12.8
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 1,
+    "population": "SHORT",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 1.851749342753275,
+     "k": 1.5,
+     "weight": 0,
+     "value": 1.85
+    },
+    "next": {
+     "priorKind": "projection",
+     "prior": 12.78,
+     "k": 2.5,
+     "weight": 0.2857,
+     "value": 8.85
+    },
+    "start": {
+     "kind": "backup",
+     "fraction": 0.1449,
+     "expected": 1.8832,
+     "remaining": 13,
+     "pNext": 0.0531,
+     "starts": 0,
+     "seasonPoints": -1,
+     "starterPrior": 12.783,
+     "starterValue": 12.78,
+     "priorSource": "live"
+    }
+   }
+  },
+  "1166": {
+   "nfl_team": "LV",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 12.3
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 12.3,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 18.68
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 11.85,
+     "k": 7.5,
+     "weight": 0.3478,
+     "value": 15.89
+    }
+   }
+  },
+  "1339": {
+   "nfl_team": "PHI",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 9.9
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 2,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 9.9,
+     "k": 3.5,
+     "weight": 0.3636,
+     "value": 7.25
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 10.28,
+     "k": 5.5,
+     "weight": 0.2667,
+     "value": 8.23
+    }
+   }
+  },
+  "1373": {
+   "nfl_team": "NYJ",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 13.6
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 13.6,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 15.07
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 13.99,
+     "k": 7.5,
+     "weight": 0.3478,
+     "value": 14.75
+    }
+   }
+  },
+  "1466": {
+   "nfl_team": "KC",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 9.8
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 9.8,
+     "k": 3.5,
+     "weight": 0.5333,
+     "value": 12.19
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 11.97,
+     "k": 5.5,
+     "weight": 0.4211,
+     "value": 12.94
+    }
+   }
+  },
+  "1479": {
+   "nfl_team": "IND",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 5.9
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 3,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 5.9,
+     "k": 3,
+     "weight": 0.5,
+     "value": 6.83
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 9.14,
+     "k": 6,
+     "weight": 0.3333,
+     "value": 8.68
+    }
+   }
+  },
+  "1737": {
+   "nfl_team": "CHI",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 13.3
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 2,
+    "population": "SHORT",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 3.2031987120709613,
+     "k": 1.5,
+     "weight": 0.4,
+     "value": 4.47
+    },
+    "next": {
+     "priorKind": "projection",
+     "prior": 13.3,
+     "k": 2.5,
+     "weight": 0.4444,
+     "value": 13.27
+    },
+    "start": {
+     "kind": "backup",
+     "fraction": 0.2409,
+     "expected": 3.1317,
+     "remaining": 13,
+     "pNext": 0.0972,
+     "starts": 1,
+     "seasonPoints": 26.48,
+     "starterPrior": 13.297,
+     "starterValue": 18.57,
+     "priorSource": "live"
+    }
+   }
+  },
+  "2133": {
+   "nfl_team": "LAR",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 11.7
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 11.7,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 14.87
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 14.58,
+     "k": 6,
+     "weight": 0.4,
+     "value": 15.65
+    }
+   }
+  },
+  "2197": {
+   "nfl_team": "SF",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 2.4
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 1,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 2.4,
+     "k": 3,
+     "weight": 0.25,
+     "value": 1.8
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 3.03,
+     "k": 6,
+     "weight": 0.1429,
+     "value": 2.59
+    }
+   }
+  },
+  "2216": {
+   "nfl_team": "SF",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 10
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 10,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 10.72
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 9.6,
+     "k": 6,
+     "weight": 0.4,
+     "value": 10.26
+    }
+   }
+  },
+  "2306": {
+   "nfl_team": "NYG",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 15.2
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 3,
+    "population": "SHORT",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 6.4242760066561235,
+     "k": 1.5,
+     "weight": 0.6667,
+     "value": 5.21
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 13.01,
+     "k": 7.5,
+     "weight": 0.2857,
+     "value": 12.4
+    },
+    "start": {
+     "kind": "starter",
+     "fraction": 0.4231,
+     "expected": 5.4999,
+     "remaining": 13,
+     "pNext": 0.7287,
+     "starts": 3,
+     "seasonPoints": 32.66,
+     "starterPrior": 15.185,
+     "starterValue": 12.32,
+     "priorSource": "live"
+    }
+   }
+  },
+  "2307": {
+   "nfl_team": "WAS",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 11.3
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 3,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 4.084193748226549,
+     "k": 3,
+     "weight": 0.25,
+     "value": 5.18
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 12.95,
+     "k": 7.5,
+     "weight": 0.2857,
+     "value": 12.92
+    },
+    "start": {
+     "kind": "backup",
+     "fraction": 0.361,
+     "expected": 4.6936,
+     "remaining": 13,
+     "pNext": 0.1674,
+     "starts": 1,
+     "seasonPoints": 38.5,
+     "starterPrior": 11.312,
+     "starterValue": 14.34,
+     "priorSource": "live"
+    }
+   }
+  },
+  "2334": {
+   "nfl_team": "LV",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 3.2
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 0,
+    "population": "SHORT",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 3.2,
+     "k": 1,
+     "weight": 0,
+     "value": 3.2
+    },
+    "next": {
+     "priorKind": "projection",
+     "prior": 3.2,
+     "k": 2.5,
+     "weight": 0,
+     "value": 3.2
+    }
+   }
+  },
+  "2359": {
+   "nfl_team": "JAX",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 3.7
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 3.7,
+     "k": 2.5,
+     "weight": 0.6154,
+     "value": 3.69
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 4.43,
+     "k": 4,
+     "weight": 0.5,
+     "value": 4.06
+    }
+   }
+  },
+  "2449": {
+   "nfl_team": "WAS",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 9.3
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 9.3,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 10.56
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 11.15,
+     "k": 6,
+     "weight": 0.4,
+     "value": 11.29
+    }
+   }
+  },
+  "2505": {
+   "nfl_team": "CAR",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 9.8
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 9.8,
+     "k": 3.5,
+     "weight": 0.5333,
+     "value": 10.18
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 10.24,
+     "k": 5.5,
+     "weight": 0.4211,
+     "value": 10.36
+    }
+   }
+  },
+  "3048": {
+   "nfl_team": "NYG",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 0.2
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 0.2,
+     "k": 3.5,
+     "weight": 0.5333,
+     "value": 0.09
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 0.1,
+     "k": 5.5,
+     "weight": 0.4211,
+     "value": 0.06
+    }
+   }
+  },
+  "3155": {
+   "nfl_team": "IND",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 1.9
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 1.9,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 3.39
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 0,
+     "k": 6,
+     "weight": 0.4,
+     "value": 1.81
+    }
+   }
+  },
+  "3161": {
+   "nfl_team": "MIN",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 2.2
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 2,
+    "population": "SHORT",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 4.831073874963142,
+     "k": 1.5,
+     "weight": 0.5714,
+     "value": 4.83
+    },
+    "next": {
+     "priorKind": "projection",
+     "prior": 14.28,
+     "k": 2.5,
+     "weight": 0.4444,
+     "value": 14.27
+    },
+    "start": {
+     "kind": "backup",
+     "fraction": 0.3384,
+     "expected": 4.3987,
+     "remaining": 13,
+     "pNext": 0.1525,
+     "starts": 2,
+     "seasonPoints": 28.54,
+     "starterPrior": 14.278,
+     "starterValue": 14.27,
+     "priorSource": "live"
+    }
+   }
+  },
+  "3163": {
+   "nfl_team": "DET",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 23.1
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 23.1,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 23.48
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 19.94,
+     "k": 7.5,
+     "weight": 0.3478,
+     "value": 21.27
+    }
+   }
+  },
+  "3198": {
+   "nfl_team": "BAL",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 22.7
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 22.7,
+     "k": 2.5,
+     "weight": 0.6154,
+     "value": 23.16
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 17.87,
+     "k": 4,
+     "weight": 0.5,
+     "value": 20.66
+    }
+   }
+  },
+  "3200": {
+   "nfl_team": "NYJ",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 2.8
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 2,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 2.8,
+     "k": 3,
+     "weight": 0.4,
+     "value": 2.24
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 5.15,
+     "k": 6,
+     "weight": 0.25,
+     "value": 4.22
+    }
+   }
+  },
+  "3202": {
+   "nfl_team": "ATL",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 3.7
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 3.7,
+     "k": 3.5,
+     "weight": 0.5333,
+     "value": 3.79
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 3.88,
+     "k": 5.5,
+     "weight": 0.4211,
+     "value": 3.88
+    }
+   }
+  },
+  "3214": {
+   "nfl_team": "NE",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 14.4
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 14.4,
+     "k": 3.5,
+     "weight": 0.5333,
+     "value": 10.29
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 11.15,
+     "k": 5.5,
+     "weight": 0.4211,
+     "value": 9.28
+    }
+   }
+  },
+  "3257": {
+   "nfl_team": "ARI",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 14.5
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 14.5,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 16.07
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 18.46,
+     "k": 7.5,
+     "weight": 0.3478,
+     "value": 18.04
+    }
+   }
+  },
+  "3258": {
+   "nfl_team": "BAL",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 1.1
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 0,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 1.1,
+     "k": 3.5,
+     "weight": 0,
+     "value": 1.1
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 0,
+     "k": 5.5,
+     "weight": 0,
+     "value": 0
+    }
+   }
+  },
+  "3269": {
+   "nfl_team": "BAL",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 1.7
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 3,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 1.7,
+     "k": 3,
+     "weight": 0.5,
+     "value": 5.14
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 3.09,
+     "k": 6,
+     "weight": 0.3333,
+     "value": 4.92
+    }
+   }
+  },
+  "3271": {
+   "nfl_team": "LAR",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 8.9
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 8.9,
+     "k": 3.5,
+     "weight": 0.5333,
+     "value": 8.9
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 7.46,
+     "k": 5.5,
+     "weight": 0.4211,
+     "value": 8.07
+    }
+   }
+  },
+  "3286": {
+   "nfl_team": "SF",
+   "status": "Inactive",
+   "projection": {
+    "projectedPPG": 2.5
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 2,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 2.5,
+     "k": 3,
+     "weight": 0.4,
+     "value": 5.08
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 3.62,
+     "k": 6,
+     "weight": 0.25,
+     "value": 4.95
+    }
+   }
+  },
+  "3294": {
+   "nfl_team": "DAL",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 22.1
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 22.1,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 22.36
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 20.81,
+     "k": 7.5,
+     "weight": 0.3478,
+     "value": 21.42
+    }
+   }
+  },
+  "3634": {
+   "nfl_team": "CHI",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 2.7
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 2.7,
+     "k": 3,
+     "weight": 0.5714,
+     "value": 7.61
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 5.23,
+     "k": 6,
+     "weight": 0.4,
+     "value": 7.66
+    }
+   }
+  },
+  "4017": {
+   "nfl_team": "CLE",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 24.4
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "SHORT",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 24.4,
+     "k": 1.5,
+     "weight": 0.7273,
+     "value": 20.27
+    },
+    "next": {
+     "priorKind": "projection",
+     "prior": 24.37,
+     "k": 2.5,
+     "weight": 0.6154,
+     "value": 20.9
+    }
+   }
+  },
+  "4033": {
+   "nfl_team": "LAC",
+   "status": "Inactive",
+   "projection": {
+    "projectedPPG": 9.1
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 2,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 9.1,
+     "k": 3.5,
+     "weight": 0.3636,
+     "value": 8.24
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 7.34,
+     "k": 5.5,
+     "weight": 0.2667,
+     "value": 7.17
+    }
+   }
+  },
+  "4034": {
+   "nfl_team": "SF",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 23.2
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 4,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 23.2,
+     "k": 2.5,
+     "weight": 0.6154,
+     "value": 19.65
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 23.48,
+     "k": 4,
+     "weight": 0.5,
+     "value": 20.46
+    }
+   }
+  },
+  "4035": {
+   "nfl_team": "NO",
+   "status": "Active",
+   "projection": {
+    "projectedPPG": 9.1
+   },
+   "inSeason": {
+    "season": 2026,
+    "n": 3,
+    "population": "standard",
+    "frozen": false,
+    "priorSource": "live",
+    "notFrozenReason": "model-changed",
+    "ros": {
+     "prior": 9.1,
+     "k": 2.5,
+     "weight": 0.5455,
+     "value": 9.75
+    },
+    "next": {
+     "priorKind": "history",
+     "prior": 8.27,
+     "k": 4,
+     "weight": 0.4286,
+     "value": 9.13
+    }
+   }
+  }
+ }
+}

@@ -4,19 +4,27 @@
  * Offline analysis, not the snapshot grader (Invariant 9): the vet-calibration step RECOMPOSES projections (replay R), it
  * never re-runs the app pipeline. Report-only: it emits numbers and labels, never a constant or a wiring recommendation.
  *
- * `STEPS` is the ordered step registry; Slice B appends `ros`, `games-l6`, `override`, `rookie`, `d60`, `listed` without
- * touching Slice A's steps. Each step after the season gate runs in its own try/catch (the update-playerstats precedent).
+ * `STEPS` is the ordered step registry; Slice B appended `ros`, `games-l6`, `override`, `rookie`, `d60`, `listed` after
+ * Slice A's steps without touching them. Each step after the season gate runs in its own try/catch (the update-playerstats precedent).
  */
 
 import fs from 'node:fs';
 import { readJson, repoPath, writeJsonStable } from '../lib/io.mjs';
-import { loadLeaguePositions } from '../lib/leagueBasis.mjs';
+import { loadLeaguePositions, rescoreSeasonRowsLeague, leagueBasisLoad, basisScaleOf } from '../lib/leagueBasis.mjs';
+import { normalizeTeamForSchedule } from '../lib/sleeper.mjs';
+import { buildRankIndex, rel3Of, GAMES_CAL_DEFAULTS } from '../lib/gamesCalibration.mjs';
+import { ROOKIE_TOTAL, biasSummary } from '../lib/rookieTotalPoints.mjs';
+import { ROOKIE_TOTAL_FACTOR } from '../lib/rookieMirror.mjs';
+import { inSeasonCheck } from './games-short-run.mjs';
+import { runRookiePanels, quantile, leagueLoadArgs, DEFAULT_LOAD as PANEL_DEFAULT_LOAD } from './panel-run.mjs';
+import { runRookieTotal, ROOKIE_TOTAL_LOAD } from './rookie-total-run.mjs';
 import { pinnedQbChainModels } from '../lib/projectionFactors.mjs';
 import {
   KICKOFF_2026_UTC, VETERAN_SEGMENTS, MECH_PAIRS, POSITIONS, HISTORY_MEDIANS, MIN_CELL, BOOT,
   evaluateSeasonGate, classifyCapture, crossCheckClassification,
   metricOf, segmentStats, sampleOk, materializeRows, bootCI, permutationTest,
   calibrationLabel, historyLabel, agreeLabel, pooledDiffLabel,
+  rosCalendar, pickCheckpointCapture, buildRosRows, rosCheckpointReport, gamesL6Report, d16Label, d75Label, pairedDelta,
 } from '../lib/seasonGrade.mjs';
 import {
   vetEntries, chartPositions, gIdentity, gDepth, gTables, gQbChain, gAgeTable, boundaryGuard,
@@ -38,6 +46,10 @@ export const DEFAULT_LOAD = {
   loadPositionOf:    () => loadLeaguePositions(),
   loadRoster:        (year) => readJson(`nflverse/roster/${year}.json`),
   loadQbConstants:   () => readJson('backtests/2026-10-03-qb-takeover-constants.json'),
+  // Slice B (§5a)
+  rookiePanelLoad:   () => PANEL_DEFAULT_LOAD,
+  rookieTotalLoad:   () => ROOKIE_TOTAL_LOAD,
+  loadRookieLeagueConstants: () => readJson('backtests/2026-10-17-rookie-league-constants.json'),
 };
 
 const LAST_SEGMENT = VETERAN_SEGMENTS[VETERAN_SEGMENTS.length - 1];
@@ -602,6 +614,379 @@ async function stepVetCalibration(ctx) {
   return { section, artifacts: [] };
 }
 
+// ─── Slice B (plan january-grading-run-b) ─────────────────────────────────────
+//
+// No-throw rule (§10a): a B step must not block Slice A's aggregate write. In the real `--write` run (ctx.write true and
+// not rehearsing) a failure degrades to a `computed: false` section; in every other mode — `--rehearse` with or without
+// `--write`, a plain run, every test — the error is re-thrown so A's per-step isolation fails the step and the bug surfaces now.
+
+const B_TITLES = {
+  ros: 'Rest-of-season grade by checkpoint (D-52 inSeason.ros)',
+  'games-l6': 'L6 games check (D-52)',
+  override: 'In-season healthy override (D-52)',
+  rookie: 'Rookie class — D-16 ceiling and D-75 total factor',
+  d60: 'D-60 satLonger recount (not counted)',
+  listed: 'Listed, not built',
+};
+
+const canDegrade = (ctx) => ctx.write === true && ctx.rehearse !== true;
+
+function degradeOrThrow(ctx, stepId, e) {
+  if (!canDegrade(ctx)) throw e;
+  const stamp = stampOf(ctx);
+  return {
+    section: {
+      id: stepId, title: B_TITLES[stepId], placement: 'main',
+      md: `**⚠ NOT COMPUTED — ${stepId}: ${e.message}**` + (stamp ? `\n\n**${stamp}**` : ''),
+      data: { computed: false, error: e.message },
+    },
+    artifacts: [],
+  };
+}
+
+/** Part-level isolation inside a step: { value } on success; { failed } (degraded) or a re-throw. */
+async function part(ctx, label, fn) {
+  try { return { value: await fn() }; } catch (e) {
+    if (!canDegrade(ctx)) throw e;
+    return { failed: { computed: false, error: e.message, banner: `**⚠ ${label} not computed — ${e.message}**` } };
+  }
+}
+
+const bSection = (ctx, id, md, data, artifacts = []) => {
+  const stamp = stampOf(ctx);
+  return { section: { id, title: B_TITLES[id], placement: 'main', md: (stamp ? `**${stamp}**\n\n` : '') + md, data }, artifacts };
+};
+
+/** Every inventory calendar checkpoint with its picked capture: [{ cal, pick }], c = 1…17. */
+function checkpointPicks(ctx) {
+  const entries = ctx.inventory().entries;
+  return rosCalendar().map(cal => ({ cal, pick: pickCheckpointCapture(cal, entries) }));
+}
+
+const sumBy = (o) => Object.values(o).reduce((a, v) => a + v, 0);
+
+// ── ros ───────────────────────────────────────────────────────────────────────
+
+const rosRowMd = (label, cell) => {
+  if (!cell) return `| ${label} | — |`;
+  const d = (v) => `${fmt(v.mean)} ${fmtCI(v.ci)} n=${v.n} ${v.label}`;
+  return `| ${label} | ${cell.n} | ${cell.label} | ${fmt(cell.mae)} | ${fmt(cell.bias)} | ${d(cell.vsPrior)} | ${d(cell.vsObserved)} |`;
+};
+
+async function stepRos(ctx) {
+  try {
+    const inv = ctx.inventory();
+    const firstLast = inv.segments.at(-1)?.first;
+    if (firstLast == null) throw new Error('no capture in the last veteran segment');
+    const sRef = ctx.snapshot(firstLast);
+    const totals = ctx.totals(2026);
+    if (!totals) throw new Error('nfl/season-totals/2026.json missing');
+    const { positionOf: sPositionOf } = resolvePositionOf(sRef, ctx.load);
+    const rescored = rescoreSeasonRowsLeague(totals, sRef.scoringSettings, sPositionOf);
+    const scoredRows = Object.entries(rescored).filter(([id]) => !id.startsWith('TEAM_'));
+    const scaled = scoredRows.filter(([, r]) => r?.weeklyPointsMethod === 'scaled').length;
+    const schedule = ctx.load.loadSchedule(2026) ?? null;
+
+    const L = [];
+    L.push('League points per week from `rescoreSeasonRowsLeague` (D-71 → `exact`); ' + `${scaled} of ${scoredRows.length} 2026 rows are \`scaled\`.`);
+    L.push('Caveat: on live-prior rows (`priorSource: live`) `ros.prior` is the current, leaky projection, so Δ vs prior is not out-of-sample.', '');
+    const checkpoints = [];
+    for (const { cal, pick } of checkpointPicks(ctx)) {
+      const rec = { c: cal.c, thursday: cal.thursday, closeUtc: cal.closeUtc, windowEndUtc: cal.windowEndUtc, status: pick.status, date: pick.date };
+      if (pick.date == null) {
+        L.push(`**c=${cal.c}** (closes ${cal.closeUtc}) — ${pick.status}`, '');
+        checkpoints.push(rec);
+        continue;
+      }
+      const snap = ctx.snapshot(pick.date);
+      const positionOf = makePositionOf(snap, ctx);
+      const built = buildRosRows(snap, { rescored, schedule, positionOf, c: cal.c, teamOf: (id, p) => normalizeTeamForSchedule(p?.nfl_team) });
+      rec.nConsistency = built.nConsistency;
+      rec.counts = built.counts;
+      if (built.nConsistency.share < 0.99) {
+        rec.status = 'n-inconsistent';
+        L.push(`**c=${cal.c}** \`${pick.date}\` (${pick.status}) — n-inconsistent: ${fmt(built.nConsistency.share * 100, 1)}% of ${built.nConsistency.n} rows have their n-th P week ≤ c+1; excluded`, '');
+        checkpoints.push(rec);
+        continue;
+      }
+      rec.perGame = rosCheckpointReport(built.perGame);
+      rec.start = rosCheckpointReport(built.start);
+      L.push(`**c=${cal.c}** \`${pick.date}\` (${pick.status}) — n-consistency ${fmt(built.nConsistency.share * 100, 1)}% of ${built.nConsistency.n}; excluded ${JSON.stringify(built.counts)}`, '');
+      L.push('| cell | players | cell label | MAE | bias | Δ abs-err vs prior | Δ abs-err vs observed-to-date |', '|---|---|---|---|---|---|---|');
+      for (const pos of POSITIONS) L.push(rosRowMd(`(a) ${pos}`, rec.perGame[pos]));
+      L.push(rosRowMd('(b) QB start rows', rec.start.QB));
+      for (const [name, rep] of [['(a)', rec.perGame], ['(b)', rec.start]]) {
+        if (rep.split.degenerate) L.push('', `${name} ${rep.split.line}`);
+        else {
+          L.push('', `${name} frozen/live split:`, '', '| cell | players | cell label | MAE | bias | Δ abs-err vs prior | Δ abs-err vs observed-to-date |', '|---|---|---|---|---|---|---|');
+          for (const g of ['frozen', 'live']) for (const pos of POSITIONS) L.push(rosRowMd(`${g} ${pos}`, rep.split[g][pos]));
+        }
+      }
+      L.push('');
+      checkpoints.push(rec);
+    }
+    return bSection(ctx, 'ros', L.join('\n'), { stamp: stampOf(ctx), scaledRows: scaled, scoredRows: scoredRows.length, checkpoints });
+  } catch (e) { return degradeOrThrow(ctx, 'ros', e); }
+}
+
+// ── games-l6 / override share the L6 rows ─────────────────────────────────────
+
+const L6_STATES = new Set(['short', 'none', 'qual']);
+
+/** §6.2 rows: P's veterans through S(i) (leak-free). → { rows, excluded } */
+function l6RowsOf(ctx) {
+  const { P, S, replay } = ctx.shared;
+  const totals26 = ctx.totals(2026);
+  const crosswalkPositionOf = {};
+  for (const e of Object.values(ctx.load.loadPlayerIds()?.ids ?? {})) if (e?.sleeperId && e?.position) crosswalkPositionOf[e.sleeperId] = e.position;
+  const rankIndex = buildRankIndex({ 2023: ctx.totals(2023), 2024: ctx.totals(2024), 2025: ctx.totals(2025) }, crosswalkPositionOf, [2023, 2024, 2025], POSITIONS);
+  const excluded = { imputed: 0, dropped: 0, missingField: 0, rel3NoPosition: 0 };
+  const byDate = new Map();
+  for (const id of Object.keys(P)) {
+    if (!S[id]) { if (replay?.R?.[id]?.imputed === true) excluded.imputed++; else excluded.dropped++; continue; }
+    if (!byDate.has(S[id])) byDate.set(S[id], []);
+    byDate.get(S[id]).push(id);
+  }
+  const rows = [];
+  for (const [date, ids] of [...byDate.entries()].sort()) {
+    const snap = ctx.snapshot(date);
+    for (const id of ids) {
+      const proj = snap.players?.[id]?.projection;
+      const l6c = proj?.projectedGames, base = proj?.factors?.projectedGamesBase, state = proj?.factors?.shortSeasonState;
+      if (!Number.isFinite(l6c) || !Number.isFinite(base) || !L6_STATES.has(state)) { excluded.missingField++; continue; }
+      const position = crosswalkPositionOf[id];
+      let rel3 = false;
+      if (!POSITIONS.includes(position)) excluded.rel3NoPosition++;
+      else rel3 = rel3Of({ id, S: 2025, position }, rankIndex, GAMES_CAL_DEFAULTS);
+      rows.push({ id, state, l6c, base, realised: totals26?.[id]?.gamesPlayed ?? 0, rel3 });
+    }
+  }
+  return { rows, excluded };
+}
+
+const NEEDS_VET = 'needs vet-calibration (ctx.shared.S absent)';
+
+async function stepGamesL6(ctx) {
+  try {
+    if (ctx.shared.S === undefined) {
+      return bSection(ctx, 'games-l6', `Not graded — ${NEEDS_VET}.`, { graded: false, reason: NEEDS_VET });
+    }
+    const { rows, excluded } = l6RowsOf(ctx);
+    const rep = gamesL6Report(rows, { excluded });
+    const L = [`Rows: ${rows.length} graded; excluded ${JSON.stringify(rep.excluded)}. L6c = \`projectedGames\`, base = \`factors.projectedGamesBase\` (S(i) captures, leak-free); realised = 2026 \`gamesPlayed\` so far (no row = 0).`, '',
+      '| cell | n | MAE L6c | MAE base | bias L6c | bias base | Δ abs-err (L6c − base) | label |', '|---|---|---|---|---|---|---|---|'];
+    const cells = [...['short', 'none', 'qual'].map(s => [`state ${s}`, rep.byState[s]]), ['rel3', rep.rel3]];
+    for (const [name, c] of cells) L.push(`| ${name} | ${c.n} | ${fmt(c.mae.l6c)} | ${fmt(c.mae.base)} | ${fmt(c.bias.l6c)} | ${fmt(c.bias.base)} | ${fmt(c.delta.mean)} ${fmtCI(c.delta.ci)} | ${c.delta.label} |`);
+    return bSection(ctx, 'games-l6', L.join('\n'), { graded: true, stamp: stampOf(ctx), ...rep, rows: rows.length });
+  } catch (e) { return degradeOrThrow(ctx, 'games-l6', e); }
+}
+
+async function stepOverride(ctx) {
+  try {
+    // §6.4: `next` blocks are recorded, not graded; counted on the checkpoint captures, needing no ctx.shared.
+    const nextCounts = {};
+    for (const { cal, pick } of checkpointPicks(ctx)) {
+      if (pick.date == null) continue;
+      const snap = ctx.snapshot(pick.date);
+      const positionOf = makePositionOf(snap, ctx);
+      const byPos = { QB: 0, RB: 0, WR: 0, TE: 0, UNK: 0 };
+      for (const [id, p] of Object.entries(snap.players ?? {})) {
+        if (p?.inSeason?.season !== 2026 || !p.inSeason.next) continue;
+        byPos[positionOf(id) ?? 'UNK']++;
+      }
+      nextCounts[cal.c] = { date: pick.date, ...byPos };
+    }
+    const L = [];
+    if (ctx.shared.S === undefined) {
+      L.push(`Healthy override not graded — ${NEEDS_VET}.`);
+    }
+    let check = null, excluded = null;
+    if (ctx.shared.S !== undefined) {
+      const l = l6RowsOf(ctx);
+      excluded = l.excluded;
+      const rows = l.rows.map(r => ({ id: r.id, S: 2025, sState: r.state, star: r.rel3, p: { SOf0: r.l6c, C0: r.base } }));
+      check = inSeasonCheck(rows, { 2026: ctx.totals(2026) });
+      L.push(`\`inSeasonCheck\` on ${rows.length} rows; excluded ${JSON.stringify(excluded)}; no 2026 row: ${check.noRow}. Rule outcome (verbatim): \`${check.inSeasonRule}\`.`, '');
+      L.push('| group | ' + check.checkpoints.map(w => `w=${w}`).join(' | ') + ' |', '|---|' + check.checkpoints.map(() => '---').join('|') + '|');
+      for (const [g, byW] of Object.entries(check.groups)) {
+        L.push(`| ${g} | ` + check.checkpoints.map(w => { const x = byW[w]; return x.n ? `n=${x.n} cut ${fmt(x.cut.mae, 2)} / base ${fmt(x.base.mae, 2)}` : 'n=0'; }).join(' | ') + ' |');
+      }
+    }
+    L.push('', '**`inSeason.next` blocks (recorded, not graded; the grade needs 2027 outcomes):**', '', '| c | capture | QB | RB | WR | TE | UNK |', '|---|---|---|---|---|---|---|');
+    for (const [c, v] of Object.entries(nextCounts)) L.push(`| ${c} | ${v.date} | ${v.QB} | ${v.RB} | ${v.WR} | ${v.TE} | ${v.UNK} |`);
+    if (!Object.keys(nextCounts).length) L.push('| — | no checkpoint capture yet | | | | | |');
+    const data = { stamp: stampOf(ctx), graded: check != null, ...(check == null ? { reason: NEEDS_VET } : { excluded, check }), nextCounts };
+    return bSection(ctx, 'override', L.join('\n'), data);
+  } catch (e) { return degradeOrThrow(ctx, 'override', e); }
+}
+
+// ── rookie ────────────────────────────────────────────────────────────────────
+
+/** Leave-one-class-year-out QB asymptote (p99 of gp ≥ 8 debut PPG), per class year present in the rows. */
+export function qbAsymptoteLoco(rows) {
+  const years = [...new Set(rows.map(r => r.entryYear).filter(y => Number.isFinite(y) && y >= 2013 && y <= 2026))].sort((a, b) => a - b);
+  const folds = years.map((y) => {
+    const values = rows.filter(r => r.position === 'QB' && r.outcomeGames >= 8 && r.outcomePPG != null && r.entryYear !== y).map(r => r.outcomePPG).sort((a, b) => a - b);
+    return { y, asymptote: values.length ? Math.round(quantile(values, 0.99) * 100) / 100 : null, n: values.length };
+  });
+  const vals = folds.map(f => f.asymptote).filter(v => v != null);
+  return { folds, min: vals.length ? Math.min(...vals) : null, max: vals.length ? Math.max(...vals) : null, classes: years.length };
+}
+
+/**
+ * D-75 arms (§7): rows are `evaluate.rows`; `shipped`/`league` are { day3, undrafted } totalFactors. Both arms are
+ * predTotal × factor. Per decision group → { n, players, ratioH, ratioL, delta, label }; null-safe (§10a guard 1).
+ */
+export function rookieTotalArms(rows, { shipped, league }) {
+  const out = {};
+  for (const g of ROOKIE_TOTAL.decisionGroups) {
+    const rs = rows.filter(r => r.draftGroup === g && ROOKIE_TOTAL.decisionPositions.includes(r.position));
+    if (!rs.length) {
+      out[g] = { n: 0, players: 0, ratioH: { value: null, ci: null }, ratioL: { value: null, ci: null }, delta: { mean: null, ci: null }, label: 'insufficient' };
+      continue;
+    }
+    const arm = (f) => rs.map(r => ({ ...r, predTotal: r.predTotal * f }));
+    const H = biasSummary(arm(shipped[g])), Lg = biasSummary(arm(league[g]));
+    const d = pairedDelta(rs.map(r => r.sleeperId), rs.map(r => Math.abs(r.predTotal * league[g] - r.outcomeTotalPts) - Math.abs(r.predTotal * shipped[g] - r.outcomeTotalPts)), ROOKIE_TOTAL.bootstrap);
+    out[g] = {
+      n: rs.length, players: H.players,
+      ratioH: { value: H.ratio, ci: H.ci95 }, ratioL: { value: Lg.ratio, ci: Lg.ci95 },
+      delta: { mean: d.mean, ci: d.ci },
+      label: d75Label({ n: rs.length, ratioH: H.ratio, ratioL: Lg.ratio, deltaCi: d.ci }),
+    };
+  }
+  return out;
+}
+
+const countBy3 = (rows) => {
+  const out = {};
+  for (const r of rows) {
+    const k = `${r.position}|${r.draftGroup ?? 'unknown'}`;
+    (out[k] ??= {})[r.outcomeClass] = (out[k][r.outcomeClass] ?? 0) + 1;
+  }
+  return out;
+};
+
+async function stepRookie(ctx) {
+  try {
+    const L = [];
+    const data = { stamp: stampOf(ctx), parts: {} };
+    const artifacts = [];
+    let panelLoad, half, league;
+    const note = (name, failed) => { data.parts[name] = failed; L.push(failed.banner, ''); };
+
+    // D-16 half (i)(ii)(iii)
+    const h = await part(ctx, 'D-16 (half_ppr)', () => {
+      panelLoad = ctx.load.rookiePanelLoad();
+      half = runRookiePanels({ load: panelLoad, basis: 'half_ppr', entryToYear: 2026 });
+      const debut26 = half.debut.rows.filter(r => r.entryYear === 2026);
+      const loco = qbAsymptoteLoco(half.debut.rows);
+      const obs = half.ceiling.observed.QB.asymptote;
+      return { debutCounts: countBy3(debut26), nDebut2026: debut26.length, ceiling: half.ceiling, loco, label: d16Label(obs) };
+    });
+    L.push('### D-16 — 2026 rookie class', '');
+    if (h.failed) note('d16-half', h.failed);
+    else {
+      const v = h.value;
+      data.parts['d16-half'] = v;
+      L.push(`(i) 2026-class debut rows: ${v.nDebut2026}. Position | draft group → outcome classes (games-based, basis-free):`, '');
+      for (const [k, c] of Object.entries(v.debutCounts).sort()) L.push(`- ${k.replace('|', ' | ')}: ${Object.entries(c).map(([a, b]) => `${a} ${b}`).join(', ')}`);
+      L.push('', '(ii) Ceiling reconciliation, classes 2013–2026 vs `APP_ROOKIE_CEILING` (half-PPR):', '', '| pos | n | knee obs / app / Δ | asymptote obs / app / Δ | match |', '|---|---|---|---|---|');
+      for (const pos of Object.keys(v.ceiling.observed)) {
+        const o = v.ceiling.observed[pos], e = v.ceiling.expected[pos], d = v.ceiling.delta[pos];
+        L.push(`| ${pos} | ${o.n} | ${fmt(o.knee, 2)} / ${fmt(e.knee, 2)} / ${fmt(d.knee, 2)} | ${fmt(o.asymptote, 2)} / ${fmt(e.asymptote, 2)} / ${fmt(d.asymptote, 2)} | ${v.ceiling.match[pos]} |`);
+      }
+      L.push('', `(iii) QB asymptote, leave-one-class-year-out over ${v.loco.classes} classes: min ${fmt(v.loco.min, 2)}, max ${fmt(v.loco.max, 2)}${v.loco.classes !== 14 ? ` — classes = ${v.loco.classes} (expected 14)` : ''}.`);
+      L.push(`Label (2013–2026 asymptote ${fmt(v.ceiling.observed.QB.asymptote, 2)} vs [20.50, 21.95]): **${v.label}**.`);
+    }
+
+    // D-16 league
+    const lg = await part(ctx, 'D-16 (league)', () => {
+      panelLoad ??= ctx.load.rookiePanelLoad();
+      league = runRookiePanels({ load: panelLoad, basis: 'league', entryToYear: 2026 });
+      return { nDebut2026: league.debut.rows.filter(r => r.entryYear === 2026).length };
+    });
+    if (lg.failed) note('d16-league', lg.failed); else data.parts['d16-league'] = lg.value;
+
+    // (iv)
+    const iv = await part(ctx, 'D-16 (iv)', () => {
+      if (!half || !league) throw new Error('needs both rookie panels');
+      const qb = (rows) => rows.filter(r => r.entryYear === 2026 && r.position === 'QB' && r.outcomeGames >= 8 && r.outcomePPG != null);
+      const asym = half.ceiling.expected.QB.asymptote;
+      const scale = basisScaleOf(leagueBasisLoad(panelLoad, leagueLoadArgs(panelLoad)), 2026, 'QB');
+      return {
+        asymptote: asym, scale,
+        half: { n: qb(half.debut.rows).length, above: qb(half.debut.rows).filter(r => r.outcomePPG > asym).length },
+        league: { n: qb(league.debut.rows).length, threshold: asym * scale, above: qb(league.debut.rows).filter(r => r.outcomePPG > asym * scale).length },
+      };
+    });
+    if (iv.failed) note('d16-iv', iv.failed);
+    else {
+      data.parts['d16-iv'] = iv.value;
+      const x = iv.value;
+      L.push(`(iv) 2026-class QB debuts with gp ≥ 8 above the app asymptote ${fmt(x.asymptote, 2)} (half-PPR): ${x.half.above} of ${x.half.n}; above ${fmt(x.league.threshold, 2)} (= ${fmt(x.asymptote, 2)} × basis scale ${fmt(x.scale, 4)}, league): ${x.league.above} of ${x.league.n}.`);
+    }
+    L.push('');
+
+    // artifacts
+    if (ctx.write) {
+      for (const [obj, name] of [[half, 'rookie-panel'], [league, 'rookie-league-panel']]) {
+        if (!obj) continue;
+        const rel = `backtests/${ctx.runDate}-${name}.json`;
+        const w = await part(ctx, `artifact ${rel}`, () => { writeJsonStable(rel, obj); return rel; });
+        if (w.failed) note(`artifact-${name}`, w.failed); else artifacts.push({ path: rel, registered: false });
+      }
+    }
+
+    // D-75
+    L.push('### D-75 — ROOKIE_TOTAL_FACTOR league re-measure (2026 day3 / undrafted RB·WR·TE)', '');
+    const d75 = await part(ctx, 'D-75', () => {
+      if (!league) throw new Error('league rookie panel unavailable');
+      const consts = ctx.load.loadRookieLeagueConstants();
+      if (!consts) throw new Error('league constants file missing: backtests/2026-10-17-rookie-league-constants.json');
+      const lf = consts?.families?.F4?.constants?.totalFactor;
+      if (lf?.day3 == null || lf?.undrafted == null) throw new Error('F4 totalFactor incomplete');
+      const result = runRookieTotal({
+        load: { ...ctx.load.rookieTotalLoad(), loadLeaguePanel: () => league }, basis: 'league',
+        panelPath: `<in-memory league rookie panel, ${ctx.runDate}>`, evaluateTargetSeason: 2026,
+      });
+      const shipped = ROOKIE_TOTAL_FACTOR;
+      return { shipped, league: { day3: lf.day3, undrafted: lf.undrafted }, evaluated: result.evaluate.rows.length, arms: rookieTotalArms(result.evaluate.rows, { shipped, league: lf }) };
+    });
+    if (d75.failed) note('d75', d75.failed);
+    else {
+      const v = d75.value;
+      data.parts.d75 = v;
+      L.push(`Factors — shipped ${JSON.stringify(v.shipped)}, league (F4) ${JSON.stringify(v.league)}; ${v.evaluated} target-2026 rows evaluated. Both arms are predTotal × factor; ratio = Σpred ÷ Σreal.`, '');
+      L.push('| group | rows | players | ratio shipped [CI] | ratio league [CI] | Δ abs-err (league − shipped) [CI] | label |', '|---|---|---|---|---|---|---|');
+      for (const [g, a] of Object.entries(v.arms)) L.push(`| ${g} | ${a.n} | ${a.players} | ${fmt(a.ratioH.value)} ${fmtCI(a.ratioH.ci)} | ${fmt(a.ratioL.value)} ${fmtCI(a.ratioL.ci)} | ${fmt(a.delta.mean, 2)} ${fmtCI(a.delta.ci, 2)} | ${a.label} |`);
+    }
+    return bSection(ctx, 'rookie', L.join('\n'), data, artifacts);
+  } catch (e) { return degradeOrThrow(ctx, 'rookie', e); }
+}
+
+// ── d60 / listed ──────────────────────────────────────────────────────────────
+
+const D60_REASON = "2026 season-totals still inProgress until Sleeper's post-Super-Bowl rollover; recount then";
+
+async function stepD60(ctx) {
+  try {
+    return bSection(ctx, 'd60', `**D-60 not counted.** ${D60_REASON}. (The in-progress guard refuses 2026 by design; no bypass is added.)`, { counted: false, reason: D60_REASON });
+  } catch (e) { return degradeOrThrow(ctx, 'd60', e); }
+}
+
+async function stepListed(ctx) {
+  try {
+    const md = [
+      '| Item | Does January produce its input? |', '|---|---|',
+      '| D-79 `SHORT_SEASON_K` refit | Partly. The refit needs no 2026 data. §6.2 is its first out-of-sample season. |',
+      '| D-80 durability constants | No. It needs a data-rev comparison mode; §6.2 is a symptom check only. |',
+      '| D-85 healthy-cut override | Partly. §6.3 grades it on 2026 with post-D-76 `\'D\'`; the historical re-run is still owed. |',
+    ].join('\n');
+    return bSection(ctx, 'listed', md, { items: ['D-79', 'D-80', 'D-85'] });
+  } catch (e) { return degradeOrThrow(ctx, 'listed', e); }
+}
+
 // ─── Registry and runner ──────────────────────────────────────────────────────
 
 export const STEPS = [
@@ -609,6 +994,12 @@ export const STEPS = [
   { id: 'inventory', run: stepInventory },
   { id: 'd44', run: stepD44 },
   { id: 'vet-calibration', run: stepVetCalibration },
+  { id: 'ros', run: stepRos },
+  { id: 'games-l6', run: stepGamesL6 },
+  { id: 'override', run: stepOverride },
+  { id: 'rookie', run: stepRookie },
+  { id: 'd60', run: stepD60 },
+  { id: 'listed', run: stepListed },
 ];
 
 /**

@@ -1927,7 +1927,7 @@ export function computeCeilingReconciliation(debutRows) {
   return { observed, expected: APP_ROOKIE_CEILING, expectedCommit: APP_ROOKIE_CEILING_COMMIT, delta, match };
 }
 
-export function runRookiePanels({ load = DEFAULT_LOAD, basis = 'half_ppr', rookiePathAllCrosswalk = 'live' } = {}) {
+export function runRookiePanels({ load = DEFAULT_LOAD, basis = 'half_ppr', rookiePathAllCrosswalk = 'live', entryToYear = ROOKIE_ENTRY_YEARS.toYear } = {}) {
   if (rookiePathAllCrosswalk !== 'live' && rookiePathAllCrosswalk !== 'frozen') throw new Error(`[panel] runRookiePanels: rookiePathAllCrosswalk must be live|frozen, got '${rookiePathAllCrosswalk}'`);
   if (basis !== 'half_ppr' && basis !== 'league') throw new Error(`[panel] runRookiePanels: basis must be half_ppr|league, got '${basis}'`);
   // D-45: under `league` the load is wrapped BEFORE the first read (outcomes, rookiePathStateAt's ppg map and the
@@ -1935,7 +1935,7 @@ export function runRookiePanels({ load = DEFAULT_LOAD, basis = 'half_ppr', rooki
   // the uncorrected scale-1 reconstructRookieProjection under both bases (row schema unchanged).
   if (basis === 'league') load = leagueBasisLoad(load, leagueLoadArgs(load));
   const { fromYear: legacyFromYear, toYear: legacyToYear } = ROOKIE_LEGACY_YEARS;
-  const { fromYear: entryFromYear, toYear: entryToYear } = ROOKIE_ENTRY_YEARS;
+  const { fromYear: entryFromYear } = ROOKIE_ENTRY_YEARS;   // P3 Slice B: `entryToYear` is a parameter (default 2025 → byte-identical)
 
   const maxYear = Math.max(legacyToYear + 1, entryToYear);
   const years = [];
@@ -2086,7 +2086,7 @@ export function runRookiePanels({ load = DEFAULT_LOAD, basis = 'half_ppr', rooki
   const meta = {
     generatedAt: new Date().toISOString(),
     legacyYears: ROOKIE_LEGACY_YEARS,
-    entryYears: ROOKIE_ENTRY_YEARS,
+    entryYears: { fromYear: entryFromYear, toYear: entryToYear },
     historyFloor: HISTORY_FLOOR,
     basis,
     // Recorded only when non-default so the default `--rookie` output stays byte-identical (plan §2.6).
