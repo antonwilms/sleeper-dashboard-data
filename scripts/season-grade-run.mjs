@@ -923,13 +923,15 @@ async function stepRookie(ctx) {
           }
         }
       }
-      const differ = hc ? diffs.length > 0 : true;
+      const differ = hc ? diffs.length > 0 : 'not compared';
       data.parts['d16-league'] = { nDebut2026: lg.value.nDebut2026, classCounts: lc };
       data.d16League = { classCountsDiffer: differ, classCounts: lc };
       L.push('');
-      if (!differ) L.push('(i, league) league class counts identical to half-PPR');
+      if (differ === false) L.push('(i, league) league class counts identical to half-PPR');
       else {
-        L.push(`(i, league) 2026-class debut counts on the league panel (position | draft group → outcome classes):`, '');
+        L.push(differ === 'not compared'
+          ? '(i, league) not compared — half-PPR part failed'
+          : `(i, league) 2026-class debut counts on the league panel (position | draft group → outcome classes):`, '');
         for (const [k, c] of Object.entries(lc).sort()) L.push(`- ${k.replace('|', ' | ')}: ${Object.entries(c).map(([a, b]) => `${a} ${b}`).join(', ')}`);
         if (diffs.length) L.push('', `Differing cells: ${diffs.join('; ')}.`);
       }

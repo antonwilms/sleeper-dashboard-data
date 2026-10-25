@@ -552,6 +552,24 @@ describe('stepRookie (§7)', () => {
     assert.match(out.section.md, /Differing cells: .*WR \| day3/);
     assert.doesNotMatch(out.section.md, /identical to half-PPR/);
   });
+  test('D-16 (i) league counts: half part failed, league ok → classCountsDiffer is the string "not compared", league table printed, no Differing cells', async () => {
+    const m = memLoad2026();
+    // the half branch never asks for loadLeaguePositionOf; the league branch does first — so throw on reads until it has
+    let leagueSeen = false;
+    const panel = {
+      ...m,
+      loadLeaguePositionOf: () => { leagueSeen = true; return m.loadLeaguePositionOf(); },
+      loadSeasonTotals: (y) => { if (!leagueSeen) throw new Error('half boom'); return m.loadSeasonTotals(y); },
+    };
+    const { out } = await noWrites(() => rookie.run(seededCtx({ load: mkLoad({ rookiePanelLoad: () => panel }), entries: [], rehearse: false, write: true })));
+    const d = out.section.data;
+    assert.equal(d.parts['d16-half'].computed, false);
+    assert.equal(d.d16League.classCountsDiffer, 'not compared');
+    assert.match(out.section.md, /\(i, league\) not compared — half-PPR part failed/);
+    assert.match(out.section.md, /- WR \| day3: /, 'the league table is printed');
+    assert.doesNotMatch(out.section.md, /Differing cells/);
+    assert.doesNotMatch(out.section.md, /identical to half-PPR/);
+  });
   test('--write: both panels are written (unregistered) under the naming of writeRookieArtifacts; a failing write degrades as an artifact error (guard 3)', async () => {
     const ctx = seededCtx({ load: mkLoad(), entries: [], rehearse: false, write: true, runDate: '2027-01-15' });
     const { out, written } = await noWrites(() => rookie.run(ctx));
