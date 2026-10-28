@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T15:25:54.499Z",
+  "generatedAt": "2026-10-28T11:57:38.435Z",
   "inputs": {
     "files": [
       {
@@ -45,11 +45,11 @@
       }
     ],
     "dataRepo": {
-      "head": "6d3c04a35f63542943a02b2ef3fc78f1d2fed55b",
+      "head": "42f983799139e3f06781f13a805ee0b44b04c248",
       "clean": true
     },
     "appHarness": {
-      "head": "0d8938b0ad02fc37d806f1fb2b8046474512c88a",
+      "head": "6b6120b025743548a9fa2af9c9f01cdffff1394e",
       "clean": true
     },
     "runDate": "2026-10-25"
@@ -432,37 +432,6 @@
           }
         },
         {
-          "rank": 78,
-          "name": "Bo Nix",
-          "team": "DEN",
-          "position": "QB",
-          "value": 4450,
-          "sid": "11563",
-          "reasons": [
-            "college-disagree"
-          ],
-          "evidence": {
-            "matchedTeams": [
-              {
-                "year": 2019,
-                "team": "Auburn"
-              },
-              {
-                "year": 2020,
-                "team": "Auburn"
-              },
-              {
-                "year": 2021,
-                "team": "Auburn"
-              }
-            ],
-            "sources": {
-              "crosswalk": "Oregon",
-              "sleeper": "Oregon"
-            }
-          }
-        },
-        {
           "rank": 168,
           "name": "Dallas Goedert",
           "team": "PHI",
@@ -552,8 +521,7 @@
       "ktc-team-fallback": 2,
       "ktc-team-disagree": 2,
       "draft-out-of-window": 23,
-      "college-none": 7,
-      "college-disagree": 1
+      "college-none": 7
     },
     "sizes": {
       "ktcRows": 500,

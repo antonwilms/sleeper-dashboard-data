@@ -2,13 +2,13 @@
 
 | field | value |
 |---|---|
-| harness (app repo) | `0d8938b0ad02fc37d806f1fb2b8046474512c88a` — local — unpushed at report time |
-| data repo HEAD | `6d3c04a35f63542943a02b2ef3fc78f1d2fed55b` (clean) |
+| harness (app repo) | `6b6120b025743548a9fa2af9c9f01cdffff1394e` — local — unpushed at report time |
+| data repo HEAD | `42f983799139e3f06781f13a805ee0b44b04c248` (clean) |
 | snapshot | snapshots/2026-10-24.json (capturedAt 2026-10-24T18:55:43.362Z) |
 | KTC file | ktc/snapshot-2026-10-19.json |
 | playersMap fetched | 2026-10-25T15:14:52.551Z |
 | CR ids read | CR-01, CR-02, CR-06, CR-08, CR-09, CR-10, CR-17, CR-28 |
-| command | `node_modules/.bin/vite-node scripts/verify/computed-stats.mjs -- --data ../sleeper-dashboard-data --out ../sleeper-dashboard-data/verification --only v3 --date 2026-10-25 --no-fetch --dump-joins /private/tmp/claude-501/-Users-antonwilms-Claude-Projects-Sleeper-Dashboard/88fed8c6-5f16-4fba-abbb-be5bb4986a95/scratchpad/joins-after.json` |
+| command | `node_modules/.bin/vite-node scripts/verify/computed-stats.mjs -- --data ../sleeper-dashboard-data --out ../sleeper-dashboard-data/verification --only v3 --date 2026-10-25 --no-fetch` |
 
 ## Summary
 
@@ -29,7 +29,7 @@
 | V2.12 | dnpWeeks vs rosterweekly eligibility − snaps games | — | — | — | not run |
 | V3 KTC | V3 KTC joins (top 400 KTC) | 400 | 0 | 0.00% | pass |
 | V3 draft | V3 draft joins (top 400 KTC) | 400 | 0 | 0.00% | pass |
-| V3 college | V3 college joins (top 400 KTC) | 400 | 8 | 2.00% | defect |
+| V3 college | V3 college joins (top 400 KTC) | 400 | 7 | 1.75% | defect |
 
 ## V1
 
@@ -45,17 +45,10 @@ Matcher outputs on full inputs: KTC 464/500 rows resolved; 806 draft matches; 21
 
 | reason code | rows |
 |---|---|
-| college-disagree | 1 |
 | college-none | 7 |
 | draft-out-of-window | 23 |
 | ktc-team-disagree | 2 |
 | ktc-team-fallback | 2 |
-
-### college-disagree (1)
-
-| rank | name | pos | team | value | sid | evidence |
-|---|---|---|---|---|---|---|
-| 78 | Bo Nix | QB | DEN | 4450 | 11563 | `{"matchedTeams":[{"year":2019,"team":"Auburn"},{"year":2020,"team":"Auburn"},{"year":2021,"team":"Auburn"}],"sources":{"crosswalk":"Oregon","sleeper":"Oregon"}}` |
 
 ### college-none (7)
 
