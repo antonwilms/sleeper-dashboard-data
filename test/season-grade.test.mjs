@@ -36,7 +36,7 @@ describe('pins', () => {
   test('L0 uses the pinned kickoff instant; MARKER_SEGMENT is derived from the markers columns', () => {
     assert.equal(KICKOFF_2026_UTC, '2026-09-10T00:20:00Z');
     assert.equal(VETERAN_SEGMENTS[0].detector.utc, KICKOFF_2026_UTC);
-    assert.deepEqual({ ...MARKER_SEGMENT }, { '2026-10-11': 'L5', '2026-10-14': 'L5', '2026-10-23': 'L6' });
+    assert.deepEqual({ ...MARKER_SEGMENT }, { '2026-10-11': 'L5', '2026-10-14': 'L5', '2026-10-23': 'L6', '2026-10-28': 'L6' });
     assert.equal(new Date('2026-09-09T20:20:00-04:00').toISOString(), '2026-09-10T00:20:00.000Z', 'Wed 09-09 20:20 ET');
   });
 
@@ -71,6 +71,10 @@ describe('detectors on trimmed captures straddling each boundary', () => {
   test('b10 (markerIn): a trimmed copy of 10-23 fires, 10-22 does not', () => {
     assert.equal(fires('L6', '2026-10-22'), false);
     assert.equal(fires('L6', '2026-10-23'), true);
+  });
+  test('b11 (markerIn): the 2026-10-28 join-correction marker fires L6, 10-27 does not', () => {
+    assert.equal(detectorFires(seg.L6.detector, { projectionModelFrom: '2026-10-27' }), false);
+    assert.equal(detectorFires(seg.L6.detector, { projectionModelFrom: '2026-10-28' }), true);
   });
   test('L4 capturedAfter 2026-10-07T06:50Z: before / after the instant', () => {
     assert.equal(detectorFires(seg.L4.detector, { capturedAt: '2026-10-07T06:49:59Z' }), false);

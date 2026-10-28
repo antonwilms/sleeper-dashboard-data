@@ -73,7 +73,7 @@ Twelve changes on nine tracked axes (row 11 is filled at release), verified agai
 | 8 | `e3de164` (B1, the model commit; the model is live once the push lands; captures check out app `main`) | 2026-10-10 12:45:38 (the **app push**, `ac26e0b..98a8a69`) | veteran (QB/RB/WR/TE) | short-season games rule (L6c) |
 | 9 | `26de86c` (the model is live once the push lands; captures check out app `main`) | 2026-10-13 10:51 (the **app push**, `6b725e6..e9414f8`) | rookie (RB/WR/TE, day-3/undrafted) | total-points factor (D-13) |
 | 10 | data `76b5ddf` + app `c39f8b4` (a served-data correction with its model pin: `PRIOR_MODEL_FROM` in the app commit) | 2026-10-23 12:38:58 UTC (the **data push**, `6971064..3041353`) · app push 2026-10-23 12:43:20 UTC (`11c2b53..3ec9298`) · CDN purge of the nine rewritten/regenerated paths verified 9/9 (exit 0, 12:41 UTC, before the app push) | veteran (QB/RB/WR/TE) | absence role — role weeks 'D' → 'X' in served `weeklyStatus` (D-76, CR-28) |
-| 11 | _TBD at release (§9.4 of `join-defects-id-crosswalk.md`):_ app `<release SHA>` | _TBD at release:_ `<push time> UTC` (the **app push**, `<range>`) | rookie (QB/RB/WR/TE) | ID-first joins (KTC alias, draft id, college id) — CR-31 |
+| 11 | app `91fae73` (the model is live once the push lands; captures check out app `main`) | 2026-10-28 12:08:16 UTC (the **app push**, `01120b1..91fae73`) | rookie (QB/RB/WR/TE) | ID-first joins (KTC alias, draft id, college id) — CR-31 |
 
 Scheduled captures (`daily-snapshot.yml`) trigger at 16:29 UTC against app `main` but can
 start hours late — `snapshots/2026-09-12.json` has `capturedAt` 18:34:49 UTC. Cross-check a
@@ -244,7 +244,7 @@ Detector vocabulary: `capturedAfter` (`capturedAt > utc`); `vetRowKey` (every ve
   {"id":"L3","boundary":"5","firstCapture":"2026-10-04","detector":{"kind":"vetRowKey","key":"qbTakeoverBasis"},"markers":[]},
   {"id":"L4","boundary":"7","firstCapture":"2026-10-07","detector":{"kind":"capturedAfter","utc":"2026-10-07T06:50:00Z"},"markers":[]},
   {"id":"L5","boundary":"8","firstCapture":"2026-10-10","detector":{"kind":"vetRowKey","key":"shortSeasonState"},"markers":["2026-10-11","2026-10-14"]},
-  {"id":"L6","boundary":"10","firstCapture":"2026-10-23","detector":{"kind":"markerIn","markers":["2026-10-23"]},"markers":["2026-10-23"]}
+  {"id":"L6","boundary":"10","firstCapture":"2026-10-23","detector":{"kind":"markerIn","markers":["2026-10-23","2026-10-28"]},"markers":["2026-10-23","2026-10-28"]}
 ]
 ```
 <!-- veteran-segments:end -->
