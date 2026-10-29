@@ -176,6 +176,38 @@ describe('T-U1 option seams at their defaults', () => {
     const off = runMirror(inputs, 'per-season-team', { shareTrendBoostOff: () => true }).scores;
     assert.notEqual(JSON.stringify(off), JSON.stringify(base));
   });
+
+  test('targetShareOverride replaces an existing WR/TE share and never creates one; other pids untouched', () => {
+    const { inputs } = fx[2019];
+    const base = runMirror(inputs, 'per-season-team').scores;
+    const bc = Object.entries(base).filter(([, r]) => r.components);
+    const wrShare = bc.find(([pid, r]) => inputs.playersMap[pid].position === 'WR' && r.signals.targetShare != null
+      && Number.isFinite(r.components.opportunityQuality.shareScore) && r.signals.targetShare !== 0.30);
+    const rb = bc.find(([pid]) => inputs.playersMap[pid].position === 'RB');
+    const wrNoShare = bc.find(([pid, r]) => inputs.playersMap[pid].position === 'WR' && r.signals.targetShare == null);
+    assert.ok(wrShare && rb && wrNoShare, 'fixture lacks a needed row');
+    const chosen = [wrShare[0], rb[0], wrNoShare[0]];
+    const ov = runMirror(inputs, 'per-season-team', { targetShareOverride: new Map(chosen.map(p => [p, 0.30])) }).scores;
+    assert.equal(ov[wrShare[0]].signals.targetShare, 0.30);
+    assert.notEqual(ov[wrShare[0]].components.opportunityQuality.shareScore, base[wrShare[0]].components.opportunityQuality.shareScore);
+    assert.equal(JSON.stringify(ov[rb[0]]), JSON.stringify(base[rb[0]]));
+    assert.equal(JSON.stringify(ov[wrNoShare[0]]), JSON.stringify(base[wrNoShare[0]]));
+    for (const pid of Object.keys(base)) {
+      if (!chosen.includes(pid)) assert.equal(JSON.stringify(ov[pid]), JSON.stringify(base[pid]), pid);
+    }
+  });
+
+  test('reliabilityMix weights consistency and durability as given', () => {
+    const { inputs } = fx[2019];
+    const base = runMirror(inputs, 'per-season-team').scores;
+    const hit = Object.entries(base).find(([, r]) => r.components && Math.round(r.raw.consistencyScore) !== Math.round(r.raw.durabilityScore));
+    assert.ok(hit, 'fixture lacks a row with differing consistency/durability');
+    const [pid, r] = hit;
+    const cOnly = runMirror(inputs, 'per-season-team', { reliabilityMix: { consistency: 1, durability: 0 } }).scores[pid];
+    const dOnly = runMirror(inputs, 'per-season-team', { reliabilityMix: { consistency: 0, durability: 1 } }).scores[pid];
+    assert.equal(cOnly.components.reliability.value, Math.round(r.raw.consistencyScore));
+    assert.equal(dOnly.components.reliability.value, r.raw.durabilityScore);
+  });
 });
 
 const row = (gp, fp, team, stats = {}, extra = {}) => ({ gamesPlayed: gp, fantasyPoints: fp, team, stats, ...extra });

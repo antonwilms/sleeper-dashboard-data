@@ -103,6 +103,15 @@ describe('T-AGE', () => {
     assert.equal(r.playersMap['3'].age, null); // no crosswalk entry
     assert.deepEqual(r.curveBundle.curves.WR.map(p => p.age), [23, 24]);
   });
+  test('deliberateDifferences carries the measured age gap of this S', () => {
+    const r = build(makeLoad());
+    const g = r.meta.checks.ageGap[2019];
+    const line = r.meta.deliberateDifferences.find(d => d.startsWith('ages are true ages'));
+    assert.ok(line.includes(`n=${g.n}`));
+    assert.ok(line.includes(`mean Sleeper − true ${g.mean.toFixed(2)} y`));
+    assert.ok(line.includes(`${g.off1} off by > 1 y`));
+    assert.ok(g.n > 0);
+  });
   test("app-sleeper mode: curves from raw Sleeper ages with currentYear 2026; scored ages unchanged; null Sleeper age drops only from the curve", () => {
     const load = makeLoad();
     const raw = load.loadRawPlayers();
@@ -129,11 +138,16 @@ describe('T-YE years_exp', () => {
     assert.deepEqual(r.meta.checks.yearsExp, { fromDraftYear: 2, draftYearZero: 1, noCrosswalk: 1, noFirstSeason: 0 });
   });
   test('the fallback reads Sleeper gamesPlayed even under gamesMode snaps', () => {
-    const snaps = { 2018: { players: { 2: { name: 'Kenneth Walker', games: 16 }, 3: { name: 'Tee Ee', games: 10 } } } };
+    // pid 3: no crosswalk entry; Sleeper gp 0 in 2018 and 12 in 2019; a name-matched snaps entry says 10 games in 2018.
+    const snaps = { 2018: { players: { 3: { name: 'Tee Ee', games: 10 } } } };
     const load = makeLoad({ snaps });
-    // pid 3 has Sleeper gp only in 2019; snaps claims games in 2018 — the fallback must ignore it
+    const base = load.loadSeasonTotals;
+    load.loadSeasonTotals = (y) => (y === 2018 ? { ...base(2018), 3: row(0, 0, 'KC') } : base(y));
     const r = build(load, { gamesMode: 'snaps' });
-    assert.equal(r.playersMap['3'].years_exp, 1);
+    // the substitution fired for this row: 2018 careerStats carries the snaps value, not Sleeper's 0
+    assert.equal(r.careerStats[2018]['3'].gamesPlayed, 10);
+    // the fallback used Sleeper gp (first season 2019), not the substituted careerStats (would give 2018 → 2)
+    assert.equal(r.playersMap['3'].years_exp, 2020 - 2019);
   });
 });
 

@@ -12,6 +12,7 @@
  *   REFERENCE_DATE, REFERENCE_YEAR
  *   runAgeCurveGap({ load })                          → result
  *   buildAgeCurveGapMarkdown(result)                  → string
+ *   lateCareerSummary(rows), peakAgeSentence(curve)   → the late-career table data / per-position peak sentence
  *   writeAgeCurveGapReport({ markdown, date, root })  → path
  *   ageCurveGapMain({ load, write, asJson, … })       → exit code
  */
@@ -172,6 +173,7 @@ export function runAgeCurveGap({ load = AGE_GAP_LOAD } = {}) {
       ageAdj: { a: a.components.ageAdjusted.value, b: b.components.ageAdjusted.value, c: c.components.ageAdjusted.value },
       score: { a: a.score, b: b.score, c: c.score },
       label: { a: a.label, b: b.label, c: c.label },
+      lateCareer: { a: a.signals.isLateCareer, b: b.signals.isLateCareer, c: c.signals.isLateCareer },
     };
   });
   const byPosition = {};
@@ -192,8 +194,34 @@ export function runAgeCurveGap({ load = AGE_GAP_LOAD } = {}) {
     curves, basisScaleEqual, rowGap,
     population: { total: rows.length, byPosition: countByPosition, excluded },
     byPosition, pooled, top,
+    lateCareer: lateCareerSummary(rows),
     inputsChecks: inputs.meta.checks,
   };
+}
+
+/** Late-career gate and label counts per position + pooled, and the 10 most frequent pooled (a) → (c) label transitions. */
+export function lateCareerSummary(rows) {
+  const one = (sub) => ({
+    rows: sub.length,
+    lateA: sub.filter(r => r.lateCareer.a).length,
+    lateB: sub.filter(r => r.lateCareer.b).length,
+    lateC: sub.filter(r => r.lateCareer.c).length,
+    labelChangeAB: sub.filter(r => r.label.a !== r.label.b).length,
+    labelChangeAC: sub.filter(r => r.label.a !== r.label.c).length,
+  });
+  const byPosition = {};
+  for (const pos of SKILL) byPosition[pos] = one(rows.filter(r => r.position === pos));
+  const counts = new Map();
+  for (const r of rows) {
+    if (r.label.a === r.label.c) continue;
+    const t = `${r.label.a} → ${r.label.c}`;
+    counts.set(t, (counts.get(t) ?? 0) + 1);
+  }
+  const transitions = [...counts.entries()]
+    .sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0))
+    .slice(0, 10)
+    .map(([transition, count]) => ({ transition, count }));
+  return { byPosition, pooled: one(rows), transitions };
 }
 
 function summarise(rows) {
@@ -218,6 +246,12 @@ export function pooledLine(result) {
   return `Pooled (c − a): ${a.rows} rows; ageAdjusted changed ${a.changed}, |Δ| ≥ 5 on ${a.abs5}; ` +
     `ageAdjusted Δ min/p10/median/mean/p90/max ${[a.dist.min, a.dist.p10, a.dist.median, a.dist.mean, a.dist.p90, a.dist.max].map(x => f(x, 2)).join('/')}; ` +
     `score changed ${s.changed}, |Δ| ≥ 5 on ${s.abs5}; score Δ ${[s.dist.min, s.dist.p10, s.dist.median, s.dist.mean, s.dist.p90, s.dist.max].map(x => f(x, 2)).join('/')}`;
+}
+
+/** The per-position late-career gate sentence (report-only; no threshold, no recommendation). */
+export function peakAgeSentence(c) {
+  const plus5 = (x) => (x == null ? '—' : x + 5);
+  return `Capped peak age APP ${c.peakAge.app ?? '—'}, BIRTH ${c.peakAge.birth ?? '—'}; \`isLateCareer\` fires at age ≥ peak + 5 (${plus5(c.peakAge.app)} vs ${plus5(c.peakAge.birth)}).`;
 }
 
 export function rowGapLine(result) {
@@ -247,6 +281,8 @@ export function buildAgeCurveGapMarkdown(result) {
     for (const r of c.rows) L.push(`| ${r.age} | ${r.appN} | ${r.birthN} | ${f(r.appPPG, 3)} | ${f(r.birthPPG, 3)} | ${f(r.delta, 3)} |`);
     L.push('');
     L.push(`Capped peak age: APP ${c.peakAge.app ?? '—'}, BIRTH ${c.peakAge.birth ?? '—'}. positionPeakPPG: APP ${f(c.peakPPG.app, 3)}, BIRTH ${f(c.peakPPG.birth, 3)}. positionBasisScale: APP ${c.basisScale.app}, BIRTH ${c.basisScale.birth}.`);
+    L.push('');
+    L.push(peakAgeSentence(c));
   }
   L.push('');
   L.push('### Row-level age gap');
@@ -285,6 +321,26 @@ export function buildAgeCurveGapMarkdown(result) {
   block('(c − a): full fix', 'cMinusA');
   L.push('');
   L.push(pooledLine(result));
+  L.push('');
+  L.push('### Late-career gate and labels');
+  L.push('');
+  L.push('`isLateCareer` is true when scored age − capped peak age ≥ 5; the peak age and the scored age both vary by setting. Label changes compare the full label under (a) with (b) and (c).');
+  L.push('');
+  L.push('| position | rows | isLateCareer (a) | isLateCareer (b) | isLateCareer (c) | label changes (a → b) | label changes (a → c) |');
+  L.push('|---|---:|---:|---:|---:|---:|---:|');
+  for (const pos of [...SKILL, 'pooled']) {
+    const l = pos === 'pooled' ? result.lateCareer.pooled : result.lateCareer.byPosition[pos];
+    L.push(`| ${pos} | ${l.rows} | ${l.lateA} | ${l.lateB} | ${l.lateC} | ${l.labelChangeAB} | ${l.labelChangeAC} |`);
+  }
+  L.push('');
+  L.push('Most frequent label (a) → label (c) transitions among changed rows (pooled; ties by transition string):');
+  L.push('');
+  if (result.lateCareer.transitions.length === 0) L.push('None.');
+  else {
+    L.push('| transition | rows |');
+    L.push('|---|---:|');
+    for (const t of result.lateCareer.transitions) L.push(`| ${t.transition} | ${t.count} |`);
+  }
   L.push('');
   L.push('### The 15 largest |Δ ageAdjusted| under (c − a)');
   L.push('');

@@ -325,7 +325,7 @@ export function buildAsOfInputs(load, S, { curveAgeMode = 'birthdate', gamesMode
   const deliberateDifferences = [
     'left-truncated history (careerStats begins 2012; early cohorts see only 2012…S)',
     'positions are the 2026-05-18 positions applied to every S',
-    `ages are true ages on ${refDate} from birthdates (Sleeper's age is stale for players without a team)`,
+    `ages are true ages on ${refDate} from birthdates (Sleeper's age is stale for players without a team); measured over S's curve-input rows: n=${gap.n}, ${gap.n === 0 || gap.mean == null ? 'mean n/a' : `mean Sleeper − true ${gap.mean.toFixed(2)} y`}, ${gap.off1} off by > 1 y`,
     'years_exp is derived from draftYear / first season, not Sleeper years_exp',
     'per-season-team attribution instead of the app\'s current-team',
     'depth chart is the end-of-regular-season chart, not the offseason chart',
