@@ -1342,7 +1342,7 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
 `--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
 rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`),
-`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--games-calibration [--cause | --short]` (takes only `--cause`/`--short`/`--json`/`--write`; `--cause` or `--short` alone is rejected; `--cause` and `--short` are mutually exclusive).
+`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--age-curve-gap` (offline; report-only; reads no outcome season; takes only `--json`/`--write`), `--games-calibration [--cause | --short]` (takes only `--cause`/`--short`/`--json`/`--write`; `--cause` or `--short` alone is rejected; `--cause` and `--short` are mutually exclusive).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr|league` (`league` is `--fit` only, report-only), `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1356,7 +1356,7 @@ the app's live default, load-bearing for the reconstruction.
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
 `<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
 `<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`, `<date>-games-calibration-{panel,constants}.json`, `<date>-games-cause-{panel,constants}.json`, `<date>-games-short-{panel,constants}.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`, `<date>-games-cause-verdict.md`, `<date>-games-short-verdict.md`).
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`, `<date>-games-cause-verdict.md`, `<date>-games-short-verdict.md`, `<date>-age-curve-gap.md`).
 Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
@@ -1438,6 +1438,37 @@ keys promotions by the matching missed status; `demotedByStatus` keys demotions 
 statuses, sorted and `+`-joined, e.g. `CUT+DEV`). Seasons before `MIN_ABSENCE_CLASSIFY_SEASON = 2016`
 return the input as-is (the weekly status is season-level there). A missing `rosterWeekly` throws — the
 caller decides what an absent file means.
+
+#### `lib/dynastyMirror.mjs` — offline mirror of the app's dynasty score (CR-32)
+
+Pure, no I/O. Ports, at app `95ba1e1`, `computeDynastyScore` (all paths A–A4, B, C), `computeEmpiricalAgeCurves`,
+`computeTeamContext` / `computeHistoricalTeamTotals` / `computeHistoricalShares` / `computeShareTrend`, the prospect
+score, the label, momentum, consistency, the breakout / bounce-back / TD-reliance flags and the QB-quality modifier;
+`composeDynastyScore(raw)` recomposes a Path B/C score from the additive `raw` key. It reuses `lib/durabilityMirror.mjs`
+(`classifyInjurySeason`) and `lib/projectionFactors.mjs` (`interpolateAgeCurve`). Deliberate differences: the curve builder
+takes `currentYear` instead of the wall clock; per-season-team `teamContextMirror` skips `TEAM_*` ids (the app never runs
+that mode); `options` carries three ablation seams (`targetShareOverride`, `shareTrendBoostOff`, `reliabilityMix`), all
+defaulting to the app. `test/dynasty-mirror.test.mjs` (T-G1) proves parity against goldens made by the app's own code
+(`test/fixtures/dynasty-mirror-parity/`, built by the app's `scripts/verify/dynasty-golden.mjs`; inputs by
+`scripts/fixtures/build-dynasty-mirror-inputs.mjs`). Offline analysis: no served file reads it.
+
+#### `scripts/dynasty-asof.mjs` — as-of-season-S inputs for the mirror
+
+`buildAsOfInputs(load, S, { curveAgeMode, gamesMode })` rebuilds what the app would have had at the end of S. Every
+season-keyed read goes through `asOfLoad(load, S)`, which throws `LookAheadError` for a year above S; S = 2026 is refused
+(in progress). Deliberate differences from the app, each reported with the results that use them: left-truncated history
+(2012…S); true ages on `(S+1)-06-01` from `nflverse/playerids.json` birthdates (Sleeper's `age` is stale for players without
+a team); derived `years_exp` (draftYear, else first season with games); the 2026 positions applied to every S; per-season-team
+attribution; the end-of-regular-season depth chart; no draft pick, KTC or live level. `curveAgeMode: 'app-sleeper'` rebuilds
+the curves from the 2026-05-18 Sleeper ages (carries post-S information); `gamesMode: 'snaps'` substitutes nflverse snap
+games under the D-77 name guard. `readTeamS1` is the one S+1 read, and returns only a team string.
+
+#### `scripts/age-curve-gap-run.mjs` — `--age-curve-gap`
+
+Report-only (`bin/backtest.mjs --age-curve-gap [--json] [--write]`; reads no outcome season): today's app age curves
+(Sleeper ages) against the same curves from birthdates, the row-level age gap, and how many current players' age-adjusted
+component and mirror score would move under (a) app today, (b) curve fix only, (c) full fix. `--write` persists
+`grading/<date>-age-curve-gap.md` (unregistered). No recommendation: the priority of the age fix is Anton's decision.
 
 #### `lib/durabilityMirror.mjs` — offline mirror of the app's durability rules
 

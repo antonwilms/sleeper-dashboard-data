@@ -6,7 +6,7 @@
  *
  * For S ∈ {2019, 2023} it calls buildAsOfInputs(load, S, { curveAgeMode: 'birthdate', gamesMode: 'sleeper' })
  * and writes test/fixtures/dynasty-mirror-parity/inputs-<S>.json: a trimmed universe (every skill pid whose
- * S or S−1 row `team` is one of 8 teams, all of that pid's seasons 2012…S, plus every TEAM_* row), slimmed
+ * S or S−1 row `team` is one of 16 teams, all of that pid's seasons 2012…S, plus every TEAM_* row), slimmed
  * rows, the app-shaped depthMap. The expected-<S>.json goldens are made by the APP's own code
  * (sleeper-dashboard scripts/verify/dynasty-golden.mjs) from these inputs.
  *
