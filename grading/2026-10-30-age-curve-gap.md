@@ -1,7 +1,7 @@
 # Age-curve gap report (S3a §5)
 
 - Reference date D: 2026-05-18 (the Sleeper capture's date); currentYear 2026; as-of season 2025.
-- Data rev: 1099737.
+- Data rev: 99a3258.
 - Inputs: completed season-totals 2012–2025 (league-rescored), `raw/-players-nfl.json` (Sleeper ages), `nflverse/playerids.json` birthdates, the S = 2025 as-of inputs of `scripts/dynasty-asof.mjs`. No outcome season is read.
 - APP = the live app's curve (Sleeper `age`); BIRTH = the same builder on true ages from birthdates (whole years on D).
 
@@ -41,6 +41,8 @@ positionBasisScale is equal between APP and BIRTH, as expected (basis ratios do 
 
 Capped peak age: APP 32, BIRTH 32. positionPeakPPG: APP 18.987, BIRTH 18.274. positionBasisScale: APP 1.114, BIRTH 1.114.
 
+Capped peak age APP 32, BIRTH 32; `isLateCareer` fires at age ≥ peak + 5 (37 vs 37).
+
 ### RB
 
 | age | APP n | BIRTH n | APP medianPPG | BIRTH medianPPG | Δ (BIRTH − APP) |
@@ -68,6 +70,8 @@ Capped peak age: APP 32, BIRTH 32. positionPeakPPG: APP 18.987, BIRTH 18.274. po
 
 Capped peak age: APP 25, BIRTH 25. positionPeakPPG: APP 7.646, BIRTH 6.749. positionBasisScale: APP 1.118, BIRTH 1.118.
 
+Capped peak age APP 25, BIRTH 25; `isLateCareer` fires at age ≥ peak + 5 (30 vs 30).
+
 ### WR
 
 | age | APP n | BIRTH n | APP medianPPG | BIRTH medianPPG | Δ (BIRTH − APP) |
@@ -94,6 +98,8 @@ Capped peak age: APP 25, BIRTH 25. positionPeakPPG: APP 7.646, BIRTH 6.749. posi
 | 37 | 0 | 2 | — | 4.405 | — |
 
 Capped peak age: APP 26, BIRTH 20. positionPeakPPG: APP 6.852, BIRTH 8.258. positionBasisScale: APP 1.101, BIRTH 1.101.
+
+Capped peak age APP 26, BIRTH 20; `isLateCareer` fires at age ≥ peak + 5 (31 vs 25).
 
 ### TE
 
@@ -123,6 +129,8 @@ Capped peak age: APP 26, BIRTH 20. positionPeakPPG: APP 6.852, BIRTH 8.258. posi
 | 39 | 1 | 1 | 0.429 | 1.086 | 0.657 |
 
 Capped peak age: APP 29, BIRTH 29. positionPeakPPG: APP 6.040, BIRTH 3.922. positionBasisScale: APP 1.325, BIRTH 1.325.
+
+Capped peak age APP 29, BIRTH 29; `isLateCareer` fires at age ≥ peak + 5 (34 vs 34).
 
 ### Row-level age gap
 
@@ -188,6 +196,33 @@ total score (this mirror's offseason score, not the live app score (no KTC, live
 | pooled | 387 | 224 | 19 | -7.00 | 0.00 | 1.00 | 0.94 | 3.00 | 10.00 |
 
 Pooled (c − a): 387 rows; ageAdjusted changed 303, |Δ| ≥ 5 on 148; ageAdjusted Δ min/p10/median/mean/p90/max -25.00/-1.00/2.00/3.83/12.00/37.00; score changed 224, |Δ| ≥ 5 on 19; score Δ -7.00/0.00/1.00/0.94/3.00/10.00
+
+### Late-career gate and labels
+
+`isLateCareer` is true when scored age − capped peak age ≥ 5; the peak age and the scored age both vary by setting. Label changes compare the full label under (a) with (b) and (c).
+
+| position | rows | isLateCareer (a) | isLateCareer (b) | isLateCareer (c) | label changes (a → b) | label changes (a → c) |
+|---|---:|---:|---:|---:|---:|---:|
+| QB | 42 | 4 | 4 | 4 | 3 | 3 |
+| RB | 89 | 8 | 8 | 8 | 6 | 6 |
+| WR | 156 | 10 | 128 | 128 | 68 | 68 |
+| TE | 100 | 2 | 2 | 2 | 18 | 18 |
+| pooled | 387 | 24 | 142 | 142 | 95 | 95 |
+
+Most frequent label (a) → label (c) transitions among changed rows (pooled; ties by transition string):
+
+| transition | rows |
+|---|---:|
+| Solid Floor → Veteran Producer | 14 |
+| Elite → Veteran Producer | 12 |
+| Plateau → Managed Decline | 12 |
+| Peak Window → Veteran Producer | 6 |
+| Ascending Star → Veteran Producer | 5 |
+| Managed Decline → Solid Floor | 5 |
+| Sell Now → Managed Decline | 4 |
+| Solid Floor → Peak Window | 4 |
+| Ascending Star → Elite | 3 |
+| Developing → Veteran Producer | 3 |
 
 ### The 15 largest |Δ ageAdjusted| under (c − a)
 
