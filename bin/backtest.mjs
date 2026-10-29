@@ -67,6 +67,10 @@
  *                --short (L6c) keeps the app prediction on qualifying S seasons and fits k only on non-qualifying
  *                ones (SOf0, SOK1f0); --write persists backtests/<date>-games-short-{panel,constants}.json +
  *                grading/<date>-games-short-verdict.md. Mutually exclusive with --cause.
+ *   --age-curve-gap  stale-Sleeper-age gap report (S3a, offline; report-only; reads no outcome season): today's app age
+ *                curves (Sleeper `age`) vs the same curves built from birthdates, the row-level age gap, and how many current
+ *                players' age-adjusted component and score would move. Takes only --json / --write; the inputs and the
+ *                reference date are pinned by the task file. --write persists grading/<date>-age-curve-gap.md (unregistered).
  *   --rookie-total  composed rookie total points (D-13, offline analysis only): the shipped per-row rookie
  *                projection (calibrated PPG × availability games) against realised total points on W2's committed
  *                availability panel — bias by group, a leave-one-season-out multiplier, a pre-registered verdict.
@@ -123,6 +127,7 @@ import { absenceMain } from '../scripts/absence-run.mjs';
 import { gamesCalibrationMain } from '../scripts/games-calibration-run.mjs';
 import { gamesCauseMain } from '../scripts/games-cause-run.mjs';
 import { gamesShortMain } from '../scripts/games-short-run.mjs';
+import { ageCurveGapMain } from '../scripts/age-curve-gap-run.mjs';
 import { rookieTotalMain } from '../scripts/rookie-total-run.mjs';
 import { weeklyBasisMain } from '../scripts/weekly-basis-run.mjs';
 import { leagueBasisMain } from '../scripts/league-basis-run.mjs';
@@ -256,6 +261,18 @@ if (isMain) {
         console.error('[backtest] Error: --short requires --games-calibration');
         process.exit(1);
       }
+      if (flag('--age-curve-gap')) {
+        const rejected = args.filter(a => a !== '--age-curve-gap' && a !== '--json' && a !== '--write');
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --age-curve-gap rejects ${rejected.join(', ')} — the inputs and reference date are pinned ` +
+            'by the task file, not knobs; it takes only --json and --write'
+          );
+          process.exit(1);
+        }
+        process.exit(ageCurveGapMain({ write, asJson }));
+      }
+
       if (flag('--games-calibration')) {
         const rejected = args.filter(a => a.startsWith('--') && !['--games-calibration', '--cause', '--short', '--json', '--write'].includes(a));
         if (rejected.length) {
