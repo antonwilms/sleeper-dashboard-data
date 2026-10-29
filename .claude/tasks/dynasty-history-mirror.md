@@ -230,3 +230,35 @@ S3a closes no backlog item and no calendar line, and appends to none: the stale-
 4. README / CLAUDE.md / navigation.md / registry updated.
 5. Commit in each repo, citing the other repo's SHAs per the cross-repo commit-ID rule; **push only after Anton's sign-off** (`git pull --rebase` first, never `--force`).
 6. Hand-back to Session 1: SHA ranges in both repos, every file touched, every deviation from this file, what each new test asserts, the golden `sourceRev`, the per-path counts in each golden input, and the §6.1 universe sizes. Session 1 runs implementation-reviewer at full depth on the diff before Anton's sign-off.
+
+---
+
+## Fix pass 1 (Session 1, 2026-10-30; approved by Anton)
+
+From implementation-reviewer (full depth) on data `a0a21e0..92f392c` / app `95ba1e1..231554f`. Data repo only; the app repo, the goldens (`expected-*.json`, `inputs-*.json`), CR-32 and the mirror's default path are **not** touched. T-G1 must stay green **without regenerating** the goldens (F1 changes only an opt-in seam). Implement F1–F7, nothing else.
+
+**F1 — `targetShareOverride` replaces, never creates** (`lib/dynastyMirror.mjs:949-951`). Apply the override only when the player already has a teamContext share for WR/TE: `playerShare != null && playerShare.targetShare != null`. Otherwise leave `playerShare` exactly as the app would (null, or unchanged), so the app's no-share formula (0.55/0.45) is kept. When it does fire, the overridden value also appearing in `signals.targetShare` is accepted (signals report the share used); add a one-line comment saying so. Update the §3.3 seam description in the module header if it describes the seam.
+
+**F2 — tests for the two untested seams** (`test/dynasty-mirror.test.mjs`, in the T-U1 block, on `inputs-2019.json`, per-season-team mode). New tests:
+- `targetShareOverride`: choose from the fixture (by query, not hard-coded) one WR B/C row whose baseline `signals.targetShare` is non-null, one RB B/C row, and one WR row whose baseline `signals.targetShare` is null. Put all three pids in the Map with value `0.30`. Assert: the WR-with-share row's `signals.targetShare === 0.30` and its `components.opportunityQuality.shareScore` changes from baseline; the RB row and the WR-without-share row are byte-identical to baseline (F1); every pid not in the Map is byte-identical to baseline.
+- `reliabilityMix`: choose a B/C row whose `raw.consistencyScore` and `raw.durabilityScore` round to different integers. With `{ consistency: 1, durability: 0 }`, assert `components.reliability.value === Math.round(raw.consistencyScore)`; with `{ consistency: 0, durability: 1 }`, assert it equals `raw.durabilityScore`. (`raw` from the baseline run.)
+
+**F3 — make the T-YE snaps-fallback test real** (`test/dynasty-asof.test.mjs:131-136`). Replace the test's fixture so that some pid X has no crosswalk draftYear (absent or 0), a **Sleeper** season-totals row in season S−1 with `gamesPlayed: 0`, a Sleeper row in season S with `gamesPlayed > 0`, and a **name-matched** snaps entry for season S−1 with `games > 0`. Assert, under `gamesMode: 'snaps'`, that `years_exp === (S+1) − S` (the fallback used Sleeper gp, so first season = S), and also assert that the snaps substitution did fire for that row (its S−1 `gamesPlayed` in the built `careerStats` is the snaps value) — so the test fails if the fallback read the substituted careerStats.
+
+**F4 — make the T-GAP (a)/(b)/(c) test use hand-computed values** (`test/age-curve-gap.test.mjs:75-96`). Expected values must be literals derived by hand from the synthetic store, with the arithmetic in a comment beside each (bucket medians, `rollingAvg3` smoothing, capped peak, `interpolateAgeCurve`, `ageAdj = round(clamp(levelPPG / interp(curve, age) × 50, 0, 100))`) — never read from `result`. You may change the synthetic store (ages, PPGs, birthdates) so that: (i) some pid has Sleeper age = birthdate age and its `ageAdj` differs between (a) and (b) (curve-only effect); (ii) some pid has Sleeper age ≠ birthdate age and its `ageAdj` differs between (b) and (c) (scored-age effect). Assert each pid's `ageAdj.a/.b/.c` against the literals, then `pooled.bMinusA` / `pooled.cMinusA` `rows`, `changed`, `abs5`, `dist.min/.max/.mean` against literals computed from the literal deltas. Delete the no-op `['ageAdj'].flatMap(...)` line. If no store of this size can produce both effects, stop and report.
+
+**F5 — exercise the refusal in T-GAP** (`test/age-curve-gap.test.mjs:105-108`). Give the synthetic load a `2026` season-totals entry. Keep the assertion that the run never reads a year above 2025, and add: `asOfLoad(load, 2025).loadSeasonTotals(2026)` throws `LookAheadError` (import both from `scripts/dynasty-asof.mjs`).
+
+**F6 — the measured age gap in `deliberateDifferences`** (`scripts/dynasty-asof.mjs`, the age string at :327). Append the measured gap of that S to the age line: `; measured over S's curve-input rows: n=<gap.n>, mean Sleeper − true <gap.mean, 2 dp> y, <gap.off1> off by > 1 y` (with `n=0` → `mean n/a`). Add one assertion to T-AGE in `test/dynasty-asof.test.mjs` that the line carries the `n`, mean and `off1` of `checks.ageGap[S]`.
+
+**F7 — late-career gate and labels in the gap report** (`scripts/age-curve-gap-run.mjs`, §5.2). Report-only additions, no threshold and no recommendation:
+- Per row, keep `lateCareer: { a, b, c }` from each setting's `signals.isLateCareer`.
+- A new table "Late-career gate and labels", one row per position plus pooled: rows; `isLateCareer` true under (a), (b), (c); rows whose label changes (a → b) and (a → c).
+- Below it, the 10 most frequent `label (a) → label (c)` transitions among changed rows (pooled), with counts, ties broken by the transition string.
+- One factual sentence per position, under the curve tables: "Capped peak age APP <x>, BIRTH <y>; `isLateCareer` fires at age ≥ peak + 5 (<x+5> vs <y+5>)."
+- T-GAP: assert the late-career counts and label-change counts against hand-derived literals from the F4 store (comment the derivation: e.g. a pid aged 30 with peak 24 → 6 ≥ 5 → late).
+- Then re-run `node bin/backtest.mjs --age-curve-gap --write` **after** committing the code (so the header names the code commit); the new report is `grading/2026-10-30-age-curve-gap.md`; `git rm` the superseded `grading/2026-10-29-age-curve-gap.md` in the same commit (it is unpushed S3a output, unregistered).
+
+**Leave alone:** the mirror's ported code outside F1; `expected-*.json`/`inputs-*.json`; the app repo; CR-32; S3b's task file; the peak-age behaviour itself (the mirror reproduces the app; it is recorded for the age-fix entry and S3b, not changed here).
+
+**Done:** data `npm test` and `npm run smoke` green; T-G1 green with the committed goldens; commit(s) on data `main`, no push. Hand back in the fix-applier format plus the new report's late-career table (pooled row) and per-position peak sentences.
