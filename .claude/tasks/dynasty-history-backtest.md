@@ -289,3 +289,47 @@ Session 1 records the sign-off line in `future_plans/in-season-notes-plan.md`.
 3. README / CLAUDE.md updated; backlog appends with real SHAs.
 4. Commit; **push only after Anton's sign-off** (`git pull --rebase` first, never `--force`).
 5. Hand-back: SHA ranges, every file touched, every deviation from this file, what each new test asserts, the pinned prereg hash. Session 1 runs implementation-reviewer at full depth on the diff.
+
+---
+
+## Pre-registration record (Session 1, 2026-10-30)
+
+The §8.10 hash `dbeff355…26cc` was pinned in data `a791db0` from the task file at `80ea217`. The single pre-registered run is `be918cf` (pushed). Session 2's own answer, quoted as given, on whether results were seen before `a791db0`: "Yes, I ran part of it against the real store before a791db0. I saw timings, counts, one truncated sample row and 'insufficient' summary labels. I saw no ρ, Δ, CI or hit-rate value. Nothing I saw changed any code choice." The runs were a two-cohort (2019, 2023) `buildRows` + 40-resample `computeMetrics` smoke script and a 300-score timing script, scratchpad only. With only two cohorts, all four summaries printed `insufficient`. One row printed, cut off before its baselines and outcome. Interpretations 2, 3, 6 and 7 were settled before those runs. No source file was edited after them, only test fixtures, CLI dispatch and docs; the README's "~30 minutes" is an extrapolation. Session 1 accepts this as a valid pre-registration.
+
+**Recorded readings (implementation review):** in A-AGE-DELTA the floor at 1 applies to each point as it is chained, and the chain continues from the floored value; the anchor can be floored. B-only/C-only cells use the per-cohort ρ minimum, ≥ 30 rows and ≥ 1 contributing cohort, without the 6-of-8 rule.
+
+## Fix pass 1 (Session 1, 2026-10-30; approved by Anton)
+
+From implementation-reviewer (full depth) on data `80ea217..95b9f15` / app `231554f..d31d5cf`. S3b is already on `origin/main`; these land as follow-up commits. **Local data `main` also carries S4a's unpushed commits (`a4f2294`, `69937c6`, `226a21d`) — do not rebase, amend or touch them, and do not pull.** §8 is not edited (the hash must stay `dbeff355…26cc`).
+
+**Hard constraint (S4a reuse).** S4a imports from `scripts/dynasty-history-run.mjs`: `realisedValue`, `cohortStats`, `percentileBias`, `labelBaseline`, `labelBias`, `labelRho`, `pathOf`, `metricKey`, `parseMetricKey`; and from `lib/ageCurveVariants.mjs`: `guardedAgeCurves`. None of F1–F9 may change the behaviour of any of these. If a fix seems to need that, stop and report.
+
+- **F1 — practice-squad label erratum (wording around the label; the label stays).** In the verdict, put one dated erratum sentence directly after every PS label (§2 if mentioned, §8, and the backlog append text from `buildBacklogAppends`): "Erratum (2026-10-30): §8.9's PS wording is inverted relative to §8.4 — Δ < 0 means the practice-squad group did better than its scores predicted. The label is kept as pre-registered; read the sign of Δ." The app's D-79 note already carries a caveat (app `b6fcb54`); leave it.
+- **F2 — the `deliberateDifferences` age line** (`scripts/dynasty-history-run.mjs:444`). Build the panel/verdict list once with S-generic wording: "ages are true ages on (S+1)-06-01 from birthdates…". Then add the measured gap of every cohort as a per-S list (from `meta.checks[mode][S].ageGap`), not cohort 2015's string.
+- **F3 — outcome snaps games: test and 2025 counts** (`:460-466`, `:1049-1051`). Count outcome-season substitutions and name-guard skips per season, 2025 included, into `meta.outcomeSnaps[y] = { differ, nameGuardSkips }`. Add a T-GAMES-OUT test on a synthetic store with snaps entries in an outcome season: one substituted, one name-mismatched (it keeps Sleeper's count and is counted), one `games: 0`. Make the D-77 append text cite the 2013–2025 totals (as-of seasons plus 2025 outcomes), with the split stated.
+- **F4 — psWeeks and ablation wiring tests** (`:306-317`, `:746-757`, `:237-274`). A synthetic rosterweekly gives one player DEV weeks in S−1 and S. Cover: a `CUT+DEV` status; a week above the REG cap that must not count. Assert psWeeks by hand, and assert the `ps4~ps0` point value from hand-derived biases. Add one assertion each that A-ST-chg changes only changers' scores, A-C1 only WR/TE rows with an advstats share, and A-QB only non-QB rows on a team with a QB row.
+- **F5 — real assertions** (`test/dynasty-history.test.mjs:118, :171, :201, :202, :205, :353`).
+  - Replace the cannot-fail `|| … >= 0` and the self-equal assert.
+  - Isolate the 160-row rule.
+  - Isolate the drop of resamples with fewer than 6 contributing cohorts.
+  - Assert pairing: Δ equals the per-resample difference.
+  - Assert pid clustering: two rows of one pid move together in a resample.
+  - Assert the exclusion counts' values (:353).
+- **F6 — years_exp as a filter, not a stop** (`:380-383`). Per §5, a Path B/C row with `years_exp < 2` is excluded and counted as reason `years-exp-lt-2`. Add a test.
+- **F7 — `insufficient` takes precedence over `variant-identical`** (`:763`). A cell below its minimum (`!enough`) is `insufficient` even when every row is identical. §8.9's "any cell: `insufficient`" governs.
+- **F8 — exclusion reason `no-position`** (`:371-377`). Count only skill candidates of §5 whose mirror returns no position under `no-position`. Report non-skill pids, if at all, as `meta.nonSkillRowsS[S]`, outside `exclusions`.
+- **F9 — cell `n` from contributing cohorts only** (`combine`, `:550-563`). `n` sums rows only over cohorts whose statistic is non-null, so the ≥ 160 and ≥ 30 checks count contributing rows. Change only S3b's `combine`; do not touch S4a's copy. `combine` is not on S4a's import list.
+
+**Rerun and comparison (gate).**
+1. Commit code and tests.
+2. Run `node bin/backtest.mjs --dynasty-history --write` (same seed; `--max-old-space-size` as before is fine). Write to a new date or a `-rerun` suffix; do not overwrite the `be918cf` files.
+3. Diff the new panel's `metrics` against `be918cf`'s panel: every cell's `value`, `ci95`, `n`, `cohortsUsed` and `label`.
+4. **If any label changes, do not commit the new panel or verdict. Stop and report** the full list of changed cells, grouped by the fix that caused each (F7 and F9 are expected to change some below-minimum cells), plus any changed value.
+5. If no label changes, commit the new panel and verdict. The verdict header gains: "Supersedes `be918cf`'s panel and verdict: Fix pass 1 (F1–F9) — wording, metadata, exclusion counts and test coverage; no pre-registered label changed." Then update the stale-age, D-77 and D-79 appends' SHA citations to the new commit.
+
+**Leave alone:** §8; S3a modules; S4a's commits and files; the app repo except the D-77 line in app `.claude/tasks/data-repo-backlog.md` (and its SHA citations); CR-32.
+
+**Done:** data `npm test` and `npm run smoke` green; nothing pushed. Hand back in the fix-applier format, plus:
+- the label diff (or "none") and the value diff summary;
+- an explicit statement that no S4a-imported export changed (show `git diff` of those functions, empty);
+- the new SHAs.
