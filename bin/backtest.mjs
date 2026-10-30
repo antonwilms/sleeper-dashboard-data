@@ -72,6 +72,12 @@
  *                pre-registration hashed from the task file. Takes only --json / --write. --write persists
  *                backtests/<date>-dynasty-history-panel.json + grading/<date>-dynasty-history-verdict.md (unregistered).
  *                Exit 1 on a stop (prereg hash mismatch, birthdate coverage, in-progress outcome season, missing snaps file).
+ *   --dynasty-rework  veteran dynasty score rework (S4a, offline research only; not the snapshot grader): four fixed candidate
+ *                reworks fitted out of sample (buffered leave-one-cohort-out folds) on the S3 history panel's rows, and the
+ *                pre-registered S4A-WIN / S4A-NO-WIN verdict. Takes only --json / --write / --probe. --probe (after the hash is
+ *                pinned) builds two cohorts and prints counts and timings only. --write persists
+ *                backtests/<date>-dynasty-rework-panel.json + grading/<date>-dynasty-rework-verdict.md (unregistered); run once.
+ *                Reads playerids and raw players from rev a791db0 (git show). Exit 1 on a stop (hash, S3 parity, coverage, panel size).
  *   --age-curve-gap  stale-Sleeper-age gap report (S3a, offline; report-only; reads no outcome season): today's app age
  *                curves (Sleeper `age`) vs the same curves built from birthdates, the row-level age gap, and how many current
  *                players' age-adjusted component and score would move. Takes only --json / --write; the inputs and the
@@ -134,6 +140,7 @@ import { gamesCauseMain } from '../scripts/games-cause-run.mjs';
 import { gamesShortMain } from '../scripts/games-short-run.mjs';
 import { ageCurveGapMain } from '../scripts/age-curve-gap-run.mjs';
 import { dynastyHistoryMain } from '../scripts/dynasty-history-run.mjs';
+import { dynastyReworkMain } from '../scripts/dynasty-rework-run.mjs';
 import { rookieTotalMain } from '../scripts/rookie-total-run.mjs';
 import { weeklyBasisMain } from '../scripts/weekly-basis-run.mjs';
 import { leagueBasisMain } from '../scripts/league-basis-run.mjs';
@@ -289,6 +296,18 @@ if (isMain) {
           process.exit(1);
         }
         process.exit(dynastyHistoryMain({ write, asJson }));
+      }
+
+      if (flag('--dynasty-rework')) {
+        const rejected = args.filter(a => a !== '--dynasty-rework' && a !== '--json' && a !== '--write' && a !== '--probe');
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --dynasty-rework rejects ${rejected.join(', ')} — seasons, candidates, grids and folds are pinned ` +
+            'by the task file, not knobs; it takes only --json, --write and --probe'
+          );
+          process.exit(1);
+        }
+        process.exit(dynastyReworkMain({ write, asJson, probe: flag('--probe') }));
       }
 
       if (flag('--games-calibration')) {

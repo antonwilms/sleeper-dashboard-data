@@ -1342,7 +1342,7 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
 `--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
 rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`),
-`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--age-curve-gap` (offline; report-only; reads no outcome season; takes only `--json`/`--write`), `--dynasty-history` (S3b; offline analysis, not the snapshot grader; takes only `--json`/`--write`; rejects every other flag; `--write` persists `backtests/<date>-dynasty-history-panel.json` + `grading/<date>-dynasty-history-verdict.md`, unregistered; exit 1 on a stop — pre-registration hash mismatch, birthdate coverage < 95% in a headline cohort, an in-progress outcome season, a missing snaps file 2013–2025, a measured peak age off §8.11's table, a panel > 15 MB), `--games-calibration [--cause | --short]` (takes only `--cause`/`--short`/`--json`/`--write`; `--cause` or `--short` alone is rejected; `--cause` and `--short` are mutually exclusive).
+`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--age-curve-gap` (offline; report-only; reads no outcome season; takes only `--json`/`--write`), `--dynasty-history` (S3b; offline analysis, not the snapshot grader; takes only `--json`/`--write`; rejects every other flag; `--write` persists `backtests/<date>-dynasty-history-panel.json` + `grading/<date>-dynasty-history-verdict.md`, unregistered; exit 1 on a stop — pre-registration hash mismatch, birthdate coverage < 95% in a headline cohort, an in-progress outcome season, a missing snaps file 2013–2025, a measured peak age off §8.11's table, a panel > 15 MB), `--dynasty-rework` (S4a; offline research, not the snapshot grader; takes only `--json`/`--write`/`--probe`; rejects every other flag; four fixed candidate reworks of the veteran dynasty score fitted out of sample on the S3 panel's rows, with a pre-registered `S4A-WIN`/`S4A-NO-WIN` verdict; reads `nflverse/playerids.json` and `raw/-players-nfl.json` from rev `a791db0` through `git show`; `--probe` is allowed only once the hash is pinned and prints counts and timings only; `--write` is run once and persists `backtests/<date>-dynasty-rework-panel.json` + `grading/<date>-dynasty-rework-verdict.md`, unregistered; exit 1 on a stop — prereg hash mismatch, S3 parity difference, birthdate coverage < 95% in a headline cohort, an in-progress outcome season, a panel > 15 MB), `--games-calibration [--cause | --short]` (takes only `--cause`/`--short`/`--json`/`--write`; `--cause` or `--short` alone is rejected; `--cause` and `--short` are mutually exclusive).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr|league` (`league` is `--fit` only, report-only), `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1356,7 +1356,7 @@ the app's live default, load-bearing for the reconstruction.
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
 `<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
 `<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`, `<date>-games-calibration-{panel,constants}.json`, `<date>-games-cause-{panel,constants}.json`, `<date>-games-short-{panel,constants}.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`, `<date>-games-cause-verdict.md`, `<date>-games-short-verdict.md`, `<date>-age-curve-gap.md`, `<date>-dynasty-history-verdict.md`).
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`, `<date>-games-cause-verdict.md`, `<date>-games-short-verdict.md`, `<date>-age-curve-gap.md`, `<date>-dynasty-history-verdict.md`, `<date>-dynasty-rework-verdict.md`).
 Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
@@ -1483,6 +1483,23 @@ mismatch. The verdict uses only the §8.9 labels and never proposes a weight, co
 no manifest entry, nothing reaches the app. Exports: `DYNASTY_HISTORY_LOAD`, `preregHash`, `metricKey`/`parseMetricKey`,
 `buildRows`, `computeMetrics`, `runDynastyHistory`, `buildDynastyHistoryVerdictMarkdown`, `buildBacklogAppends`,
 `writeDynastyHistoryArtifacts`, `dynastyHistoryMain`. A full run takes ~30 minutes.
+
+#### `lib/dynastyRework.mjs` and `scripts/dynasty-rework-run.mjs` — `--dynasty-rework`
+
+S4a, the veteran dynasty score rework (task `.claude/tasks/dynasty-rework-s4a.md`; §4–§5 hashed and pinned as
+`DYNASTY_REWORK_PREREG_SHA256`, checked first by every real-data entry point). `lib/dynastyRework.mjs` is pure: the four
+candidate scores (K0 reweight of today's components; K1 two-year level without trajectory; K2 K1 + forward aging with a
+β-grid; K3 K2 + no share-trend boost for movers, report-only and never selectable), the integer-twentieths weight grid
+fit, the fold plans, selection, age tilt and the decision rule. The adapter rebuilds S3's H rows for S = 2015–2024
+(`sleeper` games; playerids and raw players pinned to rev `a791db0`), stops unless they match the S3 history panel row
+for row, runs buffered leave-one-cohort-out folds (fit cohorts at least 3 seasons from the test cohort), scores each
+test cohort out of fold, and reports ρ vs the baselines, the age tilt, exploratory candidate rows, the fold table, the
+in-sample final model, forward-only and short-horizon robustness and an outcome-free 2025 preview. Uncertainty: 4,000
+player-clustered resamples, seed 12345, with fitted weights held fixed per fold. Offline research: no app file, no
+registry entry, no manifest entry. `--probe` builds cohorts 2015 and 2018, prints counts and timings only and a runtime
+projection; `--write` is run once. Exports: `DYNASTY_REWORK_LOAD`, `makeReworkLoad`, `preregHash`, `assertPrereg`,
+`readQbFloor`, `buildReworkRows`, `checkS3Parity`, `runFolds`, `runFinal`, `computeReworkMetrics`, `runDynastyRework`,
+`runProbe`, `buildDynastyReworkVerdictMarkdown`, `writeDynastyReworkArtifacts`, `dynastyReworkMain`.
 
 #### `lib/ageCurveVariants.mjs` — S3b's guarded and within-player age curves
 
