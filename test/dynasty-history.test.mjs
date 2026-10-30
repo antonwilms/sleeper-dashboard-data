@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   DynastyHistoryStop, DYNASTY_HISTORY_PREREG_SHA256, preregHash, metricKey, parseMetricKey, KEY_FIELDS, buildRows,
-  computeMetrics, runDynastyHistory, buildDynastyHistoryVerdictMarkdown, buildBacklogAppends, writeDynastyHistoryArtifacts,
+  computeMetrics, runDynastyHistory, buildDynastyHistoryVerdictMarkdown, buildBacklogAppends, writeDynastyHistoryArtifacts, labelChanges,
   hitRate, cohortStats, percentileBias, perPositionSummary, realisedValue, checkPeakTable, cellOf,
   labelRho, labelBaseline, labelLoo, labelAblation, labelBias, labelPs, AGE_APP_LABEL, LEVEL_SUBJECTS, DELTA_SPECS,
   COHORTS, HEADLINE_COHORTS, COMPONENTS, TASK_FILE, PEAK_TABLE, PS_ERRATUM,
@@ -701,6 +701,25 @@ describe('F1 practice-squad erratum', () => {
     for (const l of lines) assert.ok(l.endsWith(`${PS_ERRATUM} |`) && /ps-(under|out)performs-score — Erratum \(2026-10-30\)/.test(l), l);
     assert.match(PS_ERRATUM, /^Erratum \(2026-10-30\): §8\.9's PS wording is inverted relative to §8\.4 — Δ < 0 means the practice-squad group did better than its scores predicted\. The label is kept as pre-registered; read the sign of Δ\.$/);
     assert.ok(buildBacklogAppends(result, 'abc1234').d79.includes(PS_ERRATUM));
+  });
+});
+
+describe('supersedes header and label-change section', () => {
+  test('derived from the two panels\' metrics: header under the title, closing section, causes, no new values', () => {
+    const result = syntheticResult();
+    const old = JSON.parse(JSON.stringify(result.metrics));
+    const k1 = 'h3|M1|sleeper|delta|A-QB~H|hr12|QB|all', k2 = 'h3|M2|sleeper|path|H|rho|QB|B';
+    old[k1] = { ...old[k1], label: 'variant-identical' };
+    old[k2] = { ...old[k2], label: 'predictive' };
+    assert.deepEqual(labelChanges(old, result.metrics).map(c => [c.key, c.from, c.to, c.cause]).sort(), [
+      [k1, 'variant-identical', result.metrics[k1].label, 'F7'], [k2, 'predictive', result.metrics[k2].label, 'F9']].sort());
+    const md = buildDynastyHistoryVerdictMarkdown(result, { supersedes: { sha: 'be918cf', metrics: old } });
+    const lines = md.split('\n');
+    assert.match(lines[0], /^# Dynasty score/);
+    assert.equal(lines[2], `Supersedes \`be918cf\`'s panel and verdict: Fix pass 1 (F1–F9) corrected 2 pre-registered labels (1 F7, 1 F9) with no metric value changes and an unchanged pre-registration hash (dbeff355…26cc).`);
+    assert.ok(md.includes('## Label changes from Fix pass 1'));
+    assert.ok(md.includes(`| \`${k1.replaceAll("|", "\\|")}\` | variant-identical |`) && md.includes('| F9 |'));
+    assert.ok(!buildDynastyHistoryVerdictMarkdown(result).includes('Supersedes'));
   });
 });
 
