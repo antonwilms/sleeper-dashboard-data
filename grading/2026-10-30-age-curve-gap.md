@@ -1,7 +1,7 @@
 # Age-curve gap report (S3a §5)
 
 - Reference date D: 2026-05-18 (the Sleeper capture's date); currentYear 2026; as-of season 2025.
-- Data rev: 99a3258.
+- Data rev: 400c9f2.
 - Inputs: completed season-totals 2012–2025 (league-rescored), `raw/-players-nfl.json` (Sleeper ages), `nflverse/playerids.json` birthdates, the S = 2025 as-of inputs of `scripts/dynasty-asof.mjs`. No outcome season is read.
 - APP = the live app's curve (Sleeper `age`); BIRTH = the same builder on true ages from birthdates (whole years on D).
 

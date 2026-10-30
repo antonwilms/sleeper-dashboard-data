@@ -3,7 +3,7 @@
 **Status:** plan, Revision 2 (Session 1, 2026-10-29). Split from the S3 plan (Revision 1, two plan-review rounds) by Anton's decision of 2026-10-29. Its companion is **S3b**, `.claude/tasks/dynasty-history-backtest.md` (the pre-registered backtest); S3b is re-fitted to S3a as built and gets its own light plan review before its build. **No third plan-review round for S3a** (Anton): its golden parity test (T-G1) is the check.
 **Review depth: full** — it adds a new app-composition mirror (a new CR coupling, CR-32); it is cross-repo (registry entry + an app-side golden generator); it is new architecture (a new lib module and an as-of input builder); its age-curve report sets the priority of a scoring-affecting fix.
 **Session 2:** **sonnet**, effort **high** (exact-mirror work). Run it from the **parent folder** (`Sleeper Dashboard/`): it writes the data repo (most files) and the app repo (registry entry, golden generator + its pure core + test, one doc row). Read both repos' CLAUDE.md first; run git/npm from inside each repo. After the build, Session 1 runs implementation-reviewer at **full** depth (model opus, effort high) on the diff; Anton signs off.
-**Anchors:** app `main` @ `95ba1e1`, data `main` @ `a0a21e0`. Re-read every cited app line before porting; if any anchor has moved in meaning, stop and report.
+**Anchors:** app `main` @ `95ba1e1`, data `main` @ `51996b8`. Re-read every cited app line before porting; if any anchor has moved in meaning, stop and report.
 
 ---
 
@@ -45,7 +45,7 @@ Not in S3a: anything that reads a season after S as an outcome, the pre-registra
 | app | `docs/cross-repo-registry.md` | §7 — CR-32 |
 | app | `docs/navigation.md` | §8 — `scripts/verify/` row amended |
 
-Nothing else. No served data file, no manifest entry, no `data-catalog.md` or signal-registry change (no family ingested or reclassified). The stale-age backlog entry is already committed (data `a0a21e0`); S3a does not edit it.
+Nothing else. No served data file, no manifest entry, no `data-catalog.md` or signal-registry change (no family ingested or reclassified). The stale-age backlog entry is already committed (data `51996b8`); S3a does not edit it.
 
 ---
 
@@ -209,7 +209,7 @@ The App field lists the main ported definition sites, not every helper (private 
 
 ## 9. Backlog and calendar
 
-S3a closes no backlog item and no calendar line, and appends to none: the stale-age entry is already written (data `a0a21e0`) and points at §5's report; Anton sets its priority from the report. The D-77 and D-79 appends belong to S3b.
+S3a closes no backlog item and no calendar line, and appends to none: the stale-age entry is already written (data `51996b8`) and points at §5's report; Anton sets its priority from the report. The D-77 and D-79 appends belong to S3b.
 
 ---
 
@@ -235,7 +235,7 @@ S3a closes no backlog item and no calendar line, and appends to none: the stale-
 
 ## Fix pass 1 (Session 1, 2026-10-30; approved by Anton)
 
-From implementation-reviewer (full depth) on data `a0a21e0..92f392c` / app `95ba1e1..231554f`. Data repo only; the app repo, the goldens (`expected-*.json`, `inputs-*.json`), CR-32 and the mirror's default path are **not** touched. T-G1 must stay green **without regenerating** the goldens (F1 changes only an opt-in seam). Implement F1–F7, nothing else.
+From implementation-reviewer (full depth) on data `51996b8..05e1e6f` / app `95ba1e1..231554f`. Data repo only; the app repo, the goldens (`expected-*.json`, `inputs-*.json`), CR-32 and the mirror's default path are **not** touched. T-G1 must stay green **without regenerating** the goldens (F1 changes only an opt-in seam). Implement F1–F7, nothing else.
 
 **F1 — `targetShareOverride` replaces, never creates** (`lib/dynastyMirror.mjs:949-951`). Apply the override only when the player already has a teamContext share for WR/TE: `playerShare != null && playerShare.targetShare != null`. Otherwise leave `playerShare` exactly as the app would (null, or unchanged), so the app's no-share formula (0.55/0.45) is kept. When it does fire, the overridden value also appearing in `signals.targetShare` is accepted (signals report the share used); add a one-line comment saying so. Update the §3.3 seam description in the module header if it describes the seam.
 

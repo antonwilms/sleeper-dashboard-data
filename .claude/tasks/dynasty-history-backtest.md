@@ -3,7 +3,7 @@
 **Status:** plan, Revision 2 (Session 1, 2026-10-29). Split from the S3 plan (Revision 1, two plan-review rounds) by Anton's decision of 2026-10-29. **Prerequisite: S3a** (`.claude/tasks/dynasty-history-mirror.md` — the mirror, the as-of-S builder, golden parity, CR-32), signed off. **Before S3b's build:** a Session 1 re-fits this file to S3a as built (§4) and runs plan-reviewer at **light** depth on the re-fit (Anton); then Anton approves.
 **Review depth: full** — it is the evidence base for the next scoring decision (S4, the dynasty weights) and holds a pre-registration; the plan review of the re-fit runs at light depth by Anton's decision, the implementation review at full.
 **Session 2:** **sonnet**, effort **high**. Run it from the **parent folder** (`Sleeper Dashboard/`): it writes the data repo and two backlog files (data `.claude/tasks/app-repo-backlog.md`, app `.claude/tasks/data-repo-backlog.md`). Read both repos' CLAUDE.md first; run git/npm from inside each repo.
-**Anchors:** app `main` @ `95ba1e1`, data `main` @ `a0a21e0` — to be re-stated by the re-fit.
+**Anchors:** app `main` @ `95ba1e1`, data `main` @ `51996b8` — to be re-stated by the re-fit.
 
 ---
 
@@ -217,7 +217,7 @@ No registry change: CR-32 is S3a's, and S3b adds no coupling (it reads S3a's dat
 ## 14. Backlog and calendar (closing rule)
 
 This slice closes no backlog item and no calendar line (none names S3). It touches three open entries — append, do not strike:
-- **Stale-age entry** in data `.claude/tasks/app-repo-backlog.md` ("Age curves and age inputs read stale Sleeper ages", data `a0a21e0`): "Append (S3b, <date>, data `<sha>`): A-AGE-APP vs H, Δρ per position (M1, sleeper games): <values, CIs, labels>. This is today's app curve error transported to S — it contains post-S information; it is not the error the app had at S. Verdict §7." Session 2 changes nothing else in the entry and does not touch the calendar.
+- **Stale-age entry** in data `.claude/tasks/app-repo-backlog.md` ("Age curves and age inputs read stale Sleeper ages", data `51996b8`): "Append (S3b, <date>, data `<sha>`): A-AGE-APP vs H, Δρ per position (M1, sleeper games): <values, CIs, labels>. This is today's app curve error transported to S — it contains post-S information; it is not the error the app had at S. Verdict §7." Session 2 changes nothing else in the entry and does not touch the calendar.
 - **D-77** (app `.claude/tasks/data-repo-backlog.md`): "Append (S3b, <date>, data `<sha>`): the dynasty history test reports every metric under Sleeper `gamesPlayed` and a season-level snaps count (definition (c), with the D-87 name guard); <n> player-seasons differ, <m> name-guard skips; verdict `grading/<date>-dynasty-history-verdict.md` §3. The D-77 build is unchanged."
 - **D-79** (same file): "Append (S3b, <date>, data `<sha>`): practice-squad history as a dynasty-score role input — diagnostic only, cohorts 2018–2022, label <label> (verdict §8). No input added."
 
