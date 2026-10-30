@@ -67,6 +67,11 @@
  *                --short (L6c) keeps the app prediction on qualifying S seasons and fits k only on non-qualifying
  *                ones (SOf0, SOK1f0); --write persists backtests/<date>-games-short-{panel,constants}.json +
  *                grading/<date>-games-short-verdict.md. Mutually exclusive with --cause.
+ *   --dynasty-history  the dynasty score's first historical test (S3b, offline analysis only; not the snapshot grader): veterans' scores
+ *                rebuilt at the end of each season 2015–2024 from the as-of inputs, graded against the next three seasons on the
+ *                pre-registration hashed from the task file. Takes only --json / --write. --write persists
+ *                backtests/<date>-dynasty-history-panel.json + grading/<date>-dynasty-history-verdict.md (unregistered).
+ *                Exit 1 on a stop (prereg hash mismatch, birthdate coverage, in-progress outcome season, missing snaps file).
  *   --age-curve-gap  stale-Sleeper-age gap report (S3a, offline; report-only; reads no outcome season): today's app age
  *                curves (Sleeper `age`) vs the same curves built from birthdates, the row-level age gap, and how many current
  *                players' age-adjusted component and score would move. Takes only --json / --write; the inputs and the
@@ -128,6 +133,7 @@ import { gamesCalibrationMain } from '../scripts/games-calibration-run.mjs';
 import { gamesCauseMain } from '../scripts/games-cause-run.mjs';
 import { gamesShortMain } from '../scripts/games-short-run.mjs';
 import { ageCurveGapMain } from '../scripts/age-curve-gap-run.mjs';
+import { dynastyHistoryMain } from '../scripts/dynasty-history-run.mjs';
 import { rookieTotalMain } from '../scripts/rookie-total-run.mjs';
 import { weeklyBasisMain } from '../scripts/weekly-basis-run.mjs';
 import { leagueBasisMain } from '../scripts/league-basis-run.mjs';
@@ -271,6 +277,18 @@ if (isMain) {
           process.exit(1);
         }
         process.exit(ageCurveGapMain({ write, asJson }));
+      }
+
+      if (flag('--dynasty-history')) {
+        const rejected = args.filter(a => a !== '--dynasty-history' && a !== '--json' && a !== '--write');
+        if (rejected.length) {
+          console.error(
+            `[backtest] Error: --dynasty-history rejects ${rejected.join(', ')} — seasons, variants, measures and samples are pinned ` +
+            'by the task file, not knobs; it takes only --json and --write'
+          );
+          process.exit(1);
+        }
+        process.exit(dynastyHistoryMain({ write, asJson }));
       }
 
       if (flag('--games-calibration')) {

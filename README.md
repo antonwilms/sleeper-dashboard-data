@@ -1342,7 +1342,7 @@ Neither analysis CLI is wired into `npm run smoke`, and neither is the snapshot 
 accepted), `--position P`, `--from YYYY`, `--to YYYY`, `--min-games N`, `--controls`,
 `--by-season`, `--json`, `--write`, `--validate`, `--inseason` (takes only `--json`/`--write`/`--dynasty`;
 rejects every other flag — the windows and basis are pinned; `--dynasty` requires `--inseason`),
-`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--age-curve-gap` (offline; report-only; reads no outcome season; takes only `--json`/`--write`), `--games-calibration [--cause | --short]` (takes only `--cause`/`--short`/`--json`/`--write`; `--cause` or `--short` alone is rejected; `--cause` and `--short` are mutually exclusive).
+`--qb-takeover` (takes only `--json`/`--write`; rejects every other flag, `--dynasty` included), `--qb-rookie-level` (takes only `--json`/`--write`), `--absence` (takes only `--json`/`--write`), `--age-curve-gap` (offline; report-only; reads no outcome season; takes only `--json`/`--write`), `--dynasty-history` (S3b; offline analysis, not the snapshot grader; takes only `--json`/`--write`; rejects every other flag; `--write` persists `backtests/<date>-dynasty-history-panel.json` + `grading/<date>-dynasty-history-verdict.md`, unregistered; exit 1 on a stop — pre-registration hash mismatch, birthdate coverage < 95% in a headline cohort, an in-progress outcome season, a missing snaps file 2013–2025, a measured peak age off §8.11's table, a panel > 15 MB), `--games-calibration [--cause | --short]` (takes only `--cause`/`--short`/`--json`/`--write`; `--cause` or `--short` alone is rejected; `--cause` and `--short` are mutually exclusive).
 
 `bin/panel.mjs` — `--from/--to YYYY`, `--attribution current-team|per-season-team`,
 `--basis in-basis|half_ppr|league` (`league` is `--fit` only, report-only), `--scoring-from YYYY-MM-DD`, `--min-games N`, `--ridge X`,
@@ -1356,7 +1356,7 @@ the app's live default, load-bearing for the reconstruction.
 Writes land in `backtests/` (`<date>-<metric>-<pos>.json`, `<date>-e0a-{panel,fit}.json`,
 `<date>-r2flip-*`, `<date>-r3fit-*`, `<date>-inseason-{panel,constants}.json`,
 `<date>-inseason-dyn-{panel,constants}.json`, `<date>-qb-takeover-{panel,constants}.json`, `<date>-qb-rookie-level-{panel,constants}.json`, `<date>-absence-panel.json`, `<date>-games-calibration-{panel,constants}.json`, `<date>-games-cause-{panel,constants}.json`, `<date>-games-short-{panel,constants}.json`) and `grading/`
-(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`, `<date>-games-cause-verdict.md`, `<date>-games-short-verdict.md`, `<date>-age-curve-gap.md`).
+(`<date>-*-verdict.md`, incl. `<date>-inseason-verdict.md`, `<date>-inseason-dyn-verdict.md`, `<date>-qb-takeover-verdict.md`, `<date>-qb-rookie-level-verdict.md`, `<date>-absence-verdict.md`, `<date>-games-calibration-verdict.md`, `<date>-games-cause-verdict.md`, `<date>-games-short-verdict.md`, `<date>-age-curve-gap.md`, `<date>-dynasty-history-verdict.md`).
 Methodology: [Analysis / Backtesting](#analysis--backtesting).
 
 #### `lib/panel.mjs` — dispatch lists and the in-season seams
@@ -1469,6 +1469,27 @@ Report-only (`bin/backtest.mjs --age-curve-gap [--json] [--write]`; reads no out
 (Sleeper ages) against the same curves from birthdates, the row-level age gap, and how many current players' age-adjusted
 component and mirror score would move under (a) app today, (b) curve fix only, (c) full fix. `--write` persists
 `grading/<date>-age-curve-gap.md` (unregistered). No recommendation: the priority of the age fix is Anton's decision.
+
+#### `scripts/dynasty-history-run.mjs` — `--dynasty-history`
+
+S3b, the dynasty score's first historical test (task `.claude/tasks/dynasty-history-backtest.md`). For S = 2015–2024 it
+rebuilds every veteran's score from S3a's as-of inputs (`scripts/dynasty-asof.mjs`, `lib/dynastyMirror.mjs`; neither is
+changed) under both games definitions (Sleeper `gamesPlayed`, season-level snaps), grades it against the next three
+seasons' league-rescored PPG (M1 = mean over qualifying seasons, M2 = missed seasons as 0), and reports per-position
+within-cohort Spearman, HR@12/@24, the baselines B1/B2, age-band bias, leave-one-component-out, ablations, the age-curve
+comparisons, the practice-squad diagnostic and per-cohort tables, with player-clustered bootstrap CIs (4,000, seed 12345).
+The §8 pre-registration is hashed from the task file and pinned as `DYNASTY_HISTORY_PREREG_SHA256`; a run stops on a
+mismatch. The verdict uses only the §8.9 labels and never proposes a weight, constant or curve. Offline: no served file,
+no manifest entry, nothing reaches the app. Exports: `DYNASTY_HISTORY_LOAD`, `preregHash`, `metricKey`/`parseMetricKey`,
+`buildRows`, `computeMetrics`, `runDynastyHistory`, `buildDynastyHistoryVerdictMarkdown`, `buildBacklogAppends`,
+`writeDynastyHistoryArtifacts`, `dynastyHistoryMain`. A full run takes ~30 minutes.
+
+#### `lib/ageCurveVariants.mjs` — S3b's guarded and within-player age curves
+
+Pure, no I/O. `guardedAgeCurves` is `empiricalAgeCurvesMirror`'s loop with one change: the derived peak age ignores age
+buckets under `PEAK_GUARD_MIN_ROWS` (30) rows (with `minRows: 0` it deep-equals the mirror). `deltaAgeCurves` builds the
+A-AGE-DELTA curve: the mean year-to-year PPG change by age, chained from H's best-populated age. Both return the four-key
+curve bundle the mirror takes, plus counts / fallback / floored diagnostics.
 
 #### `lib/durabilityMirror.mjs` — offline mirror of the app's durability rules
 
