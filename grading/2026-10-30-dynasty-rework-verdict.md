@@ -25,6 +25,7 @@
 - When a test cohort comes before its fit cohorts (e.g. test 2015, fit 2018–2022), the fit cohorts' inputs and their age curves include the test cohort's outcome seasons. No test outcome is ever a fit target, but the fit has seen those seasons as inputs.
 - The bootstrap holds each fold's fitted weights fixed, so the CIs leave out fit variance.
 - `sleeper` games only (S3 gave identical labels under both games definitions).
+- Limitation (added at sign-off, 2026-10-30, Anton): S4a's copied S3 helpers predate S3b Fix pass 1 F7 (`insufficient` takes precedence over `variant-identical`) and F9 (cell `n` counts contributing cohorts only). Both can only turn a label into `insufficient`, never create a pass, so `S4A-NO-WIN` stands; no rerun. Port before any reuse (app backlog D-88).
 - K3 uses next-season team information (the S+1 team), which reflects in-season moves, so it is report-only and never selectable (§5.2).
 
 ## 3. Primary table (M1, `sleeper` games, S = 2015–2022; ρ = equal-weight cohort average)
