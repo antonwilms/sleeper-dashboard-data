@@ -10,7 +10,7 @@
  * Public exports:
  *   DYNASTY_HISTORY_LOAD, DYNASTY_HISTORY_PREREG_SHA256, preregHash(text), DynastyHistoryStop
  *   metricKey(parts), parseMetricKey(key)
- *   buildRows({ load, cohorts, log })              → { rows, exclusions, leftBC, checks, deliberateDifferences }
+ *   buildRows({ load, cohorts, log })              → { rows, exclusions, leftBC, checks, deliberateDifferences, nonSkillRowsS, outcomeSnaps }
  *   computeMetrics(rows, { resamples, seed, log }) → { metrics, summary }
  *   runDynastyHistory({ load, log })               → result { meta, rows, metrics, summary }
  *   buildDynastyHistoryVerdictMarkdown(result)     → string
@@ -74,6 +74,7 @@ export const HEADLINE_MIN = { cohorts: 6, rows: 160 };
 export const CELL_MIN_ROWS = 30;
 
 export const AGE_APP_LABEL = "today's app curve error transported to S — contains post-S information; not the error the app had at S";
+export const PS_ERRATUM = "Erratum (2026-10-30): §8.9's PS wording is inverted relative to §8.4 — Δ < 0 means the practice-squad group did better than its scores predicted. The label is kept as pre-registered; read the sign of Δ.";
 const PEAK_GUARD_SENTENCE = `H's age curve ignores age buckets with fewer than ${PEAK_GUARD_MIN_ROWS} rows when it derives the peak age (a deliberate difference from the app, which has no guard)`;
 
 /** §8.11's measured table (data 605f132): S → position → [unguarded peak, guarded peak | 'fallback']. */
@@ -329,7 +330,7 @@ export function checkPeakTable(S, position, unguarded, guarded, fallback) {
 
 /**
  * The row set (fixed by H under 'sleeper'), every variant's score under both games modes, baselines, outcomes.
- * Returns { rows, exclusions, leftBC, checks, deliberateDifferences }.
+ * Returns { rows, exclusions, leftBC, checks, deliberateDifferences, nonSkillRowsS, outcomeSnaps }.
  */
 export function buildRows({ load = DYNASTY_HISTORY_LOAD, cohorts = COHORTS, log = () => {} } = {}) {
   const scoringSettings = load.loadLeagueScoring();
@@ -341,8 +342,11 @@ export function buildRows({ load = DYNASTY_HISTORY_LOAD, cohorts = COHORTS, log 
   const exclusions = {};
   const leftBC = {};
   const checks = { sleeper: {}, snaps: {} };
+  const nonSkillRowsS = {};
+  const outcomeSnaps = {};
+  const outcomeSeen = new Set();
   let diffs = null;
-  const gapTotals = { n: 0, sum: 0, off1: 0 };
+  const gapList = [];
 
   for (const S of cohorts) {
     log(`cohort ${S}`);
@@ -368,18 +372,21 @@ export function buildRows({ load = DYNASTY_HISTORY_LOAD, cohorts = COHORTS, log 
       const pos = ctxs.sleeper.H.playersMap[pid].position;
       if (!isBC(p)) excl(pos, REASON[p]);
     }
-    // non-skill S rows (kickers, defences…) are outside the universe by construction; counted for the record
+    // non-skill S rows (kickers, defences…) are outside the universe by construction; reported outside `exclusions`
+    // (the `no-position` exclusion reason counts only skill candidates whose mirror returned no position)
     let noPos = 0;
     for (const [pid, r] of Object.entries(ctxs.sleeper.H.careerStats[S] ?? {})) {
       if (pid.startsWith('TEAM_') || !((r?.gamesPlayed ?? 0) > 0)) continue;
       if (!SKILL.includes(positionOf(pid))) noPos++;
     }
-    if (noPos) { exclusions[S].NONE = { 'no-position': noPos }; }
+    nonSkillRowsS[S] = noPos;
 
-    const rowPids = ctxs.sleeper.H.skillPids.filter(pid => isBC(pathHSleeper[pid])).sort();
-    for (const pid of rowPids) {
-      const ye = ctxs.sleeper.H.playersMap[pid].years_exp;
-      if (!(ye >= 2)) throw new DynastyHistoryStop(`[dynasty-history] ${S} pid ${pid}: a Path B/C row with years_exp ${ye} — the file does not say how to treat it`);
+    // §5: years_exp >= 2 is a filter on the Path B/C set, counted as `years-exp-lt-2`
+    const rowPids = [];
+    for (const pid of ctxs.sleeper.H.skillPids.filter(pid => isBC(pathHSleeper[pid])).sort()) {
+      const pm = ctxs.sleeper.H.playersMap[pid];
+      if (pm.years_exp >= 2) rowPids.push(pid);
+      else excl(pm.position, 'years-exp-lt-2');
     }
 
     // birthdate coverage (stop in a headline cohort below 95%)
@@ -439,8 +446,7 @@ export function buildRows({ load = DYNASTY_HISTORY_LOAD, cohorts = COHORTS, log 
         deltaFloored: { ...c.delta.floored },
       };
     }
-    const g = ctxs.sleeper.H.meta.checks.ageGap[S];
-    gapTotals.n += g.n; gapTotals.sum += (g.mean ?? 0) * g.n; gapTotals.off1 += g.off1;
+    gapList.push({ S, ...ctxs.sleeper.H.meta.checks.ageGap[S] });
     diffs ??= ctxs.sleeper.H.meta.deliberateDifferences;
 
     // leftBC counts
@@ -460,7 +466,17 @@ export function buildRows({ load = DYNASTY_HISTORY_LOAD, cohorts = COHORTS, log 
     const gamesIn = (mode, y, pid, row) => {
       if (mode === 'snaps' && y >= 2013) {
         const e = og.loadSnapShare(y)?.players?.[pid];
-        if (e && e.games > 0 && normName(e.name) === normName(sleeperNameOf(rawPlayers?.[pid]))) return e.games;
+        if (e && e.games > 0) {
+          // outcome-season substitutions and name-guard skips, once per (season, player) over the scored rows' windows
+          const first = !outcomeSeen.has(`${y}|${pid}`);
+          outcomeSeen.add(`${y}|${pid}`);
+          const o = (outcomeSnaps[y] ??= { differ: 0, nameGuardSkips: 0 });
+          if (normName(e.name) === normName(sleeperNameOf(rawPlayers?.[pid]))) {
+            if (first && e.games !== row.gamesPlayed) o.differ++;
+            return e.games;
+          }
+          if (first) o.nameGuardSkips++;
+        }
       }
       return row.gamesPlayed;
     };
@@ -502,16 +518,16 @@ export function buildRows({ load = DYNASTY_HISTORY_LOAD, cohorts = COHORTS, log 
     }
   }
 
-  const gapMean = gapTotals.n ? gapTotals.sum / gapTotals.n : null;
+  const fmtGap = (g) => `${g.S} n=${g.n}, ${g.n === 0 || g.mean == null ? 'mean n/a' : `mean ${g.mean.toFixed(2)} y`}, ${g.off1} off by > 1 y`;
   const deliberateDifferences = [
     ...(diffs ?? []).map(d => (d.startsWith('ages are true ages')
-      ? `${d.split('; measured over')[0]}; measured over all cohorts' curve-input rows: n=${gapTotals.n}, ${gapMean == null ? 'mean n/a' : `mean Sleeper − true ${gapMean.toFixed(2)} y`}, ${gapTotals.off1} off by > 1 y`
+      ? `${d.split('; measured over')[0].replace(/ on \d{4}-\d{2}-\d{2} /, ' on (S+1)-06-01 ')}; measured per S over that cohort's curve-input rows (Sleeper − true): ${gapList.map(fmtGap).join('; ')}`
       : d)),
     'gamesPlayed under the snaps mode is the nflverse season-level snaps count (D-77 definition (c)) under the D-87 name guard; outcomes use the same definition',
     PEAK_GUARD_SENTENCE,
     `A-AGE-APP: ${AGE_APP_LABEL}`,
   ];
-  return { rows, exclusions, leftBC, checks, deliberateDifferences };
+  return { rows, exclusions, leftBC, checks, deliberateDifferences, nonSkillRowsS, outcomeSnaps };
 }
 
 // ─── metrics ─────────────────────────────────────────────────────────────────────────────────────
@@ -550,7 +566,6 @@ function cohortMap(ctx, m, k, a, b = null, filt = null) {
 function combine(mapA, mapB, stat) {
   let sum = 0, c = 0, n = 0;
   for (const [g, sa] of mapA) {
-    n += sa.n;
     const x = sa[stat];
     if (x == null) continue;
     if (mapB) {
@@ -559,6 +574,7 @@ function combine(mapA, mapB, stat) {
       sum += x - y;
     } else sum += x;
     c++;
+    n += sa.n; // rows of contributing cohorts only (the >= 160 / >= 30 checks count contributing rows)
   }
   return { v: c ? sum / c : null, c, n };
 }
@@ -760,11 +776,13 @@ export function computeMetrics(rows, { resamples = BOOTSTRAP.resamples, seed = B
     const { v, c, n } = res.point;
     const enough = n >= sp.minN && c >= sp.minC && v != null;
     let ci95 = null, used = null, label;
-    if (sp.identical) {
-      label = 'variant-identical';
-    } else if (!enough || !res.boot) {
-      label = 'insufficient';
+    if (!enough) {
+      label = 'insufficient'; // §8.9: any cell below its minimum is insufficient, even when every row is identical
       if (res.boot) { ci95 = res.boot.ci95; used = res.boot.used; }
+    } else if (sp.identical) {
+      label = 'variant-identical';
+    } else if (!res.boot) {
+      label = 'insufficient';
     } else {
       ci95 = res.boot.ci95; used = res.boot.used;
       label = sp.label(ci95);
@@ -805,8 +823,8 @@ export function runDynastyHistory({ load = DYNASTY_HISTORY_LOAD, log = () => {},
     cohorts, headlineCohorts: HEADLINE_COHORTS, asOfDate: '(S+1)-06-01',
     scoringFixture: LEAGUE_SCORING_FIXTURE, positionFile: 'raw/-players-nfl.json',
     bootstrap: { resamples, seed: BOOTSTRAP.seed },
-    exclusions: built.exclusions, leftBC: built.leftBC, checks: built.checks,
-    deliberateDifferences: built.deliberateDifferences,
+    exclusions: built.exclusions, nonSkillRowsS: built.nonSkillRowsS, leftBC: built.leftBC, checks: built.checks,
+    outcomeSnaps: built.outcomeSnaps, deliberateDifferences: built.deliberateDifferences,
   };
   return { meta, rows: built.rows, metrics, summary };
 }
@@ -966,7 +984,8 @@ export function buildDynastyHistoryVerdictMarkdown(result, { seen = null } = {})
     '| measure | games | position | Δ bias | 95% CI | n (≥4 weeks) | label |', '|---|---|---|---|---|---|---|');
   for (const k of MEASURES) for (const m of MODES) for (const pos of [...POSITIONS, 'ALL']) {
     const c = C({ horizon: 'h3', measure: k, mode: m, kind: 'ps', subject: 'ps4~ps0', statistic: 'bias', position: pos });
-    w(`| ${k} | ${m} | ${pos} | ${sg(c.value)} | ${ciStr(c)} | ${c.n} | ${c.label} |`);
+    const inverted = c.label === 'ps-underperforms-score' || c.label === 'ps-outperforms-score';
+    w(`| ${k} | ${m} | ${pos} | ${sg(c.value)} | ${ciStr(c)} | ${c.n} | ${c.label}${inverted ? ` — ${PS_ERRATUM}` : ''} |`);
   }
   w('');
 
@@ -1045,15 +1064,21 @@ export function buildBacklogAppends(result, sha) {
     const c = cellOf(metrics, { horizon: 'h3', measure: 'M1', mode: 'sleeper', kind: 'delta', subject: 'H~A-AGE-APP', statistic: 'rho', position: pos, cell: 'all' });
     return `${pos} ${sg(c.value)} ${ciStr(c)} ${c.label}`;
   });
+  // as-of seasons 2013…last cohort (S3a's counts over every player with a row) plus the final outcome season (2025,
+  // counted over the scored rows' players only), split as stated
   let differ = 0, skips = 0;
   const last = meta.checks.snaps[meta.cohorts[meta.cohorts.length - 1]] ?? {};
   for (const v of Object.values(last.snapsGamesDiffer ?? {})) differ += v;
   for (const v of Object.values(last.snapsNameGuardSkips ?? {})) skips += v;
+  const lastAsOf = meta.cohorts[meta.cohorts.length - 1];
+  const o = { differ: 0, nameGuardSkips: 0 };
+  for (const [y, v] of Object.entries(meta.outcomeSnaps ?? {})) if (Number(y) > lastAsOf) { o.differ += v.differ; o.nameGuardSkips += v.nameGuardSkips; }
+  const lastOutcome = LAST_COMPLETED_SEASON;
   const ps = cellOf(metrics, { horizon: 'h3', measure: 'M1', mode: 'sleeper', kind: 'ps', subject: 'ps4~ps0', statistic: 'bias', position: 'ALL', cell: 'all' });
   return {
     staleAge: `Append (S3b, ${date}, data \`${sha}\`): A-AGE-APP vs H, Δρ per position (M1, sleeper games; H − A-AGE-APP, first-named side judged): ${parts.join('; ')}. This is ${AGE_APP_LABEL}. Verdict §7.`,
-    d77: `Append (S3b, ${date}, data \`${sha}\`): the dynasty history test reports every metric under Sleeper \`gamesPlayed\` and a season-level snaps count (definition (c), with the D-87 name guard); ${differ} player-seasons differ, ${skips} name-guard skips (seasons 2013–${meta.cohorts[meta.cohorts.length - 1]}); verdict \`grading/${date}-dynasty-history-verdict.md\` §3. The D-77 build is unchanged.`,
-    d79: `Append (S3b, ${date}, data \`${sha}\`): practice-squad history as a dynasty-score role input — diagnostic only, cohorts 2018–2022, label ${ps.label} (verdict §8). No input added.`,
+    d77: `Append (S3b, ${date}, data \`${sha}\`): the dynasty history test reports every metric under Sleeper \`gamesPlayed\` and a season-level snaps count (definition (c), with the D-87 name guard); ${differ + o.differ} player-seasons differ, ${skips + o.nameGuardSkips} name-guard skips (seasons 2013–${lastOutcome}: ${differ} and ${skips} in the as-of seasons 2013–${lastAsOf}, ${o.differ} and ${o.nameGuardSkips} in the ${lastOutcome} outcomes); verdict \`grading/${date}-dynasty-history-verdict.md\` §3. The D-77 build is unchanged.`,
+    d79: `Append (S3b, ${date}, data \`${sha}\`): practice-squad history as a dynasty-score role input — diagnostic only, cohorts 2018–2022, label ${ps.label} (${PS_ERRATUM}) (verdict §8). No input added.`,
   };
 }
 
@@ -1066,10 +1091,11 @@ export function serializePanel(result) {
   return `${head},\n"rows": [\n${rows.map(r => JSON.stringify(r)).join(',\n')}\n],${tail}\n}\n`;
 }
 
-export function writeDynastyHistoryArtifacts({ result, verdictMd, root = null }) {
+/** `DYNASTY_HISTORY_OUT_SUFFIX` (e.g. `-rerun`) keeps a re-run from overwriting an earlier run's files of the same date. */
+export function writeDynastyHistoryArtifacts({ result, verdictMd, root = null, suffix = process.env.DYNASTY_HISTORY_OUT_SUFFIX ?? '' }) {
   const date = result.meta.generatedAt.slice(0, 10);
-  const panelPath = `backtests/${date}-dynasty-history-panel.json`;
-  const verdictPath = `grading/${date}-dynasty-history-verdict.md`;
+  const panelPath = `backtests/${date}-dynasty-history-panel${suffix}.json`;
+  const verdictPath = `grading/${date}-dynasty-history-verdict${suffix}.md`;
   const panelJson = serializePanel(result);
   const panelBytes = Buffer.byteLength(panelJson);
   if (panelBytes > PANEL_MAX_BYTES) throw new DynastyHistoryStop(`[dynasty-history] the panel is ${panelBytes} bytes (> 15 MB)`);
