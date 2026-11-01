@@ -54,6 +54,7 @@ Flag by the specific invariant's number and name, or by `git-workflow.md` for th
 ## 3. Test honesty
 
 A green run proves nothing about a test that was bent to be green. For every new or changed test in the diff:
+- **Check each hand-back "defect it catches" claim against the test's fixture.** A claim the fixture cannot exercise is a `test-honesty` flag.
 - **What does it actually assert?** State it in one clause. A test that constructs the expected value from the same code path under test asserts nothing.
 - **Was an existing assertion weakened rather than the code fixed?** A tightened threshold loosened, a case removed, an `assert.ok` softened to a truthiness check, a fixture regenerated from current output, a skip or `only` left in.
 - **Does the change the diff makes have a test at all?** A new guard, floor, or emitted field with no assertion is a finding — name the untested behaviour.

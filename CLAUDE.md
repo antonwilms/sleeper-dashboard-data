@@ -135,7 +135,7 @@ Workflow convention, review loop, how to talk to Anton, and model routing live i
 ## Done-definition
 
 Before reporting a task complete:
-1. Run `npm run smoke` — fix any red.
+1. Run `npm run smoke` — fix any red. Each new or changed test in `test/` must be shown to fail: temporarily break the behaviour it guards (or revert the change), confirm red, restore. A test that stays green is rewritten before commit.
 2. For enrichment changes, run `npm run validate:enrichment` — fix any red.
 3. For any change touching a data file, confirm `manifest.json` is updated.
 4. Plan review: invoke the plan-reviewer subagent on the task file at the end of Session 1, before Session 2 — see [Workflow convention](#workflow-convention) (see ../CLAUDE.md).

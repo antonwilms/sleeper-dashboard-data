@@ -40,7 +40,7 @@ own change caused. A failure that was already red before your change is not your
 it, don't touch it.
 
 Do not write new tests unless the `## Fix pass N` section explicitly asks for one — most fix passes
-are non-behavioural corrections to an already-implemented feature. Do not run `bin/update.mjs`,
+are non-behavioural corrections to an already-implemented feature. When a fix pass does add or change a test, the show-it-fails rule applies: temporarily break the behaviour it guards (or revert the change), confirm red, restore; a test that stays green is rewritten. Your report includes a `TEST FAIL-CHECK` line per such test: what was broken and that it went red. Do not run `bin/update.mjs`,
 `bin/enrich.mjs`, `bin/import-snapshot.mjs`, or any script that fetches or writes live data, unless
 the section explicitly calls for that script.
 
