@@ -12,6 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 import {
   DynastyHistoryStop, DYNASTY_HISTORY_PREREG_SHA256, preregHash, metricKey, parseMetricKey, KEY_FIELDS, buildRows,
@@ -728,5 +729,25 @@ describe('T-CLI', () => {
     const r = spawnSync(process.execPath, ['bin/backtest.mjs', '--dynasty-history', '--basis', 'league'], { cwd: ROOT, encoding: 'utf8' });
     assert.equal(r.status, 1);
     assert.match(r.stderr, /seasons, variants, measures and samples are pinned by the task file, not knobs/);
+  });
+});
+
+// ─── T-GOLD-S3 ───────────────────────────────────────────────────────────────────────────────────
+
+describe('T-GOLD-S3 shared-helper move leaves S3b byte-identical', () => {
+  const sha = (x) => createHash('sha256').update(JSON.stringify(x)).digest('hex');
+  const qbRows = (cohorts, n) => panelRows(cohorts, n, (S, i) => mkRow({
+    pid: `p${S}_${i}`, S, score: i, value: i + (i % 3), age: 21 + (i % 14), extra: { psWeeks: [0, 0, 4, 6, 1][i % 5] },
+  }));
+  const fixture = () => [
+    ...qbRows(HEADLINE_COHORTS.slice(0, 6), 26),
+    ...qbRows(HEADLINE_COHORTS.slice(6), 10),
+    ...qbRows([2023, 2024], 25),
+  ];
+  test('(a) computeMetrics over the F7/F9 fixture hashes to the pinned value', () => {
+    assert.equal(sha(computeMetrics(fixture(), { resamples: 50 })), 'acc17545992d8e26c37c4383c60ba9d001e7b33332e4b58f734a5d6215b042b0');
+  });
+  test('(b) buildRows over the synthetic store hashes to the pinned value', () => {
+    assert.equal(sha(buildRows({ load: makeStore(), cohorts: [2019, 2021] })), '2ff6e66f32c69375c660f3ca9be8be59f49b791d098be10ff4741cf75c9bc306');
   });
 });

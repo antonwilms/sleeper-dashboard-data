@@ -12,6 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 import {
   weightGrid, gridSize, COHORT_ARRAY, POSITIONS, CANDIDATES, level2Of, level2Pool, currentLevel2Score, ageAdj2Score,
@@ -868,5 +869,25 @@ describe('T-KEYS and the verdict', () => {
     assert.throws(() => writeDynastyReworkArtifacts({ result: huge, verdictMd: 'v', root: dir2 }), (e) => e instanceof DynastyReworkStop && /15 MB/.test(e.message));
     assert.equal(fs.existsSync(path.join(dir2, 'backtests')), false);
     fs.rmSync(dir2, { recursive: true, force: true });
+  });
+});
+
+// ─── T-GOLD-S4 ───────────────────────────────────────────────────────────────────────────────────
+
+describe('T-GOLD-S4 shared-helper move leaves S4a output unchanged where F9/F7 cannot bite', () => {
+  const sha = (x) => createHash('sha256').update(JSON.stringify(x)).digest('hex');
+  const mkAll = () => {
+    const rows = [];
+    for (const S of COHORT_ARRAY(2015, 2022)) for (let i = 0; i < 40; i++) {
+      const b2 = (i * 7) % 40 + (S % 3) * 0.01;
+      rows.push(pRow({ pid: `b${S}_${i}`, S, age: 22 + (i % 14), h: (i * 3) % 40, b2, m1: (i * 11) % 40 + i * 0.001, P: (i * 13) % 40 }));
+    }
+    return rows;
+  };
+  test('(a) computeReworkMetrics over all-contributing cohorts hashes to the pinned value', () => {
+    assert.equal(sha(computeReworkMetrics(mkAll(), { resamples: 40 })), '3ccaadb90a51a2550d9d672fadc744cdfb11ab437d4e4f5ce9da95cb51c8dfea');
+  });
+  test('(b) buildReworkRows over the synthetic store hashes to the pinned value', () => {
+    assert.equal(sha(buildReworkRows({ load: makeStore(), cohorts: [2015, 2018] })), 'f373d2256367a5fb8308c8da78b95cb229d81f730f7c2751134a432e55d92575');
   });
 });
