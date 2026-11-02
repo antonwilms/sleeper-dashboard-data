@@ -180,3 +180,21 @@ Do **not** re-pin (a) to the post-move output; that would leave it asserting not
 ## Plan review (2026-11-02, plan-reviewer light)
 
 No blocking flags. Folded in (Anton approved): §4.2 drops the imports that become unused; §5.4 adds the `labelBaseline` test import; §5.5 anchors the copy scan at column 0, with one indented check for S3b's former inner `assemble`. Advisory, no change needed: §5.4(i) is shown red by swapping the branches, not against the old S4a copy (already stated).
+
+## Fix pass 1 (Session 1, 2026-11-02)
+
+From implementation-reviewer (light) on `d1fd3ee..d716eb6`. One flag, medium: T-GOLD-S3 (b) (`buildRows` hash, `test/dynasty-history.test.mjs` `describe('T-GOLD-S3 …')`) and T-GOLD-S4 (b) (`buildReworkRows` hash, `test/dynasty-rework.test.mjs` `describe('T-GOLD-S4 …')`) were never shown red. That breaks the done-definition.
+
+Show each (b) pin red with temporary breaks in `lib/dynastyBacktest.mjs`, one at a time, reverting each before the next:
+1. `round6`: round to 1e5 instead of 1e6.
+2. `isBC`: return `p === 'B'` only.
+3. `mirrorCall`: pass `{ ...options, shareTrendBoostOff: () => true }` instead of `options`.
+4. `guardedManifestCheck`: invert the `inProgress` test. Each (b) pin must then throw or change, or the existing T-STOP / stop test must go red. Name which.
+
+For each break, record which of the two (b) pins goes red.
+- **If a helper's break leaves its script's (b) pin green, stop and report** which helper and which pin. Do not extend fixtures or change any test. The hand-back's "defect it catches" claim for that pin is then narrowed to the helpers that did turn it red, and Session 1 decides.
+- If both pins go red under at least one break each, no code or test changes. The fix pass is evidence only.
+
+Leave alone: every source and test file. After reverting the last break, `git diff` must be empty apart from this task file.
+
+Commit: the task file only, with the per-break results appended under this section as `### Fix pass 1 result`. Then `git pull --rebase origin main` and `git push origin main`. Hand back the per-break red/green table and the final `npm test` counts.
