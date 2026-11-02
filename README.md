@@ -1470,6 +1470,15 @@ Report-only (`bin/backtest.mjs --age-curve-gap [--json] [--write]`; reads no out
 component and mirror score would move under (a) app today, (b) curve fix only, (c) full fix. `--write` persists
 `grading/<date>-age-curve-gap.md` (unregistered). No recommendation: the priority of the age fix is Anton's decision.
 
+#### `lib/dynastyBacktest.mjs` — shared statistics of the dynasty backtests
+
+Pure, no I/O (`guardedManifestCheck` reads only through the injected `load`). The helpers S3b (`--dynasty-history`), S4a
+(`--dynasty-rework`) and S5 share: `MIN_ROWS`, `hitRate`, `cohortStats`, `percentileBias`, `round6`, `isBC`, `mirrorCall`,
+`guardedManifestCheck(load, years, { Stop, tag })`, `sc`/`val`, `makeCtx`, `validItems`, `cohortMap`, `combine`,
+`biasItems(ctx, m, k, subject, filter)`, `meanOf`, `ciOf`, `bootstrapSpecs`, `assemble(sp, res, put)`. Moved verbatim from
+S3b after its Fix pass 1, so `combine` counts `n` over contributing cohorts only (F9) and `assemble` lets `insufficient`
+beat `variant-identical` (F7); both reach S4a by import. It imports neither `lib/dynastyRework.mjs` nor any `scripts/` file.
+
 #### `scripts/dynasty-history-run.mjs` — `--dynasty-history`
 
 S3b, the dynasty score's first historical test (task `.claude/tasks/dynasty-history-backtest.md`). For S = 2015–2024 it
@@ -1482,7 +1491,7 @@ The §8 pre-registration is hashed from the task file and pinned as `DYNASTY_HIS
 mismatch. The verdict uses only the §8.9 labels and never proposes a weight, constant or curve. Offline: no served file,
 no manifest entry, nothing reaches the app. Exports: `DYNASTY_HISTORY_LOAD`, `preregHash`, `metricKey`/`parseMetricKey`,
 `buildRows`, `computeMetrics`, `runDynastyHistory`, `buildDynastyHistoryVerdictMarkdown`, `buildBacklogAppends`,
-`writeDynastyHistoryArtifacts`, `dynastyHistoryMain`. A full run takes ~30 minutes.
+`writeDynastyHistoryArtifacts`, `dynastyHistoryMain`. The pure statistics (`cohortStats`, `hitRate`, `combine`, `assemble`, …) live in `lib/dynastyBacktest.mjs`; this module re-exports `MIN_ROWS`, `hitRate`, `cohortStats`, `percentileBias`. A full run takes ~30 minutes.
 
 #### `lib/dynastyRework.mjs` and `scripts/dynasty-rework-run.mjs` — `--dynasty-rework`
 
@@ -1497,7 +1506,7 @@ test cohort out of fold, and reports ρ vs the baselines, the age tilt, explorat
 in-sample final model, forward-only and short-horizon robustness and an outcome-free 2025 preview. Uncertainty: 4,000
 player-clustered resamples, seed 12345, with fitted weights held fixed per fold. Offline research: no app file, no
 registry entry, no manifest entry. `--probe` builds cohorts 2015 and 2018, prints counts and timings only and a runtime
-projection; `--write` is run once. Exports: `DYNASTY_REWORK_LOAD`, `makeReworkLoad`, `preregHash`, `assertPrereg`,
+projection; `--write` is run once. Its bootstrap/assemble/bias helpers are `lib/dynastyBacktest.mjs`'s, re-exported here. Exports: `DYNASTY_REWORK_LOAD`, `makeReworkLoad`, `preregHash`, `assertPrereg`,
 `readQbFloor`, `buildReworkRows`, `checkS3Parity`, `runFolds`, `runFinal`, `computeReworkMetrics`, `runDynastyRework`,
 `runProbe`, `buildDynastyReworkVerdictMarkdown`, `writeDynastyReworkArtifacts`, `dynastyReworkMain`.
 

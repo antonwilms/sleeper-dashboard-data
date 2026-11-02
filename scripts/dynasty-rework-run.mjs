@@ -13,15 +13,14 @@
  *   runFolds({ rows, plan, slot, log }), runFinal({ rows, log }), viewRows(rows, horizon), buildSpecs(hz, pos)
  *   computeReworkMetrics(rows, { resamples, seed, log }), runDynastyRework({ load, log }), runProbe({ load, print })
  *   buildDynastyReworkVerdictMarkdown(result), writeDynastyReworkArtifacts({ result, verdictMd, root }), dynastyReworkMain(…)
- * plus the statistics copied from scripts/dynasty-history-run.mjs (bootstrapSpecs, assemble, biasItems, …).
+ * plus the shared statistics re-exported from lib/dynastyBacktest.mjs (bootstrapSpecs, assemble, biasItems, …).
  */
 import fs from 'fs';
 import path from 'path';
 import { createHash } from 'crypto';
 import { execFileSync, execSync } from 'child_process';
 import { repoPath } from '../lib/io.mjs';
-import { clusteredBootstrap } from '../lib/inSeasonEvidence.mjs';
-import { dynastyScoreMirror, pickDynastyLabelMirror } from '../lib/dynastyMirror.mjs';
+import { pickDynastyLabelMirror } from '../lib/dynastyMirror.mjs';
 import { guardedAgeCurves } from '../lib/ageCurveVariants.mjs';
 import { leagueBasisLoad } from '../lib/leagueBasis.mjs';
 import {
@@ -33,8 +32,11 @@ import {
   DYNASTY_ASOF_LOAD, buildAsOfInputs, outcomeLoad, readTeamS1, isChanger, LAST_COMPLETED_SEASON,
 } from './dynasty-asof.mjs';
 import {
-  realisedValue, cohortStats, percentileBias, labelBaseline, labelBias, labelRho, pathOf, metricKey, parseMetricKey,
+  realisedValue, labelBaseline, labelBias, labelRho, pathOf, metricKey, parseMetricKey, KEY_FIELDS,
 } from './dynasty-history-run.mjs';
+import {
+  isBC, mirrorCall, guardedManifestCheck, cohortMap, combine, biasItems, meanOf, bootstrapSpecs, assemble,
+} from '../lib/dynastyBacktest.mjs';
 
 export class DynastyReworkStop extends Error {
   constructor(message, count = null) { super(message); this.name = 'DynastyReworkStop'; this.count = count; }
@@ -134,167 +136,8 @@ export function readQbFloor(load) {
 
 // ─── metric keys (§6) ────────────────────────────────────────────────────────────────────────────
 
-export const KEY_FIELDS = ['horizon', 'measure', 'mode', 'kind', 'subject', 'statistic', 'position', 'cell'];
-export { metricKey, parseMetricKey };
-
-// ─── copies of S3 privates (scripts/dynasty-history-run.mjs; verbatim except as noted) ───────────
-
-const round6 = (x) => (x == null ? null : Math.round(x * 1e6) / 1e6);
-
-/** Copy of scripts/dynasty-history-run.mjs:199 `mirrorCall`. */
-function mirrorCall(inputs, bundle, options = {}) {
-  return (pid) => dynastyScoreMirror(
-    pid, inputs.playersMap, inputs.careerStats, bundle.curves, bundle.positionPeakPPG, null, inputs.scoringSettings, null,
-    inputs.teamContext, inputs.depthMap, inputs.historicalShares, bundle.positionPeakAge, bundle.positionBasisScale, null, null, options,
-  );
-}
-
-/** Copy of scripts/dynasty-history-run.mjs:281 `guardedManifestCheck` (the in-progress-season stop). */
-function guardedManifestCheck(load, years) {
-  const files = load.loadManifest()?.files ?? {};
-  for (const y of years) {
-    const e = files[`nfl/season-totals/${y}.json`];
-    if (!e || e.inProgress !== false) {
-      throw new DynastyReworkStop(`[dynasty-rework] outcome season ${y} is not a completed season (manifest nfl/season-totals/${y}.json inProgress !== false)`);
-    }
-  }
-}
-
-const isBC = (p) => p === 'B' || p === 'C';
-
-// Copies of scripts/dynasty-history-run.mjs:519-521 (`sc`, `val`; `ageBand` is imported from lib/dynastyRework.mjs).
-export const sc = (row, m, s) => (s === 'B1' ? row.B1[m] : s === 'B2' ? row.B2[m] : (row.scores[s]?.[m] ?? null));
-export const val = (row, m, k) => row.outcome[m][k];
-
-/** Copy of :524 `makeCtx`. */
-export function makeCtx(entriesByGroup) { return { ebc: entriesByGroup, cache: new Map() }; }
-
-/** Copy of :526 `validItems` — the paired-row mask lives in its `b` argument. */
-export function validItems(ents, m, k, a, b, filt) {
-  const items = [];
-  for (const e of ents) {
-    const s = sc(e.row, m, a);
-    if (s == null) continue;
-    if (b != null && sc(e.row, m, b) == null) continue;
-    if (filt && e.row.path[m] !== filt) continue;
-    const v = val(e.row, m, k);
-    if (v == null) continue;
-    items.push({ pid: e.row.pid, slot: e.slot, s, v, row: e.row });
-  }
-  return items;
-}
-
-/** Copy of :540 `cohortMap`. */
-export function cohortMap(ctx, m, k, a, b = null, filt = null) {
-  const key = `${m}|${k}|${a}|${b ?? ''}|${filt ?? ''}`;
-  let out = ctx.cache.get(key);
-  if (out) return out;
-  out = new Map();
-  for (const [g, ents] of ctx.ebc) out.set(g, cohortStats(validItems(ents, m, k, a, b, filt)));
-  ctx.cache.set(key, out);
-  return out;
-}
-
-/** Copy of :550 `combine` — averages per-cohort statistics over cohorts and counts `n`; no masking of its own. */
-export function combine(mapA, mapB, stat) {
-  let sum = 0, c = 0, n = 0;
-  for (const [g, sa] of mapA) {
-    n += sa.n;
-    const x = sa[stat];
-    if (x == null) continue;
-    if (mapB) {
-      const y = mapB.get(g)?.[stat];
-      if (y == null) continue;
-      sum += x - y;
-    } else sum += x;
-    c++;
-  }
-  return { v: c ? sum / c : null, c, n };
-}
-
-/** Copy of :566 `biasItems` — one permitted change: a `subject` parameter replaces the literal 'H' in its `validItems` call (and joins its cache key). */
-export function biasItems(ctx, m, k, subject, groupFilter = null) {
-  const key = `bias|${m}|${k}|${subject}`;
-  let out = ctx.cache.get(key);
-  if (!out) {
-    out = [];
-    for (const [g, ents] of ctx.ebc) {
-      const items = validItems(ents, m, k, subject, null, null);
-      const b = percentileBias(items);
-      items.forEach((it, i) => out.push({ g, row: it.row, bias: b[i] }));
-    }
-    ctx.cache.set(key, out);
-  }
-  return groupFilter ? out.filter(groupFilter) : out;
-}
-
-/** Copy of :581 `meanOf`. */
-export const meanOf = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
-
-/** Copy of :583 `ciOf`. */
-export function ciOf(vals) {
-  const R = vals.length;
-  if (!R) return null;
-  const s = [...vals].sort((a, b) => a - b);
-  return { ci95: [s[Math.floor(0.025 * R)], s[Math.ceil(0.975 * R) - 1]], used: R };
-}
-
-/** Copy of :591 `bootstrapSpecs` — one shared draw sequence across specs, which "paired on the same resample" depends on. */
-export function bootstrapSpecs({ rows, groupKey, specs, resamples, seed }) {
-  const entriesOf = (list) => {
-    const m = new Map();
-    for (const e of list) {
-      const g = groupKey(e.row);
-      if (!m.has(g)) m.set(g, []);
-      m.get(g).push(e);
-    }
-    return m;
-  };
-  const point = makeCtx(entriesOf(rows.map(row => ({ row, slot: 0 }))));
-  const pointRes = specs.map(sp => sp.eval(point));
-
-  const clusterMap = new Map();
-  for (const row of rows) {
-    if (!clusterMap.has(row.pid)) clusterMap.set(row.pid, { pid: row.pid, rows: [] });
-    clusterMap.get(row.pid).rows.push(row);
-  }
-  const clusters = [...clusterMap.values()];
-  const stash = specs.map(() => []);
-  if (clusters.length) {
-    clusteredBootstrap(clusters, (sample) => {
-      const list = [];
-      for (let c = 0; c < sample.length; c++) for (const row of sample[c].rows) list.push({ row, slot: c });
-      const ctx = makeCtx(entriesOf(list));
-      for (let i = 0; i < specs.length; i++) {
-        if (specs[i].skipBoot) continue;
-        const r = specs[i].eval(ctx);
-        if (r.v != null && Number.isFinite(r.v) && r.c >= specs[i].minC) stash[i].push(r.v);
-      }
-      return 0;
-    }, { resamples, seed });
-  }
-  return specs.map((sp, i) => ({ point: pointRes[i], boot: sp.skipBoot ? null : ciOf(stash[i]) }));
-}
-
-/**
- * The `assemble` closure of `computeMetrics` (:759) lifted to module level (`put` is now a parameter). Additions: the
- * `identical` branch (S3's ablations only) is dropped, and `sp.minUsed` makes a cell `insufficient` when fewer
- * resamples survive (§5.9 tilt rule).
- */
-export function assemble(sp, res, put) {
-  const { v, c, n } = res.point;
-  const enough = n >= sp.minN && c >= sp.minC && v != null;
-  const thin = sp.minUsed != null && res.boot != null && res.boot.used < sp.minUsed;
-  let ci95 = null, used = null, label;
-  if (!enough || !res.boot || thin) {
-    label = 'insufficient';
-    if (res.boot) { ci95 = res.boot.ci95; used = res.boot.used; }
-  } else {
-    ci95 = res.boot.ci95; used = res.boot.used;
-    label = sp.label(ci95);
-  }
-  put(sp.parts, { value: round6(v), ci95: ci95 ? ci95.map(round6) : null, used, n, cohortsUsed: c, label });
-}
+export { metricKey, parseMetricKey, KEY_FIELDS };
+export { sc, val, makeCtx, validItems, cohortMap, combine, biasItems, meanOf, ciOf, bootstrapSpecs, assemble } from '../lib/dynastyBacktest.mjs';
 
 // ─── rows ────────────────────────────────────────────────────────────────────────────────────────
 
@@ -322,7 +165,7 @@ export function buildReworkRows({ load = DYNASTY_REWORK_LOAD, cohorts = COHORTS,
     const preview = S === PREVIEW_COHORT;
     const winSeasons = [];
     for (let y = S + 1; y <= Math.min(S + WINDOW, LAST_COMPLETED_SEASON); y++) winSeasons.push(y);
-    guardedManifestCheck(load, winSeasons);
+    guardedManifestCheck(load, winSeasons, { Stop: DynastyReworkStop, tag: 'dynasty-rework' });
 
     const { H, guard } = cohortContext(load, S);
     const bundle = guard.bundle;

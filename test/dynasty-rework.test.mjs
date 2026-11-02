@@ -32,6 +32,10 @@ import {
   HORIZONS, QB_FLOOR_KEY, NO_WIN_LAST_LINE, countRunSpecs,
 } from '../scripts/dynasty-rework-run.mjs';
 import { DYNASTY_ASOF_LOAD } from '../scripts/dynasty-asof.mjs';
+import { labelBaseline } from '../scripts/dynasty-history-run.mjs';
+import * as rework from '../scripts/dynasty-rework-run.mjs';
+import * as history from '../scripts/dynasty-history-run.mjs';
+import * as shared from '../lib/dynastyBacktest.mjs';
 import { repoPath } from '../lib/io.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -892,5 +896,64 @@ describe('T-GOLD-S4 shared-helper move leaves S4a output unchanged where F9/F7 c
   });
   test('(b) buildReworkRows over the synthetic store hashes to the pinned value', () => {
     assert.equal(sha(buildReworkRows({ load: makeStore(), cohorts: [2015, 2018] })), 'f373d2256367a5fb8308c8da78b95cb229d81f730f7c2751134a432e55d92575');
+  });
+});
+
+// ─── T-F9-S4 / T-F7-S4 / T-ONE-HOME ──────────────────────────────────────────────────────────────
+
+describe('T-F9-S4 combine counts contributing cohorts only, through S4a', () => {
+  test('cohorts below MIN_ROWS.rho do not add their rows to n', () => {
+    const rows = [];
+    for (const S of COHORT_ARRAY(2015, 2022)) {
+      const count = S <= 2020 ? 25 : 15;
+      for (let i = 0; i < count; i++) {
+        rows.push(pRow({ pid: `f${S}_${i}`, S, age: 22 + (i % 14), h: (i * 3) % 40, b2: (i * 7) % 40 + i * 0.001, m1: (i * 11) % 40 + i * 0.001, P: (i * 13) % 40 }));
+      }
+    }
+    const { metrics } = computeReworkMetrics(rows, { resamples: 40 });
+    const c = metrics[metricKey({ horizon: 'h3', measure: 'M1', mode: 'sleeper', kind: 'delta', subject: 'P~B2', statistic: 'rho', position: 'QB', cell: 'all' })];
+    assert.equal(c.n, 150, 'only the six 25-row cohorts count');
+    assert.equal(c.cohortsUsed, 6);
+    assert.equal(c.label, 'insufficient', '150 < 160 rows');
+  });
+});
+
+describe('T-F7-S4 insufficient takes precedence over variant-identical, through S4a', () => {
+  const spec = { parts: {}, minN: 160, minC: 6, identical: true, label: (ci) => labelBaseline(ci, 'B2') };
+  const run = (n) => { let cell; assemble(spec, { point: { v: 0, c: 6, n }, boot: { ci95: [-0.1, 0.1], used: 4000 } }, (p, c) => { cell = c; }); return cell; };
+  test('(i) below the minimum, identical rows are insufficient and keep the CI', () => {
+    const cell = run(150);
+    assert.equal(cell.label, 'insufficient');
+    assert.deepEqual(cell.ci95, [-0.1, 0.1]);
+  });
+  test('(ii) at or above the minimum, identical rows are variant-identical', () => {
+    assert.equal(run(200).label, 'variant-identical');
+  });
+});
+
+describe('T-ONE-HOME the dynasty backtest helpers have no local copies', () => {
+  const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
+  const defines = (src, name) => new RegExp(String.raw`^(export\s+)?(function\s+${name}\b|const\s+${name}\s*=)`, 'm').test(src);
+  const SHARED_NAMES = [
+    'MIN_ROWS', 'hitRate', 'cohortStats', 'percentileBias', 'round6', 'isBC', 'mirrorCall', 'guardedManifestCheck', 'sc', 'val',
+    'makeCtx', 'validItems', 'cohortMap', 'combine', 'biasItems', 'meanOf', 'ciOf', 'bootstrapSpecs', 'assemble',
+  ];
+  test('S4a and S3b re-export the shared functions by identity', () => {
+    for (const n of ['sc', 'val', 'makeCtx', 'validItems', 'cohortMap', 'combine', 'biasItems', 'meanOf', 'ciOf', 'bootstrapSpecs', 'assemble']) {
+      assert.ok(shared[n] !== undefined && rework[n] === shared[n], `rework.${n}`);
+    }
+    for (const n of ['hitRate', 'cohortStats', 'percentileBias', 'MIN_ROWS']) assert.ok(shared[n] !== undefined && history[n] === shared[n], `history.${n}`);
+    assert.equal(rework.KEY_FIELDS, history.KEY_FIELDS);
+  });
+  test('no script or lib module defines a shared symbol of its own', () => {
+    const r = read('scripts/dynasty-rework-run.mjs'), h = read('scripts/dynasty-history-run.mjs'), lr = read('lib/dynastyRework.mjs');
+    for (const n of SHARED_NAMES) {
+      assert.equal(defines(r, n), false, `dynasty-rework-run defines ${n}`);
+      assert.equal(defines(h, n), false, `dynasty-history-run defines ${n}`);
+    }
+    assert.equal(/^\s+function\s+assemble\b/m.test(h), false, 'S3b keeps a nested assemble');
+    assert.equal(defines(lr, 'round6'), false);
+    assert.equal(defines(lr, 'meanOf'), false);
+    assert.equal(defines(r, 'KEY_FIELDS'), false);
   });
 });
