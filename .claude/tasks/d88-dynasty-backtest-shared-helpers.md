@@ -218,3 +218,7 @@ The stop condition fired on breaks 1 and 3. **Session 1 decision: accept, no tes
 Narrowed claims:
 - **T-GOLD-S3 (b)** catches changes to `isBC`, `mirrorCall` and `guardedManifestCheck` in S3b's rows.
 - **T-GOLD-S4 (b)** catches changes to `isBC` and `guardedManifestCheck` in S4a's rows.
+
+## Sign-off
+
+Signed off by Anton, 2026-11-02. Implementation-reviewer, light: no blocking flags. Fix pass 1 re-review, light: no blocking flags, one low note, accepted. Data range `d1fd3ee..108c829`: the move is `7d0bae5`, the goldens `450b36e`/`f391eaa`, the Fix pass 1 record `85f551e`/`108c829`. Still open: the app-side strike of D-88 (request in `.claude/tasks/app-repo-backlog.md`).
