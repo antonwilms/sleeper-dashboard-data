@@ -48,6 +48,7 @@ Flag ONLY items that are wrong, risky, or missing:
 - An append-only or idempotency violation — mutating historical snapshots, or a guard relying on count-based change detection instead of content-hash idempotency or rank-correlation (count-based guards false-positive on any broad recalibration).
 - A per-season aggregation trap — a rate stat summed across weeks instead of recomputed from components (e.g. pass_rtg).
 - A missing validation/smoke check the change clearly needs, or a missing edge case.
+- FLAG [copy]: the task file creates a copied definition (a function, constant or formula duplicated instead of imported) without an equality test in the same slice (imports both sides, or pins both to the same fixture values, and names the original), or, for a cross-repo copy, without an index entry in the cross-repo index and a test on each side. The task file must list every copy it creates.
 
 ## 2. Strategic / principles
 

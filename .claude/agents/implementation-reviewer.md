@@ -36,6 +36,7 @@ The task file is the contract. Flag ONLY divergence that matters:
 - **Something specified that is not in the diff** — a step, an edit, a test, a doc row the plan called for and the diff does not contain. Absence is the failure this review exists to catch, and the hand-back is the least likely place to disclose it.
 - **Something in the diff the task file did not specify.** Scope beyond the plan's touch list is a finding even when the extra change looks correct — it did not go through the plan gate. Name the file and what it does.
 - **A specified thing implemented differently** — a different symbol, signature, file, ordering or data shape than the plan named, without the task file's own "settled decision" cover.
+- **A new copy with no equality test.** FLAG [copy]: the diff adds a new duplicate of an existing function, constant or formula (copied instead of imported) with no equality test in the same diff, or, for a cross-repo copy, no index entry and no test on each side.
 - **A deviation the hand-back did not disclose.** Compare the hand-back's list of files touched against `git diff --stat`. An undisclosed file is a finding in its own right, separately from whether its content is correct.
 
 Do not re-litigate the plan itself. If the plan was wrong, that was plan-reviewer's gate; say so in one line and move on.
