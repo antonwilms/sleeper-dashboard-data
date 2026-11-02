@@ -5,7 +5,7 @@ Plan: `.claude/tasks/d67-dm-parity-l6c.md`. Report-only; no constant, served fil
 ## Inputs
 
 - Snapshot `snapshots/2026-10-30.json`: `capturedAt` 2026-10-30T20:58:36Z, `projectionModelFrom` 2026-10-28 (≥ boundary 10's 2026-10-23), schemaVersion 3.
-- Season totals read at data `297315f` (carries the D-76 correction from `76b5ddf`); `nflverse/playerids.json` (positions) at `d36b184`, the last commit at or before the capture.
+- Season totals read at data `3b92712` (originally pinned as `297315f`, rewritten by a push-time rebase; identical season totals; carries the D-76 correction from `76b5ddf`); `nflverse/playerids.json` (positions) at `d36b184`, the last commit at or before the capture.
 - Fixture `test/fixtures/durability-parity-2026-10-30.json`: 719,176 bytes, 433 veteran (non-rookie) rows, seasons 2012–2025. Snapshot `shortSeasonState`: qual 336, short 95, none 2.
 - Comparable rows: 432 (1 non-skill LB row skipped; 0 without a qualifying season).
 

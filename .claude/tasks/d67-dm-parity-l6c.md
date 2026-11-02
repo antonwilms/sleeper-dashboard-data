@@ -64,3 +64,14 @@ Sections: inputs (snapshot, `capturedAt`, `projectionModelFrom`, rev, fixture pa
 ## Done-definition
 
 `npm run smoke` and `npm test` green; byte-identical rebuild of the 2026-10-04 fixture shown; show-it-fails (a)/(b) shown; commit + `git pull --rebase` + push per git-workflow.md. Hand back SHA, files, deviations, test evidence. Session 2 runs on **sonnet**.
+
+## Fix pass 1
+
+Flag (implementation-reviewer, light): source rev `297315f` was rewritten to `3b92712` by a push-time rebase; `297315f` is unreachable from any branch. Season totals are identical (`git diff 297315f 3b92712 -- nfl/season-totals` empty).
+
+Change `297315f` → `3b92712` in exactly these places, nothing else:
+- `test/fixtures/durability-parity-2026-10-30.json` — rebuild with `node scripts/fixtures/build-durability-parity.mjs --rev 3b92712 --snapshot 2026-10-30 --positions-rev d36b184` (use the builder's actual flag names); the only byte difference from the committed fixture must be `sourceRev` — confirm with a diff.
+- `test/durability-parity-l6c.test.mjs` DM-0 (l6c) `sourceRev` assertion.
+- `grading/2026-11-02-dm-parity-l6c-verdict.md` "Season totals read at data …" line (add: "originally pinned as `297315f`, rewritten by a push-time rebase; identical season totals").
+- `scripts/fixtures/build-durability-parity.mjs` header comment.
+Leave this task file's earlier sections, results (432/432, 96/96), `positionsRev`, and every other file alone. Show DM-0 (l6c) red with the old SHA, then green. `npm test` + `npm run smoke` green; commit, `git pull --rebase origin main`, plain push. After push, confirm every SHA you cite is an ancestor of `origin/main`.

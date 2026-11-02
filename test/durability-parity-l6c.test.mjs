@@ -12,8 +12,8 @@ import { parityReport, ABSENCE_DEFAULTS } from '../scripts/absence-run.mjs';
 const FX = JSON.parse(fs.readFileSync(fileURLToPath(new URL('./fixtures/durability-parity-2026-10-30.json', import.meta.url)), 'utf8'));
 const SKILL = ['QB', 'RB', 'WR', 'TE'];
 
-test('DM-0 (l6c): fixture is the 297315f / 2026-10-30 build', () => {
-  assert.equal(FX.sourceRev, '297315f');
+test('DM-0 (l6c): fixture is the 3b92712 / 2026-10-30 build', () => {
+  assert.equal(FX.sourceRev, '3b92712');
   assert.equal(FX.snapshot, '2026-10-30');
   assert.equal(Object.keys(FX.snapshotRows).length, 433);
   assert.deepEqual(Object.keys(FX.seasons).map(Number), Array.from({ length: 14 }, (_, i) => 2012 + i));

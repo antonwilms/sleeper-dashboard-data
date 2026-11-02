@@ -6,7 +6,7 @@
  * tree: it is immutable and date-keyed.
  *
  * Run: node scripts/fixtures/build-durability-parity.mjs [--rev <rev>] [--positions-rev <rev>] [--snapshot <YYYY-MM-DD>]
- * (D-67: --rev 297315f --snapshot 2026-10-30 --positions-rev <last commit at or before the capture>;
+ * (D-67: --rev 3b92712 --snapshot 2026-10-30 --positions-rev <last commit at or before the capture>;
  * defaults reproduce the 2026-10-04 fixture byte-for-byte. Output: test/fixtures/durability-parity-<snapshot>.json.)
  */
 import { execFileSync } from 'child_process';
