@@ -198,3 +198,23 @@ For each break, record which of the two (b) pins goes red.
 Leave alone: every source and test file. After reverting the last break, `git diff` must be empty apart from this task file.
 
 Commit: the task file only, with the per-break results appended under this section as `### Fix pass 1 result`. Then `git pull --rebase origin main` and `git push origin main`. Hand back the per-break red/green table and the final `npm test` counts.
+
+### Fix pass 1 result (fix-applier run; Session 1 triage, 2026-11-02)
+
+Each break was applied in `lib/dynastyBacktest.mjs` and reverted; the tree was clean afterwards (HEAD `85f551e`). Baseline: 126 pass across the two dynasty test files.
+
+| # | Break | T-GOLD-S3 (b) | T-GOLD-S4 (b) | Other reds |
+|---|---|---|---|---|
+| 1 | `round6` to 1e5 | green | green | T-GOLD-S3 (a), T-GOLD-S4 (a), T-DEC, T-MET pairing |
+| 2 | `isBC` returns `p === 'B'` only | red | red | many |
+| 3 | `mirrorCall` sets `shareTrendBoostOff: () => true` | red | green | A-ST-chg, F4 ablation wiring |
+| 4 | `guardedManifestCheck` with the `inProgress` test inverted | red | red | the in-progress stop tests (11 failures in total) |
+
+The stop condition fired on breaks 1 and 3. **Session 1 decision: accept, no test or fixture change.**
+- Both (b) pins are shown red, so the done-definition gap is closed.
+- `round6`: the (b) fixtures' values do not differ at the 1e5 vs 1e6 precision, so `round6` is covered by the (a) pins and T-DEC instead.
+- `mirrorCall`: the S4a synthetic store carries no share-trend signal, so the shared `mirrorCall` is covered by T-GOLD-S3 (b) and the S3b ablation tests. The body is a single shared function, so one script's coverage covers both.
+
+Narrowed claims:
+- **T-GOLD-S3 (b)** catches changes to `isBC`, `mirrorCall` and `guardedManifestCheck` in S3b's rows.
+- **T-GOLD-S4 (b)** catches changes to `isBC` and `guardedManifestCheck` in S4a's rows.
