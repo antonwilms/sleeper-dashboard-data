@@ -103,6 +103,7 @@ export function assemble(sp, res, put) {
 - Import what the file uses from `../lib/dynastyBacktest.mjs`. Import `KEY_FIELDS` from `./dynasty-history-run.mjs` alongside the existing imports.
 - Keep the module's public API: `export { sc, val, makeCtx, validItems, cohortMap, combine, biasItems, meanOf, ciOf, bootstrapSpecs, assemble } from '../lib/dynastyBacktest.mjs';` and `export { KEY_FIELDS };` (next to the existing `export { metricKey, parseMetricKey }`).
 - `guardedManifestCheck` call (:325) gets `{ Stop: DynastyReworkStop, tag: 'dynasty-rework' }`.
+- Drop imports that become unused. Expected: `clusteredBootstrap` (:23) and `dynastyScoreMirror` (:24; its only use is inside the deleted `mirrorCall`) from the lib imports, and `cohortStats` and `percentileBias` from the `./dynasty-history-run.mjs` import (their only callers are deleted). Grep each name before removing it. Keep `pickDynastyLabelMirror` and every other import still referenced.
 - No other line changes. `buildSpecs`, `assemble` call sites and `biasItems` call sites already match the shared signatures.
 - Update the module header comment if it lists the deleted copies.
 
@@ -132,7 +133,7 @@ Asserts S4a output is unchanged wherever F9/F7 cannot bite. Fails if the shared 
 Rows built like T-BOOT's `mk(false)`, but cohorts 2015–2020 have 25 rows each (6 contributing cohorts, 150 rows) and 2021–2022 have 15 rows each (below `MIN_ROWS.rho`; 30 rows). Call `computeReworkMetrics(rows, { resamples: 40 })` and read `h3|M1|sleeper|delta|P~B2|rho|QB|all`. Assert `n === 150`, `cohortsUsed === 6`, `label === 'insufficient'`. Fails if `combine` counts non-contributing cohorts' rows: the old S4a copy gives `n === 180`, which clears the 160 minimum, so the cell gets a CI label. **Shown red against the pre-move code.**
 
 ### 5.4 T-F7-S4 — F7 through S4a's call path
-Import `assemble` from `../scripts/dynasty-rework-run.mjs`. Spec `{ parts: {}, minN: 160, minC: 6, identical: true, label: (ci) => labelBaseline(ci, 'B2') }`.
+Import `assemble` from `../scripts/dynasty-rework-run.mjs`, and add `labelBaseline` to the test file's imports from `../scripts/dynasty-history-run.mjs` (it is not imported there today). Spec `{ parts: {}, minN: 160, minC: 6, identical: true, label: (ci) => labelBaseline(ci, 'B2') }`.
 - (i) `res = { point: { v: 0, c: 6, n: 150 }, boot: { ci95: [-0.1, 0.1], used: 4000 } }` → asserts `label === 'insufficient'` and `ci95` deep-equals `[-0.1, 0.1]`. Fails if `variant-identical` takes precedence over the minimum (S3b's pre-Fix-pass-1 order).
 - (ii) the same with `n: 200` → asserts `label === 'variant-identical'`. Fails if S4a still runs its own `assemble` without the identical branch.
 
@@ -140,7 +141,7 @@ Shown red: (ii) against the pre-move code (the old copy returns `no-difference`)
 
 ### 5.5 T-ONE-HOME — no local copies
 - Identity: for each name in `['sc','val','makeCtx','validItems','cohortMap','combine','biasItems','meanOf','ciOf','bootstrapSpecs','assemble']`, `rework[name] === shared[name]`. For `['hitRate','cohortStats','percentileBias','MIN_ROWS']`, `history[name] === shared[name]`. Also `rework.KEY_FIELDS === history.KEY_FIELDS`. (`import * as` each module.)
-- Source scan: read `scripts/dynasty-rework-run.mjs` and `scripts/dynasty-history-run.mjs`. Neither defines any §3 symbol, matched by `new RegExp(String.raw\`^\s*(export\s+)?(function\s+${name}\b|const\s+${name}\s*=)\`, 'm')` over every §3 exported name. `lib/dynastyRework.mjs` defines neither `round6` nor `meanOf`.
+- Source scan: read `scripts/dynasty-rework-run.mjs` and `scripts/dynasty-history-run.mjs`. Neither defines any §3 symbol at module level, matched by `new RegExp(String.raw\`^(export\s+)?(function\s+${name}\b|const\s+${name}\s*=)\`, 'm')` (column 0, so a later function-local `const val =` cannot false-positive) over every §3 exported name. Plus one indented check for the only nested copy: S3b's former inner `assemble` in `computeMetrics`, matched by `/^\s+function\s+assemble\b/m` against `scripts/dynasty-history-run.mjs`. `lib/dynastyRework.mjs` defines neither `round6` nor `meanOf` (same column-0 pattern).
 - Fails if a script keeps or re-adds its own copy. **Shown red against the pre-move code.**
 
 Existing tests must stay green unchanged. The S4a T-BOOT, T-TILT and buildReworkRows-stop tests use all-contributing fixtures and S3b's message text. If any existing test needs an edit, stop and report.
@@ -162,3 +163,7 @@ Existing tests must stay green unchanged. The S4a T-BOOT, T-TILT and buildRework
 `npm run smoke` and `npm test` green. Hand-back: both SHAs, files touched, deviations, and for each new test what it asserts, the defect it catches, and how it was shown red (pre-move code, or the named temporary break), then restored. Push per `git-workflow.md`.
 
 **Backlog closure.** D-88 lives in the app repo, which this repo-scoped session cannot write. The closure request is `.claude/tasks/app-repo-backlog.md` → "Mark D-88 resolved", added by Session 1. Session 2 appends commit 2's SHA to that entry after the push.
+
+## Plan review (2026-11-02, plan-reviewer light)
+
+No blocking flags. Folded in (Anton approved): §4.2 drops the imports that become unused; §5.4 adds the `labelBaseline` test import; §5.5 anchors the copy scan at column 0, with one indented check for S3b's former inner `assemble`. Advisory, no change needed: §5.4(i) is shown red by swapping the branches, not against the old S4a copy (already stated).
