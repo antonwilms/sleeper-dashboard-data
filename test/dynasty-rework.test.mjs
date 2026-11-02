@@ -878,14 +878,17 @@ describe('T-GOLD-S4 shared-helper move leaves S4a output unchanged where F9/F7 c
   const sha = (x) => createHash('sha256').update(JSON.stringify(x)).digest('hex');
   const mkAll = () => {
     const rows = [];
-    for (const S of COHORT_ARRAY(2015, 2022)) for (let i = 0; i < 40; i++) {
+    // 80 rows per cohort: every statistic (hr24 needs 72) has contributing rows in every cohort, so F9 is inert here
+    for (const S of COHORT_ARRAY(2015, 2022)) for (let i = 0; i < 80; i++) {
       const b2 = (i * 7) % 40 + (S % 3) * 0.01;
-      rows.push(pRow({ pid: `b${S}_${i}`, S, age: 22 + (i % 14), h: (i * 3) % 40, b2, m1: (i * 11) % 40 + i * 0.001, P: (i * 13) % 40 }));
+      const row = pRow({ pid: `b${S}_${i}`, S, age: 22 + (i % 14), h: (i * 3) % 40, b2, m1: (i * 11) % 40 + i * 0.001, P: (i * 13) % 40 });
+      row.oofSets.forward = row.oofSets.loco; // the h3-fwd horizon reads the forward slot
+      rows.push(row);
     }
     return rows;
   };
   test('(a) computeReworkMetrics over all-contributing cohorts hashes to the pinned value', () => {
-    assert.equal(sha(computeReworkMetrics(mkAll(), { resamples: 40 })), '3ccaadb90a51a2550d9d672fadc744cdfb11ab437d4e4f5ce9da95cb51c8dfea');
+    assert.equal(sha(computeReworkMetrics(mkAll(), { resamples: 40 })), 'b1bcc12277fa5e6cf2e7be96f573f1d15ea96f772895a2d1a317588054597224');
   });
   test('(b) buildReworkRows over the synthetic store hashes to the pinned value', () => {
     assert.equal(sha(buildReworkRows({ load: makeStore(), cohorts: [2015, 2018] })), 'f373d2256367a5fb8308c8da78b95cb229d81f730f7c2751134a432e55d92575');

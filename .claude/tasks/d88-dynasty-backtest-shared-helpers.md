@@ -164,6 +164,19 @@ Existing tests must stay green unchanged. The S4a T-BOOT, T-TILT and buildRework
 
 **Backlog closure.** D-88 lives in the app repo, which this repo-scoped session cannot write. The closure request is `.claude/tasks/app-repo-backlog.md` → "Mark D-88 resolved", added by Session 1. Session 2 appends commit 2's SHA to that entry after the push.
 
+## Amendment 1 (Session 1, 2026-11-02) — T-GOLD-S4 (a) fixture
+
+§5.2 (a) was wrong: T-BOOT's `mk(false)` has 40-row cohorts, which clear `MIN_ROWS.rho` (20) and `hr12` (36) but not `hr24` (72). So F9 is not inert on it. Session 2 measured 3 of 392 cells differing after the move, all `hr24`, with `n` going 320 → 0 and the label `insufficient` before and after. This is the intended F9 change, and it is already covered by T-F9-S4.
+
+Do **not** re-pin (a) to the post-move output; that would leave it asserting nothing about S4a staying unchanged. Instead:
+
+- (a) uses the same row generator as `mk(false)` but with **80 rows per cohort** (cohorts 2015–2022). Every statistic then has contributing rows in every cohort, so F9 really is inert. Keep `resamples: 40`. 40 is below `TILT_MIN_USED`, so the drop-`thin` break still catches it.
+- The hash is computed on the **pre-move code**. Stash the move, run on `450b36e`'s source, pin the hash, restore the move.
+- Before pinning, check that the fixture is F9-inert. On the pre-move code, every `level`/`delta` cell's `n` must equal the row total of its horizon view. If any cell differs, stop and report.
+- Land it as its own commit after `450b36e` and before commit 2: `D-88: T-GOLD-S4 (a) on an F9-inert fixture (Amendment 1)`. It includes this task-file amendment.
+- (b) is unchanged.
+- Shown red: the drop-`thin` break, as in §5.2.
+
 ## Plan review (2026-11-02, plan-reviewer light)
 
 No blocking flags. Folded in (Anton approved): §4.2 drops the imports that become unused; §5.4 adds the `labelBaseline` test import; §5.5 anchors the copy scan at column 0, with one indented check for S3b's former inner `assemble`. Advisory, no change needed: §5.4(i) is shown red by swapping the branches, not against the old S4a copy (already stated).
