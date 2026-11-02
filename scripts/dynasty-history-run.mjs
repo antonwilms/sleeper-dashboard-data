@@ -36,10 +36,10 @@ import {
 import { LEAGUE_SCORING_FIXTURE } from './panel-run.mjs';
 import {
   cohortStats, round6, isBC, mirrorCall, guardedManifestCheck, sc, val, validItems, cohortMap, combine,
-  biasItems, meanOf, bootstrapSpecs, assemble,
+  biasItems, meanOf, bootstrapSpecs, assemble, AGE_BANDS, ageBand, twoYearAveragePPG,
 } from '../lib/dynastyBacktest.mjs';
 
-export { MIN_ROWS, hitRate, cohortStats, percentileBias } from '../lib/dynastyBacktest.mjs';
+export { MIN_ROWS, hitRate, cohortStats, percentileBias, AGE_BANDS } from '../lib/dynastyBacktest.mjs';
 
 export class DynastyHistoryStop extends Error {
   constructor(message) { super(message); this.name = 'DynastyHistoryStop'; }
@@ -58,7 +58,6 @@ export const POSITIONS = SKILL;
 export const WINDOW = 3;
 export const BOOTSTRAP = { resamples: 4000, seed: 12345 };
 export const PANEL_MAX_BYTES = 15 * 1024 * 1024;
-export const AGE_BANDS = ['le24', '25-27', '28-30', 'ge31'];
 export const COMPONENTS = ['ageAdjusted', 'trajectory', 'currentLevel', 'reliability', 'opportunityQuality'];
 export const LEVEL_SUBJECTS = [
   'H', 'B1', 'B2', ...COMPONENTS.map(c => `LOO-${c}`),
@@ -457,8 +456,7 @@ export function buildRows({ load = DYNASTY_HISTORY_LOAD, cohorts = COHORTS, log 
         };
         const pS = ppgAt(S), pS1 = ppgAt(S - 1);
         row.B1[mode] = pS ?? pS1;
-        const q = [pS1, pS].filter(x => x != null);
-        row.B2[mode] = q.length ? q.reduce((a, b) => a + b, 0) / q.length : null;
+        row.B2[mode] = twoYearAveragePPG(cs, pid, S);
         row.outcome[mode] = realisedValue(winSeasons, (y) => {
           const r = og.loadSeasonTotals(y)?.[pid];
           if (!r) return null;
@@ -484,8 +482,6 @@ export function buildRows({ load = DYNASTY_HISTORY_LOAD, cohorts = COHORTS, log 
 }
 
 // ─── metrics ─────────────────────────────────────────────────────────────────────────────────────
-
-const ageBand = (a) => (a == null ? null : a <= 24 ? 'le24' : a <= 27 ? '25-27' : a <= 30 ? '28-30' : 'ge31');
 
 function identicalScores(rows, m, k, a, b) {
   let any = false;

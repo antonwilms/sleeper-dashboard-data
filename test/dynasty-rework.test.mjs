@@ -956,4 +956,19 @@ describe('T-ONE-HOME the dynasty backtest helpers have no local copies', () => {
     assert.equal(defines(lr, 'meanOf'), false);
     assert.equal(defines(r, 'KEY_FIELDS'), false);
   });
+  test('CR-33: the B2 / age / age-band definitions have one home (lib/dynastyBacktest.mjs) — no copy restored as source text', () => {
+    const r = read('scripts/dynasty-rework-run.mjs'), h = read('scripts/dynasty-history-run.mjs'), lr = read('lib/dynastyRework.mjs');
+    const a = read('scripts/dynasty-asof.mjs');
+    const CR33_NAMES = ['AGE_BANDS', 'ageBand', 'twoYearAveragePPG', 'ageAsOfDate', 'cohortAge'];
+    for (const n of CR33_NAMES) {
+      assert.equal(defines(h, n), false, `dynasty-history-run defines ${n}`);
+      assert.equal(defines(r, n), false, `dynasty-rework-run defines ${n}`);
+      assert.equal(defines(a, n), false, `dynasty-asof defines ${n}`);
+    }
+    assert.equal(defines(lr, 'ageBand'), false, 'lib/dynastyRework defines ageBand');
+    assert.equal(/function\s+level2Of\b/.test(lr), false, 'lib/dynastyRework defines level2Of as a function');
+    assert.match(h, /row\.B2\[mode\] = twoYearAveragePPG\(cs, pid, S\)/);
+    assert.equal(a.includes('`${S + 1}-06-01`'), false, 'dynasty-asof restores the as-of date literal');
+    assert.match(a, /cohortAge\(entry\?\.birthdate, S\)/);
+  });
 });

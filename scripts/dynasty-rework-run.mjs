@@ -35,8 +35,10 @@ import {
   realisedValue, labelBaseline, labelBias, labelRho, pathOf, metricKey, parseMetricKey, KEY_FIELDS,
 } from './dynasty-history-run.mjs';
 import {
-  isBC, mirrorCall, guardedManifestCheck, cohortMap, combine, biasItems, meanOf, bootstrapSpecs, assemble,
+  isBC, mirrorCall, guardedManifestCheck, cohortMap, combine, biasItems, meanOf, bootstrapSpecs, assemble, AGE_BANDS,
 } from '../lib/dynastyBacktest.mjs';
+
+export { AGE_BANDS };
 
 export class DynastyReworkStop extends Error {
   constructor(message, count = null) { super(message); this.name = 'DynastyReworkStop'; this.count = count; }
@@ -55,7 +57,6 @@ export const PREVIEW_COHORT = 2025;
 export const WINDOW = 3;
 export const BOOTSTRAP = { resamples: 4000, seed: 12345 };
 export const PANEL_MAX_BYTES = 15 * 1024 * 1024;
-export const AGE_BANDS = ['le24', '25-27', '28-30', 'ge31'];
 export const CELL_MIN_ROWS = 30;
 export const TILT_MIN_USED = 2000;
 export const OOF_KS = CANDIDATES.map(K => `${K}-oof`);

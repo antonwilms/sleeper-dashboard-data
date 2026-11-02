@@ -1479,11 +1479,13 @@ Pure, no I/O (`guardedManifestCheck` reads only through the injected `load`). Th
 S3b after its Fix pass 1, so `combine` counts `n` over contributing cohorts only (F9) and `assemble` lets `insufficient`
 beat `variant-identical` (F7); both reach S4a by import. It imports neither `lib/dynastyRework.mjs` nor any `scripts/` file.
 
+It is also the single definition site (CR-33) of `AGE_BANDS`, `ageBand`, `ageAsOfDate`, `cohortAge` and `twoYearAveragePPG` (B2), the three definitions the app's `src/utils/twoYearBaseline.js` copies; `dynasty-history-run.mjs`, `dynasty-asof.mjs` and `lib/dynastyRework.mjs` (whose `level2Of`/`ageBand` are now re-exports) import them.
+
 #### `scripts/dynasty-history-run.mjs` — `--dynasty-history`
 
 S3b, the dynasty score's first historical test (task `.claude/tasks/dynasty-history-backtest.md`). For S = 2015–2024 it
-rebuilds every veteran's score from S3a's as-of inputs (`scripts/dynasty-asof.mjs`, `lib/dynastyMirror.mjs`; neither is
-changed) under both games definitions (Sleeper `gamesPlayed`, season-level snaps), grades it against the next three
+rebuilds every veteran's score from S3a's as-of inputs (`scripts/dynasty-asof.mjs`, `lib/dynastyMirror.mjs`; S3b does not change their
+scoring — `dynasty-asof.mjs` reads its as-of date and cohort age from lib/dynastyBacktest.mjs, CR-33) under both games definitions (Sleeper `gamesPlayed`, season-level snaps), grades it against the next three
 seasons' league-rescored PPG (M1 = mean over qualifying seasons, M2 = missed seasons as 0), and reports per-position
 within-cohort Spearman, HR@12/@24, the baselines B1/B2, age-band bias, leave-one-component-out, ablations, the age-curve
 comparisons, the practice-squad diagnostic and per-cohort tables, with player-clustered bootstrap CIs (4,000, seed 12345).
@@ -1491,7 +1493,7 @@ The §8 pre-registration is hashed from the task file and pinned as `DYNASTY_HIS
 mismatch. The verdict uses only the §8.9 labels and never proposes a weight, constant or curve. Offline: no served file,
 no manifest entry, nothing reaches the app. Exports: `DYNASTY_HISTORY_LOAD`, `preregHash`, `metricKey`/`parseMetricKey`,
 `buildRows`, `computeMetrics`, `runDynastyHistory`, `buildDynastyHistoryVerdictMarkdown`, `buildBacklogAppends`,
-`writeDynastyHistoryArtifacts`, `dynastyHistoryMain`. The pure statistics (`cohortStats`, `hitRate`, `combine`, `assemble`, …) live in `lib/dynastyBacktest.mjs`; this module re-exports `MIN_ROWS`, `hitRate`, `cohortStats`, `percentileBias`. A full run takes ~30 minutes.
+`writeDynastyHistoryArtifacts`, `dynastyHistoryMain`. The pure statistics (`cohortStats`, `hitRate`, `combine`, `assemble`, …) live in `lib/dynastyBacktest.mjs`; this module re-exports `MIN_ROWS`, `hitRate`, `cohortStats`, `percentileBias`, `AGE_BANDS`. A full run takes ~30 minutes.
 
 #### `lib/dynastyRework.mjs` and `scripts/dynasty-rework-run.mjs` — `--dynasty-rework`
 
@@ -1506,7 +1508,7 @@ test cohort out of fold, and reports ρ vs the baselines, the age tilt, explorat
 in-sample final model, forward-only and short-horizon robustness and an outcome-free 2025 preview. Uncertainty: 4,000
 player-clustered resamples, seed 12345, with fitted weights held fixed per fold. Offline research: no app file, no
 registry entry, no manifest entry. `--probe` builds cohorts 2015 and 2018, prints counts and timings only and a runtime
-projection; `--write` is run once. Its bootstrap/assemble/bias helpers are `lib/dynastyBacktest.mjs`'s, re-exported here. Exports: `DYNASTY_REWORK_LOAD`, `makeReworkLoad`, `preregHash`, `assertPrereg`,
+projection; `--write` is run once. Its bootstrap/assemble/bias helpers are `lib/dynastyBacktest.mjs`'s, re-exported here. `level2Of` and `ageBand` follow the live shared definitions (CR-33), so a later change to `twoYearAveragePPG` makes an S4a re-run stop at `level2 !== B2` by design. Exports: `DYNASTY_REWORK_LOAD`, `makeReworkLoad`, `preregHash`, `assertPrereg`,
 `readQbFloor`, `buildReworkRows`, `checkS3Parity`, `runFolds`, `runFinal`, `computeReworkMetrics`, `runDynastyRework`,
 `runProbe`, `buildDynastyReworkVerdictMarkdown`, `writeDynastyReworkArtifacts`, `dynastyReworkMain`.
 

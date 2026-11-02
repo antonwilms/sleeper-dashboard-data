@@ -399,6 +399,12 @@ describe('T-POP row set and the games modes', () => {
     assert.equal(r.B1.snaps, null, 'no qualifying snaps season in {S−1, S}');
     assert.notEqual(r.B1.sleeper, null);
   });
+  test('golden: pid / S / age / B1 / B2 per cohort row are unchanged (CR-33 extraction guard)', () => {
+    const view = (cohort) => buildRows({ load: makeStore(), cohorts: [cohort] }).rows
+      .map(r => [r.pid, r.S, r.age, r.B1.sleeper, r.B2.sleeper]);
+    assert.deepEqual(view(2019), [['1', 2019, 28, 12, 12], ['2', 2019, 28, 10, 10], ['3', 2019, 28, 10, 10], ['4', 2019, 28, 16, 16]]);
+    assert.deepEqual(view(2021), [['1', 2021, 30, 10, 15], ['3', 2021, 30, 20, 20]]);
+  });
   test('it is counted in leftBC and the other rows are not', () => {
     assert.equal(built.leftBC.H.snaps[2019].RB, 1);
     assert.equal(built.leftBC.H.sleeper[2019].RB, 0);

@@ -24,6 +24,7 @@ import {
   empiricalAgeCurvesMirror, teamContextMirror, historicalTeamTotalsMirror, historicalSharesMirror,
   countSharesAboveOne,
 } from '../lib/dynastyMirror.mjs';
+import { ageAsOfDate, cohortAge } from '../lib/dynastyBacktest.mjs';
 import { LEAGUE_SCORING_FIXTURE } from './panel-run.mjs';
 
 export const FIRST_SEASON = 2012;
@@ -191,7 +192,7 @@ export function buildAsOfInputs(load, S, { curveAgeMode = 'birthdate', gamesMode
   const rawPlayers = guarded.loadRawPlayers();
   const bySleeper = playerIds?.bySleeper ?? {};
   const currentYear = S + 1;
-  const refDate = `${S + 1}-06-01`;
+  const refDate = ageAsOfDate(S);
   const checks = {};
 
   // careerStats 2012…S (league-rescored)
@@ -242,7 +243,7 @@ export function buildAsOfInputs(load, S, { curveAgeMode = 'birthdate', gamesMode
     }
     playersMap[pid] = {
       position: positionOf(pid),
-      age: ageOn(entry?.birthdate, refDate),
+      age: cohortAge(entry?.birthdate, S),
       years_exp: yearsExp,
       team: rowsBySeason[S][pid]?.team ?? null,
     };
