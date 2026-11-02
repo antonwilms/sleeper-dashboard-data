@@ -6,7 +6,7 @@ Work that belongs in `sleeper-dashboard`, found by a session scoped to this repo
 
 
 ### Mark D-67 resolved in `data-repo-backlog.md`
-**Found:** d67-dm-parity-l6c (data task file `.claude/tasks/d67-dm-parity-l6c.md`; verdict `grading/2026-11-02-dm-parity-l6c-verdict.md`, data commit COMMIT_SHA) · **Blocking:** no · **Size:** trivial — docs only
+**Found:** d67-dm-parity-l6c (data task file `.claude/tasks/d67-dm-parity-l6c.md`; verdict `grading/2026-11-02-dm-parity-l6c-verdict.md`, data commit fa443b3) · **Blocking:** no · **Size:** trivial — docs only
 DM-1 under `rule: 'l6c'` is 432/432 and the boundary-8 cross-check is 96/96 exact on `snapshots/2026-10-30.json`. Close D-67 in app `.claude/tasks/data-repo-backlog.md`, citing the data commit.
 
 ### ~~January grading run (P3 slice A): app-side registry and backlog edits~~
