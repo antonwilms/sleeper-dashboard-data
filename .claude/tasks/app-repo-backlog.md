@@ -4,6 +4,9 @@ Work that belongs in `sleeper-dashboard`, found by a session scoped to this repo
 
 ## Open
 
+### Mark D-88 resolved in `data-repo-backlog.md`
+**Found:** d88-dynasty-backtest-shared-helpers (data task file `.claude/tasks/d88-dynasty-backtest-shared-helpers.md`, planned 2026-11-02) · **Blocking:** no · **Size:** trivial — docs only
+D-88 is resolved at the cause: S3b's post-Fix-pass-1 helpers move to `lib/dynastyBacktest.mjs` and S4a's copies are deleted, so F7/F9 reach S4a by import, with a test each (T-F9-S4, T-F7-S4). No S4a rerun; `grading/2026-10-30-dynasty-rework-verdict.md` not regenerated. Strike D-88 in app `.claude/tasks/data-repo-backlog.md` once the implementation commit is signed off, citing it (Session 2 appends the SHA here).
 
 ### Mark D-67 resolved in `data-repo-backlog.md`
 **Found:** d67-dm-parity-l6c (data task file `.claude/tasks/d67-dm-parity-l6c.md`; verdict `grading/2026-11-02-dm-parity-l6c-verdict.md`, data commit fa443b3) · **Blocking:** no · **Size:** trivial — docs only
