@@ -82,14 +82,16 @@ function positionOfFrom(playerIds) {
 // ─── DM-1 / DM-2: parity of the mirror against the 2026-10-04 snapshot (reads only the DM-0 fixture) ─────
 
 /** The app writes `absenceShapeFactor` as Math.round(x * 1000) / 1000 (seasonProjection.js:1089); compare the same way. */
-export function parityReport(fixture) {
+export function parityReport(fixture, { rule = 'pre-l6c' } = {}) {
   const careerStats = fixture.seasons;
   let rows = 0, matched = 0, noQualifying = 0, nonSkill = 0, bbRows = 0, bbAgree = 0;
   const mismatches = [];
+  const shortSeason = { rows: 0, matched: 0, mismatches: [] };
+  let stateRows = 0, stateMismatches = [];
   for (const [id, snap] of Object.entries(fixture.snapshotRows)) {
     const pos = fixture.positions[id];
     if (!POSITIONS.includes(pos)) { nonSkill++; continue; }
-    const r = projectedGamesFor(careerStats, id, pos, { throughSeason: 2025 });
+    const r = projectedGamesFor(careerStats, id, pos, { throughSeason: 2025, rule });
     if (!r) { noQualifying++; continue; }
     rows++;
     const mirror = { projectedGames: r.projectedGames, injurySeasons: r.injurySeasons, absenceShapeFactor: round3(r.absenceShapeFactor) };
@@ -97,11 +99,22 @@ export function parityReport(fixture) {
       && mirror.absenceShapeFactor === round3(snap.absenceShapeFactor);
     if (ok) matched++;
     else mismatches.push({ id, position: pos, mirror, snapshot: { projectedGames: snap.projectedGames, injurySeasons: snap.injurySeasons, absenceShapeFactor: snap.absenceShapeFactor } });
+    if (rule === 'l6c' && snap.shortSeasonState !== undefined) {
+      stateRows++;
+      if (r.shortSeasonState !== snap.shortSeasonState) stateMismatches.push({ id, position: pos, mirror: r.shortSeasonState, snapshot: snap.shortSeasonState });
+      if (snap.shortSeasonState === 'short' || snap.shortSeasonState === 'none') {
+        shortSeason.rows++;
+        const sm = { projectedGames: r.projectedGames, shortSeasonState: r.shortSeasonState, projectedGamesBase: r.projectedGamesBase };
+        if (sm.projectedGames === snap.projectedGames && sm.shortSeasonState === snap.shortSeasonState && sm.projectedGamesBase === snap.projectedGamesBase) shortSeason.matched++;
+        else shortSeason.mismatches.push({ id, position: pos, mirror: sm, snapshot: { projectedGames: snap.projectedGames, shortSeasonState: snap.shortSeasonState, projectedGamesBase: snap.projectedGamesBase } });
+      }
+    }
     bbRows++;
     if ((bounceBackFlag(careerStats, id, pos, { throughSeason: 2025 }) === true) === (snap.isBounceBack === true)) bbAgree++;
   }
   return {
-    rows, matched, rate: rows ? matched / rows : null, noQualifying, nonSkill, mismatches,
+    rule, rows, matched, rate: rows ? matched / rows : null, noQualifying, nonSkill, mismatches,
+    ...(rule === 'l6c' ? { shortSeason, stateRows, stateMismatches } : {}),
     bounceBack: { rows: bbRows, agree: bbAgree, rate: bbRows ? bbAgree / bbRows : null },
   };
 }

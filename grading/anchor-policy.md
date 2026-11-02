@@ -199,7 +199,7 @@ Row-detectable through `factors.shortSeasonState`. Absent means pre-boundary.
   boundary push) extends the healthy override to the QB start-chain branch of `applyInSeasonProjection`
   (displayed `projectedGames` only; the chain total never reads games). `writeProjectionSnapshot` reads the raw
   `seasonProjections`, so no capture differs on it and nothing segments on it.
-- **Cross-check (to be confirmed, D-67):** the first post-push capture's `'short'`/`'none'` veteran rows equal the mirror's `rule: 'l6c'` (`lib/durabilityMirror.mjs`).
+- **Cross-check — closed (2026-11-02).** The `'short'`/`'none'` veteran rows equal the mirror's `rule: 'l6c'` (`lib/durabilityMirror.mjs`): 96/96 exact, DM-1 432/432 on `snapshots/2026-10-30.json` — `grading/2026-11-02-dm-parity-l6c-verdict.md`, fixture `test/fixtures/durability-parity-2026-10-30.json`.
 
 ### Veteran rows — boundary 10 (input correction)
 
