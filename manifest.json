@@ -1639,9 +1639,9 @@
     },
     "nflverse/teamcontext/2026.json": {
       "schemaVersion": 1,
-      "recordCount": 216,
+      "recordCount": 244,
       "inProgress": false,
-      "lastModified": "2026-11-01T18:37:33.224Z"
+      "lastModified": "2026-11-08T18:32:23.965Z"
     },
     "snapshots/2026-09-27.json": {
       "schemaVersion": 3,
@@ -2061,5 +2061,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-11-08T13:40:21.695Z"
+  "generatedAt": "2026-11-08T18:32:23.965Z"
 }
