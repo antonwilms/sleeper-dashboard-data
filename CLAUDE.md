@@ -146,7 +146,9 @@ Before reporting a task complete:
 
 ## Session git workflow
 
-Every session that modifies tracked files commits and pushes its own work — see [git-workflow.md](git-workflow.md) for why.
+Data captures (snapshots, nflverse/ktc/season-totals files, the manifest updates they bring) are committed and pushed promptly — capture-only, and the cron pushes to the same branch — see [git-workflow.md](git-workflow.md) for why.
+
+Code and task-file changes (`.claude/tasks/`, `src/`, `lib/`, `scripts/`, `bin/`) push only after sign-off: the task file holds a committed `## Verification` section plus a line `Signed off by Anton YYYY-MM-DD`, and Anton replied "signed off" in Session 1. Until then the slice stays local; `git pull --rebase origin main` before the eventual push, as below. Enforced by `.claude/hooks/push-guard.sh` (PreToolUse on `git push`; tests: `push-guard.test.sh`). Code-only fixes without a task file may instead carry `Signed off by Anton YYYY-MM-DD` in every code commit message; edits to existing task files are not gated.
 
 - `git pull --rebase origin main` **before** any push — the scheduled Actions push to main on cron and will reject a stale push.
 - `manifest.json` conflicts resolve as a **union** — every entry from both sides, never one side wholesale.
