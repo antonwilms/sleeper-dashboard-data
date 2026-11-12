@@ -347,3 +347,5 @@ Session 1, 2026-11-13. Diff range `1a9ad58..933857c` (`3e7d693` slice, `933857c`
 - **Disposition of the 4:** 1 and 4 accepted; 2 and 3 deferred to slice 1b's revision, which regenerates the weekly scoreboard and owns weekly B1c.
 - **Checks:** `npm test` 2,140 pass / 0 fail / 1 pre-existing skip; Python suite 17 pass, T-PY-1 not skipped; `npm run smoke` green (run by Session 2 and by the fix-applier; not re-run by the reviewers). No lint or build step in this repo.
 - **State:** nothing under a served folder or `manifest.json` changed; app repo untouched at `2c3578b`; research cache git-ignored. Artifacts: `backtests/2026-11-13-learned-s1a-panel.json`, `grading/2026-11-13-learned-s1a-verdict.md`. Weekly B1/B1c columns read `pending-1b`.
+
+Signed off by Anton 2026-11-13
