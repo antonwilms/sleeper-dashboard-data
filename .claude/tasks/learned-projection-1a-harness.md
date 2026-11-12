@@ -349,3 +349,5 @@ Session 1, 2026-11-13. Diff range `1a9ad58..933857c` (`3e7d693` slice, `933857c`
 - **State:** nothing under a served folder or `manifest.json` changed; app repo untouched at `2c3578b`; research cache git-ignored. Artifacts: `backtests/2026-11-13-learned-s1a-panel.json`, `grading/2026-11-13-learned-s1a-verdict.md`. Weekly B1/B1c columns read `pending-1b`.
 
 Signed off by Anton 2026-11-13
+
+Commit ids after the push-time rebase onto `2c97b76`: `3e7d693` → `f2e1fc9` (slice), `933857c` → `89f0638` (fix pass 1), `1a3a638` → `cf6a637` (verification record). The verdict and panel artifact record `dataRev` `3e7d693…`, the pre-rebase id of the slice commit; content is identical.
