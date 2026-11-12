@@ -16,3 +16,8 @@ id_ed25519*
 secrets.json
 credentials.json
 service-account*.json
+
+# LP-1a research cache (never committed)
+research/learned-projection/.cache/
+research/learned-projection/__pycache__/
+**/__pycache__/

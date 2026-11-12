@@ -1,0 +1,5 @@
+# Python 3.9.6 (the repo's research environment). Research only — never imported by bin/, lib/, scripts/; never run by npm test, smoke or CI.
+numpy==1.26.4
+pandas==1.5.3
+scikit-learn==1.6.1
+scipy==1.13.1

@@ -1675,6 +1675,29 @@ red. `bin/purge-cdn.mjs` is the CLI. See `.claude/tasks/cdn-purge-verify.md`.
 
 Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actions secret.
 
+### Learned-projection research (LP-1a)
+
+Offline research on whether a learned projection beats the app's hand-tuned one; slice LP-1a builds only the scoreboard
+(`.claude/tasks/learned-projection-1a-harness.md`). Nothing here is served, registered in `manifest.json`, read by the app,
+or run by `npm test`, `npm run smoke` or a workflow.
+
+- `node bin/learned.mjs export [--from 2014] [--to 2025]` → `scripts/learned-panel-run.mjs` assembles, from files already on disk,
+  `research/learned-projection/.cache/panel/{meta.json,weeks,teams,seasons,bench}.jsonl`: one row per (player, season, week) of the
+  weekly universe (ex-ante roster listings, §5.1) plus every played week, the scored-key vector `x` and league points `pts`, team
+  sums, season rows and the incumbent's season benchmarks (B1 = `assembleSeason` priors + `projectedGamesFor`/rookie totals; B2 =
+  two-year average). Every season-keyed loader sits behind `yearGuard` (`LearnedLookAheadError` above 2025) → `guardLoad` →
+  `leagueBasisLoad`; `runReconciliation` runs first and its stop propagates. §9 checks stop the export and write nothing.
+- `research/learned-projection/` is Python (3.9, pinned `requirements.txt`): `lp/` (`score` — the one copied definition, the scoring
+  dot-product, pinned by T-PY-1/2; `asof` — `view(tables, S, n)` filtered copies; `baselines` — B2, STD, RIDGE, P(plays);
+  `bootstrap` — player-clustered paired bootstrap; `metrics` — MAE/Spearman/cohorts and the §8 gate arithmetic; `sleeper`; `report`),
+  `fetch_sleeper_projections.py` (stdlib only; `api.sleeper.com/projections/nfl/<season>/<week>?season_type=regular`, 2021 coverage
+  check first, ≥ 1.5 s apart, cache confined to `.cache/sleeper-proj/`, SHA-256 index) and `run_benchmarks.py [--write]`.
+  Tests: `python3 -m unittest discover -s research/learned-projection/tests -t research/learned-projection` (T-PY-1 skips with a
+  printed reason when the cache is absent). Node tests: `test/learned-{panel,bench}.test.mjs`, fixtures built by
+  `scripts/fixtures/build-learned-fixtures.mjs`.
+- Pre-registration: the pass/fail bar of task §8 is hashed (`preregHash`) into the verdict; the weekly B1/B1c columns read
+  `pending-1b` until slice 1b.
+
 ### Smoke test
 
 ```bash

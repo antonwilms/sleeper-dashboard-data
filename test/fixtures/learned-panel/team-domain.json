@@ -1,0 +1,339 @@
+{
+ "stl2015": {
+  "S": 2015,
+  "team": "STL",
+  "pid": "1564",
+  "position": "RB",
+  "totals": {
+   "1564": {
+    "team": "STL",
+    "gamesPlayed": 16,
+    "fantasyPoints": 92.2,
+    "weeklyStatus": [
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "X",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "X"
+    ],
+    "weeklyStats": {
+     "1": {
+      "rec_drop": 1,
+      "rush_btkl": 1,
+      "bonus_rush_rec_yd_100": 1,
+      "rush_fd": 3,
+      "rec": 4,
+      "rec_yar": 83,
+      "rec_fd": 4,
+      "rush_att": 16,
+      "rec_5_9": 2,
+      "rec_40p": 1,
+      "rush_tkl_loss_yd": -5,
+      "rush_yac": 32,
+      "rec_air_yd": -6,
+      "rec_10_19": 2,
+      "rush_rz_att": 2,
+      "rush_yd": 45,
+      "bonus_rec_rb": 4,
+      "rec_tgt": 7,
+      "rec_yd": 77,
+      "rush_tkl_loss": 3
+     },
+     "2": {
+      "bonus_rec_rb": 4,
+      "kr": 1,
+      "kr_yd": 28,
+      "rec": 4,
+      "rec_0_4": 1,
+      "rec_10_19": 1,
+      "rec_5_9": 2,
+      "rec_air_yd": 1,
+      "rec_drop": 2,
+      "rec_fd": 1,
+      "rec_tgt": 6,
+      "rec_yar": 26,
+      "rec_yd": 27,
+      "rush_att": 1,
+      "rush_yac": 4
+     },
+     "3": {
+      "bonus_rec_rb": 2,
+      "kr": 2,
+      "kr_yd": 48,
+      "rec": 2,
+      "rec_10_19": 1,
+      "rec_5_9": 1,
+      "rec_air_yd": 3,
+      "rec_tgt": 2,
+      "rec_yar": 15,
+      "rec_yd": 18,
+      "rush_att": 1,
+      "rush_btkl": 1,
+      "rush_fd": 1,
+      "rush_yac": 9,
+      "rush_yd": 12
+     }
+    }
+   }
+  },
+  "rosterPlayers": {
+   "1564": {
+    "1": [
+     [
+      "STL",
+      "ACT"
+     ]
+    ],
+    "2": [
+     [
+      "STL",
+      "ACT"
+     ]
+    ],
+    "3": [
+     [
+      "STL",
+      "ACT"
+     ]
+    ]
+   }
+  },
+  "games": [
+   {
+    "gameId": "2015_01_SEA_STL",
+    "season": 2015,
+    "week": 1,
+    "gameType": "REG",
+    "homeTeam": "STL",
+    "awayTeam": "SEA",
+    "homeScore": 34,
+    "awayScore": 31,
+    "result": 3,
+    "spreadLine": -3.5,
+    "totalLine": 41.5,
+    "roof": "dome",
+    "surface": "astroplay",
+    "temp": null,
+    "wind": null
+   },
+   {
+    "gameId": "2015_02_STL_WAS",
+    "season": 2015,
+    "week": 2,
+    "gameType": "REG",
+    "homeTeam": "WAS",
+    "awayTeam": "STL",
+    "homeScore": 24,
+    "awayScore": 10,
+    "result": 14,
+    "spreadLine": -3,
+    "totalLine": 41,
+    "roof": "outdoors",
+    "surface": "grass",
+    "temp": 72,
+    "wind": 9
+   },
+   {
+    "gameId": "2015_03_PIT_STL",
+    "season": 2015,
+    "week": 3,
+    "gameType": "REG",
+    "homeTeam": "STL",
+    "awayTeam": "PIT",
+    "homeScore": 6,
+    "awayScore": 12,
+    "result": -6,
+    "spreadLine": 1.5,
+    "totalLine": 48.5,
+    "roof": "dome",
+    "surface": "astroplay",
+    "temp": null,
+    "wind": null
+   }
+  ]
+ },
+ "oak2019": {
+  "S": 2019,
+  "team": "OAK",
+  "pid": "2583",
+  "position": "WR",
+  "totals": {
+   "2583": {
+    "team": "OAK",
+    "gamesPlayed": 14,
+    "fantasyPoints": 131.1,
+    "weeklyStatus": [
+     "P",
+     "P",
+     "P",
+     "P",
+     "D",
+     "X",
+     "D",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "P",
+     "X"
+    ],
+    "weeklyStats": {
+     "1": {
+      "bonus_rec_wr": 6,
+      "bonus_rec_yd_100": 1,
+      "bonus_rush_rec_yd_100": 1,
+      "rec": 6,
+      "rec_10_19": 2,
+      "rec_20_29": 1,
+      "rec_40p": 1,
+      "rec_5_9": 2,
+      "rec_air_yd": 80,
+      "rec_fd": 4,
+      "rec_rz_tgt": 1,
+      "rec_td": 1,
+      "rec_tgt": 7,
+      "rec_yar": 25,
+      "rec_yd": 105
+     },
+     "2": {
+      "bonus_rec_wr": 5,
+      "rec": 5,
+      "rec_0_4": 1,
+      "rec_10_19": 2,
+      "rec_5_9": 2,
+      "rec_air_yd": 39,
+      "rec_fd": 3,
+      "rec_rz_tgt": 2,
+      "rec_td": 1,
+      "rec_tgt": 7,
+      "rec_yar": 7,
+      "rec_yd": 46
+     },
+     "3": {
+      "bonus_rec_wr": 3,
+      "rec": 3,
+      "rec_0_4": 1,
+      "rec_10_19": 2,
+      "rec_air_yd": 20,
+      "rec_fd": 1,
+      "rec_rz_tgt": 1,
+      "rec_td": 1,
+      "rec_tgt": 3,
+      "rec_yar": 9,
+      "rec_yd": 29
+     }
+    }
+   }
+  },
+  "rosterPlayers": {
+   "2583": {
+    "1": [
+     [
+      "OAK",
+      "ACT"
+     ]
+    ],
+    "2": [
+     [
+      "OAK",
+      "ACT"
+     ]
+    ],
+    "3": [
+     [
+      "OAK",
+      "ACT"
+     ]
+    ]
+   }
+  },
+  "games": [
+   {
+    "gameId": "2019_01_DEN_OAK",
+    "season": 2019,
+    "week": 1,
+    "gameType": "REG",
+    "homeTeam": "OAK",
+    "awayTeam": "DEN",
+    "homeScore": 24,
+    "awayScore": 16,
+    "result": 8,
+    "spreadLine": -3,
+    "totalLine": 42.5,
+    "roof": "outdoors",
+    "surface": "grass",
+    "temp": 68,
+    "wind": 15
+   },
+   {
+    "gameId": "2019_02_KC_OAK",
+    "season": 2019,
+    "week": 2,
+    "gameType": "REG",
+    "homeTeam": "OAK",
+    "awayTeam": "KC",
+    "homeScore": 10,
+    "awayScore": 28,
+    "result": -18,
+    "spreadLine": -7,
+    "totalLine": 53.5,
+    "roof": "outdoors",
+    "surface": "grass",
+    "temp": 70,
+    "wind": 13
+   },
+   {
+    "gameId": "2019_03_OAK_MIN",
+    "season": 2019,
+    "week": 3,
+    "gameType": "REG",
+    "homeTeam": "MIN",
+    "awayTeam": "OAK",
+    "homeScore": 34,
+    "awayScore": 14,
+    "result": 20,
+    "spreadLine": 8.5,
+    "totalLine": 43,
+    "roof": "dome",
+    "surface": "sportturf",
+    "temp": null,
+    "wind": null
+   }
+  ]
+ },
+ "opener": {
+  "gameId": "2016_01_CAR_DEN",
+  "season": 2016,
+  "week": 1,
+  "gameType": "REG",
+  "homeTeam": "DEN",
+  "awayTeam": "CAR",
+  "homeScore": 21,
+  "awayScore": 20,
+  "result": 1,
+  "spreadLine": -3,
+  "totalLine": 40.5,
+  "roof": "outdoors",
+  "surface": "grass",
+  "temp": 85,
+  "wind": 10
+ }
+}
