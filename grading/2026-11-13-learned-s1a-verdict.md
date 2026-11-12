@@ -1,6 +1,6 @@
-# LP-1a — learned-projection scoreboard (2026-11-12)
+# LP-1a — learned-projection scoreboard (2026-11-13)
 
-Offline research. **LP-1a makes no claim about learned models**: RIDGE is a baseline. Nothing here ships. Task file: `.claude/tasks/learned-projection-1a-harness.md`. Panel built from `test/fixtures/league-scoring-2026-10-14.json` (data rev `1a9ad582e162a3c230aa27dcebc71945587c303d`), test seasons 2019–2025, development folds 2019–2024, confirmation fold 2025.
+Offline research. **LP-1a makes no claim about learned models**: RIDGE is a baseline. Nothing here ships. Task file: `.claude/tasks/learned-projection-1a-harness.md`. Panel built from `test/fixtures/league-scoring-2026-10-14.json` (data rev `3e7d69337a6d5406ef9bd752305dfbd543496ad0`), test seasons 2019–2025, development folds 2019–2024, confirmation fold 2025.
 
 ## Summary by position
 
@@ -30,29 +30,29 @@ Weekly B1 / B1c columns read `pending-1b` (slice 1b builds the app's in-season r
 
 1. Scoring parity: **88157 / 88157** played rows exact (hard stop otherwise).
 2. Σ weekly `pts` = league season points within 0.05: **9400 / 9400** player-seasons (100.0000%); misses: none.
-3. Played rows whose team has a schedule game that week: **88128 / 88157** (99.9671%).
+3. Played rows on the §4.3 first-choice team (the rosterweekly team if listed, else the season-totals team) **and** that team has a schedule game that week (`teamFirstChoice`): **88128 / 88157** (99.9671%; threshold ≥ 99%). Rows resolved by fallback (not first choice), by `teamSource`: {"season-totals": 1, "rosterweekly": 28}; rows with a schedule game on the team used: 88128 / 88157.
 
-| season | played rows | with schedule game |
-|---|---|---|
-| 2012 | 4506 | 4505 |
-| 2013 | 5391 | 5391 |
-| 2014 | 6098 | 6098 |
-| 2015 | 6115 | 6115 |
-| 2016 | 6181 | 6181 |
-| 2017 | 6275 | 6275 |
-| 2018 | 6273 | 6273 |
-| 2019 | 6258 | 6258 |
-| 2020 | 6540 | 6540 |
-| 2021 | 6980 | 6980 |
-| 2022 | 6870 | 6842 |
-| 2023 | 6859 | 6859 |
-| 2024 | 6880 | 6880 |
-| 2025 | 6931 | 6931 |
+| season | played rows | first-choice team with game | with schedule game |
+|---|---|---|---|
+| 2012 | 4506 | 4505 | 4505 |
+| 2013 | 5391 | 5391 | 5391 |
+| 2014 | 6098 | 6098 | 6098 |
+| 2015 | 6115 | 6115 | 6115 |
+| 2016 | 6181 | 6181 | 6181 |
+| 2017 | 6275 | 6275 | 6275 |
+| 2018 | 6273 | 6273 | 6273 |
+| 2019 | 6258 | 6258 | 6258 |
+| 2020 | 6540 | 6540 | 6540 |
+| 2021 | 6980 | 6980 | 6980 |
+| 2022 | 6870 | 6842 | 6842 |
+| 2023 | 6859 | 6859 | 6859 |
+| 2024 | 6880 | 6880 | 6880 |
+| 2025 | 6931 | 6931 | 6931 |
 
-| teamSource | played rows | with schedule game |
-|---|---|---|
-| rosterweekly | 87891 | 87863 |
-| season-totals | 266 | 265 |
+| teamSource | played rows | first-choice team with game | with schedule game |
+|---|---|---|---|
+| rosterweekly | 87891 | 87863 | 87863 |
+| season-totals | 266 | 265 | 265 |
 
 4. `b1.covered` share of the season headline set (stratum V ∪ drafted in S rounds 1–3), per position and test season (< 60% anywhere would have stopped the run); `noGames` (veteran-routed rows with no qualifying season: total null, row kept) = **0**.
 
@@ -93,35 +93,35 @@ Weekly B1 / B1c columns read `pending-1b` (slice 1b builds the app's in-season r
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 316 | 98.9 [90.0, 107.8] | 38.4 [27.3, 49.7] | 0.584 [0.489, 0.664] | -11.61 [-18.05, -5.12] | 11.7% | 0.026 [-0.023, 0.078] |
-| B1c | 316 | 87.0 [78.7, 95.6] | -6.6 [-18.1, 4.8] | 0.584 [0.489, 0.664] | 0.23 [-4.15, 4.77] | -0.3% | 0.026 [-0.023, 0.078] |
-| B2 | 295 | 103.0 [93.1, 113.1] | 51.0 [36.7, 65.6] | 0.562 [0.446, 0.658] | -15.64 [-23.50, -8.12] | 15.2% | 0.056 [-0.007, 0.123] |
-| RIDGE | 333 | 88.3 [80.8, 95.9] | -4.5 [-15.2, 7.2] | 0.618 [0.526, 0.700] | — | — | — |
+| B1 | 316 | 98.9 [90.0, 107.8] | 38.4 [27.3, 49.7] | 0.584 [0.481, 0.660] | -11.61 [-18.05, -5.12] | 11.7% | 0.026 [-0.033, 0.084] |
+| B1c | 316 | 87.0 [78.7, 95.6] | -6.6 [-18.1, 4.8] | 0.584 [0.481, 0.660] | 0.23 [-4.15, 4.77] | -0.3% | 0.026 [-0.033, 0.084] |
+| B2 | 295 | 103.0 [93.1, 113.1] | 51.0 [36.7, 65.6] | 0.562 [0.441, 0.646] | -15.64 [-23.50, -8.12] | 15.2% | 0.056 [-0.016, 0.129] |
+| RIDGE | 333 | 88.3 [80.8, 95.9] | -4.5 [-15.2, 7.2] | 0.618 [0.514, 0.692] | — | — | — |
 
 **V set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 283 | 100.7 [91.1, 110.4] | 40.5 [29.3, 52.3] | 0.583 [0.483, 0.672] | -13.88 [-20.66, -7.37] | 13.8% | 0.028 [-0.024, 0.083] |
-| B1c | 283 | 87.8 [78.8, 96.9] | -5.6 [-17.6, 6.4] | 0.583 [0.483, 0.672] | -0.98 [-5.86, 3.91] | 1.1% | 0.028 [-0.024, 0.083] |
-| B2 | 295 | 103.0 [93.1, 113.1] | 51.0 [36.7, 65.6] | 0.562 [0.446, 0.658] | -15.64 [-23.50, -8.12] | 15.2% | 0.056 [-0.007, 0.123] |
-| RIDGE | 295 | 87.4 [79.5, 95.4] | -3.4 [-15.0, 9.5] | 0.618 [0.518, 0.709] | — | — | — |
+| B1 | 283 | 100.7 [91.1, 110.4] | 40.5 [29.3, 52.3] | 0.583 [0.476, 0.662] | -13.88 [-20.66, -7.37] | 13.8% | 0.028 [-0.037, 0.093] |
+| B1c | 283 | 87.8 [78.8, 96.9] | -5.6 [-17.6, 6.4] | 0.583 [0.476, 0.662] | -0.98 [-5.86, 3.91] | 1.1% | 0.028 [-0.037, 0.093] |
+| B2 | 295 | 103.0 [93.1, 113.1] | 51.0 [36.7, 65.6] | 0.562 [0.441, 0.646] | -15.64 [-23.50, -8.12] | 15.2% | 0.056 [-0.016, 0.129] |
+| RIDGE | 295 | 87.4 [79.5, 95.4] | -3.4 [-15.0, 9.5] | 0.618 [0.506, 0.698] | — | — | — |
 
 **N set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 227 | 54.3 [43.8, 65.3] | 9.8 [-1.7, 21.1] | 0.371 [0.242, 0.488] | 17.39 [7.55, 26.72] | -32.0% | 0.046 [-0.090, 0.199] |
-| B1c | 227 | 49.9 [40.3, 59.7] | -4.1 [-14.8, 6.4] | 0.371 [0.242, 0.488] | 21.86 [13.58, 29.86] | -43.9% | 0.046 [-0.090, 0.199] |
-| RIDGE | 291 | 73.3 [67.1, 80.0] | -3.3 [-14.8, 8.3] | 0.332 [0.233, 0.428] | — | — | — |
+| B1 | 227 | 54.3 [43.8, 65.3] | 9.8 [-1.7, 21.1] | 0.371 [0.232, 0.485] | 17.39 [7.55, 26.72] | -32.0% | 0.046 [-0.100, 0.199] |
+| B1c | 227 | 49.9 [40.3, 59.7] | -4.1 [-14.8, 6.4] | 0.371 [0.232, 0.485] | 21.86 [13.58, 29.86] | -43.9% | 0.046 [-0.100, 0.199] |
+| RIDGE | 291 | 73.3 [67.1, 80.0] | -3.3 [-14.8, 8.3] | 0.332 [0.222, 0.431] | — | — | — |
 
 **deep set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 194 | 49.1 [38.0, 60.5] | 9.1 [-1.6, 20.9] | 0.185 [0.032, 0.317] | 18.48 [8.01, 28.47] | -37.6% | 0.061 [-0.142, 0.281] |
-| B1c | 194 | 44.0 [34.0, 54.2] | -0.9 [-10.8, 9.4] | 0.185 [0.032, 0.317] | 23.61 [14.56, 32.55] | -53.7% | 0.061 [-0.142, 0.281] |
-| RIDGE | 253 | 69.5 [63.1, 76.0] | -0.9 [-12.1, 11.1] | 0.194 [0.081, 0.299] | — | — | — |
+| B1 | 194 | 49.1 [38.0, 60.5] | 9.1 [-1.6, 20.9] | 0.185 [0.026, 0.317] | 18.48 [8.01, 28.47] | -37.6% | 0.061 [-0.149, 0.279] |
+| B1c | 194 | 44.0 [34.0, 54.2] | -0.9 [-10.8, 9.4] | 0.185 [0.026, 0.317] | 23.61 [14.56, 32.55] | -53.7% | 0.061 [-0.149, 0.279] |
+| RIDGE | 253 | 69.5 [63.1, 76.0] | -0.9 [-12.1, 11.1] | 0.194 [0.072, 0.304] | — | — | — |
 
 ### RB
 
@@ -129,35 +129,35 @@ Weekly B1 / B1c columns read `pending-1b` (slice 1b builds the app's in-season r
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 684 | 57.0 [51.7, 62.5] | -6.4 [-11.3, -1.4] | 0.608 [0.541, 0.664] | -4.05 [-6.87, -1.22] | 7.1% | 0.057 [0.019, 0.097] |
-| B1c | 684 | 58.0 [52.4, 63.7] | -1.9 [-6.9, 3.2] | 0.608 [0.541, 0.664] | -5.07 [-8.01, -2.09] | 8.7% | 0.057 [0.019, 0.097] |
-| B2 | 680 | 57.2 [51.8, 63.1] | 19.1 [13.9, 24.5] | 0.645 [0.579, 0.699] | -5.16 [-8.31, -2.07] | 9.0% | 0.026 [-0.005, 0.060] |
-| RIDGE | 723 | 53.3 [48.8, 58.3] | -2.7 [-8.3, 2.9] | 0.660 [0.596, 0.711] | — | — | — |
+| B1 | 684 | 57.0 [51.7, 62.5] | -6.4 [-11.3, -1.4] | 0.608 [0.535, 0.663] | -4.05 [-6.87, -1.22] | 7.1% | 0.057 [0.017, 0.097] |
+| B1c | 684 | 58.0 [52.4, 63.7] | -1.9 [-6.9, 3.2] | 0.608 [0.535, 0.663] | -5.07 [-8.01, -2.09] | 8.7% | 0.057 [0.017, 0.097] |
+| B2 | 680 | 57.2 [51.8, 63.1] | 19.1 [13.9, 24.5] | 0.645 [0.573, 0.697] | -5.16 [-8.31, -2.07] | 9.0% | 0.026 [-0.010, 0.064] |
+| RIDGE | 723 | 53.3 [48.8, 58.3] | -2.7 [-8.3, 2.9] | 0.660 [0.591, 0.707] | — | — | — |
 
 **V set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 642 | 56.3 [50.6, 62.0] | -6.3 [-11.1, -1.4] | 0.615 [0.547, 0.674] | -4.68 [-7.58, -1.73] | 8.3% | 0.064 [0.024, 0.106] |
-| B1c | 642 | 57.5 [51.6, 63.2] | -1.8 [-6.8, 3.3] | 0.615 [0.547, 0.674] | -5.80 [-8.83, -2.68] | 10.1% | 0.064 [0.024, 0.106] |
-| B2 | 680 | 57.2 [51.8, 63.1] | 19.1 [13.9, 24.5] | 0.645 [0.579, 0.699] | -5.16 [-8.31, -2.07] | 9.0% | 0.026 [-0.005, 0.060] |
-| RIDGE | 680 | 52.0 [47.4, 57.2] | -2.9 [-8.3, 2.4] | 0.671 [0.609, 0.722] | — | — | — |
+| B1 | 642 | 56.3 [50.6, 62.0] | -6.3 [-11.1, -1.4] | 0.615 [0.540, 0.670] | -4.68 [-7.58, -1.73] | 8.3% | 0.064 [0.020, 0.107] |
+| B1c | 642 | 57.5 [51.6, 63.2] | -1.8 [-6.8, 3.3] | 0.615 [0.540, 0.670] | -5.80 [-8.83, -2.68] | 10.1% | 0.064 [0.020, 0.107] |
+| B2 | 680 | 57.2 [51.8, 63.1] | 19.1 [13.9, 24.5] | 0.645 [0.573, 0.697] | -5.16 [-8.31, -2.07] | 9.0% | 0.026 [-0.010, 0.064] |
+| RIDGE | 680 | 52.0 [47.4, 57.2] | -2.9 [-8.3, 2.4] | 0.671 [0.601, 0.719] | — | — | — |
 
 **N set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 230 | 41.5 [36.4, 47.2] | -14.2 [-22.2, -6.7] | 0.457 [0.328, 0.563] | 22.12 [16.18, 27.66] | -53.3% | -0.079 [-0.165, 0.006] |
-| B1c | 230 | 41.3 [36.3, 47.1] | -12.1 [-20.0, -4.6] | 0.457 [0.328, 0.563] | 22.29 [16.49, 27.73] | -53.9% | -0.079 [-0.165, 0.006] |
-| RIDGE | 262 | 63.3 [59.4, 67.5] | 33.0 [25.1, 40.8] | 0.427 [0.307, 0.527] | — | — | — |
+| B1 | 230 | 41.5 [36.4, 47.2] | -14.2 [-22.2, -6.7] | 0.457 [0.314, 0.563] | 22.12 [16.18, 27.66] | -53.3% | -0.079 [-0.171, 0.014] |
+| B1c | 230 | 41.3 [36.3, 47.1] | -12.1 [-20.0, -4.6] | 0.457 [0.314, 0.563] | 22.29 [16.49, 27.73] | -53.9% | -0.079 [-0.171, 0.014] |
+| RIDGE | 262 | 63.3 [59.4, 67.5] | 33.0 [25.1, 40.8] | 0.427 [0.293, 0.531] | — | — | — |
 
 **deep set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 188 | 35.8 [30.1, 42.6] | -15.5 [-23.5, -8.3] | 0.304 [0.146, 0.441] | 26.49 [19.50, 33.20] | -73.9% | -0.121 [-0.256, 0.022] |
-| B1c | 188 | 35.8 [30.0, 42.4] | -14.1 [-22.1, -6.9] | 0.304 [0.146, 0.441] | 26.55 [19.70, 33.12] | -74.3% | -0.121 [-0.256, 0.022] |
-| RIDGE | 219 | 61.7 [57.4, 65.9] | 39.5 [31.7, 47.3] | 0.260 [0.129, 0.386] | — | — | — |
+| B1 | 188 | 35.8 [30.1, 42.6] | -15.5 [-23.5, -8.3] | 0.304 [0.132, 0.443] | 26.49 [19.50, 33.20] | -73.9% | -0.121 [-0.266, 0.034] |
+| B1c | 188 | 35.8 [30.0, 42.4] | -14.1 [-22.1, -6.9] | 0.304 [0.132, 0.443] | 26.55 [19.70, 33.12] | -74.3% | -0.121 [-0.266, 0.034] |
+| RIDGE | 219 | 61.7 [57.4, 65.9] | 39.5 [31.7, 47.3] | 0.260 [0.115, 0.384] | — | — | — |
 
 ### WR
 
@@ -165,35 +165,35 @@ Weekly B1 / B1c columns read `pending-1b` (slice 1b builds the app's in-season r
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 1114 | 50.6 [47.5, 53.8] | 3.5 [-0.3, 7.1] | 0.607 [0.557, 0.652] | -7.20 [-9.07, -5.38] | 14.2% | 0.072 [0.049, 0.096] |
-| B1c | 1114 | 50.5 [47.4, 53.7] | 3.3 [-0.6, 6.9] | 0.607 [0.557, 0.652] | -7.10 [-8.93, -5.30] | 14.1% | 0.072 [0.049, 0.096] |
-| B2 | 1085 | 46.7 [43.9, 49.5] | 17.4 [14.2, 20.8] | 0.674 [0.623, 0.717] | -4.11 [-5.81, -2.52] | 8.8% | 0.024 [0.004, 0.046] |
-| RIDGE | 1189 | 43.8 [41.5, 46.0] | 1.3 [-1.9, 4.6] | 0.681 [0.637, 0.720] | — | — | — |
+| B1 | 1114 | 50.6 [47.5, 53.8] | 3.5 [-0.3, 7.1] | 0.607 [0.550, 0.651] | -7.20 [-9.07, -5.38] | 14.2% | 0.072 [0.048, 0.097] |
+| B1c | 1114 | 50.5 [47.4, 53.7] | 3.3 [-0.6, 6.9] | 0.607 [0.550, 0.651] | -7.10 [-8.93, -5.30] | 14.1% | 0.072 [0.048, 0.097] |
+| B2 | 1085 | 46.7 [43.9, 49.5] | 17.4 [14.2, 20.8] | 0.674 [0.617, 0.716] | -4.11 [-5.81, -2.52] | 8.8% | 0.024 [0.003, 0.045] |
+| RIDGE | 1189 | 43.8 [41.5, 46.0] | 1.3 [-1.9, 4.6] | 0.681 [0.631, 0.719] | — | — | — |
 
 **V set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 1013 | 50.2 [47.1, 53.6] | 4.2 [0.3, 8.0] | 0.620 [0.568, 0.666] | -8.07 [-10.16, -6.09] | 16.1% | 0.081 [0.056, 0.106] |
-| B1c | 1013 | 50.1 [47.0, 53.4] | 3.9 [0.0, 7.7] | 0.620 [0.568, 0.666] | -7.95 [-10.05, -5.99] | 15.9% | 0.081 [0.056, 0.106] |
-| B2 | 1085 | 46.7 [43.9, 49.5] | 17.4 [14.2, 20.8] | 0.674 [0.623, 0.717] | -4.11 [-5.81, -2.52] | 8.8% | 0.024 [0.004, 0.046] |
-| RIDGE | 1085 | 42.6 [40.4, 44.8] | 2.4 [-0.9, 5.7] | 0.698 [0.653, 0.737] | — | — | — |
+| B1 | 1013 | 50.2 [47.1, 53.6] | 4.2 [0.3, 8.0] | 0.620 [0.560, 0.666] | -8.07 [-10.16, -6.09] | 16.1% | 0.081 [0.056, 0.107] |
+| B1c | 1013 | 50.1 [47.0, 53.4] | 3.9 [0.0, 7.7] | 0.620 [0.560, 0.666] | -7.95 [-10.05, -5.99] | 15.9% | 0.081 [0.056, 0.107] |
+| B2 | 1085 | 46.7 [43.9, 49.5] | 17.4 [14.2, 20.8] | 0.674 [0.617, 0.716] | -4.11 [-5.81, -2.52] | 8.8% | 0.024 [0.003, 0.045] |
+| RIDGE | 1085 | 42.6 [40.4, 44.8] | 2.4 [-0.9, 5.7] | 0.698 [0.644, 0.737] | — | — | — |
 
 **N set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 345 | 35.4 [31.4, 39.4] | -10.7 [-15.8, -5.6] | 0.537 [0.455, 0.611] | 11.18 [7.64, 14.53] | -31.6% | -0.044 [-0.108, 0.016] |
-| B1c | 345 | 35.4 [31.5, 39.4] | -10.8 [-15.8, -5.7] | 0.537 [0.455, 0.611] | 11.15 [7.62, 14.55] | -31.5% | -0.044 [-0.108, 0.016] |
-| RIDGE | 428 | 47.6 [44.8, 50.3] | 20.0 [14.9, 24.8] | 0.497 [0.412, 0.570] | — | — | — |
+| B1 | 345 | 35.4 [31.4, 39.4] | -10.7 [-15.8, -5.6] | 0.537 [0.446, 0.609] | 11.18 [7.64, 14.53] | -31.6% | -0.044 [-0.115, 0.022] |
+| B1c | 345 | 35.4 [31.5, 39.4] | -10.8 [-15.8, -5.7] | 0.537 [0.446, 0.609] | 11.15 [7.62, 14.55] | -31.5% | -0.044 [-0.115, 0.022] |
+| RIDGE | 428 | 47.6 [44.8, 50.3] | 20.0 [14.9, 24.8] | 0.497 [0.403, 0.569] | — | — | — |
 
 **deep set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 244 | 27.2 [23.0, 31.6] | -14.3 [-19.4, -9.0] | 0.205 [0.075, 0.327] | 15.54 [10.80, 19.88] | -57.1% | -0.090 [-0.225, 0.038] |
-| B1c | 244 | 27.2 [23.0, 31.6] | -14.3 [-19.5, -9.0] | 0.205 [0.075, 0.327] | 15.53 [10.79, 19.89] | -57.0% | -0.090 [-0.225, 0.038] |
-| RIDGE | 324 | 44.9 [42.1, 47.7] | 29.3 [24.7, 33.8] | 0.158 [0.040, 0.265] | — | — | — |
+| B1 | 244 | 27.2 [23.0, 31.6] | -14.3 [-19.4, -9.0] | 0.205 [0.066, 0.327] | 15.54 [10.80, 19.88] | -57.1% | -0.090 [-0.228, 0.053] |
+| B1c | 244 | 27.2 [23.0, 31.6] | -14.3 [-19.5, -9.0] | 0.205 [0.066, 0.327] | 15.53 [10.79, 19.89] | -57.0% | -0.090 [-0.228, 0.053] |
+| RIDGE | 324 | 44.9 [42.1, 47.7] | 29.3 [24.7, 33.8] | 0.158 [0.033, 0.267] | — | — | — |
 
 ### TE
 
@@ -201,35 +201,35 @@ Weekly B1 / B1c columns read `pending-1b` (slice 1b builds the app's in-season r
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 650 | 35.7 [32.2, 39.5] | -0.4 [-4.1, 3.2] | 0.674 [0.612, 0.723] | -2.16 [-4.25, -0.23] | 6.1% | 0.038 [0.005, 0.070] |
-| B1c | 650 | 35.7 [32.2, 39.5] | -0.9 [-4.6, 2.7] | 0.674 [0.612, 0.723] | -2.12 [-4.16, -0.22] | 6.0% | 0.038 [0.005, 0.070] |
-| B2 | 653 | 34.4 [30.9, 37.8] | 8.1 [4.6, 11.6] | 0.696 [0.633, 0.747] | -2.25 [-4.06, -0.42] | 6.5% | 0.029 [0.004, 0.056] |
-| RIDGE | 694 | 33.4 [30.5, 36.3] | -1.9 [-5.6, 1.9] | 0.706 [0.648, 0.752] | — | — | — |
+| B1 | 650 | 35.7 [32.2, 39.5] | -0.4 [-4.1, 3.2] | 0.674 [0.602, 0.721] | -2.16 [-4.25, -0.23] | 6.1% | 0.038 [0.002, 0.072] |
+| B1c | 650 | 35.7 [32.2, 39.5] | -0.9 [-4.6, 2.7] | 0.674 [0.602, 0.721] | -2.12 [-4.16, -0.22] | 6.0% | 0.038 [0.002, 0.072] |
+| B2 | 653 | 34.4 [30.9, 37.8] | 8.1 [4.6, 11.6] | 0.696 [0.623, 0.744] | -2.25 [-4.06, -0.42] | 6.5% | 0.029 [0.001, 0.058] |
+| RIDGE | 694 | 33.4 [30.5, 36.3] | -1.9 [-5.6, 1.9] | 0.706 [0.638, 0.750] | — | — | — |
 
 **V set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 611 | 34.6 [30.9, 38.6] | -0.6 [-4.2, 2.8] | 0.694 [0.633, 0.742] | -2.29 [-4.48, -0.26] | 6.6% | 0.038 [0.005, 0.073] |
-| B1c | 611 | 34.5 [30.8, 38.5] | -1.1 [-4.7, 2.4] | 0.694 [0.633, 0.742] | -2.23 [-4.40, -0.18] | 6.5% | 0.038 [0.005, 0.073] |
-| B2 | 653 | 34.4 [30.9, 37.8] | 8.1 [4.6, 11.6] | 0.696 [0.633, 0.747] | -2.25 [-4.06, -0.42] | 6.5% | 0.029 [0.004, 0.056] |
-| RIDGE | 653 | 32.1 [29.0, 35.1] | -1.4 [-5.3, 2.4] | 0.725 [0.664, 0.771] | — | — | — |
+| B1 | 611 | 34.6 [30.9, 38.6] | -0.6 [-4.2, 2.8] | 0.694 [0.625, 0.739] | -2.29 [-4.48, -0.26] | 6.6% | 0.038 [0.002, 0.075] |
+| B1c | 611 | 34.5 [30.8, 38.5] | -1.1 [-4.7, 2.4] | 0.694 [0.625, 0.739] | -2.23 [-4.40, -0.18] | 6.5% | 0.038 [0.002, 0.075] |
+| B2 | 653 | 34.4 [30.9, 37.8] | 8.1 [4.6, 11.6] | 0.696 [0.623, 0.744] | -2.25 [-4.06, -0.42] | 6.5% | 0.029 [0.001, 0.058] |
+| RIDGE | 653 | 32.1 [29.0, 35.1] | -1.4 [-5.3, 2.4] | 0.725 [0.656, 0.768] | — | — | — |
 
 **N set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 192 | 26.5 [21.8, 31.8] | -6.9 [-13.7, -0.8] | 0.512 [0.397, 0.614] | 5.58 [2.39, 8.53] | -21.0% | 0.022 [-0.071, 0.118] |
-| B1c | 192 | 26.6 [21.9, 31.9] | -7.1 [-14.0, -1.0] | 0.512 [0.397, 0.614] | 5.53 [2.31, 8.46] | -20.8% | 0.022 [-0.071, 0.118] |
-| RIDGE | 240 | 31.9 [28.2, 35.9] | 10.3 [4.3, 15.2] | 0.530 [0.426, 0.626] | — | — | — |
+| B1 | 192 | 26.5 [21.8, 31.8] | -6.9 [-13.7, -0.8] | 0.512 [0.375, 0.613] | 5.58 [2.39, 8.53] | -21.0% | 0.022 [-0.072, 0.124] |
+| B1c | 192 | 26.6 [21.9, 31.9] | -7.1 [-14.0, -1.0] | 0.512 [0.375, 0.613] | 5.53 [2.31, 8.46] | -20.8% | 0.022 [-0.072, 0.124] |
+| RIDGE | 240 | 31.9 [28.2, 35.9] | 10.3 [4.3, 15.2] | 0.530 [0.408, 0.628] | — | — | — |
 
 **deep set**
 
 | benchmark | rows | MAE | bias | Spearman | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| B1 | 153 | 18.9 [14.6, 23.8] | -9.3 [-15.0, -4.4] | 0.398 [0.241, 0.533] | 6.82 [3.23, 10.37] | -36.0% | 0.045 [-0.109, 0.189] |
-| B1c | 153 | 18.9 [14.6, 23.8] | -9.4 [-15.1, -4.4] | 0.398 [0.241, 0.533] | 6.82 [3.25, 10.37] | -36.0% | 0.045 [-0.109, 0.189] |
-| RIDGE | 199 | 26.7 [23.9, 29.7] | 14.9 [10.3, 19.0] | 0.412 [0.279, 0.534] | — | — | — |
+| B1 | 153 | 18.9 [14.6, 23.8] | -9.3 [-15.0, -4.4] | 0.398 [0.224, 0.539] | 6.82 [3.23, 10.37] | -36.0% | 0.045 [-0.117, 0.206] |
+| B1c | 153 | 18.9 [14.6, 23.8] | -9.4 [-15.1, -4.4] | 0.398 [0.224, 0.539] | 6.82 [3.25, 10.37] | -36.0% | 0.045 [-0.117, 0.206] |
+| RIDGE | 199 | 26.7 [23.9, 29.7] | 14.9 [10.3, 19.0] | 0.412 [0.262, 0.541] | — | — | — |
 
 ## Weekly forecast — points given he plays (relevant set, played rows)
 
@@ -237,49 +237,49 @@ Weekly B1 / B1c columns read `pending-1b` (slice 1b builds the app's in-season r
 
 | benchmark | rows | MAE | bias | Spearman (per week-group) | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| STD | 2402 | 7.172 [6.941, 7.412] | 0.796 [0.492, 1.158] | 0.233 [0.165, 0.287] | -0.014 [-0.096, 0.054] | 0.2% | 0.014 [-0.004, 0.033] |
-| B2 | 2168 | 7.502 [7.170, 7.895] | 0.211 [-0.402, 0.898] | 0.130 [0.061, 0.191] | -0.365 [-0.589, -0.161] | 4.9% | 0.111 [0.057, 0.164] |
-| RIDGE | 2402 | 7.158 [6.924, 7.403] | -0.390 [-0.726, 0.024] | 0.247 [0.185, 0.297] | — | — | — |
-| B4 (report-only) | 2302 | 6.977 [6.793, 7.179] | 1.040 [0.755, 1.361] | 0.291 [0.227, 0.336] | 0.098 [-0.034, 0.213] | -1.4% | -0.066 [-0.099, -0.028] |
+| STD | 2402 | 7.172 [6.941, 7.412] | 0.796 [0.492, 1.158] | 0.233 [0.157, 0.284] | -0.014 [-0.096, 0.054] | 0.2% | 0.014 [-0.011, 0.037] |
+| B2 | 2168 | 7.502 [7.170, 7.895] | 0.211 [-0.402, 0.898] | 0.130 [0.056, 0.196] | -0.365 [-0.589, -0.161] | 4.9% | 0.111 [0.041, 0.169] |
+| RIDGE | 2402 | 7.158 [6.924, 7.403] | -0.390 [-0.726, 0.024] | 0.247 [0.174, 0.292] | — | — | — |
+| B4 (report-only) | 2302 | 6.977 [6.793, 7.179] | 1.040 [0.755, 1.361] | 0.291 [0.215, 0.331] | 0.098 [-0.034, 0.213] | -1.4% | -0.066 [-0.105, -0.020] |
 | B1 / B1c | pending-1b | pending-1b | pending-1b | pending-1b | — | — | — |
 
-Unconditional (expected points = P(plays) × cond, vs actual with 0 for a non-played team-game week, relevant set): STD MAE 6.818 [6.473, 7.167] (n=2976); B2 MAE 7.162 [6.715, 7.652] (n=2643); RIDGE MAE 6.811 [6.442, 7.184] (n=2976); B4 MAE 7.204 [6.972, 7.464] (n=2306). P(plays) baseline (probabilities clipped to [0.01, 0.99] for log-loss): Brier 0.1661 [0.1500, 0.1815], log-loss 0.7723 [0.6973, 0.8431] over 10215 weekly-universe rows.
+Unconditional (expected points = P(plays) × cond, vs actual with 0 for a non-played team-game week, relevant set): STD MAE 6.817 [6.468, 7.173] (n=2976); B2 MAE 7.159 [6.704, 7.655] (n=2643); RIDGE MAE 6.802 [6.433, 7.179] (n=2976); B4 MAE 7.233 [7.003, 7.495] (n=2306). P(plays) baseline (probabilities clipped to [0.01, 0.99] for log-loss only; expected points and Brier use the unclipped probability): Brier 0.1692 [0.1527, 0.1849], log-loss 0.7723 [0.6973, 0.8431] over 10215 weekly-universe rows.
 
 ### RB (K = 48)
 
 | benchmark | rows | MAE | bias | Spearman (per week-group) | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| STD | 4647 | 6.355 [6.093, 6.629] | 0.390 [0.134, 0.656] | 0.392 [0.344, 0.435] | -0.121 [-0.180, -0.066] | 1.9% | 0.028 [0.015, 0.043] |
-| B2 | 4054 | 6.828 [6.507, 7.144] | 0.344 [-0.117, 0.849] | 0.279 [0.218, 0.337] | -0.604 [-0.787, -0.432] | 8.8% | 0.148 [0.106, 0.188] |
-| RIDGE | 4647 | 6.234 [5.965, 6.511] | -0.018 [-0.292, 0.256] | 0.420 [0.373, 0.461] | — | — | — |
-| B4 (report-only) | 4558 | 6.126 [5.842, 6.426] | 0.653 [0.419, 0.882] | 0.475 [0.433, 0.512] | 0.128 [0.047, 0.213] | -2.1% | -0.061 [-0.076, -0.047] |
+| STD | 4647 | 6.355 [6.093, 6.629] | 0.390 [0.134, 0.656] | 0.392 [0.336, 0.429] | -0.121 [-0.180, -0.066] | 1.9% | 0.028 [0.012, 0.045] |
+| B2 | 4054 | 6.828 [6.507, 7.144] | 0.344 [-0.117, 0.849] | 0.279 [0.207, 0.332] | -0.604 [-0.787, -0.432] | 8.8% | 0.148 [0.096, 0.191] |
+| RIDGE | 4647 | 6.234 [5.965, 6.511] | -0.018 [-0.292, 0.256] | 0.420 [0.367, 0.456] | — | — | — |
+| B4 (report-only) | 4558 | 6.126 [5.842, 6.426] | 0.653 [0.419, 0.882] | 0.475 [0.420, 0.506] | 0.128 [0.047, 0.213] | -2.1% | -0.061 [-0.079, -0.044] |
 | B1 / B1c | pending-1b | pending-1b | pending-1b | pending-1b | — | — | — |
 
-Unconditional (expected points = P(plays) × cond, vs actual with 0 for a non-played team-game week, relevant set): STD MAE 5.829 [5.498, 6.156] (n=5952); B2 MAE 6.255 [5.884, 6.623] (n=5151); RIDGE MAE 5.751 [5.419, 6.080] (n=5952); B4 MAE 6.337 [6.037, 6.647] (n=4580). P(plays) baseline (probabilities clipped to [0.01, 0.99] for log-loss): Brier 0.1294 [0.1216, 0.1377], log-loss 0.5997 [0.5640, 0.6386] over 16289 weekly-universe rows.
+Unconditional (expected points = P(plays) × cond, vs actual with 0 for a non-played team-game week, relevant set): STD MAE 5.838 [5.507, 6.164] (n=5952); B2 MAE 6.265 [5.894, 6.632] (n=5151); RIDGE MAE 5.759 [5.427, 6.088] (n=5952); B4 MAE 6.366 [6.067, 6.673] (n=4580). P(plays) baseline (probabilities clipped to [0.01, 0.99] for log-loss only; expected points and Brier use the unclipped probability): Brier 0.1317 [0.1239, 0.1402], log-loss 0.5997 [0.5640, 0.6386] over 16289 weekly-universe rows.
 
 ### WR (K = 60)
 
 | benchmark | rows | MAE | bias | Spearman (per week-group) | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| STD | 6118 | 6.316 [6.100, 6.535] | 0.509 [0.335, 0.698] | 0.276 [0.237, 0.313] | -0.116 [-0.142, -0.091] | 1.8% | 0.014 [0.006, 0.022] |
-| B2 | 5500 | 6.453 [6.217, 6.680] | 0.161 [-0.156, 0.482] | 0.238 [0.188, 0.281] | -0.230 [-0.324, -0.143] | 3.6% | 0.057 [0.032, 0.082] |
-| RIDGE | 6118 | 6.200 [5.991, 6.410] | -0.124 [-0.318, 0.081] | 0.290 [0.250, 0.326] | — | — | — |
-| B4 (report-only) | 6038 | 6.250 [6.053, 6.450] | 0.872 [0.701, 1.064] | 0.340 [0.303, 0.372] | -0.051 [-0.106, 0.001] | 0.8% | -0.052 [-0.065, -0.036] |
+| STD | 6118 | 6.316 [6.100, 6.535] | 0.509 [0.335, 0.698] | 0.276 [0.230, 0.312] | -0.116 [-0.142, -0.091] | 1.8% | 0.014 [0.005, 0.023] |
+| B2 | 5500 | 6.453 [6.217, 6.680] | 0.161 [-0.156, 0.482] | 0.238 [0.183, 0.282] | -0.230 [-0.324, -0.143] | 3.6% | 0.057 [0.029, 0.084] |
+| RIDGE | 6118 | 6.200 [5.991, 6.410] | -0.124 [-0.318, 0.081] | 0.290 [0.245, 0.325] | — | — | — |
+| B4 (report-only) | 6038 | 6.250 [6.053, 6.450] | 0.872 [0.701, 1.064] | 0.340 [0.296, 0.371] | -0.051 [-0.106, 0.001] | 0.8% | -0.052 [-0.066, -0.034] |
 | B1 / B1c | pending-1b | pending-1b | pending-1b | pending-1b | — | — | — |
 
-Unconditional (expected points = P(plays) × cond, vs actual with 0 for a non-played team-game week, relevant set): STD MAE 5.974 [5.720, 6.214] (n=7440); B2 MAE 6.068 [5.798, 6.322] (n=6743); RIDGE MAE 5.872 [5.624, 6.105] (n=7440); B4 MAE 6.374 [6.166, 6.575] (n=6074). P(plays) baseline (probabilities clipped to [0.01, 0.99] for log-loss): Brier 0.1278 [0.1213, 0.1344], log-loss 0.5915 [0.5618, 0.6213] over 25862 weekly-universe rows.
+Unconditional (expected points = P(plays) × cond, vs actual with 0 for a non-played team-game week, relevant set): STD MAE 5.987 [5.733, 6.229] (n=7440); B2 MAE 6.078 [5.805, 6.336] (n=6743); RIDGE MAE 5.881 [5.632, 6.116] (n=7440); B4 MAE 6.405 [6.198, 6.605] (n=6074). P(plays) baseline (probabilities clipped to [0.01, 0.99] for log-loss only; expected points and Brier use the unclipped probability): Brier 0.1301 [0.1235, 0.1368], log-loss 0.5915 [0.5618, 0.6213] over 25862 weekly-universe rows.
 
 ### TE (K = 24)
 
 | benchmark | rows | MAE | bias | Spearman (per week-group) | RIDGE−bench ΔMAE | RIDGE gain | RIDGE−bench ΔSpearman |
 |---|---|---|---|---|---|---|---|
-| STD | 2485 | 5.637 [5.319, 5.957] | 0.048 [-0.199, 0.283] | 0.261 [0.166, 0.340] | -0.095 [-0.141, -0.056] | 1.7% | 0.016 [-0.007, 0.038] |
-| B2 | 2327 | 5.909 [5.566, 6.243] | -0.291 [-0.772, 0.212] | 0.203 [0.097, 0.297] | -0.372 [-0.530, -0.232] | 6.3% | 0.079 [0.018, 0.139] |
-| RIDGE | 2485 | 5.541 [5.231, 5.850] | -0.396 [-0.686, -0.105] | 0.277 [0.189, 0.350] | — | — | — |
-| B4 (report-only) | 2420 | 5.596 [5.299, 5.887] | 0.622 [0.358, 0.883] | 0.357 [0.275, 0.422] | -0.036 [-0.099, 0.031] | 0.6% | -0.083 [-0.110, -0.056] |
+| STD | 2485 | 5.637 [5.319, 5.957] | 0.048 [-0.199, 0.283] | 0.261 [0.156, 0.342] | -0.095 [-0.141, -0.056] | 1.7% | 0.016 [-0.012, 0.044] |
+| B2 | 2327 | 5.909 [5.566, 6.243] | -0.291 [-0.772, 0.212] | 0.203 [0.090, 0.303] | -0.372 [-0.530, -0.232] | 6.3% | 0.079 [0.012, 0.137] |
+| RIDGE | 2485 | 5.541 [5.231, 5.850] | -0.396 [-0.686, -0.105] | 0.277 [0.178, 0.353] | — | — | — |
+| B4 (report-only) | 2420 | 5.596 [5.299, 5.887] | 0.622 [0.358, 0.883] | 0.357 [0.266, 0.419] | -0.036 [-0.099, 0.031] | 0.6% | -0.083 [-0.113, -0.051] |
 | B1 / B1c | pending-1b | pending-1b | pending-1b | pending-1b | — | — | — |
 
-Unconditional (expected points = P(plays) × cond, vs actual with 0 for a non-played team-game week, relevant set): STD MAE 5.363 [4.979, 5.748] (n=2976); B2 MAE 5.588 [5.185, 5.975] (n=2801); RIDGE MAE 5.301 [4.917, 5.678] (n=2976); B4 MAE 5.704 [5.355, 6.055] (n=2430). P(plays) baseline (probabilities clipped to [0.01, 0.99] for log-loss): Brier 0.1095 [0.1024, 0.1174], log-loss 0.5079 [0.4751, 0.5443] over 15475 weekly-universe rows.
+Unconditional (expected points = P(plays) × cond, vs actual with 0 for a non-played team-game week, relevant set): STD MAE 5.371 [4.982, 5.757] (n=2976); B2 MAE 5.595 [5.193, 5.983] (n=2801); RIDGE MAE 5.306 [4.920, 5.682] (n=2976); B4 MAE 5.727 [5.378, 6.079] (n=2430). P(plays) baseline (probabilities clipped to [0.01, 0.99] for log-loss only; expected points and Brier use the unclipped probability): Brier 0.1115 [0.1042, 0.1195], log-loss 0.5079 [0.4751, 0.5443] over 15475 weekly-universe rows.
 
 ## Drift — slope of per-season MAE on season (MAE points per year; 95% CI)
 
@@ -326,10 +326,10 @@ spikeSd (seasons 2012–2013 only): {"QB": 7.674, "RB": 5.969, "WR": 6.275, "TE"
 
 | model | rows | status | median lag | share censored |
 |---|---|---|---|---|
-| STD | 133 | ok | 6.0 | 0.53 |
+| STD | 133 | ok | 6.0 | 0.47 |
 | B2 | 103 | ok | 6.0 | 1.00 |
-| RIDGE | 133 | ok | 2.0 | 0.20 |
-| B4 | 129 | ok | 3.0 | 0.33 |
+| RIDGE | 133 | ok | 2.0 | 0.18 |
+| B4 | 129 | ok | 3.0 | 0.26 |
 
 **(b) Injury fill-in — mean signed error (projection − actual), first two played weeks after the return**
 
@@ -344,10 +344,10 @@ spikeSd (seasons 2012–2013 only): {"QB": 7.674, "RB": 5.969, "WR": 6.275, "TE"
 
 | model | rows | status | mean signed error [CI] |
 |---|---|---|---|
-| STD | 457 | ok | -0.70 [-1.39, 0.01] |
-| B2 | 370 | ok | -1.41 [-2.27, -0.57] |
-| RIDGE | 457 | ok | -1.04 [-1.69, -0.37] |
-| B4 | 441 | ok | -0.19 [-0.87, 0.50] |
+| STD | 311 | ok | -0.34 [-1.09, 0.38] |
+| B2 | 267 | ok | -1.43 [-2.28, -0.63] |
+| RIDGE | 311 | ok | -0.86 [-1.57, -0.15] |
+| B4 | 300 | ok | -0.34 [-1.06, 0.40] |
 
 ## Benchmark 4 — Sleeper weekly projections (report-only)
 
@@ -367,7 +367,11 @@ Fetched 2026-11-12 from `https://api.sleeper.com/projections/nfl/<season>/<week>
 2021 coverage check (rows whose `stats` carry a panel key, minimum per position over 18 weeks): {"QB": 26, "RB": 76, "WR": 121, "TE": 60}.
 Threshold bonuses (`bonus_*_yd_100/200`) stay 0 in B4 (the projection carries no distribution); `bonus_rec_te = rec` for a TE; `bonus_fd_<pos>` = `rec_fd + rush_fd + pass_fd`. A row whose `stats` carry no panel key is uncovered. Pre-game timing of these projections is unverifiable (F7).
 
-## Stated limits of benchmark 1 (all in the incumbent's favour or neutral)
+## Stated limits of benchmark 1
+
+**Against the incumbent:** QB season totals use starter PPG × games for every QB (`qbChainApprox`); for non-starters this overstates the app's total (QB headline B1 bias and `c` show the size).
+
+**In the incumbent's favour or neutral:**
 
 - its constants and k were tuned on seasons that include the test seasons;
 - the `starter` QB prior reads who started game 1 of S;
@@ -375,14 +379,13 @@ Threshold bonuses (`bonus_*_yd_100/200`) stay 0 in B4 (the projection carries no
 - the factor context is built with `toYear: S`; confirmed in `buildFactorContext`/`attachFactorMultipliers` (lib/panel.mjs): teamOffense resolves a player's team through `teamKeyResolver('current-team', totalsByYear, toYear = S)`, i.e. the season-totals **S** `team` (the team he played for in S), applied to the S−1 team-offence ranks — a mild look-ahead on moves, in the incumbent's favour.
 - coverage is conditional on `gamesPlayed ≥ 1` in S;
 - residue: in training seasons 2014–2015 week-1 statuses are season-level (F4) — membership only, no test season;
-- QB season totals carry `qbChainApprox` (the app totals a preseason-chain row as starter PPG × start share × team games);
 - weekly limits are stated by slice 1b.
 
 ## Method notes
 
-- Bootstrap: one draw of players with replacement per (layer, position) from the union of that position's players in the pooled folds; a drawn player brings all his rows in every fold; fold-equal weighting recomputed per resample; 2,000 resamples, seed 12345, 95% percentile CI. Spearman CIs use the original within-group ranks under the same player multiplicities (weighted Spearman).
+- Bootstrap: one draw of players with replacement per (layer, position) from the union of that position's players in the pooled folds; a drawn player brings all his rows in every fold; fold-equal weighting recomputed per resample; 2000 resamples, seed 12345, 95% percentile CI. Spearman is re-ranked inside every resample (midranks recomputed on the resampled multiset; a group under 8 resampled rows or with zero rank variance is NaN for that resample and left out of its average).
 - The `lines` and `oracle-*` arms of §4.5 are enforced in `asof.py` and tested (T-PY-4) but are **not run** in 1a (not in §5.3).
-- QB cohort (c) waives the opportunity-share condition (QBs have no `os`); cohorts (a) and (b) are RB/WR/TE only.
+- All three cohorts (a), (b), (c) are RB/WR/TE only: a QB has no opportunity share `os` → no `os0` → no label (§5.5).
 - RIDGE training rows: season — headline-set rows of seasons 2014..T−1; weekly — played weekly-universe rows of seasons 2014..T−1; α by inner selection on the last two training seasons; medians and the stratum-N prior come from training rows only.
 
 ## Pre-registered pass/fail bar (§8, verbatim) — `preregHash` `7ff9087fc4848b0df90383fc5e4397d3d4b085466c228b430211a63ad6e24e5a`

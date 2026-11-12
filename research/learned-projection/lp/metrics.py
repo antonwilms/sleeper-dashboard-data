@@ -100,7 +100,8 @@ def gate(labels_by_position, need=3):
 # ── cohorts (§5.5) ─────────────────────────────────────────────────────────────────────────────────────────
 def catch_up_lag(proj_by_week, w0, L, cap=6):
     """Smallest k >= 1 for which the projection for week w0+k has closed >= 50% of the gap between the projection for w0 and L.
-    Censored at `cap` (returns (cap, True)). proj_by_week: {week: projection}."""
+    A week in w0+1..w0+cap with no projection is SKIPPED (k still counts calendar weeks) — never the end of the search; censored at
+    `cap` (returns (cap, True)) only when no week up to w0+cap closes the gap. proj_by_week: {week: projection}."""
     p0 = proj_by_week.get(w0)
     if p0 is None or L is None or np.isnan(L):
         return None, None
@@ -108,7 +109,7 @@ def catch_up_lag(proj_by_week, w0, L, cap=6):
     for k in range(1, cap + 1):
         pk = proj_by_week.get(w0 + k)
         if pk is None:
-            break
+            continue
         if gap == 0 or (pk - p0) / gap >= 0.5:
             return k, False
     return cap, True

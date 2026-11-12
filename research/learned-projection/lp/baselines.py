@@ -173,11 +173,12 @@ def weekly_inputs(v, targets):
 def build_weekly_frame(tables, seasons=range(2014, 2026), log=lambda m: None):
     """One row per (S, w, pid) of the weekly universe with the as-of inputs of its origin (S, w-1)."""
     frames = []
-    sched = tables.schedule
     for S in seasons:
-        s = sched[(sched["S"] == S) & sched["inUniverse"]]
-        for w, tgt in s.groupby("w"):
+        v0 = asof.view(tables, S, 0).schedule
+        for w in sorted(v0.loc[v0["inUniverse"].astype(bool), "w"].unique()):
             v = asof.view(tables, S, w - 1)
+            sc = v.schedule
+            tgt = sc[(sc["w"] == w) & sc["inUniverse"].astype(bool)]      # week-(n+1) targets come from the view, never the raw table
             inp = weekly_inputs(v, tgt)
             frames.append(tgt.merge(inp.drop(columns=["home"]), on="pid"))
         log("weekly inputs S=%d" % S)

@@ -105,6 +105,18 @@ export function prePass(g, scoring, positionOf) {
   return { keys: finalizeKeys(seen, scoring), spikeInput };
 }
 
+/** The cache's meta.json object (pure). `weights` keep the scoring file's key order: the float sum order of calculateFantasyPoints. */
+export function buildMeta({ generatedAt, dataRev, from, to, keys, scoring, spikeSd, counts, checks, reconciliation, runtimeMs }) {
+  return {
+    generatedAt, dataRev, from, to, scoringFixture: LEAGUE_SCORING_FIXTURE,
+    keys, weights: Object.fromEntries(Object.keys(scoring).filter(k => keys.includes(k)).map(k => [k, scoring[k]])),
+    positionsFile: 'raw/-players-nfl.json',
+    spikeSd: Object.fromEntries(Object.entries(spikeSd).map(([k, v]) => [k, v])),
+    counts, checks, reconciliation: { population: reconciliation.population, pass: reconciliation.pass, rate: reconciliation.rate },
+    runtimeMs,
+  };
+}
+
 export function runExport({ load = buildLearnedLoad(), from = 2014, to = 2025, outDir = PANEL_DIR, log = () => {}, now = () => new Date() } = {}) {
   if (to > MAX_SEASON) throw new LearnedLookAheadError(`[learned] --to ${to} exceeds maxSeason ${MAX_SEASON}`);
   const t0 = Date.now();
@@ -131,7 +143,7 @@ export function runExport({ load = buildLearnedLoad(), from = 2014, to = 2025, o
 
   const firstS = Math.max(2012, from - 2);
   const counts = { weeks: 0, weeksInUniverse: 0, weeksPlayed: 0, teams: 0, seasons: 0, bench: 0, noGames: 0, bySeason: {} };
-  const checks = { c2: { players: 0, ok: 0, misses: [] }, c3: { bySeason: {}, bySource: {}, played: 0, withGame: 0 }, c4: {}, c5: {} };
+  const checks = { c2: { players: 0, ok: 0, misses: [] }, c3: { bySeason: {}, bySource: {}, byFallback: {}, played: 0, withGame: 0, firstChoice: 0 }, c4: {}, c5: {} };
   const seasonsIdx = new Map();      // `${pid}|${S}` → seasons row
   const prevOsBySeason = new Map();  // S → Map(pid → mean os)
   const schedByS = new Map();
@@ -158,11 +170,14 @@ export function runExport({ load = buildLearnedLoad(), from = 2014, to = 2025, o
 
       // check 3 (played rows with a schedule game for their team)
       const played = rows.filter(r => r.played);
-      const c3 = checks.c3.bySeason[S] = { played: played.length, withGame: played.filter(r => !r.noGame).length };
-      checks.c3.played += c3.played; checks.c3.withGame += c3.withGame;
+      const c3 = checks.c3.bySeason[S] = {
+        played: played.length, withGame: played.filter(r => !r.noGame).length, firstChoice: played.filter(r => r.teamFirstChoice).length,
+      };
+      checks.c3.played += c3.played; checks.c3.withGame += c3.withGame; checks.c3.firstChoice += c3.firstChoice;
       for (const r of played) {
-        const b = checks.c3.bySource[r.teamSource] ??= { played: 0, withGame: 0 };
-        b.played++; if (!r.noGame) b.withGame++;
+        const b = checks.c3.bySource[r.teamSource] ??= { played: 0, withGame: 0, firstChoice: 0 };
+        b.played++; if (!r.noGame) b.withGame++; if (r.teamFirstChoice) b.firstChoice++;
+        if (!r.teamFirstChoice) checks.c3.byFallback[r.teamSource] = (checks.c3.byFallback[r.teamSource] ?? 0) + 1;
       }
       // check 2 (Σ weekly pts == league season points)
       const sumBy = new Map();
@@ -190,9 +205,9 @@ export function runExport({ load = buildLearnedLoad(), from = 2014, to = 2025, o
     const c2rate = checks.c2.players ? checks.c2.ok / checks.c2.players : 0;
     checks.c2.rate = c2rate;
     if (c2rate < 0.995) throw new LearnedCheckStop(`§9.2 Σ weekly pts == league season points on ${(c2rate * 100).toFixed(2)}% < 99.5%`, checks.c2);
-    const c3rate = checks.c3.played ? checks.c3.withGame / checks.c3.played : 0;
+    const c3rate = checks.c3.played ? checks.c3.firstChoice / checks.c3.played : 0;
     checks.c3.rate = c3rate;
-    if (c3rate < 0.99) throw new LearnedCheckStop(`§9.3 played rows whose team has a schedule game ${(c3rate * 100).toFixed(2)}% < 99%`, checks.c3);
+    if (c3rate < 0.99) throw new LearnedCheckStop(`§9.3 played rows on the §4.3 first-choice team with a schedule game ${(c3rate * 100).toFixed(2)}% < 99%`, checks.c3);
 
     // ── bench (S ∈ [from, to])
     const env = {
@@ -243,13 +258,9 @@ export function runExport({ load = buildLearnedLoad(), from = 2014, to = 2025, o
   }
   for (const f of Object.values(fd)) fs.closeSync(f);
 
-  const meta = {
-    generatedAt: now().toISOString(), dataRev: gitRev(), from, to, scoringFixture: LEAGUE_SCORING_FIXTURE,
-    keys, weights: Object.fromEntries(Object.keys(scoring).filter(k => keys.includes(k)).map(k => [k, scoring[k]])),   // scoring-file order: the float sum order of calculateFantasyPoints positionsFile: 'raw/-players-nfl.json',
-    spikeSd: Object.fromEntries(Object.entries(spikeSd).map(([k, v]) => [k, v])),
-    counts, checks, reconciliation: { population: reconciliation.population, pass: reconciliation.pass, rate: reconciliation.rate },
-    runtimeMs: Date.now() - t0,
-  };
+  const meta = buildMeta({
+    generatedAt: now().toISOString(), dataRev: gitRev(), from, to, keys, scoring, spikeSd, counts, checks, reconciliation, runtimeMs: Date.now() - t0,
+  });
   fs.writeFileSync(repoPath(`${tmp}/meta.json`), JSON.stringify(meta, null, 1));
   fs.rmSync(repoPath(outDir), { recursive: true, force: true });
   fs.renameSync(repoPath(tmp), repoPath(outDir));

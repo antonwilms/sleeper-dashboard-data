@@ -11,7 +11,7 @@ import {
   computeSpikeSd, finalizeKeys, collectNonZeroKeys,
 } from '../lib/learnedPanel.mjs';
 import {
-  LEARNED_LOAD, SEASON_KEYED_LOADERS, NOT_SEASON_KEYED, yearGuard, buildLearnedLoad, LearnedLookAheadError,
+  LEARNED_LOAD, SEASON_KEYED_LOADERS, NOT_SEASON_KEYED, yearGuard, buildLearnedLoad, LearnedLookAheadError, buildMeta,
 } from '../scripts/learned-panel-run.mjs';
 
 const fx = (n) => JSON.parse(fs.readFileSync(new URL(`./fixtures/learned-panel/${n}.json`, import.meta.url), 'utf8'));
@@ -57,6 +57,15 @@ test('T-LP-2 year guard: every season-keyed loader refuses 2026; every loader is
     assert.deepEqual(unclassified, [], 'a new loader must be classified as season-keyed (guarded) or listed in NOT_SEASON_KEYED');
   }
   assert.ok(SEASON_KEYED_LOADERS.every(k => k in LEARNED_LOAD), 'every guarded name exists on the load');
+  // F6: the meta object built for the fixture carries `positionsFile` (it was once swallowed by a trailing comment)
+  const fxKeys = fx('scoring-weeks').keys;
+  const meta = buildMeta({
+    generatedAt: 'x', dataRev: null, from: 2014, to: 2025, keys: fxKeys, scoring: SCORING, spikeSd: { QB: 1, RB: 1, WR: 1, TE: 1 },
+    counts: {}, checks: {}, reconciliation: { population: 1, pass: 1, rate: 1 }, runtimeMs: 0,
+  });
+  assert.equal(meta.positionsFile, 'raw/-players-nfl.json');
+  assert.deepEqual(meta.keys, fxKeys);
+  assert.deepEqual(Object.keys(meta.weights), Object.keys(SCORING).filter(k => fxKeys.includes(k)));
 });
 
 test('T-LP-3 team domain and line sign', () => {
@@ -86,7 +95,7 @@ const G = (week, home, away) => ({ gameType: 'REG', week, homeTeam: home, awayTe
 const SCHED = indexSchedule({ games: [G(1, 'AAA', 'BBB'), G(2, 'BBB', 'CCC'), G(3, 'CCC', 'AAA')] });
 const POS = { ghost: 'WR', ret: 'WR', dev: 'WR', bye: 'RB', callup: 'WR', vet: 'WR', moved: 'TE' };
 const posOf = (pid) => POS[pid] ?? null;
-const tot = (team, status, wk = {}) => ({ team, gamesPlayed: status.filter(s => s === 'P').length, fantasyPoints: 0, weeklyStatus: status, weeklyStats: wk });
+const tot = (team, status, wk = {}, fantasyPoints = 0) => ({ team, gamesPlayed: status.filter(s => s === 'P').length, fantasyPoints, weeklyStatus: status, weeklyStats: wk });
 
 test('T-LP-4 universes: roster-listing membership, bye skip, call-up row, no-row outcome 0, teamGames fallback', () => {
   const rosterPlayers = {
@@ -99,7 +108,7 @@ test('T-LP-4 universes: roster-listing membership, bye skip, call-up row, no-row
   };
   const totals = {
     vet: tot('BBB', ['P', 'P', 'X'], { 1: { rec: 4, rec_yd: 40 }, 2: { rec: 2, rec_yd: 20 } }),
-    callup: tot('BBB', ['X', 'P', 'X'], { 2: { rec: 5, rec_yd: 50 } }),    // played w2 with NO listing
+    callup: tot('BBB', ['X', 'P', 'X'], { 2: { rec: 5, rec_yd: 50 } }, 7.5),    // played w2 with NO listing; season points = that week's pts
     TEAM_BBB: { team: 'BBB', weeklyStatus: ['P', 'P', 'X'] },
   };
   const keys = ['rec', 'rec_yd'];
@@ -114,6 +123,10 @@ test('T-LP-4 universes: roster-listing membership, bye skip, call-up row, no-row
   assert.equal(row('callup', 2)?.inUniverse, false);
   assert.equal(row('callup', 2)?.played, true);
   assert.equal(row('callup', 2)?.pts, 7.5);
+  // F12: the call-up's played non-universe week is in the rows, so Σ his weekly pts equals his season fantasyPoints
+  const callupSum = rows.filter(r => r.pid === 'callup').reduce((a, r) => a + (r.pts ?? 0), 0);
+  assert.equal(callupSum, totals.callup.fantasyPoints);
+  assert.equal(callupSum, 7.5);
   // seasons rows: the no-row ghost scores 0 in 0 games; the call-up's points are in the season sum; ret/dev are not in the season universe
   const seasonRows = buildSeasonRows({ S: 2020, positionOf: posOf, totals, rosterPlayers, sched: SCHED, playerIds: null, snaps: null });
   const sr = (pid) => seasonRows.find(r => r.pid === pid);
@@ -128,6 +141,28 @@ test('T-LP-4 universes: roster-listing membership, bye skip, call-up row, no-row
   assert.equal(sr('moved').team, 'CCC');
   assert.equal(sr('moved').teamGames, 2, 'teamGames falls back to the rosterweekly team (CCC plays 2)');
   assert.equal(sr('vet').teamGames, 2);
+});
+
+test('T-LP-4 team resolution (F7): a played row whose rosterweekly team has no game that week stays on the season-totals team, teamFirstChoice false', () => {
+  const pos = (pid) => (pid === 'fb' || pid === 'ok' ? 'WR' : null);
+  const rosterPlayers = {
+    fb: { 2: [['AAA', 'ACT']] },        // AAA has a bye in w2 → no game for the rosterweekly team
+    ok: { 2: [['BBB', 'ACT']] },        // listed team plays → first choice
+  };
+  const totals = {
+    fb: tot('BBB', ['X', 'P', 'X'], { 2: { rec: 2, rec_yd: 20 } }, 3),
+    ok: tot('BBB', ['X', 'P', 'X'], { 2: { rec: 2, rec_yd: 20 } }, 3),
+  };
+  const rows = buildWeekRows({ S: 2020, positionOf: pos, totals, rosterPlayers, sched: SCHED, depthFile: null, keys: ['rec', 'rec_yd'], scoring: { rec: 0.5, rec_yd: 0.1 } });
+  const fb = rows.find(r => r.pid === 'fb' && r.w === 2);
+  assert.ok(fb, 'the played row is kept');
+  assert.equal(fb.team, 'BBB');
+  assert.equal(fb.teamSource, 'season-totals');
+  assert.equal(fb.teamFirstChoice, false);
+  assert.equal(fb.noGame, false);
+  const ok = rows.find(r => r.pid === 'ok' && r.w === 2);
+  assert.equal(ok.teamSource, 'rosterweekly');
+  assert.equal(ok.teamFirstChoice, true);
 });
 
 // ── T-LP-6 cohorts — hand-built team-seasons
@@ -176,6 +211,15 @@ test('T-LP-6 cohort labels: riser, injury fill-in, spike, each with a near-miss'
   assert.deepEqual(labelsOf(all, 'bk4', 'b'), []);
   assert.deepEqual(labelsOf(all, 'sp5', 'c'), ['5:c']);
   assert.deepEqual(labelsOf(all, 'sp6', 'c'), [], 'a spike with an elevated share is not a one-week spike');
+});
+
+test('T-LP-6 QB cohort (c) (F9): a QB spike week is unlabelled (no os → no label), while the same spike for a WR is labelled', () => {
+  const qb = mkTeam('T7', 'QB', { qb7: { opp: rep(8, 20), pts: [8, 8, 8, 8, 20, 8, 8, 8] } }, 8);
+  const wr = mkTeam('T8', 'WR', { wr8: { opp: rep(8, 20), pts: [8, 8, 8, 8, 20, 8, 8, 8] } }, 8);
+  const all = [...qb, ...wr];
+  labelCohorts(all, { spikeSd: SD });
+  assert.deepEqual(labelsOf(all, 'wr8', 'c'), ['5:c'], 'the WR control proves the spike is labellable');
+  assert.deepEqual(labelsOf(all, 'qb7', 'c'), [], 'a QB gets no (c) label');
 });
 
 test('T-LP-6 spikeSd reads seasons 2012–2013 only', () => {

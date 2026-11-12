@@ -5,6 +5,8 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
+from scipy.stats import spearmanr
+
 from lp import baselines, bootstrap, metrics, splits
 from tests import synth
 
@@ -29,6 +31,84 @@ class Bootstrap(unittest.TestCase):
         ilo, ihi = bootstrap.iid_ci(vals, B=1000)
         self.assertGreater(hi - lo, 3 * (ihi - ilo), "clustered CI must be much wider than the row-level CI")
         self.assertTrue(lo <= point <= hi)
+        # (ii) every player present in both folds has the same multiplicity in both, within EVERY resample
+        both = sorted(set(pids[i] for i in range(len(pids)) if folds[i] == 0) & set(pids[i] for i in range(len(pids)) if folds[i] == 1))
+        self.assertEqual(both, ["BIG"])
+        for p in both:
+            r0 = [i for i, (q, f) in enumerate(zip(pids, folds)) if q == p and f == 0]
+            r1 = [i for i, (q, f) in enumerate(zip(pids, folds)) if q == p and f == 1]
+            np.testing.assert_array_equal(w[:, r0[0]], w[:, r1[0]])
+
+    def test_py5_pooled_mean_by_hand(self):
+        """T-PY-5 (i): `pooled_mean` on a two-fold synthetic panel equals a hand-computed value for fixed resamples — each fold's mean is
+        recomputed INSIDE the resample (multiplicities applied), then the folds are averaged with equal weight. Fails under per-fold
+        resampling (the player's multiplicity would differ between folds) or pooled-row weighting."""
+        pids = ["p0", "p0", "p1", "p2", "p0", "p1", "p1"]
+        folds = np.array([0, 0, 0, 0, 1, 1, 1])
+        vals = np.array([1.0, 3.0, 5.0, 9.0, 10.0, 20.0, 40.0])
+        rs = bootstrap.Resampler(pids, B=3)
+        self.assertEqual(list(rs.players), ["p0", "p1", "p2"])
+        rs.C[0] = [2, 0, 1]          # p0 twice, p1 absent, p2 once
+        rs.C[1] = [0, 1, 1]
+        rs.C[2] = [1, 1, 1]
+        point, boot, fold_means = rs.pooled_mean(vals, folds, 2)
+        # resample 0: fold 0 = {1,3,1,3,9} → 17/5 = 3.4; fold 1 = {10,10} → 10 (p1 absent); equal-weight mean 6.7
+        np.testing.assert_allclose(fold_means[0], [3.4, 10.0])
+        self.assertAlmostEqual(boot[0], 6.7, places=12)
+        # resample 1: fold 0 = {5, 9} → 7; fold 1 = {20, 40} (p1 has two rows in fold 1) → 30; mean 18.5
+        self.assertAlmostEqual(boot[1], 18.5, places=12)
+        # resample 2 is the sample itself: fold means 18/4 = 4.5 and 70/3; equal weight
+        self.assertAlmostEqual(boot[2], (4.5 + 70.0 / 3) / 2, places=12)
+        self.assertAlmostEqual(point, (4.5 + 70.0 / 3) / 2, places=12)
+        # pooled-row weighting would give 7.4286 for resample 2's population — distinguishable from the equal-fold value
+        self.assertGreater(abs((88.0 / 7) - boot[2]), 0.1)
+
+
+class Rerank(unittest.TestCase):
+    def test_py11_spearman_reranked_per_resample(self):
+        """T-PY-11: for 20 resamples of a synthetic group with ties, the resample's Spearman equals scipy.stats.spearmanr on the
+        explicitly expanded arrays (1e-12). Fails if the original ranks are reused under the multiplicities."""
+        rng = np.random.RandomState(5)
+        n = 40
+        pids = ["p%d" % (i % 25) for i in range(n)]                       # players with several rows each (clustered)
+        a = rng.randint(0, 6, n).astype(float)                            # heavy ties on both sides
+        b = (a + rng.randint(-2, 3, n)).astype(float)
+        rs = bootstrap.Resampler(pids, B=20, seed=7)
+        pidx = rs.idx(pids)
+        point, boot = rs.group_spearman(a, b, np.zeros(n, int), 1, min_rows=8, pidx=pidx)
+        self.assertAlmostEqual(point[0], spearmanr(a, b)[0], places=12)
+        checked = 0
+        for r in range(20):
+            reps = rs.C[r, pidx].astype(int)
+            ea, eb = np.repeat(a, reps), np.repeat(b, reps)
+            if len(ea) < 8 or np.std(ea) == 0 or np.std(eb) == 0:
+                self.assertTrue(np.isnan(boot[r, 0]))
+                continue
+            self.assertAlmostEqual(boot[r, 0], spearmanr(ea, eb)[0], places=12, msg="resample %d" % r)
+            checked += 1
+        self.assertGreaterEqual(checked, 15)
+        # a resample with fewer than min_rows rows (with multiplicity) is NaN for that resample: a group of 6 rows out of 30 players
+        big = bootstrap.Resampler(["q%d" % i for i in range(30)], B=200, seed=1)
+        gp = ["q%d" % i for i in range(6)]
+        _, bs_ = big.group_spearman(np.array([1.0, 2, 3, 4, 5, 6]), np.array([2.0, 1, 4, 3, 6, 5]), np.zeros(6, int), 1, min_rows=6, pidx=big.idx(gp))
+        cnt = big.C[:, big.idx(gp)].sum(axis=1)
+        self.assertTrue((cnt < 6).any() and (cnt >= 6).any(), "the fixture exercises both sides of the row floor")
+        for r in range(200):
+            if cnt[r] < 6:
+                self.assertTrue(np.isnan(bs_[r, 0]), "resample %d has %d rows" % (r, cnt[r]))
+
+
+class Cohorts(unittest.TestCase):
+    def test_catch_up_lag_skips_a_missing_week(self):
+        """F4: catch_up_lag counts calendar weeks and SKIPS a week with no projection. A riser whose w0+1 is a bye and who closes the gap
+        at w0+2 has lag 2, not censored. Fails if a missing week ends the search."""
+        w0, L = 5, 20.0
+        self.assertEqual(metrics.catch_up_lag({5: 10.0, 6: 16.0}, w0, L), (1, False))
+        self.assertEqual(metrics.catch_up_lag({5: 10.0, 7: 16.0}, w0, L), (2, False), "w0+1 missing (bye), closed at w0+2")
+        self.assertEqual(metrics.catch_up_lag({5: 10.0, 6: 11.0, 8: 18.0}, w0, L), (3, False))
+        self.assertEqual(metrics.catch_up_lag({5: 10.0, 6: 11.0, 7: 12.0}, w0, L), (6, True), "never closes: censored at the cap")
+        self.assertEqual(metrics.catch_up_lag({5: 10.0}, w0, L), (6, True), "no later projection at all: censored")
+        self.assertEqual(metrics.catch_up_lag({6: 16.0}, w0, L), (None, None), "no projection for w0: not evaluable")
 
 
 class Hygiene(unittest.TestCase):
@@ -53,6 +133,29 @@ class Hygiene(unittest.TestCase):
         np.testing.assert_allclose(a["c"].to_numpy(), b["c"].to_numpy())
         np.testing.assert_allclose(a["ridge"].to_numpy(), b["ridge"].to_numpy())
         self.assertTrue((a["actual"] != b["actual"]).all(), "the test labels did change")
+
+
+class WeeklyFold(unittest.TestCase):
+    def test_py12_weekly_fold_hygiene(self):
+        """T-PY-12: `weekly_forecasts` for test season T is unchanged when every outcome column of seasons >= T is randomised in the
+        frame it fits on (ridge rows, stratum-N position mean, inner selection). Fails if a row with S >= T reaches a weekly fit."""
+        T = 2018
+        wf = synthetic_weekly()
+        a = baselines.weekly_forecasts(wf, T)
+        wf2 = wf.copy()
+        rng = np.random.RandomState(3)
+        m = wf2["S"] >= T
+        k = int(m.sum())
+        wf2.loc[m, "played"] = rng.rand(k) < 0.5
+        wf2.loc[m, "pts"] = rng.uniform(0, 80, k)
+        wf2["actual0"] = np.where(wf2["played"], wf2["pts"], 0.0)
+        wf2.loc[m, "cohort"] = pd.Series([["a"]] * k, index=wf2.index[m])
+        b = baselines.weekly_forecasts(wf2, T)
+        self.assertEqual(len(a), len(b))
+        self.assertTrue(a["ridge"].notna().any(), "the ridge baselines really fit")
+        for c in ("std", "prior", "b2w", "ridge", "p_plays", "relevant"):
+            np.testing.assert_allclose(a[c].to_numpy(float), b[c].to_numpy(float), err_msg=c)
+        self.assertFalse(a["pts"].equals(b["pts"]), "the test-season outcomes really changed")
 
 
 def synthetic_weekly(seed=11):

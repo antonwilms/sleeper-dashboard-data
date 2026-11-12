@@ -5,7 +5,9 @@ Every baseline reads `view(tables, S, n)` — filtered COPIES — never the raw 
   weeks     seasons < S in full; season S weeks <= n. `rw` is masked wherever `rwOracle` (2012-2015 statuses are season-level
             and reflect later-season state). Closing lines (spreadLine/totalLine) are never in it.
   teams     seasons < S; season S weeks <= n
-  schedule  ex-ante identity of the season-S rows (pid, team, opp, home, roof, inUniverse) — "published in May"
+  schedule  season-S rows with w <= n, plus rows with w > n ONLY where `inUniverse` is true. The identity (team, opp, home, roof) of an
+            `inUniverse` row of a later week is taken as published. A w > n row with `inUniverse` false exists only because the player
+            played that week: it must never be in a view (its mere presence, and its team/opp/home/roof, are outcomes).
   team_weeks  the season's team schedule (team, w) — ex-ante
   seasons   rows of seasons < S in full; from the S row only age, draft fields, team, teamGames
   prior     the season's B2 PPG per pid (built from S-2 and S-1 only)
@@ -52,7 +54,8 @@ def view(tables, S, n, lines_for=None, oracle=False):
     v.weeks = wk
     t = tables.teams
     v.teams = t.loc[(t["S"] < S) | ((t["S"] == S) & (t["w"] <= n))].copy()
-    v.schedule = tables.schedule.loc[tables.schedule["S"] == S].copy()
+    sc = tables.schedule
+    v.schedule = sc.loc[(sc["S"] == S) & ((sc["w"] <= n) | sc["inUniverse"].astype(bool))].copy()
     tw = tables.team_weeks
     v.team_weeks = tw.loc[tw["S"] == S].copy()
     s = tables.seasons

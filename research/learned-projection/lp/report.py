@@ -139,16 +139,17 @@ def weekly_eval(wk, B=bs.B_DEFAULT):
             if not len(rows):
                 continue
             f, pi = rows["T"].map(FIDX).to_numpy(), rs.idx(rows["pid"])
-            exp = (rows["p_plays"].clip(P_CLIP, 1 - P_CLIP) * rows[col]).to_numpy()
+            exp = (rows["p_plays"] * rows[col]).to_numpy()      # unclipped: the clip is for log-loss only
             err = exp - rows["actual0"].to_numpy()
             res["uncond"][bname] = {"n": int(len(rows)), "mae": _metric(M.mae_pooled(err, f, NF, rs, pi)), "bias": _metric(M.signed_pooled(err, f, NF, rs, pi))}
         # P(plays): Brier and log-loss over weekly-universe rows
         u = d
-        p = u["p_plays"].clip(P_CLIP, 1 - P_CLIP).to_numpy()
+        p_raw = u["p_plays"].to_numpy(float)
+        p = np.clip(p_raw, P_CLIP, 1 - P_CLIP)            # log-loss only
         y = u["played"].astype(float).to_numpy()
         f, pi = u["T"].map(FIDX).to_numpy(), rs.idx(u["pid"])
         res["pPlays"] = {"n": int(len(u)),
-                         "brier": _metric(M.signed_pooled((p - y) ** 2, f, NF, rs, pi)),
+                         "brier": _metric(M.signed_pooled((p_raw - y) ** 2, f, NF, rs, pi)),
                          "logLoss": _metric(M.signed_pooled(-(y * np.log(p) + (1 - y) * np.log(1 - p)), f, NF, rs, pi)),
                          "clip": P_CLIP}
         # common rows (hardest-benchmark summary): relevant played rows with STD, B2, RIDGE all present
@@ -294,11 +295,12 @@ def build_verdict(res, ctx):
     L.append("1. Scoring parity: **%d / %d** played rows exact (hard stop otherwise)." % (ctx["parity"][0] - ctx["parity"][1], ctx["parity"][0]))
     L.append("2. Σ weekly `pts` = league season points within 0.05: **%d / %d** player-seasons (%.4f%%); misses: %s." % (
         c["c2"]["ok"], c["c2"]["players"], 100 * c["c2"]["rate"], json.dumps(c["c2"]["misses"]) if c["c2"]["misses"] else "none"))
-    L.append("3. Played rows whose team has a schedule game that week: **%d / %d** (%.4f%%)." % (c["c3"]["withGame"], c["c3"]["played"], 100 * c["c3"]["rate"]))
+    L.append("3. Played rows on the §4.3 first-choice team (the rosterweekly team if listed, else the season-totals team) **and** that team has a schedule game that week (`teamFirstChoice`): **%d / %d** (%.4f%%; threshold ≥ 99%%). Rows resolved by fallback (not first choice), by `teamSource`: %s; rows with a schedule game on the team used: %d / %d." % (
+        c["c3"]["firstChoice"], c["c3"]["played"], 100 * c["c3"]["rate"], json.dumps(c["c3"]["byFallback"]) if c["c3"]["byFallback"] else "none", c["c3"]["withGame"], c["c3"]["played"]))
     L.append("")
-    L += table(["season", "played rows", "with schedule game"], [[S, v["played"], v["withGame"]] for S, v in c["c3"]["bySeason"].items()])
+    L += table(["season", "played rows", "first-choice team with game", "with schedule game"], [[S, v["played"], v["firstChoice"], v["withGame"]] for S, v in c["c3"]["bySeason"].items()])
     L.append("")
-    L += table(["teamSource", "played rows", "with schedule game"], [[k, v["played"], v["withGame"]] for k, v in c["c3"]["bySource"].items()])
+    L += table(["teamSource", "played rows", "first-choice team with game", "with schedule game"], [[k, v["played"], v["firstChoice"], v["withGame"]] for k, v in c["c3"]["bySource"].items()])
     L.append("")
     L.append("4. `b1.covered` share of the season headline set (stratum V ∪ drafted in S rounds 1–3), per position and test season (< 60%% anywhere would have stopped the run); `noGames` (veteran-routed rows with no qualifying season: total null, row kept) = **%d**." % meta["counts"]["noGames"])
     L.append("")
@@ -353,7 +355,7 @@ def build_verdict(res, ctx):
         L.append("")
         L.append("Unconditional (expected points = P(plays) × cond, vs actual with 0 for a non-played team-game week, relevant set): " + "; ".join(
             "%s MAE %s (n=%d)" % (b, fm(e["mae"], 3), e["n"]) for b, e in weekly[pos]["uncond"].items()) + ". "
-            "P(plays) baseline (probabilities clipped to [%.2f, %.2f] for log-loss): Brier %s, log-loss %s over %d weekly-universe rows." % (
+            "P(plays) baseline (probabilities clipped to [%.2f, %.2f] for log-loss only; expected points and Brier use the unclipped probability): Brier %s, log-loss %s over %d weekly-universe rows." % (
                 P_CLIP, 1 - P_CLIP, fm(weekly[pos]["pPlays"]["brier"], 4), fm(weekly[pos]["pPlays"]["logLoss"], 4), weekly[pos]["pPlays"]["n"]))
         L.append("")
     L.append("## Drift — slope of per-season MAE on season (MAE points per year; 95% CI)")
@@ -400,7 +402,11 @@ def build_verdict(res, ctx):
     L.append("Threshold bonuses (`bonus_*_yd_100/200`) stay 0 in B4 (the projection carries no distribution); `bonus_rec_te = rec` for a TE; `bonus_fd_<pos>` = `rec_fd + rush_fd + pass_fd`. "
              "A row whose `stats` carry no panel key is uncovered. Pre-game timing of these projections is unverifiable (F7).")
     L.append("")
-    L.append("## Stated limits of benchmark 1 (all in the incumbent's favour or neutral)")
+    L.append("## Stated limits of benchmark 1")
+    L.append("")
+    L.append("**Against the incumbent:** QB season totals use starter PPG × games for every QB (`qbChainApprox`); for non-starters this overstates the app's total (QB headline B1 bias and `c` show the size).")
+    L.append("")
+    L.append("**In the incumbent's favour or neutral:**")
     L.append("")
     L.append("- its constants and k were tuned on seasons that include the test seasons;")
     L.append("- the `starter` QB prior reads who started game 1 of S;")
@@ -408,14 +414,13 @@ def build_verdict(res, ctx):
     L.append("- the factor context is built with `toYear: S`; %s" % ctx["team_offense_note"])
     L.append("- coverage is conditional on `gamesPlayed ≥ 1` in S;")
     L.append("- residue: in training seasons 2014–2015 week-1 statuses are season-level (F4) — membership only, no test season;")
-    L.append("- QB season totals carry `qbChainApprox` (the app totals a preseason-chain row as starter PPG × start share × team games);")
     L.append("- weekly limits are stated by slice 1b.")
     L.append("")
     L.append("## Method notes")
     L.append("")
-    L.append("- Bootstrap: one draw of players with replacement per (layer, position) from the union of that position's players in the pooled folds; a drawn player brings all his rows in every fold; fold-equal weighting recomputed per resample; 2,000 resamples, seed 12345, 95% percentile CI. Spearman CIs use the original within-group ranks under the same player multiplicities (weighted Spearman).")
+    L.append("- Bootstrap: one draw of players with replacement per (layer, position) from the union of that position's players in the pooled folds; a drawn player brings all his rows in every fold; fold-equal weighting recomputed per resample; %d resamples, seed %d, 95%% percentile CI. Spearman is re-ranked inside every resample (midranks recomputed on the resampled multiset; a group under 8 resampled rows or with zero rank variance is NaN for that resample and left out of its average)." % (ctx["resamples"], ctx["seed"]))
     L.append("- The `lines` and `oracle-*` arms of §4.5 are enforced in `asof.py` and tested (T-PY-4) but are **not run** in 1a (not in §5.3).")
-    L.append("- QB cohort (c) waives the opportunity-share condition (QBs have no `os`); cohorts (a) and (b) are RB/WR/TE only.")
+    L.append("- All three cohorts (a), (b), (c) are RB/WR/TE only: a QB has no opportunity share `os` → no `os0` → no label (§5.5).")
     L.append("- RIDGE training rows: season — headline-set rows of seasons 2014..T−1; weekly — played weekly-universe rows of seasons 2014..T−1; α by inner selection on the last two training seasons; medians and the stratum-N prior come from training rows only.")
     L.append("")
     L.append("## Pre-registered pass/fail bar (§8, verbatim) — `preregHash` `%s`" % ctx["prereg"])

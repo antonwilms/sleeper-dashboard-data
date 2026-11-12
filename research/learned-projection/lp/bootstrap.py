@@ -1,7 +1,7 @@
 """Clustered paired bootstrap (task §5.4): one draw of PLAYERS with replacement from the union of players in the pooled folds;
 a drawn player brings all his rows in every fold; fold-equal weighting is recomputed inside each resample. 2,000 resamples,
-seed 12345, 95% percentile CI. Resamples are player-multiplicity vectors, so per-player sufficient statistics make every metric
-cheap — no (resamples x rows) matrix is ever built outside the tests.
+seed 12345, 95% percentile CI. Resamples are player-multiplicity vectors, so per-player sufficient statistics make the mean metrics
+cheap; Spearman is re-ranked inside every resample (`group_spearman`), one (resamples x group rows) weight block at a time.
 """
 import numpy as np
 from scipy.stats import rankdata
@@ -57,29 +57,49 @@ class Resampler:
         point = np.array([values[folds == f].mean() if (folds == f).any() else np.nan for f in range(n_folds)])
         return point, boot
 
+    @staticmethod
+    def _wmidranks(vals, W):
+        """Midranks of `vals` recomputed on the resampled multiset: row i drawn W[b, i] times counts that many times, tied with itself.
+        → (B x m) midrank of each row in resample b (meaningful only where W > 0). Sort once; the weights vary per resample."""
+        order = np.argsort(vals, kind="stable")
+        sv = vals[order]
+        newgrp = np.concatenate([[True], sv[1:] != sv[:-1]])
+        starts = np.flatnonzero(newgrp)
+        gid = np.cumsum(newgrp) - 1
+        Ws = W[:, order]
+        gs = np.add.reduceat(Ws, starts, axis=1)               # multiplicity of each distinct value
+        before = np.cumsum(gs, axis=1) - gs                    # multiset rows strictly below each distinct value
+        out_sorted = (before + (gs + 1.0) / 2.0)[:, gid]
+        out = np.empty_like(out_sorted)
+        out[:, order] = out_sorted
+        return out
+
     def group_spearman(self, a, b, groups, n_groups, min_rows=8, pidx=None):
-        """Weighted Spearman per group (Pearson of the original within-group ranks under player multiplicities).
-        → (point[G] with NaN below min_rows, boot[B x G])."""
+        """Spearman per group, re-ranked per resample: each resample's value is the Pearson correlation of the midranks recomputed on
+        the resampled multiset (a row drawn m times counts m times). A group whose resampled row count (with multiplicity) is below
+        `min_rows`, or with zero rank variance on either side, is NaN for that resample. A group with fewer than `min_rows` ORIGINAL
+        rows is not in the population (NaN everywhere). Point estimates use the original rows. → (point[G], boot[B x G])."""
         a, b, groups = np.asarray(a, float), np.asarray(b, float), np.asarray(groups)
-        ra, rb = np.full(len(a), np.nan), np.full(len(a), np.nan)
+        pidx = self.inv if pidx is None else np.asarray(pidx)
         point = np.full(n_groups, np.nan)
+        boot = np.full((self.B, n_groups), np.nan)
         for g in range(n_groups):
             m = groups == g
             if m.sum() < min_rows:
                 continue
-            ra[m], rb[m] = rankdata(a[m]), rankdata(b[m])
-            if np.std(a[m]) > 0 and np.std(b[m]) > 0:
-                point[g] = np.corrcoef(ra[m], rb[m])[0, 1]
-        ok = ~np.isnan(ra)
-        pidx = self.inv if pidx is None else pidx
-        idx, gg, ra, rb = pidx[ok], groups[ok], ra[ok], rb[ok]
-        st = {k: self._sums(idx, gg, n_groups, v) for k, v in
-              {"n": None, "a": ra, "b": rb, "aa": ra * ra, "bb": rb * rb, "ab": ra * rb}.items()}
-        C = self.C
-        n, sa, sb, saa, sbb, sab = (C @ st[k] for k in ("n", "a", "b", "aa", "bb", "ab"))
-        with np.errstate(invalid="ignore", divide="ignore"):
-            boot = (n * sab - sa * sb) / np.sqrt((n * saa - sa ** 2) * (n * sbb - sb ** 2))
-        boot[:, np.isnan(point)] = np.nan
+            ag, bg = a[m], b[m]
+            if np.std(ag) > 0 and np.std(bg) > 0:
+                point[g] = np.corrcoef(rankdata(ag), rankdata(bg))[0, 1]
+            W = self.C[:, pidx[m]]
+            n = W.sum(axis=1)
+            ra, rb = self._wmidranks(ag, W), self._wmidranks(bg, W)
+            with np.errstate(invalid="ignore", divide="ignore"):
+                ma, mb = (W * ra).sum(axis=1) / n, (W * rb).sum(axis=1) / n
+                da, db = ra - ma[:, None], rb - mb[:, None]
+                saa, sbb, sab = (W * da * da).sum(axis=1), (W * db * db).sum(axis=1), (W * da * db).sum(axis=1)
+                v = sab / np.sqrt(saa * sbb)
+            v[(n < min_rows) | ~(saa > 1e-12) | ~(sbb > 1e-12)] = np.nan
+            boot[:, g] = v
         return point, boot
 
 

@@ -296,3 +296,40 @@ Order: fixture builder → `npm test` green → `node bin/learned.mjs export` �
 ## 13. Review flags
 
 Revision 1's 22 flags and the Revision 2 light review's flags on the universe, played-week rows, Sleeper host, guard allowlist, `offPct` and `b1.ppgWeekly` are folded in here; the weekly-routing flags are folded into slice 1b.
+
+## Fix pass 1
+
+Session 1, 2026-11-13, after the full implementation review of `3e7d693` (14 flags; approved by Anton with these rulings: re-rank Spearman per resample; QBs get no cohort (c) label; probability clipping for log-loss only). Apply exactly this section. **Do not touch §8** (its bytes define `preregHash` `7ff9087f…`) or any file §1 lists as import-only. No network request except `npm run smoke`; **do not run `fetch_sleeper_projections.py`** (the cache is complete).
+
+**F1 — as-of schedule frame (`research/learned-projection/lp/asof.py`, `lp/baselines.py`, `tests/test_asof.py`).**
+- `view()`: `v.schedule` = season-S rows of `tables.schedule` with `w ≤ n`, plus rows with `w > n` **only where `inUniverse` is true**. A `w > n` row with `inUniverse` false exists only because the player played and must never be in a view. Update the module docstring: the identity (`team`, `opp`, `home`, `roof`) of an `inUniverse` row of a later week is taken as published.
+- `lp/baselines.py` (line ~176 `sched = tables.schedule`) and every other place that builds prediction targets: take the week-(n+1) target rows from `asof.view(tables, S, n).schedule`, not from `tables.schedule`.
+- `tests/test_asof.py` `clone()`: stop copying `t.schedule`/`t.team_weeks` from the unmodified tables; let `Tables(...)` derive them from the modified frames. Variants for origin (S, n): *scramble* randomises every outcome column of rows past the origin and, for past-origin rows with `inUniverse` false, also `team`/`opp`/`home`/`roof`; *delete* removes every past-origin row with `inUniverse` false and nulls the outcome columns of the rest. `inputs()` takes targets from the view. T-PY-3 asserts identical inputs across the three. Show it red by restoring the unfiltered `v.schedule` and reading one field of a non-universe future row in a throwaway feature.
+
+**F2 — Spearman by re-ranking (`lp/bootstrap.py` `Resampler.group_spearman`, `lp/metrics.py` `spearman_pooled`/`spearman_weekly`).** Each resample's Spearman for a group is the Pearson correlation of **midranks recomputed on the resampled multiset** (a row drawn m times counts m times, tied with itself). A group whose resampled row count (with multiplicity) is below `min_rows`, or with zero rank variance on either side, is NaN for that resample and left out of that resample's average. Point estimates unchanged. New test **T-PY-11**: for 20 resamples of a synthetic group with ties, the value equals `scipy.stats.spearmanr` on the explicitly expanded arrays (1e-12). Fails if original ranks are reused. Remove the "weighted ranks" method note from `lp/report.py`.
+
+**F3 — clipping (`lp/report.py` ~142–151).** `P_CLIP` applies to the log-loss term only. Unconditional expected points use the unclipped `p_plays`; Brier uses the unclipped `p_plays`. Verdict text: "clipped to [0.01, 0.99] for log-loss only".
+
+**F4 — catch-up lag (`lp/metrics.py` `catch_up_lag`).** A week in w0+1..w0+cap with no projection is **skipped** (k still counts calendar weeks), not treated as the end; censored only when no week up to w0+cap closes the gap. Extend the existing cohort test with a riser whose w0+1 is a bye and who closes the gap at w0+2 → lag 2, not censored. Fails on the `break`.
+
+**F5 — verdict wording (`lp/report.py` ~411).** Move the `qbChainApprox` line out of the "in the incumbent's favour or neutral" list into its own line: "**Against the incumbent:** QB season totals use starter PPG × games for every QB (`qbChainApprox`); for non-starters this overstates the app's total (QB headline B1 bias and `c` show the size)." Retitle the list "Stated limits of benchmark 1" with the favourable/neutral ones grouped under their own sub-line.
+
+**F6 — `meta.positionsFile` (`scripts/learned-panel-run.mjs` ~248).** The property sits inside a `//` comment; put `positionsFile: 'raw/-players-nfl.json'` on its own line. Add to an existing Node test an assertion that the meta object built for the fixture has `positionsFile`. Fails on the swallowed field.
+
+**F7 — team resolution and §9.3 (`lib/learnedPanel.mjs` ~220–226, `lp/report.py` ~297).** Keep the implemented fallback order (accepted deviation: rosterweekly → season-totals → universe, each only if that team has a game in w). Add `teamFirstChoice` (boolean) to each week row: true when the team used is the §4.3 first choice (the rosterweekly team if listed, else the season-totals team) and that team has a game in w. §9 check 3 is computed on `teamFirstChoice` (threshold unchanged, ≥ 99% of played rows); the verdict also reports the count resolved by fallback, by `teamSource`. Test: a played fixture row whose rosterweekly team has no game but whose season-totals team does → row kept on the season-totals team with `teamFirstChoice: false`.
+
+**F8 — `b2.ppg` (`lib/learnedBench.mjs` `b2Benchmark`).** `ppg` = the imported `twoYearAveragePPG(careerStats, pid, S − 1)` (check the argument convention against T-LP-11's existing use); `b2QualifyingSeasons` is used only for the games scaling of `total`. `null` ppg → `{ ppg: null, total: null }`.
+
+**F9 — QB cohort (c) (`lib/learnedPanel.mjs` `labelCohorts`).** QBs get no (c) label (no `os0` → no label, §5.5). Remove the waiver and its verdict note; all three cohorts are RB/WR/TE only. Test: a QB spike week is unlabelled.
+
+**F10 — weekly fold hygiene test.** New **T-PY-12**: `weekly_forecasts` for test season T is unchanged when every outcome column of seasons ≥ T is randomised in the training frame it fits on (ridge rows, stratum-N position mean, inner selection, weekly `c`). Fails if a row with S ≥ T reaches a weekly fit.
+
+**F11 — T-PY-5.** Add: (i) a direct check of `pooled_mean` on a two-fold synthetic panel against a hand-computed value for one fixed resample (fold means recomputed inside the resample, then averaged equally); (ii) a player present in both folds has the same multiplicity in both within every resample. Fails under per-fold resampling or pooled-row weighting.
+
+**F12 — T-LP-4.** Give the call-up fixture a non-zero season `fantasyPoints` equal to his played week's `pts`, and assert Σ of his `weeks` rows' `pts` equals it. Fails if a played non-universe week is dropped.
+
+**F13 — resample note (`lp/report.py` ~416).** Print the actual resample count and seed of the run.
+
+**Accepted, no change:** the `__pycache__` ignore lines; deviations 1–4, 6, 7, 10, 11 of the hand-back.
+
+**Re-run and commit.** Fixture builder (if a fixture changed) → `npm test` → `node bin/learned.mjs export` → Python suite (T-PY-1 not skipped) → `python3 research/learned-projection/run_benchmarks.py --write` (2,000 resamples) → `npm run smoke`. The regenerated artifacts replace the 2026-11-12 pair: delete `backtests/2026-11-12-learned-s1a-panel.json` and `grading/2026-11-12-learned-s1a-verdict.md` in the same commit if the new files carry a new date, and update any dated mention in README/`data-catalog.md`. Confirm `preregHash` in the new artifact is still `7ff9087fc4848b0df90383fc5e4397d3d4b085466c228b430211a63ad6e24e5a`. One local commit, no push. Report: SHA, files touched, each new/changed test with its red confirmation, the new §9 numbers, and every metric whose value moved with before → after.

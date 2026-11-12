@@ -20,7 +20,7 @@ sys.path.insert(0, HERE)
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from lp import asof, baselines, io, report, score, sleeper, splits  # noqa: E402
+from lp import asof, baselines, bootstrap, io, report, score, sleeper, splits  # noqa: E402
 
 TASK_FILE = os.path.join(REPO, ".claude", "tasks", "learned-projection-1a-harness.md")
 TEAM_OFFENSE_NOTE = ("confirmed in `buildFactorContext`/`attachFactorMultipliers` (lib/panel.mjs): teamOffense resolves a player's team through "
@@ -56,6 +56,7 @@ def main(argv=None):
     b4cov = {int(S): float(g["b4"].notna().mean()) for S, g in wk[wk["relevant"]].groupby("S")}
 
     B = args.resamples
+    bs_seed = bootstrap.SEED
     log("season evaluation")
     season = report.season_eval(sf, B)
     log("weekly evaluation")
@@ -74,13 +75,13 @@ def main(argv=None):
     cov2021 = {p: min(c[p] for c in cov.values()) for p in fetch.SKILL}
     ctx = {"date": args.date, "meta": meta, "index": index, "prereg": h, "section8": section8, "task_text": task_text,
            "facts": report._fact_table(task_text), "parity": (n, len(bad)), "b4cov": b4cov, "cov2021": cov2021,
-           "team_offense_note": TEAM_OFFENSE_NOTE}
+           "team_offense_note": TEAM_OFFENSE_NOTE, "resamples": B, "seed": bs_seed}
     verdict = report.build_verdict(res, ctx)
     aggregate = {
         "slice": "LP-1a", "date": args.date, "preregHash": h, "panelMeta": {k: meta[k] for k in ("generatedAt", "dataRev", "from", "to", "scoringFixture", "keys", "spikeSd", "counts")},
         "checks": meta["checks"], "parity": {"rows": n, "mismatches": int(len(bad))}, "b4": {"combinedSha256": index["combinedSha256"], "fetchDate": index["fetchDate"],
         "updatedAtNonNullShare": index["updatedAtNonNullShare"], "coverage2021MinPerPosition": cov2021, "relevantSetCoverage": b4cov},
-        "bootstrap": {"resamples": B, "seed": 12345, "clusterBy": "player"}, "folds": {"test": list(splits.TEST_SEASONS), "development": list(splits.DEV_FOLDS), "confirmation": splits.CONFIRM_FOLD},
+        "bootstrap": {"resamples": B, "seed": bs_seed, "clusterBy": "player"}, "folds": {"test": list(splits.TEST_SEASONS), "development": list(splits.DEV_FOLDS), "confirmation": splits.CONFIRM_FOLD},
         "results": res,
     }
 
