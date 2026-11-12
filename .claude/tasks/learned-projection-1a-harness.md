@@ -333,3 +333,17 @@ Session 1, 2026-11-13, after the full implementation review of `3e7d693` (14 fla
 **Accepted, no change:** the `__pycache__` ignore lines; deviations 1–4, 6, 7, 10, 11 of the hand-back.
 
 **Re-run and commit.** Fixture builder (if a fixture changed) → `npm test` → `node bin/learned.mjs export` → Python suite (T-PY-1 not skipped) → `python3 research/learned-projection/run_benchmarks.py --write` (2,000 resamples) → `npm run smoke`. The regenerated artifacts replace the 2026-11-12 pair: delete `backtests/2026-11-12-learned-s1a-panel.json` and `grading/2026-11-12-learned-s1a-verdict.md` in the same commit if the new files carry a new date, and update any dated mention in README/`data-catalog.md`. Confirm `preregHash` in the new artifact is still `7ff9087fc4848b0df90383fc5e4397d3d4b085466c228b430211a63ad6e24e5a`. One local commit, no push. Report: SHA, files touched, each new/changed test with its red confirmation, the new §9 numbers, and every metric whose value moved with before → after.
+
+## Verification
+
+Session 1, 2026-11-13. Diff range `1a9ad58..933857c` (`3e7d693` slice, `933857c` fix pass 1), both unpushed.
+
+- **Implementation review (full, opus/high) on `3e7d693`:** 14 flags. No look-ahead in any baseline input; no committed number wrong; §8 label logic exact; `preregHash` recomputed and equal; bootstrap recomputed at 2,000 resamples and equal. 13 flags fixed by Fix pass 1 (F1–F13); 1 accepted (extra `__pycache__` ignore lines).
+- **Fix-pass re-review (light) on `3e7d693..933857c`:** F1–F13 implemented as specified, nothing beyond the section; §8 byte-unchanged, `preregHash` `7ff9087fc4848b0df90383fc5e4397d3d4b085466c228b430211a63ad6e24e5a`; artifact at 2,000 resamples, seed 12345; every season-layer and weekly conditional point value unchanged; moved values (weekly unconditional MAE/bias, Brier, cohort (a) censoring, cohort (c) counts) consistent with F3/F4/F9. The 266-row question on F7 reconciled: those rows are players the rosterweekly file does not list, so season-totals is their first choice. 4 flags survive, none affecting a number — to the human, no third round:
+  1. F8's new null branch in `b2Benchmark` is unreachable and untested (informational).
+  2. Verdict §9.3 wording calls 29 rows "resolved by fallback"; 28 are first-choice teams with no game and 1 is a true fallback (cosmetic; the check value is correct).
+  3. T-PY-12 does not assert the weekly `c` column (weekly `c` belongs to B1c, whose weekly rows arrive with slice 1b).
+  4. The F4 lag test was added as a new test rather than as an extension (cosmetic).
+- **Disposition of the 4:** 1 and 4 accepted; 2 and 3 deferred to slice 1b's revision, which regenerates the weekly scoreboard and owns weekly B1c.
+- **Checks:** `npm test` 2,140 pass / 0 fail / 1 pre-existing skip; Python suite 17 pass, T-PY-1 not skipped; `npm run smoke` green (run by Session 2 and by the fix-applier; not re-run by the reviewers). No lint or build step in this repo.
+- **State:** nothing under a served folder or `manifest.json` changed; app repo untouched at `2c3578b`; research cache git-ignored. Artifacts: `backtests/2026-11-13-learned-s1a-panel.json`, `grading/2026-11-13-learned-s1a-verdict.md`. Weekly B1/B1c columns read `pending-1b`.
