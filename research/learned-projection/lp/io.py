@@ -76,3 +76,17 @@ def load_cache(panel_dir=PANEL_DIR):
         b.append(d)
     bench = pd.DataFrame(b)
     return Panel(meta, weeks, X, teams, seasons, bench)
+
+
+def load_benchw(panel_dir=PANEL_DIR):
+    """LP-1b: `benchw.jsonl` + `benchw.meta.json` (written by `node bin/learned.mjs export-weekly`) → (DataFrame, meta).
+    Raises FileNotFoundError when either file is absent. `pid` is a str."""
+    mp = os.path.join(panel_dir, "benchw.meta.json")
+    jp = os.path.join(panel_dir, "benchw.jsonl")
+    if not (os.path.exists(mp) and os.path.exists(jp)):
+        raise FileNotFoundError("benchw.jsonl / benchw.meta.json absent in %s — run `node bin/learned.mjs export-weekly` first" % panel_dir)
+    with open(mp) as f:
+        meta = json.load(f)
+    df = pd.DataFrame(_jsonl(jp))
+    df["pid"] = df["pid"].astype(str)
+    return df, meta

@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """LP-1a scoreboard runner (research only — never run by npm test, smoke or CI).
 
-    python3 research/learned-projection/run_benchmarks.py [--write] [--date YYYY-MM-DD]
+    python3 research/learned-projection/run_benchmarks.py [--write] [--date YYYY-MM-DD] [--weekly-bench]
 
 Reads the Node exporter's cache (`node bin/learned.mjs export`) and the Sleeper projection cache, runs the §9 hard stops, builds
 every baseline through `asof.view`, evaluates all seven folds with clustered-bootstrap CIs and — with --write — writes
 backtests/<date>-learned-s1a-panel.json (aggregates only) and grading/<date>-learned-s1a-verdict.md. Nothing else is written.
+
+LP-1b: `--weekly-bench` also reads benchw.jsonl / benchw.meta.json (`node bin/learned.mjs export-weekly`), fills the weekly B1 / B1c columns and
+writes backtests/<date>-learned-s1b-panel.json and grading/<date>-learned-s1b-verdict.md instead. The FIRST step of every mode recomputes the
+LP-1a §8 hash and stops (exit 2) when it differs from `report.PREREG_HASH`.
 """
 import argparse
 import json
@@ -28,16 +32,38 @@ TEAM_OFFENSE_NOTE = ("confirmed in `buildFactorContext`/`attachFactorMultipliers
                      "applied to the S−1 team-offence ranks — a mild look-ahead on moves, in the incumbent's favour.")
 
 
-def main(argv=None):
+def main(argv=None, task_file=TASK_FILE):
     ap = argparse.ArgumentParser()
     ap.add_argument("--write", action="store_true")
     ap.add_argument("--date", default=date.today().isoformat())
     ap.add_argument("--resamples", type=int, default=2000)
+    ap.add_argument("--weekly-bench", action="store_true")
     args = ap.parse_args(argv)
 
     log = lambda m: print("[run] " + m, flush=True)
+    # §9 check 4 (LP-1b) — the bar is unchanged: the FIRST step, before the cache is read, in every mode
+    with open(task_file, encoding="utf-8") as f:
+        task_text = f.read()
+    h, section8 = report.prereg_hash(task_text)
+    if h != report.PREREG_HASH:
+        print("[run] STOP: LP-1a §8 hash %s differs from the pinned %s — the pre-registered bar was edited" % (h, report.PREREG_HASH), file=sys.stderr)
+        return 2
     panel = io.load_cache()
     meta = panel.meta
+    benchw = benchw_meta = None
+    if args.weekly_bench:
+        try:
+            benchw, benchw_meta = io.load_benchw()
+        except FileNotFoundError as e:
+            print("[run] STOP: %s" % e, file=sys.stderr)
+            return 2
+        if benchw_meta.get("panelGeneratedAt") != meta.get("generatedAt"):
+            print("[run] STOP: benchw.meta.panelGeneratedAt %s != panel generatedAt %s — re-run export-weekly" % (benchw_meta.get("panelGeneratedAt"), meta.get("generatedAt")), file=sys.stderr)
+            return 2
+        failed = [k for k in ("c2", "c3", "c6") if not benchw_meta.get("checks", {}).get(k, {}).get("pass")]
+        if failed:
+            print("[run] STOP: benchw run-time check(s) %s did not pass" % ", ".join(failed), file=sys.stderr)
+            return 2
     # §9.1 hard stop — scoring parity on 100% of played rows
     n, bad = score.parity(panel.Xw, panel.weeks["pts"].to_numpy(), panel.weights)
     log("scoring parity: %d / %d played rows exact" % (n - len(bad), n))
@@ -52,8 +78,27 @@ def main(argv=None):
     wf = baselines.build_weekly_frame(tables, log=log)
     proj_dir = os.path.join(io.CACHE_ROOT, "sleeper-proj")
     b4 = sleeper.load_projections(proj_dir, panel.weight_keys, panel.weights)
-    wk = pd.concat([baselines.weekly_forecasts(wf, T, b4) for T in splits.TEST_SEASONS], ignore_index=True)
+    wk = pd.concat([baselines.weekly_forecasts(wf, T, b4, benchw) for T in splits.TEST_SEASONS], ignore_index=True)
     b4cov = {int(S): float(g["b4"].notna().mean()) for S, g in wk[wk["relevant"]].groupby("S")}
+    coverage = c_weekly = None
+    if benchw is not None:
+        # §9 check 1 — share of the weekly relevant-set rows with b1.covered whose b1w is non-null, per position and test season
+        cov_b = panel.bench[["pid", "S", "b1_covered"]]
+        rel = wk[wk["relevant"]].merge(cov_b, on=["pid", "S"], how="left")
+        rel = rel[rel["b1_covered"].fillna(False).astype(bool)]
+        coverage, low = {}, []
+        for S in splits.TEST_SEASONS:
+            coverage[S] = {}
+            for pos in baselines.POSITIONS:
+                g = rel[(rel["S"] == S) & (rel["position"] == pos)]
+                share = float(g["b1w"].notna().mean()) if len(g) else None
+                coverage[S][pos] = {"n": int(len(g)), "covered": int(g["b1w"].notna().sum()), "share": share}
+                if share is None or share < 0.6:
+                    low.append("%d %s: %s" % (S, pos, share))
+        if low:
+            print("[run] STOP: §9.1 weekly B1 coverage under 60%% in %s" % "; ".join(low), file=sys.stderr)
+            return 2
+        c_weekly = {pos: {int(T): (None if not np.isfinite(g["c_weekly"].iloc[0]) else float(g["c_weekly"].iloc[0])) for T, g in wk[wk["position"] == pos].groupby("T")} for pos in baselines.POSITIONS}
 
     B = args.resamples
     bs_seed = bootstrap.SEED
@@ -65,9 +110,6 @@ def main(argv=None):
     cohorts = report.cohort_eval(wk, panel.weeks, B)
     res = {"season": season, "weekly": weekly, "cohorts": cohorts}
 
-    with open(TASK_FILE, encoding="utf-8") as f:
-        task_text = f.read()
-    h, section8 = report.prereg_hash(task_text)
     with open(os.path.join(proj_dir, "index.json")) as f:
         index = json.load(f)
     import fetch_sleeper_projections as fetch
@@ -76,14 +118,21 @@ def main(argv=None):
     ctx = {"date": args.date, "meta": meta, "index": index, "prereg": h, "section8": section8, "task_text": task_text,
            "facts": report._fact_table(task_text), "parity": (n, len(bad)), "b4cov": b4cov, "cov2021": cov2021,
            "team_offense_note": TEAM_OFFENSE_NOTE, "resamples": B, "seed": bs_seed}
+    if benchw is not None:
+        ctx.update({"benchw": {"meta": benchw_meta, "coverage": coverage}, "c_weekly": c_weekly, "erratum": report.erratum_counts(panel.weeks)})
     verdict = report.build_verdict(res, ctx)
     aggregate = {
-        "slice": "LP-1a", "date": args.date, "preregHash": h, "panelMeta": {k: meta[k] for k in ("generatedAt", "dataRev", "from", "to", "scoringFixture", "keys", "spikeSd", "counts")},
+        "slice": "LP-1b" if benchw is not None else "LP-1a", "date": args.date, "preregHash": h, "panelMeta": {k: meta[k] for k in ("generatedAt", "dataRev", "from", "to", "scoringFixture", "keys", "spikeSd", "counts")},
         "checks": meta["checks"], "parity": {"rows": n, "mismatches": int(len(bad))}, "b4": {"combinedSha256": index["combinedSha256"], "fetchDate": index["fetchDate"],
         "updatedAtNonNullShare": index["updatedAtNonNullShare"], "coverage2021MinPerPosition": cov2021, "relevantSetCoverage": b4cov},
         "bootstrap": {"resamples": B, "seed": bs_seed, "clusterBy": "player"}, "folds": {"test": list(splits.TEST_SEASONS), "development": list(splits.DEV_FOLDS), "confirmation": splits.CONFIRM_FOLD},
         "results": res,
     }
+    if benchw is not None:
+        aggregate["benchwMeta"] = benchw_meta
+        aggregate["weeklyC"] = c_weekly
+        aggregate["weeklyB1Coverage"] = {str(S): v for S, v in coverage.items()}
+        aggregate["erratum"] = ctx["erratum"]
 
     def clean(o):
         if isinstance(o, dict):
@@ -104,8 +153,9 @@ def main(argv=None):
         print("[run] STOP: aggregate artifact exceeds 5 MB", file=sys.stderr)
         return 2
     if args.write:
-        p1 = os.path.join(REPO, "backtests", "%s-learned-s1a-panel.json" % args.date)
-        p2 = os.path.join(REPO, "grading", "%s-learned-s1a-verdict.md" % args.date)
+        tag = "s1b" if benchw is not None else "s1a"
+        p1 = os.path.join(REPO, "backtests", "%s-learned-%s-panel.json" % (args.date, tag))
+        p2 = os.path.join(REPO, "grading", "%s-learned-%s-verdict.md" % (args.date, tag))
         with open(p1, "w") as f:
             f.write(body + "\n")
         with open(p2, "w", encoding="utf-8") as f:

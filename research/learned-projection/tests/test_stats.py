@@ -158,6 +158,28 @@ class WeeklyFold(unittest.TestCase):
         self.assertFalse(a["pts"].equals(b["pts"]), "the test-season outcomes really changed")
 
 
+    def test_py12_weekly_fold_hygiene_with_benchw(self):
+        """T-PY-12 (extended): with a synthetic benchw, `b1w`, `c_weekly` and `b1cw` for test season T are unchanged when every outcome column of
+        seasons >= T is randomised in the frame `weekly_forecasts` fits on. Fails if a row with S >= T reaches weekly c."""
+        T = 2018
+        wf = synthetic_weekly()
+        rng = np.random.RandomState(4)
+        bw = wf[["pid", "S", "w"]].copy()
+        bw["cond"] = rng.uniform(3, 18, len(bw))
+        bw["uncond"] = bw["cond"] * 0.6
+        a = baselines.weekly_forecasts(wf, T, benchw=bw)
+        wf2 = wf.copy()
+        m = wf2["S"] >= T
+        k = int(m.sum())
+        wf2.loc[m, "played"] = rng.rand(k) < 0.5
+        wf2.loc[m, "pts"] = rng.uniform(0, 80, k)
+        wf2["actual0"] = np.where(wf2["played"], wf2["pts"], 0.0)
+        b = baselines.weekly_forecasts(wf2, T, benchw=bw)
+        self.assertTrue(a["c_weekly"].notna().all(), "c is computed for every position")
+        for c in ("b1w", "b1w_uncond", "c_weekly", "b1cw", "b1cw_uncond"):
+            np.testing.assert_allclose(a[c].to_numpy(float), b[c].to_numpy(float), err_msg=c)
+
+
 def synthetic_weekly(seed=11):
     rng = np.random.RandomState(seed)
     rows = []

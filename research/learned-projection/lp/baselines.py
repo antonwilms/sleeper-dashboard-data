@@ -203,8 +203,31 @@ def add_std(df, pos_mean):
     return df
 
 
-def weekly_forecasts(wf, T, b4=None):
-    """Forecasts for test season T over its weekly-universe rows: std, b2w, ridge, p_plays, relevant, b4."""
+def mark_relevant(df):
+    """`relevant` = per (S, w, position) the top RELEVANT_K[pos] rows by the STD baseline's projection, ties by pid — never by a
+    model's own projection. Applied to the test frame and (LP-1b, R3) to a fold's training frame, which is ranked on that fold's own
+    training STD. Returns `df` with the boolean column set."""
+    df["relevant"] = False
+    for (S, w, pos), g in df.groupby(["S", "w", "position"]):
+        top = g.sort_values(["std", "pid"], ascending=[False, True]).head(RELEVANT_K[pos])
+        df.loc[top.index, "relevant"] = True
+    return df
+
+
+def _attach_benchw(df, benchw):
+    """b1w / b1w_uncond from the replay's cond / uncond on (pid, S, w); NaN where the replay has no row."""
+    bw = benchw.set_index(["pid", "S", "w"])
+    key = pd.MultiIndex.from_frame(df[["pid", "S", "w"]])
+    df["b1w"] = bw["cond"].reindex(key).to_numpy(float)
+    df["b1w_uncond"] = bw["uncond"].reindex(key).to_numpy(float)
+    return df
+
+
+def weekly_forecasts(wf, T, b4=None, benchw=None):
+    """Forecasts for test season T over its weekly-universe rows: std, b2w, ridge, p_plays, relevant, b4. With `benchw` (LP-1b: the
+    replay of the app's in-season model, columns pid, S, w, cond, uncond) also b1w, b1w_uncond, c_weekly, b1cw, b1cw_uncond, where the
+    per-position `c` is the median of pts / b1w over the fold's TRAINING rows that are relevant (ranked on that fold's own training STD),
+    played and covered, both > 0. Without `benchw` the frame is exactly the LP-1a one."""
     train = wf[(wf["S"] < T) & (wf["S"] >= splits.FIRST_TRAIN_SEASON)].copy()
     splits.assert_train_only(train, T)
     pos_mean = train[train["played"] == True].groupby("position")["pts"].mean().to_dict()  # noqa: E712
@@ -219,13 +242,20 @@ def weekly_forecasts(wf, T, b4=None):
             pred, _ = ridge_fit_predict(tr[WEEKLY_FEATS].to_numpy(), tr["pts"].to_numpy(), tr["S"].to_numpy(), test.loc[m, WEEKLY_FEATS].to_numpy(), T)
             test.loc[m, "ridge"] = pred
     # relevant set: top-K by the STD baseline's projection per (S, w, position) — never by a model's own projection
-    test["relevant"] = False
-    for (w, pos), g in test.groupby(["w", "position"]):
-        top = g.sort_values(["std", "pid"], ascending=[False, True]).head(RELEVANT_K[pos])
-        test.loc[top.index, "relevant"] = True
+    test = mark_relevant(test)
     test["b4"] = np.nan
     if b4 is not None and len(b4):
         k = test[["pid", "S", "w"]].merge(b4, on=["pid", "S", "w"], how="left")
         test["b4"] = k["b4"].to_numpy()
+    if benchw is not None:
+        train = mark_relevant(train)
+        train = _attach_benchw(train, benchw)
+        test = _attach_benchw(test, benchw)
+        test["c_weekly"] = np.nan
+        for pos in POSITIONS:
+            t = train[(train["position"] == pos) & train["relevant"] & (train["played"] == True) & train["b1w"].notna() & (train["b1w"] > 0) & (train["pts"] > 0)]  # noqa: E712
+            test.loc[test["position"] == pos, "c_weekly"] = float(np.median(t["pts"] / t["b1w"])) if len(t) else np.nan
+        test["b1cw"] = test["c_weekly"] * test["b1w"]
+        test["b1cw_uncond"] = test["c_weekly"] * test["b1w_uncond"]
     test["T"] = T
     return test

@@ -2,12 +2,13 @@
 /**
  * bin/learned.mjs — LP-1a learned-projection research CLI. Offline; writes only the git-ignored research cache.
  *
- * Usage: node bin/learned.mjs export [--from 2014] [--to 2025]
+ * Usage: node bin/learned.mjs export [--from 2014] [--to 2025] | export-weekly
  *   export   assemble the per-player-week research panel + season benchmarks into research/learned-projection/.cache/panel/
+ *   export-weekly   LP-1b: replay the app's in-season logic week by week over the cached panel → benchw.jsonl + benchw.meta.json beside it
  *
  * Thin: parses flags and dispatches to scripts/learned-panel-run.mjs. See .claude/tasks/learned-projection-1a-harness.md.
  */
-import { runExport } from '../scripts/learned-panel-run.mjs';
+import { runExport, runExportWeekly } from '../scripts/learned-panel-run.mjs';
 
 const args = process.argv.slice(2);
 const cmd = args[0];
@@ -19,8 +20,19 @@ function opt(name, dflt) {
   return v;
 }
 
+if (cmd === 'export-weekly') {
+  try {
+    const m = runExportWeekly({ log: (x) => console.log(`[learned] ${x}`) });
+    console.log(`[learned] wrote benchw: ${m.counts.rows} rows, condNull ${m.counts.condNull}, qbOmitted ${m.counts.qbOmitted}, routeMismatch ${m.counts.routeMismatch}, ${(m.runtimeMs / 1000).toFixed(0)}s`);
+    process.exit(0);
+  } catch (e) {
+    console.error(`[learned] ${e.name}: ${e.message}`);
+    if (e.detail) console.error(JSON.stringify(e.detail).slice(0, 2000));
+    process.exit(1);
+  }
+}
 if (cmd !== 'export') {
-  console.error('Usage: node bin/learned.mjs export [--from 2014] [--to 2025]');
+  console.error('Usage: node bin/learned.mjs export [--from 2014] [--to 2025] | export-weekly');
   process.exit(2);
 }
 const from = opt('--from', 2014), to = opt('--to', 2025);

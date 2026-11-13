@@ -1675,10 +1675,11 @@ red. `bin/purge-cdn.mjs` is the CLI. See `.claude/tasks/cdn-purge-verify.md`.
 
 Loaded from `.env` via dotenv when running locally. In CI, set as a GitHub Actions secret.
 
-### Learned-projection research (LP-1a)
+### Learned-projection research (LP-1a, LP-1b)
 
-Offline research on whether a learned projection beats the app's hand-tuned one; slice LP-1a builds only the scoreboard
-(`.claude/tasks/learned-projection-1a-harness.md`). Nothing here is served, registered in `manifest.json`, read by the app,
+Offline research on whether a learned projection beats the app's hand-tuned one; slice LP-1a builds the scoreboard
+(`.claude/tasks/learned-projection-1a-harness.md`), slice LP-1b its weekly current-model benchmark
+(`.claude/tasks/learned-projection-1b-weekly-bench.md`). Nothing here is served, registered in `manifest.json`, read by the app,
 or run by `npm test`, `npm run smoke` or a workflow.
 
 - `node bin/learned.mjs export [--from 2014] [--to 2025]` → `scripts/learned-panel-run.mjs` assembles, from files already on disk,
@@ -1695,8 +1696,18 @@ or run by `npm test`, `npm run smoke` or a workflow.
   Tests: `python3 -m unittest discover -s research/learned-projection/tests -t research/learned-projection` (T-PY-1 skips with a
   printed reason when the cache is absent). Node tests: `test/learned-{panel,bench}.test.mjs`, fixtures built by
   `scripts/fixtures/build-learned-fixtures.mjs`.
-- Pre-registration: the pass/fail bar of task §8 is hashed (`preregHash`) into the verdict; the weekly B1/B1c columns read
-  `pending-1b` until slice 1b.
+- LP-1b — `node bin/learned.mjs export-weekly` → `runExportWeekly` (`scripts/learned-panel-run.mjs`) replays the app's in-season
+  scoring week by week over the cached panel (`lib/learnedBench.mjs`: `appPopulationAsOf`, `rosK`, `posteriorValue`, `chainBasis`,
+  `preseasonChain`, `liveChainAt`, `qbLiveStatesAsOf`, `b1wValue`, `buildBenchwSeason` — copies of app `inSeasonScoring.js` /
+  `seasonProjection.js` / `qbTakeover.js` logic, CR-25/CR-27) and writes `benchw.jsonl` + `benchw.meta.json` beside the panel
+  (two files, atomic; requires a 2014–2025 panel; stops on a primary-passer coverage below 0.99). The copies are pinned by the
+  parity fixture `test/fixtures/learned-panel/inseason-routing-parity-<date>.json`, built by hand by
+  `scripts/fixtures/build-inseason-routing-parity.mjs` from `test-support/lp-scenario.mjs` and the real app modules (a byte copy
+  lives in the app's `src/__fixtures__/`; both repos pin its SHA-256). `run_benchmarks.py --weekly-bench [--write]` fills the
+  weekly B1 / B1c columns (weekly `c` fitted per fold on the fold's own training rows) and writes `backtests/<date>-learned-s1b-panel.json`
+  and `grading/<date>-learned-s1b-verdict.md`; without the flag the outputs are LP-1a's and the weekly B1/B1c columns read `pending-1b`.
+- Pre-registration: the pass/fail bar of task §8 is hashed (`preregHash`) into the verdict; every mode of `run_benchmarks.py`
+  first recomputes the hash and stops (exit 2) when it differs from `report.PREREG_HASH`.
 
 ### Smoke test
 

@@ -9,13 +9,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { readJson, repoPath } from '../lib/io.mjs';
-import { INSEASON_LOAD, guardLoad, runReconciliation, assembleSeason, makeGamelogsIndex, makeScheduleIndex, loadQbChainModels, rookieRecordFor } from './inseason-run.mjs';
+import { INSEASON_LOAD, guardLoad, runReconciliation, assembleSeason, makeGamelogsIndex, makeScheduleIndex, loadQbChainModels, rookieRecordFor, assertPrimaryCoverage } from './inseason-run.mjs';
 import { leagueLoadArgs, LEAGUE_SCORING_FIXTURE } from './panel-run.mjs';
 import { leagueBasisLoad, basisScaleOf } from '../lib/leagueBasis.mjs';
 import { mirrorArgsOf } from './rookie-constants-file.mjs';
 import { seasonEmitsFirstDownBonus } from '../lib/fantasyPoints.mjs';
 import { IN_SEASON_DEFAULTS } from '../lib/inSeasonEvidence.mjs';
-import { b2Benchmark, seasonBench } from '../lib/learnedBench.mjs';
+import { b2Benchmark, seasonBench, buildBenchwSeason } from '../lib/learnedBench.mjs';
+import { primaryPassers, coverageFor } from '../lib/qbTakeover.mjs';
+import { createHash } from 'node:crypto';
 import {
   LearnedLookAheadError, SKILL_POSITIONS, indexSchedule, seasonUniverse, buildWeekRows, buildTeamRows,
   labelCohorts, buildSeasonRows, seasonMeanOs, computeSpikeSd, collectNonZeroKeys, finalizeKeys, SPIKE_SEASONS, weekPoints, modalTeamGames,
@@ -27,11 +29,14 @@ const SKILL = new Set(SKILL_POSITIONS);
 export const MAX_SEASON = 2025;
 export const CACHE_ROOT = 'research/learned-projection/.cache';
 export const PANEL_DIR = `${CACHE_ROOT}/panel`;
+export const INSEASON_CONSTANTS_FILE = 'backtests/2026-10-07-inseason-constants.json';
 
 export const LEARNED_LOAD = {
   ...INSEASON_LOAD,
   loadRosterWeekly: (y) => readJson(`nflverse/rosterweekly/${y}.json`),
   loadTeamContext: (y) => readJson(`nflverse/teamcontext/${y}.json`),
+  // LP-1b: the pinned in-season k file (never the 2026-10-16 league file). Takes no season.
+  loadInSeasonConstants: () => readJson(INSEASON_CONSTANTS_FILE),
 };
 
 /** Loaders that take a season: a call above `maxSeason` is look-ahead (T-LP-2 asserts this list is complete). */
@@ -42,7 +47,7 @@ export const SEASON_KEYED_LOADERS = Object.freeze([
 /** Every other function on the load object — takes no season (or a date / scoring-free key). */
 export const NOT_SEASON_KEYED = Object.freeze([
   'loadPlayerIds', 'loadManifest', 'loadSnapshot', 'loadLeagueScoring', 'loadLeaguePositionOf', 'loadQbTakeoverConstants',
-  'basisScaleAsOf', 'loadRookiePinArtifact', 'loadRookiePinCrosswalk', 'loadRookieTotalCrosswalk',
+  'basisScaleAsOf', 'loadRookiePinArtifact', 'loadRookiePinCrosswalk', 'loadRookieTotalCrosswalk', 'loadInSeasonConstants',
 ]);
 
 /** Wraps EVERY season-keyed loader: a year above maxSeason throws LearnedLookAheadError. */
@@ -269,4 +274,96 @@ export function runExport({ load = buildLearnedLoad(), from = 2014, to = 2025, o
 
 function weekPointsOf(row, w, scoring, position, derive) {
   return weekPoints(row.weeklyStats?.[String(w)] ?? {}, scoring, position, derive);
+}
+
+
+// ─── LP-1b: the weekly current-model benchmark (task .claude/tasks/learned-projection-1b-weekly-bench.md §4.7) ────────────
+
+const readJsonl = (rel, keep = () => true) => {
+  const out = [];
+  for (const line of fs.readFileSync(repoPath(rel), 'utf8').split('\n')) {
+    if (!line) continue;
+    const r = JSON.parse(line);
+    if (keep(r)) out.push(r);
+  }
+  return out;
+};
+
+/**
+ * Replays the app's in-season logic week by week for `seasons` and writes `benchw.jsonl` + `benchw.meta.json` next to the panel
+ * (the only writes; atomic). `panelDir` is repo-relative. Requires meta.from === 2014 && meta.to === 2025. A season whose
+ * primary-passer coverage is below the app's floor throws (the app refuses a season with a missing week).
+ */
+export function runExportWeekly({ load = buildLearnedLoad(), panelDir = PANEL_DIR, seasons = Array.from({ length: 12 }, (_, i) => 2014 + i), log = () => {}, now = () => new Date() } = {}) {
+  const t0 = Date.now();
+  const meta = readJson(`${panelDir}/meta.json`);
+  if (!(meta?.from === 2014 && meta?.to === 2025)) throw new LearnedCheckStop(`[learned] ${panelDir}/meta.json covers ${meta?.from}–${meta?.to}, not 2014–2025 — benchw does not re-export the panel`, { from: meta?.from, to: meta?.to });
+  const g = load;
+  const models = loadQbChainModels(g);
+  const constantsFile = g.loadInSeasonConstants();
+  const constantsSha256 = createHash('sha256').update(fs.readFileSync(repoPath(INSEASON_CONSTANTS_FILE))).digest('hex');
+  const want = new Set(seasons);
+  const weeksBy = new Map();
+  for (const r of readJsonl(`${panelDir}/weeks.jsonl`, (x) => want.has(x.S))) {
+    if (!weeksBy.has(r.S)) weeksBy.set(r.S, []);
+    weeksBy.get(r.S).push({ pid: r.pid, S: r.S, w: r.w, position: r.position, team: r.team, played: r.played, pts: r.pts, inUniverse: r.inUniverse });
+  }
+  const benchBy = new Map();
+  for (const b of readJsonl(`${panelDir}/bench.jsonl`, (x) => want.has(x.S))) { if (!benchBy.has(b.S)) benchBy.set(b.S, []); benchBy.get(b.S).push(b); }
+  const seasonsBy = new Map();
+  for (const s of readJsonl(`${panelDir}/seasons.jsonl`, (x) => want.has(x.S))) { if (!seasonsBy.has(s.S)) seasonsBy.set(s.S, []); seasonsBy.get(s.S).push({ pid: s.pid, S: s.S, draftYear: s.draftYear }); }
+
+  const tmp = `${panelDir}/benchw.jsonl.tmp`;
+  const fd = fs.openSync(repoPath(tmp), 'w');
+  const counts = { rows: 0, condNull: 0, byKind: {}, qbOmitted: 0, routeMismatch: 0 };
+  const c2 = { n: 0, agree: 0, byPosition: {}, cells: {} };
+  const c3 = { fractionBad: 0, massBad: 0, massMaxDev: 0, kinds: {}, omitted: 0, bySeason: {} };
+  const c6 = { bySeason: {} };
+  try {
+    for (const S of [...seasons].sort((a, b) => a - b)) {
+      const sched = g.loadSchedule(S);
+      const gamelogsFile = g.loadGameLogs(S);
+      const cov = assertPrimaryCoverage(S, coverageFor(sched, primaryPassers(gamelogsFile, S)));
+      c6.bySeason[S] = cov;
+      const careerStats = {};
+      for (let y = 2012; y <= S - 1; y++) careerStats[y] = g.loadSeasonTotals(y);
+      const { rows, checks } = buildBenchwSeason({
+        S, weekRows: weeksBy.get(S) ?? [], bench: benchBy.get(S) ?? [], seasons: seasonsBy.get(S) ?? [], gamelogsFile, scheduleFile: sched,
+        depthFile: g.loadDepth(S), rosterweeklyFile: g.loadRosterWeekly(S), careerStats, constantsFile, models,
+      });
+      appendJsonl(fd, rows);
+      for (const r of rows) {
+        counts.rows++;
+        if (r.cond == null) counts.condNull++;
+        if (r.routeMismatch) counts.routeMismatch++;
+        if (r.position === 'QB') { if (r.omitted) counts.qbOmitted++; counts.byKind[r.kind] = (counts.byKind[r.kind] ?? 0) + 1; }
+      }
+      c2.n += checks.c2.n; c2.agree += checks.c2.agree;
+      for (const [pos, v] of Object.entries(checks.c2.byPosition)) { const b = c2.byPosition[pos] ??= { n: 0, agree: 0 }; b.n += v.n; b.agree += v.agree; }
+      for (const [cell, n] of Object.entries(checks.c2.cells)) c2.cells[cell] = (c2.cells[cell] ?? 0) + n;
+      c3.fractionBad += checks.c3.fractionBad; c3.massBad += checks.c3.massBad; c3.massMaxDev = Math.max(c3.massMaxDev, checks.c3.massMaxDev); c3.omitted += checks.c3.omitted;
+      for (const [k, n] of Object.entries(checks.c3.kinds)) c3.kinds[k] = (c3.kinds[k] ?? 0) + n;
+      c3.bySeason[S] = checks.c3.kinds;
+      log(`benchw S=${S}: ${rows.length} rows (coverage ${cov.withPrimary}/${cov.teamGames})`);
+    }
+  } catch (e) {
+    fs.closeSync(fd);
+    fs.rmSync(repoPath(tmp), { force: true });
+    throw e;
+  }
+  fs.closeSync(fd);
+
+  c2.rate = c2.n ? c2.agree / c2.n : null;
+  for (const v of Object.values(c2.byPosition)) v.rate = v.n ? v.agree / v.n : null;
+  c2.pass = c2.rate != null && c2.rate >= 0.98 && Object.values(c2.byPosition).every(v => v.rate >= 0.95);
+  c3.pass = c3.fractionBad === 0 && c3.massBad === 0;
+  c6.pass = true;                                   // assertPrimaryCoverage threw otherwise
+  const benchwMeta = {
+    generatedAt: now().toISOString(), dataRev: gitRev(), panelGeneratedAt: meta.generatedAt, constantsFile: INSEASON_CONSTANTS_FILE, constantsSha256,
+    qbChainSource: models.source, seasons: [...seasons].sort((a, b) => a - b), counts, checks: { c2, c3, c6 }, runtimeMs: Date.now() - t0,
+  };
+  fs.writeFileSync(repoPath(`${panelDir}/benchw.meta.json.tmp`), JSON.stringify(benchwMeta, null, 1));
+  fs.renameSync(repoPath(tmp), repoPath(`${panelDir}/benchw.jsonl`));
+  fs.renameSync(repoPath(`${panelDir}/benchw.meta.json.tmp`), repoPath(`${panelDir}/benchw.meta.json`));
+  return benchwMeta;
 }
