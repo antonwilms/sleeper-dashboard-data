@@ -5843,8 +5843,8 @@
   }
  },
  "benchwMeta": {
-  "generatedAt": "2026-11-13T17:44:02.873Z",
-  "dataRev": "bb5dd1207e35d290ca713149a40e6a1644b5bbaa",
+  "generatedAt": "2026-11-13T18:51:23.071Z",
+  "dataRev": "eac2f7b4c50b1a643a3143853756a7bb8d168f82",
   "panelGeneratedAt": "2026-11-12T23:44:16.940Z",
   "constantsFile": "backtests/2026-10-07-inseason-constants.json",
   "constantsSha256": "7bee9946ba78b988e74921186fa779dd46f09e189e335338e8c990a8b8da830b",
@@ -5920,6 +5920,7 @@
      "starter": 1201
     },
     "omitted": 0,
+    "kindBad": 0,
     "bySeason": {
      "2014": {
       "preseason": 69,
@@ -6072,7 +6073,7 @@
     "pass": true
    }
   },
-  "runtimeMs": 10581
+  "runtimeMs": 10116
  },
  "weeklyC": {
   "QB": {
