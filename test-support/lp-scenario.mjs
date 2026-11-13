@@ -16,7 +16,8 @@
  *  order 3, 16 starts) · qCnt no team until week 6 · qD1 rookie, injured game-1 starter (live-chain `original`; no preseason
  *  chain) · qD2 starter; TD's week-8 game has no primary passer (so qD1's live-chain row has no state) · qE1/qE2/qM: qE2 an
  *  `original` in the preseason chain set; qM moves TE→TB in week 4 while TE's chart still lists him at slot 1 · qF1/qF2 on the
- *  16-game team (`backup`, `starter`). One non-QB per population × position (RB/WR/TE), the standard WR with S−1 gamesPlayed exactly 8.
+ *  16-game team (`backup`, `starter`); qF1's S−1 prior (224/16 = 14.0) is below 0.85 × the median of the preseason incumbents' priors
+ *  (18.75), so the league-wide median is visible on his room's `backup` (iq 1 league-wide, 0 on TF alone). One non-QB per population × position (RB/WR/TE), the standard WR with S−1 gamesPlayed exactly 8.
  */
 import {
   qbContextAt, preseasonChain, liveChainAt, appPopulationAsOf,
@@ -122,7 +123,7 @@ const QBS = [
   qb('qM', { team: 'TE', draftYear: 2019, m1: { gp: 6, gs: 2, fp: 60 }, m2: { gp: 12, gs: 6, fp: 140 }, b1: { arm: 'X-short', ppg: 9, starterPPG: null },
     rows: rowsFor({ teamOf: (w) => (w <= 3 ? 'TE' : 'TB'), play: () => null }) }),
   // ── TF (16 games)
-  qb('qF1', { team: 'TF', draftYear: 2015, m1: { gp: 16, gs: 14, fp: 270 }, m2: { gp: 16, gs: 16, fp: 280 }, b1: { arm: 'P', ppg: 16, starterPPG: null },
+  qb('qF1', { team: 'TF', draftYear: 2015, m1: { gp: 16, gs: 14, fp: 224 }, m2: { gp: 16, gs: 16, fp: 280 }, b1: { arm: 'P', ppg: 16, starterPPG: null },
     rows: rowsFor({ teamOf: only('TF'), play: starter(1, 2, 8) }) }),
   qb('qF2', { team: 'TF', draftYear: 2018, m1: { gp: 10, gs: 3, fp: 130 }, b1: { arm: 'P', ppg: 12, starterPPG: null },
     rows: rowsFor({ teamOf: only('TF'), play: starter(3, 18, 9) }) }),

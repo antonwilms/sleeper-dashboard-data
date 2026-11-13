@@ -67,7 +67,8 @@ def benchw_for(wf, seed=9, drop=0.1):
 class WeeklyC(unittest.TestCase):
     def test_py14_weekly_c(self):
         """T-PY-14: c is the median of pts / b1w over training rows that are relevant, played, covered and both > 0. A non-relevant row, a pts = 0 row,
-        an uncovered row, a not-played row and a test-season row each leave it unchanged. Fails if c is taken over all rows or the test season."""
+        an uncovered row, a covered row with b1w = 0, a covered row with b1w < 0 and a test-season row each leave it unchanged. Fails if c is taken over
+        all rows or the test season, or the b1w > 0 filter is dropped."""
         T = 2017
         rows, bw = [], []
         for S in (2014, 2015, 2016, 2017):
@@ -98,12 +99,16 @@ class WeeklyC(unittest.TestCase):
             extra.append(dict(base.iloc[0].to_dict(), pid="q0", S=S, w=3, pts=0.0, actual0=0.0))                 # relevant, played, pts = 0
             extra_bw.append(dict(pid="q0", S=S, w=3, cond=5.0, uncond=np.nan))
             extra.append(dict(base.iloc[0].to_dict(), pid="q1", S=S, w=4, pts=5000.0, actual0=5000.0))           # relevant, played, UNCOVERED (no benchw row)
-            extra.append(dict(base.iloc[0].to_dict(), pid="q0", S=S, w=5, played=False, pts=np.nan, actual0=0.0))  # relevant, not played
+            extra.append(dict(base.iloc[0].to_dict(), pid="q0", S=S, w=5, played=False, pts=np.nan, actual0=0.0))  # (not-played: pts is NaN, so this row proves nothing)
             extra_bw.append(dict(pid="q0", S=S, w=5, cond=5.0, uncond=np.nan))
+            extra.append(dict(base.iloc[0].to_dict(), pid="q0", S=S, w=6, pts=10.0, actual0=10.0))               # relevant, played, covered, b1w = 0 (ratio inf)
+            extra_bw.append(dict(pid="q0", S=S, w=6, cond=0.0, uncond=np.nan))
+        extra.append(dict(base.iloc[0].to_dict(), pid="q0", S=2014, w=7, pts=10.0, actual0=10.0))                # relevant, played, covered, b1w = -5 (ratio < 0)
+        extra_bw.append(dict(pid="q0", S=2014, w=7, cond=-5.0, uncond=np.nan))
         wf2 = pd.concat([base, pd.DataFrame(extra)], ignore_index=True)
         bw2 = pd.concat([bwf, pd.DataFrame(extra_bw)], ignore_index=True)
         out2 = c_of(wf2, bw2)
-        self.assertEqual(float(out2[out2["position"] == "QB"]["c_weekly"].iloc[0]), 3.0, "pts = 0, uncovered and not-played rows are excluded")
+        self.assertEqual(float(out2[out2["position"] == "QB"]["c_weekly"].iloc[0]), 3.0, "pts = 0, uncovered, b1w = 0 and b1w < 0 rows are excluded")
         # a test-season outcome change does not move c
         wf3 = base.copy()
         m = wf3["S"] == T

@@ -317,7 +317,7 @@ export function runExportWeekly({ load = buildLearnedLoad(), panelDir = PANEL_DI
   const fd = fs.openSync(repoPath(tmp), 'w');
   const counts = { rows: 0, condNull: 0, byKind: {}, qbOmitted: 0, routeMismatch: 0 };
   const c2 = { n: 0, agree: 0, byPosition: {}, cells: {} };
-  const c3 = { fractionBad: 0, massBad: 0, massMaxDev: 0, kinds: {}, omitted: 0, bySeason: {} };
+  const c3 = { fractionBad: 0, massBad: 0, massMaxDev: 0, kinds: {}, omitted: 0, kindBad: 0, bySeason: {} };
   const c6 = { bySeason: {} };
   try {
     for (const S of [...seasons].sort((a, b) => a - b)) {
@@ -336,12 +336,12 @@ export function runExportWeekly({ load = buildLearnedLoad(), panelDir = PANEL_DI
         counts.rows++;
         if (r.cond == null) counts.condNull++;
         if (r.routeMismatch) counts.routeMismatch++;
-        if (r.position === 'QB') { if (r.omitted) counts.qbOmitted++; counts.byKind[r.kind] = (counts.byKind[r.kind] ?? 0) + 1; }
+        if (r.position === 'QB') { const k = r.omitted ? 'omitted' : r.kind; if (r.omitted) counts.qbOmitted++; counts.byKind[k] = (counts.byKind[k] ?? 0) + 1; }
       }
       c2.n += checks.c2.n; c2.agree += checks.c2.agree;
       for (const [pos, v] of Object.entries(checks.c2.byPosition)) { const b = c2.byPosition[pos] ??= { n: 0, agree: 0 }; b.n += v.n; b.agree += v.agree; }
       for (const [cell, n] of Object.entries(checks.c2.cells)) c2.cells[cell] = (c2.cells[cell] ?? 0) + n;
-      c3.fractionBad += checks.c3.fractionBad; c3.massBad += checks.c3.massBad; c3.massMaxDev = Math.max(c3.massMaxDev, checks.c3.massMaxDev); c3.omitted += checks.c3.omitted;
+      c3.fractionBad += checks.c3.fractionBad; c3.massBad += checks.c3.massBad; c3.massMaxDev = Math.max(c3.massMaxDev, checks.c3.massMaxDev); c3.omitted += checks.c3.omitted; c3.kindBad += checks.c3.kindBad;
       for (const [k, n] of Object.entries(checks.c3.kinds)) c3.kinds[k] = (c3.kinds[k] ?? 0) + n;
       c3.bySeason[S] = checks.c3.kinds;
       log(`benchw S=${S}: ${rows.length} rows (coverage ${cov.withPrimary}/${cov.teamGames})`);
@@ -356,8 +356,15 @@ export function runExportWeekly({ load = buildLearnedLoad(), panelDir = PANEL_DI
   c2.rate = c2.n ? c2.agree / c2.n : null;
   for (const v of Object.values(c2.byPosition)) v.rate = v.n ? v.agree / v.n : null;
   c2.pass = c2.rate != null && c2.rate >= 0.98 && Object.values(c2.byPosition).every(v => v.rate >= 0.95);
-  c3.pass = c3.fractionBad === 0 && c3.massBad === 0;
+  c3.pass = c3.fractionBad === 0 && c3.massBad === 0 && c3.kindBad === 0;
   c6.pass = true;                                   // assertPrimaryCoverage threw otherwise
+  // a failed Node check writes nothing: drop the temp file, leave any existing benchw files untouched
+  for (const [name, c] of [['§9.2 routing agreement', c2], ['§9.3 chain sanity', c3], ['§9.6 primary-passer coverage', c6]]) {
+    if (!c.pass) {
+      fs.rmSync(repoPath(tmp), { force: true });
+      throw new LearnedCheckStop(`${name} failed — benchw not written`, c);
+    }
+  }
   const benchwMeta = {
     generatedAt: now().toISOString(), dataRev: gitRev(), panelGeneratedAt: meta.generatedAt, constantsFile: INSEASON_CONSTANTS_FILE, constantsSha256,
     qbChainSource: models.source, seasons: [...seasons].sort((a, b) => a - b), counts, checks: { c2, c3, c6 }, runtimeMs: Date.now() - t0,

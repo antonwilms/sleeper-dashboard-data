@@ -14,7 +14,7 @@ import path from 'node:path';
 import { expectedStarts, primaryPassers, incPPG, priorPPG, iqCode, dpCode } from '../lib/qbTakeover.mjs';
 import { pinnedQbChainModels, reconstructQbPreseasonShares } from '../lib/projectionFactors.mjs';
 import { indexSchedule, modalTeamGames } from '../lib/learnedPanel.mjs';
-import { runExportWeekly } from '../scripts/learned-panel-run.mjs';
+import { runExportWeekly, INSEASON_CONSTANTS_FILE, LEARNED_LOAD, LearnedCheckStop } from '../scripts/learned-panel-run.mjs';
 import { repoPath } from '../lib/io.mjs';
 import { scenarioToDataInputs, SCENARIO } from '../test-support/lp-scenario.mjs';
 import { twoYearAveragePPG } from '../lib/dynastyBacktest.mjs';
@@ -82,7 +82,7 @@ test('T-LP-11 B2 predicate: b2QualifyingSeasons is non-empty exactly when twoYea
 // app:src/__tests__/inSeasonRoutingParity.test.js. Rebuild: scripts/fixtures/build-inseason-routing-parity.mjs (by hand).
 
 const PARITY_FILE = 'inseason-routing-parity-2026-11-13.json';
-const PARITY_SHA256 = '584245d799b63265153458cbb5c2e7037736db73cd6066747c0470abfed4b7f2';
+const PARITY_SHA256 = '95c356fbd95b681b1b49bfc5b67e9d750e3206907d2db37a548db83707c52841';
 const parityRaw = fs.readFileSync(new URL(`./fixtures/learned-panel/${PARITY_FILE}`, import.meta.url));
 const PF = JSON.parse(parityRaw.toString('utf8'));
 const constantsFile = JSON.parse(fs.readFileSync(new URL('../backtests/2026-10-07-inseason-constants.json', import.meta.url), 'utf8'));
@@ -138,6 +138,10 @@ test('T-LP-5 non-QB value: posterior of b1.ppg on the weeks before w, k from the
   assert.notEqual(leagueConstants.constants.K_ROS_POINTS.QB.k, constantsFile.constants.K_ROS_POINTS.QB.k);
   assert.notEqual(leagueConstants.constants.K_ROS_POINTS.TE.k, constantsFile.constants.K_ROS_POINTS.TE.k);
   assert.notEqual(leagueConstants.constants.K_ROS_POINTS_SHORT.TE.k, constantsFile.constants.K_ROS_POINTS_SHORT.TE.k);
+  // the exporter reads the 2026-10-07 file, through the loader, and not the league file
+  assert.equal(INSEASON_CONSTANTS_FILE, 'backtests/2026-10-07-inseason-constants.json');
+  assert.deepEqual(LEARNED_LOAD.loadInSeasonConstants(), constantsFile);
+  assert.notEqual(LEARNED_LOAD.loadInSeasonConstants().constants.K_ROS_POINTS.TE.k, leagueConstants.constants.K_ROS_POINTS.TE.k, 'the loader does not serve the league file');
 });
 
 test('T-LP-9 population, k and posterior parity with the app fixture (CR-25)', () => {
@@ -168,7 +172,7 @@ test('T-LP-10 QB live-state parity with the app (CR-27); 16-game teams differ on
   const rowsOf = (pid) => byPid.get(pid) ?? [];
   const dyOf = (pid) => PLAYER.get(pid)?.draftYear ?? null;
   const sixteen = new Set(['TE', 'TF']);
-  let compared16 = 0, comparedOther = 0;
+  let compared16 = 0, comparedOther = 0, backups16 = 0;
   for (const c of PF.cases) {
     const states = qbLiveStatesAsOf({
       S, w: c.w, qbIds: QB_IDS, rowsOf, sched, primaries: prim, careerM1: DATA.careerStats[S - 1], depthFile: DATA.depthFile,
@@ -190,6 +194,22 @@ test('T-LP-10 QB live-state parity with the app (CR-27); 16-game teams differ on
       } else {
         assert.equal(d.remaining, a.remaining - 1, `${id} w${c.w}: the team's real game count (16), not 17`);
         compared16++;
+        if (d.kind === 'backup') {
+          // app-anchored: find the hazard codes that reproduce the app's `expected` at the app's remaining, then check the data value at its own remaining
+          const startOf = (ps, hazardCodes) => ({ role: 'B', ps, c: 0, g: d.g + 1, hazardCodes, stickCodes: {} });
+          const kept = [];
+          for (const dp of [0, 1, 2]) for (const og of [0, 1]) for (const rk of [0, 1]) for (const iq of [0, 1, 2, 3]) for (const ps of [0, 1]) {
+            const hc = { dp, og, rk, iq };
+            const viaApp = expectedStarts({ hazard: models.hazard, stick: models.stick, start: startOf(ps, hc), remaining: a.remaining });
+            if (Math.abs(viaApp.expected - a.expected) <= 1e-9) kept.push({ hc, ps });
+          }
+          assert.ok(kept.length >= 1, `${id} w${c.w}: some hazard-code combination reproduces the app's expected`);
+          const viaData = kept.map(k => expectedStarts({ hazard: models.hazard, stick: models.stick, start: startOf(k.ps, k.hc), remaining: d.remaining }));
+          for (const v of viaData) near(v.expected, viaData[0].expected, 1e-9, `${id} w${c.w}: every app-matching combination agrees at the data remaining`);
+          near(d.expected, viaData[0].expected, 1e-9, `${id} w${c.w} backup expected at the 16-game remaining`);
+          near(d.fraction, viaData[0].fraction, 1e-9, `${id} w${c.w} backup fraction at the 16-game remaining`);
+          backups16++;
+        }
         if (d.kind === 'starter') {
           // direct call: the streak is the trailing run of the team's games with this QB primary
           const G = sched.weeks(d.team).filter(v => v < c.w);
@@ -203,6 +223,7 @@ test('T-LP-10 QB live-state parity with the app (CR-27); 16-game teams differ on
     }
   }
   assert.ok(compared16 >= 4 && comparedOther >= 20, `compared ${compared16} 16-game and ${comparedOther} other states`);
+  assert.ok(backups16 >= 1, 'a 16-game backup was checked against the app-anchored value');
 });
 
 test('T-LP-12 QB priors: the prior follows the kind and the chain sets, not one prior for everyone', () => {
@@ -234,6 +255,9 @@ test('T-LP-12 QB priors: the prior follows the kind and the chain sets, not one 
   assert.deepEqual(b1wValue({ position: 'QB', K: 3, projPrior: 10, starterPrior: 12, n: 2, obsPPG: 8, teamKnown: true, g: 3, state: { kind: 'original' }, preChain: false, preShare: null, liveChain: false }),
     { kind: 'original', cond: posteriorValue(10, 8, 2, 3), uncond: null, omitted: null });
   assert.equal(b1wValue({ position: 'QB', K: 3, projPrior: 10, starterPrior: 12, n: 2, obsPPG: 8, teamKnown: true, g: 3, state: null, preChain: false, preShare: null, liveChain: true }).omitted, 'chain-no-state');
+  // a start-chain state whose posterior is null is dropped by the app: marked omitted, not a null-valued row of its kind
+  assert.deepEqual(b1wValue({ position: 'QB', K: 3, projPrior: 10, starterPrior: NaN, n: 2, obsPPG: 8, teamKnown: true, g: 3, state: { kind: 'backup', starts: 1, startPoints: 20, fraction: 0.5 }, preChain: false, preShare: null, liveChain: true }),
+    { kind: 'backup', cond: null, uncond: null, omitted: 'no-posterior' });
 });
 
 test('T-LP-13 chain basis: preseason and live chains equal the app-verified fixture; named cases', () => {
@@ -263,6 +287,20 @@ test('T-LP-13 chain basis: preseason and live chains equal the app-verified fixt
   const d19 = preseasonChain({ ...args, S: 2019 }).get('qB2').share;
   near(d19, preseasonChain({ ...args, S: 2019, games: 16 }).get('qB2').share, 1e-12, 'default games at S = 2019 is 16');
   assert.ok(Math.abs(d19 - preseasonChain({ ...args, S: 2019, games: 17 }).get('qB2').share) > 1e-6, 'and not 17');
+  // the median spans the whole league: qF1 (prior 14.0 < 0.85 × 18.75) makes his room's backup iq 1 league-wide, 0 on TF alone
+  {
+    const qbs = [];
+    const seenQ = new Set();
+    for (const [T, t] of Object.entries(DATA.depthFile.weeks[1])) t.QB.forEach((pid, i) => { if (pid != null && !seenQ.has(pid)) { seenQ.add(pid); qbs.push({ id: pid, team: T, order: i + 1, rookie: draftYearOf(pid) === S }); } });
+    for (const q of firstGameQbs) if (!seenQ.has(q.id)) { seenQ.add(q.id); qbs.push({ id: q.id, team: q.team, order: null, rookie: draftYearOf(q.id) === S }); }
+    const priorOf = (id) => priorPPG(DATA.careerStats[S - 1]?.[id]);
+    const wide = reconstructQbPreseasonShares({ qbs, priorOf, models, games: modalTeamGames(S) });
+    const alone = reconstructQbPreseasonShares({ qbs: qbs.filter(q => q.team === 'TF'), priorOf, models, games: modalTeamGames(S) });
+    const gotF2 = preseasonChain(args).get('qF2');
+    assert.equal(gotF2.role, 'backup');
+    near(gotF2.share, wide.qF2.share, 1e-12, 'qF2 preseason share = the league-wide call');
+    assert.ok(Math.abs(gotF2.share - alone.qF2.share) > 1e-6, 'and differs from a TF-only call (the iq code depends on the league median)');
+  }
   // live chains, every QB and checkpoint
   const ctxOf = (w) => new Map(QB_IDS.map(x => [x, qbContextAt({ S, w, x, rowsOf: (pid) => (byPid.get(pid) ?? []).sort((a, b) => a.w - b.w), sched, depthFile: DATA.depthFile, rosterPlayers: DATA.rosterweeklyFile.players })]));
   for (const w of PF.scenario.checkpoints) {
@@ -384,9 +422,12 @@ test('T-LP-17 adapter: writes only the two benchw files, stops on meta.from ≠ 
   fs.rmSync(dir, { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
   const writeJsonl = (n, rows) => fs.writeFileSync(path.join(dir, n), rows.map(r => JSON.stringify(r)).join('\n') + '\n');
-  const writePanel = (from = 2014) => {
+  // the scenario's routeMismatch QB (qC4) alone puts routing agreement at 29/30 < 98%, so the panel written for the runs that must
+  // succeed carries his population-agreeing arm; the check-stop case below writes the scenario's own bench with the arms altered
+  const agreeingBench = DATA.bench.map(b => (b.pid === 'qC4' ? { ...b, b1: { ...b.b1, arm: 'P' } } : b));
+  const writePanel = (from = 2014, bench = agreeingBench) => {
     fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({ generatedAt: '2026-01-01T00:00:00.000Z', from, to: 2025 }));
-    writeJsonl('weeks.jsonl', DATA.weekRows); writeJsonl('bench.jsonl', DATA.bench); writeJsonl('seasons.jsonl', DATA.seasons); writeJsonl('teams.jsonl', [{ x: 1 }]);
+    writeJsonl('weeks.jsonl', DATA.weekRows); writeJsonl('bench.jsonl', bench); writeJsonl('seasons.jsonl', DATA.seasons); writeJsonl('teams.jsonl', [{ x: 1 }]);
   };
   const hashes = () => Object.fromEntries(fs.readdirSync(dir).filter(f => !f.startsWith('benchw')).map(f => [f, crypto.createHash('sha256').update(fs.readFileSync(path.join(dir, f))).digest('hex')]));
   const loadFor = (gamelogsFile) => ({
@@ -418,5 +459,10 @@ test('T-LP-17 adapter: writes only the two benchw files, stops on meta.from ≠ 
     for (const p of Object.values(g.players)) p.games = p.games.filter(x => !(x.week === 2 && (x.team === 'TA' || x.team === 'TB')));
     assert.throws(() => runExportWeekly({ load: loadFor(g), panelDir: dirRel, seasons: [2023] }), /coverage/);
     assert.deepEqual(fs.readdirSync(dir).filter(f => f.startsWith('benchw')), [], 'a stop writes nothing');
+    // a failed Node check (routing agreement < 98%: every arm altered) throws LearnedCheckStop and writes nothing
+    writePanel(2014, DATA.bench.map(b => ({ ...b, b1: { ...b.b1, arm: b.b1.arm === 'P' ? 'X-rookie0' : 'P' } })));
+    fs.rmSync(path.join(dir, 'benchw.jsonl'), { force: true }); fs.rmSync(path.join(dir, 'benchw.meta.json'), { force: true });
+    assert.throws(() => runExportWeekly({ load: loadFor(DATA.gamelogsFile), panelDir: dirRel, seasons: [2023] }), (e) => e instanceof LearnedCheckStop && /9\.2/.test(e.message) && e.detail.pass === false);
+    assert.deepEqual(fs.readdirSync(dir).filter(f => f.startsWith('benchw')), [], 'a failed check leaves no benchw file, not even the temp');
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });

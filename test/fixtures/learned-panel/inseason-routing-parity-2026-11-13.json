@@ -1,5 +1,5 @@
 {
- "appRev": "2c3578b376d67f601df7743f3f1b8c19bac469ca",
+ "appRev": "d71f9c151318292ddbd0f5eaf435086de2550b87",
  "builtWith": {
   "script": "scripts/fixtures/build-inseason-routing-parity.mjs",
   "qbTakeoverConstants": "backtests/2026-10-03-qb-takeover-constants.json",
@@ -3461,7 +3461,7 @@
     "m1": {
      "gp": 16,
      "gs": 14,
-     "fp": 270
+     "fp": 224
     },
     "m2": {
      "gp": 16,
@@ -6062,7 +6062,7 @@
    "qF2": {
     "basis": "chain",
     "role": "backup",
-    "share": 0.1557997497690759
+    "share": 0.25605400742411655
    },
    "qC3": {
     "basis": "chain",
@@ -6144,7 +6144,7 @@
    "qF2": {
     "basis": "chain",
     "role": "backup",
-    "share": 0.1534382948579868
+    "share": 0.2528216199194091
    },
    "qC3": {
     "basis": "chain",
@@ -6368,7 +6368,7 @@
      "qF1": {
       "gamesPlayed": 16,
       "gamesStarted": 14,
-      "fantasyPoints": 270
+      "fantasyPoints": 224
      },
      "qF2": {
       "gamesPlayed": 10,
@@ -6681,7 +6681,7 @@
      "qF1": {
       "gamesPlayed": 16,
       "gamesStarted": 14,
-      "fantasyPoints": 270
+      "fantasyPoints": 224
      },
      "qF2": {
       "gamesPlayed": 10,
@@ -6995,7 +6995,7 @@
       "qF1": {
        "gamesPlayed": 16,
        "gamesStarted": 14,
-       "fantasyPoints": 270
+       "fantasyPoints": 224
       },
       "qF2": {
        "gamesPlayed": 10,
@@ -7314,7 +7314,7 @@
       "qF1": {
        "gamesPlayed": 16,
        "gamesStarted": 14,
-       "fantasyPoints": 270
+       "fantasyPoints": 224
       },
       "qF2": {
        "gamesPlayed": 10,
@@ -7633,7 +7633,7 @@
       "qF1": {
        "gamesPlayed": 16,
        "gamesStarted": 14,
-       "fantasyPoints": 270
+       "fantasyPoints": 224
       },
       "qF2": {
        "gamesPlayed": 10,
@@ -8173,7 +8173,7 @@
        "qF1": {
         "gamesPlayed": 16,
         "gamesStarted": 14,
-        "fantasyPoints": 270
+        "fantasyPoints": 224
        },
        "qF2": {
         "gamesPlayed": 10,
@@ -8534,7 +8534,7 @@
        "qF1": {
         "gamesPlayed": 16,
         "gamesStarted": 14,
-        "fantasyPoints": 270
+        "fantasyPoints": 224
        },
        "qF2": {
         "gamesPlayed": 10,
@@ -10127,7 +10127,7 @@
        "qF1": {
         "gamesPlayed": 16,
         "gamesStarted": 14,
-        "fantasyPoints": 270
+        "fantasyPoints": 224
        },
        "qF2": {
         "gamesPlayed": 10,
@@ -10488,7 +10488,7 @@
        "qF1": {
         "gamesPlayed": 16,
         "gamesStarted": 14,
-        "fantasyPoints": 270
+        "fantasyPoints": 224
        },
        "qF2": {
         "gamesPlayed": 10,
@@ -13275,7 +13275,7 @@
        "qF1": {
         "gamesPlayed": 16,
         "gamesStarted": 14,
-        "fantasyPoints": 270
+        "fantasyPoints": 224
        },
        "qF2": {
         "gamesPlayed": 10,
@@ -13636,7 +13636,7 @@
        "qF1": {
         "gamesPlayed": 16,
         "gamesStarted": 14,
-        "fantasyPoints": 270
+        "fantasyPoints": 224
        },
        "qF2": {
         "gamesPlayed": 10,
