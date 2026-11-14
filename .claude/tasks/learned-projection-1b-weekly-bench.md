@@ -268,3 +268,7 @@ Session 1, 2026-11-14. Data `bb5dd12..a3dfe27` (`a64e920` slice, `eac2f7b` fix p
 - **Checks:** data `npm test` 2,150 pass / 0 fail / 1 skip; Python suite 21 pass, T-PY-1 not skipped; `npm run smoke` green; app `npm test` 3,504 pass, `npm run lint` 0 problems, `npm run build` clean (run by the fix-applier; the reviewers re-ran data and Python suites and the app parity test, not smoke, lint or build).
 - **Run-time checks on the real data:** 102,636 `benchw` rows, 0 null `cond`, 0 omitted QBs, 997 `routeMismatch` rows (72 player-seasons); routing agreement 7,124/7,196 = 99.00% (worst position TE 98.58%); chain sanity and primary-passer coverage pass (2014: 509/512).
 - **State:** nothing under a served folder or `manifest.json` changed; no app source file differs from `2c3578b`; research cache git-ignored. Artifacts: `backtests/2026-11-13-learned-s1b-panel.json`, `grading/2026-11-13-learned-s1b-verdict.md`. LP-1a's verdict and task file untouched.
+
+Signed off by Anton 2026-11-14
+
+Commit ids after the push-time rebase onto `acaab74`: `a64e920` → `f8607ee` (slice), `eac2f7b` → `693536c` (fix pass 1 code), `a3dfe27` → `5cba9a6` (fix pass 1 artifacts), `01c7bf9` → `391842b` (verification record). The panel artifact and `benchw.meta.json` record `dataRev` `eac2f7b…`, the pre-rebase id of the fix-pass code commit; content is identical. App ids are unchanged: `d71f9c1`, `9158f9d`.
