@@ -1567,9 +1567,9 @@
     },
     "nflverse/advstats/2026.json": {
       "schemaVersion": 1,
-      "recordCount": 488,
+      "recordCount": 489,
       "inProgress": false,
-      "lastModified": "2026-11-10T18:16:57.305Z"
+      "lastModified": "2026-11-14T18:51:44.558Z"
     },
     "nfl/players-state/2026-09-19.json": {
       "schemaVersion": 1,
@@ -2077,9 +2077,9 @@
     },
     "nflverse/gamelogs/2026.json": {
       "schemaVersion": 1,
-      "recordCount": 3059,
+      "recordCount": 3081,
       "inProgress": false,
-      "lastModified": "2026-11-10T18:16:57.424Z"
+      "lastModified": "2026-11-14T18:51:44.731Z"
     },
     "snapshots/2026-11-11.json": {
       "schemaVersion": 3,
@@ -2103,5 +2103,5 @@
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-11-14T13:40:49.763Z"
+  "generatedAt": "2026-11-14T18:51:44.731Z"
 }
