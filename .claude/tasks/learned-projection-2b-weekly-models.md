@@ -33,3 +33,4 @@ The weekly layer for the candidates H and G: per player-week expected league poi
 - Weekly-universe training rows (≈ 100k) and G's cost — a time budget and grid size.
 - Whether the weekly model predicts keys directly or residuals against the season layer.
 - LP-1b's stated limits of weekly B1c (week-1 depth chart on the 2025 fold) carry into every weekly claim.
+- **Carried from 2a verification (2026-11-16):** 2a's §10.4 era/λ arms pool only folds where the forced value differs from the chosen one — 2b's reports state each arm's folds; `--register` runs before the anchor check and the verdict prints the registration commit as "code commit" — fix both in the weekly runner (new module), never in a season-hashed file.
