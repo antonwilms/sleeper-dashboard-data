@@ -344,9 +344,9 @@ Each arm is the candidate's chosen entry with ONE change and c recomputed by one
 
 ## Registration, data and run facts
 
-- **candidate H:** specSha256 `8eaef3a01328803c3824d0e505776d1f7e5bff34652978247e593366775cdead`, registeredAt 2026-11-16, commit `73b34f5`, reregistrations 0, python 3.9.6
-- **candidate G:** specSha256 `0ea188b42fab42690d803c4f8d600674a8f63ae567ce5edd7d80f55731a2726f`, registeredAt 2026-11-16, commit `73b34f5`, reregistrations 0, python 3.9.6
-- **code commit (HEAD):** 73b34f5
+- **candidate H:** specSha256 `8eaef3a01328803c3824d0e505776d1f7e5bff34652978247e593366775cdead`, registeredAt 2026-11-16, commit `b7dceb2`, reregistrations 0, python 3.9.6
+- **candidate G:** specSha256 `0ea188b42fab42690d803c4f8d600674a8f63ae567ce5edd7d80f55731a2726f`, registeredAt 2026-11-16, commit `b7dceb2`, reregistrations 0, python 3.9.6
+- **code commit (HEAD):** b7dceb2
 - **kickoff fallbacks (universe rows without a schedule row → season-row team; no team at all):** {"2019": {"universe": 568, "noScheduleRow": 0, "noTeam": 0}, "2020": {"universe": 546, "noScheduleRow": 0, "noTeam": 0}, "2021": {"universe": 570, "noScheduleRow": 0, "noTeam": 0}, "2022": {"universe": 578, "noScheduleRow": 0, "noTeam": 0}, "2023": {"universe": 567, "noScheduleRow": 0, "noTeam": 0}, "2024": {"universe": 546, "noScheduleRow": 0, "noTeam": 0}}
 - **raw-fallback quantities (E1 unusable):** none
 - **run times (s):** {"H 2019": 124.5, "G 2019": 202.6, "H 2020": 158.5, "G 2020": 266.6, "H 2021": 229.3, "G 2021": 304.7, "H 2022": 315.9, "G 2022": 389.8, "H 2023": 410.0, "G 2023": 344.7, "H 2024": 465.6, "G 2024": 353.4}
