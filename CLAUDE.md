@@ -152,6 +152,8 @@ Data captures (snapshots, nflverse/ktc/season-totals files, the manifest updates
 
 Code and task-file changes (`.claude/tasks/`, `src/`, `lib/`, `scripts/`, `bin/`) push only after sign-off: the task file holds a committed `## Verification` section plus a line `Signed off by Anton YYYY-MM-DD`, and Anton replied "signed off" in Session 1. Until then the slice stays local; `git pull --rebase origin main` before the eventual push, as below. Enforced by `.claude/hooks/push-guard.sh` (PreToolUse on `git push`; tests: `push-guard.test.sh`). Code-only fixes without a task file may instead carry `Signed off by Anton YYYY-MM-DD` in every code commit message; edits to existing task files are not gated.
 
+**Pre-verification rebase.** For a slice with code or task-file commits, Session 1 runs `git pull --rebase origin main` **before writing the `## Verification` section**, and again before sending the sign-off request if new captures landed. Every commit ID the slice cites about itself (task file, verdict, grading/backtest artifacts, sign-off request) is taken after that rebase. An artifact that prints its own commit ID is generated after the pre-verification rebase, or cites file/registration hashes instead where the slice has them (LP registry pattern).
+
 - `git pull --rebase origin main` **before** any push — the scheduled Actions push to main on cron and will reject a stale push.
 - `manifest.json` conflicts resolve as a **union** — every entry from both sides, never one side wholesale.
 - A session whose purpose is *removing* entries resolves as **union minus its own deletions**; the plain union rule would resurrect a deletion landing in the same rebase window.

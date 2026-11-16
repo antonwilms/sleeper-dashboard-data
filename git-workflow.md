@@ -14,7 +14,14 @@ This file is the procedure.
 1. **Commit.** Stage this session's changes with a descriptive message — planning:
    `plan: <feature>`; implementation: `feat: <feature>` / `fix: <feature>`.
 
-2. **Rebase before pushing.**
+2. **Rebase before verification** (slices with code or task-file commits). The cron Actions push
+   captures to `main` while the slice sits unpushed, and the slice's own commit IDs get cited in
+   records (task file, verdict, sign-off request). Run `git pull --rebase origin main` before
+   writing the `## Verification` section, and again before the sign-off request if new captures
+   landed; take every self-cited commit ID after it. Artifacts that print their own commit ID are
+   generated after this rebase, or cite file/registration hashes instead.
+
+3. **Rebase before pushing.**
 
    ```sh
    git pull --rebase origin main
@@ -22,7 +29,7 @@ This file is the procedure.
 
    The weekly and scheduled Actions push to `main` on cron and will reject a stale push.
 
-3. **Resolve conflicts.** They are almost always machine-generated bookkeeping files.
+4. **Resolve conflicts.** They are almost always machine-generated bookkeeping files.
 
    - **`manifest.json` — resolve as a union.** Keep every entry from both sides. Never resolve
      by preferring one side wholesale: that silently drops the other side's entries, a real
@@ -46,7 +53,7 @@ This file is the procedure.
    - **Anything that is not a clean union** — the same entry edited incompatibly on both sides
      — stop and report for a human decision. Do not guess.
 
-4. **Push.**
+5. **Push.**
 
    ```sh
    git push origin main
@@ -55,7 +62,7 @@ This file is the procedure.
    Plain push, **never `--force`**. If it is still rejected, an Action pushed during the
    rebase: `git pull --rebase origin main` again and retry. Never force.
 
-5. **Purge the CDN** if this session wrote served data files (anything under `nflverse/`,
+6. **Purge the CDN** if this session wrote served data files (anything under `nflverse/`,
    `ktc/`, `nfl/`, `college/`, `snapshots/`). Purge exactly the changed data files, so the app
    sees fresh data instead of stale cache; `manifest.json` needs no purge (the app reads it from
    raw GitHub, CR-29, and the CLI rejects it). Method:
