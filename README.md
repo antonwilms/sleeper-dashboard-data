@@ -1706,6 +1706,7 @@ or run by `npm test`, `npm run smoke` or a workflow.
   lives in the app's `src/__fixtures__/`; both repos pin its SHA-256). `run_benchmarks.py --weekly-bench [--write]` fills the
   weekly B1 / B1c columns (weekly `c` fitted per fold on the fold's own training rows) and writes `backtests/<date>-learned-s1b-panel.json`
   and `grading/<date>-learned-s1b-verdict.md`; without the flag the outputs are LP-1a's and the weekly B1/B1c columns read `pending-1b`.
+- LP-2a — `research/learned-projection/run_season_models.py` (`--smoke` / `--register` / `--dev [--write]`): two learned season-layer candidates, H (partial pooling) and G (gradient-boosted trees), registered per layer in `research/learned-projection/candidates/*.json` (`lp/registry.py` locks: tracked + identical to `HEAD` + hashes) before any test-fold fit; development folds 2019–2024 only, the 2025 confirmation is held until LP-2b registers the weekly layer. Task `.claude/tasks/learned-projection-2a-season-models.md`. The one copied definition is `lp/era.py` `era_team` (= `lib/nflverse.mjs` `eraTeam`, pinned by T-M-4).
 - Pre-registration: the pass/fail bar of task §8 is hashed (`preregHash`) into the verdict; every mode of `run_benchmarks.py`
   first recomputes the hash and stops (exit 2) when it differs from `report.PREREG_HASH`.
 
