@@ -1,0 +1,35 @@
+# LP-2b · Learned projection research — weekly models (OUTLINE ONLY)
+
+**Status:** outline (Session 1, parent folder, 2026-11-14). **Not reviewed, not approved, not implementable.** It becomes a full plan only after LP-2a (`learned-projection-2a-season-models.md`) is implemented and verified; every decision below is then re-checked against 2a as built and its results. Replaces the weekly half of the deleted draft `learned-projection-2-models.md`.
+**Review depth (when planned): full.** **Session 2 (when planned):** sonnet, high, inside `sleeper-dashboard-data/`, Python only under `research/learned-projection/`.
+
+## Scope
+
+The weekly layer for the candidates H and G: per player-week expected league points given he plays, P(plays), and the rest-of-season forecast as a sum over remaining weeks. Judged on LP-1a §8's weekly gate (relevant set, played rows, conditional MAE; `beats` STD and B1c at 3 of 4 positions, no `loses`), `preregHash` `7ff9087f…e24e5a` unchanged. RIDGE (weekly) and B4 (Sleeper) are reported against, never gated. No app change, no served write, no fetch.
+
+## Depends on LP-2a
+
+- **Its result.** The weekly gate is evaluated only for a candidate that passed the season gate. If neither passes, the weekly layer runs once, exploratory and unlabelled, so LP-3 has numbers.
+- **Its code.** `lp/asof.py` views (`X`, `teamctx`, `extras`), `lp/era.py` units, `lp/chain.py` targets and composition, `lp/registry.py`, `lp/evaluate.py`.
+- **Its predictions.** The season layer is the weekly model's prior. Weekly training needs season-layer predictions for every training season, each made by a fit on earlier seasons only — 2a produces development seasons 2019–2024 only (2025 is held, R1); 2b adds out-of-fold season predictions for 2016–2018 (not test folds) and the held 2025 season, or starts weekly training at the first season that has one. Decide when planning.
+- **Registration (Anton's ruling, 2a R1).** Per layer: the `weekly` section is appended with `registry.append_layer` and committed before any weekly test-fold metric; the `season` section, its `specSha256` and `code` map stay byte-identical. **2b may not edit a season-hashed file** — the season `code` ∪ `harness` paths of 2a §9: `lp/io.py`, `asof.py`, `extra.py`, `era.py`, `features.py`, `chain.py`, `model_h.py`, `model_g.py`, `season_models.py`, `baselines.py`, `splits.py`, `evaluate.py`, `registry.py`, `report_s2a.py`, `report.py`, `score.py`, `metrics.py`, `bootstrap.py`, `run_season_models.py` — weekly code lives in new modules. Opponent-defence `def_*` components and per-week gamelog rows already come through 2a's `load_teamctx` and `view` (2a R9). No best-of-two.
+- **The held 2025 fold.** 2a ran development folds only; its labels are unconfirmed and no candidate has passed the season gate. 2b proceeds to the weekly layer for a candidate whose **development** season labels pass provisionally. After both layers of both candidates are registered, the 2025 fold runs once for both layers; the confirm run writes a start marker and a run-log entry before its first 2025 fit and refuses if either exists (a crash cannot allow a second run).
+
+## Decisions recorded now
+
+1. **Unit and target.** Player-week; the same chain as 2a (opportunities per game → per-opportunity rates → keys → points), conditional on playing. Origin (S, w − 1); a walk-forward within the season.
+2. **Weekly features.** The season-layer prediction per target; season-to-date and recency-weighted per-game opportunities, rates and team shares (target, rush, red-zone, air yards); games played and weeks since last played; lagged `status`; lagged `rw` only where `rwOracle` is false; lagged `depthOrder` and its change; opponent defence through w − 1 from summed `def` components (never a stored rate — CR-10); `home`, `roof`; lagged gamelogs efficiency (EPA per attempt, CPOE, first downs per opportunity). **No snap share** — none is stored weekly. All through `asof.view(tables, S, w − 1)`.
+3. **How recent usage overrides the baseline — learned, per position and per stat.** No hand-set constant. H: the 2a shrinkage form with the season-layer prediction as the prior and the in-season recency-weighted rate as the evidence; the override strength `k` and the recency decay are fitted per position and per target (opportunity targets are expected to override fast, TD rates slowly — the fit decides). G: the season-layer prediction, the to-date rate and the recent rate are separate inputs and the trees learn the trade-off; `n` is an input. The fitted `k` and decay are tabulated beside the app's pinned `K_ROS_POINTS*` for comparison only.
+4. **Teammate absence.** Lagged, never same-week: for each same-position teammate and the team's QB, whether he played the previous team game and the share of position opportunities he held before going out → `vacatedShare`; a teammate who was out and whose lagged roster status is back → `returningShare`. Seasons ≤ 2015 have no usable status (`rwOracle`), so there "out" means "did not play the previous game". Same-week status and same-week depth chart exist only as `oracle-*` arms: report-only, never in a candidate.
+5. **P(plays).** Its own model over the weekly universe (byes excluded): lagged played run-lengths, lagged status and roster status, lagged depth order, season-to-date and prior-season games share, age, position; week 1 is status-free (LP-1a F4) and uses the 2a games-share prediction. Scored by Brier and log-loss against the persistence baseline; it feeds the unconditional metric and the rest-of-season sum, not the gate.
+6. **Season forecast from origin (S, n).** Points already scored + Σ over remaining team-game weeks of P(plays) × expected points given he plays — never points-per-game × games. At n = 0 it must reproduce 2a's forecast within a stated tolerance, or the difference is explained.
+7. **The three cohorts** (LP-1a §5.5 — role riser, injury fill-in, one-week spike): reported for H, G, STD, RIDGE, B1 and B1c with the existing metrics (catch-up lag; signed error after the return; signed error the week after). They are the direct test of decision 3 and are not gated.
+8. **Lines.** Only closing lines are stored, so a `lines` arm (this week's spread and total → implied team total) is exploratory and report-only; nothing preseason uses a line.
+9. **Era handling.** 2a's units and season weights carry over; within season S the league mean of S through week n blends in with a weight that grows with n — in a new module, since `lp/era.py` is season-hashed; the rule is specified when planning.
+10. **Evaluation order.** Register the weekly layer → development folds 2019–2024 → weekly labels per candidate → freeze → the 2025 fold once, for both layers. Weekly `c` for B1c stays LP-1b's.
+
+## Open when planning
+
+- Weekly-universe training rows (≈ 100k) and G's cost — a time budget and grid size.
+- Whether the weekly model predicts keys directly or residuals against the season layer.
+- LP-1b's stated limits of weekly B1c (week-1 depth chart on the 2025 fold) carry into every weekly claim.

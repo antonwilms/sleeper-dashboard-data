@@ -1,0 +1,97 @@
+{
+ "schemaVersion": 1,
+ "season": 2019,
+ "players": {
+  "101": {
+   "games": [
+    {
+     "week": 1,
+     "seasonType": "REG",
+     "attempts": 10,
+     "passingEpa": 1.0,
+     "passingAirYards": 50,
+     "sacksSuffered": 1,
+     "receptions": 2,
+     "receivingYardsAfterCatch": 10,
+     "carries": 3,
+     "targets": 4,
+     "rushingFirstDowns": 1,
+     "receivingFirstDowns": 1,
+     "rushingEpa": 0.3,
+     "receivingEpa": 0.5,
+     "passingCpoe": 5.0
+    },
+    {
+     "week": 2,
+     "seasonType": "REG",
+     "attempts": 30,
+     "passingEpa": 3.0,
+     "passingAirYards": 150,
+     "sacksSuffered": 1,
+     "receptions": 2,
+     "receivingYardsAfterCatch": 10,
+     "carries": 3,
+     "targets": 4,
+     "rushingFirstDowns": 1,
+     "receivingFirstDowns": 1,
+     "rushingEpa": 0.3,
+     "receivingEpa": 0.5
+    },
+    {
+     "week": 3,
+     "seasonType": "REG",
+     "attempts": 30,
+     "passingEpa": 3.0,
+     "passingAirYards": 150,
+     "sacksSuffered": 1,
+     "receptions": 2,
+     "receivingYardsAfterCatch": 10,
+     "carries": 3,
+     "targets": 4,
+     "rushingFirstDowns": 1,
+     "receivingFirstDowns": 1,
+     "rushingEpa": 0.3,
+     "receivingEpa": 0.5,
+     "passingCpoe": -1.0
+    },
+    {
+     "week": 4,
+     "seasonType": "POST",
+     "attempts": 999,
+     "passingEpa": 99.9,
+     "passingAirYards": 4995,
+     "sacksSuffered": 1,
+     "receptions": 2,
+     "receivingYardsAfterCatch": 10,
+     "carries": 77,
+     "targets": 4,
+     "rushingFirstDowns": 1,
+     "receivingFirstDowns": 1,
+     "rushingEpa": 0.3,
+     "receivingEpa": 0.5,
+     "passingCpoe": 9.0
+    }
+   ]
+  },
+  "102": {
+   "games": [
+    {
+     "week": 1,
+     "seasonType": "REG",
+     "attempts": 0,
+     "passingEpa": 0.0,
+     "passingAirYards": 0,
+     "sacksSuffered": 1,
+     "receptions": 2,
+     "receivingYardsAfterCatch": 10,
+     "carries": null,
+     "targets": 4,
+     "rushingFirstDowns": 1,
+     "receivingFirstDowns": 1,
+     "rushingEpa": 0.3,
+     "receivingEpa": 0.5
+    }
+   ]
+  }
+ }
+}

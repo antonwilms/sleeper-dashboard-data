@@ -90,3 +90,17 @@ def load_benchw(panel_dir=PANEL_DIR):
     df = pd.DataFrame(_jsonl(jp))
     df["pid"] = df["pid"].astype(str)
     return df, meta
+
+
+def load_teamctx(panel_dir=PANEL_DIR):
+    """LP-2a (R9): per-team-week context from `teams.jsonl` — `team`, `S`, `w` plus `off_<field>` and `def_<field>` for every numeric field of
+    the `off` and `def` objects (`def_*` is unused by the season layer; loaded for LP-2b so it edits no season-hashed file)."""
+    rows = []
+    for t in _jsonl(os.path.join(panel_dir, "teams.jsonl")):
+        d = {"team": t["team"], "S": t["S"], "w": t["w"]}
+        for side in ("off", "def"):
+            for k, v in (t.get(side) or {}).items():
+                if isinstance(v, (int, float)) and not isinstance(v, bool):
+                    d["%s_%s" % (side, k)] = float(v)
+        rows.append(d)
+    return pd.DataFrame(rows)

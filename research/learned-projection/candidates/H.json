@@ -1,0 +1,3188 @@
+{
+ "layers": {
+  "season": {
+   "code": null,
+   "data": null,
+   "harness": null,
+   "python": null,
+   "registeredAt": null,
+   "requirements": null,
+   "reregistrations": [],
+   "spec": {
+    "alphas": [
+     1,
+     10,
+     100,
+     1000
+    ],
+    "calibMinRows": 30,
+    "deltas": [
+     0.5,
+     0.65,
+     0.8,
+     0.9,
+     1.0
+    ],
+    "desc": {
+     "extra": [
+      "gs1",
+      "gs2",
+      "trailOut1",
+      "offPct1"
+     ],
+     "groups": [
+      "bio",
+      "role",
+      "team",
+      "gl"
+     ]
+    },
+    "features": {
+     "bio": {
+      "*": {
+       "age": {
+        "P": null,
+        "kind": "raw",
+        "lag": null,
+        "q": null
+       },
+       "age2": {
+        "P": null,
+        "kind": "raw",
+        "lag": null,
+        "q": null
+       },
+       "draftRound": {
+        "P": null,
+        "kind": "raw",
+        "lag": null,
+        "q": null
+       },
+       "exp": {
+        "P": null,
+        "kind": "raw",
+        "lag": null,
+        "q": null
+       },
+       "expLe1LogOvr": {
+        "P": null,
+        "kind": "raw",
+        "lag": null,
+        "q": null
+       },
+       "isRookie": {
+        "P": null,
+        "kind": "raw",
+        "lag": null,
+        "q": null
+       },
+       "isRookieLogOvr": {
+        "P": null,
+        "kind": "raw",
+        "lag": null,
+        "q": null
+       },
+       "logOvr": {
+        "P": null,
+        "kind": "raw",
+        "lag": null,
+        "q": null
+       },
+       "undrafted": {
+        "P": null,
+        "kind": "raw",
+        "lag": null,
+        "q": null
+       }
+      }
+     },
+     "dur": {
+      "*": {
+       "dWeeks1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "gs1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "gs2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "gs3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null
+       },
+       "trailOut1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       }
+      }
+     },
+     "gl": {
+      "*": {
+       "cpoe1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "cpoe2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "passAyAtt1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "passAyAtt2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "passEpaAtt1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "passEpaAtt2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "recEpaTgt1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "recEpaTgt2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "recFdTgt1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "recFdTgt2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "rushEpaAtt1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "rushEpaAtt2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "rushFdAtt1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "rushFdAtt2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "sackRate1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "sackRate2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "yacRec1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "yacRec2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       }
+      }
+     },
+     "hist": {
+      "QB": {
+       "adot1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "adot2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "adot3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "airShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "airShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "airShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "fum_lost1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "fum_lost",
+        "src": [
+         "pg",
+         "fum_lost"
+        ]
+       },
+       "fum_lost2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "fum_lost",
+        "src": [
+         "pg",
+         "fum_lost"
+        ]
+       },
+       "fum_lost3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "fum_lost",
+        "src": [
+         "pg",
+         "fum_lost"
+        ]
+       },
+       "g1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "g2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "g3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "gs1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "gs2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "gs3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null
+       },
+       "late1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "offPct1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "offPct2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "pass_att1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "pass_att",
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "pass_att2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "pass_att",
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "pass_att3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "pass_att",
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "pass_int1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "pass_int",
+        "src": [
+         "po",
+         "pass_int",
+         [
+          "pass_att"
+         ]
+        ]
+       },
+       "pass_int2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "pass_int",
+        "src": [
+         "po",
+         "pass_int",
+         [
+          "pass_att"
+         ]
+        ]
+       },
+       "pass_int3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "pass_int",
+        "src": [
+         "po",
+         "pass_int",
+         [
+          "pass_att"
+         ]
+        ]
+       },
+       "pass_td1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "pass_td",
+        "src": [
+         "po",
+         "pass_td",
+         [
+          "pass_att"
+         ]
+        ]
+       },
+       "pass_td2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "pass_td",
+        "src": [
+         "po",
+         "pass_td",
+         [
+          "pass_att"
+         ]
+        ]
+       },
+       "pass_td3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "pass_td",
+        "src": [
+         "po",
+         "pass_td",
+         [
+          "pass_att"
+         ]
+        ]
+       },
+       "pass_yd1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "pass_yd",
+        "src": [
+         "po",
+         "pass_yd",
+         [
+          "pass_att"
+         ]
+        ]
+       },
+       "pass_yd2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "pass_yd",
+        "src": [
+         "po",
+         "pass_yd",
+         [
+          "pass_att"
+         ]
+        ]
+       },
+       "pass_yd3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "pass_yd",
+        "src": [
+         "po",
+         "pass_yd",
+         [
+          "pass_att"
+         ]
+        ]
+       },
+       "ppg1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "ppg2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "ppg3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "racr1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "racr2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "racr3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "rec_tgt1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_tgt2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_tgt3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rushShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rushShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rushShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rush_att1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "rush_att",
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_att2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "rush_att",
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_att3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "rush_att",
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_td1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rush_td",
+        "src": [
+         "po",
+         "rush_td",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_td2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rush_td",
+        "src": [
+         "po",
+         "rush_td",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_td3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rush_td",
+        "src": [
+         "po",
+         "rush_td",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_yd1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rush_yd",
+        "src": [
+         "po",
+         "rush_yd",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_yd2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rush_yd",
+        "src": [
+         "po",
+         "rush_yd",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_yd3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rush_yd",
+        "src": [
+         "po",
+         "rush_yd",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rzShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "rzShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "rzShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "tdPts1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tgtShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       },
+       "tgtShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       },
+       "tgtShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       }
+      },
+      "RB": {
+       "adot1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "adot2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "adot3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "airShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "airShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "airShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "bonus_fd_rb1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "bonus_fd_rb",
+        "src": [
+         "po",
+         "bonus_fd_rb",
+         [
+          "rush_att",
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_fd_rb2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "bonus_fd_rb",
+        "src": [
+         "po",
+         "bonus_fd_rb",
+         [
+          "rush_att",
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_fd_rb3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "bonus_fd_rb",
+        "src": [
+         "po",
+         "bonus_fd_rb",
+         [
+          "rush_att",
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_rush_yd_1001": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "bonus_rush_yd_100",
+        "src": [
+         "pg",
+         "bonus_rush_yd_100"
+        ]
+       },
+       "bonus_rush_yd_1002": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "bonus_rush_yd_100",
+        "src": [
+         "pg",
+         "bonus_rush_yd_100"
+        ]
+       },
+       "bonus_rush_yd_1003": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "bonus_rush_yd_100",
+        "src": [
+         "pg",
+         "bonus_rush_yd_100"
+        ]
+       },
+       "fum_lost1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "fum_lost",
+        "src": [
+         "pg",
+         "fum_lost"
+        ]
+       },
+       "fum_lost2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "fum_lost",
+        "src": [
+         "pg",
+         "fum_lost"
+        ]
+       },
+       "fum_lost3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "fum_lost",
+        "src": [
+         "pg",
+         "fum_lost"
+        ]
+       },
+       "g1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "g2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "g3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "gs1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "gs2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "gs3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null
+       },
+       "kr_yd1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "kr_yd",
+        "src": [
+         "pg",
+         "kr_yd"
+        ]
+       },
+       "kr_yd2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "kr_yd",
+        "src": [
+         "pg",
+         "kr_yd"
+        ]
+       },
+       "kr_yd3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "kr_yd",
+        "src": [
+         "pg",
+         "kr_yd"
+        ]
+       },
+       "late1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "offPct1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "offPct2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "pass_att1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "pass_att2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "pass_att3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "ppg1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "ppg2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "ppg3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "racr1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "racr2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "racr3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "rec1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rec",
+        "src": [
+         "po",
+         "rec",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rec",
+        "src": [
+         "po",
+         "rec",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rec",
+        "src": [
+         "po",
+         "rec",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_td1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rec_td",
+        "src": [
+         "po",
+         "rec_td",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_td2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rec_td",
+        "src": [
+         "po",
+         "rec_td",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_td3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rec_td",
+        "src": [
+         "po",
+         "rec_td",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_tgt1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "rec_tgt",
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_tgt2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "rec_tgt",
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_tgt3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "rec_tgt",
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_yd1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rec_yd",
+        "src": [
+         "po",
+         "rec_yd",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_yd2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rec_yd",
+        "src": [
+         "po",
+         "rec_yd",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_yd3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rec_yd",
+        "src": [
+         "po",
+         "rec_yd",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rushShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rushShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rushShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rush_att1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "rush_att",
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_att2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "rush_att",
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_att3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "rush_att",
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_td1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rush_td",
+        "src": [
+         "po",
+         "rush_td",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_td2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rush_td",
+        "src": [
+         "po",
+         "rush_td",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_td3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rush_td",
+        "src": [
+         "po",
+         "rush_td",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_yd1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rush_yd",
+        "src": [
+         "po",
+         "rush_yd",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_yd2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rush_yd",
+        "src": [
+         "po",
+         "rush_yd",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rush_yd3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rush_yd",
+        "src": [
+         "po",
+         "rush_yd",
+         [
+          "rush_att"
+         ]
+        ]
+       },
+       "rzShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "rzShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "rzShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "tdPts1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tgtShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       },
+       "tgtShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       },
+       "tgtShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       }
+      },
+      "TE": {
+       "adot1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "adot2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "adot3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "airShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "airShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "airShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "bonus_fd_te1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "bonus_fd_te",
+        "src": [
+         "po",
+         "bonus_fd_te",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_fd_te2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "bonus_fd_te",
+        "src": [
+         "po",
+         "bonus_fd_te",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_fd_te3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "bonus_fd_te",
+        "src": [
+         "po",
+         "bonus_fd_te",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_rec_te1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "bonus_rec_te",
+        "src": [
+         "po",
+         "bonus_rec_te",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_rec_te2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "bonus_rec_te",
+        "src": [
+         "po",
+         "bonus_rec_te",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_rec_te3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "bonus_rec_te",
+        "src": [
+         "po",
+         "bonus_rec_te",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "g1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "g2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "g3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "gs1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "gs2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "gs3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null
+       },
+       "late1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "offPct1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "offPct2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "pass_att1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "pass_att2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "pass_att3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "ppg1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "ppg2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "ppg3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "racr1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "racr2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "racr3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "rec1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rec",
+        "src": [
+         "po",
+         "rec",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rec",
+        "src": [
+         "po",
+         "rec",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rec",
+        "src": [
+         "po",
+         "rec",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_td1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rec_td",
+        "src": [
+         "po",
+         "rec_td",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_td2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rec_td",
+        "src": [
+         "po",
+         "rec_td",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_td3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rec_td",
+        "src": [
+         "po",
+         "rec_td",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_tgt1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "rec_tgt",
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_tgt2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "rec_tgt",
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_tgt3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "rec_tgt",
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_yd1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rec_yd",
+        "src": [
+         "po",
+         "rec_yd",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_yd2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rec_yd",
+        "src": [
+         "po",
+         "rec_yd",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_yd3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rec_yd",
+        "src": [
+         "po",
+         "rec_yd",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rushShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rushShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rushShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rush_att1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_att2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_att3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rzShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "rzShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "rzShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "tdPts1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tgtShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       },
+       "tgtShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       },
+       "tgtShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       }
+      },
+      "WR": {
+       "adot1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "adot2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "adot3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_air_yd",
+         "rec_tgt"
+        ]
+       },
+       "airShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "airShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "airShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "airShare"
+        ]
+       },
+       "bonus_fd_wr1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "bonus_fd_wr",
+        "src": [
+         "po",
+         "bonus_fd_wr",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_fd_wr2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "bonus_fd_wr",
+        "src": [
+         "po",
+         "bonus_fd_wr",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_fd_wr3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "bonus_fd_wr",
+        "src": [
+         "po",
+         "bonus_fd_wr",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "bonus_rec_yd_1001": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "bonus_rec_yd_100",
+        "src": [
+         "pg",
+         "bonus_rec_yd_100"
+        ]
+       },
+       "bonus_rec_yd_1002": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "bonus_rec_yd_100",
+        "src": [
+         "pg",
+         "bonus_rec_yd_100"
+        ]
+       },
+       "bonus_rec_yd_1003": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "bonus_rec_yd_100",
+        "src": [
+         "pg",
+         "bonus_rec_yd_100"
+        ]
+       },
+       "g1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "g2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "g3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "g"
+        ]
+       },
+       "gs1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "gs2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "gs3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null
+       },
+       "kr_yd1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "kr_yd",
+        "src": [
+         "pg",
+         "kr_yd"
+        ]
+       },
+       "kr_yd2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "kr_yd",
+        "src": [
+         "pg",
+         "kr_yd"
+        ]
+       },
+       "kr_yd3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "kr_yd",
+        "src": [
+         "pg",
+         "kr_yd"
+        ]
+       },
+       "late1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "offPct1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "offPct2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null
+       },
+       "pass_att1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "pass_att2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "pass_att3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "pg",
+         "pass_att"
+        ]
+       },
+       "ppg1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "ppg2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "ppg3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "ppg",
+        "src": [
+         "ppg"
+        ]
+       },
+       "pr_yd1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "pr_yd",
+        "src": [
+         "pg",
+         "pr_yd"
+        ]
+       },
+       "pr_yd2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "pr_yd",
+        "src": [
+         "pg",
+         "pr_yd"
+        ]
+       },
+       "pr_yd3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "pr_yd",
+        "src": [
+         "pg",
+         "pr_yd"
+        ]
+       },
+       "racr1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "racr2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "racr3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "ratio",
+         "rec_yd",
+         "rec_air_yd"
+        ]
+       },
+       "rec1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rec",
+        "src": [
+         "po",
+         "rec",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rec",
+        "src": [
+         "po",
+         "rec",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rec",
+        "src": [
+         "po",
+         "rec",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_td1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rec_td",
+        "src": [
+         "po",
+         "rec_td",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_td2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rec_td",
+        "src": [
+         "po",
+         "rec_td",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_td3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rec_td",
+        "src": [
+         "po",
+         "rec_td",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_tgt1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "rec_tgt",
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_tgt2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "rec_tgt",
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_tgt3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "rec_tgt",
+        "src": [
+         "pg",
+         "rec_tgt"
+        ]
+       },
+       "rec_yd1": {
+        "P": null,
+        "kind": "po",
+        "lag": 1,
+        "q": "rec_yd",
+        "src": [
+         "po",
+         "rec_yd",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_yd2": {
+        "P": null,
+        "kind": "po",
+        "lag": 2,
+        "q": "rec_yd",
+        "src": [
+         "po",
+         "rec_yd",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rec_yd3": {
+        "P": null,
+        "kind": "po",
+        "lag": 3,
+        "q": "rec_yd",
+        "src": [
+         "po",
+         "rec_yd",
+         [
+          "rec_tgt"
+         ]
+        ]
+       },
+       "rushShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rushShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rushShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "rushShare"
+        ]
+       },
+       "rush_att1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_att2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_att3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "pg",
+         "rush_att"
+        ]
+       },
+       "rush_yd1": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "rush_yd",
+        "src": [
+         "pg",
+         "rush_yd"
+        ]
+       },
+       "rush_yd2": {
+        "P": null,
+        "kind": "pg",
+        "lag": 2,
+        "q": "rush_yd",
+        "src": [
+         "pg",
+         "rush_yd"
+        ]
+       },
+       "rush_yd3": {
+        "P": null,
+        "kind": "pg",
+        "lag": 3,
+        "q": "rush_yd",
+        "src": [
+         "pg",
+         "rush_yd"
+        ]
+       },
+       "rzShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "rzShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "rzShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "rzShare"
+        ]
+       },
+       "tdPts1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tgtShare1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       },
+       "tgtShare2": {
+        "P": null,
+        "kind": "raw",
+        "lag": 2,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       },
+       "tgtShare3": {
+        "P": null,
+        "kind": "raw",
+        "lag": 3,
+        "q": null,
+        "src": [
+         "col",
+         "tgtShare"
+        ]
+       }
+      }
+     },
+     "role": {
+      "*": {
+       "compOpp": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "oppoPg"
+       },
+       "compTop": {
+        "P": null,
+        "kind": "pg",
+        "lag": 1,
+        "q": "oppoPg"
+       },
+       "depthEnd1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "posRank1": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       }
+      }
+     },
+     "team": {
+      "*": {
+       "qbAttPg1": {
+        "P": "QB",
+        "kind": "pg",
+        "lag": 1,
+        "q": "pass_att"
+       },
+       "qbNew": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "qbTdRate1": {
+        "P": "QB",
+        "kind": "po",
+        "lag": 1,
+        "q": "pass_td"
+       },
+       "qbYpa1": {
+        "P": "QB",
+        "kind": "po",
+        "lag": 1,
+        "q": "pass_yd"
+       },
+       "teamChange": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tmEpaPlay": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tmPassEpaPlay": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tmPassPg": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tmProe": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tmPtsPg": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "tmRushPg": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "vacRush": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       },
+       "vacTgt": {
+        "P": null,
+        "kind": "raw",
+        "lag": 1,
+        "q": null
+       }
+      }
+     }
+    },
+    "gPoints": null,
+    "gPointsOrder": null,
+    "grid": [
+     {
+      "era": "E1",
+      "lam": 0.0
+     },
+     {
+      "era": "E1",
+      "lam": 0.1
+     },
+     {
+      "era": "E1",
+      "lam": 0.2
+     },
+     {
+      "era": "E1",
+      "lam": 0.35
+     },
+     {
+      "era": "E0",
+      "lam": 0.0
+     },
+     {
+      "era": "E0",
+      "lam": 0.1
+     },
+     {
+      "era": "E0",
+      "lam": 0.2
+     },
+     {
+      "era": "E0",
+      "lam": 0.35
+     }
+    ],
+    "kMult": [
+     0,
+     0.1,
+     0.2,
+     0.35,
+     0.5,
+     0.75,
+     1,
+     1.5,
+     2,
+     3,
+     5,
+     10
+    ],
+    "losses": null,
+    "name": "H",
+    "seed": 0,
+    "targets": {
+     "QB": [
+      {
+       "kind": "pg",
+       "name": "pass_att",
+       "role": "opp"
+      },
+      {
+       "kind": "pg",
+       "name": "rush_att",
+       "role": "opp"
+      },
+      {
+       "den": [
+        "pass_att"
+       ],
+       "kind": "po",
+       "name": "pass_yd"
+      },
+      {
+       "den": [
+        "pass_att"
+       ],
+       "kind": "po",
+       "name": "pass_td"
+      },
+      {
+       "den": [
+        "pass_att"
+       ],
+       "kind": "po",
+       "name": "pass_int"
+      },
+      {
+       "den": [
+        "rush_att"
+       ],
+       "kind": "po",
+       "name": "rush_yd"
+      },
+      {
+       "den": [
+        "rush_att"
+       ],
+       "kind": "po",
+       "name": "rush_td"
+      },
+      {
+       "kind": "pg",
+       "name": "fum_lost"
+      },
+      {
+       "kind": "raw",
+       "name": "gamesShare",
+       "role": "share"
+      }
+     ],
+     "RB": [
+      {
+       "kind": "pg",
+       "name": "rush_att",
+       "role": "opp"
+      },
+      {
+       "kind": "pg",
+       "name": "rec_tgt",
+       "role": "opp"
+      },
+      {
+       "den": [
+        "rush_att"
+       ],
+       "kind": "po",
+       "name": "rush_yd"
+      },
+      {
+       "den": [
+        "rush_att"
+       ],
+       "kind": "po",
+       "name": "rush_td"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "rec"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "rec_yd"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "rec_td"
+      },
+      {
+       "den": [
+        "rush_att",
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "bonus_fd_rb"
+      },
+      {
+       "kind": "pg",
+       "name": "kr_yd"
+      },
+      {
+       "kind": "pg",
+       "name": "bonus_rush_yd_100"
+      },
+      {
+       "kind": "pg",
+       "name": "fum_lost"
+      },
+      {
+       "kind": "raw",
+       "name": "gamesShare",
+       "role": "share"
+      }
+     ],
+     "TE": [
+      {
+       "kind": "pg",
+       "name": "rec_tgt",
+       "role": "opp"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "rec"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "rec_yd"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "rec_td"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "bonus_rec_te"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "bonus_fd_te"
+      },
+      {
+       "kind": "raw",
+       "name": "gamesShare",
+       "role": "share"
+      }
+     ],
+     "WR": [
+      {
+       "kind": "pg",
+       "name": "rec_tgt",
+       "role": "opp"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "rec"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "rec_yd"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "rec_td"
+      },
+      {
+       "den": [
+        "rec_tgt"
+       ],
+       "kind": "po",
+       "name": "bonus_fd_wr"
+      },
+      {
+       "kind": "pg",
+       "name": "kr_yd"
+      },
+      {
+       "kind": "pg",
+       "name": "pr_yd"
+      },
+      {
+       "kind": "pg",
+       "name": "bonus_rec_yd_100"
+      },
+      {
+       "kind": "pg",
+       "name": "rush_yd"
+      },
+      {
+       "kind": "raw",
+       "name": "gamesShare",
+       "role": "share"
+      }
+     ]
+    },
+    "topN": {
+     "QB": 32,
+     "RB": 64,
+     "TE": 32,
+     "WR": 96
+    }
+   },
+   "specSha256": null,
+   "taskFileSha256": null
+  }
+ },
+ "name": "H",
+ "preregHash": null
+}

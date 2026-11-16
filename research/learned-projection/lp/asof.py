@@ -28,14 +28,20 @@ OUTCOME_COLS = ["status", "played", "pts", "rw", "depthOrder", "depthDt", "cohor
 class Tables:
     """The raw cache tables plus the ex-ante schedule frames derived once at load."""
 
-    def __init__(self, weeks, teams, seasons, bench):
+    def __init__(self, weeks, teams, seasons, bench, X=None, teamctx=None, extras=None):
         self.weeks, self.teams, self.seasons, self.bench = weeks, teams, seasons, bench
+        self.X, self.teamctx, self.extras = X, teamctx, extras          # LP-2a (additive): optional, row-aligned X; per-week context / gamelogs rows
         self.schedule = weeks[IDENT_COLS].copy()
         self.team_weeks = teams[["team", "S", "w"]].drop_duplicates().copy()
 
     @classmethod
     def from_panel(cls, panel):
         return cls(panel.weeks, panel.teams, panel.seasons, panel.bench)
+
+    @classmethod
+    def from_panel_full(cls, panel, teamctx, extras):
+        """LP-2a: the panel's tables plus `X` (row-aligned with `weeks` by `rid`), the team context and the gamelogs extras."""
+        return cls(panel.weeks, panel.teams, panel.seasons, panel.bench, X=panel.X, teamctx=teamctx, extras=extras)
 
 
 class View:
@@ -66,6 +72,11 @@ def view(tables, S, n, lines_for=None, oracle=False):
     b = tables.bench
     bs = b.loc[b["S"] == S, ["pid", "S", "b2_ppg"]]
     v.prior = dict(zip(bs["pid"], bs["b2_ppg"]))
+    # LP-2a (additive): optional tables, cut at the same origin as every other table
+    v.X = tables.X[v.weeks["rid"].to_numpy()] if tables.X is not None else None
+    for name in ("teamctx", "extras"):
+        tt = getattr(tables, name)
+        setattr(v, name, None if tt is None else tt.loc[(tt["S"] < S) | ((tt["S"] == S) & (tt["w"] <= n))].copy())
     v._lines = None
     if lines_for is not None:
         if n < 1:
