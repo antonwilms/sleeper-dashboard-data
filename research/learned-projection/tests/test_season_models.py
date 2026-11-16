@@ -294,6 +294,22 @@ class TestWeightsDeterminism(unittest.TestCase):
         self.assertLess(abs(g.mean() * pw / truth - 1), 0.02)
         self.assertGreater(abs(g.mean() * pu / truth - 1), 0.05)
 
+    def test_g_receives_seed(self):
+        """Asserts G is seeded from the spec and not early-stopped; fails if random_state is dropped or not read from spec['seed']."""
+        spec = spec_mod.default_spec("G")
+        spec["seed"] = 12345
+        rng = np.random.RandomState(1)
+        X = rng.rand(60, 2)
+        r = rng.rand(60) + 0.5
+        e = np.ones(60)
+        wrapped = mock.Mock(wraps=model_g.HistGradientBoostingRegressor)
+        with mock.patch.object(model_g, "HistGradientBoostingRegressor", wrapped):
+            model_g.fit_target(spec, "rec_yd", "g1", X, r, e, e, X[:3])
+        self.assertGreaterEqual(wrapped.call_count, 1)
+        for c in wrapped.call_args_list:
+            self.assertEqual(c.kwargs["random_state"], 12345)
+            self.assertIs(c.kwargs["early_stopping"], False)
+
     def test_season_weights_formula(self):
         S = np.arange(2014, 2018)
         np.testing.assert_allclose(era.season_weights(S, 2017, 0.2), np.exp(-0.2 * (2017 - S)))

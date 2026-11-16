@@ -68,8 +68,13 @@ class TestLabelWiring(unittest.TestCase):
 
     def test_one_fold_smoke_path(self):
         df = frame(folds=(2018,))
+        base = df
         df = pd.concat([df, df[df["pid"] == "QB1"].assign(pid="QB_only2018")], ignore_index=True)
         out = evaluate.evaluate(df, (2018,), B=50)
+        without = evaluate.evaluate(base, (2018,), B=50)
+        q = base[(base["pid"] == "QB1") & (base["T"] == 2018)].iloc[0]
+        self.assertTrue(q["headline"] and q["stratum"] == "V")                         # the copy is a headline V row
+        self.assertEqual(out["QB"]["h"]["labels"]["B2"]["n"], without["QB"]["h"]["labels"]["B2"]["n"] + 1)   # a 2018-only pid is kept
         st = out["QB"]["h"]["sets"]["headline"]
         self.assertIsNone(st["drift"])                      # skipped under three folds
         self.assertEqual(list(st["maeByFold"]), ["2018"])

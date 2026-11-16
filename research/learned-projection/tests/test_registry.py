@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 
 import run_season_models
-from lp import extra, io, registry, report, season_models, splits
+from lp import extra, io, registry, report, season_models, spec as spec_mod, splits
 from tests import synth_season as ss
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -127,6 +127,31 @@ class TestRegistration(unittest.TestCase):
         r.data["gamelogs"] = {"2012": "y"}
         self._raises("weekly")
 
+    def test_weekly_stale_hashes(self):
+        """Mirrors test_stale_hashes for layer='weekly'; fails if the weekly layer skips a check the season layer makes."""
+        r = self.r.registered()
+        env = r.env
+        registry.append_layer("H", "weekly", {"w": 1}, WEEKLY_CODE, WEEKLY_HARNESS, env)
+        r.commit("weekly")
+        registry.require("H", 2019, "weekly", env)
+        env.prereg = "OTHER"
+        self._raises("weekly")                                               # stale preregHash
+        env.prereg = "PREREG"
+        registry.require("H", 2019, "weekly", env)
+        with open(os.path.join(r.d, "candidates", "H.json")) as f:
+            obj = json.load(f)
+        obj["layers"]["weekly"]["spec"]["w"] = 2
+        r.write("candidates/H.json", json.dumps(obj, indent=1, sort_keys=True) + "\n")
+        r.commit("weekly spec edit")
+        self._raises("weekly")                                               # specSha256 no longer recomputes
+        git(r.d, "revert", "--no-edit", "HEAD")
+        registry.require("H", 2019, "weekly", env)
+        r.write(WEEKLY_CODE[0], "# changed\n")
+        r.commit("edit weekly code")
+        self._raises("weekly")                                               # weekly code item differs
+        git(r.d, "revert", "--no-edit", "HEAD")
+        registry.require("H", 2019, "weekly", env)
+
     def test_fold_unregistered_raises_before_any_fit(self):
         with self.assertRaises(registry.NotRegistered):
             season_models.fold(None, "H", {"k": 1}, 2019, self.r.env)       # a store of None proves nothing was touched
@@ -163,6 +188,23 @@ class TestRegistration(unittest.TestCase):
             rc = run_season_models.main(["--dev"], env=self.r.env)
         self.assertEqual(rc, 2)
         self.assertFalse(os.path.exists(self.r.env.runlog))
+
+
+class TestLockConstants(unittest.TestCase):
+    """Copied definitions: the guard constants copy lp/splits.py (the original). Fails if a guard constant drifts from the split definitions."""
+
+    def test_lock_constants_match_splits(self):
+        self.assertEqual(registry.EVAL_START, splits.DEV_FOLDS[0])
+        self.assertEqual(season_models.EVAL_START, splits.DEV_FOLDS[0])
+        self.assertEqual(registry.CONFIRM_SEASON, splits.CONFIRM_FOLD)
+        self.assertEqual(splits.DEV_FOLDS[-1] + 1, splits.CONFIRM_FOLD)
+
+    def test_default_spec_is_the_registered_spec(self):
+        """Fails if the tests' spec builder drifts from what was registered."""
+        for name in ("H", "G"):
+            with open(os.path.join(HERE, "candidates", "%s.json" % name)) as f:
+                reg = json.load(f)["layers"]["season"]["spec"]
+            self.assertEqual(json.loads(json.dumps(spec_mod.default_spec(name), sort_keys=True)), reg)
 
 
 class TestHeldConfirmation(unittest.TestCase):
