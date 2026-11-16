@@ -1,12 +1,56 @@
 {
  "layers": {
   "season": {
-   "code": null,
-   "data": null,
-   "harness": null,
-   "python": null,
-   "registeredAt": null,
-   "requirements": null,
+   "code": {
+    "lp/asof.py": "c579c663be9dad84fef5019ce5b547cd9923494d3233696e5534597ce73ca075",
+    "lp/baselines.py": "60f73670dfe123b51f577c592d77feb6af70d9aa60719de4f4e6d8373414ac93",
+    "lp/chain.py": "1e63e8ffe65cd8d5d979191e507c5720f6740971e3bdd4f9a3443a8f94dc1a9f",
+    "lp/era.py": "8612c00445433bf5c348284c0e47c2fb09ce9b911e8e5bff72b32f79a8514d9f",
+    "lp/extra.py": "65cb7d3988db1f000793472c7100846f8616455899d9041454e44dc91ca04391",
+    "lp/features.py": "b3dc89559833c25afc856ca96015f63b1eecf2dd7a6e12fb5ac15fa2c5e61bc5",
+    "lp/io.py": "520ab3a71af177f6c142a1a621411eadbf07ac7a6e615381020330bc15231d01",
+    "lp/model_h.py": "009eebadbc32db4c58c2bdb6a607bac2073997295cc2601d7d0b038c0dbc0e4e",
+    "lp/season_models.py": "9d76ad2df34217d8088d90fd96941505ce2f8ce6e72f3975c79b43766c48c031",
+    "lp/splits.py": "a59feb8e8661276c1160dd6b952b1b2160b7a254953ebe0ed7f6a697248faeea"
+   },
+   "data": {
+    "gamelogs": {
+     "2012": "fa91db0c9cd4fd2e1159ab11a202076ef9698d055e6e8fd1710f716ac794ec1d",
+     "2013": "077e4fa5f659f477503e94c08bf5c3ee1621a75c53d8cf1aa49e50cf5edf9741",
+     "2014": "c634f208b702274d77cf49297a7bf1da00517871ff8176d6c8219075e5520d43",
+     "2015": "d3c9356097ce870b92a5e7b40447b9c152f074153db8d42c060e286186f60a47",
+     "2016": "19244a519ce60ecbf8bf761bc207ac49e64a56f889275f5d71be8ddbc4322058",
+     "2017": "c41821466bded91acef9306f0b656785774e69de9b2afbde6881cecaa26a643e",
+     "2018": "c1fb1fcbb94a5a336f90e4431f564f49df0343d8f3ee9b7ccc1b088e45425972",
+     "2019": "da163b588f6768d5bcd74058e8278d87a82765d48aeb3886304e3e43699abb25",
+     "2020": "d26627f6d0a0cc55754fea3d054f0ed14fc6eb3b481eaaa709367fccf23a5d1a",
+     "2021": "c349edd512c4b4c9d98bf4831636338837699a49ab15500c190d3a1df14a0a83",
+     "2022": "154c0795995b1a220ca99a86c83d23b5bc67c3cd9ba9937af7d2ad76235cb2bd",
+     "2023": "da4c9d9c6c3f41a3c8970327bd47a553bd0686e0c48498f2e5b02ca36b1e2bba",
+     "2024": "a51c4d073d29a10ad5d8a75598adb7faeb29bb344fe3ae8156acfc7911e915c4",
+     "2025": "7279a5b7d7ba22ad07b1076625ce00a102b4bef47e92290246de5dad52ad53b1"
+    },
+    "panelDataRev": "3e7d69337a6d5406ef9bd752305dfbd543496ad0",
+    "panelGeneratedAt": "2026-11-12T23:44:16.940Z"
+   },
+   "harness": {
+    "lp/bootstrap.py": "41f9904c139ba31db3c6f5d3538a3aa2863a427943658f246d3ba01064a05600",
+    "lp/evaluate.py": "9bfc44391162c716877abe3f058aca043439cc3f6ae9b476dfbe8bcc43858990",
+    "lp/metrics.py": "92f1af56b9b7a11310ff572aac3b48b0c31b611de427cf497895b817acb84cba",
+    "lp/registry.py": "9855b216863b6ae876aa648e5d5da1173c7563157412c4eb3628645afdbdc354",
+    "lp/report.py": "ecd130fcfb9dc2917b89d406bd778aecf4e46928e4d387bca5c5ff2d1b10cf4a",
+    "lp/report_s2a.py": "72e4b0f274ab1dc8b1ded6f1ca29183d7a8c64295217bd2288563d62b965439a",
+    "lp/score.py": "462029883d7d307f5000113d5af108296f912afde80a42e1dc07465c5f4e3951",
+    "run_season_models.py": "c6a414899327524c2ebff204604ce1cf67d56c2695c30c299bd1a491db9447f1"
+   },
+   "python": "3.9.6",
+   "registeredAt": "2026-11-16",
+   "requirements": {
+    "numpy": "1.26.4",
+    "pandas": "1.5.3",
+    "scikit-learn": "1.6.1",
+    "scipy": "1.13.1"
+   },
    "reregistrations": [],
    "spec": {
     "alphas": [
@@ -3179,10 +3223,10 @@
      "WR": 96
     }
    },
-   "specSha256": null,
-   "taskFileSha256": null
+   "specSha256": "8eaef3a01328803c3824d0e505776d1f7e5bff34652978247e593366775cdead",
+   "taskFileSha256": "0a422a0db76285e0a5b10d9a7f0b784ffa158ad60e2f4c0e75a6dddf8cc5b1fc"
   }
  },
  "name": "H",
- "preregHash": null
+ "preregHash": "7ff9087fc4848b0df90383fc5e4397d3d4b085466c228b430211a63ad6e24e5a"
 }
