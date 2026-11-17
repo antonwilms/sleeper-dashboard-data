@@ -283,3 +283,5 @@ Session 1, 2026-11-17. Reviewed the diff, not the hand-back alone.
   - Caches: `season-prior.jsonl` `55c55e200ce18d549d522ee007e284bbe180ff98209378c4c355a47a9643c56a`, `weekly-inputs.pkl` `2431b3978d5a078fb2256e3553ca513f17c62160ec56ac72fb657486f43a1fb2` — the files LP-2b-1b consumes (§19).
   - Across four pinned real runs, G matched the file exactly in three and by up to 4.84% in one: the stated limit.
 - **Checks after the rebase:** Python suite 98 tests OK; `npm test` 2150 pass / 0 fail / 1 skipped; `npm run smoke` exit 0; `CLAUDE.md` 23,742 bytes.
+
+Signed off by Anton 2026-11-17
