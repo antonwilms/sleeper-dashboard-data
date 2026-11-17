@@ -242,3 +242,44 @@ From the full implementation review of `5fad322..d6a75d9` (2026-11-17), triaged 
 - Flag 12: §19's 2b-1b outline gains the consume-by-SHA rule.
 
 Hand back: the commit SHA, files touched, the new artifact's G gaps and cache SHA-256s, and each test's red confirmation.
+
+## Verification
+
+Session 1, 2026-11-17. Reviewed the diff, not the hand-back alone.
+
+- **Rebase:** onto `origin/main` `20bae6e` at 2026-11-17T18:04Z; 2 capture commits taken in (`84f7cee` season-totals, `20bae6e` rosterweekly). Commit ids below are post-rebase.
+- **Commits (main, unpushed):**
+  - `f3fbedb` code, tests, both task files;
+  - `5121ea3` facts artifact, docs, the G reproducibility rulings;
+  - `2396670` fix pass 1;
+  - this commit, the verification record.
+  - Beneath them sits `7412863`, an unrelated agent/docs commit (`.claude/agents/plan-reviewer.md`, `CLAUDE.md`, `git-workflow.md`) that is not part of this slice and was not reviewed here; it goes out with the push.
+- **Review:** full (opus, high), 13 flags, none blocking.
+  - Fixed in Fix pass 1: 1, 2, 5, 8, 9, 10, 11, 13.
+  - Fixed in the task file: 12 (§19 consume-by-SHA).
+  - Accepted:
+    - 3: the verbatim first ruling is added to §20.
+    - 4: `Deps.section_sha` and its canonical-season-section check are a §14 stop, correct as built.
+    - 6: interpretations — `runP`/`runN` 0 at `first`, a mate's zero-denominator share counts 0, `oG` 0 with no rows, `dome` NaN with no roof.
+    - 7: `panelMeta.dataRev` is export provenance, not a self-cited id.
+- **Fix-pass re-review:** light (sonnet), no flags. One observation accepted: research README line 53 still opens with the first ruling's "about 2%" sentence before the new limit (redundant, not wrong).
+- **Deviations from the task file (all reviewed and accepted):**
+  - the CLI re-executes with `PYTHONHASHSEED=0` (approved by the second ruling);
+  - `check_against_file` returns per-cell gaps and reads chosen entries via `season_prior.dev_entries`;
+  - `compare_compose` helper; `derive(…, gaps=)`;
+  - `Deps.entries_path`, `runlog`, `section_sha`;
+  - one `weekly-inputs-check` run-log entry per run (the rulings supersede §12);
+  - `trim_frame`/`assert_trimmed` accept `T`-keyed frames;
+  - `Fallback(val, cnt)`;
+  - `inputs_at` asserts the store's targets equal `inputs_spec()`;
+  - extra tests beyond §16, each shown red.
+- **Locks:**
+  - no season-hashed path, `candidates/`, `manifest.json` or served folder changed;
+  - `preregHash` `7ff9087f…e24e5a` and both canonical season-section hashes unchanged;
+  - 2025 absent from every table and frame (max S 2024; `xFiniteOutsideWeeks` 0).
+- **Result (final artifact `backtests/2026-11-17-learned-s2b1a-inputs.json`):**
+  - H against `season-preds.jsonl` within 1.33e-13 relative; G exact except one 3.27e-16 cell.
+  - Same-run compose check exact for H and G.
+  - Caches: `season-prior.jsonl` `55c55e200ce18d549d522ee007e284bbe180ff98209378c4c355a47a9643c56a`, `weekly-inputs.pkl` `2431b3978d5a078fb2256e3553ca513f17c62160ec56ac72fb657486f43a1fb2` — the files LP-2b-1b consumes (§19).
+  - Across four pinned real runs, G matched the file exactly in three and by up to 4.84% in one: the stated limit.
+- **Checks after the rebase:** Python suite 98 tests OK; `npm test` 2150 pass / 0 fail / 1 skipped; `npm run smoke` exit 0; `CLAUDE.md` 23,742 bytes.
