@@ -32,14 +32,31 @@ def prior_refit(store, spec, family, pos, T, entry):
     return preds, d, minor, info
 
 
-def _same(a, b):
-    return np.array_equal(np.asarray(a, float), np.asarray(b, float), equal_nan=True)
+def compare_compose(name, comp, want):
+    """The same-run check: the copy's composed frame `comp` against `fold`'s own rows `want` (same pids, same order) — EXACT for H and for G (every
+    composed value bit-equal, NaN equal NaN). G is reproducible only approximately across runs, even on one thread, but within one process the copy
+    held exact in both 2b-1a real-data runs, so it stays exact (Anton's second ruling, 2026-11-17). Returns {"maxAbs", "maxRel"} (0 when it passes)."""
+    worst_abs = worst_rel = 0.0
+    for c in [c for c in comp.columns if c in COMP_COLS or c.startswith("kv_")]:
+        if c not in want.columns:
+            raise PriorCheckError("%s: composed column %s is missing from fold's rows" % (name, c))
+        a, b = comp[c].to_numpy(float), want[c].to_numpy(float)
+        if (np.isnan(a) != np.isnan(b)).any():
+            raise PriorCheckError("%s: composed column %s has a different NaN pattern" % (name, c))
+        d = np.where(np.isnan(a), 0.0, np.abs(a - b))
+        rel = d / (1.0 + np.abs(np.where(np.isnan(b), 0.0, b)))
+        if len(d):
+            worst_abs, worst_rel = max(worst_abs, float(d.max())), max(worst_rel, float(rel.max()))
+        if (d > 0).any():
+            raise PriorCheckError("%s: composed column %s differs from fold's (the same-run check is exact; max abs %.3g, max relative %.3g)" % (name, c, d.max(), rel.max()))
+    return {"maxAbs": worst_abs, "maxRel": worst_rel}
 
 
-def derive(store, name, spec, T, env=None, confirm=False):
+def derive(store, name, spec, T, env=None, confirm=False, gaps=None):
     """The candidate's season prior for season T, one row per (pid, T, position): `pr_<t>` per weekly target (NaN where the position has no such
     target), `pr_gamesShare` (native, unblended), the composed values (`share`, `games`, `ppg`, `total`, `c`, `kv_*`), `cand`, `era`, `lam`,
-    `g` (G), and `alpha_<t>` per season target (H). Raises PriorCheckError when the copy does not compose to `fold`'s own rows."""
+    `g` (G), and `alpha_<t>` per season target (H). Raises PriorCheckError when the copy does not compose to `fold`'s own rows (`compare_compose`:
+    exact for H and G); with a `gaps` dict, fills {(cand, T, position): {"maxAbs", "maxRel"}}."""
     weekly_data.guard(T, confirm)
     main, out = season_models.fold(store, name, spec, T, env)
     sp = spec_w.inputs_spec()
@@ -52,9 +69,12 @@ def derive(store, name, spec, T, env=None, confirm=False):
         want = main[main["position"] == pos].reset_index(drop=True)
         if list(comp["pid"]) != list(want["pid"]):
             raise PriorCheckError("%s T=%d %s: the re-derived pids differ from fold's" % (name, T, pos))
-        for c in [c for c in comp.columns if c in COMP_COLS or c.startswith("kv_")]:
-            if c not in want.columns or not _same(comp[c], want[c]):
-                raise PriorCheckError("%s T=%d %s: composed column %s differs from fold's" % (name, T, pos, c))
+        try:
+            gap = compare_compose(name, comp, want)
+        except PriorCheckError as e:
+            raise PriorCheckError("T=%d %s: %s" % (T, pos, e))
+        if gaps is not None:
+            gaps[(name.lower(), T, pos)] = gap
         fr = comp.copy()
         fr.insert(2, "position", pos)
         fr.insert(3, "cand", name.lower())

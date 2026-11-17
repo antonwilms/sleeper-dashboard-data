@@ -40,7 +40,8 @@ class TestPriorIsSeasonLayer(unittest.TestCase):
         cls.store = sm.Store(cls.t, ss.KEYS, ss.WEIGHTS, cls.spec)
         with mock.patch.object(registry, "require", _pass):
             cls.main, cls.out = sm.fold(cls.store, "H", cls.spec, T, None)
-            cls.derived = sp.derive(cls.store, "H", cls.spec, T)
+            cls.gaps = {}
+            cls.derived = sp.derive(cls.store, "H", cls.spec, T, gaps=cls.gaps)
 
     def test_c_is_exercised(self):
         """The fixture: a calibration factor other than 1 for at least one position, so composing with c = 1 would show."""
@@ -73,6 +74,25 @@ class TestPriorIsSeasonLayer(unittest.TestCase):
             self.assertTrue(np.isfinite(sub["alpha_gamesShare"]).all())
             for t in set(spec_w.union_targets()) - set(spec_w.targets_by_pos()[pos]):
                 self.assertTrue(sub["pr_" + t].isna().all())
+
+    def test_compose_gaps_are_reported_and_exact_for_h(self):
+        self.assertEqual(set(self.gaps), {("h", T, p) for p in POS})
+        self.assertTrue(all(g == {"maxAbs": 0.0, "maxRel": 0.0} for g in self.gaps.values()))
+
+    def test_compare_compose_is_exact_for_h_and_g(self):
+        """The same-run check (copy against fold) is bit-exact for both candidates and NaN-pattern exact; it reports its gaps."""
+        want = self.main[self.main["position"] == "WR"].reset_index(drop=True)
+        comp = want[[c for c in want.columns if c in sp.COMP_COLS or c.startswith("kv_")]].copy()
+        for name in ("H", "G"):
+            self.assertEqual(sp.compare_compose(name, comp, want), {"maxAbs": 0.0, "maxRel": 0.0})
+            tiny = comp.copy()
+            tiny.loc[0, "total"] = tiny.loc[0, "total"] * (1 + 1e-12)
+            with self.assertRaises(sp.PriorCheckError):
+                sp.compare_compose(name, tiny, want)
+            nan = comp.copy()
+            nan.loc[0, "ppg"] = np.nan
+            with self.assertRaises(sp.PriorCheckError):
+                sp.compare_compose(name, nan, want)
 
     def test_derive_raises_when_the_copy_does_not_compose(self):
         real = sp.prior_refit

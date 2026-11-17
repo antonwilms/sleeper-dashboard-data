@@ -201,10 +201,12 @@ class TestHeldSeason(unittest.TestCase):
         self.assertEqual(rc, 0)
         with open(os.path.join(d, "2026-01-01-learned-s2b1a-inputs.json")) as f:
             art = json.load(f)
-        self.assertEqual(art["threads"]["OMP_NUM_THREADS"], "1")
+        self.assertTrue(all(art["threads"][v] == "1" for v in rwi.THREAD_VARS))
+        self.assertIn("composeGap", art["priors"]["H"]["2018"]["WR"])
+        self.assertIn("H is exact", art["statedLimits"][0])
         self.assertTrue(art["statedLimits"] and "unrecorded thread count" in art["statedLimits"][0])
         self.assertEqual(len(logged), 1)
-        self.assertEqual((logged[0]["mode"], logged[0]["threads"]["OMP_NUM_THREADS"]), ("weekly-inputs-check", "1"))
+        self.assertEqual((logged[0]["mode"], tuple(logged[0]["threads"][v] for v in rwi.THREAD_VARS)), ("weekly-inputs-check", ("1",) * 4))
 
     def test_guard_at_the_held_season(self):
         L = self.L
@@ -237,11 +239,12 @@ class TestHeldSeason(unittest.TestCase):
 class TestThreadPin(unittest.TestCase):
     """Anton's ruling 2026-11-17: every G fit of the new runner is one-threaded. Fails if the runner stops setting OMP_NUM_THREADS before sklearn."""
 
-    def test_runner_pins_one_thread_before_sklearn(self):
-        env = {**os.environ, "OMP_NUM_THREADS": "8"}
-        r = subprocess.run([sys.executable, "-c", "import os, run_weekly_inputs as r; print(os.environ['OMP_NUM_THREADS'], r._SKLEARN_PRELOADED)"], cwd=HERE, env=env,
+    def test_runner_pins_every_thread_pool_before_sklearn(self):
+        env = {**os.environ, **{v: "8" for v in rwi.THREAD_VARS}}
+        r = subprocess.run([sys.executable, "-c", "import os, run_weekly_inputs as r; print(*[os.environ[v] for v in r.THREAD_VARS], r._SKLEARN_PRELOADED)"], cwd=HERE, env=env,
                            capture_output=True, text=True)
-        self.assertEqual(r.stdout.split(), ["1", "False"], r.stderr[-500:])
+        self.assertEqual(r.stdout.split(), ["1", "1", "1", "1", "False"], r.stderr[-500:])
+        self.assertEqual(set(rwi.THREAD_VARS), {"OMP_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"})
 
 
 class TestHashSeedPin(unittest.TestCase):

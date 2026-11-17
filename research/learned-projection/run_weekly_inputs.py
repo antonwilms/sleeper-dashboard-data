@@ -22,7 +22,9 @@ from typing import Callable, Optional
 # Every G (gradient-boosted trees) fit runs on ONE thread: sklearn's HistGradientBoosting is not bit-reproducible across OpenMP thread counts
 # (nor, at two threads, between identical runs). Set before sklearn is imported (Anton's ruling 2026-11-17); `main` records the count.
 _SKLEARN_PRELOADED = "sklearn" in sys.modules
-os.environ["OMP_NUM_THREADS"] = "1"
+THREAD_VARS = ("OMP_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")
+for _v in THREAD_VARS:
+    os.environ[_v] = "1"                  # every thread pool of numpy / sklearn, set before either is imported (Anton, 2026-11-17, second ruling)
 
 
 def _ensure_hash_seed(execv=os.execv):
@@ -57,7 +59,10 @@ DEV_PANEL = os.path.join(REPO, "backtests", "2026-11-16-learned-s2a-dev-panel.js
 STATED_LIMITS = [
     "LP-2a's G development predictions (season-preds.jsonl) came from an unrecorded thread count and differ from one-thread refits by up to about 2% on RB "
     "(2022 c; 2024 kv_bonus_fd_rb); the G prior here is the one-thread refit, checked against the file for the same chosen entry and at most 5% relative difference. "
-    "G fits also vary across processes with PYTHONHASHSEED, so the runner re-executes itself with seed 0."]
+    "G fits also vary across processes with PYTHONHASHSEED, so the runner re-executes itself with seed 0. "
+    "G is reproducible only approximately, even on one thread: its comparison with the file allows 5% relative difference, |d| / (1 + |x|) (two pinned "
+    "one-thread real-data runs differed from each other, by up to 4.8% against the file on RB 2024); its same-run compose check stayed exact in both and is kept "
+    "exact; H is exact."]
 
 
 def _default_load_spec(name):
@@ -201,13 +206,13 @@ def main(argv=None, deps=None):
     # (5) the season prior, both candidates
     store = season_models.Store(T, meta["keys"], meta["weights"], specs["H"])
     t0 = time.time()
-    derived = {}
+    derived, compose_gaps = {}, {}
     try:
         for nme in names:
             parts = []
             for Tn in seas:
                 t1 = time.time()
-                parts.append(season_prior.derive(store, nme, specs[nme], Tn, env=deps.env))
+                parts.append(season_prior.derive(store, nme, specs[nme], Tn, env=deps.env, gaps=compose_gaps))
                 log("prior %s T=%d done in %.0fs" % (nme, Tn, time.time() - t1))
                 if (time.time() - t0) / 3600 > DERIVE_LIMIT_H:
                     return _stop("the prior derivation exceeded %d hours" % DERIVE_LIMIT_H)
@@ -221,6 +226,7 @@ def main(argv=None, deps=None):
     except season_prior.PriorCheckError as e:
         return _stop(str(e))
     secs["prior"] = round(time.time() - t0, 1)
+    log("same-run compose check: H max relative %.3g, G max relative %.3g" % tuple(max([v["maxRel"] for k, v in compose_gaps.items() if k[0] == c] or [0.0]) for c in ("h", "g")))
     # (6) the weekly inputs
     spec_w_ = spec_w.inputs_spec()
     t0 = time.time()
@@ -273,7 +279,7 @@ def main(argv=None, deps=None):
                 sub = d[(d["T"] == Tn) & (d["position"] == pos)]
                 if len(sub):
                     ent = {"priorRows": int(len(sub)), "era": sub["era"].iloc[0], "lam": float(sub["lam"].iloc[0]), "g": sub["g"].iloc[0], "c": float(sub["c"].iloc[0]),
-                           "vsSeasonPreds": (deltas or {}).get((nme.lower(), Tn, pos))}
+                           "composeGap": compose_gaps.get((nme.lower(), Tn, pos)), "vsSeasonPreds": (deltas or {}).get((nme.lower(), Tn, pos))}
                     prior_facts.setdefault(nme, {}).setdefault(str(Tn), {})[pos] = ent
     alpha = {str(Tn): _alpha_share(derived["H"][derived["H"]["T"] == Tn], spec_w_) for Tn in seas}
     counts = {str(S): {pos: int((frames["H"][(frames["H"]["S"] == S)]["position"] == pos).sum()) for pos in spec_w.POSITIONS} for S in seas}
@@ -291,7 +297,7 @@ def main(argv=None, deps=None):
         "weeklyRows": counts, "nanSharePooledH": pooled, "nanSharePooledG": {c: v for c, v in pooled_g.items() if c in spec_w_["priorCols"]}, "nanSharePerSeasonH": per_season,
         "muRatioRange": {str(n): {k: [round(min(v), 4), round(max(v), 4)] for k, v in d.items()} for n, d in mu_range.items()},
         "seconds": secs,
-        "threads": {"OMP_NUM_THREADS": os.environ.get("OMP_NUM_THREADS"), "PYTHONHASHSEED": os.environ.get("PYTHONHASHSEED"), "setBeforeSklearnImport": not _SKLEARN_PRELOADED, "cpuCount": os.cpu_count()},
+        "threads": {**{v: os.environ.get(v) for v in THREAD_VARS}, "PYTHONHASHSEED": os.environ.get("PYTHONHASHSEED"), "setBeforeSklearnImport": not _SKLEARN_PRELOADED, "cpuCount": os.cpu_count()},
         "statedLimits": STATED_LIMITS,
         "sha256": {"dev-panel entries": (registry.sha_file(deps.entries_path) if deps.entries_path and os.path.exists(deps.entries_path) else None), "season-preds.jsonl": registry.sha_file(deps.season_preds_path) if os.path.exists(deps.season_preds_path) else None, "season-prior.jsonl": registry.sha_file(prior_path),
                    "weekly-inputs.pkl": registry.sha_file(pkl_path), **{"candidates/%s.json" % n: registry.sha_file(registry.cand_path(deps.env, n)) for n in names},
