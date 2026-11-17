@@ -14,7 +14,7 @@ This file is the procedure.
 1. **Commit.** Stage this session's changes with a descriptive message — planning:
    `plan: <feature>`; implementation: `feat: <feature>` / `fix: <feature>`.
 
-2. **Rebase before verification** (slices with code or task-file commits). The cron Actions push
+2. **Rebase before verification** (any slice with unpushed commits of its own — code, task file, agent, config or docs). The cron Actions push
    captures to `main` while the slice sits unpushed, and the slice's own commit IDs get cited in
    records (task file, verdict, sign-off request). Run `git pull --rebase origin main` before
    writing the `## Verification` section, and again before the sign-off request if new captures
