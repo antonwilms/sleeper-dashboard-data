@@ -38,7 +38,7 @@ the depth decision (see Review depth).
   started: <UTC time — run `date -u +%Y-%m-%dT%H:%MZ` with Bash>
   ```
 - **Invocation with `resume`:** read the log (no log = treat as a fresh run). If its header's task
-  file match this invocation, and the invocation names no depth different from the
+  file matches this invocation, and the invocation names no depth different from the
   logged one, keep the log and skip every section it marks `complete` or
   `skipped` (do not re-read or re-judge them). Run the remaining sections, appending checkpoints as
   below. **Depth precedence on resume: the log's depth, then an explicit invocation depth (which, if it differs from the log, is a mismatch), and the task file's `Review depth:` line is not consulted** — you do not re-decide depth, and an edit to the task file's depth line between runs does not change a resumed run (re-invoke without `resume` to pick it up). If it does not match, `Read` the log, overwrite it as for a fresh run (re-deciding depth normally), and begin your final output with
