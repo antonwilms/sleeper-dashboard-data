@@ -34,8 +34,7 @@ def prior_refit(store, spec, family, pos, T, entry):
 
 def compare_compose(name, comp, want):
     """The same-run check: the copy's composed frame `comp` against `fold`'s own rows `want` (same pids, same order) — EXACT for H and for G (every
-    composed value bit-equal, NaN equal NaN). G is reproducible only approximately across runs, even on one thread, but within one process the copy
-    held exact in both 2b-1a real-data runs, so it stays exact (Anton's second ruling, 2026-11-17). Returns {"maxAbs", "maxRel"} (0 when it passes)."""
+    composed value bit-equal, NaN equal NaN). G is reproducible only approximately, even with every thread pool pinned and `PYTHONHASHSEED=0`. In three pinned real runs on 2026-11-17, G's re-derived prior matched LP-2a's `season-preds.jsonl` exactly in two and differed in one by up to 4.84% relative (2024 RB; 2022 RB 1.10%). This artifact's own gaps are in `vsSeasonPreds` and `composeGap`. H is exact. The same-run compose check stays exact for both (Anton's second ruling, 2026-11-17). Returns {"maxAbs", "maxRel"} (0 when it passes)."""
     worst_abs = worst_rel = 0.0
     for c in [c for c in comp.columns if c in COMP_COLS or c.startswith("kv_")]:
         if c not in want.columns:
@@ -123,7 +122,9 @@ def check_against_file(derived, path, sha, entries=None, g_rel_limit=G_REL_LIMIT
             fr = rows[cand].get(T, {})
             if set(dr["pid"]) != set(fr):
                 raise PriorCheckError("%s T=%d: pid sets differ (derived %d, file %d)" % (cand, T, len(set(dr["pid"])), len(fr)))
-            if cand == "g" and entries is not None:
+            if cand == "g" and entries is None and len(dr):
+                raise PriorCheckError("candidate g is checked against the file only with the dev run's chosen entries (entries=None refused)")
+            if cand == "g":
                 for pos in POSITIONS:
                     sub = dr[dr["position"] == pos]
                     if len(sub) and _entry_of(sub.iloc[0]) != entries[(cand, T, pos)]:

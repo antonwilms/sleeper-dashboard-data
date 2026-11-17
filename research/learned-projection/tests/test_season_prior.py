@@ -40,21 +40,43 @@ class TestPriorIsSeasonLayer(unittest.TestCase):
         cls.store = sm.Store(cls.t, ss.KEYS, ss.WEIGHTS, cls.spec)
         with mock.patch.object(registry, "require", _pass):
             cls.main, cls.out = sm.fold(cls.store, "H", cls.spec, T, None)
-            cls.gaps = {}
-            cls.derived = sp.derive(cls.store, "H", cls.spec, T, gaps=cls.gaps)
+        cls._derived = None
+        cls._gaps = None
+
+    @property
+    def derived(self):
+        self._build()
+        return type(self)._derived
+
+    @property
+    def gaps(self):
+        self._build()
+        return type(self)._gaps
+
+    @classmethod
+    def _build(cls):
+        """The `derive` frame, built once and only for the tests that use it."""
+        if cls._derived is None:
+            gaps = {}
+            with mock.patch.object(registry, "require", _pass):
+                cls._derived = sp.derive(cls.store, "H", cls.spec, T, gaps=gaps)
+            cls._gaps = gaps
 
     def test_c_is_exercised(self):
         """The fixture: a calibration factor other than 1 for at least one position, so composing with c = 1 would show."""
         self.assertTrue(any(self.out["details"][p]["c"] != 1.0 for p in POS), {p: self.out["details"][p]["c"] for p in POS})
 
     def test_copy_composes_to_refit_and_fold(self):
+        """Independent of `derive`: builds its own copy-and-compose, `refit` and `fold` results (no `setUpClass` `derived`)."""
+        with mock.patch.object(registry, "require", _pass):
+            main, out = sm.fold(self.store, "H", self.spec, T, None)
         for pos in POS:
-            det = self.out["details"][pos]
+            det = out["details"][pos]
             preds, d, minor, info = sp.prior_refit(self.store, self.spec, "H", pos, T, det["entry"])
             comp = sm.compose(self.store, self.spec, pos, d, preds, minor, det["c"])
             frame, _info, _u = sm.refit(self.store, self.spec, "H", pos, T, det["entry"], det["c"])        # the original of the copy
             pd.testing.assert_frame_equal(comp, frame, check_exact=True)
-            want = self.main[self.main["position"] == pos].reset_index(drop=True)
+            want = main[main["position"] == pos].reset_index(drop=True)
             for c in comp.columns:
                 np.testing.assert_array_equal(comp[c].to_numpy(), want[c].to_numpy(), err_msg="%s %s" % (pos, c))
             self.assertEqual(set(info), set(preds), "H reports a partial-pooling alpha per season target")
@@ -184,6 +206,8 @@ class TestPriorIsSeasonLayer(unittest.TestCase):
         wrong[("g", T, "WR")] = {**entries[("g", T, "WR")], "lam": 99.0}
         with self.assertRaises(sp.PriorCheckError):
             sp.check_against_file(d, p, sh, entries=wrong)              # a different chosen entry is never tolerated
+        with self.assertRaises(sp.PriorCheckError):
+            sp.check_against_file(d, p, sh)                             # G without the dev run's entries is refused (entries=None)
         ph, shh = self._write(rows, tweak=scale(1.02), cand="h")
         with self.assertRaises(sp.PriorCheckError):
             sp.check_against_file(self.derived, ph, shh)                # H stays exact: the same 2% is a stop

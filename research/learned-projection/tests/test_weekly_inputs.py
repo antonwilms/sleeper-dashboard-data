@@ -89,7 +89,7 @@ class TestAsOf(unittest.TestCase):
         base, fb, *_ = _frame(t, S, n)
         for name, variant in (("scramble", sc), ("delete", sw.deleted_full(t, S, n))):
             got, fb2, *_ = _frame(variant, S, n)
-            pd.testing.assert_frame_equal(base, got, obj="inputs (%s)" % name, check_exact=False, rtol=1e-9, atol=1e-12)
+            pd.testing.assert_frame_equal(base, got, obj="inputs (%s)" % name, check_exact=True)
             pd.testing.assert_frame_equal(fb.val, fb2.val)
             pd.testing.assert_frame_equal(fb.cnt, fb2.cnt)
         # the fallback reads no season-S row at all
@@ -241,9 +241,13 @@ class TestThreadPin(unittest.TestCase):
 
     def test_runner_pins_every_thread_pool_before_sklearn(self):
         env = {**os.environ, **{v: "8" for v in rwi.THREAD_VARS}}
-        r = subprocess.run([sys.executable, "-c", "import os, run_weekly_inputs as r; print(*[os.environ[v] for v in r.THREAD_VARS], r._SKLEARN_PRELOADED)"], cwd=HERE, env=env,
-                           capture_output=True, text=True)
-        self.assertEqual(r.stdout.split(), ["1", "1", "1", "1", "False"], r.stderr[-500:])
+        code = ("import os, run_weekly_inputs as r; from threadpoolctl import threadpool_info; "
+                "print(*[os.environ[v] for v in r.THREAD_VARS], r._SKLEARN_PRELOADED); print(*[i['num_threads'] for i in threadpool_info()])")
+        r = subprocess.run([sys.executable, "-c", code], cwd=HERE, env=env, capture_output=True, text=True)
+        lines = r.stdout.strip().splitlines()
+        self.assertEqual(lines[0].split(), ["1", "1", "1", "1", "False"], r.stderr[-500:])
+        self.assertTrue(len(lines) > 1 and lines[1].split(), "threadpoolctl reports at least one loaded pool")
+        self.assertEqual(set(lines[1].split()), {"1"}, "every loaded thread pool runs one thread: " + lines[1])
         self.assertEqual(set(rwi.THREAD_VARS), {"OMP_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"})
 
 

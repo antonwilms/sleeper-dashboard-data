@@ -27,7 +27,7 @@
   "teamctx": 2024,
   "extras": 2024
  },
- "xFiniteOutsideWeeks": false,
+ "xFiniteOutsideWeeks": 0,
  "parity": {
   "rows": 81226,
   "mismatches": 0
@@ -644,8 +644,8 @@
       "maxRel": 0.0
      },
      "vsSeasonPreds": {
-      "maxAbs": 0.0,
-      "maxRel": 0.0
+      "maxAbs": 3.552713678800501e-15,
+      "maxRel": 3.2684670192572364e-16
      }
     },
     "RB": {
@@ -883,13 +883,352 @@
   }
  },
  "alphaShareAt1000": {
-  "2018": 0.9210526315789473,
-  "2019": 0.868421052631579,
-  "2020": 0.868421052631579,
-  "2021": 0.868421052631579,
-  "2022": 0.868421052631579,
-  "2023": 0.9210526315789473,
-  "2024": 0.868421052631579
+  "H": {
+   "2018": {
+    "QB": 0.8888888888888888,
+    "RB": 0.9166666666666666,
+    "WR": 0.9,
+    "TE": 1.0
+   },
+   "2019": {
+    "QB": 0.8888888888888888,
+    "RB": 0.75,
+    "WR": 0.9,
+    "TE": 1.0
+   },
+   "2020": {
+    "QB": 0.8888888888888888,
+    "RB": 0.8333333333333334,
+    "WR": 0.9,
+    "TE": 0.8571428571428571
+   },
+   "2021": {
+    "QB": 0.8888888888888888,
+    "RB": 0.9166666666666666,
+    "WR": 0.9,
+    "TE": 0.7142857142857143
+   },
+   "2022": {
+    "QB": 0.8888888888888888,
+    "RB": 0.9166666666666666,
+    "WR": 0.9,
+    "TE": 0.7142857142857143
+   },
+   "2023": {
+    "QB": 0.8888888888888888,
+    "RB": 0.9166666666666666,
+    "WR": 0.9,
+    "TE": 1.0
+   },
+   "2024": {
+    "QB": 0.8888888888888888,
+    "RB": 0.9166666666666666,
+    "WR": 0.9,
+    "TE": 0.7142857142857143
+   }
+  },
+  "G": {
+   "2018": {
+    "QB": null,
+    "RB": null,
+    "WR": null,
+    "TE": null
+   },
+   "2019": {
+    "QB": null,
+    "RB": null,
+    "WR": null,
+    "TE": null
+   },
+   "2020": {
+    "QB": null,
+    "RB": null,
+    "WR": null,
+    "TE": null
+   },
+   "2021": {
+    "QB": null,
+    "RB": null,
+    "WR": null,
+    "TE": null
+   },
+   "2022": {
+    "QB": null,
+    "RB": null,
+    "WR": null,
+    "TE": null
+   },
+   "2023": {
+    "QB": null,
+    "RB": null,
+    "WR": null,
+    "TE": null
+   },
+   "2024": {
+    "QB": null,
+    "RB": null,
+    "WR": null,
+    "TE": null
+   }
+  }
+ },
+ "noPriorRows": {
+  "H": {
+   "2018": {
+    "QB": {
+     "rows": 65,
+     "shareOfPlayedRows": 0.10483870967741936
+    },
+    "RB": {
+     "rows": 230,
+     "shareOfPlayedRows": 0.15003261578604044
+    },
+    "WR": {
+     "rows": 352,
+     "shareOfPlayedRows": 0.14473684210526316
+    },
+    "TE": {
+     "rows": 216,
+     "shareOfPlayedRows": 0.13855035279025016
+    }
+   },
+   "2019": {
+    "QB": {
+     "rows": 70,
+     "shareOfPlayedRows": 0.11666666666666667
+    },
+    "RB": {
+     "rows": 124,
+     "shareOfPlayedRows": 0.07584097859327217
+    },
+    "WR": {
+     "rows": 301,
+     "shareOfPlayedRows": 0.12215909090909091
+    },
+    "TE": {
+     "rows": 190,
+     "shareOfPlayedRows": 0.1338971106412967
+    }
+   },
+   "2020": {
+    "QB": {
+     "rows": 72,
+     "shareOfPlayedRows": 0.1130298273155416
+    },
+    "RB": {
+     "rows": 274,
+     "shareOfPlayedRows": 0.1668696711327649
+    },
+    "WR": {
+     "rows": 381,
+     "shareOfPlayedRows": 0.15107057890563044
+    },
+    "TE": {
+     "rows": 225,
+     "shareOfPlayedRows": 0.14497422680412372
+    }
+   },
+   "2021": {
+    "QB": {
+     "rows": 107,
+     "shareOfPlayedRows": 0.15828402366863906
+    },
+    "RB": {
+     "rows": 207,
+     "shareOfPlayedRows": 0.12155020551967116
+    },
+    "WR": {
+     "rows": 329,
+     "shareOfPlayedRows": 0.12051282051282051
+    },
+    "TE": {
+     "rows": 149,
+     "shareOfPlayedRows": 0.0917487684729064
+    }
+   },
+   "2022": {
+    "QB": {
+     "rows": 53,
+     "shareOfPlayedRows": 0.08255451713395638
+    },
+    "RB": {
+     "rows": 191,
+     "shareOfPlayedRows": 0.11014994232987313
+    },
+    "WR": {
+     "rows": 297,
+     "shareOfPlayedRows": 0.11301369863013698
+    },
+    "TE": {
+     "rows": 111,
+     "shareOfPlayedRows": 0.06739526411657559
+    }
+   },
+   "2023": {
+    "QB": {
+     "rows": 94,
+     "shareOfPlayedRows": 0.13843888070692195
+    },
+    "RB": {
+     "rows": 159,
+     "shareOfPlayedRows": 0.0991890205864005
+    },
+    "WR": {
+     "rows": 229,
+     "shareOfPlayedRows": 0.08279103398409256
+    },
+    "TE": {
+     "rows": 156,
+     "shareOfPlayedRows": 0.09454545454545454
+    }
+   },
+   "2024": {
+    "QB": {
+     "rows": 73,
+     "shareOfPlayedRows": 0.10688140556368961
+    },
+    "RB": {
+     "rows": 140,
+     "shareOfPlayedRows": 0.0857843137254902
+    },
+    "WR": {
+     "rows": 291,
+     "shareOfPlayedRows": 0.10781771026306039
+    },
+    "TE": {
+     "rows": 194,
+     "shareOfPlayedRows": 0.11520190023752969
+    }
+   }
+  },
+  "G": {
+   "2018": {
+    "QB": {
+     "rows": 65,
+     "shareOfPlayedRows": 0.10483870967741936
+    },
+    "RB": {
+     "rows": 230,
+     "shareOfPlayedRows": 0.15003261578604044
+    },
+    "WR": {
+     "rows": 352,
+     "shareOfPlayedRows": 0.14473684210526316
+    },
+    "TE": {
+     "rows": 216,
+     "shareOfPlayedRows": 0.13855035279025016
+    }
+   },
+   "2019": {
+    "QB": {
+     "rows": 70,
+     "shareOfPlayedRows": 0.11666666666666667
+    },
+    "RB": {
+     "rows": 124,
+     "shareOfPlayedRows": 0.07584097859327217
+    },
+    "WR": {
+     "rows": 301,
+     "shareOfPlayedRows": 0.12215909090909091
+    },
+    "TE": {
+     "rows": 190,
+     "shareOfPlayedRows": 0.1338971106412967
+    }
+   },
+   "2020": {
+    "QB": {
+     "rows": 72,
+     "shareOfPlayedRows": 0.1130298273155416
+    },
+    "RB": {
+     "rows": 274,
+     "shareOfPlayedRows": 0.1668696711327649
+    },
+    "WR": {
+     "rows": 381,
+     "shareOfPlayedRows": 0.15107057890563044
+    },
+    "TE": {
+     "rows": 225,
+     "shareOfPlayedRows": 0.14497422680412372
+    }
+   },
+   "2021": {
+    "QB": {
+     "rows": 107,
+     "shareOfPlayedRows": 0.15828402366863906
+    },
+    "RB": {
+     "rows": 207,
+     "shareOfPlayedRows": 0.12155020551967116
+    },
+    "WR": {
+     "rows": 329,
+     "shareOfPlayedRows": 0.12051282051282051
+    },
+    "TE": {
+     "rows": 149,
+     "shareOfPlayedRows": 0.0917487684729064
+    }
+   },
+   "2022": {
+    "QB": {
+     "rows": 53,
+     "shareOfPlayedRows": 0.08255451713395638
+    },
+    "RB": {
+     "rows": 191,
+     "shareOfPlayedRows": 0.11014994232987313
+    },
+    "WR": {
+     "rows": 297,
+     "shareOfPlayedRows": 0.11301369863013698
+    },
+    "TE": {
+     "rows": 111,
+     "shareOfPlayedRows": 0.06739526411657559
+    }
+   },
+   "2023": {
+    "QB": {
+     "rows": 94,
+     "shareOfPlayedRows": 0.13843888070692195
+    },
+    "RB": {
+     "rows": 159,
+     "shareOfPlayedRows": 0.0991890205864005
+    },
+    "WR": {
+     "rows": 229,
+     "shareOfPlayedRows": 0.08279103398409256
+    },
+    "TE": {
+     "rows": 156,
+     "shareOfPlayedRows": 0.09454545454545454
+    }
+   },
+   "2024": {
+    "QB": {
+     "rows": 73,
+     "shareOfPlayedRows": 0.10688140556368961
+    },
+    "RB": {
+     "rows": 140,
+     "shareOfPlayedRows": 0.0857843137254902
+    },
+    "WR": {
+     "rows": 291,
+     "shareOfPlayedRows": 0.10781771026306039
+    },
+    "TE": {
+     "rows": 194,
+     "shareOfPlayedRows": 0.11520190023752969
+    }
+   }
+  }
  },
  "fallback": {
   "2018": {
@@ -4329,9 +4668,9 @@
  },
  "seconds": {
   "load+trim": 7.5,
-  "prior": 1923.1,
-  "inputs": 150.3,
-  "total": 2138.5
+  "prior": 2294.6,
+  "inputs": 184.8,
+  "total": 2562.8
  },
  "threads": {
   "OMP_NUM_THREADS": "1",
@@ -4340,16 +4679,17 @@
   "MKL_NUM_THREADS": "1",
   "PYTHONHASHSEED": "0",
   "setBeforeSklearnImport": true,
+  "numpyPreloaded": false,
   "cpuCount": 8
  },
  "statedLimits": [
-  "LP-2a's G development predictions (season-preds.jsonl) came from an unrecorded thread count and differ from one-thread refits by up to about 2% on RB (2022 c; 2024 kv_bonus_fd_rb); the G prior here is the one-thread refit, checked against the file for the same chosen entry and at most 5% relative difference. G fits also vary across processes with PYTHONHASHSEED, so the runner re-executes itself with seed 0. G is reproducible only approximately, even on one thread: its comparison with the file allows 5% relative difference, |d| / (1 + |x|) (two pinned one-thread real-data runs differed from each other, by up to 4.8% against the file on RB 2024); its same-run compose check stayed exact in both and is kept exact; H is exact."
+  "LP-2a's G development predictions (season-preds.jsonl) came from an unrecorded thread count and differ from one-thread refits by up to about 2% on RB (2022 c; 2024 kv_bonus_fd_rb); the G prior here is the one-thread refit, checked against the file for the same chosen entry and at most 5% relative difference. G fits also vary across processes with PYTHONHASHSEED, so the runner re-executes itself with seed 0. G is reproducible only approximately, even with every thread pool pinned and `PYTHONHASHSEED=0`. In three pinned real runs on 2026-11-17, G's re-derived prior matched LP-2a's `season-preds.jsonl` exactly in two and differed in one by up to 4.84% relative (2024 RB; 2022 RB 1.10%). This artifact's own gaps are in `vsSeasonPreds` and `composeGap`. H is exact."
  ],
  "sha256": {
   "dev-panel entries": "b41169fbeefa2fab2d8a8d6f500590fb65f7b2465353ce67193941322e9995d7",
   "season-preds.jsonl": "b2fafc889c05b27d2b89c7eea2b710739db5c2ee36f12d924fab1d20768a46a2",
-  "season-prior.jsonl": "fea07dea8e8f9a76dd82b996d4e608822e7af0ad60c2e914fc98882f009a7243",
-  "weekly-inputs.pkl": "ee18a3e7f645b7cca49267f00db3cd35aa2b44fc11497abed0aab38123ea09c7",
+  "season-prior.jsonl": "55c55e200ce18d549d522ee007e284bbe180ff98209378c4c355a47a9643c56a",
+  "weekly-inputs.pkl": "2431b3978d5a078fb2256e3553ca513f17c62160ec56ac72fb657486f43a1fb2",
   "candidates/H.json": "403f1e5f54f612917c64f6d785da4256429b69e8c181825ddd47a5471d2d7499",
   "candidates/G.json": "dfe6688aded2bb649de904d557c6f41e16485881d723057a78f5f3a4fba2e976",
   "canonicalSeasonSection H": "572792a2214653ac6d09be5f375113160d5a157461b141c63255951cc087301c",
