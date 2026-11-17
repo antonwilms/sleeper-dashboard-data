@@ -249,11 +249,11 @@ Session 1, 2026-11-17. Reviewed the diff, not the hand-back alone.
 
 - **Rebase:** onto `origin/main` `20bae6e` at 2026-11-17T18:04Z; 2 capture commits taken in (`84f7cee` season-totals, `20bae6e` rosterweekly). Commit ids below are post-rebase.
 - **Commits (main, unpushed):**
-  - `f3fbedb` code, tests, both task files;
-  - `5121ea3` facts artifact, docs, the G reproducibility rulings;
-  - `2396670` fix pass 1;
+  - `94a838f` code, tests, both task files;
+  - `ea7b09c` facts artifact, docs, the G reproducibility rulings;
+  - `8c8f5ea` fix pass 1;
   - this commit, the verification record.
-  - Beneath them sits `7412863`, an unrelated agent/docs commit (`.claude/agents/plan-reviewer.md`, `CLAUDE.md`, `git-workflow.md`) that is not part of this slice and was not reviewed here; it goes out with the push.
+  - Beneath them sits `6b29d19`, an unrelated agent/docs commit (`.claude/agents/plan-reviewer.md`, `CLAUDE.md`, `git-workflow.md`) that is not part of this slice and was not reviewed here; it goes out with the push.
 - **Review:** full (opus, high), 13 flags, none blocking.
   - Fixed in Fix pass 1: 1, 2, 5, 8, 9, 10, 11, 13.
   - Fixed in the task file: 12 (§19 consume-by-SHA).
@@ -285,3 +285,5 @@ Session 1, 2026-11-17. Reviewed the diff, not the hand-back alone.
 - **Checks after the rebase:** Python suite 98 tests OK; `npm test` 2150 pass / 0 fail / 1 skipped; `npm run smoke` exit 0; `CLAUDE.md` 23,742 bytes.
 
 Signed off by Anton 2026-11-17
+
+Commit ids after the push-time rebase onto `c7df858` (1 capture commit, nflverse playerstats; no capture file touched by LP-2b-1a), updated above: `7412863` → `6b29d19` (agent/docs, not this slice), `f3fbedb` → `94a838f` (code), `5121ea3` → `ea7b09c` (artifact, docs), `2396670` → `8c8f5ea` (fix pass 1), `c09eb06` → `6c4d601` (verification), sign-off → `7e56e1e`. Pre-rebase ids in the header anchor and in Fix pass 1 (`5fad322`, `0ae8671`, `d6a75d9`, `3361875`) are kept as the history at the time. The artifact and caches cite hashes only.
