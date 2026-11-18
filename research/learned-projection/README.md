@@ -51,3 +51,29 @@ input builder.
 passes the confirm flag.
 
 **Stated limit and the one-thread rule.** LP-2a's G (gradient-boosted) development predictions in `season-preds.jsonl` came from an unrecorded thread count and differ from one-thread refits by up to about 2% on RB (2022 `c`, 2024 `kv_bonus_fd_rb`). `run_weekly_inputs.py` therefore runs every G fit with `OMP_NUM_THREADS=1` (set before sklearn is imported) and `PYTHONHASHSEED=0` (a G fit also varies across processes with the hash seed; the CLI re-executes itself once), records both in the artifact and the run-log, keeps H's check against the file exact, and for G requires the same chosen entry per position and fold with every numeric field within 5% relative difference (a stop beyond). The runner also pins `VECLIB_MAXIMUM_THREADS`, `OPENBLAS_NUM_THREADS` and `MKL_NUM_THREADS` to 1 before numpy or sklearn is imported and records all four thread variables and the hash seed. **G is reproducible only approximately, even with every thread pool pinned and `PYTHONHASHSEED=0`. In three pinned real runs on 2026-11-17, G's re-derived prior matched LP-2a's `season-preds.jsonl` exactly in two and differed in one by up to 4.84% relative (2024 RB; 2022 RB 1.10%). This artifact's own gaps are in `vsSeasonPreds` and `composeGap`; H is exact. G's comparison with `season-preds.jsonl` allows 5% relative difference, |d| / (1 + |x|), anything beyond is a stop; its same-run compose check (copy against `fold`) is exact.** Later runners (LP-2b-1b, LP-2b-2) carry the same rule.
+
+## LP-2b-1b — weekly models, registration, development-fold labels
+
+Task: `.claude/tasks/learned-projection-2b1b-weekly-models.md` (Revision 3). Python only; the weekly layer of the two learned candidates, H (partial pooling) and G
+(gradient-boosted trees): per row (pid, season, week) the points if he plays (`cond`) and the chance he plays (`p`), `uncond = p x cond`. It reads the two 2b-1a caches by SHA-256
+(a mismatch returns 2 before any pickle is read; nothing here writes either cache).
+
+```
+python3 research/learned-projection/run_weekly_models.py --init-weekly        # the UNSTAMPED weekly layer (the spec) into candidates/H.json and G.json
+python3 research/learned-projection/run_weekly_models.py --smoke              # 2018 only (weeks 1-9 -> 10+), unregistered, prints the label arithmetic
+python3 research/learned-projection/run_weekly_models.py --register-weekly    # stamp the weekly layer of both candidates atomically; then commit the two files
+python3 research/learned-projection/run_weekly_models.py --dev --write        # folds 2019-2024 only, single use; the 2025 fold is held
+```
+
+- **Layout.** `lp/spec_wm.py` (the weekly spec, not hashed), `weekly_h.py` (evidence blend toward the prior with (k, rho) fitted by weighted squared error, then a context ridge whose alpha is chosen
+  by leave-one-season-out over a grid that includes `"off"`; `"off"` is also the default with fewer than two training seasons), `weekly_g.py`, `pplays.py` (P(plays) and the horizon decay),
+  `weekly_models.py` (composition, cross-fitting, the calibration `c_w`, `fit_w` / `predict_w` / `fold_w`, and the two hooks LP-2b-1c depends on: `Fits` persistence and the `variant` switch),
+  `registry_w.py`, `evaluate_w.py` (LP-1a §8 labels through `lp/metrics.py` unchanged), `report_s2b.py` (the verdict).
+- **Labels.** RB and WR are labelled; QB and TE are report-only (Anton, 2026-11-16). The overall 3-of-4 weekly gate is printed and is expected to fail by construction. Every label is unconfirmed.
+- **Registration.** `registry_w.register_weekly` stamps via `registry.append_layer` (the season sections stay byte-identical). There is NO re-registration path: after the registration commit a change to
+  weekly code, harness, data or spec makes `registry.require(..., "weekly", ...)` raise. A second `--dev` is refused (one `weekly-dev` run-log entry).
+- **The 2025 hold.** After this registration `registry.require(·, 2025)` no longer holds 2025 by itself: `weekly_data.guard` and LP-2b-2's marker do.
+- **Outputs (unregistered, report-only).** `backtests/<date>-learned-s2b1b-dev-panel.json` (<= 5 MB, no commit id), `grading/<date>-learned-s2b1b-dev-verdict.md`; git-ignored
+  `.cache/models/weekly-preds.jsonl` and `weekly-fits.pkl` (a pickled `{(cand, T): Fits}`, read back only after a SHA check).
+- Every G fit runs on one thread with `PYTHONHASHSEED=0` (the runner pins and re-executes itself); G is reproducible only approximately, H exactly.
+
