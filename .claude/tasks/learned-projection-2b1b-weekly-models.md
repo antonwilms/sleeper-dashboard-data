@@ -717,11 +717,11 @@ Session 1, 2026-11-18. I reviewed the diff itself, not only the hand-back.
 **Rebase.** Onto `origin/main` `b6888f9` at 2026-11-18T16:29Z. Two capture commits came in, `43c5c96` (nflverse roster) and `b6888f9` (rosterweekly); neither touches this slice. All commit ids below are post-rebase.
 
 **Commits** (main, unpushed):
-- `e5d7dc3` — code, tests, unstamped weekly specs, task file;
-- `819a567` — §17 "off" option (Commit 1b);
-- `fdd3ee6` — weekly registration, the two candidate files only;
-- `59ba7a8` — dev run, verdict, docs;
-- `2bffeae` — fix pass 1 (tests only);
+- `bf96e79` — code, tests, unstamped weekly specs, task file;
+- `8ded75e` — §17 "off" option (Commit 1b);
+- `2b0920d` — weekly registration, the two candidate files only;
+- `1c570f0` — dev run, verdict, docs;
+- `f972e42` — fix pass 1 (tests only);
 - this commit — the Fix pass 1 section and this record.
 
 **Reviews:**
@@ -760,3 +760,14 @@ Session 1, 2026-11-18. I reviewed the diff itself, not only the hand-back.
 - `CLAUDE.md` is 23,941 bytes.
 
 Signed off by Anton 2026-11-19
+
+Commit ids after the push-time rebase onto `20dd2ee` (2 capture commits: `ef83b55` playerids, `20dd2ee` daily snapshot; neither touches this slice; `require` re-checked and passing) are updated above:
+- `e5d7dc3` → `bf96e79` (code)
+- `819a567` → `8ded75e` (§17)
+- `fdd3ee6` → `2b0920d` (registration)
+- `59ba7a8` → `1c570f0` (dev run)
+- `2bffeae` → `f972e42` (fix pass 1)
+- `f602274` → `c0eb30a` (verification)
+- `6473e2e` → `908be03` (sign-off)
+
+The ids in Fix pass 1's review range (`6186371..1dd0cd4`) and in §17.4 (`214ed3c`) are kept as the history at the time. The artifact and the verdict cite hashes only.
