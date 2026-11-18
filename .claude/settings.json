@@ -4,7 +4,8 @@
   },
   "permissions": {
     "allow": [
-      "Read(~/Claude Projects/Sleeper Dashboard/sleeper-dashboard/**)"
+      "Read(~/Claude Projects/Sleeper Dashboard/sleeper-dashboard/**)",
+      "Edit(/.claude/reviews/**)"
     ]
   },
   "hooks": {
