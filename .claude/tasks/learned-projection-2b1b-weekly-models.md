@@ -681,3 +681,80 @@ Same pin rule. **Depends on:** this slice verified and its caches unchanged.
 6. The hand-back adds the new smoke table and α as chosen per fold and position.
 
 Every other §12 stop still applies.
+
+## Fix pass 1
+
+From the full implementation review of `6186371..1dd0cd4` (2026-11-18), triaged by Session 1. Applier: the fix-applier subagent.
+
+**Scope.** Test files only: `research/learned-projection/tests/test_weekly_models.py`, `tests/test_weekly_registry.py`, and the fixtures `tests/synth_wmodels.py` and `tests/e2e_w.py` where a setUp needs them. Do not touch any registered path: no `WEEKLY_CODE` or `WEEKLY_HARNESS` file, `candidates/`, artifact, verdict, cache, run-log, served folder or `manifest.json`. Do not run `--dev`, `--register-weekly` or `--init-weekly`. Stop and report if an item needs more than it names.
+
+1. **Facts in setUp** (review flag 3). Move each Fact assertion into `setUp`/`setUpClass` (or a helper called from there) for:
+   - T-B-7: `test_fact_in_sample_and_oof_medians_differ` stops being a separate test method; its check runs in setUp;
+   - T-B-8, T-B-10 (runner), T-B-11, T-B-13 and T-B-15.
+   
+   The assertions themselves do not change.
+2. **T-B-13 Fact** (flag 4). Replace `assertNotEqual("OTHER", "ANCHOR")` with a setUp check on the actual deps: `d = self._deps("OTHER"); self.assertNotEqual(d.load_meta()["generatedAt"], d.anchor)`, adapted to the test's helper names.
+3. **T-B-17** (flag 5). Replace the no-op `self.assertTrue(len(w1))` with a real check: on the `w1` rows (E = 0), each target's q equals `np.clip(pr_t, *bounds_t)` exactly. Keep `w1` non-empty as part of the Fact.
+4. **T-B-1** (flag 6). Add one assertion through the predict path: for a row whose raw q lies outside its clip bounds, `predict_w`'s `ppg` equals `compose` of the clipped q. Fact: that row's raw q is outside its bounds, asserted in setUp.
+5. **Red steps.**
+   - Re-show the red for each test whose assertions moved or changed: T-B-1, T-B-13 and T-B-17, using the reds in §14/§17.3. Restore each afterwards.
+   - For the tests in item 1, a green run is enough, because only the location of each Fact changed.
+6. **Checks and commit.**
+   - Run the full Python suite, `npm test` and `npm run smoke`; all must be green.
+   - Make one commit, `LP-2b-1b: fix pass 1 (tests)`, staging only the touched test files by name.
+   - No push, no rebase.
+
+**Accepted by Session 1, not fixed.** Each would need a registered-code change, which is not allowed after Commit 2 (§3.2). Both are recorded in Verification.
+- **Flag 1.** `lp/evaluate_w.py:9` and `lp/report_s2b.py:3-4` use `from … import <name>` for constants and helpers, against §4's rule. This has no effect today: no test patches those names.
+- **Flag 2.** The artifact's `sha256` omits `season-preds.jsonl`. Session 1 re-hashed the file on disk; it still equals the anchor `b2fafc88…68a46a2`.
+
+**Hand back:** the commit SHA, the files touched, and the red confirmation for items 3 and 4 and for the moved T-B-13 Fact.
+
+## Verification
+
+Session 1, 2026-11-18. I reviewed the diff itself, not only the hand-back.
+
+**Rebase.** Onto `origin/main` `b6888f9` at 2026-11-18T16:29Z. Two capture commits came in, `43c5c96` (nflverse roster) and `b6888f9` (rosterweekly); neither touches this slice. All commit ids below are post-rebase.
+
+**Commits** (main, unpushed):
+- `e5d7dc3` — code, tests, unstamped weekly specs, task file;
+- `819a567` — §17 "off" option (Commit 1b);
+- `fdd3ee6` — weekly registration, the two candidate files only;
+- `59ba7a8` — dev run, verdict, docs;
+- `2bffeae` — fix pass 1 (tests only);
+- this commit — the Fix pass 1 section and this record.
+
+**Reviews:**
+- **Full implementation review** (opus, high) of `6186371..1dd0cd4`: 6 flags, none blocking.
+  - Flags 3–6 were fixed in Fix pass 1: Facts moved into setUp, the T-B-13 tautology replaced, real assertions for T-B-17 and the T-B-1 predict path.
+  - Flags 1–2 are accepted, because a fix would change registered code after Commit 2 (§3.2):
+    - flag 1: `evaluate_w.py:9` and `report_s2b.py:3-4` import names, against §4's import rule; no test patches those names;
+    - flag 2: the artifact's `sha256` omits `season-preds.jsonl`. I re-hashed it on disk today: `b2fafc889c05b27d2b89c7eea2b710739db5c2ee36f12d924fab1d20768a46a2`, equal to the anchor.
+- **Fix-pass re-review** (light): no flags. Two low observations accepted: T-B-1 compares through `_ppg_rows`, and setUp Facts re-run per test (cost only).
+
+**Deviations** (all reviewed and accepted):
+- extra `Deps` fields: `load_benchw_meta`, `benchw_path`, `benchw_meta_path`, `section_sha`, `s2b1a_artifact`;
+- additions: `registry_w.SECTION_SHA`, `spec_wm.NoTrainingRows`, `weekly_h.crosscheck`, `weekly_models.n0_check`;
+- the `tests/e2e_w.py` fixture, and `HistIndex` rebuilt per call;
+- flag 1 above.
+
+**Locks:**
+- `require` passes after the rebase for H and G, on both layers, for 2019–2024.
+- The canonical season sections still match the header hashes, `572792a2…` and `12bd9025…`.
+- The weekly layers were stamped (`fdd3ee6`) before the single `weekly-dev` run-log entry. The review verified the stamped code and harness hashes against the committed blobs.
+- `preregHash` is unchanged.
+- No 2025 row reached any fit, frame or metric: `weekly-preds.jsonl` is S/T 2019–2024 only.
+- After registration `require(·, 2025)` no longer holds 2025 by itself (flag 17); `weekly_data.guard` does.
+
+**Result** (unconfirmed, with 2025 held):
+- H beats STD at RB (−0.27 points per week, 4.2%) and at WR (3.2%), and ties B1c at both. G ties STD and B1c at RB and WR.
+- No labelled position passes. The 3-of-4 gate fails for both candidates, as expected.
+- QB and TE are report-only: ties, except G, which loses to STD at QB and to B1c at TE.
+- H's context α is `"off"` for most targets in every fold, and `"off"` everywhere in 2019.
+- Fit-facts observation for LP-2b-1c: H's credibility k sits at the grid top (`kMultW` 32) for most rate targets, so the in-season override of the prior is slow.
+
+**Checks after the rebase:**
+- Re-run by Session 1 on the rebased HEAD: `npm test` 2150 pass / 0 fail / 1 skipped, and `npm run smoke` exit 0.
+- Python suite: 164 tests OK on `51a968e` (the applier's run). The rebase changed no file under `research/`.
+- The light re-review re-ran the two touched modules: 62 tests OK.
+- `CLAUDE.md` is 23,941 bytes.
