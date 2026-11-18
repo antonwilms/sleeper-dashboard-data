@@ -758,3 +758,5 @@ Session 1, 2026-11-18. I reviewed the diff itself, not only the hand-back.
 - Python suite: 164 tests OK on `51a968e` (the applier's run). The rebase changed no file under `research/`.
 - The light re-review re-ran the two touched modules: 62 tests OK.
 - `CLAUDE.md` is 23,941 bytes.
+
+Signed off by Anton 2026-11-19
