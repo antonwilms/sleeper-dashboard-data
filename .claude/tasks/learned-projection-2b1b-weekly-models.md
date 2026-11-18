@@ -1,6 +1,6 @@
 # LP-2b-1b · Learned projection research — weekly models, registration, development-fold labels
 
-**Status:** plan, Rev 2.1 (2026-11-18). Slice 1 of 2 (§3.3). Full reviews: Rev 1, 15 flags, fixed; Rev 2, 0 blocking, 8 flags fixed. **Approved by Anton 2026-11-18 (Rev 2.1).**
+**Status:** plan, Rev 2.1 (2026-11-18). Slice 1 of 2 (§3.3). Full reviews: Rev 1, 15 flags, fixed; Rev 2, 0 blocking, 8 flags fixed. **Approved by Anton 2026-11-18 (Rev 2.1).** Rev 3 (§17): Anton's pre-registration change to H context; light review, 0 blocking, 4 flags fixed.
 
 **Review depth: full** — scoring-affecting research; it registers the weekly layer and touches the 2025 and registration locks.
 
@@ -159,8 +159,8 @@ Modules import each other as modules (`import lp.weekly_h as weekly_h`), never a
    - Minimise Σ e·(r − b)² over training rows with e > 0 and finite r: `kMultW` in the outer loop, `rhos` in the inner loop, first minimum on ties.
 3. **Context.**
    - Fit `Cohort(X_ctx, r − b, e, α)` on the same rows; then q = b + `predict`. `X_ctx` = the `ctxGroups` columns, then the `ctxCols`.
-   - With ≥ 2 training seasons, α ∈ `ctxAlphas` is chosen by leave-one-season-out (Σ weighted SSE, first minimum), with b from the full-training (k, ρ).
-   - With fewer training seasons, α = `ctxDefaultAlpha`.
+   - With ≥ 2 training seasons, α ∈ `ctxAlphas`, including `"off"` (§17), is chosen by leave-one-season-out (Σ weighted SSE, first minimum), with b from the full-training (k, ρ).
+   - With fewer training seasons, α = `ctxDefaultAlpha` = `"off"` (§17).
 4. **Recorded** per (P, t): k; k in games (k ÷ median(e) for `po`, k for `pg`); ρ; α; median(e).
 
 ### 6.3 G (`lp/weekly_g.py`)
@@ -217,7 +217,7 @@ Modules import each other as modules (`import lp.weekly_h as weekly_h`), never a
 ```
 name, family ("H"/"G"), trainFrom 2018 (== spec_w.TRAIN_FROM, asserted), lastSeason 2024 (asserted == LAST_SEASON in `default_spec_w` and `register_weekly` only), seed 0,
 kMultW [0.5,1,2,3,4,6,8,12,16,24,32], rhos [0.6,0.75,0.85,0.92,1.0],
-ctxGroups ["usage","avail","absence","opp","team","game","gl","bio"], ctxCols ["nP","wk","noPrior"], ctxAlphas [1,10,100,1000], ctxDefaultAlpha 100,
+ctxGroups ["usage","avail","absence","opp","team","game","gl","bio"], ctxCols ["nP","wk","noPrior"], ctxAlphas [1,10,100,1000,"off"], ctxDefaultAlpha "off" (§17),
 gGroups ["form","usage","avail","absence","opp","team","game","gl","bio","prior"],
 gPoint {learning_rate 0.05, max_iter 300, max_leaf_nodes 8, min_samples_leaf 100, l2_regularization 1.0},
 pplaysCols = spec_w.AVAIL + ["pr_gamesShare","noPrior","nP","wk","age","exp"], pplays {"C": 1.0, "max_iter": 1000},
@@ -430,7 +430,7 @@ Any test that reaches `fold_w` patches `registry.require`. Every test asserts it
 ### T-B-3 · H fit picks the weighted argmin; α rule
 - **Asserts.** Fixture: a `po` DGP with exposures 1–20 and noise ∝ 1/e, plus deviations heavier for high-e players.
   - The chosen (k, ρ) equals the argmin of an in-test weighted SSE over the grid.
-  - One training season gives α = 100.
+  - One training season gives α = `"off"` (§17, T-B-17).
   - With two seasons, α is the argmin of the recorded leave-one-season-out SSEs.
 - **Fails if:** the SSE is unweighted, or α ignores the season count.
 - **Red:** unweighted SSE.
@@ -611,3 +611,73 @@ Its own task file, runner and unhashed modules, planned after this slice is sign
 Same pin rule. **Depends on:** this slice verified and its caches unchanged.
 
 **LP-2b-2** (the 2025 confirmation): as outlined in 2b-1a §19, with the same pin rule.
+
+## 17. Revision 3: H context "off" option (Anton, 2026-11-18, before registration)
+
+### 17.1 Ruling (verbatim)
+
+> 1. Don’t register yet. One spec revision first (Anton, 2026-11-18): add an “off” option (context adjustment zero, i.e. α = ∞) to H’s ctxAlphas, chosen by the same leave-one-season-out rule; and set the fewer-than-2-training-seasons default (ctxDefaultAlpha) to “off” instead of 100, because with one training season the adjustment cannot be validated (this affects the 2019 fold and --smoke). Record the reason: decided before any dev-fold result, prompted by the smoke diagnostic; no value is fitted to 2018. Update the task file, specs and tests (one test: with one training season H’s prediction equals the season prior plus no context term; red: default back to 100; fixture fact: training set spans exactly one season). Light plan review, then Session 2 applies it, re-runs --smoke for the record (no stop on its numbers), and proceeds to Commit 2 (registration) and Commit 3 (--dev).
+
+**Reason, recorded as ruled:**
+- The change was decided before any development-fold result.
+- It was prompted by the Session 2 smoke diagnostic: H's context term made H worse than STD at every position on the one-season 2018 split, and no single input group or the week inputs explained it.
+- No value is fitted to 2018. `"off"` is a candidate on the same grid, chosen by the same rule.
+
+### 17.2 Change
+
+**Spec** (`spec_wm.default_spec_w("H")`):
+- `ctxAlphas` = `[1, 10, 100, 1000, "off"]`. `"off"` is last, so a tie keeps the finite α under the first-minimum rule.
+- `ctxDefaultAlpha` = `"off"`.
+- G's spec is unchanged: these keys are null there.
+
+**`"off"` means α = ∞:**
+- No `Cohort` is fitted, and q = clip(b).
+- In leave-one-season-out, its held-out SSE is Σ e·(r − b)² with the same b as the finite αs.
+- `Fits`, the artifact and the verdict record α as the string `"off"`, never a float. That replaces `float(alpha)` in `weekly_h` and the `%g` formatting in `report_s2b`.
+
+**Where `"off"` applies:**
+- Every fold with fewer than 2 training seasons, which is fold 2019 and `--smoke`.
+- Any fold where leave-one-season-out picks it.
+- Also inside the cross-fit refits (§6.5).
+
+`variant` `hContext: False` stays as it is.
+
+**Candidate files:**
+- The Commit 1 weekly spec is stale.
+- Restore both files to their pre-Commit-1 bytes (`git show 6186371:research/learned-projection/candidates/<name>.json`), then re-run `--init-weekly`.
+- Both canonical season sections must still equal the header hashes. `register_weekly` then sees the new spec in the working file, at HEAD after the commit, and in `default_spec_w`.
+
+**Verdict:**
+- The verdict adds this ruling and its reason after the §3.2 rule.
+- A stated limit: in folds with one training season (2019) H carries no context term by construction.
+- The §11 limit and `report_s2b.py`'s string read "H's season-layer α is inherited at its grid top; the weekly context α is chosen by leave-one-season-out over a grid that includes 'off'".
+- The fit-facts table renders α = None (`hContext: False`) as "—" and `"off"` as "off".
+
+### 17.3 Tests
+
+**T-B-17 · One training season, no context term.**
+- **Asserts:**
+  - On a fixture whose training rows span exactly one season, with `default_spec_w("H")` unshrunk in `ctxAlphas`/`ctxDefaultAlpha`, H's prediction equals clip(b) exactly on every row and target. Here b is the season prior plus the credibility deviation; with E = 0, b = pr.
+  - The recorded α is `"off"` and no `Cohort` is constructed (patched counter).
+  - `default_spec_w("H")["ctxDefaultAlpha"] == "off"`.
+- **Fails if:** a one-season fold fits a context ridge.
+- **Red:** set the default back to 100.
+- **Fact:** the training set's unique S has length 1, and at that row set a 100-α Cohort's prediction differs from 0 by more than 1e-6 on at least one row.
+
+**Also:**
+- T-B-3 asserts that `"off"` competes in leave-one-season-out. On a two-season fixture where the context columns are pure noise, `"off"` is chosen, and the recorded `alphaSse` holds five entries.
+- T-B-11 round-trips a `Fits` whose α is `"off"`.
+- T-B-3's in-test recompute loop gets an `"off"` branch, so it builds no `Cohort` there and takes the held-out SSE as Σ e·(r − b)².
+- T-B-9's `_probe_state` records the ridge output only when `cohort is not None`, and the string `"off"` otherwise.
+- The fixture's facts are unchanged.
+
+### 17.4 Order for Session 2
+
+1. Apply §17.2–§17.3 as new commits on top of `214ed3c`. Session 1 edits nothing but this file.
+2. Run the full suite green, with T-B-17's red shown.
+3. Re-run `--smoke` for the record. **§12's smoke stop does not apply to its numbers** (Anton).
+4. Make **Commit 1b**: code, tests, both candidate files and this task file, staged by name.
+5. Then Commit 2 (`--register-weekly`) and Commit 3 (`--dev --write`), exactly as in §13.
+6. The hand-back adds the new smoke table and α as chosen per fold and position.
+
+Every other §12 stop still applies.

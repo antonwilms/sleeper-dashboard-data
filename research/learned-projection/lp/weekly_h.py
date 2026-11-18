@@ -3,12 +3,15 @@
 For a row (pid, S, week w, origin n = w - 1 by default) and a weekly target t with prior pr:
     E = sum_j rho^(a_j) exp_j,  N = sum_j rho^(a_j) num_j      over his season-S PLAYED rows j with week <= n, a_j = the number of his later such rows
     b = pr + (N - pr E) / (k + E)                                 (E = N = 0 -> b = pr exactly)
-(k, rho) minimise the exposure-weighted squared error on the training rows; the context ridge `model_h.Cohort` is fitted to r - b.
+(k, rho) minimise the exposure-weighted squared error on the training rows; the context ridge `model_h.Cohort` is fitted to r - b unless the leave-one-season-out rule (or the
+one-season default) picks "off" (alpha = infinity: no context term, q = b).
 `history` mirrors the form block of `weekly_data.inputs_at` (F4) — a COPY, pinned by `crosscheck` (tests T-B-2 / T-B-4 and the runner's step 7(b))."""
 import numpy as np
 import pandas as pd
 
 from . import features, model_h, spec_w, spec_wm, weekly_data
+
+OFF = "off"                      # the context grid's last entry: alpha = infinity (Anton, 2026-11-18, §17)
 
 
 # ── history: every played to-date row, with its numerator / exposure per target ─────────────────────────────
@@ -150,15 +153,21 @@ def fit_target(spec, r, e, pr, E, N, X, S, context=True):
                 tot = 0.0
                 for s in seasons:
                     te = S_ == s
-                    c = model_h.Cohort(X_[~te], (r_ - b)[~te], e_[~te], a)
-                    tot += float((e_[te] * ((r_ - b)[te] - c.predict(X_[te])) ** 2).sum())
+                    if a == OFF:                                          # alpha = infinity: no context term, the held-out SSE is that of b itself
+                        tot += float((e_[te] * (r_ - b)[te] ** 2).sum())
+                    else:
+                        c = model_h.Cohort(X_[~te], (r_ - b)[~te], e_[~te], a)
+                        tot += float((e_[te] * ((r_ - b)[te] - c.predict(X_[te])) ** 2).sum())
                 sse.append(tot)
-            alpha = spec["ctxAlphas"][int(np.argmin(sse))]
+            alpha = spec["ctxAlphas"][int(np.argmin(sse))]               # first minimum: "off" is last, so a tie keeps a finite alpha
             out["alphaSse"] = sse
         else:
-            alpha = spec["ctxDefaultAlpha"]
-        out["alpha"] = float(alpha)
-        out["cohort"] = model_h.Cohort(X_, r_ - b, e_, alpha)
+            alpha = spec["ctxDefaultAlpha"]                                # fewer than 2 training seasons: the adjustment cannot be validated
+        if alpha == OFF:
+            out["alpha"] = OFF
+        else:
+            out["alpha"] = float(alpha)
+            out["cohort"] = model_h.Cohort(X_, r_ - b, e_, alpha)
     return out
 
 

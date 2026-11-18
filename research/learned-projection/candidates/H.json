@@ -3239,14 +3239,15 @@
      1,
      10,
      100,
-     1000
+     1000,
+     "off"
     ],
     "ctxCols": [
      "nP",
      "wk",
      "noPrior"
     ],
-    "ctxDefaultAlpha": 100,
+    "ctxDefaultAlpha": "off",
     "ctxGroups": [
      "usage",
      "avail",

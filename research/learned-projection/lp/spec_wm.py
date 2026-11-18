@@ -19,8 +19,8 @@ def default_spec_w(name):
     spec = {
         "name": name, "family": name, "trainFrom": 2018, "lastSeason": 2024, "seed": 0,
         "kMultW": [0.5, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32], "rhos": [0.6, 0.75, 0.85, 0.92, 1.0],
-        "ctxGroups": ["usage", "avail", "absence", "opp", "team", "game", "gl", "bio"], "ctxCols": ["nP", "wk", "noPrior"], "ctxAlphas": [1, 10, 100, 1000],
-        "ctxDefaultAlpha": 100,
+        "ctxGroups": ["usage", "avail", "absence", "opp", "team", "game", "gl", "bio"], "ctxCols": ["nP", "wk", "noPrior"], "ctxAlphas": [1, 10, 100, 1000, "off"],
+        "ctxDefaultAlpha": "off",
         "gGroups": ["form", "usage", "avail", "absence", "opp", "team", "game", "gl", "bio", "prior"],
         "gPoint": {"learning_rate": 0.05, "max_iter": 300, "max_leaf_nodes": 8, "min_samples_leaf": 100, "l2_regularization": 1.0},
         "pplaysCols": spec_w.AVAIL + ["pr_gamesShare", "noPrior", "nP", "wk", "age", "exp"], "pplays": {"C": 1.0, "max_iter": 1000},

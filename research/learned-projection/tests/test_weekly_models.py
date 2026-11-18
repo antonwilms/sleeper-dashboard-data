@@ -211,8 +211,10 @@ class TestHFit(unittest.TestCase):
 
     def test_alpha_rule(self):
         one = dict(self.d, S=np.full(len(self.d["S"]), 2018))
-        self.assertEqual(self._fit(one)["alpha"], self.spec["ctxDefaultAlpha"])
+        info1 = self._fit(one)
+        self.assertEqual((info1["alpha"], info1["cohort"], info1["alphaSse"]), ("off", None, None))      # fewer than 2 training seasons: the default
         info = self._fit(self.d)
+        self.assertEqual(len(info["alphaSse"]), 5)                                                  # "off" competes with the four finite alphas
         self.assertEqual(self.spec["ctxAlphas"][int(np.argmin(info["alphaSse"]))], info["alpha"])
         d = self.d
         b = d["pr"] + (d["N"][info["rhoIdx"]] - d["pr"] * d["E"][info["rhoIdx"]]) / (info["k"] + d["E"][info["rhoIdx"]])
@@ -220,9 +222,21 @@ class TestHFit(unittest.TestCase):
             tot = 0.0
             for s in sorted(set(d["S"].tolist())):
                 te = d["S"] == s
+                if a == "off":                                                                       # no Cohort: the held-out SSE of b itself
+                    tot += float((d["e"][te] * (d["r"] - b)[te] ** 2).sum())
+                    continue
                 c = model_h.Cohort(d["X"][~te], (d["r"] - b)[~te], d["e"][~te], a)
                 tot += float((d["e"][te] * ((d["r"] - b)[te] - c.predict(d["X"][te])) ** 2).sum())
             self.assertAlmostEqual(tot, sse, places=8)
+
+    def test_off_wins_when_the_context_is_pure_noise(self):
+        rng = np.random.RandomState(11)
+        d = dict(self.d, S=np.array([2018, 2019])[rng.randint(0, 2, len(self.d["S"]))], X=rng.normal(0, 1, (len(self.d["S"]), 6)))
+        info = self._fit(d)
+        self.assertEqual(len(info["alphaSse"]), 5)
+        self.assertEqual(info["alpha"], "off")
+        self.assertIsNone(info["cohort"])
+        self.assertEqual(int(np.argmin(info["alphaSse"])), 4)
 
 
 # ── T-B-4 ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -527,7 +541,7 @@ def _probe_state(fits, W, T=2021):
         o = {"c_w": pf.c_w, "phi": pf.phi, "bounds": pf.bounds, "p": pplays.predict(pf.pplays, d)}
         if fits.family == "H":
             o["hp"] = {t: (i["k"], i["rho"], i["alpha"]) for t, i in pf.targets.items()}
-            o["ridge"] = {t: i["cohort"].predict(d[pf.design["ctx"]].to_numpy(float)) for t, i in pf.targets.items()}
+            o["ridge"] = {t: (i["cohort"].predict(d[pf.design["ctx"]].to_numpy(float)) if i["cohort"] is not None else "off") for t, i in pf.targets.items()}
         else:
             o["trees"] = {t: m.predict(d[pf.design["g"]].to_numpy(float)) for t, m in pf.targets.items()}
         out[P] = o
@@ -688,6 +702,72 @@ class TestHook1FitsPersistence(unittest.TestCase):
             with open(p, "rb") as f:
                 again = pickle.load(f)[(n.lower(), 2021)]
             pd.testing.assert_frame_equal(preds, wm.predict_w(again, rows, self.W.hist, self.W.store), check_exact=True)
+
+
+    def test_a_fits_whose_alpha_is_off_round_trips(self):
+        W = self.W
+        preds, fits = _fold(W, "H", T=2019)                                   # one training season: every alpha is "off"
+        self.assertTrue(all(i["alpha"] == "off" for pf in fits.pos.values() for i in pf.targets.values()))
+        back = pickle.loads(pickle.dumps(fits, protocol=4))
+        self.assertTrue(all(i["alpha"] == "off" and i["cohort"] is None for pf in back.pos.values() for i in pf.targets.values()))
+        rows = W.frame[W.frame["S"] == 2019]
+        pd.testing.assert_frame_equal(preds, wm.predict_w(back, rows, W.hist, W.store), check_exact=True)
+
+
+# ── T-B-17 ──────────────────────────────────────────────────────────────────────────────────────────────────
+class TestOneTrainingSeason(unittest.TestCase):
+    """T-B-17. Fails if a fold with one training season fits a context ridge."""
+
+    T = 2019
+
+    @classmethod
+    def setUpClass(cls):
+        cls.W = _world()
+
+    def setUp(self):
+        W = self.W
+        self.tr = W.frame[(W.frame["S"] >= 2018) & (W.frame["S"] < self.T)]
+        self.assertEqual(len(self.tr["S"].unique()), 1, "Fact: the training set spans exactly one season")
+        self.assertEqual(spec_wm.default_spec_w("H")["ctxDefaultAlpha"], "off")
+        spec = swm.small_spec_w("H")
+        self.assertEqual((spec["ctxAlphas"], spec["ctxDefaultAlpha"]), (spec_wm.default_spec_w("H")["ctxAlphas"], "off"), "the spec under test is the registered one")
+        # Fact (continued): with alpha = 100 the context ridge is NOT zero on this row set
+        P = "RB"
+        d = self.tr[self.tr["position"] == P]
+        dsg = wm.design(spec, {}, set(W.frame.columns))
+        ix = weekly_h.index(W.hist)
+        E, N = weekly_h.evidence(ix, d["pid"].to_numpy(object), d["S"].to_numpy(int), d["w"].to_numpy(int) - 1, [1.0])
+        t = "rush_att"
+        j = SPEC_W["targets"].index(t)
+        pr = d["pr_" + t].to_numpy(float)
+        b = pr + (N[0][:, j] - pr * E[0][:, j]) / (4.0 + E[0][:, j])
+        m = (d["e_" + t].to_numpy(float) > 0)
+        c = model_h.Cohort(d[dsg["ctx"]].to_numpy(float)[m], (d["r_" + t].to_numpy(float) - b)[m], d["e_" + t].to_numpy(float)[m], 100)
+        self.assertGreater(np.abs(c.predict(d[dsg["ctx"]].to_numpy(float))).max(), 1e-6, "Fact: a 100-alpha Cohort's prediction differs from 0")
+
+    def test_prediction_is_the_clipped_evidence_blend_and_no_cohort_is_built(self):
+        W = self.W
+        spy = mock.Mock(wraps=model_h.Cohort)
+        with mock.patch.object(model_h, "Cohort", spy):
+            preds, fits = _fold(W, "H", T=self.T)
+        spy.assert_not_called()
+        ix = weekly_h.index(W.hist)
+        rows_all = W.frame[W.frame["S"] == self.T]
+        for P in POS:
+            pf = fits.pos[P]
+            rows = rows_all[rows_all["position"] == P]
+            q = {}
+            for t, info in pf.targets.items():
+                self.assertEqual((info["alpha"], info["cohort"]), ("off", None))
+                j = SPEC_W["targets"].index(t)
+                E, N = weekly_h.evidence(ix, rows["pid"].to_numpy(object), rows["S"].to_numpy(int), rows["w"].to_numpy(int) - 1, [info["rho"]])
+                pr = rows["pr_" + t].to_numpy(float)
+                q[t] = np.clip(pr + (N[0][:, j] - pr * E[0][:, j]) / (info["k"] + E[0][:, j]), *pf.bounds[t])
+            want = wm._ppg_rows(q, rows["S"], P, W.store)
+            got = preds[preds["position"] == P].set_index(["pid", "S", "w"]).loc[list(zip(rows["pid"], rows["S"], rows["w"]))]["ppg"].to_numpy()
+            np.testing.assert_allclose(got, want, rtol=1e-12, atol=0)
+        w1 = rows_all[rows_all["w"] == 1]                                        # with E = 0 (week 1) b = pr: the prediction is the season prior's clipped value
+        self.assertTrue(len(w1))
 
 
 # ── T-B-12 ──────────────────────────────────────────────────────────────────────────────────────────────────
