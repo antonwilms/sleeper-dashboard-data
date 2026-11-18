@@ -53,6 +53,25 @@ def _world():
 class TestN0Identity(unittest.TestCase):
     """T-B-1. Fails if a minor term or a denominator is dropped from the composition."""
 
+    @classmethod
+    def setUpClass(cls):
+        cls.W = _world()
+        cls.fits = _fold(cls.W, "H")[1]
+        ix = weekly_h.index(cls.W.hist)
+        cls.row = None                                                       # a season-2021 row whose raw q is outside its clip bounds, for some target
+        d_all = cls.W.frame[cls.W.frame["S"] == 2021]
+        for P, pf in cls.fits.pos.items():
+            d = d_all[d_all["position"] == P]
+            for t, info in pf.targets.items():
+                j = SPEC_W["targets"].index(t)
+                E, N = weekly_h.evidence(ix, d["pid"].to_numpy(object), d["S"].to_numpy(int), d["w"].to_numpy(int) - 1, [info["rho"]])
+                raw = weekly_h.predict_target(info, d["pr_" + t].to_numpy(float), E[0][:, j], N[0][:, j], d[pf.design["ctx"]].to_numpy(float))
+                lo, hi = pf.bounds[t]
+                bad = np.flatnonzero((raw < lo) | (raw > hi))
+                if len(bad) and cls.row is None:
+                    cls.row = (P, d.iloc[[int(bad[0])]])
+        assert cls.row is not None, "Fact: a row's raw q is outside its clip bounds"
+
     def setUp(self):
         self.store = swm.FakeStore()
         self.minor = self.store.minor([], "RB")
@@ -86,6 +105,23 @@ class TestN0Identity(unittest.TestCase):
         unclipped = wm.compose(clipped, "RB", W.store, W.store.minor([], "RB"))[0]
         clipped["rush_att"] = np.clip(clipped["rush_att"], lo, hi)
         self.assertGreater(abs(wm.compose(clipped, "RB", W.store, W.store.minor([], "RB"))[0] - unclipped), 1e-6)
+
+    def test_predict_path_composes_the_clipped_q(self):
+        P, row = self.row
+        pf = self.fits.pos[P]
+        ix = weekly_h.index(self.W.hist)
+        q, outside = {}, 0
+        for t, info in pf.targets.items():
+            j = SPEC_W["targets"].index(t)
+            E, N = weekly_h.evidence(ix, row["pid"].to_numpy(object), row["S"].to_numpy(int), row["w"].to_numpy(int) - 1, [info["rho"]])
+            raw = weekly_h.predict_target(info, row["pr_" + t].to_numpy(float), E[0][:, j], N[0][:, j], row[pf.design["ctx"]].to_numpy(float))
+            lo, hi = pf.bounds[t]
+            outside += int(((raw < lo) | (raw > hi)).any())
+            q[t] = np.clip(raw, lo, hi)
+        self.assertGreater(outside, 0)
+        want = wm._ppg_rows(q, row["S"], P, self.W.store)
+        got = wm.predict_w(self.fits, row, self.W.hist, self.W.store)["ppg"].to_numpy()
+        np.testing.assert_allclose(got, want, rtol=1e-12, atol=0)
 
     def test_n0_check_on_the_fixture_and_a_perturbed_prior(self):
         W = _world()
@@ -437,7 +473,7 @@ class TestCrossfit(unittest.TestCase):
         ok = m & sub["played"].to_numpy(bool) & (sub["pts"].to_numpy(float) > 0) & (ppg > 0)
         return float(np.median(sub["pts"].to_numpy(float)[ok] / ppg[ok])), int(ok.sum())
 
-    def test_fact_in_sample_and_oof_medians_differ(self):
+    def setUp(self):
         diffs = []
         for P in POS:
             sub, oof = self.cap[P]
@@ -507,6 +543,15 @@ class TestRelevantCopy(unittest.TestCase):
         self.wf.loc[np.random.RandomState(1).rand(len(self.wf)) < 0.4, "prior_b2"] = np.nan          # stratum N: STD falls back to the position's training mean
         self.bw = twb.benchw_for(self.wf)
         self.T = 2020
+        with mock.patch.object(baselines, "RELEVANT_K", {"QB": 2, "RB": 2, "WR": 2, "TE": 2}):
+            got = self._medians(wm.train_relevant(self.wf, self.T), self.wf, self.bw)
+            # Fact: pos_mean over ALL rows (a drifted copy) changes the per-position median of the copy's relevant rows
+            train = self.wf[(self.wf["S"] < self.T)].copy()
+            pm = train.groupby("position")["actual0"].mean().to_dict()                  # the mean over ALL rows (0 for a missed game)
+            pm_played = train[train["played"] == True].groupby("position")["pts"].mean().to_dict()  # noqa: E712
+            self.assertNotEqual(pm, pm_played)
+            alt = baselines.mark_relevant(baselines.add_std(train, pm))[["pid", "S", "w", "relevant"]]
+            self.assertNotEqual(self._medians(alt, self.wf, self.bw), got, "Fact: that pos_mean changes the per-position median")
 
     def _medians(self, rel, wf, bw):
         tr = wf[(wf["S"] < self.T) & (wf["S"] >= 2014)].merge(rel, on=["pid", "S", "w"]).merge(bw, on=["pid", "S", "w"], how="left")
@@ -523,13 +568,6 @@ class TestRelevantCopy(unittest.TestCase):
             got = self._medians(rel, self.wf, self.bw)
             for P in POS:
                 self.assertEqual(got[P], float(wk.loc[wk["position"] == P, "c_weekly"].iloc[0]), P)
-            # Fact: pos_mean over ALL rows (a drifted copy) changes the per-position median of the copy's relevant rows
-            train = self.wf[(self.wf["S"] < self.T)].copy()
-            pm = train.groupby("position")["actual0"].mean().to_dict()                  # the mean over ALL rows (0 for a missed game)
-            pm_played = train[train["played"] == True].groupby("position")["pts"].mean().to_dict()  # noqa: E712
-            self.assertNotEqual(pm, pm_played)
-            alt = baselines.mark_relevant(baselines.add_std(train, pm))[["pid", "S", "w", "relevant"]]
-            self.assertNotEqual(self._medians(alt, self.wf, self.bw), got, "Fact: that pos_mean changes the per-position median")
 
 
 # ── T-B-9 ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -688,10 +726,11 @@ class TestHook1FitsPersistence(unittest.TestCase):
     def setUpClass(cls):
         cls.W = _world()
         cls.res = {n: _fold(cls.W, n) for n in "HG"}
+        for n, (_, fits) in cls.res.items():
+            assert _raw_outside(fits, cls.W), "Fact: at least one raw prediction lies outside its bounds (%s)" % n
 
     def test_round_trip_gives_identical_predictions(self):
         for n, (preds, fits) in self.res.items():
-            self.assertTrue(_raw_outside(fits, self.W), "Fact: at least one raw prediction lies outside its bounds (%s)" % n)
             back = pickle.loads(pickle.dumps(fits, protocol=4))
             rows = self.W.frame[self.W.frame["S"] == 2021]
             pd.testing.assert_frame_equal(preds, wm.predict_w(back, rows, self.W.hist, self.W.store), check_exact=True)
@@ -728,6 +767,7 @@ class TestOneTrainingSeason(unittest.TestCase):
         W = self.W
         self.tr = W.frame[(W.frame["S"] >= 2018) & (W.frame["S"] < self.T)]
         self.assertEqual(len(self.tr["S"].unique()), 1, "Fact: the training set spans exactly one season")
+        self.assertTrue(len(W.frame[(W.frame["S"] == self.T) & (W.frame["w"] == 1)]), "Fact: w1 is non-empty")
         self.assertEqual(spec_wm.default_spec_w("H")["ctxDefaultAlpha"], "off")
         spec = swm.small_spec_w("H")
         self.assertEqual((spec["ctxAlphas"], spec["ctxDefaultAlpha"]), (spec_wm.default_spec_w("H")["ctxAlphas"], "off"), "the spec under test is the registered one")
@@ -767,7 +807,13 @@ class TestOneTrainingSeason(unittest.TestCase):
             got = preds[preds["position"] == P].set_index(["pid", "S", "w"]).loc[list(zip(rows["pid"], rows["S"], rows["w"]))]["ppg"].to_numpy()
             np.testing.assert_allclose(got, want, rtol=1e-12, atol=0)
         w1 = rows_all[rows_all["w"] == 1]                                        # with E = 0 (week 1) b = pr: the prediction is the season prior's clipped value
-        self.assertTrue(len(w1))
+        for P in POS:
+            pf = fits.pos[P]
+            rows = w1[w1["position"] == P]
+            q = {t: np.clip(rows["pr_" + t].to_numpy(float), *pf.bounds[t]) for t in pf.targets}
+            want = wm._ppg_rows(q, rows["S"], P, W.store)
+            got = preds[preds["position"] == P].set_index(["pid", "S", "w"]).loc[list(zip(rows["pid"], rows["S"], rows["w"]))]["ppg"].to_numpy()
+            np.testing.assert_allclose(got, want, rtol=1e-12, atol=0)
 
 
 # ── T-B-12 ──────────────────────────────────────────────────────────────────────────────────────────────────

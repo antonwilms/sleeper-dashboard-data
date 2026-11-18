@@ -104,6 +104,8 @@ class TestWeeklyRegistration(unittest.TestCase):
 
     def setUp(self):
         self.r = WRepo()
+        d = self._deps("OTHER")
+        self.assertNotEqual(d.load_meta()["generatedAt"], d.anchor, "Fact: the test anchor differs from the meta")
 
     def tearDown(self):
         self.r.close()
@@ -215,7 +217,6 @@ class TestWeeklyRegistration(unittest.TestCase):
     def test_runner_register_checks_the_anchor_first(self):
         r = self.r.initialised()
         before = r.snapshot()
-        self.assertNotEqual("OTHER", "ANCHOR", "Fact: the test anchor differs from the meta")
         self.assertEqual(rwm.main(["--register-weekly"], deps=self._deps("OTHER")), 2)
         self.assertEqual(r.snapshot(), before)
         self.assertEqual(rwm.main(["--register-weekly"], deps=self._deps("ANCHOR")), 0)    # with a matching anchor it changes both files
@@ -237,10 +238,11 @@ class TestRunnerEndToEnd(unittest.TestCase):
     def setUpClass(cls):
         cls.dev = e2e_w.dev_run()
 
+    def setUp(self):
+        self.assertEqual(int(e2e_w.build()["benchw"]["S"].max()), e2e_w.L + 1, "Fact: benchw has S = L + 1 rows")
+
     def test_dev_ran_and_no_held_row_reached_a_fit_a_frame_or_a_metric(self):
-        c = e2e_w.build()
         self.assertEqual(self.dev["rc"], 0)
-        self.assertEqual(int(c["benchw"]["S"].max()), e2e_w.L + 1, "Fact: benchw has S = L + 1 rows")
         calls = self.dev["rec"].calls
         self.assertEqual({n for n, _ in calls}, {"weekly_forecasts", "fit_w", "labels"})
         self.assertLessEqual(max(s for _, s in calls), e2e_w.L)
@@ -300,12 +302,15 @@ class TestRunnerEndToEnd(unittest.TestCase):
 class TestPinsPrereg(unittest.TestCase):
     """T-B-15. Fails if a pin or the prereg check runs late."""
 
+    def setUp(self):
+        self.env = {**os.environ, **{v: "8" for v in rwm.THREAD_VARS}}
+        self.assertNotEqual(self.env["OMP_NUM_THREADS"], "1", "Fact: the subprocess would start unpinned")
+
     def test_subprocess_import_is_pinned_before_numpy(self):
-        env = {**os.environ, **{v: "8" for v in rwm.THREAD_VARS}}
+        env = self.env
         code = ("import os, run_weekly_models as r; from threadpoolctl import threadpool_info; "
                 "print(*[os.environ[v] for v in r.THREAD_VARS], r._NUMPY_PRELOADED, r._SKLEARN_PRELOADED); print(*[i['num_threads'] for i in threadpool_info()])")
         r = subprocess.run([sys.executable, "-c", code], cwd=HERE, env=env, capture_output=True, text=True)
-        self.assertNotEqual(env["OMP_NUM_THREADS"], "1", "Fact: the subprocess would start unpinned")
         lines = r.stdout.strip().splitlines()
         self.assertEqual(lines[0].split(), ["1", "1", "1", "1", "False", "False"], r.stderr[-500:])
         self.assertTrue(len(lines) > 1 and lines[1].split())
