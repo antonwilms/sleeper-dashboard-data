@@ -539,3 +539,60 @@ Do not touch `run_weekly_analysis.py` or `lp/report_s2b1c.py` unless an item bel
 - the red confirmation for items 3, 4 and 5;
 - the regenerated §0a lines verbatim, and a diff of the report's §0;
 - the new §4.2 WR row values.
+
+## Verification
+
+Session 1, 2026-11-19. I reviewed the diff itself, not only the hand-backs.
+
+**Rebase.** `git pull --rebase origin main` at 2026-11-19T10:43Z. `origin/main` is `f49d85e` (`git ls-remote` confirms it). It is the slice's own base, so no capture commit came in and every id below is final.
+
+**Commits** (main, unpushed, on top of `f49d85e`, Anton's signed settings commit, which is outside this slice):
+- `ade861b` — Commit A: modules, runner, tests, task file;
+- `0448d63` — Commit B: the artifact, the report with §0, docs;
+- `15fb428` — Fix pass 1: override weights, rule tests, report §0;
+- this commit — this record.
+
+**Reviews:**
+- **Full implementation review** (opus, high) of `f49d85e..0448d63`: 8 flags, none blocking.
+  - Flags 1–7 were fixed in Fix pass 1:
+    - λ_B1 had been computed on the unfiltered cell rows; I confirmed this at `analysis_w.py:291`;
+    - WR λ_B1 was NaN at n ≥ 2, from a missing benchw value;
+    - two §0 overstatements;
+    - no tests of the rule logic or `override_levels`;
+    - the leak test was never shown red, and the leak stop had no end-to-end test.
+  - **Flag 8 is accepted.** `paired` drops null-`b` rows for every benchmark, where `evaluate_w.labels` drops them only for B1c, and it omits the null-candidate raise. STD is never null on the real rows, and check 5(c) matched n and every value exactly.
+- **Fix-pass re-review** (light) of `0448d63..15fb428`: no flags.
+  - `run_weekly_analysis.py` is byte-identical to `0448d63`.
+  - The artifact differs only in `overrideLevels` and `seconds`, and §0a is identical.
+  - `b1Rows ≤ rows` in every cell, and WR λ_B1 is finite.
+
+**Deviations** (all accepted):
+- the `analysis_w.refit` and `analysis_w.origin0_ppg` helpers;
+- an extra `leak_check` unit test (shown red in Fix pass 1);
+- the leak limit read at call time;
+- the e2e test rewrites its temporary candidate files to carry the full season grid (temp files only);
+- Fix pass 1's one-column change in `lp/report_s2b1c.py`, which item 2 requires.
+
+**Locks**, re-checked by Session 1 on `15fb428`:
+- `require` passes for H and G, on both layers, for 2019–2024;
+- `registry_w.section_hash` equals `SECTION_SHA` for both;
+- the cache SHAs are unchanged: `weekly-inputs` `2431b397…`, `season-prior` `55c55e20…`, `weekly-preds` `44d7132a…`, `weekly-fits` `4c6738bb…`, `benchw` `4ec9ba99…`;
+- there is no diff in `candidates/`, the registered weekly code, `manifest.json` or the served folders;
+- no run-log entry was written;
+- no label, gate or `M.label` appears anywhere.
+
+**Result** (report-only; development folds; 2025 held):
+- **Override speed does not explain the tie** at any position. No arm meets the finding rule (CI below 0 and ≥ 1%). The only arm cell with its CI below 0 is h_ks2 (k × 2) at WR: d −0.019 [−0.036, −0.002], 0.3%. The widened k grid changes nothing (|d| ≤ 0.003 everywhere).
+- **Against B1c by band**, only RB weeks 10 and later are distinguishable (d −0.110, H better).
+- **Weekly grid edges:**
+  - k-high has a training-error drop of 0.02–0.05% per last step, with route (b) as the test-fold evidence;
+  - RB k-low (0.32%, 5 target-folds) and ρ-low (0.42%, 11) have no test-fold arm.
+- **Season:** R-S holds for RB H (6 of 6 folds, mean drop 1.19%), so the runner printed **STOP for Anton before LP-2b-2 is planned**. The season α / k-multiple / δ errors are unrecorded, and their edge shares are high (α at an edge in 88% of RB and 90% of WR target-folds).
+- **R4:** no candidate change is indicated.
+
+**Checks** (Session 1, on `15fb428`):
+- Python suite: 214 tests OK;
+- `npm test`: 2150 pass / 0 fail / 1 skipped;
+- `npm run smoke`: exit 0;
+- `CLAUDE.md`: 24,126 bytes;
+- artifact: 754,552 bytes.
