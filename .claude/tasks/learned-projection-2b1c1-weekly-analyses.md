@@ -474,3 +474,68 @@ Fixtures: `synth_wmodels` (H `Fits` from `fit_w` on a stated DGP) and hand-built
 - **Fails if** numpy is imported before `run_weekly_models`.
 - **Red:** move `import numpy` above it.
 - **Fact:** the subprocess starts with the variables unset.
+
+## Fix pass 1
+
+From the full implementation review of `f49d85e..0448d63` (2026-11-19), triaged by Session 1 and approved by Anton ("Yes, fix pass 1"). Applier: the fix-applier subagent.
+
+**Scope.** Only these files:
+- `research/learned-projection/lp/analysis_w.py`;
+- `tests/test_weekly_analysis.py`;
+- the two regenerated outputs, `backtests/2026-11-19-learned-s2b1c1-analysis.json` and `grading/2026-11-19-learned-s2b1c1-report.md`, regenerated with `--write --date 2026-11-19`.
+
+Do not touch `run_weekly_analysis.py` or `lp/report_s2b1c.py` unless an item below names them. Do not touch any registered path, `candidates/`, an existing test or fixture other than `test_weekly_analysis.py`, a cache, `run-log.jsonl`, a served folder or `manifest.json`. Do not run any other runner. Stop and report if an item needs more than it names, or if the rerun changes any §0a rule line other than through items 1–2's table.
+
+1. **λ_B1 on the λ_H cell's rows** (review flag 1).
+   - In `override_levels`, `b1_weight` must receive exactly the rows `lambda_cells` used for that (P, n) cell for registered H: n ≥ 1, |x − ppg0_h| ≥ 1.
+   - Expose that row set from `lambda_cells`, for example by adding the filtered frame's index to the cell, and reuse it. Do not recompute the filter separately.
+   - `b1Rows` ≤ `rows` must then hold in every cell.
+2. **Finite B1 inputs** (flag 2). In `b1_weight`:
+   - keep only plain-kind rows with finite `nB` and `kB` and `nB + kB > 0`;
+   - record `"b1Missing"`, the number of plain-kind rows dropped for a missing or non-finite value;
+   - carry it into `override_levels` output and the §4.2 report column.
+   
+   A cell with no usable row gives `lambda` None and `"status": "no-b1-rows"`.
+3. **Tests for items 1–2** (flag 6). Add `TestOverrideLevels`, which calls `override_levels` on a hand frame.
+   - **Asserts:**
+     - every cell's `b1Rows` ≤ `rows`;
+     - λ_B1 equals the median of n/(n + k) over the cell's filtered plain rows only;
+     - a plain row with NaN `nB` is dropped and counted in `b1Missing`, and λ_B1 stays finite.
+   - **Fact, asserted in setUp:**
+     - one plain row has |x − ppg0| < 1 and an n/(n + k) far from the rest, so including it moves the median;
+     - one plain row has `nB` NaN.
+   - **Red:** show each item's defect separately. For item 1, revert to `sub = rows[(position == P) & (n == n)]`. For item 2, remove the finite mask. Then restore.
+4. **Rule-logic tests** (flag 5). Add `TestRuleOutcomes` on hand inputs to `r_w`, `rule_outcomes`, `finding_line`, `rename_arm` and `merge_arm`.
+   - **Asserts:**
+     - `r_w` holds only when the CI is entirely below 0 **and** −d/MAE(H) ≥ 0.01 (cases: CI below with 0.5% → no; CI below with 1.2% → yes; CI spanning 0 with 3% → no);
+     - an s < 1 arm meeting R-W gives "slow override costs accuracy at P";
+     - an s > 1 or `h_wide` arm gives the "too fast / the grid too narrow" line;
+     - R3 always has the "waits on Anton's ruling" sentence and appends the R-S clause only when an R-S stop is passed;
+     - R4 names an arm only for RB/WR hits;
+     - `merge_arm` raises when the arm column already exists in `wk`.
+   - **Fact:** the planted inputs include each case above.
+   - **Red:** swap the CI test to "entirely above 0" in `r_w`, then restore. A second red: remove the clash raise, then restore.
+5. **Leak stop** (flag 7).
+   - Show `test_leak_check_flags_a_pooled_gain_above_twelve_percent` red: compare with `>=` against 0 in `leak_check`, then restore.
+   - Add one e2e test: `run_once`-style, but with `A.LEAK_GAIN` patched to 0.0 instead of 10.0. `main` returns 2, and the stop message names the leak check.
+   - **Fact:** the e2e run's max pooled gain is > 0.
+   - **Red:** make `main` ignore `leak_check`'s result. That edit is in `run_weekly_analysis.py`; this item names it, and you revert it right after showing red.
+6. **Rerun and report §0** (flags 3–4).
+   - Run `python3 research/learned-projection/run_weekly_analysis.py --write --date 2026-11-19`. It must return 0, with checks (a)–(c) at max 0 and the anchors unchanged.
+   - Then rewrite the report's `## 0. Answers for Anton` from the regenerated §0a lines and tables only:
+     - **(1)** No "none improves anywhere". State that no arm meets the finding rule (CI below 0 and ≥ 1%). Name every arm-and-position cell whose d against H has its CI entirely below 0 but is under 1%, with its d and percentage (h_ks2 at WR was one).
+     - **(2)** Split the weekly answer by edge. Only the k-high edge has development-fold evidence (route (b)). Give the k-low and ρ-low training-SSE medians per position and their target-fold counts, and say they have no test-fold arm in this slice. Include QB's k-high median.
+     - **(3)** and **(4)** follow §0a as before.
+   - Every sentence must trace to a line of §0a or a table in the report.
+7. **Checks and commit.**
+   - The full Python suite, `npm test` and `npm run smoke` must be green.
+   - Make one commit, `LP-2b-1c-i: fix pass 1 (override weights, rule tests, report §0)`, staging by name: the two code/test files, the two outputs, and this task file (this section).
+   - No push, no rebase.
+
+**Accepted, not fixed — flag 8.** `paired` filters null `b` for every benchmark, where `evaluate_w.labels` filters only B1c, and it omits the null-candidate raise. STD is never null on the real rows, and check 5(c) matched n exactly. This is recorded in Verification.
+
+**Hand back:**
+- the commit SHA and files touched;
+- the red confirmation for items 3, 4 and 5;
+- the regenerated §0a lines verbatim, and a diff of the report's §0;
+- the new §4.2 WR row values.

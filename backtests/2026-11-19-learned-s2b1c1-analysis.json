@@ -31106,13 +31106,15 @@
    "players": 48,
    "status": "ok",
    "lambdaB1": 0.25,
-   "b1Rows": 127,
-   "b1ExcludedShare": 0.08633093525179858,
+   "b1Rows": 115,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.07999999999999996,
    "population": {
-    "standard": 0.8267716535433071,
-    "ROOKIE1P": 0.08661417322834646,
-    "SHORT": 0.05511811023622047,
-    "ROOKIE0": 0.031496062992125984
+    "standard": 0.8173913043478261,
+    "ROOKIE1P": 0.09565217391304348,
+    "SHORT": 0.06086956521739131,
+    "ROOKIE0": 0.02608695652173913
    }
   },
   {
@@ -31124,13 +31126,15 @@
    "players": 47,
    "status": "ok",
    "lambdaB1": 0.4,
-   "b1Rows": 127,
-   "b1ExcludedShare": 0.08633093525179858,
+   "b1Rows": 113,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.08870967741935487,
    "population": {
-    "standard": 0.7952755905511811,
-    "ROOKIE1P": 0.10236220472440945,
-    "SHORT": 0.06299212598425197,
-    "ROOKIE0": 0.03937007874015748
+    "standard": 0.7876106194690266,
+    "ROOKIE1P": 0.09734513274336283,
+    "SHORT": 0.07079646017699115,
+    "ROOKIE0": 0.04424778761061947
    }
   },
   {
@@ -31142,13 +31146,15 @@
    "players": 49,
    "status": "ok",
    "lambdaB1": 0.5,
-   "b1Rows": 124,
-   "b1ExcludedShare": 0.10144927536231885,
+   "b1Rows": 116,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.10077519379844957,
    "population": {
-    "standard": 0.7983870967741935,
-    "ROOKIE1P": 0.0967741935483871,
-    "SHORT": 0.056451612903225805,
-    "ROOKIE0": 0.04838709677419355
+    "standard": 0.7931034482758621,
+    "ROOKIE1P": 0.09482758620689655,
+    "SHORT": 0.0603448275862069,
+    "ROOKIE0": 0.05172413793103448
    }
   },
   {
@@ -31160,13 +31166,15 @@
    "players": 45,
    "status": "ok",
    "lambdaB1": 0.5714285714285714,
-   "b1Rows": 133,
-   "b1ExcludedShare": 0.0699300699300699,
+   "b1Rows": 119,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.04800000000000004,
    "population": {
-    "standard": 0.7744360902255639,
-    "ROOKIE1P": 0.12030075187969924,
-    "SHORT": 0.06766917293233082,
-    "ROOKIE0": 0.03759398496240601
+    "standard": 0.773109243697479,
+    "ROOKIE1P": 0.12605042016806722,
+    "SHORT": 0.058823529411764705,
+    "ROOKIE0": 0.04201680672268908
    }
   },
   {
@@ -31178,13 +31186,15 @@
    "players": 48,
    "status": "ok",
    "lambdaB1": 0.625,
-   "b1Rows": 131,
-   "b1ExcludedShare": 0.08391608391608396,
+   "b1Rows": 108,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.07692307692307687,
    "population": {
-    "standard": 0.7938931297709924,
-    "ROOKIE1P": 0.09923664122137404,
-    "SHORT": 0.06870229007633588,
-    "ROOKIE0": 0.03816793893129771
+    "standard": 0.7870370370370371,
+    "ROOKIE1P": 0.1111111111111111,
+    "SHORT": 0.05555555555555555,
+    "ROOKIE0": 0.046296296296296294
    }
   },
   {
@@ -31196,13 +31206,15 @@
    "players": 46,
    "status": "ok",
    "lambdaB1": 0.6666666666666666,
-   "b1Rows": 129,
-   "b1ExcludedShare": 0.07857142857142863,
+   "b1Rows": 114,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.08064516129032262,
    "population": {
-    "standard": 0.7674418604651163,
-    "ROOKIE1P": 0.12403100775193798,
-    "SHORT": 0.06201550387596899,
-    "ROOKIE0": 0.046511627906976744
+    "standard": 0.7543859649122807,
+    "ROOKIE1P": 0.13157894736842105,
+    "SHORT": 0.06140350877192982,
+    "ROOKIE0": 0.05263157894736842
    }
   },
   {
@@ -31214,13 +31226,15 @@
    "players": 44,
    "status": "ok",
    "lambdaB1": 0.7,
-   "b1Rows": 130,
-   "b1ExcludedShare": 0.08450704225352113,
+   "b1Rows": 110,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.09090909090909094,
    "population": {
-    "standard": 0.7846153846153846,
-    "ROOKIE1P": 0.12307692307692308,
-    "ROOKIE0": 0.046153846153846156,
-    "SHORT": 0.046153846153846156
+    "standard": 0.7818181818181819,
+    "ROOKIE1P": 0.12727272727272726,
+    "ROOKIE0": 0.045454545454545456,
+    "SHORT": 0.045454545454545456
    }
   },
   {
@@ -31232,13 +31246,15 @@
    "players": 43,
    "status": "ok",
    "lambdaB1": 0.7272727272727273,
-   "b1Rows": 129,
-   "b1ExcludedShare": 0.06521739130434778,
+   "b1Rows": 111,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.07499999999999996,
    "population": {
-    "standard": 0.7674418604651163,
-    "ROOKIE1P": 0.13178294573643412,
-    "SHORT": 0.05426356589147287,
-    "ROOKIE0": 0.046511627906976744
+    "standard": 0.7477477477477478,
+    "ROOKIE1P": 0.14414414414414414,
+    "ROOKIE0": 0.05405405405405406,
+    "SHORT": 0.05405405405405406
    }
   },
   {
@@ -31250,13 +31266,15 @@
    "players": 41,
    "status": "ok",
    "lambdaB1": 0.75,
-   "b1Rows": 126,
-   "b1ExcludedShare": 0.052631578947368474,
+   "b1Rows": 107,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.06140350877192979,
    "population": {
-    "standard": 0.7619047619047619,
-    "ROOKIE1P": 0.1349206349206349,
-    "SHORT": 0.06349206349206349,
-    "ROOKIE0": 0.03968253968253968
+    "standard": 0.7570093457943925,
+    "ROOKIE1P": 0.14018691588785046,
+    "SHORT": 0.056074766355140186,
+    "ROOKIE0": 0.04672897196261682
    }
   },
   {
@@ -31268,13 +31286,15 @@
    "players": 41,
    "status": "ok",
    "lambdaB1": 0.7692307692307693,
-   "b1Rows": 120,
-   "b1ExcludedShare": 0.055118110236220486,
+   "b1Rows": 99,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.05714285714285716,
    "population": {
-    "standard": 0.7666666666666667,
-    "ROOKIE1P": 0.14166666666666666,
-    "SHORT": 0.05,
-    "ROOKIE0": 0.041666666666666664
+    "standard": 0.7676767676767676,
+    "ROOKIE1P": 0.13131313131313133,
+    "ROOKIE0": 0.050505050505050504,
+    "SHORT": 0.050505050505050504
    }
   },
   {
@@ -31286,13 +31306,15 @@
    "players": 39,
    "status": "ok",
    "lambdaB1": 0.7857142857142857,
-   "b1Rows": 111,
-   "b1ExcludedShare": 0.0431034482758621,
+   "b1Rows": 88,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.04347826086956519,
    "population": {
-    "standard": 0.7747747747747747,
-    "ROOKIE1P": 0.14414414414414414,
-    "SHORT": 0.04504504504504504,
-    "ROOKIE0": 0.036036036036036036
+    "standard": 0.7840909090909091,
+    "ROOKIE1P": 0.13636363636363635,
+    "ROOKIE0": 0.045454545454545456,
+    "SHORT": 0.03409090909090909
    }
   },
   {
@@ -31304,13 +31326,15 @@
    "players": 41,
    "status": "ok",
    "lambdaB1": 0.8,
-   "b1Rows": 108,
-   "b1ExcludedShare": 0.04424778761061943,
+   "b1Rows": 86,
+   "b1Missing": 0,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.0337078651685393,
    "population": {
-    "standard": 0.7592592592592593,
-    "ROOKIE1P": 0.12962962962962962,
-    "ROOKIE0": 0.05555555555555555,
-    "SHORT": 0.05555555555555555
+    "standard": 0.7558139534883721,
+    "ROOKIE1P": 0.12790697674418605,
+    "ROOKIE0": 0.06976744186046512,
+    "SHORT": 0.046511627906976744
    }
   },
   {
@@ -31322,13 +31346,15 @@
    "players": 108,
    "status": "ok",
    "lambdaB1": 0.2857142857142857,
-   "b1Rows": 295,
+   "b1Rows": 271,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.735593220338983,
-    "ROOKIE1P": 0.1288135593220339,
-    "SHORT": 0.07796610169491526,
-    "ROOKIE0": 0.0576271186440678
+    "standard": 0.7306273062730627,
+    "ROOKIE1P": 0.13653136531365315,
+    "SHORT": 0.07011070110701106,
+    "ROOKIE0": 0.06273062730627306
    }
   },
   {
@@ -31340,13 +31366,15 @@
    "players": 106,
    "status": "ok",
    "lambdaB1": 0.4444444444444444,
-   "b1Rows": 291,
+   "b1Rows": 260,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.7147766323024055,
-    "ROOKIE1P": 0.14776632302405499,
-    "ROOKIE0": 0.06872852233676977,
-    "SHORT": 0.06872852233676977
+    "standard": 0.7038461538461539,
+    "ROOKIE1P": 0.14615384615384616,
+    "ROOKIE0": 0.07692307692307693,
+    "SHORT": 0.07307692307692308
    }
   },
   {
@@ -31358,13 +31386,15 @@
    "players": 104,
    "status": "ok",
    "lambdaB1": 0.5454545454545454,
-   "b1Rows": 282,
+   "b1Rows": 254,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.6914893617021277,
-    "ROOKIE1P": 0.1595744680851064,
-    "ROOKIE0": 0.0851063829787234,
-    "SHORT": 0.06382978723404255
+    "standard": 0.6771653543307087,
+    "ROOKIE1P": 0.16141732283464566,
+    "ROOKIE0": 0.09055118110236221,
+    "SHORT": 0.07086614173228346
    }
   },
   {
@@ -31376,13 +31406,15 @@
    "players": 110,
    "status": "ok",
    "lambdaB1": 0.6153846153846154,
-   "b1Rows": 287,
+   "b1Rows": 243,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.6933797909407665,
-    "ROOKIE1P": 0.15331010452961671,
-    "ROOKIE0": 0.08710801393728224,
-    "SHORT": 0.06620209059233449
+    "standard": 0.6666666666666666,
+    "ROOKIE1P": 0.1646090534979424,
+    "ROOKIE0": 0.09465020576131687,
+    "SHORT": 0.07407407407407407
    }
   },
   {
@@ -31394,13 +31426,15 @@
    "players": 107,
    "status": "ok",
    "lambdaB1": 0.6666666666666666,
-   "b1Rows": 284,
+   "b1Rows": 252,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.676056338028169,
-    "ROOKIE1P": 0.15140845070422534,
-    "ROOKIE0": 0.10915492957746478,
-    "SHORT": 0.06338028169014084
+    "standard": 0.6626984126984127,
+    "ROOKIE1P": 0.15079365079365079,
+    "ROOKIE0": 0.12301587301587301,
+    "SHORT": 0.06349206349206349
    }
   },
   {
@@ -31412,13 +31446,15 @@
    "players": 103,
    "status": "ok",
    "lambdaB1": 0.7058823529411765,
-   "b1Rows": 274,
+   "b1Rows": 243,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.6751824817518248,
-    "ROOKIE1P": 0.14963503649635038,
-    "ROOKIE0": 0.10948905109489052,
-    "SHORT": 0.06569343065693431
+    "standard": 0.6584362139917695,
+    "ROOKIE1P": 0.14814814814814814,
+    "ROOKIE0": 0.11934156378600823,
+    "SHORT": 0.07407407407407407
    }
   },
   {
@@ -31430,13 +31466,15 @@
    "players": 100,
    "status": "ok",
    "lambdaB1": 0.7368421052631579,
-   "b1Rows": 269,
+   "b1Rows": 231,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.6765799256505576,
-    "ROOKIE1P": 0.15613382899628253,
-    "ROOKIE0": 0.10780669144981413,
-    "SHORT": 0.05947955390334572
+    "standard": 0.670995670995671,
+    "ROOKIE1P": 0.14285714285714285,
+    "ROOKIE0": 0.12121212121212122,
+    "SHORT": 0.06493506493506493
    }
   },
   {
@@ -31448,13 +31486,15 @@
    "players": 99,
    "status": "ok",
    "lambdaB1": 0.7619047619047619,
-   "b1Rows": 260,
+   "b1Rows": 226,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.6807692307692308,
-    "ROOKIE1P": 0.16923076923076924,
-    "ROOKIE0": 0.1076923076923077,
-    "SHORT": 0.04230769230769231
+    "standard": 0.6592920353982301,
+    "ROOKIE1P": 0.17256637168141592,
+    "ROOKIE0": 0.12389380530973451,
+    "SHORT": 0.04424778761061947
    }
   },
   {
@@ -31466,13 +31506,15 @@
    "players": 102,
    "status": "ok",
    "lambdaB1": 0.782608695652174,
-   "b1Rows": 257,
+   "b1Rows": 220,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.6926070038910506,
-    "ROOKIE1P": 0.16342412451361868,
-    "ROOKIE0": 0.10116731517509728,
-    "SHORT": 0.042801556420233464
+    "standard": 0.6681818181818182,
+    "ROOKIE1P": 0.16818181818181818,
+    "ROOKIE0": 0.11818181818181818,
+    "SHORT": 0.045454545454545456
    }
   },
   {
@@ -31484,13 +31526,15 @@
    "players": 95,
    "status": "ok",
    "lambdaB1": 0.8,
-   "b1Rows": 237,
+   "b1Rows": 206,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.6751054852320675,
-    "ROOKIE1P": 0.16455696202531644,
-    "ROOKIE0": 0.11392405063291139,
-    "SHORT": 0.046413502109704644
+    "standard": 0.6650485436893204,
+    "ROOKIE1P": 0.1650485436893204,
+    "ROOKIE0": 0.12135922330097088,
+    "SHORT": 0.04854368932038835
    }
   },
   {
@@ -31502,13 +31546,15 @@
    "players": 88,
    "status": "ok",
    "lambdaB1": 0.8148148148148148,
-   "b1Rows": 231,
+   "b1Rows": 200,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.6753246753246753,
-    "ROOKIE1P": 0.1645021645021645,
-    "ROOKIE0": 0.11688311688311688,
-    "SHORT": 0.04329004329004329
+    "standard": 0.655,
+    "ROOKIE1P": 0.165,
+    "ROOKIE0": 0.135,
+    "SHORT": 0.045
    }
   },
   {
@@ -31520,13 +31566,15 @@
    "players": 87,
    "status": "ok",
    "lambdaB1": 0.8275862068965517,
-   "b1Rows": 214,
+   "b1Rows": 183,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.6822429906542056,
-    "ROOKIE1P": 0.1588785046728972,
-    "ROOKIE0": 0.10747663551401869,
-    "SHORT": 0.0514018691588785
+    "standard": 0.6502732240437158,
+    "ROOKIE1P": 0.16939890710382513,
+    "ROOKIE0": 0.12568306010928962,
+    "SHORT": 0.0546448087431694
    }
   },
   {
@@ -31538,13 +31586,15 @@
    "players": 126,
    "status": "ok",
    "lambdaB1": 0.25,
-   "b1Rows": 355,
+   "b1Rows": 322,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.7746478873239436,
-    "ROOKIE1P": 0.12394366197183099,
-    "SHORT": 0.056338028169014086,
-    "ROOKIE0": 0.04507042253521127
+    "standard": 0.7701863354037267,
+    "ROOKIE1P": 0.12422360248447205,
+    "SHORT": 0.055900621118012424,
+    "ROOKIE0": 0.049689440993788817
    }
   },
   {
@@ -31555,14 +31605,16 @@
    "rows": 319,
    "players": 129,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 361,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.4,
+   "b1Rows": 318,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.0031347962382445305,
    "population": {
-    "standard": 0.7472222222222222,
-    "ROOKIE1P": 0.13333333333333333,
-    "ROOKIE0": 0.06666666666666667,
-    "SHORT": 0.05277777777777778
+    "standard": 0.7421383647798742,
+    "ROOKIE1P": 0.1320754716981132,
+    "ROOKIE0": 0.07547169811320754,
+    "SHORT": 0.050314465408805034
    }
   },
   {
@@ -31573,14 +31625,16 @@
    "rows": 319,
    "players": 134,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 361,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.5,
+   "b1Rows": 318,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.0031347962382445305,
    "population": {
-    "standard": 0.7361111111111112,
-    "ROOKIE1P": 0.1388888888888889,
-    "ROOKIE0": 0.08055555555555556,
-    "SHORT": 0.044444444444444446
+    "standard": 0.7264150943396226,
+    "ROOKIE1P": 0.14465408805031446,
+    "ROOKIE0": 0.09119496855345911,
+    "SHORT": 0.03773584905660377
    }
   },
   {
@@ -31591,14 +31645,16 @@
    "rows": 317,
    "players": 139,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 371,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.5714285714285714,
+   "b1Rows": 316,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.003154574132492094,
    "population": {
-    "standard": 0.7189189189189189,
-    "ROOKIE1P": 0.14594594594594595,
-    "ROOKIE0": 0.0972972972972973,
-    "SHORT": 0.03783783783783784
+    "standard": 0.7088607594936709,
+    "ROOKIE1P": 0.14240506329113925,
+    "ROOKIE0": 0.11392405063291139,
+    "SHORT": 0.03481012658227848
    }
   },
   {
@@ -31609,14 +31665,16 @@
    "rows": 324,
    "players": 140,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 383,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.625,
+   "b1Rows": 323,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.0030864197530864335,
    "population": {
-    "standard": 0.7225130890052356,
-    "ROOKIE1P": 0.14397905759162305,
-    "ROOKIE0": 0.09424083769633508,
-    "SHORT": 0.03926701570680628
+    "standard": 0.7151702786377709,
+    "ROOKIE1P": 0.14241486068111456,
+    "ROOKIE0": 0.11145510835913312,
+    "SHORT": 0.030959752321981424
    }
   },
   {
@@ -31627,14 +31685,16 @@
    "rows": 307,
    "players": 130,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 372,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.6666666666666666,
+   "b1Rows": 306,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.0032573289902280145,
    "population": {
-    "standard": 0.7412398921832885,
-    "ROOKIE1P": 0.1293800539083558,
-    "ROOKIE0": 0.09703504043126684,
-    "SHORT": 0.03234501347708895
+    "standard": 0.7320261437908496,
+    "ROOKIE0": 0.11764705882352941,
+    "ROOKIE1P": 0.11764705882352941,
+    "SHORT": 0.032679738562091505
    }
   },
   {
@@ -31645,14 +31705,16 @@
    "rows": 305,
    "players": 129,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 366,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.7,
+   "b1Rows": 304,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.003278688524590123,
    "population": {
-    "standard": 0.7342465753424657,
-    "ROOKIE1P": 0.13150684931506848,
-    "ROOKIE0": 0.10410958904109589,
-    "SHORT": 0.030136986301369864
+    "standard": 0.7105263157894737,
+    "ROOKIE1P": 0.13157894736842105,
+    "ROOKIE0": 0.125,
+    "SHORT": 0.03289473684210526
    }
   },
   {
@@ -31663,14 +31725,16 @@
    "rows": 285,
    "players": 132,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 362,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.7272727272727273,
+   "b1Rows": 284,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.0035087719298245723,
    "population": {
-    "standard": 0.7202216066481995,
-    "ROOKIE1P": 0.1329639889196676,
-    "ROOKIE0": 0.11357340720221606,
-    "SHORT": 0.0332409972299169
+    "standard": 0.6936619718309859,
+    "ROOKIE0": 0.1443661971830986,
+    "ROOKIE1P": 0.12323943661971831,
+    "SHORT": 0.03873239436619718
    }
   },
   {
@@ -31681,14 +31745,16 @@
    "rows": 270,
    "players": 121,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 351,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.75,
+   "b1Rows": 269,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.0037037037037036535,
    "population": {
-    "standard": 0.7228571428571429,
-    "ROOKIE1P": 0.12857142857142856,
-    "ROOKIE0": 0.12,
-    "SHORT": 0.02857142857142857
+    "standard": 0.6914498141263941,
+    "ROOKIE0": 0.14869888475836432,
+    "ROOKIE1P": 0.12639405204460966,
+    "SHORT": 0.03345724907063197
    }
   },
   {
@@ -31699,14 +31765,16 @@
    "rows": 258,
    "players": 119,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 319,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.7692307692307693,
+   "b1Rows": 257,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.003875968992248069,
    "population": {
-    "standard": 0.710691823899371,
-    "ROOKIE1P": 0.13522012578616352,
-    "ROOKIE0": 0.12264150943396226,
-    "SHORT": 0.031446540880503145
+    "standard": 0.6731517509727627,
+    "ROOKIE0": 0.1517509727626459,
+    "ROOKIE1P": 0.14007782101167315,
+    "SHORT": 0.03501945525291829
    }
   },
   {
@@ -31717,14 +31785,16 @@
    "rows": 248,
    "players": 110,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 307,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.7857142857142857,
+   "b1Rows": 247,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.0040322580645161255,
    "population": {
-    "standard": 0.7320261437908496,
-    "ROOKIE1P": 0.13398692810457516,
-    "ROOKIE0": 0.10784313725490197,
-    "SHORT": 0.026143790849673203
+    "standard": 0.708502024291498,
+    "ROOKIE1P": 0.12955465587044535,
+    "ROOKIE0": 0.12955465587044535,
+    "SHORT": 0.032388663967611336
    }
   },
   {
@@ -31735,14 +31805,16 @@
    "rows": 229,
    "players": 111,
    "status": "ok",
-   "lambdaB1": null,
-   "b1Rows": 285,
-   "b1ExcludedShare": 0.0,
+   "lambdaB1": 0.8,
+   "b1Rows": 228,
+   "b1Missing": 1,
+   "b1Status": "ok",
+   "b1ExcludedShare": 0.004366812227074246,
    "population": {
-    "standard": 0.7147887323943662,
-    "ROOKIE1P": 0.1443661971830986,
-    "ROOKIE0": 0.11619718309859155,
-    "SHORT": 0.02464788732394366
+    "standard": 0.6798245614035088,
+    "ROOKIE1P": 0.14473684210526316,
+    "ROOKIE0": 0.14473684210526316,
+    "SHORT": 0.03070175438596491
    }
   },
   {
@@ -31754,13 +31826,15 @@
    "players": 51,
    "status": "ok",
    "lambdaB1": 0.2222222222222222,
-   "b1Rows": 144,
+   "b1Rows": 127,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8333333333333334,
-    "SHORT": 0.08333333333333333,
-    "ROOKIE1P": 0.0625,
-    "ROOKIE0": 0.020833333333333332
+    "standard": 0.8267716535433071,
+    "SHORT": 0.07874015748031496,
+    "ROOKIE1P": 0.07086614173228346,
+    "ROOKIE0": 0.023622047244094488
    }
   },
   {
@@ -31772,13 +31846,15 @@
    "players": 50,
    "status": "ok",
    "lambdaB1": 0.36363636363636365,
-   "b1Rows": 137,
+   "b1Rows": 119,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8248175182481752,
-    "SHORT": 0.08029197080291971,
-    "ROOKIE1P": 0.06569343065693431,
-    "ROOKIE0": 0.029197080291970802
+    "standard": 0.8067226890756303,
+    "SHORT": 0.08403361344537816,
+    "ROOKIE1P": 0.07563025210084033,
+    "ROOKIE0": 0.03361344537815126
    }
   },
   {
@@ -31790,13 +31866,15 @@
    "players": 52,
    "status": "ok",
    "lambdaB1": 0.46153846153846156,
-   "b1Rows": 141,
+   "b1Rows": 123,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8226950354609929,
-    "SHORT": 0.07801418439716312,
-    "ROOKIE1P": 0.05673758865248227,
-    "ROOKIE0": 0.0425531914893617
+    "standard": 0.8130081300813008,
+    "SHORT": 0.07317073170731707,
+    "ROOKIE1P": 0.06504065040650407,
+    "ROOKIE0": 0.04878048780487805
    }
   },
   {
@@ -31808,13 +31886,15 @@
    "players": 52,
    "status": "ok",
    "lambdaB1": 0.5333333333333333,
-   "b1Rows": 148,
+   "b1Rows": 129,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.831081081081081,
-    "SHORT": 0.06756756756756757,
-    "ROOKIE1P": 0.06756756756756757,
-    "ROOKIE0": 0.033783783783783786
+    "standard": 0.8217054263565892,
+    "ROOKIE1P": 0.07751937984496124,
+    "SHORT": 0.06201550387596899,
+    "ROOKIE0": 0.03875968992248062
    }
   },
   {
@@ -31826,13 +31906,15 @@
    "players": 52,
    "status": "ok",
    "lambdaB1": 0.5882352941176471,
-   "b1Rows": 155,
+   "b1Rows": 124,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8129032258064516,
-    "SHORT": 0.07741935483870968,
-    "ROOKIE1P": 0.07096774193548387,
-    "ROOKIE0": 0.03870967741935484
+    "standard": 0.8145161290322581,
+    "ROOKIE1P": 0.07258064516129033,
+    "SHORT": 0.06451612903225806,
+    "ROOKIE0": 0.04838709677419355
    }
   },
   {
@@ -31844,13 +31926,15 @@
    "players": 49,
    "status": "ok",
    "lambdaB1": 0.631578947368421,
-   "b1Rows": 144,
+   "b1Rows": 119,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8263888888888888,
-    "SHORT": 0.0763888888888889,
-    "ROOKIE1P": 0.05555555555555555,
-    "ROOKIE0": 0.041666666666666664
+    "standard": 0.7983193277310925,
+    "SHORT": 0.08403361344537816,
+    "ROOKIE1P": 0.06722689075630252,
+    "ROOKIE0": 0.05042016806722689
    }
   },
   {
@@ -31862,13 +31946,15 @@
    "players": 45,
    "status": "ok",
    "lambdaB1": 0.6666666666666666,
-   "b1Rows": 143,
+   "b1Rows": 113,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8041958041958042,
-    "ROOKIE1P": 0.07692307692307693,
-    "SHORT": 0.06993006993006994,
-    "ROOKIE0": 0.04895104895104895
+    "standard": 0.7699115044247787,
+    "ROOKIE1P": 0.08849557522123894,
+    "SHORT": 0.07964601769911504,
+    "ROOKIE0": 0.061946902654867256
    }
   },
   {
@@ -31880,13 +31966,15 @@
    "players": 52,
    "status": "ok",
    "lambdaB1": 0.6956521739130435,
-   "b1Rows": 142,
+   "b1Rows": 120,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.795774647887324,
-    "ROOKIE1P": 0.08450704225352113,
-    "ROOKIE0": 0.06338028169014084,
-    "SHORT": 0.056338028169014086
+    "standard": 0.7583333333333333,
+    "ROOKIE1P": 0.1,
+    "ROOKIE0": 0.075,
+    "SHORT": 0.06666666666666667
    }
   },
   {
@@ -31898,13 +31986,15 @@
    "players": 50,
    "status": "ok",
    "lambdaB1": 0.72,
-   "b1Rows": 141,
+   "b1Rows": 119,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8014184397163121,
-    "ROOKIE1P": 0.07801418439716312,
-    "ROOKIE0": 0.06382978723404255,
-    "SHORT": 0.05673758865248227
+    "standard": 0.773109243697479,
+    "ROOKIE1P": 0.08403361344537816,
+    "ROOKIE0": 0.07563025210084033,
+    "SHORT": 0.06722689075630252
    }
   },
   {
@@ -31916,13 +32006,15 @@
    "players": 49,
    "status": "ok",
    "lambdaB1": 0.7407407407407407,
-   "b1Rows": 128,
+   "b1Rows": 106,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8046875,
-    "ROOKIE1P": 0.0859375,
-    "SHORT": 0.0546875,
-    "ROOKIE0": 0.0546875
+    "standard": 0.7924528301886793,
+    "ROOKIE1P": 0.08490566037735849,
+    "ROOKIE0": 0.0660377358490566,
+    "SHORT": 0.05660377358490566
    }
   },
   {
@@ -31934,13 +32026,15 @@
    "players": 47,
    "status": "ok",
    "lambdaB1": 0.7586206896551724,
-   "b1Rows": 124,
+   "b1Rows": 102,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8064516129032258,
-    "ROOKIE1P": 0.08870967741935484,
-    "SHORT": 0.056451612903225805,
-    "ROOKIE0": 0.04838709677419355
+    "standard": 0.7941176470588235,
+    "ROOKIE1P": 0.08823529411764706,
+    "SHORT": 0.058823529411764705,
+    "ROOKIE0": 0.058823529411764705
    }
   },
   {
@@ -31952,13 +32046,15 @@
    "players": 49,
    "status": "ok",
    "lambdaB1": 0.7741935483870968,
-   "b1Rows": 119,
+   "b1Rows": 98,
+   "b1Missing": 0,
+   "b1Status": "ok",
    "b1ExcludedShare": 0.0,
    "population": {
-    "standard": 0.8067226890756303,
-    "ROOKIE1P": 0.09243697478991597,
-    "SHORT": 0.058823529411764705,
-    "ROOKIE0": 0.04201680672268908
+    "standard": 0.7857142857142857,
+    "ROOKIE1P": 0.09183673469387756,
+    "SHORT": 0.07142857142857142,
+    "ROOKIE0": 0.05102040816326531
    }
   }
  ],
@@ -46416,36 +46512,36 @@
   "pairedVs2b1bMaxRelative": 0.0
  },
  "seconds": {
-  "load+trim": 7.5,
-  "build": 118.7,
-  "checks ab": 125.5,
-  "check c": 12.1,
-  "arms": 179.7,
-  "analyses": 90.2,
-  "total": 569.4,
-  "check 2019": 8.8,
-  "check 2020": 8.7,
-  "check 2021": 14.0,
-  "check 2022": 22.0,
-  "check 2023": 29.9,
-  "check 2024": 42.1,
-  "arm h_ks0.25": 4.6,
-  "arm h_ks0.5": 3.8,
-  "arm h_ks2": 2.5,
-  "arm h_ks4": 2.4,
-  "arm h_ks8": 2.8,
-  "wide 2019": 3.5,
-  "noctx 2019": 3.9,
-  "wide 2020": 7.7,
-  "noctx 2020": 4.8,
-  "wide 2021": 12.0,
-  "noctx 2021": 4.0,
-  "wide 2022": 16.7,
-  "noctx 2022": 4.5,
-  "wide 2023": 29.4,
-  "noctx 2023": 13.2,
-  "wide 2024": 58.5,
-  "noctx 2024": 5.0
+  "load+trim": 6.6,
+  "build": 65.6,
+  "checks ab": 103.1,
+  "check c": 10.7,
+  "arms": 116.4,
+  "analyses": 73.9,
+  "total": 409.0,
+  "check 2019": 7.9,
+  "check 2020": 7.2,
+  "check 2021": 11.0,
+  "check 2022": 16.4,
+  "check 2023": 25.4,
+  "check 2024": 35.2,
+  "arm h_ks0.25": 1.9,
+  "arm h_ks0.5": 1.9,
+  "arm h_ks2": 1.8,
+  "arm h_ks4": 1.9,
+  "arm h_ks8": 1.9,
+  "wide 2019": 2.7,
+  "noctx 2019": 3.0,
+  "wide 2020": 5.3,
+  "noctx 2020": 3.2,
+  "wide 2021": 8.8,
+  "noctx 2021": 3.5,
+  "wide 2022": 14.3,
+  "noctx 2022": 3.8,
+  "wide 2023": 22.2,
+  "noctx 2023": 4.1,
+  "wide 2024": 31.5,
+  "noctx 2024": 4.3
  },
  "threads": {
   "OMP_NUM_THREADS": "1",

@@ -85,9 +85,9 @@ def build_report(res, ctx):
                [[o["pos"], o["target"], o["class"], "%.2f" % o["median"], "%.2f–%.2f" % (o["min"], o["max"]), "%d of %d" % (o["atTop"], o["folds"]), o["appKRosPoints"], o["appKRosOpp"]] for o in res["overrideTargets"]])
     L += ["", "### 4.2 Points-level evidence weight per (position, n): λ_H (registered H; its context ridge still reads the week-w to-date columns at origin 0, so it understates H's total response to the season so far), "
           "λ_H,nc (the shrinkage path alone — the headline override speed), λ_B1 (analytic, B1's n/(n+k) over plain rows)", ""]
-    L += table(["pos", "n", "rows", "players", "λ_H", "λ_H,nc", "λ_B1", "B1 rows", "B1 excluded share", "B1 population share"],
+    L += table(["pos", "n", "rows", "players", "λ_H", "λ_H,nc", "λ_B1", "B1 rows", "B1 missing", "B1 excluded share", "B1 population share"],
                [[o["pos"], o["n"], o["rows"], o["players"], ("INSUFFICIENT" if o["status"] != "ok" else "%.3f" % o["lambdaH"]), ("INSUFFICIENT" if o["status"] != "ok" else "%.3f" % o["lambdaHnc"]),
-                 "—" if o["lambdaB1"] is None else "%.3f" % o["lambdaB1"], o["b1Rows"], _pc(o["b1ExcludedShare"]), ", ".join("%s %.0f%%" % (k, 100 * v) for k, v in sorted(o["population"].items()))]
+                 "—" if o["lambdaB1"] is None else "%.3f" % o["lambdaB1"], o["b1Rows"], o["b1Missing"], _pc(o["b1ExcludedShare"]), ", ".join("%s %.0f%%" % (k, 100 * v) for k, v in sorted(o["population"].items()))]
                 for o in res["overrideLevels"]])
     qb = [o["b1ExcludedShare"] for o in res["overrideLevels"] if o["pos"] == "QB" and o["b1ExcludedShare"] is not None]
     L += ["", "QB note: B1's start-chain states (preseason, starter, backup) are excluded from λ_B1 whatever `liveChain` is; the mean excluded share over the QB cells is %s." % (_pc(sum(qb) / len(qb)) if qb else "—")]

@@ -4,13 +4,13 @@ Offline research; nothing here ships and nothing is registered, labelled or gate
 
 ## 0. Answers for Anton
 
-**(1) Why the weekly layer ties B1c.** Not a slow override. None of the five k-sweep arms (k scaled by 0.25, 0.5, 2, 4, 8) and not the widened k grid improves on the registered H at any position: the rule printed "override speed does not explain the tie" at QB, RB, WR and TE, and the widened grid's difference from H is 0.00 points at RB and WR. Against B1c by week band, H is distinguishable only at RB in weeks 10 and later (below 0, d −0.110); every other position-and-band interval includes 0. So on these development folds the tie looks like no edge over B1c rather than a fixable setting, with the one exception of late-season RB.
+**(1) Why the weekly layer ties B1c.** No arm meets the finding rule (its difference from the registered H has a confidence interval entirely below 0 and is at least 1% of H's error), so no "FINDING for Anton" line is printed and §0a says "override speed does not explain the tie" at QB, RB, WR and TE. One arm-and-position cell has its interval entirely below 0 but is under 1%: h_ks2 (k scaled by 2) at WR, d −0.019 [−0.036, −0.002], 0.3% of MAE(H) (§6). The widened k grid does not meet it at any position (§0a: d +0.003 at QB, +0.000 at RB, −0.000 at WR, +0.002 at TE; "R-W does not hold" at all four). Against B1c by week band, H is distinguishable only at RB in weeks 10 and later (below 0, d −0.110); every other position-and-band interval includes 0 (§0a).
 
-**(2) Whether a grid-edge setting plausibly costs accuracy.** At the weekly layer, no. Where H's k sits at the 32 edge, the training error improves by a median of about 0.04–0.05% over the last step (RB 0.0004, WR 0.0004, TE 0.0005), and widening the grid changed nothing measurable. At the season layer the λ surface is still falling at the edge for RB under H (6 of 6 folds, mean drop 1.19%), which is the stop rule firing; it does not hold for WR or for G at RB and WR. Whether the season α, k-multiple and δ edges cost accuracy cannot be judged: those errors are not recorded, and 88% (RB) and 90% (WR) of season H α choices, and 60% / 40% of k-multiple choices, sit at an edge.
+**(2) Whether a grid-edge setting plausibly costs accuracy, split by edge.** Only the k-high edge has development-fold evidence, through route (b), the widened k grid (above): its difference from H does not meet R-W at any position. The k-high edge's training-SSE drop over the last grid step has a median of 0.0002 at QB (9 target-folds), 0.0004 at RB (27), 0.0004 at WR (9) and 0.0005 at TE (18). The k-low and ρ-low edges have training-SSE medians only and no test-fold arm in this slice: k-low 0.0032 at RB (5 target-folds); ρ-low 0.0003 at QB (3 target-folds) and 0.0042 at RB (11). §0a lists no k-low edge at QB, WR or TE and no ρ-low edge at WR or TE. At the season layer, the λ surface is still falling at the edge for RB under H (6 of 6 folds, mean drop 1.193%); R-S does not hold for QB, WR or TE under H, or for G at any position. The season α, k-multiple and δ training errors are not recorded, so whether those edges cost accuracy cannot be judged; the shares of season-H target-folds at an edge are in §0a (R3).
 
-**(3) Recommendation on LP-2b-2.** Do not plan it yet. STOP for Anton: the season λ surface is still falling at the edge (RB, H), and LP-2b-2 planning also waits on your ruling on the unrecorded season α / k-multiple / δ edges.
+**(3) Recommendation on LP-2b-2.** STOP for Anton before LP-2b-2 is planned: the season λ surface is still falling at the edge (RB, H), and LP-2b-2 planning also waits on Anton's ruling on the unrecorded season α / k-multiple / δ edges (§0a R2, R3).
 
-**(4) Whether a new weekly candidate is worth registering.** No: no candidate change is indicated, because no arm met the finding rule at RB or WR. Registering or gating a third weekly candidate, or re-registering, would in any case need your ruling, and any setting picked from these development-fold numbers has been selected on them.
+**(4) Whether a new weekly candidate is worth registering.** §0a R4: no candidate change is indicated, because no arm meets R-W at RB or WR. Gating a third weekly candidate or re-registering needs a ruling by Anton (LP-1a §8), and any setting chosen from these development-fold numbers has been selected on them.
 
 ### 0a. Rule outcomes (printed by the runner; mechanical)
 
@@ -319,58 +319,58 @@ Fold detail:
 
 ### 4.2 Points-level evidence weight per (position, n): λ_H (registered H; its context ridge still reads the week-w to-date columns at origin 0, so it understates H's total response to the season so far), λ_H,nc (the shrinkage path alone — the headline override speed), λ_B1 (analytic, B1's n/(n+k) over plain rows)
 
-| pos | n | rows | players | λ_H | λ_H,nc | λ_B1 | B1 rows | B1 excluded share | B1 population share |
-|---|---|---|---|---|---|---|---|---|---|
-| QB | 1 | 125 | 48 | 0.184 | 0.171 | 0.250 | 127 | 8.6% | ROOKIE0 3%, ROOKIE1P 9%, SHORT 6%, standard 83% |
-| QB | 2 | 124 | 47 | 0.294 | 0.287 | 0.400 | 127 | 8.6% | ROOKIE0 4%, ROOKIE1P 10%, SHORT 6%, standard 80% |
-| QB | 3 | 129 | 49 | 0.375 | 0.376 | 0.500 | 124 | 10.1% | ROOKIE0 5%, ROOKIE1P 10%, SHORT 6%, standard 80% |
-| QB | 4 | 125 | 45 | 0.433 | 0.436 | 0.571 | 133 | 7.0% | ROOKIE0 4%, ROOKIE1P 12%, SHORT 7%, standard 77% |
-| QB | 5 | 117 | 48 | 0.466 | 0.471 | 0.625 | 131 | 8.4% | ROOKIE0 4%, ROOKIE1P 10%, SHORT 7%, standard 79% |
-| QB | 6 | 124 | 46 | 0.507 | 0.517 | 0.667 | 129 | 7.9% | ROOKIE0 5%, ROOKIE1P 12%, SHORT 6%, standard 77% |
-| QB | 7 | 121 | 44 | 0.528 | 0.543 | 0.700 | 130 | 8.5% | ROOKIE0 5%, ROOKIE1P 12%, SHORT 5%, standard 78% |
-| QB | 8 | 120 | 43 | 0.543 | 0.553 | 0.727 | 129 | 6.5% | ROOKIE0 5%, ROOKIE1P 13%, SHORT 5%, standard 77% |
-| QB | 9 | 114 | 41 | 0.539 | 0.544 | 0.750 | 126 | 5.3% | ROOKIE0 4%, ROOKIE1P 13%, SHORT 6%, standard 76% |
-| QB | 10 | 105 | 41 | 0.565 | 0.579 | 0.769 | 120 | 5.5% | ROOKIE0 4%, ROOKIE1P 14%, SHORT 5%, standard 77% |
-| QB | 11 | 92 | 39 | 0.565 | 0.572 | 0.786 | 111 | 4.3% | ROOKIE0 4%, ROOKIE1P 14%, SHORT 5%, standard 77% |
-| QB | 12 | 89 | 41 | 0.587 | 0.599 | 0.800 | 108 | 4.4% | ROOKIE0 6%, ROOKIE1P 13%, SHORT 6%, standard 76% |
-| RB | 1 | 271 | 108 | 0.250 | 0.257 | 0.286 | 295 | 0.0% | ROOKIE0 6%, ROOKIE1P 13%, SHORT 8%, standard 74% |
-| RB | 2 | 260 | 106 | 0.343 | 0.350 | 0.444 | 291 | 0.0% | ROOKIE0 7%, ROOKIE1P 15%, SHORT 7%, standard 71% |
-| RB | 3 | 254 | 104 | 0.397 | 0.408 | 0.545 | 282 | 0.0% | ROOKIE0 9%, ROOKIE1P 16%, SHORT 6%, standard 69% |
-| RB | 4 | 243 | 110 | 0.456 | 0.473 | 0.615 | 287 | 0.0% | ROOKIE0 9%, ROOKIE1P 15%, SHORT 7%, standard 69% |
-| RB | 5 | 252 | 107 | 0.482 | 0.499 | 0.667 | 284 | 0.0% | ROOKIE0 11%, ROOKIE1P 15%, SHORT 6%, standard 68% |
-| RB | 6 | 243 | 103 | 0.518 | 0.534 | 0.706 | 274 | 0.0% | ROOKIE0 11%, ROOKIE1P 15%, SHORT 7%, standard 68% |
-| RB | 7 | 231 | 100 | 0.525 | 0.538 | 0.737 | 269 | 0.0% | ROOKIE0 11%, ROOKIE1P 16%, SHORT 6%, standard 68% |
-| RB | 8 | 226 | 99 | 0.571 | 0.585 | 0.762 | 260 | 0.0% | ROOKIE0 11%, ROOKIE1P 17%, SHORT 4%, standard 68% |
-| RB | 9 | 220 | 102 | 0.563 | 0.570 | 0.783 | 257 | 0.0% | ROOKIE0 10%, ROOKIE1P 16%, SHORT 4%, standard 69% |
-| RB | 10 | 206 | 95 | 0.557 | 0.574 | 0.800 | 237 | 0.0% | ROOKIE0 11%, ROOKIE1P 16%, SHORT 5%, standard 68% |
-| RB | 11 | 200 | 88 | 0.577 | 0.597 | 0.815 | 231 | 0.0% | ROOKIE0 12%, ROOKIE1P 16%, SHORT 4%, standard 68% |
-| RB | 12 | 183 | 87 | 0.569 | 0.587 | 0.828 | 214 | 0.0% | ROOKIE0 11%, ROOKIE1P 16%, SHORT 5%, standard 68% |
-| WR | 1 | 322 | 126 | 0.208 | 0.202 | 0.250 | 355 | 0.0% | ROOKIE0 5%, ROOKIE1P 12%, SHORT 6%, standard 77% |
-| WR | 2 | 319 | 129 | 0.303 | 0.301 | nan | 361 | 0.0% | ROOKIE0 7%, ROOKIE1P 13%, SHORT 5%, standard 75% |
-| WR | 3 | 319 | 134 | 0.368 | 0.369 | nan | 361 | 0.0% | ROOKIE0 8%, ROOKIE1P 14%, SHORT 4%, standard 74% |
-| WR | 4 | 317 | 139 | 0.398 | 0.401 | nan | 371 | 0.0% | ROOKIE0 10%, ROOKIE1P 15%, SHORT 4%, standard 72% |
-| WR | 5 | 324 | 140 | 0.424 | 0.431 | nan | 383 | 0.0% | ROOKIE0 9%, ROOKIE1P 14%, SHORT 4%, standard 72% |
-| WR | 6 | 307 | 130 | 0.452 | 0.456 | nan | 372 | 0.0% | ROOKIE0 10%, ROOKIE1P 13%, SHORT 3%, standard 74% |
-| WR | 7 | 305 | 129 | 0.481 | 0.489 | nan | 366 | 0.0% | ROOKIE0 10%, ROOKIE1P 13%, SHORT 3%, standard 73% |
-| WR | 8 | 285 | 132 | 0.497 | 0.505 | nan | 362 | 0.0% | ROOKIE0 11%, ROOKIE1P 13%, SHORT 3%, standard 72% |
-| WR | 9 | 270 | 121 | 0.518 | 0.523 | nan | 351 | 0.0% | ROOKIE0 12%, ROOKIE1P 13%, SHORT 3%, standard 72% |
-| WR | 10 | 258 | 119 | 0.528 | 0.532 | nan | 319 | 0.0% | ROOKIE0 12%, ROOKIE1P 14%, SHORT 3%, standard 71% |
-| WR | 11 | 248 | 110 | 0.539 | 0.542 | nan | 307 | 0.0% | ROOKIE0 11%, ROOKIE1P 13%, SHORT 3%, standard 73% |
-| WR | 12 | 229 | 111 | 0.539 | 0.542 | nan | 285 | 0.0% | ROOKIE0 12%, ROOKIE1P 14%, SHORT 2%, standard 71% |
-| TE | 1 | 127 | 51 | 0.278 | 0.281 | 0.222 | 144 | 0.0% | ROOKIE0 2%, ROOKIE1P 6%, SHORT 8%, standard 83% |
-| TE | 2 | 119 | 50 | 0.399 | 0.405 | 0.364 | 137 | 0.0% | ROOKIE0 3%, ROOKIE1P 7%, SHORT 8%, standard 82% |
-| TE | 3 | 123 | 52 | 0.462 | 0.476 | 0.462 | 141 | 0.0% | ROOKIE0 4%, ROOKIE1P 6%, SHORT 8%, standard 82% |
-| TE | 4 | 129 | 52 | 0.489 | 0.492 | 0.533 | 148 | 0.0% | ROOKIE0 3%, ROOKIE1P 7%, SHORT 7%, standard 83% |
-| TE | 5 | 124 | 52 | 0.541 | 0.549 | 0.588 | 155 | 0.0% | ROOKIE0 4%, ROOKIE1P 7%, SHORT 8%, standard 81% |
-| TE | 6 | 119 | 49 | 0.563 | 0.571 | 0.632 | 144 | 0.0% | ROOKIE0 4%, ROOKIE1P 6%, SHORT 8%, standard 83% |
-| TE | 7 | 113 | 45 | 0.592 | 0.603 | 0.667 | 143 | 0.0% | ROOKIE0 5%, ROOKIE1P 8%, SHORT 7%, standard 80% |
-| TE | 8 | 120 | 52 | 0.618 | 0.629 | 0.696 | 142 | 0.0% | ROOKIE0 6%, ROOKIE1P 8%, SHORT 6%, standard 80% |
-| TE | 9 | 119 | 50 | 0.607 | 0.625 | 0.720 | 141 | 0.0% | ROOKIE0 6%, ROOKIE1P 8%, SHORT 6%, standard 80% |
-| TE | 10 | 106 | 49 | 0.614 | 0.639 | 0.741 | 128 | 0.0% | ROOKIE0 5%, ROOKIE1P 9%, SHORT 5%, standard 80% |
-| TE | 11 | 102 | 47 | 0.636 | 0.660 | 0.759 | 124 | 0.0% | ROOKIE0 5%, ROOKIE1P 9%, SHORT 6%, standard 81% |
-| TE | 12 | 98 | 49 | 0.705 | 0.720 | 0.774 | 119 | 0.0% | ROOKIE0 4%, ROOKIE1P 9%, SHORT 6%, standard 81% |
+| pos | n | rows | players | λ_H | λ_H,nc | λ_B1 | B1 rows | B1 missing | B1 excluded share | B1 population share |
+|---|---|---|---|---|---|---|---|---|---|---|
+| QB | 1 | 125 | 48 | 0.184 | 0.171 | 0.250 | 115 | 0 | 8.0% | ROOKIE0 3%, ROOKIE1P 10%, SHORT 6%, standard 82% |
+| QB | 2 | 124 | 47 | 0.294 | 0.287 | 0.400 | 113 | 0 | 8.9% | ROOKIE0 4%, ROOKIE1P 10%, SHORT 7%, standard 79% |
+| QB | 3 | 129 | 49 | 0.375 | 0.376 | 0.500 | 116 | 0 | 10.1% | ROOKIE0 5%, ROOKIE1P 9%, SHORT 6%, standard 79% |
+| QB | 4 | 125 | 45 | 0.433 | 0.436 | 0.571 | 119 | 0 | 4.8% | ROOKIE0 4%, ROOKIE1P 13%, SHORT 6%, standard 77% |
+| QB | 5 | 117 | 48 | 0.466 | 0.471 | 0.625 | 108 | 0 | 7.7% | ROOKIE0 5%, ROOKIE1P 11%, SHORT 6%, standard 79% |
+| QB | 6 | 124 | 46 | 0.507 | 0.517 | 0.667 | 114 | 0 | 8.1% | ROOKIE0 5%, ROOKIE1P 13%, SHORT 6%, standard 75% |
+| QB | 7 | 121 | 44 | 0.528 | 0.543 | 0.700 | 110 | 0 | 9.1% | ROOKIE0 5%, ROOKIE1P 13%, SHORT 5%, standard 78% |
+| QB | 8 | 120 | 43 | 0.543 | 0.553 | 0.727 | 111 | 0 | 7.5% | ROOKIE0 5%, ROOKIE1P 14%, SHORT 5%, standard 75% |
+| QB | 9 | 114 | 41 | 0.539 | 0.544 | 0.750 | 107 | 0 | 6.1% | ROOKIE0 5%, ROOKIE1P 14%, SHORT 6%, standard 76% |
+| QB | 10 | 105 | 41 | 0.565 | 0.579 | 0.769 | 99 | 0 | 5.7% | ROOKIE0 5%, ROOKIE1P 13%, SHORT 5%, standard 77% |
+| QB | 11 | 92 | 39 | 0.565 | 0.572 | 0.786 | 88 | 0 | 4.3% | ROOKIE0 5%, ROOKIE1P 14%, SHORT 3%, standard 78% |
+| QB | 12 | 89 | 41 | 0.587 | 0.599 | 0.800 | 86 | 0 | 3.4% | ROOKIE0 7%, ROOKIE1P 13%, SHORT 5%, standard 76% |
+| RB | 1 | 271 | 108 | 0.250 | 0.257 | 0.286 | 271 | 0 | 0.0% | ROOKIE0 6%, ROOKIE1P 14%, SHORT 7%, standard 73% |
+| RB | 2 | 260 | 106 | 0.343 | 0.350 | 0.444 | 260 | 0 | 0.0% | ROOKIE0 8%, ROOKIE1P 15%, SHORT 7%, standard 70% |
+| RB | 3 | 254 | 104 | 0.397 | 0.408 | 0.545 | 254 | 0 | 0.0% | ROOKIE0 9%, ROOKIE1P 16%, SHORT 7%, standard 68% |
+| RB | 4 | 243 | 110 | 0.456 | 0.473 | 0.615 | 243 | 0 | 0.0% | ROOKIE0 9%, ROOKIE1P 16%, SHORT 7%, standard 67% |
+| RB | 5 | 252 | 107 | 0.482 | 0.499 | 0.667 | 252 | 0 | 0.0% | ROOKIE0 12%, ROOKIE1P 15%, SHORT 6%, standard 66% |
+| RB | 6 | 243 | 103 | 0.518 | 0.534 | 0.706 | 243 | 0 | 0.0% | ROOKIE0 12%, ROOKIE1P 15%, SHORT 7%, standard 66% |
+| RB | 7 | 231 | 100 | 0.525 | 0.538 | 0.737 | 231 | 0 | 0.0% | ROOKIE0 12%, ROOKIE1P 14%, SHORT 6%, standard 67% |
+| RB | 8 | 226 | 99 | 0.571 | 0.585 | 0.762 | 226 | 0 | 0.0% | ROOKIE0 12%, ROOKIE1P 17%, SHORT 4%, standard 66% |
+| RB | 9 | 220 | 102 | 0.563 | 0.570 | 0.783 | 220 | 0 | 0.0% | ROOKIE0 12%, ROOKIE1P 17%, SHORT 5%, standard 67% |
+| RB | 10 | 206 | 95 | 0.557 | 0.574 | 0.800 | 206 | 0 | 0.0% | ROOKIE0 12%, ROOKIE1P 17%, SHORT 5%, standard 67% |
+| RB | 11 | 200 | 88 | 0.577 | 0.597 | 0.815 | 200 | 0 | 0.0% | ROOKIE0 14%, ROOKIE1P 16%, SHORT 4%, standard 66% |
+| RB | 12 | 183 | 87 | 0.569 | 0.587 | 0.828 | 183 | 0 | 0.0% | ROOKIE0 13%, ROOKIE1P 17%, SHORT 5%, standard 65% |
+| WR | 1 | 322 | 126 | 0.208 | 0.202 | 0.250 | 322 | 0 | 0.0% | ROOKIE0 5%, ROOKIE1P 12%, SHORT 6%, standard 77% |
+| WR | 2 | 319 | 129 | 0.303 | 0.301 | 0.400 | 318 | 1 | 0.3% | ROOKIE0 8%, ROOKIE1P 13%, SHORT 5%, standard 74% |
+| WR | 3 | 319 | 134 | 0.368 | 0.369 | 0.500 | 318 | 1 | 0.3% | ROOKIE0 9%, ROOKIE1P 14%, SHORT 4%, standard 73% |
+| WR | 4 | 317 | 139 | 0.398 | 0.401 | 0.571 | 316 | 1 | 0.3% | ROOKIE0 11%, ROOKIE1P 14%, SHORT 3%, standard 71% |
+| WR | 5 | 324 | 140 | 0.424 | 0.431 | 0.625 | 323 | 1 | 0.3% | ROOKIE0 11%, ROOKIE1P 14%, SHORT 3%, standard 72% |
+| WR | 6 | 307 | 130 | 0.452 | 0.456 | 0.667 | 306 | 1 | 0.3% | ROOKIE0 12%, ROOKIE1P 12%, SHORT 3%, standard 73% |
+| WR | 7 | 305 | 129 | 0.481 | 0.489 | 0.700 | 304 | 1 | 0.3% | ROOKIE0 12%, ROOKIE1P 13%, SHORT 3%, standard 71% |
+| WR | 8 | 285 | 132 | 0.497 | 0.505 | 0.727 | 284 | 1 | 0.4% | ROOKIE0 14%, ROOKIE1P 12%, SHORT 4%, standard 69% |
+| WR | 9 | 270 | 121 | 0.518 | 0.523 | 0.750 | 269 | 1 | 0.4% | ROOKIE0 15%, ROOKIE1P 13%, SHORT 3%, standard 69% |
+| WR | 10 | 258 | 119 | 0.528 | 0.532 | 0.769 | 257 | 1 | 0.4% | ROOKIE0 15%, ROOKIE1P 14%, SHORT 4%, standard 67% |
+| WR | 11 | 248 | 110 | 0.539 | 0.542 | 0.786 | 247 | 1 | 0.4% | ROOKIE0 13%, ROOKIE1P 13%, SHORT 3%, standard 71% |
+| WR | 12 | 229 | 111 | 0.539 | 0.542 | 0.800 | 228 | 1 | 0.4% | ROOKIE0 14%, ROOKIE1P 14%, SHORT 3%, standard 68% |
+| TE | 1 | 127 | 51 | 0.278 | 0.281 | 0.222 | 127 | 0 | 0.0% | ROOKIE0 2%, ROOKIE1P 7%, SHORT 8%, standard 83% |
+| TE | 2 | 119 | 50 | 0.399 | 0.405 | 0.364 | 119 | 0 | 0.0% | ROOKIE0 3%, ROOKIE1P 8%, SHORT 8%, standard 81% |
+| TE | 3 | 123 | 52 | 0.462 | 0.476 | 0.462 | 123 | 0 | 0.0% | ROOKIE0 5%, ROOKIE1P 7%, SHORT 7%, standard 81% |
+| TE | 4 | 129 | 52 | 0.489 | 0.492 | 0.533 | 129 | 0 | 0.0% | ROOKIE0 4%, ROOKIE1P 8%, SHORT 6%, standard 82% |
+| TE | 5 | 124 | 52 | 0.541 | 0.549 | 0.588 | 124 | 0 | 0.0% | ROOKIE0 5%, ROOKIE1P 7%, SHORT 6%, standard 81% |
+| TE | 6 | 119 | 49 | 0.563 | 0.571 | 0.632 | 119 | 0 | 0.0% | ROOKIE0 5%, ROOKIE1P 7%, SHORT 8%, standard 80% |
+| TE | 7 | 113 | 45 | 0.592 | 0.603 | 0.667 | 113 | 0 | 0.0% | ROOKIE0 6%, ROOKIE1P 9%, SHORT 8%, standard 77% |
+| TE | 8 | 120 | 52 | 0.618 | 0.629 | 0.696 | 120 | 0 | 0.0% | ROOKIE0 8%, ROOKIE1P 10%, SHORT 7%, standard 76% |
+| TE | 9 | 119 | 50 | 0.607 | 0.625 | 0.720 | 119 | 0 | 0.0% | ROOKIE0 8%, ROOKIE1P 8%, SHORT 7%, standard 77% |
+| TE | 10 | 106 | 49 | 0.614 | 0.639 | 0.741 | 106 | 0 | 0.0% | ROOKIE0 7%, ROOKIE1P 8%, SHORT 6%, standard 79% |
+| TE | 11 | 102 | 47 | 0.636 | 0.660 | 0.759 | 102 | 0 | 0.0% | ROOKIE0 6%, ROOKIE1P 9%, SHORT 6%, standard 79% |
+| TE | 12 | 98 | 49 | 0.705 | 0.720 | 0.774 | 98 | 0 | 0.0% | ROOKIE0 5%, ROOKIE1P 9%, SHORT 7%, standard 79% |
 
-QB note: B1's start-chain states (preseason, starter, backup) are excluded from λ_B1 whatever `liveChain` is; the mean excluded share over the QB cells is 7.1%.
+QB note: B1's start-chain states (preseason, starter, backup) are excluded from λ_B1 whatever `liveChain` is; the mean excluded share over the QB cells is 7.0%.
 
 ## 5. H and G against STD and B1c (§8.1) — exploratory — not a candidate, no label
 
@@ -528,7 +528,7 @@ QB note: B1's start-chain states (preseason, starter, backup) are excluded from 
 - **arm h_ks8:** spec 6e712646cb905ea6b5b60af90f62330d976ab61b4015a1931b7b1515b556ffda; arm 9d9307cc9129a0a05f3c48566e217319adf14e9771701d1d80bd00342271915d
 - **arm h_wide:** spec eeb00f2b86b28dd7b4fb2c5c1734abf34f9edbd8d7e209566347a18f5dc37e80; arm 27f7fd03e43f61ef022016616768396365509bdca33c8655569caaa835acaba7
 - **arm h_noctx:** spec 6e712646cb905ea6b5b60af90f62330d976ab61b4015a1931b7b1515b556ffda; arm 865cf9bf6f035ce8eb4dc38f9bef2979155167d72e8306d731ef79b1b714730c
-- **run times (s):** {"load+trim": 7.5, "build": 118.7, "checks ab": 125.5, "check c": 12.1, "arms": 179.7, "analyses": 90.2, "total": 569.4, "check 2019": 8.8, "check 2020": 8.7, "check 2021": 14.0, "check 2022": 22.0, "check 2023": 29.9, "check 2024": 42.1, "arm h_ks0.25": 4.6, "arm h_ks0.5": 3.8, "arm h_ks2": 2.5, "arm h_ks4": 2.4, "arm h_ks8": 2.8, "wide 2019": 3.5, "noctx 2019": 3.9, "wide 2020": 7.7, "noctx 2020": 4.8, "wide 2021": 12.0, "noctx 2021": 4.0, "wide 2022": 16.7, "noctx 2022": 4.5, "wide 2023": 29.4, "noctx 2023": 13.2, "wide 2024": 58.5, "noctx 2024": 5.0}
+- **run times (s):** {"load+trim": 6.6, "build": 65.6, "checks ab": 103.1, "check c": 10.7, "arms": 116.4, "analyses": 73.9, "total": 409.0, "check 2019": 7.9, "check 2020": 7.2, "check 2021": 11.0, "check 2022": 16.4, "check 2023": 25.4, "check 2024": 35.2, "arm h_ks0.25": 1.9, "arm h_ks0.5": 1.9, "arm h_ks2": 1.8, "arm h_ks4": 1.9, "arm h_ks8": 1.9, "wide 2019": 2.7, "noctx 2019": 3.0, "wide 2020": 5.3, "noctx 2020": 3.2, "wide 2021": 8.8, "noctx 2021": 3.5, "wide 2022": 14.3, "noctx 2022": 3.8, "wide 2023": 22.2, "noctx 2023": 4.1, "wide 2024": 31.5, "noctx 2024": 4.3}
 - **threads:** {"OMP_NUM_THREADS": "1", "VECLIB_MAXIMUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "PYTHONHASHSEED": "0", "setBeforeSklearnImport": true, "numpyPreloaded": false, "cpuCount": 8}
 - **versions:** {"python": "3.9.6", "numpy": "1.26.4", "pandas": "1.5.3", "scikit-learn": "1.6.1", "scipy": "1.13.1"}
 - **check maxima:** {"scaleK1MaxRelative": 0.0, "noChangeRefitMaxRelative": 0.0, "noChangeRefitTargetsEqual": true, "pairedVs2b1bMaxRelative": 0.0}

@@ -639,6 +639,128 @@ def run_once():
     return _RUN["run"]
 
 
+class TestOverrideLevels(unittest.TestCase):
+    """Fix pass 1, items 1-2. Fails if lambda_B1 reads rows outside the lambda_H cell's filter, or a plain row with a missing nB reaches the median."""
+
+    def setUp(self):
+        rng = np.random.RandomState(21)
+        recs = []
+        for P, cnt in (("RB", 36), ("WR", 31), ("TE", 6)):
+            for i in range(cnt):
+                ppg0 = float(rng.uniform(5, 15))
+                x = ppg0 + rng.choice([-1.0, 1.0]) * float(rng.uniform(1.5, 8.0))
+                recs.append(dict(pid="%s%d" % (P, i), position=P, n=3, sum_pts=x * 0.9 * 3, c_w=0.9, ppgH=ppg0 + 0.4 * (x - ppg0), ppgH0=ppg0, ppgNC=ppg0 + 0.3 * (x - ppg0), ppgNC0=ppg0,
+                                 nB=3.0, kB=1.0 + 0.1 * i, kind=None, population="standard"))
+        self.near = dict(pid="NEAR", position="RB", n=3, sum_pts=3 * 0.9 * 10.5, c_w=0.9, ppgH=10.2, ppgH0=10.0, ppgNC=10.2, ppgNC0=10.0, nB=3.0, kB=0.01, kind=None, population="standard")
+        self.nan = dict(pid="NANB", position="RB", n=3, sum_pts=3 * 0.9 * 15.0, c_w=0.9, ppgH=12.0, ppgH0=10.0, ppgNC=12.0, ppgNC0=10.0, nB=float("nan"), kB=2.0, kind="original", population="standard")
+        self.rows = pd.DataFrame(recs + [self.near, self.nan]).reset_index(drop=True)
+        plain = self.rows[self.rows["pid"].isin([r["pid"] for r in recs if r["position"] == "RB"])]
+        self.rb_plain = plain
+        with_near = pd.concat([plain, pd.DataFrame([self.near])])
+        f = lambda d: float(np.median(d["nB"] / (d["nB"] + d["kB"])))
+        self.assertGreater(abs(f(with_near) - f(plain)), 1e-3, "Fact: the |x - ppg0| < 1 plain row has an n/(n + k) far from the rest, so including it moves the median")
+        self.assertTrue(self.rows["nB"].isna().sum() == 1, "Fact: one plain row has nB NaN")
+        self.out = {(o["pos"], o["n"]): o for o in A.override_levels(self.rows, "ppgH", "ppgH0", "ppgNC", "ppgNC0")}
+
+    def test_b1_rows_never_exceed_the_cell_rows(self):
+        for k, o in self.out.items():
+            self.assertLessEqual(o["b1Rows"], o["rows"], k)
+
+    def test_lambda_b1_is_the_median_over_the_filtered_plain_rows_only(self):
+        o = self.out[("RB", 3)]
+        want = float(np.median(self.rb_plain["nB"] / (self.rb_plain["nB"] + self.rb_plain["kB"])))
+        self.assertAlmostEqual(o["lambdaB1"], want, 12)
+        self.assertEqual(o["b1Rows"], len(self.rb_plain))
+        self.assertEqual(o["rows"], len(self.rb_plain) + 1, "the NaN-nB row has |x - ppg0| >= 1, so it is a lambda_H row; the near row is not")
+
+    def test_a_plain_row_with_nan_nb_is_dropped_counted_and_lambda_stays_finite(self):
+        o = self.out[("RB", 3)]
+        self.assertEqual(o["b1Missing"], 1)
+        self.assertTrue(np.isfinite(o["lambdaB1"]))
+        self.assertEqual(self.out[("WR", 3)]["b1Missing"], 0)
+
+    def test_a_cell_with_no_usable_b1_row_is_none_with_a_status(self):
+        r = self.rows.copy()
+        r.loc[r["position"] == "TE", "nB"] = np.nan
+        o = {(x["pos"], x["n"]): x for x in A.override_levels(r, "ppgH", "ppgH0", "ppgNC", "ppgNC0")}[("TE", 3)]
+        self.assertEqual((o["lambdaB1"], o["b1Status"], o["b1Rows"], o["b1Missing"]), (None, "no-b1-rows", 0, 6))
+
+
+class TestRuleOutcomes(unittest.TestCase):
+    """Fix pass 1, item 4. Fails if R-W's CI or margin test is wrong, a rule line is mis-routed, or an arm-name clash passes."""
+
+    @staticmethod
+    def res(d, lo, hi, pct):
+        return {"d": {"value": d, "ci": [lo, hi]}, "pct": pct, "dSpearman": {"value": 0.0, "ci": [-0.1, 0.1]}}
+
+    def setUp(self):
+        self.small = self.res(-0.05, -0.08, -0.02, 0.005)
+        self.big = self.res(-0.12, -0.2, -0.04, 0.012)
+        self.span = self.res(-0.3, -0.6, 0.1, 0.03)
+        self.assertLess(self.small["d"]["ci"][1], 0)
+        self.assertLess(self.small["pct"], A.RW_MARGIN)
+        self.assertGreaterEqual(self.big["pct"], A.RW_MARGIN)
+        self.assertGreater(self.span["d"]["ci"][1], 0)
+        self.slow, self.fast = A.sweep_name(0.5), A.sweep_name(2)
+        self.surf = []
+        self.bands = {}
+
+    def outcomes(self, arms, rs=()):
+        full = {a: {P: self.span for P in A.POSITIONS} for a in [A.sweep_name(s) for s in A.SWEEP] + [A.WIDE]}
+        for a, byp in arms.items():
+            full[a] = {**full[a], **byp}
+        return A.rule_outcomes(full, self.bands, self.surf, list(rs), [])
+
+    def test_r_w_needs_ci_entirely_below_zero_and_one_percent(self):
+        self.assertFalse(A.r_w(self.small))
+        self.assertTrue(A.r_w(self.big))
+        self.assertFalse(A.r_w(self.span))
+
+    def test_slow_arm_hit_and_fast_or_wide_arm_hit_get_their_lines(self):
+        L = self.outcomes({self.slow: {"RB": self.big}, A.WIDE: {"WR": self.big}})
+        self.assertTrue(any("slow override costs accuracy at RB" in l for l in L))
+        self.assertTrue(any("override is too fast / the grid too narrow at WR" in l for l in L))
+        self.assertFalse(any("slow override costs accuracy at WR" in l for l in L))
+        L2 = self.outcomes({self.fast: {"TE": self.big}})
+        self.assertTrue(any("too fast / the grid too narrow at TE" in l for l in L2))
+        self.assertFalse(any("slow override costs accuracy" in l for l in L2))
+        self.assertTrue(any("does not explain the tie at QB" in l for l in L2))
+
+    def test_r3_always_waits_and_adds_the_rs_clause_only_with_an_rs_stop(self):
+        L = self.outcomes({})
+        self.assertIn("  " + A.R3_WAIT, L)
+        self.assertFalse(any("(R-S)" in l for l in L))
+        rs = [{"pos": "RB", "cand": "h", "holds": True, "foldsEdgeAndFalling": 5, "folds": 6, "meanDrop": 0.02}]
+        self.assertTrue(A.rs_stop_lines(rs), "Fact: this R-S entry produces a stop line")
+        L2 = self.outcomes({}, rs)
+        self.assertIn("  " + A.R3_WAIT, L2)
+        self.assertTrue(any("(R-S)" in l for l in L2))
+
+    def test_r4_names_an_arm_only_for_rb_and_wr_hits(self):
+        L = self.outcomes({self.slow: {"QB": self.big, "TE": self.big}})
+        self.assertIn("  no candidate change is indicated", L)
+        L2 = self.outcomes({self.slow: {"RB": self.big, "TE": self.big}})
+        self.assertIn("  a candidate change is indicated at RB: %s" % self.slow, L2)
+        self.assertFalse(any("indicated at TE" in l for l in L2))
+        self.assertTrue(any(l.startswith("FINDING for Anton") and self.slow in l for l in L2))
+
+    def test_finding_line_and_rename_arm(self):
+        self.assertIn("h_x beats the registered H at RB", A.finding_line("h_x", "RB"))
+        pred = pd.DataFrame({"pid": ["a"], "S": [1], "w": [1], "cond": [3.0], "ppg": [1.0]})
+        self.assertEqual(list(A.rename_arm(pred, "h_x").columns), ["pid", "S", "w", "h_x"])
+        for bad in ("h", "g"):
+            with self.assertRaises(ValueError):
+                A.rename_arm(pred, bad)
+
+    def test_merge_arm_raises_when_the_column_already_exists(self):
+        wk = pd.DataFrame({"pid": ["a"], "S": [1], "w": [1], "h_x": [0.0]})
+        pred = pd.DataFrame({"pid": ["a"], "S": [1], "w": [1], "cond": [3.0]})
+        with self.assertRaises(ValueError):
+            A.merge_arm(wk, pred, "h_x")
+        ok = A.merge_arm(wk.drop(columns="h_x"), pred, "h_x")
+        self.assertEqual(float(ok["h_x"].iloc[0]), 3.0)
+
+
 # ── T-C-8 ───────────────────────────────────────────────────────────────────────────────────────────────────
 class TestAnchorsAndHeldSeason(unittest.TestCase):
     """T-C-8. Fails if a cache is read unverified or a held row reaches a frame."""
@@ -792,6 +914,30 @@ class TestReportOnlyAndIsolation(unittest.TestCase):
     def test_leak_check_flags_a_pooled_gain_above_twelve_percent(self):
         t = {"a": {"RB": {"pct": 0.13}, "WR": {"pct": 0.12}, "QB": {"pct": None}}}
         self.assertEqual(A.leak_check(t, 0.12), [("a", "RB", 0.13)])
+
+
+class TestLeakStop(unittest.TestCase):
+    """Fix pass 1, item 5. Fails if `main` ignores `leak_check`'s result."""
+
+    def test_a_pooled_gain_above_the_limit_returns_2_naming_the_leak_check(self):
+        base = run_once()
+        self.assertEqual(base["rc"], 0, base["err"])
+        with open(os.path.join(base["deps"].out, "2026-01-02-learned-s2b1c1-analysis.json")) as f:
+            self.assertGreater(json.load(f)["maxPooledGain"], 0.0, "Fact: the e2e run's max pooled gain is > 0, so a limit of 0.0 trips")
+        deps = runner_deps()
+        err = io.StringIO()
+        ps = [mock.patch.object(registry, "require", e2e_w.fake_require), mock.patch.object(wd, "LAST_SEASON", e2e_w.L), mock.patch.object(A, "LEAK_GAIN", 0.0)]
+        for p in ps:
+            p.start()
+        try:
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                rc = rwa.main(["--write", "--date", "2026-01-02", "--resamples", "60"], deps=deps)
+        finally:
+            for p in reversed(ps):
+                p.stop()
+        self.assertEqual(rc, 2, err.getvalue())
+        self.assertIn("suspected leak", err.getvalue())
+        self.assertEqual(os.listdir(deps.out), [], "a stopped run writes nothing")
 
 
 # ── T-C-10 ──────────────────────────────────────────────────────────────────────────────────────────────────

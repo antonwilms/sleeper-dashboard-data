@@ -250,9 +250,10 @@ def override_targets(fits, targets, constants, spec):
 def lambda_cells(rows, ppg_col, ppg0_col, min_rows=M.MIN_CELL, ns=LAMBDA_NS):
     """The empirical evidence weight per (P, n): rows = relevant played rows (pid, position, n, sum_pts, c_w, `ppg_col`, `ppg0_col`; `c_w` is the fold's calibration of the
     row's position). m = sum_pts / n, x = m / c_w (`ppg` is pre-calibration); on rows with n >= 1 and |x - ppg0| >= 1, lambda(n) = sum (ppg - ppg0)(x - ppg0) /
-    sum (x - ppg0)^2 — the least-squares slope through the origin. Returns {(P, n): {"lambda", "rows", "players", "status"}}; a cell under `min_rows` rows is
+    sum (x - ppg0)^2 — the least-squares slope through the origin. Returns {(P, n): {"lambda", "rows", "players", "status", "idx"}} (`idx`: the positions in `rows` of the cell's filtered rows); a cell under `min_rows` rows is
     INSUFFICIENT (no value)."""
     d = rows[rows["n"] >= 1].copy()
+    d["_i"] = np.flatnonzero((rows["n"] >= 1).to_numpy(bool))
     d["x"] = (d["sum_pts"].to_numpy(float) / d["n"].to_numpy(float)) / d["c_w"].to_numpy(float)
     d["dx"] = d["x"] - d[ppg0_col]
     d = d[d["dx"].abs() >= 1.0]
@@ -263,7 +264,8 @@ def lambda_cells(rows, ppg_col, ppg0_col, min_rows=M.MIN_CELL, ns=LAMBDA_NS):
             num = float(((c[ppg_col] - c[ppg0_col]) * c["dx"]).sum())
             den = float((c["dx"] ** 2).sum())
             status = M.cell(len(c))
-            out[(P, n)] = {"lambda": (num / den if den > 0 and status == "ok" else None), "rows": int(len(c)), "players": int(c["pid"].nunique()), "status": status}
+            out[(P, n)] = {"lambda": (num / den if den > 0 and status == "ok" else None), "rows": int(len(c)), "players": int(c["pid"].nunique()), "status": status,
+                         "idx": c["_i"].to_numpy(int)}
     return out
 
 
@@ -272,12 +274,16 @@ def b1_weight(rows, min_rows=M.MIN_CELL):
     preseason / starter / backup states carry a different weight and are excluded whatever `liveChain` is). `rows`: nB, kB, kind, population.
     Returns {"lambda", "rows", "excludedShare", "population"}."""
     kind = rows["kind"].astype(object).where(rows["kind"].notna(), None)
-    keep = kind.map(lambda v: v in B1_PLAIN_KINDS)
-    r = rows[keep.to_numpy(bool)]
+    plain = kind.map(lambda v: v in B1_PLAIN_KINDS).to_numpy(bool)
+    nb_all, kb_all = rows["nB"].to_numpy(float), rows["kB"].to_numpy(float)
+    ok = np.isfinite(nb_all) & np.isfinite(kb_all) & ((nb_all + kb_all) > 0)
+    r = rows[plain & ok]
+    missing = int((plain & ~(np.isfinite(nb_all) & np.isfinite(kb_all))).sum())
     nb, kb = r["nB"].to_numpy(float), r["kB"].to_numpy(float)
     lam = float(np.median(nb / (nb + kb))) if len(r) else None
     pop = r["population"].value_counts(normalize=True).to_dict() if len(r) else {}
-    return {"lambda": lam, "rows": int(len(r)), "excludedShare": float(1 - len(r) / len(rows)) if len(rows) else None, "population": {str(k): float(v) for k, v in pop.items()}}
+    return {"lambda": lam, "rows": int(len(r)), "b1Missing": missing, "status": "ok" if len(r) else "no-b1-rows",
+            "excludedShare": float(1 - len(r) / len(rows)) if len(rows) else None, "population": {str(k): float(v) for k, v in pop.items()}}
 
 
 def override_levels(rows, ppg_h, ppg0_h, ppg_nc, ppg0_nc, ns=LAMBDA_NS):
@@ -288,10 +294,9 @@ def override_levels(rows, ppg_h, ppg0_h, ppg_nc, ppg0_nc, ns=LAMBDA_NS):
     out = []
     for P in POSITIONS:
         for n in ns:
-            sub = rows[(rows["position"] == P) & (rows["n"] == n)]
-            bw = b1_weight(sub)
+            bw = b1_weight(rows.iloc[a[(P, n)]["idx"]])
             out.append({"pos": P, "n": n, "lambdaH": a[(P, n)]["lambda"], "lambdaHnc": b[(P, n)]["lambda"], "rows": a[(P, n)]["rows"], "players": a[(P, n)]["players"],
-                        "status": a[(P, n)]["status"], "lambdaB1": bw["lambda"], "b1Rows": bw["rows"], "b1ExcludedShare": bw["excludedShare"], "population": bw["population"]})
+                        "status": a[(P, n)]["status"], "lambdaB1": bw["lambda"], "b1Rows": bw["rows"], "b1Missing": bw["b1Missing"], "b1Status": bw["status"], "b1ExcludedShare": bw["excludedShare"], "population": bw["population"]})
     return out
 
 
