@@ -96,3 +96,9 @@ python3 research/learned-projection/run_weekly_analysis.py [--write] [--date YYY
 - **Outputs (unregistered, report-only).** `backtests/<date>-learned-s2b1c1-analysis.json` (<= 5 MB, no commit id) and `grading/<date>-learned-s2b1c1-report.md`. Every arm and band carries
   `exploratory: true` and its spec hash; there is no label anywhere. Runtime checks (a) `scale_k(1.0)`, (b) the no-change `fixedCalib` refit and (c) `paired` against the 2b-1b artifact must reproduce the cached
   results to 1e-9 or the run returns 2.
+
+**Stated limits carried into LP-2b-2** (Anton, 2026-11-19). LP-2b-2 proceeds with the registered H and G.
+- **RB season λ edge.** At RB, H's season-layer λ sits at its grid top in 6 of 6 development folds, and its inner-season MAE was still falling there (mean 1.19% over the last step). This is a training-error drop, not a test result.
+- **Season α / k-multiple / δ edges.** Their training errors are not recorded, and many RB and WR choices sit at a grid edge (H α: 88% RB, 90% WR), so whether those edges cost accuracy is unknown.
+
+Wider season grids belong to the off-season model work and are tested on the 2026 season.

@@ -596,3 +596,13 @@ Session 1, 2026-11-19. I reviewed the diff itself, not only the hand-backs.
 - `npm run smoke`: exit 0;
 - `CLAUDE.md`: 24,126 bytes;
 - artifact: 754,552 bytes.
+
+Signed off by Anton 2026-11-19
+
+**Ruling (Anton, 2026-11-19, verbatim):**
+
+> proceed to LP-2b-2 with the registered candidates. Record the RB season-λ edge (a training-error drop, not a test result) and the unrecorded season α / k-multiple / δ edges as stated limits in the LP-2b-2 outline and README; wider season grids go to the off-season model work, tested on the 2026 season.
+
+Both limits were recorded in the same push:
+- in `.claude/tasks/learned-projection-2b1b-weekly-models.md` §16, the LP-2b-2 outline;
+- in `research/learned-projection/README.md`.

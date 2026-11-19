@@ -612,6 +612,12 @@ Same pin rule. **Depends on:** this slice verified and its caches unchanged.
 
 **LP-2b-2** (the 2025 confirmation): as outlined in 2b-1a §19, with the same pin rule.
 
+**Stated limits for LP-2b-2** (Anton, 2026-11-19, after LP-2b-1c-i). LP-2b-2 proceeds with the registered candidates, and its verdict carries both limits:
+- **RB season λ edge.** H's season-layer λ sits at its grid top (0.35) at RB in 6 of 6 development folds. Its inner-season MAE was still falling there, by a mean of 1.19% over the last step. This is a training-error drop, not a test result.
+- **Unrecorded season α / k-multiple / δ edges.** Season H α is at an edge in 88% of RB and 90% of WR target-folds; the k-multiple in 60% and 40%; δ in 31% and 48%. Their training errors are not recorded (`model_h.fit_target` keeps only the argmin), so whether those edges cost accuracy is unknown.
+
+Wider season grids go to the off-season model work, tested on the 2026 season — not to LP-2b-2.
+
 ## 17. Revision 3: H context "off" option (Anton, 2026-11-18, before registration)
 
 ### 17.1 Ruling (verbatim)
