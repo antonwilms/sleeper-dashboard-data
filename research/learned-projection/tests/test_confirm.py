@@ -1,0 +1,601 @@
+"""LP-2b-2a tests: T-R-1 (boundary), T-R-2 (held_inputs copy), T-R-3 (rehearsal reproduces the dev fold), T-R-4 (no row past the held season), T-R-5 (synthetic stand-in
+end to end), T-R-6 (held-fold evaluation wiring), T-R-7 (runner order, refusals, writes), T-R-8 (pins and `_threads`), T-R-9 (`parity` and `merge_preds` copies).
+Every Fact is asserted in setUp / setUpClass. Nothing here reads a real cache, a real candidate file or the real run-log."""
+import contextlib
+import glob
+import io
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest import mock
+
+import numpy as np
+import pandas as pd
+
+import run_confirm as rc
+import run_weekly_models as rwm
+from lp import baselines, confirm, evaluate, evaluate_w, registry, season_models as sm, season_prior, spec_wm, weekly_data as wd, weekly_models
+from tests import e2e_c
+from tests.e2e_c import L0
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ARGV = ["--rehearse", "--write", "--date", "2026-02-02", "--resamples", "60"]
+
+
+def _run(argv, deps, patches=()):
+    out, err = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        r = e2e_c.run_rehearse(argv, deps, patches)
+    return r, out.getvalue(), err.getvalue()
+
+
+def _artifact(deps):
+    files = glob.glob(os.path.join(deps.out_dir, "*.json"))
+    assert len(files) == 1, files
+    with open(files[0]) as f:
+        return json.load(f)
+
+
+_CLEAN = {}
+
+
+def clean_run():
+    """ONE clean `--rehearse --write` on a fresh base, shared by T-R-3 and T-R-6; the clean run's own predictions are kept (a spy on `compare_preds`)."""
+    if _CLEAN:
+        return _CLEAN
+    seen = {}
+    orig = confirm.compare_preds
+
+    def spy(ck, preds, preds_file, held):
+        seen["preds"] = {n: p.copy() for n, p in preds.items()}
+        return orig(ck, preds, preds_file, held)
+    d = e2e_c.rehearse_deps()
+    rcode, out, err = _run(ARGV, d, patches=(mock.patch.object(confirm, "compare_preds", spy),))
+    _CLEAN.update(rc=rcode, out=out, err=err, deps=d, preds=seen.get("preds"), art=_artifact(d) if rcode == 0 else None)
+    return _CLEAN
+
+
+def _read_jsonl(path):
+    with open(path) as f:
+        return [json.loads(line) for line in f if line.strip()]
+
+
+def _measure(a, b):
+    """The rehearsal check's own measure: |a - b| / (1 + |b|) (`season_prior.py:139-140`)."""
+    return abs(a - b) / (1.0 + abs(b))
+
+
+def _solve(a, b0, m):
+    """b' with |a - b'| / (1 + |b'|) = m, in the direction of the existing gap b0 - a (bisection on the distance)."""
+    sgn = 1.0 if b0 >= a else -1.0
+    lo, hi = 0.0, 1e6
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        if _measure(a, a + sgn * mid) < m:
+            lo = mid
+        else:
+            hi = mid
+    return a + sgn * hi
+
+
+def _perturbed_preds(cand, pos, col, m):
+    """A copy of the stand-in `weekly-preds.jsonl` with ONE `cand` row's `col` moved so the check's own measure against the clean run's value is `m`."""
+    c = e2e_c.build()
+    clean = clean_run()
+    p = clean["preds"][cand.upper()]
+    row = p[p["position"] == pos].iloc[0]
+    a = float(row[col])
+    rows = _read_jsonl(c["preds"])
+    hit = [r for r in rows if r["cand"] == cand and r["T"] == L0 and r["pid"] == row["pid"] and r["S"] == int(row["S"]) and r["w"] == int(row["w"])]
+    assert len(hit) == 1
+    b0 = float(hit[0][col])
+    b1 = _solve(a, b0, m)
+    hit[0][col] = b1
+    path = os.path.join(tempfile.mkdtemp(), "weekly-preds.jsonl")
+    with open(path, "w") as f:
+        for r in rows:
+            f.write(json.dumps(r, sort_keys=True) + "\n")
+    return path, registry.sha_file(path), a, b0, b1
+
+
+# ── T-R-1 ───────────────────────────────────────────────────────────────────────────────────────────────────
+class TestBoundary(unittest.TestCase):
+    """T-R-1. Fails if the unlock outlives the body or widens past held."""
+
+    def setUp(self):
+        p = mock.patch.object(wd, "LAST_SEASON", L0)
+        p.start()
+        self.addCleanup(p.stop)
+        self.assertEqual(wd.LAST_SEASON, L0)                                  # Fact
+
+    def test_boundary(self):
+        with confirm.boundary(L0 + 1):
+            self.assertEqual(wd.LAST_SEASON, L0 + 1)
+            with self.assertRaises(RuntimeError):
+                with confirm.boundary(L0 + 1):
+                    pass
+        self.assertEqual(wd.LAST_SEASON, L0)
+        with self.assertRaises(KeyError):
+            with confirm.boundary(L0 + 1):
+                raise KeyError("inside")
+        self.assertEqual(wd.LAST_SEASON, L0)
+        for bad in (L0 + 2, L0 - 1):
+            with self.assertRaises(ValueError):
+                with confirm.boundary(bad):
+                    pass
+            self.assertEqual(wd.LAST_SEASON, L0)
+        with self.assertRaises(registry.ConfirmationHeld):
+            wd.guard(L0 + 1)
+        with confirm.boundary(L0):
+            self.assertEqual(wd.LAST_SEASON, L0)
+            with self.assertRaises(registry.ConfirmationHeld):
+                wd.guard(L0 + 1)
+        with confirm.boundary(L0 + 1):
+            wd.guard(L0 + 1)                                                  # passes on its own
+            with self.assertRaises(registry.ConfirmationHeld):
+                wd.guard(L0 + 2)
+        with self.assertRaises(registry.ConfirmationHeld):
+            wd.guard(L0 + 1)
+
+
+# ── T-R-2 ───────────────────────────────────────────────────────────────────────────────────────────────────
+class TestHeldInputs(unittest.TestCase):
+    """T-R-2. Fails if the copy of `run_weekly_inputs` step 6 drifts (week origin, fallback)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.c = e2e_c.build()
+        pr = rwm._read_prior(cls.c["prior"])
+        cls.prior = {n: pr[pr["cand"] == n.lower()].reset_index(drop=True) for n in registry.NAMES}
+        cls.cache = pd.read_pickle(cls.c["inputs"])
+        with mock.patch.object(wd, "LAST_SEASON", L0):
+            spec = e2e_c.season_spec_c("H")
+            cls.store = sm.Store(cls.c["tables_l0"], cls.c["panel"].meta["keys"], cls.c["panel"].meta["weights"], spec)
+            cls.got = {S: confirm.held_inputs(cls.c["tables_l0"], cls.store, S, cls.prior) for S in range(2018, L0 + 1)}
+
+    def test_facts(self):
+        for S in range(2018, L0 + 1):
+            h = self.cache["H"][self.cache["H"]["S"] == S]
+            self.assertGreaterEqual(h.loc[h["nP"] > 0, "w"].nunique(), 2, S)
+        self.assertGreaterEqual(int((self.cache["H"]["noPrior"] == 1).sum()), 1)
+
+    def test_equals_the_cache(self):
+        for S in range(2018, L0 + 1):
+            for n in registry.NAMES:
+                want = self.cache[n][self.cache[n]["S"] == S].reset_index(drop=True)
+                pd.testing.assert_frame_equal(self.got[S][n], want, check_exact=True)
+
+
+# ── T-R-3 / T-R-6 ───────────────────────────────────────────────────────────────────────────────────────────
+class TestRehearsal(unittest.TestCase):
+    """T-R-3. Fails if a comparison is skipped or uses the wrong tolerance per candidate."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.c = e2e_c.build()
+        cls.clean = clean_run()
+
+    def test_clean_run_passes(self):
+        self.assertEqual(self.clean["rc"], 0, self.clean["err"][-1500:])
+        checks = self.clean["art"]["checks"]
+        self.assertEqual(sorted(checks), ["R1", "R2", "R3", "R4", "R5", "R6", "R7"])
+        for r, by in checks.items():
+            for cand, byp in by.items():
+                for pos, v in byp.items():
+                    if not (r in ("R6", "R7") and cand == "g"):
+                        self.assertTrue(v["pass"], (r, cand, pos, v))
+                    if cand == "h":
+                        self.assertLessEqual(v["maxRel"], 1e-9, (r, cand, pos, v))
+        self.assertIn("rehearsal", self.clean["art"]["label"])
+        self.assertEqual(self.clean["art"]["held"], L0)
+
+    def _run_with(self, **over):
+        d = e2e_c.rehearse_deps(**over)
+        return _run(ARGV, d)
+
+    def test_h_ppg_moved_fails_r4_h(self):
+        path, sha, a, b0, b1 = _perturbed_preds("h", "WR", "ppg", 1e-6)
+        self.assertGreater(_measure(a, b1), 1e-9)                              # Fact
+        r, out, err = self._run_with(preds_path=path, preds_sha=sha)
+        self.assertEqual(r, 2, err[-800:])
+        self.assertIn("R4 h", err)
+
+    def test_g_cond_moved_by_six_percent_fails_r4_g(self):
+        path, sha, a, b0, b1 = _perturbed_preds("g", "WR", "cond", 0.06)
+        self.assertGreater(_measure(a, b1), 0.05)                              # Fact
+        r, out, err = self._run_with(preds_path=path, preds_sha=sha)
+        self.assertEqual(r, 2, err[-800:])
+        self.assertIn("R4 g", err)
+
+    def test_g_cond_moved_by_one_percent_passes(self):
+        path, sha, a, b0, b1 = _perturbed_preds("g", "WR", "cond", 0.01)
+        self.assertLessEqual(_measure(a, b1), 0.05)                            # Fact
+        r, out, err = self._run_with(preds_path=path, preds_sha=sha)
+        self.assertEqual(r, 0, err[-800:])
+
+    def test_g_chosen_entry_changed_fails_r1(self):
+        c = e2e_c.build()
+        with open(c["s2a"]) as f:
+            panel = json.load(f)
+        ent = panel["results"]["WR"]["g"]["chosen"][str(L0)]["entry"]
+        ent["lam"] = float(ent["lam"]) + 7.0
+        path = os.path.join(tempfile.mkdtemp(), "s2a.json")
+        with open(path, "w") as f:
+            json.dump(panel, f)
+        r, out, err = self._run_with(dev_s2a_path=path, dev_s2a_sha=registry.sha_file(path))
+        self.assertEqual(r, 2, err[-800:])
+        self.assertIn("R1", err)
+
+
+class TestEvaluationWiring(unittest.TestCase):
+    """T-R-6. Fails if `run_held` scores the wrong candidate, fold or rows."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.c = e2e_c.build()
+        cls.clean = clean_run()
+
+    def test_facts(self):
+        for pos in ("QB", "RB", "WR", "TE"):
+            h = self.c["season_cand"]["h"]
+            g = self.c["season_cand"]["g"]
+            hh, gg = h[(h["T"] == L0) & (h["position"] == pos)].set_index("pid")["total"], g[(g["T"] == L0) & (g["position"] == pos)].set_index("pid")["total"]
+            self.assertTrue((hh.reindex(gg.index) != gg).any(), pos)
+        with open(self.c["s2a"]) as f:
+            res = json.load(f)["results"]
+        self.assertTrue(any(res[p]["h"]["labels"][b]["dByFold"][str(L0)] != res[p]["g"]["labels"][b]["dByFold"][str(L0)] for p in res if p in ("QB", "RB", "WR", "TE") for b in ("B2", "B1c")))
+
+    def test_h_values_match_exactly(self):
+        self.assertEqual(self.clean["rc"], 0, self.clean["err"][-800:])
+        side = self.clean["art"]["sideBySide"]
+        n = 0
+        for pos, by in side["R6"].items():
+            for b, v in by["h"].items():
+                self.assertAlmostEqual(v["run"], v["dev"], delta=1e-9 * (1 + abs(v["dev"])), msg=(pos, b))
+                n += 1
+        self.assertEqual(n, 8)
+        m = 0
+        for pos, by in side["R7"]["h"].items():
+            for b, v in by.items():
+                for k in ("n", "candMae", "benchMae", "d"):
+                    self.assertAlmostEqual(v["run"][k], v["dev"][k], delta=1e-9 * (1 + abs(v["dev"][k])), msg=(pos, b, k))
+                    m += 1
+        self.assertGreater(m, 0)
+
+    def test_swapped_candidates_fail_r6(self):
+        orig = evaluate.build_frame
+        swap = lambda tables, folds, ct: orig(tables, folds, {"h": ct["g"], "g": ct["h"]})
+        r, out, err = _run(ARGV, e2e_c.rehearse_deps(), patches=(mock.patch.object(evaluate, "build_frame", swap),))
+        self.assertEqual(r, 2, err[-800:])
+        self.assertIn("R6", err)
+        self.assertNotIn("Traceback", err)
+
+
+# ── T-R-4 ───────────────────────────────────────────────────────────────────────────────────────────────────
+class TestNoRowPastHeld(unittest.TestCase):
+    """T-R-4. Fails if a held row (2025 in the real run) reaches a table, fit or metric."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.c = e2e_c.build()
+        cls.rec = e2e_c.RecC()
+        pat = [mock.patch.object(season_models_mod, "fold", cls.rec.wrap("fold", season_models_mod.fold)),
+               mock.patch.object(season_prior, "derive", cls.rec.wrap("derive", season_prior.derive)),
+               mock.patch.object(wd, "inputs_at", cls.rec.wrap("inputs_at", wd.inputs_at)),
+               mock.patch.object(wd, "targets_at", cls.rec.wrap("targets_at", wd.targets_at)),
+               mock.patch.object(weekly_models, "fit_w", cls.rec.wrap("fit_w", weekly_models.fit_w)),
+               mock.patch.object(weekly_models, "predict_w", cls.rec.wrap("predict_w", weekly_models.predict_w)),
+               mock.patch.object(baselines, "weekly_forecasts", cls.rec.wrap("weekly_forecasts", baselines.weekly_forecasts)),
+               mock.patch.object(evaluate, "evaluate", cls.rec.wrap("evaluate", evaluate.evaluate)),
+               mock.patch.object(evaluate_w, "labels", cls.rec.wrap("labels", evaluate_w.labels))]
+        cls.rc, cls.out, cls.err = _run(ARGV, e2e_c.rehearse_deps(), patches=pat)
+
+    def test_facts(self):
+        c = self.c
+        self.assertEqual(int(c["panel"].weeks["S"].max()), L0 + 1)
+        self.assertEqual(int(c["benchw"]["S"].max()), L0 + 1)
+        probe = e2e_c.RecC()
+        probe.wrap("x", lambda *a: None)(c["full"])
+        self.assertEqual(probe.maxima("x")[0][0], L0 + 1)                      # the recorder can see a held row
+
+    def test_nothing_past_held(self):
+        self.assertEqual(self.rc, 0, self.err[-1500:])
+        for name in ("fold", "derive", "inputs_at", "targets_at", "fit_w", "predict_w", "weekly_forecasts", "evaluate", "labels"):
+            self.assertGreaterEqual(self.rec.count(name), 1, name)
+            for seen in self.rec.maxima(name):
+                for k, v in seen.items():
+                    self.assertLessEqual(v, L0, (name, k, v))
+        for seen in self.rec.maxima("fit_w"):
+            self.assertLess(seen[0], L0)                                       # frame_tr: trained on seasons before the held one
+
+
+# ── T-R-5 ───────────────────────────────────────────────────────────────────────────────────────────────────
+class TestStandIn(unittest.TestCase):
+    """T-R-5. Fails if the path cannot reach a season past the last training season, or trains on it."""
+
+    @classmethod
+    def setUpClass(cls):
+        c = cls.c = e2e_c.build()
+        cls.rec = e2e_c.RecC()
+        base = e2e_c.make_base_c()
+        cls.env = registry.Env(base=base, repo=base, prereg=e2e_c.e2e_w.report_hash())
+        from lp import registry_w
+        cls.env_w = registry_w.weekly_env(base=base, repo=base, prereg=e2e_c.e2e_w.report_hash(), data_fn=lambda: {})
+        held = L0 + 1
+        with mock.patch.object(wd, "LAST_SEASON", L0), mock.patch.object(registry, "require", e2e_c.fake_require_c), \
+                mock.patch.object(weekly_models, "fit_w", cls.rec.wrap("fit_w", weekly_models.fit_w)):
+            cls.tables = wd.trim(c["full"], last=held)
+            specs_s = {n: e2e_c.season_spec_c(n) for n in registry.NAMES}
+            specs_w = {n: e2e_c.weekly_spec_c(n) for n in registry.NAMES}
+            store = sm.Store(cls.tables, c["panel"].meta["keys"], c["panel"].meta["weights"], specs_s["H"])
+            cache = pd.read_pickle(c["inputs"])
+            cls.held = confirm.run_held(cls.tables, store, cache, specs_s, specs_w, held, wd.trim_frame(c["benchw"], last=held), cls.env, cls.env_w, 60)
+            cls.after = wd.LAST_SEASON
+        cls.cache = cache
+
+    def test_facts(self):
+        for pos in ("QB", "RB", "WR", "TE"):
+            r = self.held.rows["H"]
+            sub = r[(r["position"] == pos) & r["played"].astype(bool)]
+            self.assertTrue(len(sub) and np.isfinite(sub[[c for c in sub.columns if c.startswith("r_")]].to_numpy(float)).any(axis=1).any(), pos)
+
+    def test_stand_in_path(self):
+        h = self.held
+        for n in registry.NAMES:
+            self.assertTrue((h.derived[n]["T"] == L0 + 1).all())
+            self.assertTrue((h.preds[n]["S"] == L0 + 1).all())
+            self.assertGreater(len(h.preds[n]), 0)
+        self.assertEqual(max(self.cache[n]["S"].max() for n in registry.NAMES), L0)
+        calls = self.rec.maxima("fit_w")
+        self.assertGreaterEqual(len(calls), 2)
+        for seen in calls:
+            self.assertEqual(seen[0], L0)
+        self.assertEqual(h.season["folds"], [L0 + 1])
+        for c in ("h", "g"):
+            for pos in ("QB", "RB", "WR", "TE"):
+                self.assertIn(pos, h.weekly[c], (c, pos))
+        self.assertEqual(self.after, L0)
+        with mock.patch.object(wd, "LAST_SEASON", L0):
+            with self.assertRaises(registry.ConfirmationHeld):
+                wd.guard(L0 + 1)
+
+
+# ── T-R-7 ───────────────────────────────────────────────────────────────────────────────────────────────────
+class _Counter:
+    def __init__(self, fn):
+        self.fn, self.n = fn, 0
+
+    def __call__(self, *a, **k):
+        self.n += 1
+        return self.fn(*a, **k)
+
+
+class TestRunner(unittest.TestCase):
+    """T-R-7. Fails if a check runs after a load or a write, or a second rehearsal runs silently."""
+
+    def setUp(self):
+        self.c = e2e_c.build()
+
+    def _counted(self, **over):
+        d = e2e_c.rehearse_deps(**over)
+        d.load_meta, d.load_cache = _Counter(d.load_meta), _Counter(d.load_cache)
+        req = _Counter(e2e_c.fake_require_c)
+        return d, req
+
+    def _run(self, argv, d, req, extra=()):
+        return _run(argv, d, patches=(mock.patch.object(registry, "require", req), *extra))
+
+    def test_wrong_prereg_hash(self):
+        t = os.path.join(tempfile.mkdtemp(), "task.md")
+        with open(rc.run_season_models.LP1A_TASK_FILE, encoding="utf-8") as src:
+            text = src.read()
+        with open(t, "w", encoding="utf-8") as f:
+            f.write(re.sub(r"(^## 8\.[^\n]*\n)", r"\1EDITED ", text, count=1, flags=re.M))
+        d, req = self._counted(task_file=t)
+        r, out, err = self._run(ARGV, d, req)
+        self.assertEqual(r, 2)
+        self.assertEqual((d.load_meta.n, d.load_cache.n, req.n), (0, 0, 0))
+
+    def test_wrong_sha_or_missing_file(self):
+        fields = (("inputs_sha", "inputs_path"), ("prior_sha", "prior_path"), ("preds_sha", "preds_path"), ("fits_sha", "fits_path"), ("season_preds_sha", "season_preds_path"),
+                  ("dev_s2a_sha", "dev_s2a_path"), ("dev_s2b1b_sha", "dev_s2b1b_path"))
+        for sha_f, path_f in fields:
+            for how in ("sha", "missing"):
+                over = {sha_f: "0" * 64} if how == "sha" else {path_f: os.path.join(tempfile.mkdtemp(), "nope")}
+                d, req = self._counted(**over)
+                r, out, err = self._run(ARGV, d, req)
+                self.assertEqual(r, 2, (sha_f, how))
+                self.assertEqual((d.load_cache.n, req.n), (0, 0), (sha_f, how))
+                self.assertIn("SHA-256", err)
+
+    def test_require_failure_returns_2_without_a_log_entry(self):
+        def boom(*a, **k):
+            raise registry.NotRegistered("x is not registered")
+        d, req = self._counted()
+        fold = _Counter(weekly_models.fold_w)
+        r, out, err = self._run(ARGV, d, _Counter(boom), extra=(mock.patch.object(weekly_models, "fold_w", fold),))
+        self.assertEqual(r, 2)
+        self.assertEqual(fold.n, 0)
+        self.assertEqual(registry.runlog_entries(d.env_w), [])
+        self.assertNotIn("Traceback", err)
+
+    def test_spec_last_season_mismatch(self):
+        def req(name, T, layer="season", env=None):
+            out = e2e_c.fake_require_c(name, T, layer, env)
+            if layer == "weekly":
+                out["spec"]["lastSeason"] = L0 - 1
+            return out
+        d, _ = self._counted()
+        r, out, err = self._run(ARGV, d, _Counter(req))
+        self.assertEqual(r, 2)
+        self.assertIn("lastSeason", err)
+
+    def test_run_held_raising_returns_2(self):
+        for exc in (AssertionError("a"), ValueError("v"), registry.ConfirmationHeld("c"), spec_wm.NoTrainingRows("n")):
+            d, req = self._counted()
+            rh = _Counter(mock.Mock(side_effect=exc))
+            r, out, err = self._run(ARGV, d, req, extra=(mock.patch.object(confirm, "run_held", rh),))
+            self.assertEqual(r, 2, type(exc))
+            self.assertEqual(rh.n, 1)
+            self.assertEqual(glob.glob(os.path.join(d.out_dir, "*")), [])
+            self.assertNotIn("Traceback", err)
+
+    def test_success_second_run_and_again(self):
+        c = self.c
+        files = [c["inputs"], c["prior"], c["preds"], c["fits"], c["season_preds"], c["s2a"], c["s2b"]]
+        before = [registry.sha_file(f) for f in files]
+        d, req = self._counted()
+        r, out, err = self._run(ARGV, d, req)
+        self.assertEqual(r, 0, err[-1500:])
+        self.assertEqual(d.load_cache.n, 1)
+        self.assertEqual([registry.sha_file(f) for f in files], before)
+        self.assertEqual([os.path.basename(p) for p in glob.glob(os.path.join(d.out_dir, "*"))], ["2026-02-02-learned-s2b2a-rehearsal.json"])
+        log = [e for e in registry.runlog_entries(d.env_w) if e.get("mode") == "confirm-rehearsal"]
+        self.assertEqual(len(registry.runlog_entries(d.env_w)), 1)
+        self.assertEqual(len(log), 1)
+        self.assertEqual(log[0]["held"], L0)
+        self.assertIsNone(log[0]["again"])
+        self.assertIn("OMP_NUM_THREADS", log[0]["threads"])
+        # a second rehearsal on the same base is refused before load_cache
+        d2 = e2e_c.rehearse_deps(base=d.base)
+        d2.load_cache = _Counter(d2.load_cache)
+        r, out, err = _run(ARGV, d2, patches=())
+        self.assertEqual(r, 2)
+        self.assertEqual(d2.load_cache.n, 0)
+        self.assertIn("--again", err)
+        # --again with a reason runs, and its entry carries the reason
+        d3 = e2e_c.rehearse_deps(base=d.base)
+        r, out, err = _run(ARGV + ["--again", "test"], d3, patches=())
+        self.assertEqual(r, 0, err[-800:])
+        agains = [e["again"] for e in registry.runlog_entries(d3.env_w) if e.get("mode") == "confirm-rehearsal"]
+        self.assertEqual(agains, [None, "test"])
+
+    def test_no_season_option(self):
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as cm:
+                rc.main(["--rehearse", "--held", "2025"], deps=e2e_c.rehearse_deps())
+        self.assertEqual(cm.exception.code, 2)
+
+
+# ── T-R-8 ───────────────────────────────────────────────────────────────────────────────────────────────────
+def _norm(s):
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def _pin_block(path):
+    with open(path) as f:
+        t = f.read()
+    m = re.search(r"_SKLEARN_PRELOADED = .*?os\.environ\[_v\] = \"1\"", t, re.S)
+    return _norm(m.group(0))
+
+
+class TestPins(unittest.TestCase):
+    """T-R-8. Fails if a G fit can run multi-threaded or unseeded, or the record reports another module's flags."""
+
+    def setUp(self):
+        self.assertGreater(os.cpu_count(), 1)                                  # Fact
+
+    def test_copies_equal_the_originals(self):
+        self.assertEqual(rc.THREAD_VARS, rwm.THREAD_VARS)
+        self.assertEqual(_pin_block(os.path.join(HERE, "run_confirm.py")), _pin_block(os.path.join(HERE, "run_weekly_models.py")))
+        import inspect
+        self.assertEqual(_norm(inspect.getsource(rc._ensure_hash_seed)), _norm(inspect.getsource(rwm._ensure_hash_seed)))
+
+    def test_pins_in_a_subprocess(self):
+        env = {**os.environ, **{v: "8" for v in rc.THREAD_VARS}}
+        code = ("import os, run_confirm as r; from threadpoolctl import threadpool_info; "
+                "print(*[os.environ[v] for v in r.THREAD_VARS], r._SKLEARN_PRELOADED); print(*[i['num_threads'] for i in threadpool_info()])")
+        r = subprocess.run([sys.executable, "-c", code], cwd=HERE, env=env, capture_output=True, text=True)
+        lines = r.stdout.strip().splitlines()
+        self.assertEqual(lines[0].split(), ["1", "1", "1", "1", "False"], r.stderr[-500:])
+        self.assertTrue(len(lines) > 1 and lines[1].split(), "threadpoolctl reports at least one loaded pool")
+        self.assertEqual(set(lines[1].split()), {"1"}, lines[1])
+
+    def test_hash_seed_reexec(self):
+        calls = []
+        with mock.patch.dict(os.environ, {"PYTHONHASHSEED": "1"}):
+            rc._ensure_hash_seed(execv=lambda *a: calls.append(a))
+            self.assertEqual(os.environ["PYTHONHASHSEED"], "0")
+        self.assertEqual(len(calls), 1)
+        with mock.patch.dict(os.environ, {"PYTHONHASHSEED": "0"}):
+            rc._ensure_hash_seed(execv=lambda *a: calls.append(a))
+        self.assertEqual(len(calls), 1)
+
+    def test_threads_reads_this_modules_flags(self):
+        self.assertEqual(set(rc._threads()), set(rwm._threads()))
+        with mock.patch.object(rc, "_NUMPY_PRELOADED", True):
+            self.assertTrue(rc._threads()["numpyPreloaded"])
+        with mock.patch.object(rc, "_NUMPY_PRELOADED", False):
+            self.assertFalse(rc._threads()["numpyPreloaded"])
+
+
+# ── T-R-9 ───────────────────────────────────────────────────────────────────────────────────────────────────
+class TestCopies(unittest.TestCase):
+    """T-R-9. Fails if `parity` or `merge_preds` drifts from `run_weekly_models`."""
+
+    @classmethod
+    def setUpClass(cls):
+        c = cls.c = e2e_c.build()
+        cls.tables = c["tables_l0"]
+        meta = dict(c["panel"].meta)
+        if [meta["keys"].index(k) for k in meta["weights"]] == list(range(len(meta["weights"]))):
+            meta["weights"] = dict(reversed(list(meta["weights"].items())))
+        cls.meta = meta
+        with open(os.path.join(HERE, "run_weekly_models.py")) as f:
+            cls.src = f.read().splitlines()
+        cls.preds_rows = pd.DataFrame(_read_jsonl(c["preds"]))
+
+    def test_facts(self):
+        order = [self.meta["keys"].index(k) for k in self.meta["weights"]]
+        self.assertNotEqual(order, list(range(len(order))))
+        self.assertTrue((self.preds_rows["ppg"] != self.preds_rows["cond"]).any())
+
+    def test_sources_contain_the_original_lines(self):
+        import inspect
+        par = _norm(inspect.getsource(confirm.parity))
+        for line in self.src[255:257]:
+            self.assertIn(_norm(line), par)
+        mrg = _norm(inspect.getsource(confirm.merge_preds))
+        self.assertIn(_norm(self.src[328]), mrg)
+        for line in self.src[329:331]:
+            self.assertIn(_norm(line.replace("pd.concat(preds[n], ignore_index=True)", "preds[n]")), mrg)
+
+    def test_parity_equals_score_parity(self):
+        from lp import score
+        T_trim, pmeta = self.tables, self.meta
+        order = [pmeta["keys"].index(k) for k in pmeta["weights"]]
+        want = score.parity(T_trim.X[T_trim.weeks["rid"].to_numpy()][:, order], T_trim.weeks["pts"].to_numpy(), [pmeta["weights"][k] for k in pmeta["weights"]])
+        got = confirm.parity(T_trim, pmeta)
+        self.assertEqual(got[0], want[0])
+        self.assertEqual(len(got[1]), 0)
+        self.assertEqual(list(got[1]), list(want[1]))
+        t2 = wd.trim(self.tables, last=L0)
+        i = int(np.flatnonzero(t2.weeks["played"].astype(bool).to_numpy())[0])
+        t2.weeks.iloc[i, t2.weeks.columns.get_loc("pts")] = float(t2.weeks["pts"].iloc[i]) + 1.0
+        got = confirm.parity(t2, pmeta)
+        self.assertEqual(len(got[1]), 1)
+
+    def test_merge_preds_equals_the_original_merge(self):
+        c = self.c
+        with mock.patch.object(wd, "LAST_SEASON", L0):
+            wf = baselines.build_weekly_frame(self.tables, seasons=range(2014, L0 + 1))
+            wk = baselines.weekly_forecasts(wf, L0, None, c["benchw"][c["benchw"]["S"] <= L0])
+        preds = {n: self.preds_rows[(self.preds_rows["cand"] == n.lower()) & (self.preds_rows["T"] == L0)].reset_index(drop=True) for n in registry.NAMES}
+        want = wk
+        names = registry.NAMES
+        preds_l = {n: [preds[n]] for n in names}
+        for n in names:
+            d = pd.concat(preds_l[n], ignore_index=True)[["pid", "S", "w", "cond", "p"]].rename(columns={"cond": n.lower(), "p": n.lower() + "_p"})
+            want = want.merge(d, on=["pid", "S", "w"], how="left")
+        pd.testing.assert_frame_equal(confirm.merge_preds(wk, preds), want, check_exact=True)
+
+
+season_models_mod = sm
+
+if __name__ == "__main__":
+    unittest.main()
