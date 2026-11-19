@@ -77,3 +77,22 @@ python3 research/learned-projection/run_weekly_models.py --dev --write        # 
   `.cache/models/weekly-preds.jsonl` and `weekly-fits.pkl` (a pickled `{(cand, T): Fits}`, read back only after a SHA check).
 - Every G fit runs on one thread with `PYTHONHASHSEED=0` (the runner pins and re-executes itself); G is reproducible only approximately, H exactly.
 
+
+## LP-2b-1c-i — why the weekly layer ties B1c (report-only)
+
+Task: `.claude/tasks/learned-projection-2b1c1-weekly-analyses.md` (Rev 1.1). Python only; **report-only**: nothing is registered, labelled or gated, nothing feeds LP-2b-2, 2025 stays out of every frame,
+no G model and no season-layer model is fitted, and no cache, candidate file or run-log entry is written. It reads the 2b-1a / 2b-1b caches and artifacts by SHA-256 only (a mismatch returns 2 before any
+JSON, pickle or registry read).
+
+```
+python3 research/learned-projection/run_weekly_analysis.py [--write] [--date YYYY-MM-DD] [--resamples 2000]   # without --write: prints the §0a rule outcomes and the report, writes nothing
+```
+
+- **Layout.** `lp/analysis_w.py` (pure: grid edges, error surfaces and the season-edge rule R-S, override speeds, the `paired` copy of `evaluate_w.labels` without `M.label`, week bands, the exploratory H arms,
+  the rule outcomes), `lp/report_s2b1c.py` (the report), `run_weekly_analysis.py` (imports `run_weekly_models` first, for the thread pins and the hash-seed re-exec); all new and unhashed.
+- **What it answers.** Grid-edge tables for both layers and both candidates; the error surface at the weekly H edges and the season λ surface (the season α / k-multiple / δ surfaces are not recorded —
+  reported as a gap); H's override speed against the app's `K_ROS_*` constants and B1's analytic weight; H and G against STD and B1c by week band (origin n = w − 1), per fold, with drift and H − G; three
+  exploratory H arms — the k sweep (predict-only, deep copy of the cached fits), a widened k grid refitted through the registered `fold_w` under the cached calibration (`fixedCalib`), and no context.
+- **Outputs (unregistered, report-only).** `backtests/<date>-learned-s2b1c1-analysis.json` (<= 5 MB, no commit id) and `grading/<date>-learned-s2b1c1-report.md`. Every arm and band carries
+  `exploratory: true` and its spec hash; there is no label anywhere. Runtime checks (a) `scale_k(1.0)`, (b) the no-change `fixedCalib` refit and (c) `paired` against the 2b-1b artifact must reproduce the cached
+  results to 1e-9 or the run returns 2.
