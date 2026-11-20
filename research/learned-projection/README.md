@@ -102,3 +102,19 @@ python3 research/learned-projection/run_weekly_analysis.py [--write] [--date YYY
 - **Season α / k-multiple / δ edges.** Their training errors are not recorded, and many RB and WR choices sit at a grid edge (H α: 88% RB, 90% WR), so whether those edges cost accuracy is unknown.
 
 Wider season grids belong to the off-season model work and are tested on the 2026 season.
+
+
+## LP-2b-2a — the confirmation path, rehearsed on 2024
+
+Task: `.claude/tasks/learned-projection-2b2a-confirm-path.md` (Rev 2.2, Fix passes 1–2). Python only. Builds and proves the code that LP-2b-2b will run once on 2025; **no 2025 row is read, no marker and no verdict is written.** The held season is a setting (`lp/confirm.boundary`), never a CLI option.
+
+```
+python3 research/learned-projection/run_confirm.py --rehearse [--write] [--date YYYY-MM-DD] [--resamples N] [--again "<reason>"]
+```
+
+- **Path.** `lp/confirm.run_held` derives the season prior, builds the held season's weekly inputs (`held_inputs`, a pinned copy of the 2b-1a step), fits H and G weekly on seasons before it and scores the one fold. `boundary(held)` is the only writer of `weekly_data.LAST_SEASON`; both locks (`require`, `guard`) and the trim are checked before any row is read.
+- **Rehearsal (held = 2024).** `--rehearse` re-runs 2024 through that path and compares with the locked development outputs: R1–R3 (season composed values, prior, weekly inputs) H exact, G within 5% with the same chosen settings; R4 weekly predictions H exact, G report-only; R4c re-fits G on the cached season inputs and must match `weekly-preds.jsonl` exactly; R5 fit facts, R6 season and R7 weekly one-fold numbers (H exact, G report-only). A second `--rehearse` needs `--again "<reason>"` after Anton's ruling.
+- **Result (2026-11-20).** The first rehearsal stopped on R4 G RB (16.6% relative; G's season prior at RB was already 4.84% off). Anton ruled 2026-11-20 (Fix pass 1: R4 G split into the report-only end-to-end gap and the exact R4c). The re-run (`--again "Anton ruling 2026-11-20"`) passed every check: H at most 8.3e-15, G exact everywhere that run, 1252 s, one thread with `PYTHONHASHSEED=0`. Artifact: `backtests/2026-11-20-learned-s2b2a-rehearsal.json` (unregistered, no commit id; wiring check — no label, no gate).
+- **Stated limits.** G is reproducible only approximately, H exactly. **G's weekly forecasts inherit its season-forecast variation (up to 16.6% at RB in the first rehearsal); a same-input re-fit is exact** (Anton, 2026-11-20). The two season-grid limits above carry unchanged.
+- **Tests.** `tests/test_confirm.py` with `tests/e2e_c.py` (synthetic stand-in: season 2021 is the held season past the last training season, L0 = 2020).
+
