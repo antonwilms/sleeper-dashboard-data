@@ -2,7 +2,9 @@
 
 `run_held` builds every held-season product from the registered code only: the season prior, the weekly inputs, the weekly fit and the two evaluations. It
 reads no cache of the held season and writes no file. The `compare_*` helpers prove, on a rehearsal (held = the last development season), that the path
-reproduces the locked development outputs: H exactly, G within 5%. Nothing here writes a marker or a verdict (LP-2b-2b)."""
+reproduces the locked development outputs: H exactly, G within 5% (R1-R3). R4 for G is report-only: G's weekly forecasts inherit its season-forecast variation (up to
+16.6% at RB in the rehearsal); a same-input re-fit is exact (Anton, 2026-11-20) — R4c re-fits G on the CACHED season inputs (`refit_cached`) and must match exactly.
+Nothing here writes a marker or a verdict (LP-2b-2b)."""
 import contextlib
 import time
 
@@ -101,6 +103,7 @@ class Held:
         self.season = self.weekly = self.wk = self.wk_base = None
         self.gaps, self.seconds = {}, {}
         self.cache_held = {}
+        self.rel = self.hist = None
 
 
 def run_held(tables, store, cache, specs_s, specs_w, held, benchw, env, env_w, B, log=lambda m: None):
@@ -144,6 +147,7 @@ def run_held(tables, store, cache, specs_s, specs_w, held, benchw, env, env_w, B
         wf = baselines.build_weekly_frame(tables, seasons=range(splits.FIRST_TRAIN_SEASON, held + 1))
         held_.wk_base = baselines.weekly_forecasts(wf, held, None, benchw)
         rel = weekly_models.train_relevant(wf, held)
+        held_.rel, held_.hist = rel, hist
         secs["build"] = round(time.time() - t0, 1)
         # (7) runtime checks on the new rows, before any weekly fit
         for n in names:
@@ -323,24 +327,46 @@ def compare_inputs(ck, rows, cache_held, spec_w_):
                     ck.arrays("R3", cand, pos, c, xa, ya, TOL, keys)
 
 
+def _pred_check(ck, r, cand, p, preds_file, held, limit, report_only=False):
+    ref = preds_file[(preds_file["cand"] == cand) & (preds_file["T"] == held)]
+    k_new = list(zip(p["pid"], p["S"].astype(int), p["w"].astype(int)))
+    ref = ref.assign(_k=list(zip(ref["pid"], ref["S"].astype(int), ref["w"].astype(int)))).set_index("_k")
+    if set(k_new) != set(ref.index) or len(set(k_new)) != len(k_new):
+        ck.fail(r, cand, "all", "keys", "(pid, S, w) sets differ (this run %d, file %d)" % (len(k_new), len(ref)))
+        return
+    ref = ref.loc[k_new]
+    for pos in POSITIONS:
+        m = (p["position"] == pos).to_numpy()
+        if not m.any():
+            continue
+        keys = [k for k, f in zip(k_new, m) if f]
+        for c in ("cond", "ppg", "p", "uncond", "c_w", "noPrior"):
+            ck.arrays(r, cand, pos, c, p[c].to_numpy(float)[m], ref[c].astype(float).to_numpy()[m], limit, keys, report_only=report_only)
+        if report_only:
+            ck._slot(r, cand, pos)["reportOnly"] = True
+
+
 def compare_preds(ck, preds, preds_file, held):
-    """R4: `fold_w`'s predictions against `weekly-preds.jsonl` rows (cand, T = held): the same (pid, S, w) set; H exact, G within 5%."""
+    """R4: `fold_w`'s predictions against `weekly-preds.jsonl` rows (cand, T = held): the same (pid, S, w) set; H exact; G REPORT-ONLY (Anton, 2026-11-20 — the
+    end-to-end gap is the season-forecast variation; the exact G check is R4c)."""
     for n, p in preds.items():
         cand = n.lower()
-        ref = preds_file[(preds_file["cand"] == cand) & (preds_file["T"] == held)]
-        k_new = list(zip(p["pid"], p["S"].astype(int), p["w"].astype(int)))
-        ref = ref.assign(_k=list(zip(ref["pid"], ref["S"].astype(int), ref["w"].astype(int)))).set_index("_k")
-        if set(k_new) != set(ref.index) or len(set(k_new)) != len(k_new):
-            ck.fail("R4", cand, "all", "keys", "(pid, S, w) sets differ (this run %d, file %d)" % (len(k_new), len(ref)))
-            continue
-        ref = ref.loc[k_new]
-        for pos in POSITIONS:
-            m = (p["position"] == pos).to_numpy()
-            if not m.any():
-                continue
-            keys = [k for k, f in zip(k_new, m) if f]
-            for c in ("cond", "ppg", "p", "uncond", "c_w", "noPrior"):
-                ck.arrays("R4", cand, pos, c, p[c].to_numpy(float)[m], ref[c].astype(float).to_numpy()[m], _limit(cand), keys)
+        _pred_check(ck, "R4", cand, p, preds_file, held, _limit(cand), report_only=(cand == "g"))
+
+
+def refit_cached(cache_frame, held, store, spec, rel, hist, env, env_w):
+    """R4c's re-fit (rehearsal only): G's weekly fold at T = held on the CACHED 2b-1a frame (its season-prior columns as locked), default masks — the diagnostic's
+    call. Returns (preds, fits)."""
+    with boundary(held):
+        if int(cache_frame["S"].max()) != held:
+            raise AssertionError("the cached frame's last season %s is not the held season %s" % (cache_frame["S"].max(), held))
+        return weekly_models.fold_w(cache_frame, held, store, "G", spec, rel, hist, env=env, env_w=env_w)
+
+
+def compare_cached_refit(ck, preds, preds_file, held):
+    """R4c: the cached-input G re-fit's predictions against `weekly-preds.jsonl` (cand g, T = held): the same (pid, S, w) set; `cond`, `ppg`, `p`, `uncond`,
+    `c_w`, `noPrior` exact (`TOL`), never report-only."""
+    _pred_check(ck, "R4c", "g", preds, preds_file, held, TOL)
 
 
 _FACT_KEYS = ("k", "kGames", "rho", "alpha", "kMult", "medE")

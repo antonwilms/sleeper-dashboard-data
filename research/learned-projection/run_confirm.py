@@ -4,7 +4,8 @@
     python3 research/learned-projection/run_confirm.py --rehearse [--write] [--date YYYY-MM-DD] [--resamples N] [--again "<reason>"]
 
 --rehearse  runs the held-season path (`lp/confirm.run_held`) with the LAST development season (2024) as the held season and compares every product with the locked
-            development outputs: H exact, G within 5% with the same chosen settings. It writes no cache, no marker, no verdict. With --write it writes
+            development outputs: H exact, G within 5% with the same chosen settings (R1-R3). R4 for G is report-only; R4c re-fits G on the cached season inputs and matches exactly.
+            G's weekly forecasts inherit its season-forecast variation (up to 16.6% at RB in the rehearsal); a same-input re-fit is exact (Anton, 2026-11-20). It writes no cache, no marker, no verdict. With --write it writes
             `backtests/<date>-learned-s2b2a-rehearsal.json`. A second --rehearse is refused unless --again gives a reason (Anton's ruling).
 There is NO option that names a season: the held season is `weekly_data.LAST_SEASON` here (LP-2b-2b adds `--confirm`, which reuses `run_held`).
 The FIRST step recomputes the LP-1a §8 hash; the SECOND checks the anchors (panel, benchw meta, the five caches and the two development artifacts by SHA-256) — both
@@ -65,6 +66,7 @@ STATED_LIMITS = list(report_s2b.LIMITS) + [
     "G is reproducible only approximately, even with every thread pool pinned and PYTHONHASHSEED=0; H is exact (Anton, 2026-11-17).",
     "Season lambda for RB under H was still falling at the grid edge in training error (6/6 folds, mean 1.19%): a training-error drop, not a test result (Anton, 2026-11-19).",
     "Season alpha / k-multiple / delta edges have no recorded error; wider season grids belong to the off-season model work, tested on the 2026 season (Anton, 2026-11-19).",
+    "G's weekly forecasts inherit its season-forecast variation (up to 16.6% at RB in the rehearsal); a same-input re-fit is exact (Anton, 2026-11-20).",
     "R6 and R7 are a wiring check of the one-fold scoring; this artifact prints no label and no gate and this slice writes no verdict."]
 
 
@@ -217,7 +219,10 @@ def main(argv=None, deps=None):
             registry.runlog_append(deps.env_w, {"mode": "confirm-rehearsal", "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "date": args.date, "held": held,
                                                 "threads": _threads(), "again": args.again})
         res = confirm.run_held(tables, store, {n: cache[n] for n in names}, specs_s, specs_w, held, benchw, deps.env, deps.env_w, args.resamples, log=log)
-        # (7) the rehearsal comparisons R1-R7
+        # (7) the same-input G re-fit on the cached frame (R4c), then the rehearsal comparisons R1-R7
+        t0 = time.time()
+        p_cached, _ = confirm.refit_cached(cache["G"], held, store, specs_w["G"], res.rel, res.hist, deps.env, deps.env_w)
+        res.seconds["fit G cached"] = round(time.time() - t0, 1)
         t0 = time.time()
         ck = confirm.Checker()
         season_preds = rwm._read_prior(deps.season_preds_path)
@@ -231,6 +236,7 @@ def main(argv=None, deps=None):
         confirm.compare_season(ck, res.derived, season_preds, prior_file, entries, held)
         confirm.compare_inputs(ck, res.rows, res.cache_held, spec_w.inputs_spec())
         confirm.compare_preds(ck, res.preds, preds_file, held)
+        confirm.compare_cached_refit(ck, p_cached, preds_file, held)
         facts = {n: {P: rwm._clean(pf.facts) for P, pf in res.fits[n].pos.items()} for n in names}
         confirm.compare_fits(ck, facts, dev_fit, held)
         confirm.compare_season_labels(ck, res.season, dev_results, held)
@@ -281,7 +287,7 @@ def main(argv=None, deps=None):
     body = json.dumps(rwm._clean(aggregate), indent=1)
     if len(body) > ARTIFACT_LIMIT:
         return _stop("the artifact exceeds 1 MB")
-    log("rehearsal passed: R1-R7 within tolerance; total %.0fs; threads %s" % (secs["total"], json.dumps(_threads(), sort_keys=True)))
+    log("rehearsal passed: R1-R7 and R4c within tolerance; total %.0fs; threads %s" % (secs["total"], json.dumps(_threads(), sort_keys=True)))
     if args.write:
         os.makedirs(deps.out_dir, exist_ok=True)
         p = os.path.join(deps.out_dir, "%s-learned-s2b2a-rehearsal.json" % args.date)

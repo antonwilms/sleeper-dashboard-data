@@ -183,7 +183,7 @@ class TestRehearsal(unittest.TestCase):
     def test_clean_run_passes(self):
         self.assertEqual(self.clean["rc"], 0, self.clean["err"][-1500:])
         checks = self.clean["art"]["checks"]
-        self.assertEqual(sorted(checks), ["R1", "R2", "R3", "R4", "R5", "R6", "R7"])
+        self.assertEqual(sorted(checks), ["R1", "R2", "R3", "R4", "R4c", "R5", "R6", "R7"])
         for r, by in checks.items():
             for cand, byp in by.items():
                 for pos, v in byp.items():
@@ -191,6 +191,13 @@ class TestRehearsal(unittest.TestCase):
                         self.assertTrue(v["pass"], (r, cand, pos, v))
                     if cand == "h":
                         self.assertLessEqual(v["maxRel"], 1e-9, (r, cand, pos, v))
+        self.assertEqual(sorted(checks["R4c"]), ["g"])
+        for pos, v in checks["R4c"]["g"].items():
+            self.assertLessEqual(v["maxRel"], 1e-9, (pos, v))
+            self.assertNotIn("reportOnly", v)
+        for pos, v in checks["R4"]["g"].items():
+            self.assertTrue(v.get("reportOnly"), (pos, v))
+        self.assertIn("fit G cached", self.clean["art"]["seconds"])
         self.assertIn("rehearsal", self.clean["art"]["label"])
         self.assertEqual(self.clean["art"]["held"], L0)
 
@@ -205,18 +212,22 @@ class TestRehearsal(unittest.TestCase):
         self.assertEqual(r, 2, err[-800:])
         self.assertIn("R4 h", err)
 
-    def test_g_cond_moved_by_six_percent_fails_r4_g(self):
+    def test_g_cond_moved_by_1e6_fails_r4c(self):
+        path, sha, a, b0, b1 = _perturbed_preds("g", "WR", "cond", 1e-6)
+        self.assertGreater(_measure(a, b1), 1e-9)                              # Fact
+        d = e2e_c.rehearse_deps(preds_path=path, preds_sha=sha)
+        r, out, err = _run(ARGV, d)
+        self.assertEqual(r, 2, err[-800:])
+        self.assertIn("R4c", err)
+        self.assertEqual(glob.glob(os.path.join(d.out_dir, "*.json")), [])
+
+    def test_g_cond_moved_by_six_percent_fails_r4c_not_r4(self):
         path, sha, a, b0, b1 = _perturbed_preds("g", "WR", "cond", 0.06)
         self.assertGreater(_measure(a, b1), 0.05)                              # Fact
         r, out, err = self._run_with(preds_path=path, preds_sha=sha)
         self.assertEqual(r, 2, err[-800:])
-        self.assertIn("R4 g", err)
-
-    def test_g_cond_moved_by_one_percent_passes(self):
-        path, sha, a, b0, b1 = _perturbed_preds("g", "WR", "cond", 0.01)
-        self.assertLessEqual(_measure(a, b1), 0.05)                            # Fact
-        r, out, err = self._run_with(preds_path=path, preds_sha=sha)
-        self.assertEqual(r, 0, err[-800:])
+        self.assertIn("R4c g", err)
+        self.assertNotIn("R4 g", err)
 
     def test_g_chosen_entry_changed_fails_r1(self):
         c = e2e_c.build()
@@ -230,6 +241,102 @@ class TestRehearsal(unittest.TestCase):
         r, out, err = self._run_with(dev_s2a_path=path, dev_s2a_sha=registry.sha_file(path))
         self.assertEqual(r, 2, err[-800:])
         self.assertIn("R1", err)
+
+
+class TestCachedRefit(unittest.TestCase):
+    """T-R-10. Fails if R4c re-fits on the rebuilt frame (the end-to-end gap would hide behind report-only)."""
+    FACTOR = 1 + 1e-3
+
+    @staticmethod
+    def _wrap(factor):
+        orig = sm.fit_family
+
+        def wrapped(family, *a, **k):
+            res = orig(family, *a, **k)
+            if family != "G":
+                return res
+            return ({n: v * factor for n, v in res[0].items()},) + tuple(res[1:])
+        return mock.patch.object(sm, "fit_family", wrapped)
+
+    @classmethod
+    def setUpClass(cls):
+        cls.c = e2e_c.build()
+        cls.cache = pd.read_pickle(cls.c["inputs"])["G"]
+        with mock.patch.object(wd, "LAST_SEASON", L0), mock.patch.object(registry, "require", e2e_c.fake_require_c):
+            store = sm.Store(cls.c["tables_l0"], cls.c["panel"].meta["keys"], cls.c["panel"].meta["weights"], e2e_c.season_spec_c("H"))
+            spec = e2e_c.season_spec_c("G")
+            plain = season_prior.derive(store, "G", spec, L0)
+            with cls._wrap(cls.FACTOR):
+                wrapped = season_prior.derive(store, "G", spec, L0)
+        ent = lambda df: {pos: season_prior._entry_of(g.iloc[0]) for pos, g in df.groupby("position")}
+        assert ent(plain) == ent(wrapped), "the chosen entries change under the wrap — use 1e-4"                 # Fact
+        rb_p, rb_w = plain[plain["position"] == "RB"], wrapped[wrapped["position"] == "RB"]
+        m = 0.0
+        for col in [c for c in plain.columns if c.startswith("pr_")]:
+            u, w = rb_p[col].to_numpy(float), rb_w[col].to_numpy(float)
+            ok = ~np.isnan(u)
+            if ok.any():
+                m = max(m, float((np.abs(w[ok] - u[ok]) / (1 + np.abs(u[ok]))).max()))
+        assert m > 1e-9, m                                                                                      # Fact
+
+    def _wrapped_run(self, patches=()):
+        d = e2e_c.rehearse_deps()
+        r, out, err = _run(ARGV, d, patches=(self._wrap(self.FACTOR), *patches))
+        return d, r, err
+
+    def test_r4c_reads_the_cache(self):
+        d, r, err = self._wrapped_run()
+        self.assertEqual(r, 0, err[-1500:])
+        art = _artifact(d)
+        c4, c4c = art["checks"]["R4"]["g"], art["checks"]["R4c"]["g"]
+        self.assertGreater(max(v["maxRel"] for v in c4.values()), 1e-9)
+        self.assertTrue(all(v.get("reportOnly") for v in c4.values()))
+        for pos, v in c4c.items():
+            self.assertLessEqual(v["maxRel"], 1e-9, (pos, v))
+
+    def test_refit_on_the_rebuilt_frame_goes_red(self):
+        """The defect: `refit_cached` handed run_held's combined frame (cache S < held + rebuilt rows). R4c then misses."""
+        orig = confirm.refit_cached
+        holder = {}
+        orig_run_held = confirm.run_held
+
+        def spy_run_held(tables, store, cache, specs_s, specs_w, held, *a, **k):
+            res = orig_run_held(tables, store, cache, specs_s, specs_w, held, *a, **k)
+            holder["combined"] = pd.concat([cache["G"][cache["G"]["S"] < held], res.rows["G"]], ignore_index=True)
+            return res
+
+        def bent(cache_frame, held, *a, **k):
+            return orig(holder["combined"], held, *a, **k)
+        d, r, err = self._wrapped_run(patches=(mock.patch.object(confirm, "run_held", spy_run_held), mock.patch.object(confirm, "refit_cached", bent)))
+        self.assertEqual(r, 2, err[-800:])
+        self.assertIn("R4c", err)
+
+
+class TestComparePredsUnit(unittest.TestCase):
+    """`compare_preds`: a G gap is a report-only miss, an H gap is a failure. Fails if G is checked as a failure or H is let through."""
+
+    def _pair(self, cand, gap):
+        p = pd.DataFrame({"pid": ["a", "b"], "S": [2020, 2020], "w": [1, 1], "position": ["WR", "WR"], "cond": [5.0, 6.0], "ppg": [5.0, 6.0], "p": [0.5, 0.5],
+                          "uncond": [4.0, 4.0], "c_w": [1.0, 1.0], "noPrior": [0.0, 0.0]})
+        f = p.copy()
+        f["cond"] = f["cond"] + np.array([gap, 0.0])
+        f["cand"], f["T"] = cand, 2020
+        return {cand.upper(): p}, f
+
+    def test_g_report_only(self):
+        preds, f = self._pair("g", 2.0)
+        ck = confirm.Checker()
+        confirm.compare_preds(ck, preds, f, 2020)
+        self.assertEqual(ck.misses, [])
+        self.assertGreater(ck.summary()["R4"]["g"]["WR"]["maxRel"], 0.05)         # Fact: the gap is beyond the 5% limit and recorded
+        self.assertTrue(ck.summary()["R4"]["g"]["WR"]["reportOnly"])
+
+    def test_h_fails(self):
+        preds, f = self._pair("h", 1e-6)
+        ck = confirm.Checker()
+        confirm.compare_preds(ck, preds, f, 2020)
+        self.assertEqual(len(ck.misses), 1)
+        self.assertIn("R4 h", ck.misses[0])
 
 
 class TestEvaluationWiring(unittest.TestCase):
