@@ -45,19 +45,39 @@ _CLEAN = {}
 
 
 def clean_run():
-    """ONE clean `--rehearse --write` on a fresh base, shared by T-R-3 and T-R-6; the clean run's own predictions are kept (a spy on `compare_preds`)."""
+    """ONE clean `--rehearse --write` on a fresh base, shared by T-R-3 and T-R-6; the clean run's own predictions are kept (a spy on `compare_preds`), and so are the
+    R4c re-fit's (a spy on `compare_cached_refit`)."""
     if _CLEAN:
         return _CLEAN
     seen = {}
     orig = confirm.compare_preds
+    orig_c = confirm.compare_cached_refit
 
     def spy(ck, preds, preds_file, held):
         seen["preds"] = {n: p.copy() for n, p in preds.items()}
         return orig(ck, preds, preds_file, held)
+
+    def spy_c(ck, preds, preds_file, held):
+        seen["refit"] = preds.copy()
+        return orig_c(ck, preds, preds_file, held)
     d = e2e_c.rehearse_deps()
-    rcode, out, err = _run(ARGV, d, patches=(mock.patch.object(confirm, "compare_preds", spy),))
-    _CLEAN.update(rc=rcode, out=out, err=err, deps=d, preds=seen.get("preds"), art=_artifact(d) if rcode == 0 else None)
+    rcode, out, err = _run(ARGV, d, patches=(mock.patch.object(confirm, "compare_preds", spy), mock.patch.object(confirm, "compare_cached_refit", spy_c)))
+    _CLEAN.update(rc=rcode, out=out, err=err, deps=d, preds=seen.get("preds"), refit=seen.get("refit"), art=_artifact(d) if rcode == 0 else None)
     return _CLEAN
+
+
+_REPORT_ONLY = {("R4", "g"), ("R6", "g"), ("R7", "g")}
+
+
+def _assert_report_only_marks(tc, out):
+    """Every per-check maxima line ends ' (report-only)' exactly for the slots `lp/confirm` records without failing (R4 g, R6 g, R7 g); at least one of each kind is present."""
+    lines = [ln for ln in out.splitlines() if re.match(r"\[run\] R\d+c? [gh]: max relative ", ln)]
+    seen = set()
+    for ln in lines:
+        m = re.match(r"\[run\] (R\d+c?) ([gh]): ", ln)
+        seen.add((m.group(1), m.group(2)))
+        tc.assertEqual(ln.endswith(" (report-only)"), (m.group(1), m.group(2)) in _REPORT_ONLY, ln)
+    tc.assertTrue(_REPORT_ONLY <= seen and ("R4c", "g") in seen and ("R4", "h") in seen, seen)
 
 
 def _read_jsonl(path):
@@ -84,15 +104,20 @@ def _solve(a, b0, m):
 
 
 def _perturbed_preds(cand, pos, col, m):
-    """A copy of the stand-in `weekly-preds.jsonl` with ONE `cand` row's `col` moved so the check's own measure against the clean run's value is `m`."""
+    """A copy of the stand-in `weekly-preds.jsonl` with ONE `cand` row's `col` moved so the check's own measure against the clean run's value is `m`. The
+    reference value is the one the check that fails reads: H's end-to-end prediction (R4), G's cached re-fit prediction (R4c)."""
     c = e2e_c.build()
     clean = clean_run()
-    p = clean["preds"][cand.upper()]
+    p = clean["refit"] if cand == "g" else clean["preds"][cand.upper()]
     row = p[p["position"] == pos].iloc[0]
     a = float(row[col])
     rows = _read_jsonl(c["preds"])
     hit = [r for r in rows if r["cand"] == cand and r["T"] == L0 and r["pid"] == row["pid"] and r["S"] == int(row["S"]) and r["w"] == int(row["w"])]
     assert len(hit) == 1
+    if cand == "g":                                                           # Fact: on this synthetic fixture the re-fit and the end-to-end value agree, so the measure is valid for R4 and R4c
+        e2e = clean["preds"]["G"]
+        e2e_row = e2e[(e2e["pid"] == row["pid"]) & (e2e["S"] == row["S"]) & (e2e["w"] == row["w"])]
+        assert len(e2e_row) == 1 and _measure(a, float(e2e_row.iloc[0][col])) <= 1e-9, (a, e2e_row)
     b0 = float(hit[0][col])
     b1 = _solve(a, b0, m)
     hit[0][col] = b1
@@ -198,6 +223,8 @@ class TestRehearsal(unittest.TestCase):
         for pos, v in checks["R4"]["g"].items():
             self.assertTrue(v.get("reportOnly"), (pos, v))
         self.assertIn("fit G cached", self.clean["art"]["seconds"])
+        self.assertIn("rehearsal passed: R1\u2013R3, R4 H, R4c, R5 within tolerance; R4 G, R6 G, R7 G report-only;", self.clean["out"])
+        _assert_report_only_marks(self, self.clean["out"])
         self.assertIn("rehearsal", self.clean["art"]["label"])
         self.assertEqual(self.clean["art"]["held"], L0)
 
@@ -211,6 +238,7 @@ class TestRehearsal(unittest.TestCase):
         r, out, err = self._run_with(preds_path=path, preds_sha=sha)
         self.assertEqual(r, 2, err[-800:])
         self.assertIn("R4 h", err)
+        _assert_report_only_marks(self, out)                                   # the stop path prints the same maxima lines
 
     def test_g_cond_moved_by_1e6_fails_r4c(self):
         path, sha, a, b0, b1 = _perturbed_preds("g", "WR", "cond", 1e-6)
@@ -218,7 +246,7 @@ class TestRehearsal(unittest.TestCase):
         d = e2e_c.rehearse_deps(preds_path=path, preds_sha=sha)
         r, out, err = _run(ARGV, d)
         self.assertEqual(r, 2, err[-800:])
-        self.assertIn("R4c", err)
+        self.assertIn("R4c g", err)
         self.assertEqual(glob.glob(os.path.join(d.out_dir, "*.json")), [])
 
     def test_g_cond_moved_by_six_percent_fails_r4c_not_r4(self):
@@ -309,7 +337,7 @@ class TestCachedRefit(unittest.TestCase):
             return orig(holder["combined"], held, *a, **k)
         d, r, err = self._wrapped_run(patches=(mock.patch.object(confirm, "run_held", spy_run_held), mock.patch.object(confirm, "refit_cached", bent)))
         self.assertEqual(r, 2, err[-800:])
-        self.assertIn("R4c", err)
+        self.assertIn("R4c g", err)
 
 
 class TestComparePredsUnit(unittest.TestCase):
@@ -337,6 +365,155 @@ class TestComparePredsUnit(unittest.TestCase):
         confirm.compare_preds(ck, preds, f, 2020)
         self.assertEqual(len(ck.misses), 1)
         self.assertIn("R4 h", ck.misses[0])
+
+
+class TestValueMissesFailGates(unittest.TestCase):
+    """Item 4 of Fix pass 2: each value check, through the real `Checker`, on hand-built frames. Fails if a G value gap beyond 5% (or an H gap of 1e-6) is let through,
+    or the F12 allowance is dropped. Every perturbed cell's measure (|a - b| / (1 + |b|), a = this run, b = the reference) is asserted on its stated side of the limit."""
+    HELD = 2020
+    ENTRY = {"era": "e1", "lam": 1.0, "g": "g1"}
+
+    def _ref(self, a, m):
+        """The reference value b with the check's measure against `a` equal to `m` (a Fact is asserted on the result)."""
+        b = _solve(a, a + 1.0, m)
+        self.assertAlmostEqual(_measure(a, b), m, places=9)
+        return b
+
+    # R1 / R2
+    def _season(self, cand, col, m):
+        a = 2.0
+        b = self._ref(a, m)
+        dr = pd.DataFrame({"pid": ["p1", "p2"], "position": ["WR", "WR"], "era": ["e1", "e1"], "lam": [1.0, 1.0], "g": ["g1", "g1"], "total": [a, 3.0], "pr_x": [a, 3.0]})
+        ref = pd.DataFrame({"cand": cand, "T": self.HELD, "pid": ["p1", "p2"], "position": ["WR", "WR"], "total": [a, 3.0], "pr_x": [a, 3.0]})
+        sp, pf = ref.copy(), ref.copy()
+        (sp if col == "total" else pf).loc[0, col] = b
+        ck = confirm.Checker()
+        confirm.compare_season(ck, {cand.upper(): dr}, sp, pf, {(cand, self.HELD, "WR"): self.ENTRY}, self.HELD)
+        return ck
+
+    def test_r1_g_value_gap(self):
+        ck = self._season("g", "total", 0.06)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R1 g", ck.misses[0])
+        self.assertEqual(self._season("g", "total", 0.04).misses, [])
+        self.assertGreater(0.06, confirm.G_LIMIT)                              # Fact: the two measures sit on either side of the 5% limit
+        self.assertLess(0.04, confirm.G_LIMIT)
+
+    def test_r1_h_value_gap(self):
+        ck = self._season("h", "total", 1e-6)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R1 h", ck.misses[0])
+        self.assertGreater(1e-6, confirm.TOL)                                  # Fact
+
+    def test_r2_g_prior_gap(self):
+        ck = self._season("g", "pr_x", 0.06)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R2 g", ck.misses[0])
+        self.assertEqual(self._season("g", "pr_x", 0.04).misses, [])
+
+    def test_r2_h_prior_gap(self):
+        ck = self._season("h", "pr_x", 1e-6)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R2 h", ck.misses[0])
+
+    # R3
+    SPEC = {"priorCols": ["pr_x", "dstd_x", "drec_x", "noPrior"], "identity": ["pid", "S", "w"], "targets": ["x"]}
+
+    def _frames(self, **new_over):
+        base = {"pid": ["a", "b"], "S": [2020, 2020], "w": [1, 2], "position": ["WR", "WR"], "usage1": [1.0, 2.0], "pr_x": [1.0, 2.0], "dstd_x": [10.0, 20.0],
+                "drec_x": [10.0, 20.0], "noPrior": [0.0, 0.0]}
+        return pd.DataFrame({**base, **new_over}), pd.DataFrame(base)
+
+    def _inputs(self, cand, **new_over):
+        new, old = self._frames(**new_over)
+        ck = confirm.Checker()
+        confirm.compare_inputs(ck, {cand.upper(): new}, {cand.upper(): old}, self.SPEC)
+        return ck
+
+    def test_r3_g_prior_gap(self):
+        b = self._ref(1.0, 0.06)
+        ck = self._inputs("g", pr_x=[1.0, 2.0])
+        self.assertEqual(ck.misses, [])                                        # control: identical frames pass
+        new, old = self._frames(pr_x=[1.0, 2.0])
+        old["pr_x"] = [b, 2.0]
+        ck = confirm.Checker()
+        confirm.compare_inputs(ck, {"G": new}, {"G": old}, self.SPEC)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R3 g", ck.misses[0])
+        self.assertIn("pr_x", ck.misses[0])
+        self.assertGreater(_measure(1.0, b), confirm.G_LIMIT)                  # Fact
+
+    def test_r3_g_non_prior_column_gap(self):
+        new, old = self._frames()
+        old["usage1"] = [self._ref(1.0, 1e-6), 2.0]
+        ck = confirm.Checker()
+        confirm.compare_inputs(ck, {"G": new}, {"G": old}, self.SPEC)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R3 g", ck.misses[0])
+        self.assertIn("usage1", ck.misses[0])
+        self.assertGreater(_measure(1.0, old["usage1"][0]), confirm.TOL)       # Fact: beyond exact, far below 5%
+
+    def test_r3_g_dstd_within_the_prior_gap_row(self):
+        """F12: a `dstd_` gap up to the same row's `pr_` absolute gap passes; twice that fails although it is within 5% relative."""
+        gap = 0.04
+        for mult, want in ((1.0, 0), (2.0, 1)):
+            new, old = self._frames(pr_x=[1.0, 2.0], dstd_x=[10.0 + mult * gap, 20.0])
+            old["pr_x"] = [1.0 + gap, 2.0]
+            ck = confirm.Checker()
+            confirm.compare_inputs(ck, {"G": new}, {"G": old}, self.SPEC)
+            self.assertEqual(len(ck.misses), want, (mult, ck.misses))
+            if want:
+                self.assertIn("dstd_x", ck.misses[0])
+            # Fact: the pr_ row itself is within 5%, the dstd_ cell is within 5% relative at both multiples, and the stated side of the allowance holds
+            self.assertLess(_measure(1.0, 1.0 + gap), confirm.G_LIMIT)
+            self.assertLess(_measure(10.0 + mult * gap, 10.0), confirm.G_LIMIT)
+            self.assertEqual(mult * gap > gap + confirm.TOL * (1.0 + 10.0), bool(want))
+
+    def test_r3_h_column_gap(self):
+        new, old = self._frames()
+        old["usage1"] = [self._ref(1.0, 1e-6), 2.0]
+        ck = confirm.Checker()
+        confirm.compare_inputs(ck, {"H": new}, {"H": old}, self.SPEC)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R3 h", ck.misses[0])
+        self.assertGreater(_measure(1.0, old["usage1"][0]), confirm.TOL)       # Fact
+
+    # R5
+    def _facts(self, cand, **over):
+        f = {"cW": 1.0, "phi": 0.5, "targets": {"t": {"k": 3.0, "kGames": 5.0, "rho": 0.2, "alpha": "off", "kMult": 1.0, "medE": 1.5}}}
+        dev = {cand: {str(self.HELD): {"WR": json.loads(json.dumps(f))}}}
+        run = json.loads(json.dumps(f))
+        for k, v in over.items():
+            if k == "k":
+                run["targets"]["t"]["k"] = v
+            else:
+                run[k] = v
+        ck = confirm.Checker()
+        confirm.compare_fits(ck, {cand.upper(): {"WR": run}}, dev, self.HELD)
+        return ck
+
+    def test_r5_g_phi_differs(self):
+        ck = self._facts("g", phi=0.75)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R5 g WR phi", ck.misses[0])
+        self.assertEqual(self._facts("g").misses, [])                          # control
+
+    def test_r5_g_cw_gap(self):
+        b = 1.0
+        a = b + 0.06 * (1.0 + b)
+        ck = self._facts("g", cW=a)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R5 g WR cW", ck.misses[0])
+        self.assertGreater(_measure(a, b), confirm.G_LIMIT)                    # Fact
+        a2 = b + 0.04 * (1.0 + b)
+        self.assertEqual(self._facts("g", cW=a2).misses, [])
+        self.assertLess(_measure(a2, b), confirm.G_LIMIT)                      # Fact
+
+    def test_r5_h_k_differs(self):
+        ck = self._facts("h", k=3.5)
+        self.assertEqual(len(ck.misses), 1, ck.misses)
+        self.assertIn("R5 h WR t.k", ck.misses[0])
+        self.assertEqual(self._facts("h").misses, [])                          # control
 
 
 class TestEvaluationWiring(unittest.TestCase):

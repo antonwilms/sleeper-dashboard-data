@@ -60,6 +60,7 @@ DEV_S2A_SHA = "b41169fbeefa2fab2d8a8d6f500590fb65f7b2465353ce67193941322e9995d7"
 DEV_S2B1B = os.path.join(REPO, "backtests", "2026-11-18-learned-s2b1b-dev-panel.json")
 DEV_S2B1B_SHA = "3a0dcb5148f8720d1ec77c714ed02d3f2f729830645e190c550c1f3f078c6386"
 BUDGET_H = 2
+REPORT_ONLY = {("R4", "g"), ("R6", "g"), ("R7", "g")}      # the slots `lp/confirm` records without failing (console text only)
 ARTIFACT_LIMIT = 1024 * 1024
 LABEL = "rehearsal — 2024 re-run through the confirmation path; not a result"
 STATED_LIMITS = list(report_s2b.LIMITS) + [
@@ -248,7 +249,7 @@ def main(argv=None, deps=None):
         for r in sorted(summary):
             for cand in sorted(summary[r]):
                 worst = max((v["maxRel"] if v["maxRel"] is not None else float("inf")) for v in summary[r][cand].values())
-                log("%s %s: max relative %.3g over %d position(s)" % (r, cand, worst, len(summary[r][cand])))
+                log("%s %s: max relative %.3g over %d position(s)%s" % (r, cand, worst, len(summary[r][cand]), " (report-only)" if (r, cand) in REPORT_ONLY else ""))
         ck.finish()
     except _CAUGHT as e:
         extra_msg = ""
@@ -287,7 +288,7 @@ def main(argv=None, deps=None):
     body = json.dumps(rwm._clean(aggregate), indent=1)
     if len(body) > ARTIFACT_LIMIT:
         return _stop("the artifact exceeds 1 MB")
-    log("rehearsal passed: R1-R7 and R4c within tolerance; total %.0fs; threads %s" % (secs["total"], json.dumps(_threads(), sort_keys=True)))
+    log("rehearsal passed: R1\u2013R3, R4 H, R4c, R5 within tolerance; R4 G, R6 G, R7 G report-only; total %.0fs; threads %s" % (secs["total"], json.dumps(_threads(), sort_keys=True)))
     if args.write:
         os.makedirs(deps.out_dir, exist_ok=True)
         p = os.path.join(deps.out_dir, "%s-learned-s2b2a-rehearsal.json" % args.date)
