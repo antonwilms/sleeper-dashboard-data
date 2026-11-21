@@ -263,7 +263,7 @@ Everything else is imported (`run_weekly_models._clean`, `_read_prior`, `_regist
 
 ## 15. Real-data rehearsal acceptance (Commit B)
 
-Passes when: rc 0; R1–R7 pass; within budget; every cache SHA unchanged (re-hashed after); exactly one new `confirm-rehearsal` run-log entry, `held: 2024`; no label or gate printed. A miss is a §12 stop.
+Passes when: rc 0; R1–R3 (G at 5%), R4 H, R4c, R5–R7 pass (Fix pass 1); within budget; every cache SHA unchanged (re-hashed after); exactly one new `confirm-rehearsal` run-log entry, `held: 2024`; no label or gate printed. A miss is a §12 stop.
 
 ## 16. Later (outline only) — LP-2b-2b, the one-shot 2025 run
 
@@ -279,3 +279,56 @@ Planned after 2a is verified and signed off. **Frozen from 2a:** `lp/confirm.py`
 ## 17. Review disposition
 
 Three full reviews (opus): Rev 1, 12 flags; Rev 2, 11; Rev 2.1, 4 (merge copy anchor, §16 guard, `require` patch, size) — all fixed, the last in Rev 2.2 without a fourth review (Anton). Record: the plan-reviewer log in `.claude/reviews/`.
+
+## Fix pass 1
+
+From the one real rehearsal's §12 stop (2026-11-20: R4 G RB 16.6% > 5%; H exact everywhere; G R1 4.84%, R2 3.97%) and Session 1's diagnostic: G's weekly fold T = 2024 re-fitted on the **cached** 2b-1a inputs matched `weekly-preds.jsonl` bit-exactly at every position. Applier: fix-applier. **Scope:** `lp/confirm.py`, `run_confirm.py`, `tests/test_confirm.py` (and `tests/e2e_c.py` only if a setUp needs it). Nothing in §1 Out. Do **not** run `--rehearse` on real data. Stop and report if an item needs more.
+
+**Ruling (Anton, 2026-11-20, verbatim):**
+
+> R4 G is split. (a) Gate: a G weekly re-fit on the cached S = 2024 season inputs (the cached season-prior.jsonl prior, as in the diagnostic) must match weekly-preds.jsonl T = 2024 exactly; add it to the rehearsal as its own check. (b) The end-to-end R4 G gap becomes report-only, with the stated limit: G's weekly forecasts inherit its season-forecast variation (up to 16.6% at RB in the rehearsal); a same-input re-fit is exact. H is exact everywhere and G's R1–R3 stay at 5%. Write this as Fix pass 1, have fix-applier apply it and implementation-reviewer re-run once, then re-run the rehearsal once with --again and reason 'Anton ruling 2026-11-20'. A G season miss over 5% on the re-run is a stop for me, not a retry
+
+1. **Expose the fold inputs.** `Held` gains `rel` and `hist`; `run_held` step 6 assigns them. Nothing else in `run_held` changes.
+2. **`confirm.refit_cached(cache_frame, held, store, spec, rel, hist, env, env_w)`** → `(preds, fits)`: inside `boundary(held)`, asserts `cache_frame["S"].max() == held` (rehearsal only), then `weekly_models.fold_w(cache_frame, held, store, "G", spec, rel, hist, env=env, env_w=env_w)` with default masks — the diagnostic's call.
+3. **Check R4c** — `confirm.compare_cached_refit(ck, preds, preds_file, held)`: G only; the same (pid, S, w) set as `weekly-preds.jsonl` `cand == "g"`, `T == held`; `cond`, `ppg`, `p`, `uncond`, `c_w`, `noPrior` **exact** (`TOL`), never report-only.
+4. **R4 for G is report-only:** `compare_preds` passes `report_only=(cand == "g")`; H unchanged (exact, fails).
+5. **Runner** (`--rehearse`, step 7): after `run_held`, `p, _ = confirm.refit_cached(cache["G"], held, store, specs_w["G"], res.rel, res.hist, deps.env, deps.env_w)`, timed as `seconds["fit G cached"]`, inside the existing step 4–7 `try`; then `compare_cached_refit`. Artifact: R4c entries beside R4, R4 G marked report-only. `STATED_LIMITS` gains: "G's weekly forecasts inherit its season-forecast variation (up to 16.6% at RB in the rehearsal); a same-input re-fit is exact (Anton, 2026-11-20)." The module docstrings say the same.
+6. **§15 acceptance** — done by Session 1 in this file (not the applier).
+7. **Tests** (each red shown, then restored; Facts in setUp):
+   - **T-R-3 changes.** The clean run's artifact holds R4c `g` entries with maxRel ≤ 1e-9 and R4 `g` marked report-only. A G `cond` in the stand-in `weekly-preds.jsonl` moved by m = 1e-6 (the check's own measure, b′) → returns 2 naming **R4c**, no artifact. The former 0.06 / 0.01 G cases become: m = 0.06 → returns 2 naming R4c (not R4). **Red:** compare R4c with `G_LIMIT` instead of `TOL`. **Fact:** m on the perturbed row > 1e-9.
+   - **T-R-10 · R4c reads the cache, not the rebuilt rows.** *(Revised by Session 1, 2026-11-20, after the applier's stop: scaling `pr_` alone breaks `run_held`'s check (a), the n = 0 identity.)* `season_models.fit_family` is wrapped (`mock.patch.object`, so `refit`, `run_entry` and `season_prior.prior_refit` all see it) so that for family `"G"` every returned per-target prediction is × (1 + 1e-3) — a consistent stand-in for G's season-fit variation: `derive`'s same-run compose check and check (a) stay exact, R1/R2/R3 stay within 5%. **Asserts:** rc 0; R4 `g` maxRel > 1e-9 and report-only; R4c `g` maxRel ≤ 1e-9. **Fails if** the gate check re-fits on the rebuilt frame. **Red:** pass `run_held`'s combined frame (cache S < held + rebuilt rows) to `refit_cached`. **Fact** (setUp, from one wrapped `derive` call at T = `L0`): G's chosen entries equal the unwrapped ones, and ≥ 1 RB `pr_` value differs from the cache by m > 1e-9. If the chosen entries change, use 1e-4 and re-assert; if they still change, stop and report.
+   - **Unit:** `compare_preds` on a hand-built pair with a G gap of m = 0.2 records a report-only miss and no failure; with an H gap of 1e-6 records a failure. **Red:** drop `report_only` for G.
+8. Full Python suite green; `npm test`, `npm run smoke` green. One commit `LP-2b-2a: fix pass 1 (R4 G split, Anton ruling 2026-11-20)`, staged by name. No push.
+
+**Then (not the applier):** implementation-reviewer once; the real rehearsal once with `--rehearse --write --again "Anton ruling 2026-11-20"`; a G R1–R3 miss over 5%, an H miss or an R4c miss is a stop for Anton, not a retry; then Commit B as §13.
+
+## Fix pass 2
+
+From the full implementation review of `0a0c590..8bae628` (2026-11-20; 0 blocking, 1 should-fix, 3 notes), approved by Anton 2026-11-20 ("Yes, Fix pass 2 first"). Applier: fix-applier. **Scope:** `run_confirm.py` (console text only) and `tests/test_confirm.py`. No change to `lp/confirm.py` or to any computation; nothing in §1 Out; no real `--rehearse`. Stop and report if an item needs more.
+
+1. **Console marks report-only** (flag 1). The pass line reads "rehearsal passed: R1–R3, R4 H, R4c, R5 within tolerance; R4 G, R6 G, R7 G report-only"; every per-check maxima line for a report-only slot ends " (report-only)". Same text on the stop path. No artifact change.
+2. **Name the failing entry** (flag 2). `test_g_cond_moved_by_1e6_fails_r4c` and `TestCachedRefit.test_refit_on_the_rebuilt_frame_goes_red` assert the miss line `"R4c g"` (the form the 6% test uses), not the bare `"R4c"`. **Red:** for the first, compare R4c with `G_LIMIT` (as before) — the tightened assertion must go red; re-show it.
+3. **The R4c Fact against the re-fit** (flag 3). `_perturbed_preds`' reference value comes from the clean run's **R4c** re-fit predictions (spy `compare_cached_refit`), and setUp asserts on the perturbed row that the re-fit value equals the end-to-end value within 1e-9 on the synthetic fixture (so the measure is valid for both).
+4. **Value misses fail the gates** (flag 4) — new unit tests on hand-built frames, each through the real `Checker`:
+   - **R1** `compare_season`: a G composed value (`total`) off by m = 0.06 → one miss "R1 g"; m = 0.04 → none; an H value off by 1e-6 → one miss "R1 h". **Red:** pass `limit = 1.0` for G in `compare_season`.
+   - **R2**: a G `pr_<t>` off by m = 0.06 → miss "R2 g"; H 1e-6 → "R2 h". **Red:** as R1 for the R2 call.
+   - **R3** `compare_inputs`: a G `pr_<t>` off by m = 0.06 → miss; a G non-prior column off by 1e-6 → miss; a G `dstd_<t>` gap ≤ the row's `pr_<t>` absolute gap → none, and 2 × that gap → miss (F12); an H column off by 1e-6 → miss. **Red:** drop the `allowed` argument check (treat `dstd_`/`drec_` as within 5%) — the 2 × case must go red.
+   - **R5** `compare_fits`: a G `phi` different → miss; a G `cW` off by m = 0.06 → miss; an H `k` different → miss. **Red:** skip the `phi` comparison for G.
+   - **Fact** (each setUp): the measure on every perturbed cell, computed as the check computes it, sits on the stated side of its limit.
+5. Show each new or tightened test red with its named step, then restore. Full Python suite, `npm test`, `npm run smoke` (exit code captured, not piped through `tail`) green. One commit `LP-2b-2a: fix pass 2 (tests, console)`, staged by name; do not stage the task file. No push.
+
+**Then (not the applier):** implementation-reviewer once at light depth on the Fix pass 2 diff; then the rehearsal re-run as Fix pass 1 says.
+
+## Verification
+
+Session 1, 2026-11-21. Reviewed the diffs, not the hand-backs alone.
+
+- **Rebase:** onto `origin/main` `f24032c` at 2026-11-21T12:50Z; 6 capture commits taken in (snapshot, schedule, rosterweekly, season-totals); none touches `research/`. Ids below are post-rebase.
+- **Commits** (main, unpushed): `4050c23` Commit A (path, tests, task file Rev 2.2); `3a9199d` Fix pass 1 (R4 G split, Anton 2026-11-20); `5a3d865` Fix pass 2 (tests, console); `988d75e` Commit B (rehearsal artifact, docs); this commit (Fix passes 1–2 text, verification).
+- **The first real rehearsal** (Commit A, 2026-11-20) stopped on R4 G RB, 16.6% against the 5% limit; H exact; G R1 4.84%, R2 3.97%. Session 1's diagnostic (scratch script, read-only): G's weekly fold T = 2024 re-fitted on the cached 2b-1a inputs equalled `weekly-preds.jsonl` bit-exactly at every position. Anton's ruling → Fix pass 1.
+- **Reviews:** full implementation review (opus, high) of `0a0c590..8bae628`: 0 blocking, 1 should-fix, 3 notes → Fix pass 2 (Anton). Light re-review of the Fix pass 2 diff: 0 blocking, 0 should-fix, 2 wording notes accepted (the item-3 Fact sits in `_perturbed_preds`; the pass line does not name R6/R7 H). Fix pass 1's T-R-10 was revised by Session 1 after the applier's stop (the `pr_`-only wrap broke check (a)); its red is a permanent negative-control test, judged equivalent by the review.
+- **Re-run** (Session 1, `--rehearse --write --again "Anton ruling 2026-11-20"`, on `80f79d3` = post-rebase `5a3d865`): rc 0; every check passed — H ≤ 8.3e-15, G exact on every check that run (R1–R4, R4c, R5–R7), 1252 s, threads pinned, `PYTHONHASHSEED=0`; run-log holds two `confirm-rehearsal` entries (`again` null, then the ruling).
+- **Deviations accepted:** `Checker` accumulates misses and raises once; the runner prints every maximum on a stop; the prereg test edits a copy of the LP-1a file; the R4 unit test uses a G gap of 2.0 on 5.0 (m = 0.25).
+- **Locks after the rebase:** `require` passes for H and G, both layers, 2019–2024; `section_hash` equals `SECTION_SHA` for both; no diff in `candidates/`, registered paths, caches, `manifest.json` or served folders. `require(·, 2025)` passes too, as F2 states — `weekly_data.guard` and 2b's marker are the holds.
+- **Checks** (Session 1, post-rebase): `npm test` 2150 pass / 0 fail / 1 skipped; `npm run smoke` exit 0; Python suite 259 OK (the applier's run on `80f79d3`; the rebase changed nothing under `research/`); `CLAUDE.md` 24,192 bytes.
+- **Size:** this file is over 40 KB with the two fix passes and this record (Rev 2.2 was 39,988 bytes).
