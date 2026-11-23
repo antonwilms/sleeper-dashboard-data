@@ -113,7 +113,7 @@ Tag each cross-repo finding `cross-repo`, naming the `CR-NN` id and the `file:sy
 
 ## 4. Slice size
 
-If the task file itself is over 40KB, flag it — that size is a signal the slice is too large and should be split rather than planned whole. Advisory, like every other flag: report it and let the human decide.
+Run `wc -c <task file>` and write the byte count on the §4 checkpoint line. Over 40,000 bytes → FLAG [slice-size] (high, blocking): Session 1 splits the slice before approval. Only Anton can waive it, by a line `Size waiver: Anton YYYY-MM-DD — <reason>` in the task file. "No flags" is permitted only with the byte count printed (e.g. `§4 Slice size — 31,204 bytes — no flags`).
 
 ## Output
 
