@@ -2170,10 +2170,16 @@
       "recordCount": 499,
       "inProgress": true,
       "lastModified": "2026-11-24T00:51:01.671Z"
+    },
+    "snapshots/2026-11-24.json": {
+      "schemaVersion": 3,
+      "recordCount": 755,
+      "inProgress": false,
+      "lastModified": "2026-11-24T03:02:22.315Z"
     }
   },
   "schemaVersion": 1,
   "repo": "sleeper-dashboard-data",
   "description": "Longitudinal data store for Sleeper Dashboard",
-  "generatedAt": "2026-11-24T00:51:01.671Z"
+  "generatedAt": "2026-11-24T03:02:22.315Z"
 }
